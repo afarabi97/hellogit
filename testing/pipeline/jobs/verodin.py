@@ -4,18 +4,23 @@ import time
 import urllib3
 import sys
 from util.connection_mngs import FabricConnectionWrapper
-from util.api_tester import APITester
+from util.api_tester import APITesterV2
 from models.verodin import VerodinSettings
 from models.ctrl_setup import HwControllerSetupSettings
-from models.kickstart import HwKickstartSettings
-from models.kit import HwKitSettings
+from models.node import HardwareNodeSettingsV2
+from models.kit import KitSettingsV2
+from typing import List
+
 
 class VerodinJob:
 
-    def __init__(self, verodin_settings:VerodinSettings, ctrl_settings:HwControllerSetupSettings,
-    kickstart_settings:HwKickstartSettings, kit_settings:HwKitSettings):
+    def __init__(self,
+                 verodin_settings:VerodinSettings,
+                 ctrl_settings:HwControllerSetupSettings,
+                 nodes: List[HardwareNodeSettingsV2],
+                 kit_settings: KitSettingsV2):
         self.ctrl_settings = ctrl_settings
-        self.kickstart_settings = kickstart_settings
+        self.nodes = nodes
         self.kit_settings = kit_settings
         self.verodin_settings = verodin_settings
         self.verodin_password = verodin_settings.verodin_password
@@ -27,7 +32,7 @@ class VerodinJob:
         self.session = self._connection(self.verodin_username, self.verodin_password)
         self.elastic_secret, self.elastic_ip = self._get_es_info()
         self.sim_type = self._get_sim_type()
-        self.api_tester = APITester(self.ctrl_settings, self.kickstart_settings, self.kit_settings)
+        self.api_tester = APITesterV2(self.ctrl_settings, self.kit_settings, nodes=self.nodes)
 
     def _connection(self, username:str, password:str) -> object:
         with requests.Session() as session:
@@ -37,8 +42,8 @@ class VerodinJob:
 
     def _get_es_info(self) -> tuple:
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
-                                        self.ctrl_settings.node.password,
-                                        self.ctrl_settings.node.ipaddress) as client:
+                                     self.ctrl_settings.node.password,
+                                     self.ctrl_settings.node.ipaddress) as client:
             es_secret = client.run("kubectl get secret tfplenum-es-elastic-user -o jsonpath='{.data.elastic}' | base64 -d", hide=True).stdout.strip()
             elastic_ip = client.run("kubectl get services | grep elasticsearch | grep -i LoadBalancer | awk '{print $4}'", hide=True).stdout.strip()
 

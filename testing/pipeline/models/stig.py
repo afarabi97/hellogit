@@ -1,27 +1,23 @@
 import os
-import logging
+
 from argparse import Namespace, ArgumentParser
 from models import Model
 from models.constants import StigSubCmd
 from util.yaml_util import YamlManager
 from util.ansible_util import power_on_vms, take_snapshot
 from enum import Enum, auto
-from typing import List, Dict, Union
-from util.ansible_util import Target
 
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 STIG_PATH_TO_SITE_YAML = PIPELINE_DIR + '/../../rhel8-stigs/' + 'rhel8-playbook-stig.yml'
 STIG_TIMEOUT = 300
 STIG_MAKE_PATH_TO_PLAYBOOK_DIR = '/opt/tfplenum/rhel8-stigs/'
-# logging.basicConfig(format='%(process)d-%(levelname)s-%(message)s')
 
 
 class STIGSettings(Model):
 
     def __init__(self):
         super().__init__()
-        self.system_name = None
         self.sub_system_name = None
         self.model_settings = None
         self.username = None
@@ -32,11 +28,12 @@ class STIGSettings(Model):
         self.make_execution_vars = None
 
     def from_namespace(self, namespace: Namespace):
-        # super().from_namespace(namespace)
-        self.system_name = namespace.system_name
         self.sub_system_name = namespace.sub_system_name
         self._get_model_settings_from_yaml()
-        # logging.info("Model Settings Object: {}".format(self.model_settings))
+
+    def initalize_for_server_repo(self):
+        self.sub_system_name = StigSubCmd.RHEL_REPO_SERVER
+        self._get_model_settings_from_yaml()
 
     @staticmethod
     def add_args(parser: ArgumentParser):
@@ -46,35 +43,20 @@ class STIGSettings(Model):
                             )
 
     def _get_model_settings_from_yaml(self):
-        if self.system_name == 'GIP' and self.sub_system_name == StigSubCmd.GIPSVC:  # GIPSVC
+        if self.sub_system_name == StigSubCmd.GIPSVC:  # GIPSVC
             self.model_settings = YamlManager.load_gip_service_settings_from_yaml()
             self._setup_username_password_ip(self.model_settings)
             self._setup_play_execution_vars(play_targets='gip-service-vms', play_tags='gip-service-vm-stigs',
                                             play_timeout=STIG_TIMEOUT, play_path_to_site_yaml=STIG_PATH_TO_SITE_YAML)
-        elif self.system_name == 'GIP':
-            self.model_settings = YamlManager.load_ctrl_settings_from_yaml(self.system_name)
-            self._setup_username_password_ip(self.model_settings)
-            self._setup_make_execution_vars('gip-controller-stigs')
-        elif self.system_name == 'DIP':
-            self.model_settings = YamlManager.load_ctrl_settings_from_yaml(
-                self.system_name)
-            self._setup_username_password_ip(self.model_settings)
-            self._setup_make_execution_vars('dip-stigs')
-        elif self.system_name == 'MIP':
-            self.model_settings = YamlManager.load_ctrl_settings_from_yaml(
-                self.system_name)
-            self._setup_username_password_ip(self.model_settings)
-            self._setup_make_execution_vars('mip-stigs')
-        elif self.system_name == 'REPO' and self.sub_system_name == StigSubCmd.RHEL_REPO_SERVER:
-            self.model_settings = YamlManager.load_reposync_settings_from_yaml(
-                self.sub_system_name)
+        elif self.sub_system_name == StigSubCmd.RHEL_REPO_SERVER:
+            self.model_settings = YamlManager.load_reposync_settings_from_yaml()
             power_on_vms(self.model_settings.vcenter, self.model_settings.node)
             self._setup_username_password_ip(self.model_settings)
             self._setup_play_execution_vars(play_targets='all', play_tags='repo-server-stigs',
                                             play_path_to_site_yaml=STIG_PATH_TO_SITE_YAML)
 
     def take_snapshot_for_certain_systems(self):
-        if ((self.system_name == 'REPO' and self.sub_system_name == StigSubCmd.RHEL_REPO_SERVER)):
+        if self.sub_system_name == StigSubCmd.RHEL_REPO_SERVER:
             take_snapshot(self.model_settings.vcenter, self.model_settings.node)
 
     def _setup_username_password_ip(self, model: Model):

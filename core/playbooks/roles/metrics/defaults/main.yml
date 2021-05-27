@@ -1,5 +1,5 @@
 ---
-metrics_dir: "{{ install_dir }}/metrics"
-elastic_url: "https://{{ elastic_fqdn }}:{{ elastic_port }}"
+metrics_dir: "{{ tfplenum_config_dir }}/metrics"
+elastic_uri: "elasticsearch.{{ kit_domain }}:{{ elastic_port }}"
 default_elastic_user: elastic
 ...

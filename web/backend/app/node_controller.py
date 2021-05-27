@@ -1,31 +1,323 @@
-from app.service.node_service import add_node, remove_node
-from app.middleware import controller_admin_required
-from flask import request, Response, jsonify
-from app import app, logger, conn_mng
+from app.middleware import login_required_roles, controller_admin_required
+from flask import request, Response, jsonify, send_from_directory, send_file
+from app import app, logger, conn_mng, KIT_SETUP_NS, SCHEDULER
 from app.common import ERROR_RESPONSE
-from app.models.common import JobID
-from app.models.kit_setup import DIPKickstartForm
-from app.utils.constants import KIT_ID, KICKSTART_ID
+from app.models.nodes import NodeJob, JobSchema, Node, NodeSchema, _generate_inventory
+from app.models.settings.mip_settings import MipSettingsForm
+from app.models.settings.kit_settings import GeneralSettingsForm, KitSettingsForm
+from app.utils.constants import KIT_ID, JOB_CREATE, JOB_PROVISION, JOB_DEPLOY, JOB_REMOVE, DEPLOYMENT_TYPES, DEPLOYMENT_JOBS, NODE_TYPES, PXE_TYPES
 from app.utils.utils import decode_password
+from flask_restx import Resource
+from typing import Dict, List
+from marshmallow.exceptions import ValidationError
+from app.models import PostValidationError, DBModelNotFound
+from app.models.common import JobID, COMMON_ERROR_DTO
+from app.service.node_service import (get_all_nodes_with_jobs, execute,
+    gather_device_facts, send_notification, refresh_kit, update_device_facts_job)
+from datetime import datetime, timedelta
+from randmac import RandMac
+from app.utils.constants import MAC_BASE
+from randmac import RandMac
+from app.service.vpn_service import VpnService
+from app.catalog_service import get_node_apps, delete_helm_apps
 
 
-@app.route('/api/execute_remove_node', methods=['POST'])
-@controller_admin_required
-def execute_remove_node() -> Response:
-    """
-    Generates the kit inventory file and executes the add node routine
+@KIT_SETUP_NS.route("/nodes")
+class NodesCtrl(Resource):
 
-    :return: Response object
-    """
-    payload = request.get_json()
-    root_password = None
+    @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
+    @controller_admin_required
+    def get(self):
+        try:
+            return get_all_nodes_with_jobs()
+        except DBModelNotFound:
+            return {}, 200
 
-    current_kickstart_config = DIPKickstartForm.load_from_db() #type: DIPKickstartForm
-    node_to_remove = None
+@KIT_SETUP_NS.route("/node/<hostname>")
+class NodeCtrl(Resource):
 
-    if "remove_node" in payload:
-        node_to_remove = payload["remove_node"]
+    def _remove_node(self, node: Node) -> Dict:
+        job = execute.delay(node=node, stage=JOB_REMOVE, exec_type=DEPLOYMENT_JOBS.remove_node)
+        return JobID(job).to_dict()
 
-    job = remove_node.delay(node=node_to_remove, password=current_kickstart_config.root_password)
+    @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
+    @controller_admin_required
+    def get(self, hostname: str):
+        try:
+            node = Node.load_from_db_using_hostname_with_jobs(hostname) # type: dict
+            if node:
+                return node
+        except DBModelNotFound:
+            return {}, 200
+        return {}, 400
 
-    return (jsonify(JobID(job).to_dict()), 200)
+    @controller_admin_required
+    def delete(self, hostname: str):
+        delete_node = False
+        try:
+            node = Node.load_from_db_using_hostname(hostname) # type: Node
+            if node:
+                node_dict = node.to_dict()
+                delete_node = True
+                if node.node_type != NODE_TYPES.mip.value:
+                    deploy_job = NodeJob.load_job_by_node(node, JOB_DEPLOY) # type: NodeJob
+                    if node.deployment_type == DEPLOYMENT_TYPES.virtual.value or \
+                      (deploy_job and (deploy_job.inprogress or deploy_job.complete or deploy_job.error)):
+                        installed_apps = get_node_apps(node.hostname)
+                        for inst_app in installed_apps:
+                           node_dict["deployment_name"] = inst_app["deployment_name"]
+                           nodes = [node_dict]
+                           delete_helm_apps.delay(application=inst_app["deployment_name"], nodes=nodes)
+                        # Remove node will delete this
+                        delete_node = False
+                        return self._remove_node(node), 200
+
+                if delete_node:
+                   node.delete()
+                   send_notification()
+                   return node.to_dict(), 200
+
+        except DBModelNotFound:
+           return {}, 200
+        return "Node not found", 400
+
+@KIT_SETUP_NS.route("/node/<hostname>/update")
+class NodeUpdateFactsCtrl(Resource):
+    def put(self, hostname):
+        try:
+            settings = None
+            node = Node.load_from_db_using_hostname(hostname) # type: Node
+            if node.node_type != NODE_TYPES.mip.value:
+                settings = KitSettingsForm.load_from_db() # type: KitSettingsForm
+            if node.node_type == NODE_TYPES.mip.value:
+                settings = MipSettingsForm.load_from_db() # type: MipSettingsForm
+            if settings:
+                update_device_facts_job.delay(node, settings)
+                return "Update node facts started", 200
+        except Exception as exc:
+            return str(exc), 400
+        return "Unknown error", 500
+
+
+@KIT_SETUP_NS.route("/node")
+class NewNodeCtrl(Resource):
+
+    def _execute_kickstart_profile_job(self, node: Node) -> Dict:
+        job = execute.delay(node=node, exec_type=DEPLOYMENT_JOBS.kickstart_profiles)
+        return JobID(job).to_dict()
+
+    def _execute_create_virtual_job(self, node: Node) -> Dict:
+        job = execute.delay(node=node, exec_type=DEPLOYMENT_JOBS.create_virtual)
+        return JobID(job).to_dict()
+
+
+    @KIT_SETUP_NS.expect(Node.DTO)
+    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
+    @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @controller_admin_required
+    def post(self):
+        try:
+            settings = GeneralSettingsForm.load_from_db() # type: Dict
+            node = Node.load_node_from_request(KIT_SETUP_NS.payload) # type: Node
+            if not node.hostname.endswith(settings.domain):
+                node.hostname = "{}.{}".format(node.hostname, settings.domain)
+            if node.deployment_type == DEPLOYMENT_TYPES.virtual.value:
+                node.mac_address = str(RandMac(MAC_BASE, True)).strip("'")
+                node.pxe_type = PXE_TYPES.uefi.value
+            node.create()
+
+            # Alert websocket to update the table
+            send_notification()
+
+        except DBModelNotFound:
+            return {}, 200
+        #if node.deployment_type == DEPLOYMENT_TYPES.iso.value:
+        #    return "Remote Virtual Node was added.", 200
+        if node.deployment_type == DEPLOYMENT_TYPES.virtual.value:
+            return self._execute_create_virtual_job(node), 200
+
+        return self._execute_kickstart_profile_job(node), 200
+
+
+@KIT_SETUP_NS.route("/node/<hostname>/vpn")
+class NodeVpnCtrl(Resource):
+    @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
+    @login_required_roles(['controller-node-state'], True)
+    def post(self, hostname: str):
+        try:
+            node = Node.load_from_db_using_hostname(hostname) # type: Node
+            payload = KIT_SETUP_NS.payload
+            if payload and node:
+                if "vpn_status" in payload:
+                    node.vpn_status = payload["vpn_status"]
+                    node.save_to_db()
+                send_notification()
+            return "Updated", 200
+        except DBModelNotFound:
+            return {}, 400
+        except ValueError:
+            return "Invalid state", 400
+        return {}, 200
+
+
+@KIT_SETUP_NS.route("/node/<hostname>/status")
+class NodeStateCtrl(Resource):
+    @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
+    @login_required_roles(['controller-node-state'], True)
+    def post(self, hostname: str):
+        try:
+            node = Node.load_from_db_using_hostname(hostname) # type: Node
+            payload = KIT_SETUP_NS.payload
+            if payload and node:
+                job = NodeJob.load_job_by_node(node=node, job_name=payload["name"]) # type: NodeJob
+                if job:
+                    job.set_job_state()
+                    if "error" in payload and payload["error"]:
+                        text = "An error has occurred"
+                        if "message" in payload:
+                            text = payload["message"]
+                        job.set_error(text)
+                    if "complete" in payload and payload["complete"]:
+                        job.set_complete()
+                    if "inprogress" in payload and payload["inprogress"]:
+                        if payload["name"] == JOB_PROVISION:
+                            settings = KitSettingsForm.load_from_db() # type: KitSettingsForm
+                            if node.node_type == NODE_TYPES.mip.value:
+                                settings = MipSettingsForm.load_from_db() # type: MipSettingsForm
+                            gather_device_facts.delay(node, settings)
+                        else:
+                            job.set_inprogress()
+                    send_notification()
+            return "Updated", 200
+        except DBModelNotFound:
+            return {}, 400
+        except ValueError:
+            return "Invalid state", 400
+        return {}, 200
+
+
+@KIT_SETUP_NS.route("/node/<hostname>/deploy")
+class NodeCtrlRebuild(Resource):
+
+    def _execute_kickstart_profile_job(self, node: Node) -> Dict:
+        job = execute.delay(node=node, exec_type=DEPLOYMENT_JOBS)
+        return JobID(job).to_dict()
+
+    @KIT_SETUP_NS.expect(Node.DTO)
+    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
+    @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @controller_admin_required
+    def post(self, hostname: str):
+        nodes_list = []
+        job_id = None
+        try:
+            kit_settings = KitSettingsForm.load_from_db() # type: KitSettingsForm
+            node = Node.load_from_db_using_hostname(hostname) # type: Node
+            if node and kit_settings:
+                job_id = gather_device_facts.delay(node, kit_settings)
+                return JobID(job_id).to_dict(), 200
+            # Alert websocket to update the table
+            send_notification()
+        except DBModelNotFound:
+            return {}, 200
+        return "Unable to start deployment for {}".format(hostname), 400
+
+@KIT_SETUP_NS.route("/node/<hostname>/generate-vpn")
+class GenerateVpnConfigCtrl(Resource):
+    @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
+    def get(self, hostname: str):
+        try:
+            results = []
+            node = Node.load_from_db_using_hostname(hostname) # type: Node
+            settings = GeneralSettingsForm.load_from_db() # type: Dict
+            vpn_service = VpnService(node, settings) # type: VpnService
+            filename = vpn_service.generate_config()
+            if filename:
+                return send_file(filename, mimetype="text/plain")
+        except DBModelNotFound:
+            return {}, 200
+
+@KIT_SETUP_NS.route("/node/generate-inventory")
+class NodeGenInventory(Resource):
+    @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
+    def get(self):
+        _generate_inventory()
+        return {}, 200
+
+@KIT_SETUP_NS.route("/control-plane")
+class ControlPlaneCtrl(Resource):
+
+    def _execute_control_plane_job(self, node: Node) -> Dict:
+        job = execute.delay(node=node, exec_type=DEPLOYMENT_JOBS.setup_control_plane)
+        return JobID(job).to_dict()
+
+    @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
+    def get(self):
+        try:
+            results = []
+            nodes = Node.load_control_plane_from_db() # type: Node
+            for node in nodes:
+                job_list = []
+                jobs = NodeJob.load_jobs_by_node(node) # type: NodeJob
+                for job in jobs:
+                    job_list.append(job.to_dict())
+                node_json = node.to_dict()
+                node_json["jobs"] = job_list
+                results.append(node_json)
+            return results
+        except DBModelNotFound:
+            return {}, 200
+
+
+    # @KIT_SETUP_NS.expect([Node.DTO])
+    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
+    @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @controller_admin_required
+    def post(self):
+        new_nodes = []
+        try:
+            conn_mng.mongo_catalog_saved_values.delete_many({})
+            conn_mng.mongo_node.delete_many({})
+            settings = GeneralSettingsForm.load_from_db() # type: Dict
+
+            control_plane = {
+                "hostname": "control-plane",
+                "node_type": NODE_TYPES.control_plane.value,
+                "deployment_type": DEPLOYMENT_TYPES.virtual.value,
+                "ip_address": settings.controller_interface + 1,
+                "pxe_type": PXE_TYPES.uefi.value,
+                "mac_address": str(RandMac(MAC_BASE, True)).strip("'"),
+                "os_raid": False,
+                "boot_drives": ["sda"],
+                "data_drives": ["sdb"]
+            }
+            node = Node.load_node_from_request(control_plane) # type: Node
+            if not node.hostname.endswith(settings.domain):
+                node.hostname = "{}.{}".format(node.hostname, settings.domain)
+            node.create()
+
+            # Alert websocket to update the table
+            send_notification()
+
+        except ValidationError as e:
+            return e.normalized_messages(), 400
+        except PostValidationError as e:
+            return {"post_validation": e.errors_msgs}, 400
+        except DBModelNotFound as e:
+            return {"post_validation": [str(e)]}, 400
+
+        return self._execute_control_plane_job(node)
+
+
+@KIT_SETUP_NS.route("/kit/rebuild")
+class KitRefresh(Resource):
+
+    def _refresh_kit(self, new_nodes: List[Node], control_plane: List[Node]):
+        job = refresh_kit.delay(nodes=new_nodes, new_control_plane=control_plane)
+        return JobID(job).to_dict()
+
+    def post(self):
+        cp = Node.load_control_plane_from_db() # type: List[Node]
+        nodes = Node.load_all_servers_sensors_from_db() # type: List[Node]
+
+        return self._refresh_kit(new_nodes=nodes, control_plane=cp)

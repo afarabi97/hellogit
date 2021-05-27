@@ -1,0 +1,8 @@
+default vesamenu.c32
+timeout 1
+prompt 0
+
+label {{ ansible_distribution }}
+  menu label {{ ansible_distribution }}
+  kernel vmlinuz
+  append initrd=initrd.img ks=http://{{ server_ip }}/ks/{% if node_index is defined %}{{ node_index }}.cfg{% else %}{{ kick_cfg }}{% endif %}

@@ -6,16 +6,6 @@
     path: "{{ elastic_dir }}"
     state: directory
 
-- name: Create elastic_snapshots directory if it does not exist
-  file:
-    path: /mnt/tfplenum_backup/elastic_snapshots
-    state: directory
-    mode: "0775"
-    group: "{{ elastic_group }}"
-    owner: "{{ elastic_user }}"
-  delegate_to: "{{ item }}"
-  loop: "{{ groups['servers'] }}"
-
 - name: Copy License
   copy:
     src: "files/license.yml"
@@ -66,6 +56,16 @@
   register: results
   changed_when: results.rc == 0
 
+- name: Wait for Elasticsearch operator to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "statefulset"
+    namespace: "elastic-system"
+    resource_name: "elastic-operator"
+    label: ""
+
 - name: Install Elasticsearch
   shell: |
     kubectl apply -f {{ elastic_dir }}/deploy.yml
@@ -77,4 +77,5 @@
     kubectl apply -f {{ elastic_dir }}/license.yml
   register: results
   changed_when: results.rc == 0
+
 ...

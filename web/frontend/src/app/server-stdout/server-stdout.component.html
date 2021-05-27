@@ -2,8 +2,14 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
-        <button mat-raised-button id="app-server-stdout-div-mat-card-mat-card-header-mat-card-title-button-kill-job"
-                color="warn" (click)="openKillModal()"><em class="icon_stop_alt2"></em>Kill Job</button>
+        <div>
+          <button mat-icon-button color="warn" (click)="openRetryJobModal()"
+            matTooltip="Retry Job" [disabled]="!allowRetry">
+            <span class="material-icons">
+              refresh
+            </span>
+          </button>
+        </div>
         <div>
           <button mat-icon-button *ngIf="!scrollStatus" id="app-server-stdout-div-mat-card-mat-card-header-mat-mat-card-title-button-play-scroll"
                   color="accent" (click)="pauseScroll()" style="margin-right: 10px;" matTooltip="Follow Console Output">
@@ -13,8 +19,10 @@
                   color="accent" (click)="pauseScroll()" style="margin-right: 10px;" matTooltip="Stop Following Console Output">
             <span class="material-icons" >pause</span>
           </button>
-          <button mat-raised-button id="app-server-stdout-div-mat-card-mat-card-header-mat-mat-card-title-button-clear-console"
-                  color="warn" (click)="clearConsole()"><em class="icon_trash"></em>Clear Console</button>
+          <button mat-icon-button id="app-server-stdout-div-mat-card-mat-card-header-mat-card-title-button-kill-job"
+                  color="warn" (click)="openKillModal()" matTooltip="Kill Running Job"><span class="material-icons">stop</span></button>
+          <!--<button mat-raised-button id="app-server-stdout-div-mat-card-mat-card-header-mat-mat-card-title-button-clear-console"
+                  color="warn" (click)="clearConsole()"><em class="icon_trash"></em>Clear Console</button>-->
         </div>
       </mat-card-title>
     </mat-card-header>

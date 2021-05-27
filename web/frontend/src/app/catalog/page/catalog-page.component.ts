@@ -42,6 +42,8 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   statuses: StatusClass[];
   configArray: any[] = [];
   gip_number: string;
+  isServiceNodeAvailable: boolean;
+  sensorInterfaceStates: Partial<any> = {};
 
   /**
    *Creates an instance of CatalogPageComponent.
@@ -64,6 +66,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     this.isReady = false;
     this.isLoading = true;
     this.isAdvance = false;
+    this.isServiceNodeAvailable = false;
     this.processList = PROCESS_LIST.map((p: ProcessInterface) => {
       p.children = [];
       return p;
@@ -102,6 +105,9 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
         this._CatalogService.getNodes().subscribe(nodes => {
           this.gip_number = nodes[0].ip_address.split('.')[1];
         });
+      }
+      if(this.chart.node_affinity === "Server - Any") {
+        this.setupServiceNode();
       }
     }
   }
@@ -227,7 +233,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   serverAny() {
     if(this.chart.node_affinity === this.serverAnyValue) {
       this.nodes.map( node => {
-        if (node.is_master_server === true) {
+        if (node.node_type == 'Control-Plane') {
           node.hostname = "server";
           this.processFormGroup.get("selectedNodes").setValue([]);
           const selectedNodes = this.processFormGroup.get("selectedNodes").value;
@@ -495,6 +501,16 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     return nodeControls;
   }
 
+  setupServiceNode() {
+    this._CatalogService.getNodes().subscribe(nodes => {
+      this.nodes = nodes;
+      this.nodes.map(node => {
+          if (node.node_type === "Service") {
+            this.isServiceNodeAvailable = true;
+          }
+      });
+    });
+  }
   /**
    * parses out the domain on the deployment name so that Kubernetes doesnt crash
    *
@@ -557,9 +573,11 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   checkboxSetValue(node, control) {
     const hostname_ctrl = this.configFormGroup.controls[node.hostname] as FormGroup;
     const controlValue = hostname_ctrl.controls[control.name];
-    if( controlValue.value === true) {
+
+    if( controlValue.value ) {
       controlValue.setValue(control.trueValue);
-    } else {
+    }
+    if( !controlValue.value ) {
       controlValue.setValue(control.falseValue);
     }
   }
@@ -691,6 +709,8 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
           zeekControl.setValue(value[control.name], { onlySelf: true } );
         }
         return zeekControl;
+      case 'service-node-checkbox':
+        return new FormControl({ value: this.isServiceNodeAvailable, disabled: !this.isServiceNodeAvailable });
       default:
         return new FormControl([]);
     }
@@ -722,38 +742,24 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private _find_ifaces_in_violation(selected_ifaces: string[], interfaces: Object[]): string[]{
-    const ret_val = [];
-    for (const selected_iface of selected_ifaces){
-      for (const iface of interfaces){
-        if (selected_iface === iface['name'] && !iface['link_up']){
-          ret_val.push(selected_iface);
-        }
+  getInterfaceDetails(){
+    for (const node of this.processFormGroup.getRawValue().selectedNodes){
+      if(node["node_type"] === "Sensor"){
+        this.toolsSrv.getIfaceStates(node["hostname"]).subscribe((data: any[]) => {
+          let ifaces = {};
+          for (const iface of data){
+            ifaces[iface["name"]] = {"state": iface["state"], "link_up": iface["link_up"]}
+          }
+          this.sensorInterfaceStates[node['hostname']] = ifaces;
+        });
       }
     }
-    return ret_val;
   }
 
-  ifaceChange(event: MatSelectChange, sensor: Object) {
-    if (event && event.value.length > 0){
-      const selected_ifaces = event.value;
-      const hostname = sensor['hostname'];
-      this.toolsSrv.getIfaceStates(hostname).subscribe(data => {
-        const ifaces_in_violation = this._find_ifaces_in_violation(selected_ifaces, data as object[]);
-        const ifaces_in_violation_str = ifaces_in_violation.join(', ');
-        let word = "is";
-        if (ifaces_in_violation.length > 1){
-          word = "are";
-        }
-
-        if (ifaces_in_violation.length > 0){
-          this.snackBar.open(`${ifaces_in_violation_str} ${word} not connected at the physical layer.
-Zeek and Suricata will not be able to sense any traffic on selected iface(s)
-until they are connected with network cables.`, 'OK', { duration: 30000 });
-        } else {
-          this.snackBar.open(`All interfaces selected for ${hostname} are connected physically.`, 'OK', { duration: 30000 });
-        }
-      });
+  checkInterface(hostname, iface){
+    if (hostname in this.sensorInterfaceStates){
+      if (!this.sensorInterfaceStates[hostname][iface]['link_up']) return true
     }
+    return false
   }
 }

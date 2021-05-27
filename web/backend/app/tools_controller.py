@@ -31,20 +31,21 @@ from app.models.common import (JobID, CurrentTimeMdl, COMMON_MESSAGE,
                                COMMON_SUCCESS_MESSAGE, COMMON_ERROR_MESSAGE)
 from app.models.tools import (NewPasswordModel, COMMON_TOOLS_RETURNS, NetworkDeviceStateModel,
                               InitalDeviceStatesModel, NetworkInterfaceModel)
-from app.models.kit_setup import DIPKickstartForm, Node
+from app.models.nodes import Node
+from app.models.settings.kit_settings import KitSettingsForm
 from app.service.elastic_service import (Timeout, apply_es_deploy,
                                          setup_s3_repository, get_elasticsearch_license,
                                          wait_for_elastic_cluster_ready)
 from app.service.elastic_service import check_elastic_license
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
-from app.utils.connection_mngs import (FabricConnection,
-                                       FabricConnectionWrapper, KubernetesWrapper)
-from app.utils.constants import KICKSTART_ID
+from app.utils.connection_mngs import (FabricConnection, KubernetesWrapper)
 from app.utils.utils import decode_password, encode_password
 
 from fabric import Connection
 from werkzeug.datastructures import FileStorage
+from app.utils.constants import TFPLENUM_CONFIGS_PATH
+
 
 
 _JOB_NAME = "tools"
@@ -82,8 +83,8 @@ def _get_ammended_password(ip_address_lookup: str, ammended_passwords: List[Dict
             return item["password"]
     raise AmmendedPasswordNotFound()
 
-def update_password(config: DIPKickstartForm, password):
-    config.root_password = password
+def update_password(config: Dict, password):
+    config.password = password
     config.save_to_db()
 
 
@@ -100,11 +101,11 @@ class ChangeKitPassword(Resource):
     @controller_maintainer_required
     def post(self):
         model = NewPasswordModel(TOOLS_NS.payload['root_password'])
-        current_config = DIPKickstartForm.load_from_db() # type: DIPKickstartForm
+        current_config = KitSettingsForm.load_from_db() # type: Dict
         if current_config == None:
             return {"message": "Couldn't find kit configuration."}, 404
-
-        for node in current_config.nodes: # type: Node
+        nodes = Node.load_all_servers_sensors_from_db()
+        for node in nodes: # type: Node
             try:
                 with FabricConnection(str(node.ip_address), use_ssh_key=True) as shell:
                     result = shell.run("echo '{}' | passwd --stdin root".format(model.root_password), warn=True) # type: Result
@@ -389,7 +390,7 @@ class AllIfaces(Resource):
 @controller_maintainer_required
 def load_es_deploy():
     notification = NotificationMessage(role=_JOB_NAME)
-    remote_deploy_path = "/opt/tfplenum/elasticsearch/deploy.yml"
+    deploy_path = "{}/elasticsearch/deploy.yml".format(TFPLENUM_CONFIGS_PATH)
     override = request.args.get('override', default = False, type = bool)
 
     try:
@@ -399,14 +400,11 @@ def load_es_deploy():
         if (override == False and len(deploy_config) > 0):
             return (jsonify("Deploy config already exists use ?override=1 to reload it"), 200)
         if override or (override == False and len(deploy_config) == 0):
-            original_config = io.BytesIO()
-            with FabricConnectionWrapper(conn_mng) as master_shell: # type: Connection
-                master_shell.get(remote_deploy_path, original_config)
-                config = original_config.getvalue().decode('utf-8')
-                config_yaml = yaml.load_all(config, Loader=yaml.FullLoader)
-
-                for d in config_yaml:
-                    elastic_deploy.create(d)
+            with open(deploy_path, "r") as f:
+                config = f.read()
+            config_yaml = yaml.load_all(config, Loader=yaml.FullLoader)
+            for d in config_yaml:
+                elastic_deploy.create(d)
         return (jsonify("Deploy config successfully loaded."), 200)
     except Exception as e:
         logger.exception(e)

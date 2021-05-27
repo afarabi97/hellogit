@@ -1,8 +1,6 @@
-import os
-import logging
 import subprocess
 from models.robot import RobotSettings
-from typing import List, Dict, Union
+
 
 class RobotJob:
     def __init__(self, robot_settings: RobotSettings):

@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
-import { MockSystemNameDIPClass, MockUserAllTrueClass } from '../../../static-data/class-objects-v3_4';
-import { SystemNameClass, UserClass } from '../classes';
+import { MockUserAllTrueClass } from '../../../static-data/class-objects-v3_4';
+import { UserClass } from '../classes';
 import { AppLoadServiceInterface } from '../interfaces';
 import { TestingModule } from '../modules/testing-modules/testing.module';
 import { AppLoadService } from './app-load.service';
@@ -16,7 +16,6 @@ describe('AppLoadService', () => {
 
   // Setup spy references
   let spyGetCurrentUser: jasmine.Spy<any>;
-  let spyGetSystemName: jasmine.Spy<any>;
 
   // Used to handle subscriptions
   const ngUnsubscribe$: Subject<void> = new Subject<void>();
@@ -37,7 +36,6 @@ describe('AppLoadService', () => {
 
     // Add method spies
     spyGetCurrentUser = spyOn(service, 'getCurrentUser').and.callThrough();
-    spyGetSystemName = spyOn(service, 'getSystemName').and.callThrough();
   });
 
   afterAll(() => {
@@ -49,7 +47,6 @@ describe('AppLoadService', () => {
     ngUnsubscribe$.next();
 
     spyGetCurrentUser.calls.reset();
-    spyGetSystemName.calls.reset();
   };
 
   it('should create AppLoadService', () => {
@@ -65,15 +62,6 @@ describe('AppLoadService', () => {
         expect(service.getCurrentUser).toHaveBeenCalled();
       });
     });
-
-    describe('async getSystemName()', () => {
-      it('should call getSystemName()', () => {
-        reset();
-        service.getSystemName();
-
-        expect(service.getSystemName).toHaveBeenCalled();
-      });
-    });
   });
 });
 
@@ -84,15 +72,8 @@ export class AppLoadServiceSpy implements AppLoadServiceInterface {
     (): Promise<UserClass> => this.callFakeGetCurrentUser()
   );
 
-  getSystemName = jasmine.createSpy('getSystemName').and.callFake(
-    (): Promise<SystemNameClass> => this.callFakeGetSystemName()
-  );
-
   async callFakeGetCurrentUser(): Promise<UserClass> {
     return Promise.resolve(MockUserAllTrueClass);
   }
 
-  async callFakeGetSystemName(): Promise<SystemNameClass> {
-    return Promise.resolve(MockSystemNameDIPClass);
-  }
 }

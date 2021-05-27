@@ -1,14 +1,14 @@
 ---
 
-- name: Yum Utils Check
-  command: rpm -qa yum-utils
+- name: Dnf Utils Check
+  command: rpm -qa Dnf-utils
   register: results
   args:
     warn: false
   changed_when: false
 
-- name: Clean Yum Transactions
-  shell: "yum-complete-transaction --cleanup-only && yum clean all"
+- name: Clean Dnf Transactions
+  shell: "dnf-complete-transaction --cleanup-only && dnf clean all"
   when: results.stdout.find('is not installed') != -1
 
 - name: Install packages
@@ -16,11 +16,11 @@
     name: "{{ package_list }}"
     state: installed
 
-- name: Install specific version of pip
-  pip:
-    name: pip
-    state: forcereinstall
-    version: 20.2.4
+# - name: Install specific version of pip
+#   pip:
+#     name: pip
+#     state: forcereinstall
+#     version: 20.2.4
 
 - name: Install Setuptools
   pip:

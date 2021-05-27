@@ -3,7 +3,7 @@
 - name: Set Common Resources Allocations
   set_fact:
     mdi: False
-    master_count: 3
+    master_count: 1
     coordinating_count: 1
     enable_ml: True
     enable_maps: True
@@ -93,47 +93,44 @@
       coordinating_memory: 8
       coordinating_num_procs: "3000m"
     when: kit_size == 0
-  when: system_name == "DIP"
 
-- name: Set Elastic Resource Allocations for GIP
-  block:
-  - name: Set Defaults for VM Setup (for testing only)
-    set_fact:
-      master_memory: 4
-      master_java_memory: 2
-      master_num_procs: "2000m"
-      data_count: 6
-      data_memory: 4
-      data_java_memory: 2
-      data_num_procs: "4000m"
-      coordinating_memory: 2
-      coordinating_java_memory: 1
-      coordinating_num_procs: "2000m"
-      ml_memory: 2
-      ml_java_memory: 1
-      ml_num_procs: "2000m"
-      ml_count: 2
-  - name: GIP Gen1
-    set_fact:
-      master_memory: 24
-      master_java_memory: 24
-      master_num_procs: "4000m"
-      data_count: "{{ groups['servers']|length * 3 }}"
-      data_memory: 31
-      data_java_memory: 64
-      data_num_procs: "14000m"
-      coordinating_memory: 31
-      coordinating_java_memory: 64
-      coordinating_num_procs: "4000m"
-      ml_memory: 64
-      ml_java_memory: 31
-      ml_num_procs: "8000m"
-      ml_count: 4
-    when: kit_size == 100
-  - name: Disable Maps
-    set_fact:
-      enable_maps: False
-  when: system_name == "GIP"
+# TODO go back and fix this.
+# - name: Set Elastic Resource Allocations for GIP
+#   block:
+#   - name: Set Defaults for VM Setup (for testing only)
+#     set_fact:
+#       master_memory: 4
+#       master_java_memory: 2
+#       master_num_procs: "2000m"
+#       data_count: 6
+#       data_memory: 4
+#       data_java_memory: 2
+#       data_num_procs: "4000m"
+#       coordinating_memory: 2
+#       coordinating_java_memory: 1
+#       coordinating_num_procs: "2000m"
+#       ml_memory: 2
+#       ml_java_memory: 1
+#       ml_num_procs: "2000m"
+#       ml_count: 2
+#   - name: GIP Gen1
+#     set_fact:
+#       master_memory: 24
+#       master_java_memory: 24
+#       master_num_procs: "4000m"
+#       data_count: "{{ groups['servers']|length * 1 }}"
+#       data_memory: 31
+#       data_java_memory: 64
+#       data_num_procs: "14000m"
+#       coordinating_memory: 31
+#       coordinating_java_memory: 64
+#       coordinating_num_procs: "4000m"
+#       ml_memory: 64
+#       ml_java_memory: 31
+#       ml_num_procs: "8000m"
+#       ml_count: 4
+#     when: kit_size == 100
+#   when: system_name == "GIP"
 
 - name: Set Index Rollover Size
   set_fact:

@@ -1,0 +1,13 @@
+%YAML 1.1
+---
+
+#### Docker configuration variables ####
+# All high level Docker configuration variables for Docker install itself.
+# All image or container variables are stored in their particular role variables file.
+# These control how the docker service is installed and how services are installed using Docker.
+# kubernetes version 1.9.4 has broken configMaps
+kube_init_cmd: "kubeadm init --config {{ kube_dir }}/kubeadm.conf"
+kube_init_file: /tmp/kube_init
+kube_worker_join_file: /etc/kubernetes/join-worker-node.sh
+kube_primary_join_file: /etc/kubernetes/join-control-plane.sh
+helm_apps_svc_acct: helm-apps-job

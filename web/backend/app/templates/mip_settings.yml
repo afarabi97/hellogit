@@ -1,0 +1,10 @@
+---
+all:
+  vars:
+    default_root_partition: 3
+    mip_root_password: {{ template_ctx.password }}
+    user_password: {{ template_ctx.user_password }}
+    luks_password: {{ template_ctx.luks_password }}
+    operator_type: {{ template_ctx.operator_type }}
+
+

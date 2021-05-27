@@ -1,0 +1,73 @@
+# Configure dhcp service
+---
+
+- name: Install dhcp package
+  yum:
+    name: dhcp-server
+    state: present
+
+- name: set default dhcp network and netmask
+  set_fact:
+    dhcp_mask: "{{ ansible_default_ipv4.netmask }}"
+    dhcp_net: "{{ ansible_default_ipv4.network }}"
+
+- name: get dhcp network and netmask interfaces
+  set_fact:
+    dhcp_mask: "{{ hostvars[inventory_hostname]['ansible_' + item].ipv4.netmask }}"
+    dhcp_net: "{{ hostvars[inventory_hostname]['ansible_' + item].ipv4.network }}"
+  when: hostvars[inventory_hostname]['ansible_' + item] is defined
+    and hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
+    and hostvars[inventory_hostname]['ansible_' + item].ipv4.address == server_ip
+  with_items: "{{ ansible_interfaces }}"
+
+- name: dhcpd template
+  template:
+    src: dhcpd.conf.j2
+    dest: /etc/dhcp/dhcpd.conf
+    owner: root
+    group: root
+    mode: 0644
+  register: dhcp_config
+
+- name: Update DHCP
+  blockinfile:
+    path: /etc/dhcp/dhcpd.conf
+    marker: "# {mark} Node {{ item }}"
+    block: |
+      host {{ item }} {
+        hardware ethernet {{ hostvars[item].mac }};
+        filename {% if hostvars[item].pxe_type == 'uefi' %}"uefi/BOOTX64.EFI";{% else %}"pxelinux.0";{% endif %} }
+  loop: "{{ groups['nodes'] }}"
+  when:
+    - "'nodes' in groups"
+    - (hostvars[item].deployment_type == "Virtual" or hostvars[item].deployment_type == "Baremetal") and hostvars[item].mac
+  notify: "Restart Dhcpd"
+
+- name: Update MIP DHCP
+  blockinfile:
+    path: /etc/dhcp/dhcpd.conf
+    marker: "# {mark} {{ item }}"
+    block: |
+      host {{ item }} {
+        hardware ethernet {{ hostvars[item].mac }};
+        filename "uefi/BOOTX64.EFI"; }
+  loop: "{{ groups['mips'] }}"
+  when:
+    - "'mips' in groups"
+    - hostvars[item].mac
+  notify: "Restart Dhcpd"
+
+- name: Configure the firewall
+  firewalld:
+    zone: public
+    service: dhcp
+    immediate: yes
+    permanent: yes
+    state: enabled
+  notify: "Restart Docker"
+
+- name: Restart dhcp service
+  systemd:
+    name: dhcpd
+    enabled: yes
+    state: restarted

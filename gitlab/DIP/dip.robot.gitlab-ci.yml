@@ -7,7 +7,7 @@ DIP Robot Tests:
     echo "Current working directory is $(pwd)"
     CONFLUENCE_PASSWORD_DECRYPTED=$(echo "$CONFLUENCE_PASSWORD" | base64 -d)
     mkdir -p $PATHPWD/tests/dip_test_suite/
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-robot \
+    python3 testing/pipeline/pipeline.py run-robot \
     --tfplenum-robot-container "nexus.sil.lab/tfplenum/robot-automator:1.5.1" \
     --jira-username "$CONFLUENCE_USERNAME" \
     --jira-password "$CONFLUENCE_PASSWORD_DECRYPTED" \
@@ -25,6 +25,4 @@ DIP Robot Tests:
   allow_failure: true
   only:
     variables:
-      - $RUN_ROBOT_TESTS == "yes" && $PIPELINE == "developer-dip"
       - $RUN_ROBOT_TESTS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_ROBOT_TESTS == "yes" && $PIPELINE == "developer-dip-mip"

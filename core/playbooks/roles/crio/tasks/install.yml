@@ -3,7 +3,7 @@
 - name: Download crio tar
   unarchive:
     src: "{{ offline_repo_base }}/crio-{{ crio_version }}.tar.gz"
-    dest: "{{ install_dir  }}"
+    dest: "{{ tfplenum_opt_dir  }}"
     creates: "{{ crio_dir_version }}"
     remote_src: yes
 

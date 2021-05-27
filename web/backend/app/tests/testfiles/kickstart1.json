@@ -2,7 +2,7 @@
   "dhcp_range":"172.16.77.80",
   "gateway":"172.16.77.1",
   "netmask":"255.255.255.0",
-  "root_password":"d2UuYXJlLnRmcGxlbnVt",
+  "password":"d2UuYXJlLnRmcGxlbnVt",
   "re_password":"d2UuYXJlLnRmcGxlbnVt",
   "controller_interface":[
      "172.16.77.33"

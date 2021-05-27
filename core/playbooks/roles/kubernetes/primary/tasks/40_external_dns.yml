@@ -1,0 +1,15 @@
+---
+- name: Copy external dns service
+  copy:
+    src: "files/external-dns.yml"
+    dest: "/tmp/external-dns.yml"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Create external dns service
+  shell: |
+    kubectl create -f /tmp/external-dns.yml
+  register: results
+  changed_when: results.rc == 0
+

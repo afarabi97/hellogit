@@ -1,6 +1,6 @@
 ---
 - name: Delete Web CA secret
-  command: "kubectl delete secret {{ item }} --ignore-not-found=true"
+  command: "kubectl delete secret {{ item }} --ignore-not-found"
   register: results
   changed_when: results.rc == 0
   ignore_errors: true
@@ -21,7 +21,7 @@
 
 - name: "Delete Cert Manager"
   shell: |
-    kubectl delete -f {{ cert_manager_dir }}/operator.yml --ignore-not-found=true
+    kubectl delete -f {{ cert_manager_dir }}/operator.yml --ignore-not-found
   register: results
   changed_when: results.rc == 0
   failed_when: result.rc != 0
@@ -47,13 +47,12 @@
   delegate_to: localhost
 
 - name: Delete webhook resources
-  command: "kubectl delete {{ item }} --ignore-not-found=true"
+  command: "kubectl delete {{ item }} --ignore-not-found"
   register: delete_crds
   changed_when: delete_crds.rc == 0
   with_items:
     - mutatingwebhookconfiguration.admissionregistration.k8s.io cert-manager-webhook
     - validatingwebhookconfigurations.admissionregistration.k8s.io cert-manager-webhook
-
 
 - name: Create Web CA Secret
   command: "{{ item }}"

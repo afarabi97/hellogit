@@ -1,5 +1,5 @@
 from argparse import Namespace, ArgumentParser
-from models import Model, add_args_from_instance
+from models import Model
 
 class RemoteNodeSettings(Model):
     def __init__(self):
@@ -33,4 +33,3 @@ class RemoteNodeSettings(Model):
         parser.add_argument("--switch-ip", dest='switch_ip', help="kits switch ip")
 
 
-    

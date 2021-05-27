@@ -1,0 +1,46 @@
+script-security 2
+port 1194
+
+# TCP or UDP server?
+;proto tcp4
+proto udp
+
+dev tap0
+;dev tun
+
+ca {{ ovpn_dir }}/pki/ca.crt
+cert {{ ovpn_dir }}/pki/{{ inventory_hostname_short }}.crt
+key {{ ovpn_dir }}/pki/private/{{ inventory_hostname_short }}.key  # This file should be kept secret
+dh {{ ovpn_dir }}/pki/dh.pem
+crl-verify {{ ovpn_dir }}/pki/crl.pem
+
+topology subnet
+
+server-bridge
+push "route-gateway {{ ansible_default_ipv4.address }}"
+push "redirect-gateway autolocal"
+
+client-to-client
+
+up /etc/openvpn/server/server-bridge.sh
+;down /etc/openvpn/server/remove-tap0.sh
+
+keepalive 10 120
+
+;tls-auth ta.key 0 # This file is secret
+
+cipher AES-256-CBC
+
+persist-key
+;persist-tun
+
+status openvpn-status.log
+
+verb 3
+client-config-dir client-scripts
+log-append /var/log/openvpn.log
+
+;explicit-exit-notify 1
+
+client-connect /etc/openvpn/server/connect.sh
+client-disconnect /etc/openvpn/server/disconnect.sh

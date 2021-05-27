@@ -15,8 +15,6 @@ import { SensorHostInfoService } from '../../services/sensor-host-info.service';
 import { SensorHostInfoServiceSpy } from '../../services/sensor-host-info.service.spec';
 import { UserService } from '../../services/user.service';
 import { UserServiceSpy } from '../../services/user.service.spec';
-import { WeaponSystemNameService } from '../../services/weapon-system-name.service';
-import { WeaponSystemNameServiceSpy } from '../../services/weapon-system-name.service.spec';
 import { NavBarService } from '../../top-navbar/services/navbar.service';
 import { NavbarServiceSpy } from '../../top-navbar/services/navbar.service.spec';
 import { SystemHealthService } from '../../system-health/services/system-health.service';
@@ -36,7 +34,6 @@ import { DockerRegistryServiceSpy } from '../docker-registry/services/docker-reg
     { provide: RulesService, useClass: RulesServiceSpy },
     { provide: SensorHostInfoService, useClass: SensorHostInfoServiceSpy },
     { provide: UserService, useClass: UserServiceSpy },
-    { provide: WeaponSystemNameService, useClass: WeaponSystemNameServiceSpy },
     { provide: PolicyManagementService, useClass: PolicyManagementServiceSpy },
     { provide: NavBarService, useClass: NavbarServiceSpy },
     { provide: SystemHealthService, useClass: SystemHealthServiceSpy }

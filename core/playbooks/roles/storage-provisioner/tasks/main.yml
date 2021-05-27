@@ -1,0 +1,29 @@
+---
+
+- name: Create install directory
+  file:
+    group: "root"
+    owner: "root"
+    mode: u+rw,g+rw
+    path: "{{ storage_dir }}"
+    state: directory
+
+- name: Copy Templates
+  template:
+    src: "templates/provisioner.yml.j2"
+    dest: "{{ storage_dir }}/provisioner.yml"
+    group: "root"
+    owner: "root"
+    mode: u+rw,g+rw
+
+- name: Delete Storage Provisioner
+  shell: |
+    kubectl delete -f {{ storage_dir }}/provisioner.yml --ignore-not-found
+  register: results_uninstall
+  changed_when: results_uninstall.rc == 0
+
+- name: Install Storage Provisioner
+  shell: |
+    kubectl apply -f {{ storage_dir }}/provisioner.yml
+  register: results
+  changed_when: results.rc == 0

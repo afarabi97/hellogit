@@ -11,3 +11,4 @@ pipeline_workers: 8
 batch_size: 8192
 metricbeat_image_name: beats/metricbeat
 metricbeat_image_tag: 7.11.1
+serviceNode: false

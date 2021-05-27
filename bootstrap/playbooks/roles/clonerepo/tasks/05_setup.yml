@@ -32,20 +32,3 @@
     dest: "{{ TFPLENUM_REPO_DIR }}"
     src:  "{{ mnt_pth }}/"
     recursive: yes
-    # rsync_opts:
-    #   - "--exclude=AppStream"
-    #   - "--exclude=BaseOS"
-
-# - name: Copy BaseOS repodata from rhel iso
-#   delegate_to: "{{ inventory_hostname }}"
-#   synchronize:
-#     dest: "{{ TFPLENUM_REPO_DIR }}/BaseOS"
-#     src:  "{{ mnt_pth }}/BaseOS/Packages"
-#     recursive: yes
-#   when:
-#     - "system_name == 'DIP' or system_name == 'GIP'"
-
-# - name: Copy Treeinfo
-#   copy:
-#     src: files/treeinfo
-#     dest: "{{ TFPLENUM_REPO_DIR }}/.treeinfo"

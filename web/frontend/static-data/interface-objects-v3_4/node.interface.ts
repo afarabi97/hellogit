@@ -4,7 +4,6 @@ import { MockDeviceFactsSensorInterface, MockDeviceFactsServerInterface } from '
 export const MockNodeServerInterface: NodeInterface = {
     deviceFacts: MockDeviceFactsServerInterface,
     hostname: 'fake-server1.lan',
-    is_master_server: true,
     ip_address: '10.40.13.92',
     node_type: 'Server'
 };

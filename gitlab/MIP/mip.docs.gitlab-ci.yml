@@ -6,7 +6,6 @@
 #     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
 #     echo "Current working directory is $(pwd)"
 #     python3 testing/pipeline/pipeline.py \
-#     --system-name "MIP" \
 #     run-export export-html-docs \
 #     --username "$CONFLUENCE_USERNAME" \
 #     --password "$CONFLUENCE_PASSWORD" \
@@ -20,7 +19,6 @@
 #     untracked: true
 #   only:
 #     variables:
-#       - $PIPELINE == "export-mip"
 #       - $PIPELINE == "export-all"
 #       - $PIPELINE == "export-docs"
 
@@ -32,7 +30,6 @@ MIP Setup Documents:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py \
-    --system-name "MIP" \
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
@@ -45,7 +42,6 @@ MIP Setup Documents:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-mip"
       - $PIPELINE == "export-all"
 
 
@@ -56,7 +52,6 @@ MIP User Documents:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py \
-    --system-name "MIP" \
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
@@ -69,56 +64,7 @@ MIP User Documents:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-mip"
       - $PIPELINE == "export-all"
-
-# TODO bring this back when we have training docs
-# MIP Training Documents:
-#   stage: docs
-#   needs: ["Clear Staging Environment"]
-#   tags:
-#     - tfplenum-buildv2
-#   script: |
-#     python3 testing/pipeline/pipeline.py \
-#     --system-name "MIP" \
-#     run-export export-single-page-pdf \
-#     --username "$CONFLUENCE_USERNAME" \
-#     --password "$CONFLUENCE_PASSWORD" \
-#     --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
-#     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
-#     --staging-export-path "$DRIVE_STAGING_FOLDER" \
-#     --export-version "$TFPLENUM_EXPORT_VERSION" \
-#     --page-titles "$MIP_CONFLUENCE_TRAINING_DOCS"
-#   retry: 2
-#   only:
-#     variables:
-#       - $PIPELINE == "export-docs"
-#       - $PIPELINE == "export-mip"
-#       - $PIPELINE == "export-all"
-
-# TODO bring this back when we have arch docs
-# MIP Architecture Documents:
-#   stage: docs
-#   needs: ["Clear Staging Environment"]
-#   tags:
-#     - tfplenum-buildv2
-#   script: |
-#     python3 testing/pipeline/pipeline.py \
-#     --system-name "MIP" \
-#     run-export export-single-page-pdf \
-#     --username "$CONFLUENCE_USERNAME" \
-#     --password "$CONFLUENCE_PASSWORD" \
-#     --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
-#     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
-#     --staging-export-path "$DRIVE_STAGING_FOLDER" \
-#     --export-version "$TFPLENUM_EXPORT_VERSION" \
-#     --page-titles "$MIP_CONFLUENCE_ARCH_DOCS"
-#   retry: 2
-#   only:
-#     variables:
-#       - $PIPELINE == "export-docs"
-#       - $PIPELINE == "export-mip"
-#       - $PIPELINE == "export-all"
 
 
 MIP Maintenance Documents:
@@ -128,7 +74,6 @@ MIP Maintenance Documents:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py \
-    --system-name "MIP" \
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
@@ -141,7 +86,6 @@ MIP Maintenance Documents:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-mip"
       - $PIPELINE == "export-all"
 
 
@@ -152,7 +96,6 @@ MIP TroubleShooting Documents:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py \
-    --system-name "MIP" \
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
@@ -165,7 +108,6 @@ MIP TroubleShooting Documents:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-mip"
       - $PIPELINE == "export-all"
 
 
@@ -176,7 +118,6 @@ MIP VDD Documents:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py \
-    --system-name "MIP" \
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
@@ -189,5 +130,4 @@ MIP VDD Documents:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-mip"
       - $PIPELINE == "export-all"

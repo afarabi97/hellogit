@@ -84,7 +84,6 @@
       - "ipv4 filter INPUT 0 -i tap0 -j ACCEPT"
   when:
     - management_interface != "br0"
-    - system_name == 'DIP'
 
 - name: Start openvpn server
   systemd:

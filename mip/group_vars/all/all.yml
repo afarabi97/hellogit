@@ -1,0 +1,33 @@
+---
+remote_user: root
+ansible_password: "default"
+user: "assessor"
+operator_group: "operators"
+user_desktop: "/home/{{user}}/Desktop"
+application_path: "/usr/share/applications"
+tmp_apps: "/tmp/tmp_apps"
+web_server: "http://{{ server_ip }}/MIP"
+kernel_version: 4.18.0-193.el8.x86_64
+uefi_grub_path: "/boot/efi/EFI/redhat/"
+tfplenum_root_dir: /opt/tfplenum
+mip_scripts_dir: "{{ tfplenum_root_dir }}/scripts/MIP"
+mip_version: "{{ lookup('ini', 'version section=tfplenum file=/etc/tfplenum/tfplenum.ini') }}"
+
+ansible_controller_hostname: "controller.{{ kit_domain }}"
+ansible_controller_ip: "{{ ansible_facts['default_ipv4']['address'] }}"
+
+# Password variables for users
+assessor_pw: "{{ assessor_pw_inventory | default('default') | password_hash('sha512') }}"
+usaf_admin_pw: "{{ usaf_admin_pw_inventory  | default('default') | password_hash('sha512') }}"
+admin_pw: "{{ admin_pw_inventory  | default('default') | password_hash('sha512') }}"
+auditor_pw: "{{ auditor_pw_inventory  | default('default') | password_hash('sha512') }}"
+maintainer_pw: "{{ maintainer_pw_inventory  | default('default') | password_hash('sha512') }}"
+
+users:
+  - assessor
+  - maintainer
+  - usaf_admin
+  - 911admin
+  - auditor
+  - root
+...

@@ -1,0 +1,32 @@
+---
+
+- name: Deploy easy vpn setup script
+  copy:
+    src: "files/{{ item }}"
+    dest: "/root/{{ item }}"
+  with_items:
+    - vpnsetup.sh
+    - vpndisable.sh
+
+- name: Set Certs
+  set_fact:
+    certificate_authority: "{{ lookup('file', '{{ ovpn_dir }}/pki/ca.crt') }}"
+    certificate: "{{ lookup('file', '{{ ovpn_dir }}/pki/issued/{{ inventory_hostname_short }}.crt') }}"
+    key: "{{ lookup('file', '{{ ovpn_dir }}/pki/private/{{ inventory_hostname_short }}.key') }}"
+
+- name: Deploy proper config file to remote sensors
+  template:
+    src: templates/client.conf.j2
+    dest: /etc/openvpn/client_default.conf
+
+- name: Deploy OpenVPN client service to clients
+  copy:
+    src: "files/client-service"
+    dest: "/usr/lib/systemd/system/openvpn-client.service"
+
+- name: Disable dhcp client resolv.conf modifications
+  lineinfile:
+    path: /etc/dhcp/dhclient-enter-hooks
+    state: present
+    create: yes
+    line: 'make_resolv_conf(){ : }'

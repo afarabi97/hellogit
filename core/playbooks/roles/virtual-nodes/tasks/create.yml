@@ -1,0 +1,130 @@
+---
+
+- name: "Power off the VM"
+  ignore_errors: yes
+  vmware_guest:
+    hostname: "{{ esxi.ipaddress }}"
+    username: "{{ esxi.username }}"
+    password: "{{ esxi.password }}"
+    datacenter: "{{ esxi.datacenter }}"
+    cluster: "{{ esxi.cluster }}"
+    name: "{{ node }}"
+    folder: "{{ folder }}"
+    state: poweredoff
+    validate_certs: no
+
+- name: "Removing VM"
+  ignore_errors: yes
+  vmware_guest:
+    hostname: "{{ esxi.ipaddress }}"
+    username: "{{ esxi.username }}"
+    password: "{{ esxi.password }}"
+    datacenter: "{{ esxi.datacenter }}"
+    cluster: "{{ esxi.cluster }}"
+    name: "{{ node }}"
+    folder: "{{ folder }}"
+    state: absent
+    validate_certs: no
+
+- set_fact:
+    networks:
+    - name: "{{ esxi.portgroup }}"
+      mac: "{{ hostvars[node].mac }}"
+
+- set_fact:
+    networks:
+    - name: "{{ esxi.portgroup }}"
+      mac: "{{ hostvars[node].mac }}"
+    - name: "{{ esxi.portgroup }}"
+  when: hostvars[node].node_type == "Sensor"
+
+- set_fact:
+    disks:
+    - size_gb: "{{ default_root_disk_size }}"
+      type: thin
+      datastore: "{{ esxi.datastore }}"
+    - size_gb: "{{ default_data_disk_size }}"
+      type: thin
+      datastore: "{{ esxi.datastore }}"
+
+- set_fact:
+    disks:
+    - size_gb: "{{ default_mip_disk_size }}"
+      type: thin
+      datastore: "{{ esxi.datastore }}"
+  when: hostvars[node].node_type == "MIP"
+
+- name: "Create Virtual Node"
+  block:
+    - name: Create Virtual Node on VSphere {{ node }}
+      vmware_guest:
+        hostname: "{{ esxi.ipaddress }}"
+        username: "{{ esxi.username }}"
+        password: "{{ esxi.password }}"
+        datacenter: "{{ esxi.datacenter }}"
+        cluster: "{{ esxi.cluster }}"
+        guest_id: "rhel8_64Guest"
+        validate_certs: no
+        name: "{{ node }}"
+        folder: "{{ folder }}"
+        state: poweredoff
+        networks: "{{ networks }}"
+        hardware:
+          boot_firmware: "{% if hostvars[node].pxe_type == 'uefi' %}efi{% else %}bios{% endif %}"
+          memory_mb: "{{ hostvars[node].memory }}"
+          num_cpus: "{{ hostvars[node].cpu }}"
+        disk: "{{ disks }}"
+      register: vm_facts
+
+- name: Fail over if mac does not exist in vm_facts
+  block:
+    - name: Power On VM {{ node }}
+      vmware_guest:
+        hostname: "{{ esxi.ipaddress }}"
+        username: "{{ esxi.username }}"
+        password: "{{ esxi.password }}"
+        datacenter: "{{ esxi.datacenter }}"
+        cluster: "{{ esxi.cluster }}"
+        folder: "{{ folder }}"
+        validate_certs: no
+        name: "{{ node }}"
+        state: poweredon
+    - name: Power Off VM {{ node }}
+      vmware_guest:
+        hostname: "{{ esxi.ipaddress }}"
+        username: "{{ esxi.username }}"
+        password: "{{ esxi.password }}"
+        datacenter: "{{ esxi.datacenter }}"
+        cluster: "{{ esxi.cluster }}"
+        folder: "{{ folder }}"
+        validate_certs: no
+        name: "{{ node }}"
+        state: poweredoff
+      register: vm_facts
+
+- name: Disable Secure Boot for EFI
+  community.vmware.vmware_guest_boot_manager:
+    hostname: "{{ esxi.ipaddress }}"
+    username: "{{ esxi.username }}"
+    password: "{{ esxi.password }}"
+    validate_certs: no
+    moid: "{{ vm_facts.instance.moid }}"
+    secure_boot_enabled: False
+  when: hostvars[node].pxe_type == 'uefi'
+
+- name: Set Key
+  set_fact:
+    controller_public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+
+- block:
+  - name: Generate Kit RootPw
+    command: "openssl passwd -1 {{ root_password }}"
+    register: rootpw
+    changed_when: rootpw.rc == 0
+
+  - name: Generate Kit Profiles
+    import_role:
+      name: controller/profiles
+    vars:
+      rootpw: "{{ rootpw }}"
+      controller_public_key: "{{ controller_public_key }}"

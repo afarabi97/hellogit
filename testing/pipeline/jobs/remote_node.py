@@ -1,7 +1,7 @@
-import os
 from util.connection_mngs import FabricConnectionWrapper
-from models.kickstart import HwKickstartSettings
 from models.ctrl_setup import HwControllerSetupSettings
+from models.kit import KitSettingsV2
+from util.connection_mngs import MongoConnectionManager
 from random import randrange
 from util.ssh import SSHClient
 from datetime import datetime, timedelta
@@ -9,23 +9,23 @@ import logging
 import time
 import sys
 
+
 class RemoteNode:
     def __init__(self,
-                 ctrl_settings:HwControllerSetupSettings,
-                 kickstart:HwKickstartSettings):
-
+                 ctrl_settings:HwControllerSetupSettings, kit_settings:KitSettingsV2):
+        self.kit_settings = kit_settings
         self.ctrl_ip = ctrl_settings.node.ipaddress
         self.ctrl_password = ctrl_settings.node.password
         self.ctrl_username = ctrl_settings.node.username
-        self.switch_ip = kickstart.remote_node.switch_ip
-        self.mp_external_ip = kickstart.remote_node.mp_external_ip
-        self.mp_gateway = kickstart.remote_node.mp_gateway
-        self.pfsense_ip = kickstart.remote_node.pfsense_ip
-        self.mgt_password = kickstart.remote_node.management_password
-        self.mgt_user = kickstart.remote_node.management_user
+        self.switch_ip = ctrl_settings.remote_node_settings.switch_ip
+        self.mp_external_ip = ctrl_settings.remote_node_settings.mp_external_ip
+        self.mp_gateway = ctrl_settings.remote_node_settings.mp_gateway
+        self.pfsense_ip = ctrl_settings.remote_node_settings.pfsense_ip
+        self.mgt_password = ctrl_settings.remote_node_settings.management_password
+        self.mgt_user = ctrl_settings.remote_node_settings.management_user
 
     def _get_kit_num(self):
-        
+
         ctrl_ip = self.ctrl_ip.split(".")[1]
 
         for num in ctrl_ip:
@@ -39,23 +39,31 @@ class RemoteNode:
             print("Remote node pipeline requires the following variables \
                    MP_EXTERNAL_IP PFSENSE_IP SWITCH_IP")
             sys.exit(1)
-    
+
     def _copy_scripts_to_pfsense(self):
 
         SCRIPT_DIR = "/opt/tfplenum/testing/pipeline/scripts"
         kitnum = self._get_kit_num()
 
         with FabricConnectionWrapper(self.ctrl_username, self.ctrl_password, self.ctrl_ip) as client:
-            client.run(f"sed -i 's/kitnum/{kitnum}/g' {SCRIPT_DIR}/pre_kitconfig_switch.cmd")
-            client.run(f"sed -i 's/kitnum/{kitnum}/g' {SCRIPT_DIR}/post_kitconfig_switch.cmd")
-            client.run(f"sshpass -p {self.mgt_password} \
+            client.run("sed -i 's/kitnum/{}/g' {}/pre_kitconfig_switch.cmd".format(kitnum, SCRIPT_DIR))
+            client.run("sed -i 's/kitnum/{}/g' {}/post_kitconfig_switch.cmd".format(kitnum, SCRIPT_DIR))
+            client.run("sshpass -p {password} \
                         scp -o StrictHostKeyChecking=no \
-                        {SCRIPT_DIR}/pre_kitconfig_switch.cmd \
-                        {self.mgt_user}@{self.pfsense_ip}:/home/assessor")
-            client.run(f"sshpass -p {self.mgt_password} \
+                        {script_dir}/pre_kitconfig_switch.cmd \
+                        {user}@{pfsense_ip}:/home/assessor".format(
+                                                            password=self.mgt_password,
+                                                            script_dir=SCRIPT_DIR,
+                                                            user=self.mgt_user,
+                                                            pfsense_ip=self.pfsense_ip))
+            client.run("sshpass -p {password} \
                         scp -o StrictHostKeyChecking=no \
-                        {SCRIPT_DIR}/post_kitconfig_switch.cmd \
-                        {self.mgt_user}@{self.pfsense_ip}:/home/assessor")
+                        {script_dir}/post_kitconfig_switch.cmd \
+                        {user}@{pfsense_ip}:/home/assessor".format(
+                                                            password=self.mgt_password,
+                                                            script_dir=SCRIPT_DIR,
+                                                            user=self.mgt_user,
+                                                            pfsense_ip=self.pfsense_ip))
 
     def change_external_to_internal(self):
 
@@ -66,36 +74,44 @@ class RemoteNode:
         self._copy_scripts_to_pfsense()
 
         with FabricConnectionWrapper(self.mgt_user, self.mgt_password, self.pfsense_ip) as client:
-            client.run(f"scp {switch_batch} {self.mgt_user}@{self.switch_ip}:pre_kitconfig_switch.cmd")
-            client.run(f"ssh {self.mgt_user}@{self.switch_ip} batch pre_kitconfig_switch.cmd")
+            client.run("scp -o StrictHostKeyChecking=no {} {}@{}:pre_kitconfig_switch.cmd".format(switch_batch, self.mgt_user, self.switch_ip))
+            client.run("ssh {}@{} batch pre_kitconfig_switch.cmd".format(self.mgt_user, self.switch_ip))
 
     def _change_internal_to_external(self):
 
         switch_batch = "/home/assessor/post_kitconfig_switch.cmd"
 
         with FabricConnectionWrapper(self.mgt_user, self.mgt_password, self.pfsense_ip) as client:
-            client.run(f"scp {switch_batch} {self.mgt_user}@{self.switch_ip}:post_kitconfig_switch.cmd")
-            client.run(f"ssh {self.mgt_user}@{self.switch_ip} batch post_kitconfig_switch.cmd")
+            client.run("scp {} {}@{}:post_kitconfig_switch.cmd".format(switch_batch, self.mgt_user, self.switch_ip))
+            client.run("ssh {}@{} batch post_kitconfig_switch.cmd".format(self.mgt_user, self.switch_ip))
+
+    def _get_remote_sensor(self):
+        nodes = []
+        with MongoConnectionManager(self.ctrl_ip) as mongo_manager:
+            for node in mongo_manager.mongo_node.find({}):
+                if "sensor" in node['hostname']:
+                    nodes.append(node['ip_address'])
+
+        remote_sensor = sorted(nodes)[-1]
+
+        return remote_sensor
 
     def remote_node_config(self):
-
         random_octet = randrange(40,253)
+        remote_sensor = self._get_remote_sensor()
 
         with FabricConnectionWrapper(self.ctrl_username, self.ctrl_password, self.ctrl_ip) as client:
-            getnodes = client.run('kubectl get nodes -o jsonpath={.items..status.addresses[0].address}').stdout.strip()
-            nodes = sorted(getnodes.split())
-            remote_sensor = nodes[-1]
-            interface = client.run(f"ssh {remote_sensor} \
-                                    nmcli dev status | grep ethernet | head -n 1 | awk '{{print $4,$5}}'").stdout.strip().split()
-            interface = r'{}\ {}'.format(interface[0],interface[1])
+            client.run("scp -o StrictHostKeyChecking=no /opt/tfplenum/testing/pipeline/scripts/remote_node_vpn.sh {}:/root".format(remote_sensor))
 
-            client.run(f'ssh {remote_sensor} nmcli con mod "{str(interface)}" ipv4.address 10.96.0.{random_octet}/24')
-            client.run(f'ssh {remote_sensor} nmcli con mod "{str(interface)}" ipv4.gateway {self.mp_gateway}')
-            client.run (f'ssh {remote_sensor} nmcli con mod "{str(interface)}" ipv4.dns {self.ctrl_ip}')
-            client.run(f"scp /opt/tfplenum/testing/pipeline/scripts/remote_node_vpn.sh {remote_sensor}:/root")
-            client.run(f"ssh {remote_sensor} yum -y install screen")
+        with FabricConnectionWrapper(self.ctrl_username, self.kit_settings.settings.password, remote_sensor) as client:
+            interface = client.run("nmcli dev status | grep ethernet | head -n 1 | awk '{print $4,$5}'").stdout.strip().split()
+            interface = '{} {}'.format(interface[0],interface[1])
+            client.run('nmcli con mod "{}" ipv4.address 10.96.0.{}/24'.format(str(interface), random_octet))
+            client.run('nmcli con mod "{}" ipv4.gateway {}'.format(str(interface), self.mp_gateway))
+            client.run('nmcli con mod "{}" ipv4.dns {}'.format(str(interface), self.ctrl_ip))
+            client.run("yum -y install screen")
             #script is executed on remote node after 30 seconds
-            client.run(f'ssh {remote_sensor} "screen -d -m bash /root/remote_node_vpn.sh {self.mp_external_ip} && exit"')
+            client.run('screen -d -m bash /root/remote_node_vpn.sh {} && exit'.format(self.mp_external_ip))
 
         self._change_internal_to_external()
 

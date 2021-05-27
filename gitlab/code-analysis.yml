@@ -9,11 +9,8 @@ analyze ansible test playbooks:
   allow_failure: true
   only:
     variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
 
 analyze ansible bootstrap playbooks:
   tags:
@@ -26,11 +23,8 @@ analyze ansible bootstrap playbooks:
   allow_failure: true
   only:
     variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
 
 analyze ansible core playbooks:
   tags:
@@ -44,10 +38,8 @@ analyze ansible core playbooks:
   allow_failure: true
   only:
     variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
 analyze ansible deployer playbooks:
   tags:
@@ -60,10 +52,8 @@ analyze ansible deployer playbooks:
   allow_failure: true
   only:
     variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
 analyze ansible stigs playbooks:
   tags:
@@ -76,10 +66,8 @@ analyze ansible stigs playbooks:
   allow_failure: true
   only:
     variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
 analyze ansible mip playbooks:
   tags:
@@ -94,9 +82,33 @@ analyze ansible mip playbooks:
   only:
     variables:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
+
+compile front-end:
+  tags:
+    - tfplenum-buildv2
+  stage: code-analysis
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    docker run --rm -v $(pwd):/opt/tfplenum nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/compile_frontend.sh
+  only:
+    variables:
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+
+environment setup backend:
+  tags:
+    - tfplenum-buildv2
+  stage: code-analysis
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    docker run --rm -v $(pwd):/opt/tfplenum nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/setup_backend.sh
+  only:
+    variables:
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
 
 sonarqube front-end code base:
   tags:
@@ -128,17 +140,12 @@ sonarqube front-end code base:
   only:
     variables:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
   artifacts:
     paths:
       - web/frontend/frontend-sonarlink.txt
       - web/frontend/frontend-scantime.txt
       - web/frontend/*.png
-    expire_in: 12h
-  allow_failure: true
 
 
 sonarqube back-end code base:
@@ -167,16 +174,12 @@ sonarqube back-end code base:
   only:
     variables:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
   artifacts:
     paths:
       - web/backend/backend-sonarlink.txt
       - web/backend/backend-scantime.txt
       - web/backend/*.png
-    expire_in: 12h
 
 
 sonarqube testing pipeline:
@@ -205,13 +208,9 @@ sonarqube testing pipeline:
   only:
     variables:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
   artifacts:
     paths:
       - testing/pipeline/testing-sonarlink.txt
       - testing/pipeline/testing-scantime.txt
       - testing/pipeline/*.png
-    expire_in: 12h

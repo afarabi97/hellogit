@@ -3,7 +3,6 @@ import os
 import unittest
 
 from app import app, conn_mng
-from app.models.kit_setup import DIPKickstartSchema, DIPKickstartForm
 from app.tests.base_test_setup import BaseTestCase
 from datetime import datetime, timedelta
 from flask.wrappers import Response

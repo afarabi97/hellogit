@@ -60,7 +60,7 @@ spec:
           mountPath: /etc/ssl/certs/container
           readOnly: true
       - name: metricbeat
-        image: "{{ .Values.metricbeat_image_name }}:{{ .Values.image_tag }}"
+        image: "{{ .Values.metricbeat_image_name }}:{{ .Values.metricbeat_image_tag }}"
         args: ["-e"]
         env:
         - name: ELASTICSEARCH_USERNAME
@@ -95,7 +95,7 @@ spec:
           mountPath: /etc/ssl/certs/container
           readOnly: true
       nodeSelector:
-        role: "server"
+        role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}
       volumes:
       - name: logstash
         configMap:

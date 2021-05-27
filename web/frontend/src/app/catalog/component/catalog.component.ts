@@ -4,7 +4,6 @@ import { Title } from '@angular/platform-browser';
 
 import { Notification } from '../../notifications/interface/notifications.interface';
 import { CookieService } from '../../services/cookies.service';
-import { WeaponSystemNameService } from '../../services/weapon-system-name.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { Chart } from '../interface/chart.interface';
 import { CatalogService } from '../services/catalog.service';
@@ -31,7 +30,6 @@ export class CatalogComponent implements OnInit, OnDestroy {
    constructor(public _CatalogService: CatalogService,
                private titleSvc: Title,
                public _WebsocketService: WebsocketService,
-               public nameService: WeaponSystemNameService,
                private cookieService: CookieService) { }
 
   /**

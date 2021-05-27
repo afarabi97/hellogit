@@ -3,7 +3,7 @@
   include_vars:
     file: "{{ boostrap_sso_vars }}"
 
-- name: Get Master Admin Password
+- name: Get Super Admin Password
   set_fact:
     sso_admin_password: "{{ lookup('file', password_file) }}"
 

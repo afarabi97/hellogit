@@ -1,52 +1,53 @@
-<mat-card>
+<mat-card [formGroup]="repositorySettings">
   <mat-card-header *ngIf="hasTitle">
     <mat-card-title>
-      <a id="app-repository-settings-mat-card-mat-card-header-mat-card-title-a" (click)="toggleCard()">
-        <span *ngIf="!isCardVisible" id="app-repository-settings-mat-card-mat-card-header-mat-card-title-a-em-chevron-right" class="material-icons">chevron_right</span>
-        <span *ngIf="isCardVisible" id="app-repository-settings-mat-card-mat-card-header-mat-card-title-a-em-expand-more" class="material-icons">expand_more</span>
-        <span style="vertical-align: top;">Elastic S3 Repository Settings</span>
-      </a>
+      <a id="app-settings-repository-settings-form-mat-card-mat-card-header-mat-card-title-a" (click)="toggleCard()">
+        <em *ngIf="!isCardVisible"
+            class="material-icons">chevron_right</em>
+        <em *ngIf="isCardVisible"
+            class="material-icons">expand_more</em>
+        <span style="vertical-align: top;">Repository Settings</span>
+        </a>
     </mat-card-title>
   </mat-card-header>
   <mat-card-content *ngIf="isCardVisible || !hasTitle" fxLayout="column" fxLayoutAlign="space-around stretch">
-    <ng-container *ngIf="repositorySettings">
-      <form [formGroup]="repositorySettings">
-        <div fxLayout="column" fxLayoutAlign="start stretch">
-          <!-- Endpoint -->
-          <mat-form-field id="app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-endpoint">
-            <mat-label>Endpoint</mat-label>
-            <input matInput id="app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-endpoint-input" formControlName="endpoint">
-          </mat-form-field>
-          <!-- Protocol -->
-          <mat-form-field id="app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-protocol">
-            <mat-label>Protocol</mat-label>
-            <mat-select id="app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-protocol-mat-select" formControlName="protocol">
-              <mat-option id="app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-protocol-mat-select-mat-option-http" value="http">HTTP</mat-option>
-              <mat-option id="app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-protocol-mat-select-mat-option-https" value="https">HTTPS</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <!-- Bucket -->
-          <mat-form-field id="app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-bucket">
-            <mat-label>Bucket</mat-label>
-            <input matInput id="app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-bucket-input" formControlName="bucket">
-          </mat-form-field>
-          <!-- Access Key -->
-          <mat-form-field id="app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-access-key">
-            <mat-label>Access Key</mat-label>
-            <input matInput id="app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-access-key-input" formControlName="access_key">
-          </mat-form-field>
-          <!-- Secret Key -->
-          <mat-form-field id="app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-secret-key">
-            <mat-label>Secret Key</mat-label>
-            <input matInput id="app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-secret-key-input"
-                   type="password" formControlName="secret_key">
-          </mat-form-field>
-        </div>
-      </form>
-    </ng-container>
+    <form [formGroup]="repositorySettings">
+      <div fxLayout="column" fxLayoutAlign="start stretch">
+        <!-- Endpoint -->
+        <mat-form-field>
+          <mat-label>Endpoint</mat-label>
+          <input matInput formControlName="endpoint">
+        </mat-form-field>
+        <!-- Protocol -->
+        <mat-form-field>
+          <mat-label>Protocol</mat-label>
+          <mat-select formControlName="protocol">
+            <mat-option value="http">HTTP</mat-option>
+            <mat-option value="https">HTTPS</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <!-- Bucket -->
+        <mat-form-field>
+          <mat-label>Bucket</mat-label>
+          <input matInput formControlName="bucket">
+        </mat-form-field>
+        <!-- Access Key -->
+        <mat-form-field>
+          <mat-label>Access Key</mat-label>
+          <input matInput formControlName="access_key">
+        </mat-form-field>
+        <!-- Secret Key -->
+        <mat-form-field>
+          <mat-label>Secret Key</mat-label>
+          <input matInput type="password" formControlName="secret_key">
+        </mat-form-field>
+      </div>
+    </form>
+
   </mat-card-content>
   <mat-card-actions *ngIf="isCardVisible">
-    <button mat-raised-button id="app-repository-settings-mat-card-mat-card-actions-button-update"
-            color="primary" (click)="update($event)" [disabled]="repositorySettings.invalid || (allowUpdate ? false : true)">Update</button>
+    <button mat-raised-button
+            color="primary" (click)="update($event)"
+            [disabled]="repositorySettings.invalid || (allowUpdate ? false : true)">Update</button>
   </mat-card-actions>
 </mat-card>

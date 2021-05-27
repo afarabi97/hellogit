@@ -9,6 +9,5 @@ import { NavLinkInterface } from './nav-link.interface';
 export interface NavGroupInterface {
   id: string;
   label?: string;
-  system: string[];
   children: NavLinkInterface[];
 }

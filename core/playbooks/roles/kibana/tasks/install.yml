@@ -1,4 +1,7 @@
 ---
+- name: Resource allocation
+  include_tasks:
+    file: "{{ resource_allocation }}"
 
 - name: Create install directory
   file:
@@ -43,11 +46,6 @@
     - load-dashboards
     - create-kibana-space
     - enable-detections
-
-- name: Resource allocation
-  include_tasks:
-    file: "{{ resource_allocation }}"
-  when: inventory_hostname in groups['master_server']
 
 - name: Copy Kibana Templates
   template:
@@ -94,7 +92,7 @@
 
 - name: Wait for Kibana to become healthy
   uri:
-    url: "https://{{ kibana_fqdn }}/api/status"
+    url: "https://{{ kibana_uri }}/api/status"
     return_content: yes
     validate_certs: no
     user: "{{ default_elastic_user }}"
@@ -115,7 +113,7 @@
 - name: Update Default to Hunt Space
   uri:
     method: PUT
-    url: "https://{{ kibana_fqdn }}/api/spaces/space/default"
+    url: "https://{{ kibana_uri }}/api/spaces/space/default"
     return_content: yes
     validate_certs: no
     user: "{{ default_elastic_user }}"
@@ -124,7 +122,12 @@
     body_format: json
     headers:
       kbn-xsrf: true
-    body: "{\"id\": \"default\", \"name\": \"Hunt\", \"description\" : \"Default hunt space\", \"color\": \"#00BFB3\", \"initials\": \"H\" }" # noqa 204
+    body:
+      id: default
+      name: Hunt
+      description: Default hunt space
+      color: "#00BFB3"
+      initials: H
     status_code: [200, 201]
   register: results
   until: (results.status == 200)
@@ -132,10 +135,29 @@
   delay: 5
   tags: create-kibana-space
 
-- name: Create Additional Kibana Spaces
-  include_tasks: create_spaces.yml
-  loop:
-    - { task_name: "Create Audit Space", body: "{\"id\": \"audit\", \"name\": \"Auditing\", \"description\" : \"Kit Auditbeat Space\", \"color\": \"#6092C0\", \"initials\": \"AB\" }" } # noqa 204
+- name: "Create Additional Kibana Spaces"
+  uri:
+    method: POST
+    url: "https://{{ kibana_uri }}/api/spaces/space"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    headers:
+      kbn-xsrf: true
+    body:
+      id: audit
+      name: Auditing
+      description: Kit Auditbeat Space
+      color: "#6092C0"
+      initials: AB
+    status_code: [200, 201]
+  register: results
+  until: results.status == 200 or results.status == 201
+  retries: 10
+  delay: 5
   tags: create-kibana-space
 
 - name: Load Saved Objects
@@ -150,7 +172,7 @@
 - name: Update SIEM indices for Hunt Space
   uri:
     method: POST
-    url: "https://{{ kibana_fqdn }}/api/kibana/settings"
+    url: "https://{{ kibana_uri }}/api/kibana/settings"
     return_content: yes
     validate_certs: no
     user: "{{ default_elastic_user }}"
@@ -167,6 +189,5 @@
   delay: 5
 
 - name: Enable Elastic Security Detections
-  include_tasks: enable_detections.yml
-  tags:
-  - enable-detections
+  import_tasks: enable_detections.yml
+  tags: enable-detections

@@ -28,6 +28,7 @@ import {
   SURICATA,
   SURICATA_CAP_FIRST,
   ZEEK,
+  ZEEK_CAP_FIRST,
   ZEEK_INTEL,
   ZEEK_SCRIPTS,
   ZEEK_SIGNATURES
@@ -230,6 +231,8 @@ export class PolicyManagementAddDialogComponent implements OnInit {
   private get_sensor_type_(app_type: string): string {
     if (app_type === SURICATA_CAP_FIRST) {
       return SURICATA;
+    } else if (app_type === ZEEK_CAP_FIRST) {
+      return ZEEK;
     } else if ([ZEEK_SCRIPTS, ZEEK_INTEL, ZEEK_SIGNATURES].includes(app_type)) {
       return ZEEK;
     } else {

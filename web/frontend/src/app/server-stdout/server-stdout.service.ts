@@ -30,18 +30,23 @@ export class ServerStdoutService {
     });
   }
 
-  getConsoleOutput(jobName: string){
-    const url = `/api/get_console_logs/${jobName}`;
+  getConsoleOutput(jobId: string){
+    const url = `/api/get_console_logs/${jobId}`;
     return this.http.get(url).pipe();
   }
 
-  removeConsoleOutput(id_obj: {jobName: string, jobid: string}){
-    const url = '/api/remove_console_output';
-    return this.http.post(url, id_obj);
+  getJob(jobId: string){
+    const url = `/api/job/${jobId}`;
+    return this.http.get(url).pipe();
   }
 
   killJob(jobId: string){
     const url = `/api/job/${jobId}`;
     return this.http.delete(url);
+  }
+
+  retryJob(jobId: string){
+    const url = `/api/job/${jobId}/retry`
+    return this.http.put(url, null);
   }
 }

@@ -6,7 +6,6 @@ Export GIP Service VM:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "GIP" \
     run-export export-gip-service-vm \
     --cpt-export-path "$GIP_EXPORT_LOC" \
     --staging-export-path "$DRIVE_GIP_STAGING_FOLDER" \
@@ -19,14 +18,13 @@ Export GIP Service VM:
 
 Export GIP Controller:
   stage: export
-  needs: ["Setup GIP Controller"]
+  needs: ["Setup Controller"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "GIP" \
     run-export export-ctrl \
     --cpt-export-path "$GIP_EXPORT_LOC" \
     --staging-export-path "$DRIVE_GIP_STAGING_FOLDER" \
@@ -44,7 +42,6 @@ Export GIP MinIO:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
     run-export minio \
     --cpt-export-path "$GIP_EXPORT_LOC" \
     --staging-export-path "$DRIVE_GIP_STAGING_FOLDER" \

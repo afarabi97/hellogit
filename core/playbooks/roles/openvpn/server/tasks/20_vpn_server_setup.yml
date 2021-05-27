@@ -1,0 +1,99 @@
+---
+
+- name: Check for existing dh.pem
+  stat:
+    path: "{{ ovpn_dir }}/pki/dh.pem"
+  register: existing_dh
+
+- name: Create client-script dir
+  file:
+    path: /etc/openvpn/server/client-scripts
+    state: directory
+
+- name: Generate Diffie Helman parameters on the server (this may take some time, give it up to 5 minutes)
+  shell: |
+    ./easyrsa --batch gen-dh
+  args:
+    chdir: "{{ ovpn_dir }}"
+  when: not existing_dh.stat.exists
+  environment:
+    EASYRSA_REQ_CN: "{{ inventory_hostname }}"
+  register: results
+  changed_when: results.rc == 0
+
+- name: Generate CRL
+  shell: |
+    ./easyrsa gen-crl
+  args:
+    chdir: "{{ ovpn_dir }}"
+  ignore_errors: yes
+  register: results
+  changed_when: results.rc == 0
+
+- name: Deploy proper config files to server
+  template:
+    src: templates/server.conf.j2
+    dest: "{{ ovpn_dir }}/server/server.conf"
+
+- name: Set management interface var
+  set_fact:
+    management_interface: "{{ ansible_default_ipv4.interface }}"
+
+- name: Set management interface var
+  set_fact:
+    management_interface: "{{ ansible_br0.interfaces[idx] }}"
+  when: management_interface == "br0" and ansible_br0.interfaces[idx] != "tap0"
+  loop: "{{ ansible_br0.interfaces }}"
+  loop_control:
+    index_var: idx
+
+- name: Deploy script to server
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ ovpn_dir }}/server/{{ item }}"
+    mode: 0755
+  with_items:
+    - server-bridge.sh
+    - connect.sh
+    - disconnect.sh
+
+# TODO: selinux breaks openvpn in rhel 8
+# - name: Set Permissive for openvpn context
+#   selinux_permissive:
+#     name: "{{ item }}"
+#     permissive: true
+#   with_items:
+#     - openvpn_etc_t
+#     - openvpn_t
+
+- name: Initialize OpenVPN service on server
+  systemd:
+    name: openvpn-server@server.service
+    state: started
+    enabled: yes
+
+- name: Create firewalld rules
+  shell:  |
+    firewall-cmd --permanent --direct --add-rule {{ item }}
+    firewall-cmd --direct --add-rule {{ item }}
+  register: results
+  changed_when: results.rc == 0
+  with_items:
+    - "ipv4 filter FORWARD 0 -i br0 -j ACCEPT"
+    - "ipv4 filter INPUT 0 -i tap0 -j ACCEPT"
+
+- name: Allow ports thru firewall
+  firewalld:
+    zone: public
+    port: "{{ item }}"
+    permanent: yes
+    immediate: yes
+    state: enabled
+  with_items:
+    - 1194/tcp
+    - 1194/udp
+
+- name: Reload firewalld
+  shell: |
+    firewall-cmd --reload
+  changed_when: false

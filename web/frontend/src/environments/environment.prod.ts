@@ -5,8 +5,6 @@ export const environment = {
 
   USER_SERVICE_CURRENT_USER: `/api/current_user`,
 
-  WEAPON_SYSTEM_NAME_SERVICE_SYSTEM_NAME: `/api/get_system_name`,
-
   ARCHIVE_SERVICE_ARCHIVE_FORM: `/api/archive_form`,
   ARCHIVE_SERVICE_ARCHIVE_DELETE: `/api/delete_archive/`,
   ARCHIVE_SERVICE_ARCHIVE_RESTORE: `/api/restore_archived`,

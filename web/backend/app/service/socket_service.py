@@ -4,7 +4,9 @@ from app import app, conn_mng, rq_logger, REDIS
 from enum import Enum
 from flask_socketio import SocketIO
 from uuid import uuid4
-from pymongo.results import InsertOneResult
+from pymongo.errors import AutoReconnect
+from typing import Dict, Tuple, List
+from time import sleep
 
 
 socketio = SocketIO(message_queue=REDIS)
@@ -119,8 +121,12 @@ def log_to_console(job_name: str, jobid: str, text: str, color: str=None) -> Non
         log['color'] = color
 
     socketio.emit('message', log, broadcast=True)
-    res = conn_mng.mongo_console.insert_one(log)
-
+    try:
+        res = conn_mng.mongo_console.insert_one(log)
+    except AutoReconnect as exc:
+        rq_logger.error(str(exc))
+        pass
+    sleep(0.1)
 
 def notify_page_refresh():
     socketio.emit('refresh', 'doit', broadcast=True)
@@ -132,3 +138,9 @@ def notify_clock_refresh():
 
 def notify_ruleset_refresh():
     socketio.emit('rulesetchange', 'doit', broadcast=True)
+
+def notify_node_management(kit_status: dict, node_data: dict):
+    socketio.emit('kit-status-change', kit_status, broadcast=True)
+    socketio.emit('node-state-change', node_data, broadcast=True)
+
+

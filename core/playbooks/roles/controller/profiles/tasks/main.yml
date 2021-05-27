@@ -1,0 +1,55 @@
+---
+
+- set_fact:
+    all_groups: "{{ groups['servers']|default([]) + groups['sensors']|default([]) + groups['control_plane']|default([]) + groups['mips']|default([]) }}"
+
+- set_fact:
+    dip_nodes: "{{ node }}"
+  when: node is defined and node in all_groups and hostvars[node].node_type != "MIP"
+- set_fact:
+    mip_nodes: "{{ node }}"
+  when: node is defined and node in all_groups and hostvars[node].node_type == "MIP"
+- set_fact:
+    dip_nodes: "{{ groups['servers']|default([]) + groups['sensors']|default([]) + groups['control_plane']|default([]) }}"
+    mip_nodes: "{{ groups['mips']|default([]) }}"
+  when: node is not defined
+
+- name: Generate RootPw
+  command: "openssl passwd -1 {{ root_password }}"
+  register: rootpw
+  changed_when: rootpw.rc == 0
+  when: root_password is defined
+
+- name: Generate Mip RootPw
+  command: "openssl passwd -1 {{ mip_root_password }}"
+  register: mip_rootpw
+  changed_when: mip_rootpw.rc == 0
+  when: mip_root_password is defined
+
+- name: Generate API key
+  script: /opt/sso-idp/gen_api_token.py --roles "controller-node-state" --exp 87600
+  args:
+    executable: /opt/tfplenum/web/tfp-env/bin/python3
+  register: node_state_admin_api_key
+
+- name: Set Variables
+  set_fact:
+    node_state_api_key: "{{ node_state_admin_api_key.stdout | replace('\n', '') }}"
+    controller_public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+
+- name: Create Kit Profiles
+  vars:
+    node_index: "{{ index }}"
+  include: kit.yml
+  with_items: "{{ dip_nodes|default([]) }}"
+  loop_control:
+    loop_var: index
+
+- name: Create Mip Profiles
+  vars:
+    node_index: "{{ index }}"
+  include: mip.yml
+  with_items: "{{ mip_nodes|default([]) }}"
+  loop_control:
+    loop_var: index
+

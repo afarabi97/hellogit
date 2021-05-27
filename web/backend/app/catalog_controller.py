@@ -10,7 +10,7 @@ from app.middleware import controller_maintainer_required
 from app.models.common import JobID
 from app.models.catalog import (ChartModel, ChartInfoModel, ChartNodeModel,
                                 HELMActionModel, SavedHelmValuesModel)
-from app.models.kit_setup import Node
+from app.models.nodes import Node
 from app.utils.connection_mngs import objectify
 from typing import Set, List
 
@@ -101,7 +101,7 @@ class HELMDeleteCtrl(Resource):
 
         if process == "uninstall":
             job = delete_helm_apps.delay(
-                application, NAMESPACE, nodes)  # type: Response
+                application=application, namespace=NAMESPACE, nodes=nodes)  # type: Response
             return JobID(job).to_dict()
 
         logger.error("Executing /api/catalog/delete has failed.")
@@ -196,7 +196,7 @@ class ChartCtrl(Resource):
         return results
 
 
-@CATALOG_NS.route('/nodes')
+@CATALOG_NS.route('/catalog/nodes')
 class NodeDetails(Resource):
 
     @CATALOG_NS.doc(description="Returns a list of Nodes from the Kit configuration.")

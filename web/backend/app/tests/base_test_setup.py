@@ -4,7 +4,7 @@ import json
 import unittest
 
 from app import conn_mng, _initalize_counters, app
-from app.models.kit_setup import DIPKickstartForm
+from app.models.settings.kit_settings import KitSettingsForm
 from datetime import datetime, timedelta
 from ipaddress import IPv4Address
 from pathlib import Path
@@ -89,7 +89,7 @@ class BaseTestCase(unittest.TestCase):
         job_id = response.json["job_id"]
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(job_id)
-        kickstart = DIPKickstartForm.load_from_db()
+        kickstart = KitSettingsForm.load_from_db() #Type: dict
         self.assertEqual(IPv4Address("10.10.101.11"), kickstart.upstream_dns)
         self.assertEqual(IPv4Address("10.10.101.12"), kickstart.upstream_ntp)
         if wait_for_completion:

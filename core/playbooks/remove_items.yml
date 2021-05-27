@@ -1,0 +1,76 @@
+---
+- name: Clean up {{ node_index }} vpn client files
+  file:
+    path: "/etc/openvpn/server/client-scripts/{{ hostvars[node_index].inventory_hostname_short }}"
+    state: absent
+
+- name: Revoke {{ node_index }} VPN Certificate
+  shell: |
+    ./easyrsa --batch revoke {{ hostvars[node_index].inventory_hostname_short }}
+  args:
+    chdir: /etc/openvpn/
+  register: results
+  changed_when: results.rc == 0
+  ignore_errors: yes
+
+- name: Remove {{ node_index }} Host Entry
+  blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} Node {{ node_index }}"
+    block: ""
+
+- name: Remove {{ node_index }} Dhcp Entry
+  blockinfile:
+    path: /etc/dhcp/dhcpd.conf
+    marker: "# {mark} Node {{ node_index }}"
+    block: ""
+
+- name: Remove {{ node_index }} tftp file
+  file:
+    path: "{{ tftp_dir }}/pxelinux.cfg/01-{{ hostvars[node_index].mac | regex_replace(':', '-') | lower }}"
+    state: absent
+  when: "'mac' in hostvars[node_index]"
+
+- name: Remove  {{ node_index }} EFI tftp file
+  file:
+    path: "{{ tftp_dir }}/uefi/grub.cfg-01-{{ hostvars[node_index].mac | regex_replace(':', '-') | lower }}"
+    state: absent
+  when: "'mac' in hostvars[node_index]"
+
+- name: Remove {{ node_index }} EFI ks file
+  file:
+    path: "{{ ks_template_dir }}/uefi/{{ node_index }}.cfg"
+    state: absent
+
+- name: Remove {{ node_index }} ks file
+  file:
+    path: "{{ ks_template_dir }}/{{ node_index }}.cfg"
+    state: absent
+
+- name: Power off {{ node_index }} VM
+  ignore_errors: yes
+  vmware_guest:
+    hostname: "{{ esxi.ipaddress }}"
+    username: "{{ esxi.username }}"
+    password: "{{ esxi.password }}"
+    datacenter: "{{ esxi.datacenter }}"
+    cluster: "{{ esxi.cluster }}"
+    name: "{{ node_index }}"
+    folder: "{{ folder }}"
+    state: poweredoff
+    validate_certs: no
+  when: hostvars[node_index].deployment_type == "Virtual"
+
+- name: Deleting {{ node_index }} VM
+  ignore_errors: yes
+  vmware_guest:
+    hostname: "{{ esxi.ipaddress }}"
+    username: "{{ esxi.username }}"
+    password: "{{ esxi.password }}"
+    datacenter: "{{ esxi.datacenter }}"
+    cluster: "{{ esxi.cluster }}"
+    name: "{{ node_index }}"
+    folder: "{{ folder }}"
+    state: absent
+    validate_certs: no
+  when: hostvars[node_index].deployment_type == "Virtual"

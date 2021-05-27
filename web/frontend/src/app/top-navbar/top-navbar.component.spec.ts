@@ -8,8 +8,7 @@ import { of as observableOf, of } from 'rxjs';
 
 import {
   MockDIPTimeClass,
-  MockKitFormClass,
-  MockSystemNameMIPClass
+  MockKitStatusClass
 } from '../../../static-data/class-objects-v3_4';
 import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
@@ -102,9 +101,9 @@ describe('TopNavbarComponent', () => {
   // TODO - remove when toolServiceSpy created
   const htmlSpacesData: string[] = ['test'];
 
-  const navGroupGood: NavGroupInterface = { id: '', label: 'test', system: [], children: [] };
-  const navGroupBad: NavGroupInterface = { id: '', label: undefined, system: [], children: [] };
-  const formGroup: FormGroup = new FormGroup({ 'dropdown': new FormControl(MockSystemNameMIPClass.system_name) });
+  const navGroupGood: NavGroupInterface = { id: '', label: 'test', children: [] };
+  const navGroupBad: NavGroupInterface = { id: '', label: undefined, children: [] };
+  const formGroup: FormGroup = new FormGroup({ 'dropdown': new FormControl() });
   class MatDialogMock {
     // When the component calls this.dialog.open(...) we'll return an object
     // with an afterClosed method that allows to subscribe to the dialog result observable.
@@ -151,7 +150,7 @@ describe('TopNavbarComponent', () => {
 
     // TODO - Remove once toolService_, kitService has proper spy service in place
     spyOn<any>(component['toolService_'], 'getSpaces').and.returnValue(of(htmlSpacesData));
-    spyOn<any>(component['kitService_'], 'getKitForm').and.returnValue(of(MockKitFormClass));
+    spyOn<any>(component['kitSettingsSrv'], 'getKitStatus').and.returnValue(of(MockKitStatusClass));
 
     // Detect changes
     fixture.detectChanges();
@@ -261,8 +260,8 @@ describe('TopNavbarComponent', () => {
         component.buildNavBar();
 
         expect(component.htmlSpaces).toEqual(htmlSpacesData);
-        expect(component.kitStatus).toEqual(MockKitFormClass.complete);
-        expect(component.sideNavigationButtons).toEqual(getSideNavigationButtons(component.systemName, component['userService_'],
+        expect(component.kitStatus).toEqual(MockKitStatusClass.base_kit_deployed);
+        expect(component.sideNavigationButtons).toEqual(getSideNavigationButtons(component['userService_'],
                                                                                  component.kitStatus, component.htmlSpaces));
       });
     });

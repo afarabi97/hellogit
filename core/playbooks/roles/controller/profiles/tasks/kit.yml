@@ -1,0 +1,81 @@
+---
+
+- name: Create bios kickstart {{ node_index }}
+  template:
+    src: "ks.cfg.j2"
+    dest: "{{ ks_template_dir }}/{{ node_index }}.cfg"
+    owner: root
+    group: root
+    mode: 0644
+    setype: httpd_sys_content_t
+  when: hostvars[node_index].pxe_type == 'bios'
+  vars:
+    uefi: false
+
+- name: Create uefi kickstart {{ node_index }}
+  template:
+    src: "ks.cfg.j2"
+    dest: "{{ ks_template_dir }}/uefi/{{ node_index }}.cfg"
+    owner: root
+    group: root
+    mode: 0644
+    setype: httpd_sys_content_t
+  when: hostvars[node_index].pxe_type == 'uefi'
+  vars:
+    uefi: true
+
+- name: Create bios pxe menu for {{ node_index }}
+  template:
+    src: "default.j2"
+    # This takes the mac address from the inventory file for each node.
+    # Replaces the colon with a dash and makes it lower case
+    dest: "{{ tftp_dir }}/pxelinux.cfg/01-{{ hostvars[node_index].mac | regex_replace(':', '-') | lower }}"
+    owner: root
+    group: root
+    mode: 0644
+    setype: "cobbler_var_lib_t"
+  register: tftp
+  when: hostvars[node_index].pxe_type == 'bios'
+
+- name: Create uefi pxe menu for {{ node_index }}
+  template:
+    src: "grub.cfg.j2"
+    # This takes the mac address from the inventory file for each node.
+    # Replaces the colon with a dash and makes it lower case
+    dest: "{{ tftp_dir }}/uefi/grub.cfg-01-{{ hostvars[node_index].mac | regex_replace(':', '-') | lower }}"
+    owner: root
+    group: root
+    mode: 0644
+    setype: "cobbler_var_lib_t"
+  register: tftp
+  when: hostvars[node_index].pxe_type == 'uefi'
+
+- name: Add {{ node_index }} to DHCP
+  blockinfile:
+    path: /etc/dhcp/dhcpd.conf
+    marker: "# {mark} {{ node_index }}"
+    block: |
+      host {{ node_index }} {
+        hardware ethernet {{ hostvars[node_index].mac }};
+        filename {% if hostvars[node_index].pxe_type == 'uefi' %}"uefi/BOOTX64.EFI";{% else %}"pxelinux.0";{% endif %} }
+  when:
+    - hostvars[node_index].mac
+    - hostvars[node_index].mac != "None"
+    - hostvars[node_index].mac != "none"
+
+- name: Restart Dhcpd
+  service:
+    name: dhcpd
+    state: restarted
+
+- name: Add {{ node_index }} to Host file
+  blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} Node {{ node_index }}"
+    block: |
+      {{ hostvars[node_index].management_ipv4 }} {{ node_index }}
+
+- name: Restart Dnsmasq
+  service:
+    name: dnsmasq
+    state: restarted

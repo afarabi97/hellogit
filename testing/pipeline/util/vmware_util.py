@@ -1,5 +1,9 @@
-from pyVim.connect import SmartConnectNoSSL
+import ssl
+from models.common import VCenterSettings
+from pyVim.connect import SmartConnectNoSSL, Connect
 from pyVmomi import vim
+from typing import List
+
 
 def print_vm_info(virtual_machine):
         """
@@ -48,3 +52,28 @@ def get_vm_uuid(ctrl_settings):
             if(summary.config.name == ctrl_settings.node.hostname):
                 # print_vm_info(child)
                 return child.summary.config.instanceUuid
+
+
+def get_vms_in_folder(folder_name: str, vcenter: VCenterSettings) -> List[str]:
+    """
+    Loops through all datacenters on a Vsphere cluster looking for specified folder then lists out all the vms contained within.
+    """
+    context = ssl._create_unverified_context()
+    service_instance = Connect(host=vcenter.ipaddress,
+            user=vcenter.username,
+            pwd=vcenter.password,
+            sslContext=context)
+    content = service_instance.RetrieveContent()
+    vms = []
+    if content:
+        dcs = [entity for entity in content.rootFolder.childEntity
+            if hasattr(entity, 'vmFolder')] # type: List[vim.Datacenter]
+
+        for dc in dcs:
+            vm_folders = dc.vmFolder.childEntity
+            for folder in  vm_folders:
+                if isinstance(folder, vim.Folder):
+                    if folder.name == folder_name:
+                        for vm in folder.childEntity:
+                            vms.append(vm.name)
+    return vms

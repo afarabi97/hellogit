@@ -1,4 +1,13 @@
 ---
+
+- name: Create elastic_snapshots directory if it does not exist
+  file:
+    path: /mnt/tfplenum_backup/elastic_snapshots
+    state: directory
+    mode: "0775"
+    group: "{{ elastic_group }}"
+    owner: "{{ elastic_user }}"
+
 - name: Create install disk discovery directory
   file:
     group: "root"
@@ -33,3 +42,5 @@
     state: mounted
     fstype: none
   loop: "{{ range(0, default_data_dir_per_server)|list }}"
+
+- import_tasks: "setup_plugins.yml"

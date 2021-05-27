@@ -1,9 +1,4 @@
 [update-metrics]
 controller = {{ ansible_controller_hostname }}
-{% if inventory_hostname in groups['sensors'] and inventory_hostname not in groups['servers'] %}
-node_type = sensor
-{% endif %}
-{% if inventory_hostname in groups['servers'] and inventory_hostname not in groups['sensors'] %}
-node_type = server
-{% endif %}
+node_type = {{ node_type }}
 elasticsearch = {{ elastic_service_name }}

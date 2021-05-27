@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -112,7 +113,7 @@ spec:
           readOnly: true
       restartPolicy: Always
       nodeSelector:
-        role: server
+        role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}
       volumes:
       - name: config
         configMap:

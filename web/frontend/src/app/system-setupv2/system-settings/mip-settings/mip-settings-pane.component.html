@@ -1,0 +1,95 @@
+<mat-card [formGroup]="mipForm">
+  <mat-card-header *ngIf="hasTitle">
+    <mat-card-title>
+      <a id="app-settings-mip-settings-form-mat-card-mat-card-header-mat-card-title-a" (click)="toggleCard()">
+        <em *ngIf="!isCardVisible"
+            class="material-icons">chevron_right</em>
+        <em *ngIf="isCardVisible"
+            class="material-icons">expand_more</em>
+        <span style="vertical-align: top;">MIP Settings</span>
+        </a>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content *ngIf="isCardVisible || !hasTitle" fxLayout="column" fxLayoutAlign="space-around stretch">
+    <form [formGroup]="mipForm">
+      <div fxLayout="column" fxLayoutAlign="start stretch">
+        <p>Requires General Settings to be completed</p>
+        <!-- Operator -->
+        <mat-form-field>
+          <mat-label>Operator Type</mat-label>
+          <mat-select formControlName="operator_type" [(value)]="default_operator_type">
+            <mat-option value="CPT">CPT</mat-option>
+            <mat-option value="MDT">MDT</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <!-- Root Password -->
+        <mat-form-field>
+          <mat-label>Root Password</mat-label>
+          <input matInput type="password" formControlName="password" (keyup)="reEvaluate($event)"
+            placeholder="You must re-enter the root password">
+          <mat-icon matSuffix *ngIf="mipForm.get('password').valid && mipForm.get('password').touched"
+            color="primary">check_circle</mat-icon>
+          <mat-icon matSuffix *ngIf="mipForm.get('password').invalid && mipForm.get('password').touched"
+            color="warn">error</mat-icon>
+          <mat-error>{{getErrorMessage(mipForm.get("password"))}}</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+        <mat-label>Retype Password</mat-label>
+          <input matInput type="password" formControlName="re_password" (keyup)="reEvaluate($event)"
+            placeholder="You must re-enter the root password">
+          <mat-icon matSuffix *ngIf="mipForm.get('re_password').valid && mipForm.get('re_password').touched"
+            color="primary">check_circle</mat-icon>
+          <mat-icon matSuffix *ngIf="mipForm.get('re_password').invalid && mipForm.get('re_password').touched"
+            color="warn">error</mat-icon>
+          <mat-error>{{getErrorMessage(mipForm.get("re_password"))}}</mat-error>
+        </mat-form-field>
+        <!-- User Password -->
+        <mat-form-field>
+          <mat-label>User Password</mat-label>
+          <input matInput type="password" formControlName="user_password" (keyup)="reEvaluate($event)"
+            placeholder="You must re-enter a user password">
+          <mat-icon matSuffix *ngIf="mipForm.get('user_password').valid && mipForm.get('user_password').touched"
+            color="primary">check_circle</mat-icon>
+          <mat-icon matSuffix *ngIf="mipForm.get('user_password').invalid && mipForm.get('user_password').touched"
+            color="warn">error</mat-icon>
+          <mat-error>{{getErrorMessage(mipForm.get("user_password"))}}</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+        <mat-label>Retype Password</mat-label>
+          <input matInput type="password" formControlName="user_re_password" (keyup)="reEvaluate($event)"
+            placeholder="You must re-enter a user password">
+          <mat-icon matSuffix *ngIf="mipForm.get('user_re_password').valid && mipForm.get('user_re_password').touched"
+            color="primary">check_circle</mat-icon>
+          <mat-icon matSuffix *ngIf="mipForm.get('user_re_password').invalid && mipForm.get('user_re_password').touched"
+            color="warn">error</mat-icon>
+          <mat-error>{{getErrorMessage(mipForm.get("user_re_password"))}}</mat-error>
+        </mat-form-field>
+        <!-- Luks Password -->
+        <mat-form-field>
+        <mat-label>Luks Password</mat-label>
+            <input matInput type="password"
+              placeholder="You must enter a luks_password password with a minimum length of 15 characters."
+              formControlName="luks_password">
+            <mat-icon matSuffix *ngIf="mipForm.get('luks_password').valid && mipForm.get('luks_password').touched"
+              color="primary">check_circle</mat-icon>
+            <mat-icon matSuffix *ngIf="mipForm.get('luks_password').invalid && mipForm.get('luks_password').touched"
+              color="warn">error</mat-icon>
+            <mat-error>{{getErrorMessage(mipForm.get("luks_password"))}}</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Retype password</mat-label>
+          <input matInput type="password" formControlName="luks_re_password"
+            placeholder="You must re-enter the root password">
+          <mat-icon matSuffix *ngIf="mipForm.get('luks_re_password').valid && mipForm.get('luks_re_password').touched"
+            color="primary">check_circle</mat-icon>
+          <mat-icon matSuffix *ngIf="mipForm.get('luks_re_password').invalid && mipForm.get('luks_re_password').touched"
+            color="warn">error</mat-icon>
+          <mat-error>{{getErrorMessage(mipForm.get("luks_re_password"))}}</mat-error>
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-card-content>
+  <mat-card-actions *ngIf="isCardVisible">
+    <button mat-raised-button color="primary" [disabled]="!mipForm.valid || !kitStatus.general_settings_configured" (click)="saveMipSettings()">Save</button>
+  </mat-card-actions>
+</mat-card>

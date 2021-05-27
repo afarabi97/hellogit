@@ -125,7 +125,8 @@ class BackgroundJob(Model):
                                      description="Returns ttl for a job that determines how long a jobs result will "
                                                  "be persisted. In the future, this method will also be responsible "
                                                  "for determining ttl for repeated jobs."),
-        "queued_position": fields.Integer(required=True, example=1, description="The position the job is in the queue at.")
+        "queued_position": fields.Integer(required=True, example=1, description="The position the job is in the queue at."),
+        "meta": fields.String(required=True, description="Meta data saved on job.")
     })
 
     def __init__(self, job: Job):
@@ -148,6 +149,7 @@ class BackgroundJob(Model):
         self.description = job.get_call_string()
         self.timeout = job_obj["timeout"]
         self.status = job_obj['status']
+        self.meta = job.meta
         self.ttl = job.get_ttl()
         self.result_ttl = job.get_result_ttl()
         self.queued_position = job.get_position()
@@ -156,7 +158,7 @@ class BackgroundJob(Model):
 class WorkerModel(Model):
     DTO = api.model('WorkerModel', {
         "name": fields.String(required=True, example="6a4c8acca21447c4abbf37314fd71165", description="The name of the worker."),
-        "hostname": fields.String(required=True, example="dip-controller.lan", description="The hostname where the worker is running."),
+        "hostname": fields.String(required=True, example="controller.lan", description="The hostname where the worker is running."),
         "pid": fields.Integer(required=True, example=30725, description="The process ID of the running worker."),
         "queues": fields.List(fields.String(required=True), required=True, example=['default'],
                               description="The queues this worker is grabbing jobs off of."),

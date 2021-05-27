@@ -1,0 +1,15 @@
+---
+
+- name: Create sensor push scripts
+  template:
+    src: templates/push-config.j2
+    dest: /etc/openvpn/server/client-scripts/{{ inventory_hostname_short }}
+  when: inventory_hostname in groups['sensors']
+  delegate_to: localhost
+
+- name: Restart OpenVPN service on server
+  systemd:
+    name: openvpn-server@server.service
+    state: restarted
+  when: inventory_hostname == "localhost"
+

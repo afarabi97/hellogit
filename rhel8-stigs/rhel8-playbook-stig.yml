@@ -45,13 +45,12 @@
       register: rhel_07_sys_firmware_efi
       tags:
           - all-stigs
-          - dip-controller-stigs
+          - controller-stigs
           - dip-stigs
           - dip-server-stigs
           - dip-sensor-stigs
           - mip-controller-stigs
           - mip-stigs
-          - gip-controller-stigs
           - gip-service-vm-stigs
           - gip-server-stigs
 
@@ -60,13 +59,12 @@
         manager: auto
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - dip-sensor-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vm-stigs
         - gip-server-stigs
 
@@ -74,13 +72,12 @@
       set_fact:
         var_password_pam_ocredit: !!str -1
       tags:
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - dip-sensor-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vm-stigs
         - all-stigs
         - gip-server-stigs
@@ -94,13 +91,12 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - dip-sensor-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vm-stigs
         - gip-server-stigs
 
@@ -111,12 +107,11 @@
         - all-stigs
         - dip-stigs
         - mip-controller-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-server-stigs
         - dip-sensor-stigs
         - mip-stigs
         - mip-controller-stigs
-        - gip-controller-stigs
         - gip-service-vm-stigs
         - repo-server-stigs
 
@@ -126,12 +121,11 @@
       tags:
         - all-stigs
         - dip-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-server-stigs
         - dip-sensor-stigs
         - mip-stigs
         - mip-controller-stigs
-        - gip-controller-stigs
         - gip-service-vm-stigs
         - gip-server-stigs
 
@@ -140,12 +134,11 @@
         var_password_pam_difok: !!str 4
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -156,12 +149,11 @@
         var_password_pam_minlen: !!str 12
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -172,12 +164,11 @@
         var_password_pam_maxrepeat: !!str 3
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -188,12 +179,11 @@
         var_password_pam_ucredit: !!str -1
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -208,12 +198,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -224,12 +213,11 @@
         var_password_pam_maxclassrepeat: !!str 4
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -244,12 +232,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -260,12 +247,11 @@
         manager: auto
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -276,12 +262,11 @@
         var_password_pam_dcredit: !!str -1
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -296,12 +281,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -312,12 +296,11 @@
         manager: auto
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -328,12 +311,11 @@
         var_accounts_passwords_pam_faillock_unlock_time: !!str 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -357,12 +339,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -383,12 +364,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -412,12 +392,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -438,12 +417,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -465,12 +443,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -481,12 +458,11 @@
         manager: auto
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -497,12 +473,11 @@
         var_accounts_passwords_pam_faillock_deny: !!str 3
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -526,12 +501,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -552,12 +526,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -580,12 +553,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -606,12 +578,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -633,12 +604,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -649,12 +619,11 @@
         manager: auto
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -665,12 +634,11 @@
         var_accounts_passwords_pam_faillock_fail_interval: !!str 900
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -694,12 +662,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -720,12 +687,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -749,12 +715,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -775,12 +740,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -802,12 +766,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -818,12 +781,11 @@
         manager: auto
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -834,12 +796,11 @@
         var_password_pam_unix_remember: !!str 5
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -853,12 +814,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -872,12 +832,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -888,12 +847,11 @@
         manager: auto
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -904,12 +862,11 @@
         var_accounts_max_concurrent_login_sessions: !!str 10
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -924,12 +881,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -940,12 +896,11 @@
         var_accounts_user_umask: !!str 027
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -956,12 +911,11 @@
         var_accounts_user_umask: !!str 027
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -972,12 +926,11 @@
         login_banner_text: !!str ^(You[\s\n]+are[\s\n]+accessing[\s\n]+a[\s\n]+U\.S\.[\s\n]+Government[\s\n]+\(USG\)[\s\n]+Information[\s\n]+System[\s\n]+\(IS\)[\s\n]+that[\s\n]+is[\s\n]+provided[\s\n]+for[\s\n]+USG\-authorized[\s\n]+use[\s\n]+only\.[\s\n]+By[\s\n]+using[\s\n]+this[\s\n]+IS[\s\n]+\(which[\s\n]+includes[\s\n]+any[\s\n]+device[\s\n]+attached[\s\n]+to[\s\n]+this[\s\n]+IS\)\,[\s\n]+you[\s\n]+consent[\s\n]+to[\s\n]+the[\s\n]+following[\s\n]+conditions\:(?:[\n]+|(?:\\n)+)\-The[\s\n]+USG[\s\n]+routinely[\s\n]+intercepts[\s\n]+and[\s\n]+monitors[\s\n]+communications[\s\n]+on[\s\n]+this[\s\n]+IS[\s\n]+for[\s\n]+purposes[\s\n]+including\,[\s\n]+but[\s\n]+not[\s\n]+limited[\s\n]+to\,[\s\n]+penetration[\s\n]+testing\,[\s\n]+COMSEC[\s\n]+monitoring\,[\s\n]+network[\s\n]+operations[\s\n]+and[\s\n]+defense\,[\s\n]+personnel[\s\n]+misconduct[\s\n]+\(PM\)\,[\s\n]+law[\s\n]+enforcement[\s\n]+\(LE\)\,[\s\n]+and[\s\n]+counterintelligence[\s\n]+\(CI\)[\s\n]+investigations\.(?:[\n]+|(?:\\n)+)\-At[\s\n]+any[\s\n]+time\,[\s\n]+the[\s\n]+USG[\s\n]+may[\s\n]+inspect[\s\n]+and[\s\n]+seize[\s\n]+data[\s\n]+stored[\s\n]+on[\s\n]+this[\s\n]+IS\.(?:[\n]+|(?:\\n)+)\-Communications[\s\n]+using\,[\s\n]+or[\s\n]+data[\s\n]+stored[\s\n]+on\,[\s\n]+this[\s\n]+IS[\s\n]+are[\s\n]+not[\s\n]+private\,[\s\n]+are[\s\n]+subject[\s\n]+to[\s\n]+routine[\s\n]+monitoring\,[\s\n]+interception\,[\s\n]+and[\s\n]+search\,[\s\n]+and[\s\n]+may[\s\n]+be[\s\n]+disclosed[\s\n]+or[\s\n]+used[\s\n]+for[\s\n]+any[\s\n]+USG\-authorized[\s\n]+purpose\.(?:[\n]+|(?:\\n)+)\-This[\s\n]+IS[\s\n]+includes[\s\n]+security[\s\n]+measures[\s\n]+\(e\.g\.\,[\s\n]+authentication[\s\n]+and[\s\n]+access[\s\n]+controls\)[\s\n]+to[\s\n]+protect[\s\n]+USG[\s\n]+interests\-\-not[\s\n]+for[\s\n]+your[\s\n]+personal[\s\n]+benefit[\s\n]+or[\s\n]+privacy\.(?:[\n]+|(?:\\n)+)\-Notwithstanding[\s\n]+the[\s\n]+above\,[\s\n]+using[\s\n]+this[\s\n]+IS[\s\n]+does[\s\n]+not[\s\n]+constitute[\s\n]+consent[\s\n]+to[\s\n]+PM\,[\s\n]+LE[\s\n]+or[\s\n]+CI[\s\n]+investigative[\s\n]+searching[\s\n]+or[\s\n]+monitoring[\s\n]+of[\s\n]+the[\s\n]+content[\s\n]+of[\s\n]+privileged[\s\n]+communications\,[\s\n]+or[\s\n]+work[\s\n]+product\,[\s\n]+related[\s\n]+to[\s\n]+personal[\s\n]+representation[\s\n]+or[\s\n]+services[\s\n]+by[\s\n]+attorneys\,[\s\n]+psychotherapists\,[\s\n]+or[\s\n]+clergy\,[\s\n]+and[\s\n]+their[\s\n]+assistants\.[\s\n]+Such[\s\n]+communications[\s\n]+and[\s\n]+work[\s\n]+product[\s\n]+are[\s\n]+private[\s\n]+and[\s\n]+confidential\.[\s\n]+See[\s\n]+User[\s\n]+Agreement[\s\n]+for[\s\n]+details\.|I've[\s\n]+read[\s\n]+\&[\s\n]+consent[\s\n]+to[\s\n]+terms[\s\n]+in[\s\n]+IS[\s\n]+user[\s\n]+agreem't\.)$
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -996,12 +949,11 @@
         - /etc/issue
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1012,12 +964,11 @@
         manager: auto
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1028,12 +979,11 @@
         login_banner_text: !!str ^(You[\s\n]+are[\s\n]+accessing[\s\n]+a[\s\n]+U\.S\.[\s\n]+Government[\s\n]+\(USG\)[\s\n]+Information[\s\n]+System[\s\n]+\(IS\)[\s\n]+that[\s\n]+is[\s\n]+provided[\s\n]+for[\s\n]+USG\-authorized[\s\n]+use[\s\n]+only\.[\s\n]+By[\s\n]+using[\s\n]+this[\s\n]+IS[\s\n]+\(which[\s\n]+includes[\s\n]+any[\s\n]+device[\s\n]+attached[\s\n]+to[\s\n]+this[\s\n]+IS\)\,[\s\n]+you[\s\n]+consent[\s\n]+to[\s\n]+the[\s\n]+following[\s\n]+conditions\:(?:[\n]+|(?:\\n)+)\-The[\s\n]+USG[\s\n]+routinely[\s\n]+intercepts[\s\n]+and[\s\n]+monitors[\s\n]+communications[\s\n]+on[\s\n]+this[\s\n]+IS[\s\n]+for[\s\n]+purposes[\s\n]+including\,[\s\n]+but[\s\n]+not[\s\n]+limited[\s\n]+to\,[\s\n]+penetration[\s\n]+testing\,[\s\n]+COMSEC[\s\n]+monitoring\,[\s\n]+network[\s\n]+operations[\s\n]+and[\s\n]+defense\,[\s\n]+personnel[\s\n]+misconduct[\s\n]+\(PM\)\,[\s\n]+law[\s\n]+enforcement[\s\n]+\(LE\)\,[\s\n]+and[\s\n]+counterintelligence[\s\n]+\(CI\)[\s\n]+investigations\.(?:[\n]+|(?:\\n)+)\-At[\s\n]+any[\s\n]+time\,[\s\n]+the[\s\n]+USG[\s\n]+may[\s\n]+inspect[\s\n]+and[\s\n]+seize[\s\n]+data[\s\n]+stored[\s\n]+on[\s\n]+this[\s\n]+IS\.(?:[\n]+|(?:\\n)+)\-Communications[\s\n]+using\,[\s\n]+or[\s\n]+data[\s\n]+stored[\s\n]+on\,[\s\n]+this[\s\n]+IS[\s\n]+are[\s\n]+not[\s\n]+private\,[\s\n]+are[\s\n]+subject[\s\n]+to[\s\n]+routine[\s\n]+monitoring\,[\s\n]+interception\,[\s\n]+and[\s\n]+search\,[\s\n]+and[\s\n]+may[\s\n]+be[\s\n]+disclosed[\s\n]+or[\s\n]+used[\s\n]+for[\s\n]+any[\s\n]+USG\-authorized[\s\n]+purpose\.(?:[\n]+|(?:\\n)+)\-This[\s\n]+IS[\s\n]+includes[\s\n]+security[\s\n]+measures[\s\n]+\(e\.g\.\,[\s\n]+authentication[\s\n]+and[\s\n]+access[\s\n]+controls\)[\s\n]+to[\s\n]+protect[\s\n]+USG[\s\n]+interests\-\-not[\s\n]+for[\s\n]+your[\s\n]+personal[\s\n]+benefit[\s\n]+or[\s\n]+privacy\.(?:[\n]+|(?:\\n)+)\-Notwithstanding[\s\n]+the[\s\n]+above\,[\s\n]+using[\s\n]+this[\s\n]+IS[\s\n]+does[\s\n]+not[\s\n]+constitute[\s\n]+consent[\s\n]+to[\s\n]+PM\,[\s\n]+LE[\s\n]+or[\s\n]+CI[\s\n]+investigative[\s\n]+searching[\s\n]+or[\s\n]+monitoring[\s\n]+of[\s\n]+the[\s\n]+content[\s\n]+of[\s\n]+privileged[\s\n]+communications\,[\s\n]+or[\s\n]+work[\s\n]+product\,[\s\n]+related[\s\n]+to[\s\n]+personal[\s\n]+representation[\s\n]+or[\s\n]+services[\s\n]+by[\s\n]+attorneys\,[\s\n]+psychotherapists\,[\s\n]+or[\s\n]+clergy\,[\s\n]+and[\s\n]+their[\s\n]+assistants\.[\s\n]+Such[\s\n]+communications[\s\n]+and[\s\n]+work[\s\n]+product[\s\n]+are[\s\n]+private[\s\n]+and[\s\n]+confidential\.[\s\n]+See[\s\n]+User[\s\n]+Agreement[\s\n]+for[\s\n]+details\.|I've[\s\n]+read[\s\n]+\&[\s\n]+consent[\s\n]+to[\s\n]+terms[\s\n]+in[\s\n]+IS[\s\n]+user[\s\n]+agreem't\.)$
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1045,12 +995,11 @@
         regexp: nullok
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1062,12 +1011,11 @@
         regexp: nullok
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1078,12 +1026,11 @@
         var_account_disable_post_pw_expiration: !!str 35
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1118,13 +1065,12 @@
       when: '"shadow-utils" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - dip-sensor-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vm-stigs
         - repo-server-stigs
         - gip-server-stigs
@@ -1137,12 +1083,11 @@
         line: ExecStart=-/usr/lib/systemd/systemd-sulogin-shell rescue
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1156,12 +1101,11 @@
         state: stopped
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1173,12 +1117,11 @@
         manager: auto
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1195,11 +1138,10 @@
       tags:
         - all-stigs
         - dip-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1210,12 +1152,11 @@
         var_auditd_flush: !!str incremental_async
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1228,12 +1169,11 @@
       check_mode: false
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1248,12 +1188,11 @@
       check_mode: false
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1266,12 +1205,11 @@
           (?:^fpr[:]*)([0-9A-Fa-f]*)', '\1') | list }}
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1282,12 +1220,11 @@
         gpg_valid_fingerprints: ("567E347AD0044ADE55BA8A5F199E2F91FD431D51" "6A6AA7C97C8890AEC6AEBFE2F76F66C3D4082792")
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1304,12 +1241,11 @@
         - gpg_installed_fingerprints | length > 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1320,12 +1256,11 @@
         manager: auto
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1340,12 +1275,11 @@
         - '"yum" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1363,12 +1297,11 @@
         - '"yum" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1386,12 +1319,11 @@
         - '"yum" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1404,12 +1336,11 @@
         manager: auto
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1424,12 +1355,11 @@
         - '"yum" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1446,12 +1376,11 @@
         - '"yum" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1468,12 +1397,11 @@
         - '"yum" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1486,12 +1414,11 @@
       changed_when: false
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1505,12 +1432,11 @@
         value: 1
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1522,12 +1448,11 @@
       changed_when: false
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1544,12 +1469,11 @@
           multiline=True) is none
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1560,12 +1484,11 @@
         manager: auto
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1579,12 +1502,11 @@
         - '"grub2-common" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1602,12 +1524,11 @@
         - '"grub2-common" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1619,12 +1540,11 @@
         state: present
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1635,12 +1555,11 @@
         var_selinux_policy_name: !!str targeted
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1664,12 +1583,11 @@
             state: present
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1680,12 +1598,11 @@
         var_selinux_state: !!str enforcing
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1709,12 +1626,11 @@
             state: present
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1725,12 +1641,11 @@
         sysctl_net_ipv4_conf_default_log_martians_value: !!str 1
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1741,12 +1656,11 @@
         sysctl_net_ipv4_icmp_ignore_bogus_error_responses_value: !!str 1
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1757,12 +1671,11 @@
         sysctl_net_ipv4_tcp_syncookies_value: !!str 1
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1773,12 +1686,11 @@
         sysctl_net_ipv4_conf_default_accept_redirects_value: !!str 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1789,12 +1701,11 @@
         sysctl_net_ipv4_conf_all_rp_filter_value: !!str 1
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1805,12 +1716,11 @@
         sysctl_net_ipv4_icmp_echo_ignore_broadcasts_value: !!str 1
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1821,12 +1731,11 @@
         sysctl_net_ipv4_conf_all_accept_redirects_value: !!str 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1837,12 +1746,11 @@
         sysctl_net_ipv4_conf_all_accept_source_route_value: !!str 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1853,12 +1761,11 @@
         sysctl_net_ipv4_conf_all_log_martians_value: !!str 1
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1869,12 +1776,11 @@
         sysctl_net_ipv4_conf_default_accept_source_route_value: !!str 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1885,12 +1791,11 @@
         sysctl_net_ipv4_conf_all_secure_redirects_value: !!str 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1901,12 +1806,11 @@
         sysctl_net_ipv4_conf_default_secure_redirects_value: !!str 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1917,12 +1821,11 @@
         sysctl_net_ipv6_conf_default_accept_redirects_value: !!str 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1933,12 +1836,11 @@
         sysctl_net_ipv6_conf_all_accept_source_route_value: !!str 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1949,12 +1851,11 @@
         sysctl_net_ipv6_conf_default_accept_source_route_value: !!str 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1965,12 +1866,11 @@
         sysctl_net_ipv6_conf_all_accept_redirects_value: !!str 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1981,12 +1881,11 @@
         sysctl_net_ipv6_conf_default_accept_ra_value: !!str 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -1997,12 +1896,11 @@
         sysctl_net_ipv6_conf_all_accept_ra_value: !!str 0
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -2013,12 +1911,11 @@
         var_rekey_limit_size: !!str 1G
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -2029,12 +1926,11 @@
         var_rekey_limit_time: !!str 1h
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -2060,12 +1956,11 @@
             validate: /usr/sbin/sshd -t -f %s
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -2107,12 +2002,11 @@
             validate: /usr/sbin/sshd -t -f %s
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
@@ -2541,12 +2435,11 @@
       when: '"pam" in ansible_facts.packages'
       tags:
         - all-stigs
-        - dip-controller-stigs
+        - controller-stigs
         - dip-stigs
         - dip-server-stigs
         - mip-controller-stigs
         - mip-stigs
-        - gip-controller-stigs
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs

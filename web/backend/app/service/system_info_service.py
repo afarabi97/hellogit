@@ -3,7 +3,7 @@ from datetime import datetime
 import configparser
 import socket
 
-INI = "/etc/tfplenum.ini"
+INI = "/etc/tfplenum/tfplenum.ini"
 
 def get_version() -> dict:
     config = configparser.ConfigParser()
@@ -12,14 +12,6 @@ def get_version() -> dict:
         return config['tfplenum']['version']
     except KeyError:
         return None
-
-def get_system_name() -> str:
-    config = configparser.ConfigParser()
-    config.read(INI)
-    try:
-        return config['tfplenum']['system_name']
-    except KeyError:
-        return "dip"
 
 def get_build_date() -> dict:
     config = configparser.ConfigParser()
@@ -34,7 +26,7 @@ def get_hostname() -> str:
     try:
         return socket.gethostname()
     except Exception:
-        return "dip-controller.lan"
+        return "controller.lan"
 
 def get_auth_base() -> str:
     base_template = "https://{hostname}/auth/realms/CVAH-SSO"
@@ -42,4 +34,4 @@ def get_auth_base() -> str:
         hostname = get_hostname()
         return base_template.format(hostname=hostname)
     except Exception:
-        return base_template.format(hostname="dip-controller.lan")
+        return base_template.format(hostname="controller.lan")

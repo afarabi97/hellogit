@@ -1,0 +1,30 @@
+# site.yml is the overall playbook, but all it does is include the other playbooks that are part of the site. For more
+# information about the structure see:
+# http://docs.ansible.com/ansible/latest/playbooks_best_practices.html
+# http://docs.ansible.com/ansible/latest/intro_inventory.html
+# We follow the guidance to include naming conventions there.
+
+---
+
+- name: Set System Name and Node Groups
+  hosts: localhost
+  gather_facts: no
+  pre_tasks:
+    - name: Run gather facts
+      setup:
+  roles:
+    - system_info
+  tags:
+    - always
+    - system-info
+
+- name: Create Virtual
+  hosts: localhost
+  gather_facts: no
+  pre_tasks:
+    - name: Run gather facts
+      setup:
+  roles:
+    - virtual-nodes
+  tags:
+    - virtual-nodes

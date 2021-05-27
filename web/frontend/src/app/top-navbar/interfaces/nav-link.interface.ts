@@ -10,7 +10,6 @@ export interface NavLinkInterface {
   icon: string;
   isExternalLink: boolean;
   section: string;
-  system: Array<string>;
   privs: boolean;
   target?: string;
   kitStatus: boolean;

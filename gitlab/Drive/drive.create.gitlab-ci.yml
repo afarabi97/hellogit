@@ -37,7 +37,10 @@ Hash Master GIP Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive-hashes \
-    --rsync-source "$MASTER_DRIVE_CREATION_GIP_RSYNC_SOURCE"
+    --rsync-source "$MASTER_DRIVE_CREATION_GIP_RSYNC_SOURCE" \
+    --username "$MASTER_DRIVE_CREATION_USERNAME" \
+    --password "$MASTER_DRIVE_CREATION_PASSWORD" \
+    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
       - $PIPELINE == "export-gip"
@@ -48,10 +51,13 @@ Hash Check Master GIP Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export check-master-drive-hashes \
-    --rsync-source "$MASTER_DRIVE_CREATION_GIP_RSYNC_SOURCE"
+    --rsync-source "$MASTER_DRIVE_CREATION_GIP_MOUNT_POINT" \
+    --username "$MASTER_DRIVE_CREATION_USERNAME" \
+    --password "$MASTER_DRIVE_CREATION_PASSWORD" \
+    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
-      - $PIPELINE == "export-gip"
+      - $RUN_CREATE_GIP_DRIVE == "yes"
 
 Hash Master CPT Drive:
   stage: hashfiles
@@ -59,11 +65,14 @@ Hash Master CPT Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive-hashes \
-    --rsync-source "$MASTER_DRIVE_CREATION_CPT_RSYNC_SOURCE"
+    --rsync-source "$MASTER_DRIVE_CREATION_CPT_RSYNC_SOURCE" \
+    --username "$MASTER_DRIVE_CREATION_USERNAME" \
+    --password "$MASTER_DRIVE_CREATION_PASSWORD" \
+    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
-      - $PIPELINE == "export-all"
-      - $PIPELINE == "minor-release"
+      - $PIPELINE == "export-all" && $RUN_CREATE_MASTER_DRIVE == "yes"
+      - $PIPELINE == "minor-release"      
 
 Hash Master MDT Drive:
   stage: hashfiles
@@ -71,11 +80,14 @@ Hash Master MDT Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive-hashes \
-    --rsync-source "$MASTER_DRIVE_CREATION_MDT_RSYNC_SOURCE"
+    --rsync-source "$MASTER_DRIVE_CREATION_MDT_RSYNC_SOURCE" \
+    --username "$MASTER_DRIVE_CREATION_USERNAME" \
+    --password "$MASTER_DRIVE_CREATION_PASSWORD" \
+    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
-      - $PIPELINE == "export-all"
-      - $MDT == "yes" && $PIPELINE == "minor-release"
+      - $PIPELINE == "export-all" && $RUN_CREATE_MASTER_DRIVE == "yes"
+      - $MDT == "yes" && $PIPELINE == "minor-release"      
 
 Hash Check Master CPT Drive:
   stage: checkhash
@@ -83,11 +95,14 @@ Hash Check Master CPT Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export check-master-drive-hashes \
-    --rsync-source "$MASTER_DRIVE_CREATION_CPT_RSYNC_SOURCE"
+    --rsync-source "$MASTER_DRIVE_CREATION_CPT_MOUNT_POINT" \
+    --username "$MASTER_DRIVE_CREATION_USERNAME" \
+    --password "$MASTER_DRIVE_CREATION_PASSWORD" \
+    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
-      - $PIPELINE == "export-all"
-      - $PIPELINE == "minor-release"
+      - $PIPELINE == "export-all" && $RUN_CREATE_MASTER_DRIVE == "yes"
+      - $PIPELINE == "minor-release"      
 
 Hash Check Master MDT Drive:
   stage: checkhash
@@ -95,12 +110,15 @@ Hash Check Master MDT Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export check-master-drive-hashes \
-    --rsync-source "$MASTER_DRIVE_CREATION_MDT_RSYNC_SOURCE"
+    --rsync-source "$MASTER_DRIVE_CREATION_MDT_MOUNT_POINT" \
+    --username "$MASTER_DRIVE_CREATION_USERNAME" \
+    --password "$MASTER_DRIVE_CREATION_PASSWORD" \
+    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
-      - $PIPELINE == "export-all"
-      - $MDT == "yes" && $PIPELINE == "minor-release"
-
+      - $PIPELINE == "export-all" && $RUN_CREATE_MASTER_DRIVE == "yes"
+      - $MDT == "yes" && $PIPELINE == "minor-release"      
+      
 Create Master CPT Drive:
   stage: publish
   tags:

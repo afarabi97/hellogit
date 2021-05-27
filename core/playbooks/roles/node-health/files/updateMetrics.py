@@ -35,12 +35,12 @@ def main():
 
     data = []
 
-    if (nodeType in ['sensor', 'server']):
+    if (nodeType in ['Sensor', 'Server', 'Control-Plane', 'Service']):
         node = socket.gethostname()
         psutilMetrics = PsutilMetrics(node)
         data.extend(psutilMetrics.getMetrics())
 
-    if (nodeType in ["sensor"]):
+    if (nodeType in ["Sensor"]):
         node = socket.gethostname()
         hostname = socket.gethostname()
         shortHostname = socket.gethostname().split('.', 1)[0]

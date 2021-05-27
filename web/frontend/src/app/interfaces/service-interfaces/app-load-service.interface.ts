@@ -1,4 +1,4 @@
-import { SystemNameClass, UserClass } from '../../classes';
+import { UserClass } from '../../classes';
 
 /**
  * Interface defines the app load service
@@ -8,5 +8,4 @@ import { SystemNameClass, UserClass } from '../../classes';
  */
 export interface AppLoadServiceInterface {
   getCurrentUser(): Promise<UserClass>;
-  getSystemName(): Promise<SystemNameClass>;
 }

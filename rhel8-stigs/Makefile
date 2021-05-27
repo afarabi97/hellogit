@@ -21,9 +21,9 @@ all-stigs:
 
 #########################
 #	DIP STIGS	#
-#########################
-dip-controller-stigs:
-	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, --tags "dip-controller-stigs"
+#################
+controller-stigs:
+	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, --tags "controller-stigs"
 
 dip-stigs:
 	ansible-playbook $(PLAYBOOK) -i $(CORE_INVENTORY) --tags "dip-stigs"
@@ -45,9 +45,7 @@ mip-stigs:
 
 #########################
 #	GIP STIGS	#
-#########################
-gip-controller-stigs:
-	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, --tags "gip-controller-stigs"
+#################
 
 gip-server-stigs:
 	ansible-playbook $(PLAYBOOK) -i $(CORE_INVENTORY) --tags "gip-server-stigs"

@@ -5,16 +5,12 @@
     dnf download --repoid="{{ item.repoid }}" --destdir="{{ item.destdir }}" {{ item.packages }}
   with_items:
     - { repoid: "epel,kubernetes,mongodb-org-4.0,docker-ce", destdir: "{{ extras_dir }}/Packages/", packages: "{{ extra_packages | join(' ') }}" }
-  when:
-    - "system_name == 'DIP' or system_name == 'GIP'"
   args:
     warn: false
 
 - name: Download DIP/GIP Packages without Deps
   shell: |
     dnf download --repoid="epel,kubernetes,mongodb-org-4.0,docker-ce" --destdir="{{ extras_dir }}/Packages/" {{ dip_packages_without_deps | join(' ')  }}
-  when:
-    - "system_name == 'DIP' or system_name == 'GIP'"
   args:
     warn: false
 
@@ -22,20 +18,8 @@
   shell: "{{ item }}"
   with_items:
     - "dnf download --destdir={{ extras_dir }}/Packages --resolve --arch=x86_64,noarch {{ download_packages | join(' ') }}"
-  when:
-    - "system_name == 'MIP'"
   args:
     warn: false
-
-# - name: remove unwanted packages
-#   shell: |
-#     /usr/bin/rm -rf {{ baseos_dir }}/Packages/{{ item }}
-#   with_items:
-#     - "{{ dip_packages_to_remove }}*.rpm"
-#   args:
-#     warn: false
-#   when:
-#     - "system_name == 'DIP' or system_name == 'GIP'"
 
 - import_tasks: 25_create_repodata.yml
   tags: create_repodata

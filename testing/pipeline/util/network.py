@@ -1,10 +1,10 @@
 import logging
-import random
 import subprocess
 from functools import wraps
 from time import sleep
 from typing import List
 import shlex
+
 
 def retry(count=5, time_to_sleep_between_retries=20):
     """
@@ -29,7 +29,7 @@ def retry(count=5, time_to_sleep_between_retries=20):
                     if (i + 1) == count:
                         raise
                     print(str(e))
-                    print("Sleeping 10 seconds")
+                    print("Sleeping {} seconds".format(time_to_sleep_between_retries))
                     sleep(time_to_sleep_between_retries)
         return result
     return decorator
@@ -218,6 +218,28 @@ class IPAddressManager:
     def get_next_node_address(self) -> str:
         if IPAddressManager.next_ip is None:
             IPAddressManager.next_ip = IPAddressManager.kit_block_ip
+            return IPAddressManager.next_ip
+
+        pos = IPAddressManager.next_ip.rfind('.') + 1
+        last_octet = int(IPAddressManager.next_ip[pos:])
+        IPAddressManager.next_ip = IPAddressManager.next_ip[:pos] + str(last_octet + 1)
+        return IPAddressManager.next_ip
+
+    def get_controller_ip_address(self):
+        IPAddressManager.next_ip = IPAddressManager.kit_block_ip
+        return IPAddressManager.kit_block_ip
+
+    def get_next_node_address_v2(self, index: int) -> str:
+        """
+        If next_ip is None we set it based on passed in index otherwise we increment it.
+        + 3 was added because 3 ips are reserved for 3 control planes if we are creating a GIP
+        for DIPs only one is used but we still make the reservation for 3.
+        """
+        if IPAddressManager.next_ip is None:
+            IPAddressManager.next_ip = IPAddressManager.kit_block_ip
+            pos = IPAddressManager.next_ip.rfind('.') + 1
+            last_octet = int(IPAddressManager.next_ip[pos:])
+            IPAddressManager.next_ip = IPAddressManager.next_ip[:pos] + str(last_octet + index + 3)
             return IPAddressManager.next_ip
 
         pos = IPAddressManager.next_ip.rfind('.') + 1

@@ -4,6 +4,14 @@
   "node_affinity": "Server - Any",
   "formControls": [
     {
+      "type": "service-node-checkbox",
+      "default_value": false,
+      "description": "Install App on Service Node",
+      "trueValue": true,
+      "falseValue": false,
+      "name": "serviceNode"
+    },
+    {
       "type": "checkbox",
       "default_value": true,
       "description": "Integrate with Cortex (Requires Cortex to be installed first, verify Cortex is up and running before continuing)",

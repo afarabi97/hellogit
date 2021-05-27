@@ -3,7 +3,7 @@ import os
 import re
 import uuid
 
-from app import api, conn_mng
+from app import api, conn_mng, REDIS_CLIENT, rq_logger
 from app.models import Model, DBModelNotFound, PostValidationError
 from ipaddress import IPv4Address
 from flask_restx import fields
@@ -12,7 +12,6 @@ from flask_restx.fields import Nested
 from marshmallow import Schema, post_load, validate, validates, ValidationError
 from marshmallow import fields as marsh_fields
 from pymongo.results import InsertOneResult
-from app.utils.constants import KICKSTART_ID, ADDNODE_ID
 from app.utils.utils import encode_password, decode_password
 from typing import List, Dict, Tuple
 
@@ -301,7 +300,7 @@ class DeviceFacts(Model):
                 self.potential_monitor_interfaces.append(interface.name)
 
 
-def create_device_facts_from_ansible_setup(server_ip: str, password: str) -> DeviceFacts:
+def create_device_facts_from_ansible_setup(server_ip: str, password: str=None) -> DeviceFacts:
     """
     Function opens ansible process to run setup on specified server and returns a json object
 
@@ -316,11 +315,12 @@ def create_device_facts_from_ansible_setup(server_ip: str, password: str) -> Dev
                               "UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
     # The following runs ansible setup module on the target node
-    password = password.replace('"', '\\"')
-    if password.find("'") != -1:
-        raise ValueError("The password you typed contained a single ' which is not allowed.")
+    if password:
+        password = password.replace('"', '\\"')
+        if password.find("'") != -1:
+            raise ValueError("The password you typed contained a single ' which is not allowed.")
 
-    ansible_string = "ansible all -m setup -e ansible_ssh_pass='" + password + "' -i " + server_ip + ","
+        ansible_string = "ansible all -m setup -e ansible_ssh_pass='" + password + "' -i " + server_ip + ","
     if server_ip == "localhost" or server_ip == "127.0.0.1":
         ansible_string = "ansible -m setup " + server_ip
 

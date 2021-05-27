@@ -1,0 +1,28 @@
+<div class="main-content2">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Page Instructions</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="pageInstructions" style="padding: 0px">
+        <p>
+          This page stores all the global configuration options needed for the Kit.
+          Before the Kubernetes control plane can be setup, fill
+          out the forms below.  The buttons will enable themselves when the forms
+          are saved.
+        </p>
+        <p>
+          Kit and Mip Settings require General Settings to be completed.
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  <br>
+  <app-vmware-settings></app-vmware-settings>
+  <br>
+  <app-general-settings-pane (getGeneralSettings)="updateGeneralSettings($event)" [generalSettings]="generalSettings" [kitStatus]="kitStatus" [controllerInfo]="controllerInfo"></app-general-settings-pane>
+  <br>
+  <app-kit-settings-pane [generalSettings]="generalSettings" [kitStatus]="kitStatus" [kitSettings]="kitSettings" [controllerInfo]="controllerInfo"></app-kit-settings-pane>
+  <br>
+  <app-mip-settings-pane [generalSettings]="generalSettings" [kitStatus]="kitStatus"></app-mip-settings-pane>
+</div>

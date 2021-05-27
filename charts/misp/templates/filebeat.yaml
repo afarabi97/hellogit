@@ -1,5 +1,4 @@
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -88,5 +87,5 @@ spec:
           optional: false
           secretName: webca-certificate
       nodeSelector:
-        role: "server"
+        role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}
 ...

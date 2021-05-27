@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,6 +14,7 @@ spec:
     metadata:
       labels:
         component: {{ .Release.Name }}
+        app: {{ .Release.Name }}
     spec:
       containers:
       - name: nginx
@@ -147,7 +149,7 @@ spec:
         - mountPath: /app/uploads
           name: rocket-data
       nodeSelector:
-        role: server
+        role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}
       restartPolicy: Always
       volumes:
       - configMap:
@@ -162,3 +164,4 @@ spec:
       - name: rocket-data
         persistentVolumeClaim:
           claimName: {{ .Release.Name }}-pvc
+

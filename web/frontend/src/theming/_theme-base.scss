@@ -4,18 +4,13 @@
 @import '../app/top-navbar/top-navbar-theme';
 @import '../app/catalog/chart-list/chart-list-theme';
 @import '../app/catalog/page/catalog-page-theme';
-@import '../app/mip-config/mip-config-theme';
+
+
+
 
 @mixin global-theme($theme) {
 
   // Since this is already in a class this selector will override the .material-icons font-family.
-  * {
-    font-family: sans-serif, serif, 'Times New Roman', Times;
-  }
-
-  .material-icons {
-    font-family: 'Material Icons', sans-serif, serif, 'Times New Roman', Times;
-  }
 
   .mat-error {
     font-size: map-get($theme, primary-font-size) !important;
@@ -275,7 +270,6 @@
   @include top-navbar-theme($theme);
   @include chart-list-theme($theme);
   @include catalog-page-theme($theme);
-  @include mip-config-theme($theme);
 }
 
 @mixin theming($theme-tfplenum, $theme-material, $typography-material: null) {

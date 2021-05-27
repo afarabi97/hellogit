@@ -8,35 +8,29 @@ variables:
   TFPLENUM_EXPORT_HASH: "$CI_COMMIT_SHORT_SHA"
 
   #Pipeline specific variables
-  PIPELINE: "developer-dip"
-  BUILD_TYPE: "clone_from_nightly"
+  PIPELINE: "developer-all"
   VMWARE_FOLDER: "Testing"
   NETWORK_ID: "10.40.12.0"
-  DIP_NETWORK_BLOCK_INDEX: 0
-  MIP_NETWORK_BLOCK_INDEX: 1
-  MIP_STORAGE_SIZE: 350
-  GIP_NETWORK_BLOCK_INDEX: 2
-  GIP_SERVICES_NETWORK_BLOCK_INDEX: 2
+  NETWORK_BLOCK_INDEX: 0
+  MINIO_NETWORK_BLOCK_INDEX: 1
   RHEL_NETWORK_BLOCK_INDEX: 2
 
   # Common varibles used across multiple pipelines
-  DNS_SERVERS: "10.10.101.11 10.10.101.12 10.11.101.13"
+  DNS_SERVERS: "10.10.101.248 10.10.101.11 10.10.101.12"
   REPO_URL: "https://gitlab.sil.lab/tfplenum/tfplenum.git"
   VCENTER_IPADDRESS: "10.10.103.10"
   VCENTER_DATACENTER: "DEV_Datacenter"
   VCENTER_PORTGROUP: ""
   VCENTER_DATASTORE: "DEV-vSAN"
-  DIP_TEMPLATE_TO_CLONE: "nightly$TFPLENUM_EXPORT_VERSION-dip-ctrl"
-  MIP_TEMPLATE_TO_CLONE: "nightly$TFPLENUM_EXPORT_VERSION-mip-ctrl"
-  GIP_TEMPLATE_TO_CLONE: "nightly$TFPLENUM_EXPORT_VERSION-gip-ctrl"
-  GIP_SVC_TEMPLATE_TO_CLONE: "GIP SVC Template"
-  MIP_OPERATOR_TYPE: "CPT"
+  VCENTER_CLUSTER: "DEV_Cluster"
+  TEMPLATE_TO_CLONE: "RHEL8 Template"
   VM_GATEWAY: "10.40.12.1"
   RHEL_SUB_METHOD: "standard"
   RHEL_ORGANIZATION: "7403688"
   RHEL_ACTIVATIONKEY: "Reposync"
-  UPSTREAM_DNS: "10.10.101.11"
-  UPSTREAM_NTP: "10.10.101.11"
+  UPSTREAM_DNS: "10.10.101.248"
+  UPSTREAM_NTP: "10.10.101.248"
+  MONITORING_INTERFACE: "ens224"
 
   #VM Default variables
   VM_PREFIX: "test1" #EX <VM_PREFIX>-ctrl.<KIT_DOMAIN> | <VM_PREFIX>-sensor1.<KIT_DOMAIN> | <VM_PREFIX>-server1.<KIT_DOMAIN>
@@ -45,17 +39,18 @@ variables:
   CTRL_MEMORY: 16384
   NUM_SERVERS: 2
   NUM_SENSORS: 1
+  NUM_SERVICE_NODES: 1
   SERVER_CPU: 16
   SERVER_MEM: 24576
   SENSOR_CPU: 16
   SENSOR_MEM: 16384
+  SERVICE_CPU: 8
+  SERVICE_MEM: 12288
+  MIP_CPU: 16
+  MIP_MEM: 24576
   NUM_MIPS: 1
-  GIP_SERVER_CPU: 16
-  GIP_SERVER_MEM: 32768
 
   # Yes no flag variables
-  CREATE_NIGHTLY: "no"
-  RUN_STIGS: "yes"
   VM_RAID: "no"
   RUN_REMOTE_NODE: "no"
   RUN_INTEGRATION: "no"
@@ -69,12 +64,8 @@ variables:
   RUN_ROBOT_TESTS: "yes"
   MINIO_USE_TLS: "yes"
   CREATE_MULTIBOOT: "yes"
-
-  #ACAS specific variables:
-  ACAS_IPADDRESS: "172.16.82.15"
-  ACAS_USERNAME: "acas"
-  DIP_ACAS_SCAN_TO_RUN: "DIP Dynamic Scan"
-  MIP_ACAS_SCAN_TO_RUN: "MIP Dynamic Scan"
+  RUN_CREATE_MASTER_DRIVE: "no"
+  RUN_CREATE_GIP_DRIVE: "no"
 
   # Breaking point variables
   BREAKINGPOINT_IP: "10.10.103.29"
@@ -98,10 +89,11 @@ variables:
 
   # Hardware specific variables
   REDFISH_USER: "root"
+  PXE_TYPE: "UEFI"
   ESXI_DATASTORE: "datastore1"
+  ESXI_PORTGROUP: "Internal"
   CONTROLLER_OVA: DIP_Controller
   TEMPLATE_OVA: "rhel8_template.ova"
-  CONTROLLER_DNS_SERVERS: "10.10.101.248"
   REDFISH_PASSWORD: ""
   MANAGEMENT_PASSWORD: ""
   CONTROLLER_GATEWAY: ""
@@ -111,7 +103,6 @@ variables:
   MP_EXTERNAL_IP: ""
   PFSENSE_IP: ""
   SWITCH_IP: ""
-  MONITORING_INTERFACE: ""
 
   #Master Drive Creation Variables
   MASTER_DRIVE_CREATION_USERNAME: "drive_creator"
@@ -122,15 +113,12 @@ variables:
   MASTER_DRIVE_CREATION_GIP_MOUNT_POINT: "/mnt/GIPData"
   MASTER_DRIVE_CREATION_CPT_MOUNT_POINT: "/mnt/CPTData"
   MASTER_DRIVE_CREATION_MDT_MOUNT_POINT: "/mnt/MDTData"
-  RUN_CREATE_MASTER_DRIVE: "no"
-  RUN_CREATE_GIP_DRIVE: "no"
 
   #EXPORT Variables
   CONFLUENCE_SUP_DOCS: ""
   GIP_CONFLUENCE_DOCS: ""
   DIP_CONFLUENCE_SETUP_DOCS: ""
   DIP_CONFLUENCE_USER_DOCS: ""
-  DIP_CONFLUENCE_TRAINING_DOCS: ""
   DIP_CONFLUENCE_MAIN_DOCS: ""
   DIP_CONFLUENCE_TROUBLE_DOCS: ""
   DIP_CONFLUENCE_VDD_DOCS: ""
@@ -145,7 +133,6 @@ variables:
   SONAR_TOKEN: "88288e09065a3d865d20a10c05563b3225566490"
   SONAR_HOST_URL: "http://sonarqube.sil.lab:9000/"
 
-  NIGHTLY_PREFIX: "nightly$TFPLENUM_EXPORT_VERSION"
   MASTER_DRIVE_CREATION_PATH: "/mnt/drive_creation"
   MASTER_DRIVE_CPT_MULTIBOOT_PATH: "$MASTER_DRIVE_CREATION_PATH/v$TFPLENUM_EXPORT_VERSION/CPT_MULTIBOOT/"
   MASTER_DRIVE_MDT_MULTIBOOT_PATH: "$MASTER_DRIVE_CREATION_PATH/v$TFPLENUM_EXPORT_VERSION/MDT_MULTIBOOT/"
@@ -181,15 +168,12 @@ variables:
   POWERSHELL_MODULES_CPT_EXPORT_DIR: "$MASTER_DRIVE_CREATION_PATH/v$TFPLENUM_EXPORT_VERSION/CPT/Data/CVAH $TFPLENUM_EXPORT_VERSION/Software/AppStore/PowerShell_Modules"
   POWERSHELL_MODULES_MDT_EXPORT_DIR: "$MASTER_DRIVE_CREATION_PATH/v$TFPLENUM_EXPORT_VERSION/MDT/Data/CVAH $TFPLENUM_EXPORT_VERSION/Software/AppStore/PowerShell_Modules"
 
-
-  DOCS_ARCH_FOLDER: "Architecture"
   DOCS_SETUP_FOLDER: "Setup"
-  DOCS_TRAINING_FOLDER: "Training"
   DOCS_USER_FOLDER: "User"
   DOCS_VDD_FOLDER: "VDD"
   DOCS_MAINTENANCE_FOLDER: "Maintenance"
   DOCS_TROUBLESHOOTING_FOLDER: "TroubleShooting"
-  DOCS_FOLDERS: "$DOCS_ARCH_FOLDER $DOCS_SETUP_FOLDER $DOCS_TRAINING_FOLDER $DOCS_USER_FOLDER $DOCS_VDD_FOLDER $DOCS_MAINTENANCE_FOLDER $DOCS_TROUBLESHOOTING_FOLDER"
+  DOCS_FOLDERS: "$DOCS_SETUP_FOLDER $DOCS_USER_FOLDER $DOCS_VDD_FOLDER $DOCS_MAINTENANCE_FOLDER $DOCS_TROUBLESHOOTING_FOLDER"
 
   STACK_SOFTWARE_FOLDER: "Physical_Stack_Build"
   DIP_SOFTWARE_FOLDER: "DIP"
@@ -217,8 +201,11 @@ stages:
   - build
   - docs
   - unit-test
-  - kickstart
-  - kit
+  - kit-settings
+  - control-plane
+  - server-setup
+  - deploy-kit
+  - node-setup
   - configure:minio
   - stig-kit
   - security_scans
@@ -227,12 +214,11 @@ stages:
   - integration-test
   - test-powerfailure
   - rerun-integration-test
-  - publish-nightly
   - export
   - cleanup
   - hashfiles
-  - checkhash
   - publish
+  - checkhash
   - breakingpoint-test
   - verodin-test
   - remote-node
@@ -244,7 +230,6 @@ default:
   before_script:
     - |
       python3 testing/pipeline/pipeline.py \
-          --system-name "DIP" \
           checkout-latest-code \
           --repo-username "$REPO_USERNAME" \
           --repo-password "$REPO_PASSWORD" \
@@ -260,11 +245,7 @@ include:
   - local: gitlab/DIP/dip.docs.gitlab-ci.yml
   - local: gitlab/DIP/dip.robot.gitlab-ci.yml
   - local: gitlab/DIP/dip.baremetal-gitlab-ci.yml
-  - local: gitlab/MIP/mip.baremetal-gitlab-ci.yml
-  - local: gitlab/MIP/mip.gitlab-ci.yml
-  - local: gitlab/MIP/mip.export.gitlab-ci.yml
   - local: gitlab/MIP/mip.docs.gitlab-ci.yml
-  - local: gitlab/GIP/gip.gitlab-ci.yml
   - local: gitlab/GIP/gip.export.gitlab-ci.yml
   - local: gitlab/GIP/gip.docs.gitlab-ci.yml
   - local: gitlab/Drive/repo.gitlab-ci.yml

@@ -1,9 +1,7 @@
 {
   "defaultGroups": [
-{% if system_name == 'DIP' or system_name == 'GIP' %}
     "/Hive Read",
     "/Cortex Read",
-{% endif %}
     "/Operator",
     "/All Users"
   ],
@@ -61,8 +59,7 @@
         ]
       },
       "subGroups": []
-    }{{ ',' if system_name == 'DIP' or system_name == 'GIP' else '' }}
-{% if system_name == 'DIP' or system_name == 'GIP' %}
+    },
     {
       "name": "ELK Superuser",
       "path": "/ELK Superuser",
@@ -269,7 +266,6 @@
       ],
       "clientRoles": {},
       "subGroups": []
-    },
-{% endif %}
+    }
   ]
 }

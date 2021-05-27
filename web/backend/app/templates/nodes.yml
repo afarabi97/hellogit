@@ -1,0 +1,97 @@
+---
+# The inventory defines which hosts belong to which groups and what variables are applied to them. The playbooks
+# themselves in our scheme do not define any variables. The names you see on the far left here correspond to the limit
+# function you can run with the ansible-playbook command. For example ansible-playbook site.yml --limit sensor would
+# look at this inventory file and see the hosts that are part of the sensor group. When site.yml imports the sensors.yml
+# file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
+
+all:
+  children:
+    nodes:
+      children:
+
+    #############################
+    # Sensor Settings           #
+    #############################
+
+    # Here you will define any variables specific to each sensor host.
+
+        sensors:
+          {% if template_ctx.sensor_count > 0 -%}
+          hosts:
+          {%- endif %}
+            {% for node in template_ctx.nodes -%}
+            {% if 'Sensor' in node.node_type -%}
+            {{ node.hostname }}:
+              ansible_user: root
+              ansible_connection: ssh
+              management_ipv4: "{{ node.ip_address }}"
+              mac: {{ node.mac_address }}
+              boot_drive:
+              {%- for drive in node.boot_drives %}
+                - {{ drive | lower() }}
+              {%- endfor %}
+              data_drive:
+              {%- for drive in node.data_drives %}
+                - {{ drive | lower() }}
+              {%- endfor %}
+              pxe_type: {{ node.pxe_type | lower() }}
+              os_raid: {{ node.os_raid }}
+              os_raid_root_size: {{ node.os_raid_root_size | default(50) }}
+              raid_drives:
+              {%- for drive in node.raid_drives %}
+                - {{ drive | lower() }}
+              {%- endfor %}
+              node_type: {{ node.node_type }}
+              deployment_type: {{ node.deployment_type }}
+              {%- if node.deployment_type == "Virtual" %}
+              memory: 16384
+              cpu: 16
+              {% endif %}
+            {% endif %}
+            {%- endfor %}
+
+    #############################
+    # Server Settings           #
+    #############################
+
+    # See the sensor section for explanation of values. Servers exist primarily
+    # to run Elasticsearch and provide the horsepower to run the sensors. You can
+    # see the group section for a list of things that run specifically on servers
+    # only.
+
+        servers:
+          {% if template_ctx.server_count > 0 -%}
+          hosts:
+          {%- endif %}
+            {% for node in template_ctx.nodes -%}
+            {% if 'Server' in node.node_type or 'Service' in node.node_type -%}
+            {{ node.hostname }}:
+              ansible_user: root
+              ansible_connection: ssh
+              management_ipv4: {{ node.ip_address }}
+              mac: {{ node.mac_address }}
+              boot_drive:
+              {%- for drive in node.boot_drives %}
+                - {{ drive | lower() }}
+              {%- endfor %}
+              data_drive:
+              {%- for drive in node.data_drives %}
+                - {{ drive | lower() }}
+              {%- endfor %}
+              pxe_type: {{ node.pxe_type | lower() }}
+              os_raid: {{ node.os_raid }}
+              os_raid_root_size: {{ node.os_raid_root_size | default(50) }}
+              raid_drives:
+              {%- for drive in node.raid_drives %}
+                - {{ drive | lower() }}
+              {%- endfor %}
+              node_type: {{ node.node_type }}
+              deployment_type: {{ node.deployment_type }}
+              {%- if node.deployment_type == "Virtual" %}
+              memory: 24576
+              cpu: 16
+              {% endif %}
+            {% endif %}
+            {%- endfor %}
+...

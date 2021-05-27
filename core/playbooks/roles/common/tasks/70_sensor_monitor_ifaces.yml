@@ -8,7 +8,7 @@
 - name: Create interfaces directory
   file:
     mode: u+rx,g+rx
-    path: "{{ install_dir }}/interfaces"
+    path: "{{ tfplenum_config_dir }}/interfaces"
     state: directory
 
 - name: Setup interfaces variable
@@ -20,9 +20,19 @@
     management_interface: "{{ item }}"
   with_items: "{{ ansible_interfaces }}"
   when:
+    - hostvars[inventory_hostname].deployment_type != "Iso"
     - hostvars[inventory_hostname]['ansible_' + item] is defined
     - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
     - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
+
+- name: Get management interface device id
+  set_fact:
+    management_interface: "{{ item }}"
+  with_items: "{{ ansible_interfaces }}"
+  when:
+    - hostvars[inventory_hostname].deployment_type == "Iso"
+    - hostvars[inventory_hostname]['ansible_' + item] is defined
+    - (hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined and hostvars[inventory_hostname]['ansible_' + item].ipv4.address|ansible.netcommon.ipaddr)
 
 - name: Get potential monitor interfaces
   set_fact:
@@ -46,7 +56,7 @@
     dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
   with_items: "{{ sensor_monitor_interface }}"
 
-- name: Restart network services on master server
+- name: Restart network services
   systemd:
     name: "{{ item }}"
     state: restarted
@@ -74,7 +84,7 @@
 - name: Add promisc service
   template:
     src: templates/monitor_interfaces
-    dest: "{{ install_dir }}/interfaces/monitor_interfaces"
+    dest: "{{ tfplenum_config_dir }}/interfaces/monitor_interfaces"
     owner: root
     group: root
     mode: 0600

@@ -1,9 +1,0 @@
----
-- name: 'Configure Server Chrony'
-  become: yes
-  template:
-    src: 'chrony-server.conf.j2'
-    dest: "{{ chrony_conf_file }}"
-  notify: 'restart chrony'
-
-- meta: flush_handlers

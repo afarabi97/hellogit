@@ -6,169 +6,143 @@ import requests
 import lxml.html
 import sys, os, io
 import re
+from argparse import Namespace
 from datetime import datetime
 from lxml.html import HtmlElement
-from typing import List
+from typing import List, Tuple
 import base64
 
 # Globals:
-page_server = "https://confluence.di2e.net"
+PAGE_SERVER = "https://confluence.di2e.net"
 BASE_URL = "/rest/api/content"
 VIEW_URL = "/pages/viewpage.action?pageId="
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.82 Safari/537.36"
 CONTENT_TYPE = "application/json"
-date = datetime.now()
-current_date = date.today().strftime("%m/%d/%Y")
-current_time = date.today().strftime("%H:%M:%S")
-
-# Args:
-input_username = str(sys.argv[2])
-input_password = sys.argv[4] #change input_password to = str(sys.argv[4]) if only using text-based password;
-                             #else leave as sys.argv[4] because 'str' will not apply to base64 encoded input that it expects
-                             #further below in get_login() function.
-branch_name = str(sys.argv[6])
-sonar_link = str(sys.argv[8])
-quality_gate_status = str(sys.argv[10])
-total_scan_time = str(sys.argv[12])
-project_Key = str(sys.argv[14])
-screen_shot = str(sys.argv[16])
+CURRENT_DATE_TIME = datetime.now()
+CURRENT_DATE = CURRENT_DATE_TIME.today().strftime("%m/%d/%Y")
+CURRENT_TIME = CURRENT_DATE_TIME.today().strftime("%H:%M:%S")
 
 # Confluence Page ID; Keep these static; refers to Confluence page with table:
-devel_page_id = 849576805
-master_page_id = 853279989
-feature_page_id = 853280003
+DEVEL_PAGE_ID = 849576805
+MASTER_PAGE_ID = 853279989
+FEATURE_PAGE_ID = 853280003
 
-def return_pageid(branch_name):
+
+def return_pageid(branch_name: str) -> int:
     if re.match('devel', branch_name):
-        return devel_page_id
+        return DEVEL_PAGE_ID
     elif re.match('master', branch_name):
-        return master_page_id
+        return MASTER_PAGE_ID
     else:
-        return feature_page_id
+        return FEATURE_PAGE_ID
 
-def b64decode_string(input_password):
+
+def b64decode_string(input_password: str) -> str:
     ret_val = base64.b64decode(input_password.encode())
     return ret_val.decode('utf-8')
 
-def get_page_ancestors(auth, page_id, server):
+
+def get_page_ancestors(auth: Tuple[str, str], page_id: int, server: str):
     url = "{server}{base}/{page_id}?expand=ancestors".format(
         server=server, base=BASE_URL, page_id=page_id
     )
-    try:
-        r = requests.get(
+    r = requests.get(
         url,
         auth=auth,
         headers={"Content-Type": CONTENT_TYPE, "USER-AGENT": USER_AGENT},
     )
-        return r.json()["ancestors"]
-    except Exception as e:
-        sys.exit(0)
+    return r.json()["ancestors"]
 
-def get_page_info(auth, page_id, server):
+
+def get_page_info(auth: Tuple[str, str], page_id: int, server: str):
     url = "{server}{base}/{page_id}".format(
         server=server, base=BASE_URL, page_id=page_id
     )
-    try:
-        r = requests.get(
+    r = requests.get(
         url,
         auth=auth,
         headers={"Content-Type": CONTENT_TYPE, "USER-AGENT": USER_AGENT},
     )
-        return r.json()
-    except Exception as e:
-        sys.exit(0)
+    return r.json()
 
-def convert_db_to_view(auth2, html, server):
+
+def convert_db_to_view(auth2: Tuple[str, str], html: str, server: str):
     url = "{server}/rest/api/contentbody/convert/view".format(server=server)
     data2 = {"value": html, "representation": "storage"}
-    try:
-        r = requests.post(
+
+    r = requests.post(
         url,
         data=json.dumps(data2),
         auth=auth2,
         headers={"Content-Type": CONTENT_TYPE},
     )
-        return r.json()
-    except Exception as e:
-        sys.exit(0)
+    return r.json()
 
-def convert_view_to_db(auth2, html, server):
+
+def convert_view_to_db(auth2: Tuple[str, str], html: str, server: str):
     url = "{server}/rest/api/contentbody/convert/storage".format(server=server)
     data2 = {"value": html, "representation": "editor"}
-    try:
-        r = requests.post(
+    r = requests.post(
         url,
         data=json.dumps(data2),
         auth=auth2,
         headers={"Content-Type": CONTENT_TYPE}
     )
-        return r.json()
-    except Exception as e:
-        sys.exit(0)
+    return r.json()
 
-def write_data(auth, html, page_id, server):
-    try:
-        info = get_page_info(auth, page_id, server)
-        ver = int(info["version"]["number"]) + 1
-        ancestors = get_page_ancestors(auth, page_id, server)
-        anc = ancestors[-1]
-        del anc["_links"]
-        del anc["_expandable"]
-        del anc["extensions"]
-        data = {
-            "id": str(page_id),
-            "type": "page",
-            "title": info["title"],
-            "version": {"number": ver},
-            "ancestors": [anc],
-            "body": {"storage": {"representation": "editor", "value": str(html),}},
-        }
-        data = json.dumps(data)
-        url = "{server}{base}/{page_id}".format(
-            server=server, base=BASE_URL, page_id=page_id
-        )
-        our_headers = {"Content-Type": CONTENT_TYPE, "USER-AGENT": USER_AGENT}
-        r = requests.put(url, data=data, auth=auth, headers=our_headers)
-        return r
-    except Exception as e:
-        sys.exit(0)
 
-def read_data(auth, page_id, server):
+def write_data(auth: Tuple[str, str], html: str, page_id: int, server: str):
+    info = get_page_info(auth, page_id, server)
+    ver = int(info["version"]["number"]) + 1
+    ancestors = get_page_ancestors(auth, page_id, server)
+    anc = ancestors[-1]
+    del anc["_links"]
+    del anc["_expandable"]
+    del anc["extensions"]
+    data = {
+        "id": str(page_id),
+        "type": "page",
+        "title": info["title"],
+        "version": {"number": ver},
+        "ancestors": [anc],
+        "body": {"storage": {"representation": "editor", "value": str(html),}},
+    }
+    data = json.dumps(data)
+    url = "{server}{base}/{page_id}".format(
+        server=server, base=BASE_URL, page_id=page_id
+    )
+    our_headers = {"Content-Type": CONTENT_TYPE, "USER-AGENT": USER_AGENT}
+    return requests.put(url, data=data, auth=auth, headers=our_headers)
+
+
+def read_data(auth: Tuple[str, str], page_id: int, server: str):
     url = "{server}{base}/{page_id}?expand=body.storage".format(
         server=server, base=BASE_URL, page_id=page_id
     )
-    try:
-        r = requests.get(
-        url,
-        auth=auth,
-        headers={"Content-Type": CONTENT_TYPE, "USER-AGENT": USER_AGENT},
-    )
-        return r
-    except Exception as e:
-        sys.exit(0)
+    return requests.get(url, auth=auth, headers={"Content-Type": CONTENT_TYPE, "USER-AGENT": USER_AGENT})
 
-def get_pic_file_name(filename):
+def get_pic_file_name(filename: str):
      fn = os.path.basename(filename)
      return fn
 
-def patch_html2(auth, options):
-    page_id = return_pageid(branch_name)
-    server = globals()['page_server']
-    info = get_page_info(auth, page_id, server)
-    page_title = info["title"]
-    json_text = read_data(auth, options.page_id, options.server).text
+
+def patch_html2(auth: Tuple[str, str], args: Namespace):
+    branch = args.branch_name
+    page_id = return_pageid(branch)
+    # server = PAGE_SERVER
+    # info = get_page_info(auth, page_id, server)
+    json_text = read_data(auth, args.page_id, args.server).text
     json2 = json.loads(json_text)
     html_storage_txt = json2["body"]["storage"]["value"]
     html = lxml.html.fromstring(html_storage_txt)
     table_body = html.find(".//tbody")
-    time = globals()["current_time"]
-    date = globals()["current_date"]
-    branch = globals()["branch_name"]
-    link = globals()["sonar_link"]
-    quality_gate = globals()["quality_gate_status"]
-    tot_scan_time = globals()["total_scan_time"]
-    pkey = globals()["project_Key"]
-    scan_pic_name = get_pic_file_name(globals()['screen_shot'])
+    time = CURRENT_TIME
+    date = CURRENT_DATE
+    link = args.sonar_link
+    quality_gate = args.quality_gate_status
+    tot_scan_time = args.total_scan_time
+    pkey = args.project_key
+    scan_pic_name = get_pic_file_name(args.screen_shot)
     my_custom_row = f"""<tr>
         <td colspan="1" style="text-align: center;">{date}</td>
         <td colspan="1" style="text-align: center;">{time}</td>
@@ -178,7 +152,7 @@ def patch_html2(auth, options):
         <td colspan="1" style="text-align: center;">{quality_gate}</td>
         <td colspan="1" style="text-align: center;">{tot_scan_time}</td>
         <td colspan="1" style="text-align: center;" class="confluenceTd">
-        <div class="content-wrapper"><p><img height="250" src="/download/attachments/{page_id}/{scan_pic_name}" 
+        <div class="content-wrapper"><p><img height="250" src="/download/attachments/{page_id}/{scan_pic_name}"
         data-image-height="393" data-image-width="611"></p></div></td>
         </tr>"""
 
@@ -186,28 +160,26 @@ def patch_html2(auth, options):
     table_body.insert(1, new_row)
     html_string = lxml.html.tostring(html, pretty_print=False).decode("utf-8")
     json2["body"]["storage"]["value"] = html_string
-    write_data(auth, json2["body"]["storage"]["value"], options.page_id, options.server)
+    write_data(auth, json2["body"]["storage"]["value"], args.page_id, args.server)
 
-def upload_image(auth):
+
+def upload_image(auth: Tuple[str, str], screen_shot: str):
     pg_id = return_pageid(globals()['branch_name'])
-    img = globals()['screen_shot']
     url = "{server}{base}/{page_id}".format(
-        server=globals()['page_server'], base=globals()['BASE_URL'], page_id= pg_id
+        server=PAGE_SERVER, base=BASE_URL, page_id= pg_id
     ) + '/child/attachment'
     headers = {"X-Atlassian-Token": "nocheck"}
     content_type = 'image/jpeg'
-    files = {'file': (img, open(img, 'rb'),content_type)} #assumes file is in same dir
-    try:
-        r = requests.post(url, headers=headers, files=files, auth=auth)
-    except Exception as e:
-        sys.exit(0)
+    files = {'file': (screen_shot, open(screen_shot, 'rb'),content_type)} #assumes file is in same dir
+    requests.post(url, headers=headers, files=files, auth=auth)
 
-def get_login():
-    username = globals()["input_username"]
-    #password = globals()["input_password"] # uncomment if using a text-based input
-    pw = globals()["input_password"] #comment-out if using a masked-object input
+
+def get_login(args: Namespace) -> Tuple[str, str]:
+    username = args.username
+    pw = args.password
     password = b64decode_string(pw) #comment-out if using a masked-object input
     return username, password
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -215,12 +187,14 @@ def main():
         "-u",
         "--user",
         default="",
+        dest="username",
         required=True,
         help="Specify the username to log into Confluence"
     )
     parser.add_argument(
         "-pw",
         "--pass",
+        dest="password",
         default="",
         required=True,
         help="Specify the userpassword to log into Confluence"
@@ -236,7 +210,7 @@ def main():
         "-pg",
         "--page-id",
         dest="page_id",
-        default=return_pageid(branch_name),
+        default=DEVEL_PAGE_ID,
         required=False,
         type=int,
         help="Specify the Confluence page ID to Write onto; Found on address-bar, when on confluence page edit"
@@ -295,12 +269,12 @@ def main():
         type=str,
         help="Screenshot to upload"
     )
-    options = parser.parse_args()
-    if options.server.endswith("/"):
-        options.server = options.server[:-1]
-    auth = get_login()
-    upload_image(auth)
-    patch_html2(auth, options)
+    args = parser.parse_args()
+    if args.server.endswith("/"):
+        args.server = args.server[:-1]
+    auth = get_login(args)
+    upload_image(auth, args.screen_shot)
+    patch_html2(auth, args)
 
 if __name__ == "__main__":
     main()

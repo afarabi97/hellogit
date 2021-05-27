@@ -123,8 +123,11 @@ export function patternValidator(validatorObject: ValidatorObjectInterface, cont
 
 export function uniqueValidator(validatorObject: ValidatorObjectInterface, control: AbstractControl, ops?: any) {
   let isUnique;
-  if (ops.uniqueArray instanceof Array) {
-    isUnique = ops.uniqueArray.find((obj, i) => control.value.length > 0 && obj[ops.formControlName] === control.value && i !== ops.index);
+
+  if (ops.uniqueArray instanceof Array && ops.formControlName) {
+    isUnique = ops.uniqueArray.find((obj, i) => control.value.length > 0 && obj[ops.formControlName] == control.value && i != ops.index);
+  } else if (ops.uniqueArray instanceof Array) {
+    isUnique = ops.uniqueArray.find((obj, i) => control.value.length > 0 && obj == control.value && i != ops.index);
   } else if (ops.uniqueArray instanceof FormArray) {
     isUnique = ops.uniqueArray.value.find((obj, i) => control.value.length > 0 && obj[ops.formControlName] === control.value && i !== ops.index);
   }

@@ -1,8 +1,8 @@
 {
   "username" : "admin",
   "enabled": true,
-  "email" : "admin@{{ system_name | lower }}.local",
-  "firstName" : "{{ system_name }}",
+  "email" : "admin@controller.local",
+  "firstName" : "Operator",
   "lastName" : "Admin",
   "credentials" : [
       {
@@ -18,13 +18,11 @@
   "realmRoles": ["manager"],
   "groups": [
     "/All Users",
-    "/Realm Admin"
-{% if system_name == 'DIP' or system_name == 'GIP' %}
-    ,"/ELK Superuser",
+    "/Realm Admin",
+    "/ELK Superuser",
     "/MISP Admin",
     "/Rocket Chat Admin",
     "/Hive Super Admin",
     "/Cortex Super Admin"
-{% endif %}
   ]
 }

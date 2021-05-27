@@ -3,7 +3,6 @@ import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
-import { MockSystemNameMIPClass } from '../../static-data/class-objects-v3_4';
 import { AppComponent } from './app.component';
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { TestingModule } from './modules/testing-modules/testing.module';
@@ -93,7 +92,6 @@ describe('AppComponent', () => {
         reset();
 
         component.ngAfterContentInit();
-        component['weaponSystemNameService_'].setSystemName(MockSystemNameMIPClass);
         component.ngAfterContentInit();
 
         expect(component.ngAfterContentInit).toHaveBeenCalledTimes(2);

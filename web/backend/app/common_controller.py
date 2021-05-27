@@ -2,30 +2,56 @@
 This is the main module for all the shared REST calls
 """
 import os, signal
-
-from app import app, logger, conn_mng, api
+import netifaces
+import ipaddress
+from app import app, logger, conn_mng, api, REDIS_CLIENT, rq_logger
 from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.service.job_service import run_command
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.models.common import COMMON_RETURNS
-from app.models.kit_setup import DIPKickstartForm, DBModelNotFound, DIPKitForm, Node, MIPKickstartForm
+from app.models.nodes import DBModelNotFound, Node
+from app.models.settings.kit_settings import KitSettingsForm, GeneralSettingsForm
+from app.models.settings.mip_settings import MipSettingsForm
+
 from app.models.device_facts import DeviceFacts, create_device_facts_from_ansible_setup
 from flask import request, jsonify, Response
 from flask_restx import Resource
-from app.utils.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
-from app.utils.utils import filter_ip, netmask_to_cidr, decode_password, is_ipv4_address
+from app.utils.constants import KIT_ID, NODE_TYPES, CONTROLLER_INTERFACE_NAME
+from app.utils.utils import filter_ip, decode_password, is_ipv4_address
 from typing import List, Dict, Tuple
-from app.service.system_info_service import get_system_name
 from app.middleware import Auth, controller_admin_required, login_required_roles
 from marshmallow.exceptions import ValidationError
+from app.models.common import JobID
+from rq.decorators import job
 
-@app.route('/api/get_system_name', methods=['GET'])
-def get_system_name_api():
-    system_name = get_system_name()
-    if system_name:
-        return jsonify({'system_name': system_name})
 
-    return jsonify({'message': 'Could not get the system_name.'}), 404
+@app.route('/api/controller/info', methods=['GET'])
+def get_interfaces():
+    interface = netifaces.ifaddresses(CONTROLLER_INTERFACE_NAME)
+    interface_info = list(interface[netifaces.AF_INET])[0]
+    controller_ip = interface_info["addr"]
+    gateway_ip, interface = netifaces.gateways()['default'][netifaces.AF_INET]
+    ip_address = ipaddress.ip_network("{}/{}".format(controller_ip, interface_info["netmask"]), strict=False)
+    cidr_ranges = {}
+    for x in ip_address.subnets(new_prefix=27):
+        cidr_ranges[format(x[0])] = { "first": format(x[0]), "last": format(x[-1]) }
+    filtered = filter(lambda x: ipaddress.ip_address(gateway_ip) not in x and ipaddress.ip_address(controller_ip) not in x, ip_address.subnets(new_prefix=27))
+    valid_cidrs = list(map(lambda x: format(x[0]), filtered))
+
+    if interface != CONTROLLER_INTERFACE_NAME:
+        #TODO
+        # GET WRECKED
+        pass
+    info = {
+        "ip_address": controller_ip,
+        "gateway": gateway_ip,
+        "netmask": interface_info["netmask"],
+        "name": CONTROLLER_INTERFACE_NAME,
+        "cidrs": valid_cidrs,
+        "cidr_ranges": cidr_ranges
+    }
+    return jsonify(info), 200
+
 
 @app.route('/api/metrics', methods=['POST'])
 @login_required_roles(['metrics'], all_roles_req=False)
@@ -43,8 +69,6 @@ def replace_metrics():
 
     return jsonify(replaced), status
 
-MIN_MBPS = 1000
-
 @api.route("/api/gather-device-facts/<management_ip>")
 @api.doc(params={'management_ip': "The IP we wish to get additional information from."})
 class DeviceFactsCtrl(Resource):
@@ -56,19 +80,19 @@ class DeviceFactsCtrl(Resource):
             if management_ip in ["127.0.0.1", "localhost"]:
                 return create_device_facts_from_ansible_setup("localhost", "").to_dict()
             try:
-                return create_device_facts_from_ansible_setup(management_ip, get_kickstart_form_from_db().root_password).to_dict()
-            except DBModelNotFound as e:
-                return create_device_facts_from_ansible_setup(management_ip, "").to_dict()
-
+                current_config = KitSettingsForm.load_from_db()
+            except ValidationError:
+                current_config = MipSettingsForm.load_from_db()
+            device_facts = create_device_facts_from_ansible_setup(
+                                management_ip, current_config.password)
+            return device_facts.to_dict()
+        except DBModelNotFound as e:
+            device_facts = create_device_facts_from_ansible_setup(
+                                management_ip, "")
+            return device_facts.to_dict()
         except Exception as e:
             logger.exception(e)
             return {"error_message": str(e)}, 400
-
-def get_kickstart_form_from_db():
-    try:
-        return DIPKickstartForm.load_from_db()
-    except ValidationError:
-        return MIPKickstartForm.load_from_db()
 
 def _is_valid_ip_block(available_ip_addresses: List[str], index: int) -> bool:
     """
@@ -123,6 +147,18 @@ def _get_ip_blocks(cidr: int) -> List[int]:
             count = 0
     return valid_ip_blocks
 
+def _nmap_scan(ip: str, netmask: str, used: bool=False) -> list:
+    status = "Down"
+    if used:
+        status = "Up"
+    cidr = ipaddress.IPv4Network("0.0.0.0/{}".format(netmask)).prefixlen
+    command = "nmap -sn -n -T5 --min-parallelism 100 {}/{} -v -oG - | awk '/Status: {}/{{print $2}}'".format(ip, cidr, status)
+    stdout_str = run_command(command, use_shell=True)
+    addresses = stdout_str.split('\n')
+    if addresses:
+        return addresses
+    return ""
+
 
 def _get_available_ip_blocks(mng_ip: str, netmask: str) -> List:
     """
@@ -131,15 +167,9 @@ def _get_available_ip_blocks(mng_ip: str, netmask: str) -> List:
     :param mng_ip: The management IP or controller IP address
     :param netmask: The netmask of the controller IP address.
     """
-    cidr = netmask_to_cidr(netmask)
-    if cidr <= 24:
-        command = "nmap -v -T5 --min-parallelism 100 -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % mng_ip
-        cidr = 24
-    else:
-        command = "nmap -v -T5 --min-parallelism 100 -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (mng_ip, cidr)
 
-    stdout_str = run_command(command, use_shell=True)
-    available_ip_addresses = stdout_str.split('\n')
+    cidr = ipaddress.IPv4Network("0.0.0.0/{}".format(netmask)).prefixlen
+    available_ip_addresses = _nmap_scan(ip=mng_ip, netmask=netmask, used=False)
     available_ip_addresses = [x for x in available_ip_addresses if not filter_ip(x)]
     ip_address_blocks = _get_ip_blocks(cidr)
     available_ip_blocks = []
@@ -162,7 +192,7 @@ class IPBlocks(Resource):
                          "IP Address and netmask.")
     def get(self):
         try:
-            kickstart_form = DIPKickstartForm.load_from_db()
+            kickstart_form = GeneralSettingsForm.load_from_db()
             mng_ip = str(kickstart_form.controller_interface)
             netmask = str(kickstart_form.netmask)
             available_ip_blocks = _get_available_ip_blocks(mng_ip, netmask)
@@ -199,14 +229,28 @@ class UnusedIPAddresses(Resource):
         Gets unused IP Addresses from a given network.
         :return:
         """
-        cidr = netmask_to_cidr(netmask)
-        if cidr <= 24:
-            command = "nmap -v -T5 --min-parallelism 100 -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % ip_or_network_id
-        else:
-            command = "nmap -v -T5 --min-parallelism 100 -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (ip_or_network_id, cidr)
 
-        stdout_str = run_command(command, use_shell=True)
-        available_ip_addresses = stdout_str.split('\n')
+        available_ip_addresses = _nmap_scan(ip=ip_or_network_id, netmask=netmask, used=False)
+        available_ip_addresses = [x for x in available_ip_addresses if not filter_ip(x)]
+        return jsonify(available_ip_addresses)
+
+
+@api.route("/api/used-ip-addrs/<ip_or_network_id>/<netmask>")
+@api.doc(params={'ip_or_network_id': "An IP within the subnet you wish to scan"
+                                    " for available IP blocks.",
+                 'netmask': 'The range you wish to scan. EX: 255.255.255.0'})
+class UnusedIPAddresses(Resource):
+
+    @api.response(200, "Array of IP Address Strings", COMMON_RETURNS["ip_addresses"])
+    @api.doc(description="Get used IP blocks based on "
+                         "IP Address and netmask.")
+    def get(self, ip_or_network_id: str, netmask: str):
+        """
+        Gets unused IP Addresses from a given network.
+        :return:
+        """
+
+        available_ip_addresses = _nmap_scan(ip=ip_or_network_id, netmask=netmask, used=True)
         available_ip_addresses = [x for x in available_ip_addresses if not filter_ip(x)]
         return jsonify(available_ip_addresses)
 
@@ -223,10 +267,10 @@ def _get_mng_ip_and_mac(node: Node) -> Tuple[str, str]:
 @app.route('/api/get_sensor_hostinfo', methods=['GET'])
 def get_sensor_hostinfo() -> Response:
     ret_val = []
-    kit_configuration = DIPKitForm.load_from_db() # type: DIPKitForm
+    kit_nodes = Node.load_all_from_db() # type: List[Model]
 
-    for node in kit_configuration.nodes:
-        if node.node_type == NODE_TYPES[1]:
+    for node in kit_nodes:
+        if node.node_type == NODE_TYPES.sensor.value:
             host_simple = {}
             mng_ip, mac = _get_mng_ip_and_mac(node)
             host_simple['hostname'] = node.hostname

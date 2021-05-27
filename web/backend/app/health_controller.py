@@ -1,10 +1,11 @@
 """
 Main module for handling all of the Kit Configuration REST calls.
 """
-from app import (app, logger, conn_mng, WEB_DIR, KUBERNETES_NS)
+from app import (logger, conn_mng, WEB_DIR, KUBERNETES_NS)
 from app.models.kubernetes import (HealthServiceModel, PipelineInfoModel,
                                    NodeOrPodStatusModel, PodLogsModel)
-from app.models.kit_setup import (DIPKickstartForm, DIPKitForm, Node)
+from app.models.settings.kit_settings import KitSettingsForm
+from app.models.nodes import Node
 from app.resources import convert_kib_to_gib, convert_gib_to_kib, convert_mib_to_kib
 from app.service.job_service import run_command
 
@@ -13,7 +14,6 @@ from flask_restx import Resource
 
 from pathlib import Path
 from app.utils.connection_mngs import KubernetesWrapper, KUBEDIR, objectify
-from app.utils.constants import KIT_ID
 from typing import List, Dict
 
 from kubernetes.client.models.v1_pod_list import V1PodList
@@ -115,7 +115,7 @@ def _get_node_type(hostname: str, nodes: List) -> str:
 
 
 def _get_node_info(nodes: List) -> Dict[str, str]:
-    kit_form = DIPKitForm.load_from_db() # type: DIPKitForm
+    kit_nodes = Node.load_all_from_db() # type: List[Model]
     ret_val = {}
     for node in nodes.to_dict()['items']:
         try:
@@ -132,7 +132,7 @@ def _get_node_info(nodes: List) -> Dict[str, str]:
                         "memory": str(convert_kib_to_gib(_get_mem_total(node['status']['capacity']['memory']))) + "Gi"
                     }
                 },
-                "node_type":_get_node_type(node["metadata"]["name"], kit_form.nodes)
+                "node_type":_get_node_type(node["metadata"]["name"], kit_nodes)
             }
 
             if node["metadata"]["annotations"].get("flannel.alpha.coreos.com/public-ip"):
@@ -154,7 +154,7 @@ class HealthNodeTotals:
     def __init__(self, pods: V1PodList, nodes: V1NodeList):
         self.pods = pods
         self.nodes = nodes
-        self.kit_form = DIPKitForm.load_from_db() # type: DIPKitForm
+        self.kit_nodes = Node.load_all_from_db() # type: List[Model]
         self.node_names = {}
         self.node_names["Unallocated"] = {'cpus_requested': 0, 'mem_requested': 0}
 
@@ -195,7 +195,7 @@ class HealthNodeTotals:
             for node in self.nodes.items:
                 if key == node.metadata.name:
                     self.node_names[key]['name'] = node.metadata.name
-                    self.node_names[key]['node_type'] = _get_node_type(node.metadata.name, self.kit_form.nodes)
+                    self.node_names[key]['node_type'] = _get_node_type(node.metadata.name, self.kit_nodes)
 
                     try:
                         cpu_milli = _get_cpu_total(node.status.allocatable['cpu'])
@@ -253,7 +253,6 @@ class SystemHealthStatus(Resource):
         try:
             return objectify(_get_health_status())
         except Exception as e:
-            Path(KUBEDIR + '/config').unlink()
             return objectify(_get_health_status())
         except Exception as e:
             logger.exception(e)

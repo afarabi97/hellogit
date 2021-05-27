@@ -1,38 +1,32 @@
 ---
-- name: Set Default ES Install Variable
-  set_fact:
-    es_installed: false
-
-- import_tasks: "preflight.yml"
-  when: inventory_hostname in groups['master_server']
 
 - import_tasks: "uninstall.yml"
-  when: inventory_hostname in groups['master_server'] and es_installed
+  when: inventory_hostname == "localhost"
 
 - import_tasks: "reset_data.yml"
+  when: inventory_hostname in groups['servers']
 - import_tasks: "setup_data_dir.yml"
   tags:
     - setup-elastic
 - import_tasks: "setup_plugins.yml"
+  when: inventory_hostname in groups['servers']
   tags:
     - setup-elastic
 
 - import_tasks: "resource_allocations.yml"
-  when: inventory_hostname in groups['master_server']
   tags:
     - es-post-install
     - load-ml
-
 - import_tasks: "install.yml"
-  when: inventory_hostname in groups['master_server']
-
+  when: inventory_hostname == "localhost"
 - import_tasks: "post_install.yml"
-  when: inventory_hostname in groups['master_server']
+  when: inventory_hostname == "localhost"
   tags: es-post-install
-
 - import_tasks: "load_ml.yml"
-  when: inventory_hostname in groups['master_server'] and enable_ml
+  when:
+    - enable_ml
+    - inventory_hostname == "localhost"
   tags: load-ml
 
 - import_tasks: "deploy_maps_service.yml"
-  when: inventory_hostname in groups['master_server'] and enable_maps
+  when: inventory_hostname == "localhost" and enable_maps

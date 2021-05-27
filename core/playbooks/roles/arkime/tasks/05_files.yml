@@ -23,6 +23,5 @@
   loop:
     - bootstrap.yml
     - config.ini
-  when: inventory_hostname in groups['master_server']
 
 ...

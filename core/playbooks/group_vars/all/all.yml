@@ -1,15 +1,13 @@
 ---
 # TFPlenum
 version: 3.6.0
-debug_enabled: true
-install_user: root
-install_group: root
-install_dir: /opt/tfplenum
+tfplenum_config_dir: /etc/tfplenum
+tfplenum_opt_dir: /opt/tfplenum
+tfplenum_log_path: /var/log/tfplenum
 log_dir: /var/log/ansible/hosts/
 cluster_domain: cluster.local
 fqdn: default.svc.{{cluster_domain}}
 data_path: /data
-system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
 
 # Redis
 redis_sentinel_port: 26379
@@ -36,7 +34,7 @@ xpack_license: 'true'
 
 # Kubernetes
 kubernetes_conf_file: /etc/kubernetes/admin.conf
-kube_dir: "{{ install_dir }}/kubernetes"
+kube_dir: "{{ tfplenum_opt_dir }}/kubernetes"
 
 # Username and password for Web login
 arkime_login: 'assessor'
@@ -75,7 +73,7 @@ package_list:
 pip_installs:
   - netaddr
 
-ansible_controller_hostname: "{{ system_name | lower }}-controller.{{ kit_domain }}"
+ansible_controller_hostname: "controller.{{ kit_domain }}"
 offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
 docker_registry_repo: "{{ ansible_controller_hostname }}"
 
@@ -98,5 +96,13 @@ kube_cidr: "10.233.0.0/16"
 kube_pod_cidr: "10.233.0.0/18"
 kube_service_addresses: "10.233.64.0/18"
 kube_network_node_prefix: 24
+
+tftp_dir: /var/lib/tftpboot
+web_root: /var/www/html
+ks_template_dir: "{{ web_root }}/ks"
+tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
+TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
+
+ansible_controller_ip: "{{ hostvars.localhost.ansible_default_ipv4.address }}"
 
 ...

@@ -9,6 +9,7 @@
   command: helm list --filter 'suricata$' --output json
   register: app_installed
   changed_when: app_installed.rc != 0
+  delegate_to: localhost
 
 - name: update installed variable
   set_fact:
@@ -118,7 +119,7 @@
     assert:
       that: results_ss.json.hits.total != 0
       msg: "Failed verifying Elasticsearch received SMB logs from Suricata"
-  when: app_deployed and inventory_hostname in groups['master_server']
+  when: app_deployed and inventory_hostname in groups['control_plane']
 
 - name: Check Suricata PCAP Data
   find:

@@ -1,0 +1,44 @@
+---
+
+- name: Create install directory
+  file:
+    mode: u+rw,g+rw
+    path: "{{ auditbeat_dir }}"
+    state: directory
+
+- name: Copy Audit External Template
+  template:
+    src: "templates/auditbeat-external.yml.j2"
+    dest: "{{ auditbeat_dir }}/auditbeat-external.yml"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Run Audit Beat External Setup
+  command: "/usr/bin/auditbeat -c {{ auditbeat_dir }}/auditbeat-external.yml setup -e"
+  delegate_to: localhost
+  register: ret_val
+  changed_when: ret_val.rc == 0
+  run_once: true
+  retries: 3
+  until: ret_val.rc == 0
+  delay: 10
+
+- name: Load Index Policies
+  uri:
+    url: "https://elasticsearch.{{ kit_domain }}:{{ elastic_port }}/_ilm/policy/{{ item }}"
+    method: PUT
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    body: "{{ lookup('template', 'templates/ilm_policy.json.j2') }}"
+    status_code: 200, 201
+  with_items:
+    - auditbeat-internal
+    - auditbeat-external
+  register: policy_results
+  until: policy_results.status == 200
+  retries: 10
+  delay: 5

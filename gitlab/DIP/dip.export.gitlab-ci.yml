@@ -29,14 +29,13 @@ Ship Phyical Stack Build:
 
 # Add Docs to DIP Controller:
 #   stage: docs
-#   needs: ["Build DIP Offline Documentation", "Setup DIP Controller"]
+#   needs: ["Build DIP Offline Documentation", "Setup Controller"]
 #   tags:
 #     - tfplenum-buildv2
 #   script: |
 #     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
 #     echo "Current working directory is $(pwd)"
 #     python3 testing/pipeline/pipeline.py \
-#     --system-name "DIP" \
 #     run-export add-docs-to-controller \
 #     --username "$CONFLUENCE_USERNAME" \
 #     --password "$CONFLUENCE_PASSWORD" \
@@ -54,14 +53,13 @@ Ship Phyical Stack Build:
 
 Export DIP Controller:
   stage: export
-  needs: ["Setup DIP Controller"]
+  needs: ["Setup Controller"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
     run-export export-ctrl \
     --cpt-export-path "$SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
     --mdt-export-path "$SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
@@ -80,7 +78,6 @@ Export DIP MinIO:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
     run-export minio \
     --cpt-export-path "$SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
     --mdt-export-path "$SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
@@ -93,7 +90,7 @@ Export DIP MinIO:
 
 Export DIP Controller for Minor Release:
   stage: export
-  needs: ["Setup DIP Controller"]
+  needs: ["Setup Controller"]
   tags:
     - tfplenum-buildv2
   script: |

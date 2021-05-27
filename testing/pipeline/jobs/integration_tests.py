@@ -2,46 +2,47 @@ import os
 import logging
 import requests
 import time
-from typing import Union
 
-from models.kickstart import KickstartSettings, HwKickstartSettings
 from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
-from models.catalog import CatalogSettings
-from models.common import NodeSettings
-from models.constants import SubCmd
+from models.node import NodeSettingsV2, get_control_plane_node, HardwareNodeSettingsV2
+from models.kit import KitSettingsV2
 
+from typing import Union, List
 from util.connection_mngs import FabricConnectionWrapper
 from util.ssh import test_nodes_up_and_alive
 from util.ansible_util import power_off_vms, power_on_vms
-from invoke.exceptions import UnexpectedExit
 from util.kubernetes_util import wait_for_pods_to_be_alive
 import os, logging
 from util.api_tester import get_api_key, get_web_ca, check_web_ca, _clean_up
 from util import redfish_util as redfish
 
+
 class IntegrationTestsJob:
 
     def __init__(self,
                  ctrl_settings: Union[ControllerSetupSettings, HwControllerSetupSettings],
-                 kickstart_settings: Union[KickstartSettings, HwKickstartSettings]):
+                 kit_settings: KitSettingsV2,
+                 nodes: List[NodeSettingsV2]):
         self.ctrl_settings = ctrl_settings
-        self.kickstart_settings = kickstart_settings
+        self.kit_settings = kit_settings
+        self.nodes = nodes
 
     def _replay_pcaps(self):
         headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
         root_ca = check_web_ca()
         REPLAY_PACAP_URL = 'https://{}/api/pcap/replay'.format(self.ctrl_settings.node.ipaddress)
-        for sensor in self.kickstart_settings.sensors: # type: NodeSettings
-            payloads = [
-                {"pcap":"dns-dnskey.trace", "sensor": sensor.ipaddress, "ifaces": ["ens224"]},
-                {"pcap":"get.trace", "sensor": sensor.ipaddress, "ifaces": ["ens224"]},
-                {"pcap":"smb1_transaction_request.pcap", "sensor": sensor.ipaddress, "ifaces": ["ens224"]}
-            ]
-            for payload in payloads:
-                response = requests.post(REPLAY_PACAP_URL, json=payload, verify=root_ca, headers=headers)
-                if response.status_code != 200:
-                    logging.error(str(response.status_code) + ': ' + response.text)
-                    raise Exception("Failed to replay pcap.")
+        for node in self.nodes: # type: NodeSettingsV2
+            if node.is_sensor():
+                payloads = [
+                    {"pcap":"dns-dnskey.trace", "sensor": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    {"pcap":"get.trace", "sensor": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    {"pcap":"smb1_transaction_request.pcap", "sensor": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False}
+                ]
+                for payload in payloads:
+                    response = requests.post(REPLAY_PACAP_URL, json=payload, verify=root_ca, headers=headers)
+                    if response.status_code != 200:
+                        logging.error(str(response.status_code) + ': ' + response.text)
+                        raise Exception("Failed to replay pcap.")
 
     def _set_api_keys_to_environment(self):
         try:
@@ -58,7 +59,8 @@ class IntegrationTestsJob:
 
     def run_integration_tests(self):
         self._set_api_keys_to_environment()
-        wait_for_pods_to_be_alive(self.kickstart_settings.get_master_kubernetes_server(), 30)
+        control_node = get_control_plane_node(self.nodes)
+        wait_for_pods_to_be_alive(control_node, 30)
         self._replay_pcaps()
         _clean_up(wait = 0)
         current_path=os.getcwd()
@@ -70,8 +72,8 @@ class IntegrationTestsJob:
         cmd_to_mkdir = ("mkdir -p reports")
         cmd_to_execute = ("export JUNIT_OUTPUT_DIR='"+ reports_source +"' && \
             export JUNIT_FAIL_ON_CHANGE='true' && \
-            ansible-playbook -i /opt/tfplenum/core/playbooks/inventory.yml -e ansible_ssh_pass='" +
-                self.kickstart_settings.servers[0].password + "' site.yml")
+            ansible-playbook -i /opt/tfplenum/core/playbooks/inventory/ -e ansible_ssh_pass='" +
+                self.kit_settings.settings.password + "' site.yml")
 
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
                                      self.ctrl_settings.node.password,
@@ -107,53 +109,68 @@ class PowerFailureJob:
 
     def __init__(self,
                  ctrl_settings: ControllerSetupSettings,
-                 kickstart_settings: KickstartSettings):
+                 kit_settings: KitSettingsV2,
+                 nodes: List[NodeSettingsV2]):
         self.ctrl_settings = ctrl_settings
-        self.kickstart_settings = kickstart_settings
+        self.kit_settings = kit_settings
+        self.nodes = nodes
 
     def simulate_power_failure(self):
-        power_off_vms(self.kickstart_settings.vcenter, self.ctrl_settings.node)
-        power_off_vms(self.kickstart_settings.vcenter, self.kickstart_settings.nodes)
+        power_off_vms(self.kit_settings.vcenter, self.ctrl_settings.node)
+        power_off_vms(self.kit_settings.vcenter, self.nodes)
 
         # Wait for controller to come up first
-        power_on_vms(self.kickstart_settings.vcenter, self.ctrl_settings.node)
+        power_on_vms(self.kit_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 20)
 
-        # Power on kubernetes master server and wait for it to come up before other nodes.
-        power_on_vms(self.kickstart_settings.vcenter, self.kickstart_settings.get_master_kubernetes_server())
-        test_nodes_up_and_alive(self.kickstart_settings.get_master_kubernetes_server(), 20)
+        # Power on kubernetes primary control plane and wait for it to come up before other nodes.
+        control_plane = get_control_plane_node(self.nodes)
+        power_on_vms(self.kit_settings.vcenter, control_plane)
+        test_nodes_up_and_alive(control_plane, 20)
 
         # Power on the remaining kubernetes servers.
         remaining_srvs_to_power_on = []
-        for server in self.kickstart_settings.servers: # type: NodeSettings
-            if server.node_type != NodeSettings.valid_node_types[0]:
-                remaining_srvs_to_power_on.append(server)
+        for node in self.nodes: # type: NodeSettingsV2
+            if node.is_server() or node.is_service():
+                remaining_srvs_to_power_on.append(node)
 
-        power_on_vms(self.kickstart_settings.vcenter, remaining_srvs_to_power_on)
+        power_on_vms(self.kit_settings.vcenter, remaining_srvs_to_power_on)
         test_nodes_up_and_alive(remaining_srvs_to_power_on, 20)
 
         # Power on the remaining kubernetes sensors.
-        power_on_vms(self.kickstart_settings.vcenter, self.kickstart_settings.sensors)
-        test_nodes_up_and_alive(self.kickstart_settings.sensors, 20)
-        wait_for_pods_to_be_alive(self.kickstart_settings.get_master_kubernetes_server(), 20)
+        sensors = []
+        for node in self.nodes:
+            if node.is_sensor():
+                sensors.append(node)
+        power_on_vms(self.kit_settings.vcenter, sensors)
+        test_nodes_up_and_alive(sensors, 20)
+        control_plane = get_control_plane_node(self.nodes)
+        wait_for_pods_to_be_alive(control_plane, 20)
+
 
 class HwPowerFailureJob:
 
-    def __init__(self, kickstart_settings: HwKickstartSettings):
-        self.kickstart_settings = kickstart_settings
+    def __init__(self, kit_settings: KitSettingsV2, nodes: List[HardwareNodeSettingsV2]):
+        self.nodes = nodes
+        self.kit_settings = kit_settings
 
     def run_power_cycle(self):
-        for node in self.kickstart_settings.nodes:
-            self._power_cycle(
-                node.oob_ip,
-                node.oob_user,
-                node.oob_password
-            )
+        for node in self.nodes: # type: HardwareNodeSettingsV2
+            if node.is_control_plane():
+                power_off_vms(self.kit_settings.vcenter, node)
+                power_on_vms(self.kit_settings.vcenter, node)
+            else:
+                self._power_cycle(
+                    node.idrac_ip_address,
+                    node.redfish_user,
+                    node.redfish_password
+                )
         print("Waiting for nodes to respond...")
         time.sleep(60 * 13)
-        test_nodes_up_and_alive(self.kickstart_settings.nodes, 15)
+        test_nodes_up_and_alive(self.nodes, 15)
         print("Wating for pods to respond...")
-        wait_for_pods_to_be_alive(self.kickstart_settings.get_master_kubernetes_server(), 30)
+        control_node = get_control_plane_node(self.nodes)
+        wait_for_pods_to_be_alive(control_node, 30)
         print("All servers and sensors are up!")
 
     def _power_cycle(self, oob_ip, oob_user, oob_password):

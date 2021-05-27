@@ -4,7 +4,6 @@ import { MockDeviceFactsSensorClass, MockDeviceFactsServerClass } from './device
 export const MockNodeServerClass: NodeClass = {
     deviceFacts: MockDeviceFactsServerClass,
     hostname: 'fake-server1.lan',
-    is_master_server: true,
     ip_address: '10.40.13.92',
     node_type: 'Server'
 };

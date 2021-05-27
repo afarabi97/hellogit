@@ -9,6 +9,7 @@
   command: helm list --filter 'misp$' --output json
   register: app_installed
   changed_when: app_installed.rc != 0
+  delegate_to: localhost
 
 - name: update installed variable
   set_fact:

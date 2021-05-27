@@ -3,21 +3,15 @@ import sys
 import subprocess
 
 from typing import Union
-from invoke.exceptions import UnexpectedExit
 from fabric import Connection
-from models.ctrl_setup import ControllerSetupSettings
 from models.common import RepoSettings
-from time import sleep
 from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
-from typing import Dict
 from util.connection_mngs import FabricConnectionWrapper
+from util.constants import CONTROLLER_PREFIX, PIPELINE_DIR, ROOT_DIR, SKIP_CTRL_BUILD_AND_TEMPLATE
 from util.ssh import test_nodes_up_and_alive
 from util.ansible_util import execute_playbook, take_snapshot
-from util.network import retry
-
+from util.vmware_util import get_vms_in_folder
 from pyVim.connect import SmartConnectNoSSL,Disconnect,vim
-
-PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 
 
 def checkout_latest_code(repo_settings: RepoSettings):
@@ -57,14 +51,13 @@ class ControllerSetupJob:
         if flag:
             pos = self.ctrl_settings.node.network_id.rfind(".")
             hack_ping_ip = self.ctrl_settings.node.network_id[0:pos+1] + "3"
-            client.run("ping {} -c 3".format(hack_ping_ip), shell=True, warn=True)
-            client.run("ping {} -c 3".format(self.ctrl_settings.node.dns_servers[0]), shell=True, warn=True)
-            client.run("ping {} -c 3".format("gitlab.sil.lab"), shell=True, warn=True)
-        else:
-            pass
+            ping_cmd = "ping {} -c 3"
+            client.run(ping_cmd.format(hack_ping_ip), shell=True, warn=True)
+            client.run(ping_cmd.format(self.ctrl_settings.node.dns_servers[0]), shell=True, warn=True)
+            client.run(ping_cmd.format("gitlab.sil.lab"), shell=True, warn=True)
 
     def _set_hostname(self, client:Connection):
-        cmd = "hostnamectl set-hostname {system_name}-controller.{domain}".format(system_name=self.ctrl_settings.system_name.lower(),domain=self.ctrl_settings.node.domain)
+        cmd = "hostnamectl set-hostname controller.{domain}".format(domain=self.ctrl_settings.node.domain)
         client.run(cmd)
 
     def _run_bootstrap(self, flag=True):
@@ -88,7 +81,6 @@ class ControllerSetupJob:
                          export GIT_PASSWORD='" + self.ctrl_settings.repo.password + "' && \
                          export TFPLENUM_BRANCH_NAME='" + self.ctrl_settings.repo.branch_name + "' && \
                          export USE_FORK='no' && \
-                         export SYSTEM_NAME='" + self.ctrl_settings.system_name + "' && \
                          export REPO_URL='" + self.ctrl_settings.repo.url +"' && \
                          bash /root/bootstrap.sh")
 
@@ -108,69 +100,31 @@ class ControllerSetupJob:
                 print("Failed to execute bootstrap.")
                 exit(ret_val.return_code)
 
-    @retry()
-    def _update_code(self, client):
-        client.run("git config --global --unset credential.helper", warn=True)
-        client.run("""
-cat <<EOF > ~/credential-helper.sh
-#!/bin/bash
-echo username="{}"
-echo password="{}"
-EOF
-    """.format(self.ctrl_settings.repo.username, self.ctrl_settings.repo.password))
-        self._set_hostname(client)
-        client.run('git config --global credential.helper "/bin/bash ~/credential-helper.sh"')
-        client.run('cd /opt/tfplenum && git fetch', warn=True)
-        client.run('cd /opt/tfplenum && git checkout {}'.format(self.ctrl_settings.repo.branch_name))
-        #client.run('cd /opt/tfplenum && git reset --hard origin/{}'.format(self.ctrl_settings.repo.branch_name))
-        client.run('cd /opt/tfplenum && git stash')
-        client.run('cd /opt/tfplenum && git pull --rebase')
-        client.run('git config --global --unset credential.helper', warn=True)
-        # TODO make this more efficient we do not need to run redeploy if there were not code changes.
-        if self.ctrl_settings.system_name in ["DIP", "GIP"]:
-            client.run('cd /opt/tfplenum/bootstrap/playbooks && make build_helm_charts')
-        client.run('cd /opt/tfplenum/bootstrap/playbooks && make nightly_clone_rebuild_frontend')
-        # client.run('/opt/tfplenum/web/setup/redeploy.sh')
-        if self.ctrl_settings.system_name == "MIP":
-            client.run('systemctl restart NetworkManager')
-            client.run('nmcli connection down ens192 && sleep 5 && nmcli connection up ens192')
-            self._run_pings_to_fix_network(client, True)
-        else:
-            client.run('systemctl restart network NetworkManager')
-        client.run('cd /opt/tfplenum/bootstrap/playbooks && make hosts_file')
-        client.run('cd /opt/tfplenum/deployer/playbooks && make update-portal-client')
+    def _is_built_already(self) -> bool:
+        commit_hash = self.ctrl_settings.node.commit_hash
+        vms = get_vms_in_folder("Releases", self.ctrl_settings.vcenter)
+        for vm_name in vms:
+            if CONTROLLER_PREFIX in vm_name and commit_hash in vm_name:
+                return True
+        return False
 
-    def _update_nightly_controller(self, flag=True):
-        with FabricConnectionWrapper(self.ctrl_settings.node.username,
-                                     self.ctrl_settings.node.password,
-                                     self.ctrl_settings.node.ipaddress) as client:
-            self._run_pings_to_fix_network(client, flag)
-            if self.ctrl_settings.is_update_code():
-                self._update_code(client)
-
-    def setup_controller(self, system_name: str):
-        if (isinstance(self.ctrl_settings, ControllerSetupSettings) and
-                      system_name == "DIP" and
-                      self.ctrl_settings.run_type == "clone_from_nightly"):
-            execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl_dip.yml'], self.ctrl_settings.to_dict())
+    def setup_controller(self):
+        if self.ctrl_settings.node.pipeline == "export-all" and self._is_built_already():
+            print("The template is already built. Skipping")
+            # This file is created and saved in pipeline artifacts so that export stage can check to see if we need to recreate the template or not.
+            with open(SKIP_CTRL_BUILD_AND_TEMPLATE, 'w') as f:
+                pass
         else:
             execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.ctrl_settings.to_dict())
-        test_nodes_up_and_alive([self.ctrl_settings.node], 30)
-        if self.ctrl_settings.run_type == self.ctrl_settings.valid_run_types[0]:
+            test_nodes_up_and_alive([self.ctrl_settings.node], 30)
             self._run_bootstrap()
-        elif self.ctrl_settings.run_type == self.ctrl_settings.valid_run_types[1]:
-            self._update_nightly_controller()
-        else:
-            raise ValueError("Invalid run type." + self.ctrl_settings.valid_run_types)
-
-        take_snapshot(self.ctrl_settings.vcenter, self.ctrl_settings.node)
+            take_snapshot(self.ctrl_settings.vcenter, self.ctrl_settings.node)
 
 
 class BaremetalControllerSetup(ControllerSetupJob):
 
     def __init__(self, baremetal_ctrl_settings: HwControllerSetupSettings):
         self.baremetal_ctrl_settings = baremetal_ctrl_settings
-        self.system_name = self.baremetal_ctrl_settings.system_name
         self.ctrl_owner = self.baremetal_ctrl_settings.node.ctrl_owner
 
     def create_smart_connect_client(self) -> vim.ServiceInstance:
@@ -202,33 +156,31 @@ class BaremetalControllerSetup(ControllerSetupJob):
 
 
     def get_controller_name(self) -> str:
-
-        if self.system_name == 'MIP':
-            for name in self.get_vm_list():
-                if f"{ self.ctrl_owner }Pipeline-{ self.system_name }" in name:
-                    return name
-        else:
-            for name in self.get_vm_list():
-                if f"Pipeline-{ self.system_name }" in name:
-                    return name
+        # TODO consider removal
+        # if self.system_name == 'MIP':
+        #     for name in self.get_vm_list():
+        #         if f"{ self.ctrl_owner }Pipeline-{ self.system_name }" in name:
+        #             return name
+        # else:
+        for name in self.get_vm_list():
+            if f"Pipeline-" in name:
+                return name
 
     def unemployed_ctrls(self) -> list:
         unemployed_controllers = []
-        if self.system_name == "MIP":
-            name = self.get_controller_name()
-            if name:
+        # TODO consider removal
+        # if self.system_name == "MIP":
+        #     name = self.get_controller_name()
+        #     if name:
+        #         unemployed_controllers.append(name)
+        # else:
+        for name in self.get_vm_list():
+            if "controller" in name.lower():
                 unemployed_controllers.append(name)
-        else:
-            for name in self.get_vm_list():
-                if self.system_name.lower() in name.lower() or "controller" in name.lower():
-                    unemployed_controllers.append(name)
         return unemployed_controllers
 
-    def copy_controller(self,build_type) -> None:
-        if build_type == self.baremetal_ctrl_settings.valid_run_types[0]:
-            path_type = self.baremetal_ctrl_settings.node.template_path + "/" + self.baremetal_ctrl_settings.node.template
-        else:
-            path_type = self.baremetal_ctrl_settings.node.ctrl_path + "/" + self.baremetal_ctrl_settings.node.ctrl_name
+    def copy_controller(self) -> None:
+        path_type = self.baremetal_ctrl_settings.node.template_path + "/" + self.baremetal_ctrl_settings.node.template
         cmd = ("ovftool --noSSLVerify --network=Internal --overwrite \
                 --datastore='{datastore}' --diskMode=thin '{path}' \
                 vi://'{username}':'{password}'@'{ipaddress}'"
@@ -245,35 +197,38 @@ class BaremetalControllerSetup(ControllerSetupJob):
         execute_playbook([PIPELINE_DIR + 'playbooks/ctrl_config.yml'],
                          self.baremetal_ctrl_settings.to_dict())
 
-    def _at_controller_limit(self):
-        vm_list = self.get_vm_list(active_only=True)
-        controller = self.get_controller_name()
-        new_list = [name for name in vm_list if 'mip' in name.lower() and 'controller' in name.lower()]
-        if controller !=None and controller in new_list:
-            new_list.remove(controller)
-        ctrl_count = len(new_list)
-        return ctrl_count >= 3
+    # TODO consider removal
+    # def _at_controller_limit(self):
+    #     vm_list = self.get_vm_list(active_only=True)
+    #     controller = self.get_controller_name()
+    #     new_list = [name for name in vm_list if 'mip' in name.lower() and 'controller' in name.lower()]
+    #     if controller !=None and controller in new_list:
+    #         new_list.remove(controller)
+    #     ctrl_count = len(new_list)
+    #     return ctrl_count >= 3
 
     def setup_controller(self):
         hwsettings = ControllerSetupJob(self.baremetal_ctrl_settings)
-        if self.system_name == "MIP":
-            if self._at_controller_limit():
-                print("Host already has 3 MIP controllers! Network block indexes full [64,128,192]")
-                sys.exit(1)
+        # TODO consider removal
+        # if self.system_name == "MIP":
+        #     if self._at_controller_limit():
+        #         print("Host already has 3 MIP controllers! Network block indexes full [64,128,192]")
+        #         sys.exit(1)
         #Sets controller name found on esxi server
         self.baremetal_ctrl_settings.esxi_ctrl_name = self.get_controller_name()
         #Sets list of unemployed controllers to be powered off
         self.baremetal_ctrl_settings.esxi_unemployed_ctrls = self.unemployed_ctrls()
-        if self.baremetal_ctrl_settings.run_type == self.baremetal_ctrl_settings.valid_run_types[1]:
-            execute_playbook([PIPELINE_DIR + 'playbooks/power_control_esxi.yml'],
-                                self.baremetal_ctrl_settings.to_dict())
-            self.copy_controller(self.baremetal_ctrl_settings.run_type)
+        # TODO consider removal
+        # if self.baremetal_ctrl_settings.run_type == self.baremetal_ctrl_settings.valid_run_types[1]:
+        #     execute_playbook([PIPELINE_DIR + 'playbooks/power_control_esxi.yml'],
+        #                         self.baremetal_ctrl_settings.to_dict())
+        #     self.copy_controller(self.baremetal_ctrl_settings.run_type)
             #hwsettings._update_nightly_controller(False)
 
-        elif self.baremetal_ctrl_settings.run_type == self.baremetal_ctrl_settings.valid_run_types[0]:
-            execute_playbook([PIPELINE_DIR + 'playbooks/power_control_esxi.yml'],
-                                self.baremetal_ctrl_settings.to_dict())
-            self.copy_controller(self.baremetal_ctrl_settings.run_type)
-            execute_playbook([PIPELINE_DIR + 'playbooks/rename_ctrl.yml'],
-                                self.baremetal_ctrl_settings.to_dict())
-            hwsettings._run_bootstrap(False)
+        # elif self.baremetal_ctrl_settings.run_type == self.baremetal_ctrl_settings.valid_run_types[0]:
+        execute_playbook([PIPELINE_DIR + 'playbooks/power_control_esxi.yml'],
+                            self.baremetal_ctrl_settings.to_dict())
+        self.copy_controller()
+        execute_playbook([PIPELINE_DIR + 'playbooks/rename_ctrl.yml'],
+                            self.baremetal_ctrl_settings.to_dict())
+        hwsettings._run_bootstrap(False)

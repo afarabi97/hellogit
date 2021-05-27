@@ -8,7 +8,6 @@ from app.common import ERROR_RESPONSE, OK_RESPONSE
 from elasticsearch.exceptions import ConnectionTimeout, RequestError
 from typing import List, Dict
 from collections import OrderedDict
-from requests import Request
 from app.models.common import HiveSettingsModel
 from marshmallow import ValidationError
 from app.models.common import COMMON_ERROR_DTO1

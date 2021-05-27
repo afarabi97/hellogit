@@ -1,10 +1,13 @@
 ---
-- name: Copy over hosts template
-  template:
-    src: templates/hosts.j2
-    dest: "/etc/hosts"
+- name: Add Controller to Host file
+  blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} Controller Block"
+    block: |
+      {{ server_ip }} {{ ansible_controller_hostname }}
   notify:
     - "Restart NetworkManager"
   tags:
     - hosts_file
+
 ...

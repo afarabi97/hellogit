@@ -1,11 +1,11 @@
 ---
 
-- include_tasks: delete_detections.yml
+- import_tasks: delete_detections.yml
 
 - name: Load SIEM Signals Index
   uri:
     method: POST
-    url: "https://{{ kibana_fqdn }}/api/detection_engine/index"
+    url: "https://{{ kibana_uri }}/api/detection_engine/index"
     return_content: yes
     validate_certs: no
     user: "{{ default_elastic_user }}"
@@ -23,7 +23,7 @@
 - name: Check builtin detections
   uri:
     method: GET
-    url: "https://{{ kibana_fqdn }}/api/detection_engine/rules/prepackaged/_status"
+    url: "https://{{ kibana_uri }}/api/detection_engine/rules/prepackaged/_status"
     return_content: yes
     validate_certs: no
     user: "{{ default_elastic_user }}"
@@ -41,7 +41,7 @@
 - name: Load builtin detections
   uri:
     method: PUT
-    url: "https://{{ kibana_fqdn }}/api/detection_engine/rules/prepackaged"
+    url: "https://{{ kibana_uri }}/api/detection_engine/rules/prepackaged"
     return_content: yes
     validate_certs: no
     user: "{{ default_elastic_user }}"
@@ -60,7 +60,7 @@
 - name: Load custom detections
   uri:
     method: POST
-    url: "https://{{ kibana_fqdn }}/api/detection_engine/rules"
+    url: "https://{{ kibana_uri }}/api/detection_engine/rules"
     return_content: yes
     validate_certs: no
     user: "{{ default_elastic_user }}"
@@ -82,7 +82,7 @@
 - name: Get detections total
   uri:
     method: GET
-    url: "https://{{ kibana_fqdn }}/api/detection_engine/rules/_find"
+    url: "https://{{ kibana_uri }}/api/detection_engine/rules/_find"
     return_content: yes
     validate_certs: no
     user: "{{ default_elastic_user }}"
@@ -100,7 +100,7 @@
 - name: Get all detections
   uri:
     method: GET
-    url: "https://{{ kibana_fqdn }}/api/detection_engine/rules/_find?page=1&per_page={{ detections.json.total | int }}"
+    url: "https://{{ kibana_uri }}/api/detection_engine/rules/_find?page=1&per_page={{ detections.json.total | int }}"
     return_content: yes
     validate_certs: no
     user: "{{ default_elastic_user }}"
@@ -127,7 +127,7 @@
 - name: Enable detections
   uri:
     method: PATCH
-    url: "https://{{ kibana_fqdn }}/api/detection_engine/rules/_bulk_update"
+    url: "https://{{ kibana_uri }}/api/detection_engine/rules/_bulk_update"
     return_content: yes
     validate_certs: no
     user: "{{ default_elastic_user }}"
@@ -140,5 +140,5 @@
     status_code: [200]
   register: detections
   until: (detections.status == 200)
-  retries: 10
+  retries: 20
   delay: 5

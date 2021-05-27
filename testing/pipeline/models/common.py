@@ -6,11 +6,12 @@ from typing import Dict
 
 MAC_BASE = "00:0a:29:00:00:00"
 
+
 class NodeSettings(Model):
     unused_ips = None
-    valid_node_types = ("master_server", "remote_sensor", "controller", "sensor", "server", "mip", "gipsvc", "rhel_work_station_repo", "rhel_server_repo", "minio")
+    valid_node_types = ("primary_server", "remote_sensor", "controller", "sensor", "server", "control_plane", "mip", "gipsvc", "rhel_work_station_repo", "rhel_server_repo", "minio", "service_node")
     valid_sensor_types = ("remote_sensor", "sensor")
-    valid_server_types = ("master_server", "server")
+    valid_server_types = ("primary_server", "server", "control_plane", "service_node")
     valid_node_types_no_ctrl = valid_sensor_types + valid_server_types
 
     def __init__(self):
@@ -41,6 +42,10 @@ class NodeSettings(Model):
         self.os_raid = False
         self.boot_mode = 'BIOS'
         self.monitoring_interface = ["ens224"]
+        self.service_node = False
+        self.pipeline = ''
+        self.commit_hash = ''
+
 
     def is_mip(self) -> bool:
         return self.node_type == self.valid_node_types[5]
@@ -56,6 +61,7 @@ class NodeSettings(Model):
         self.vm_prefix = namespace.vm_prefix
         self.domain = namespace.domain
         self.os_raid = namespace.os_raid == 'yes'
+        self.service_node = namespace.service_node == 'yes'
 
         if node_type:
             self.set_hostname(self.vm_prefix, node_type=node_type)
@@ -93,6 +99,8 @@ class NodeSettings(Model):
         self.sensing_mac = str(RandMac(MAC_BASE)).strip("'")
         self.disk_size = namespace.disk_size
         self.extra_disks = namespace.extra_disks.copy()
+        self.pipeline = namespace.pipeline
+        self.commit_hash = namespace.commit_hash
 
     def set_for_kickstart(self, cpu: int, memory: int, node_type: str):
         self.cpu = cpu
@@ -108,6 +116,8 @@ class NodeSettings(Model):
 
     @staticmethod
     def add_args(parser: ArgumentParser, is_for_ctrl_setup: bool=False):
+        parser.add_argument("--pipeline", dest="pipeline", required=False, default="developer-all")
+        parser.add_argument("--commit-hash", dest="commit_hash", required=True)
         parser.add_argument("--vm-folder", dest="folder", required=True, help="The folder where all your VM(s) will be created within vsphere.")
         parser.add_argument("--vm-password", dest="password", help="The root password of the VM after it is cloned.", required=True)
         parser.add_argument("--portgroup", dest="portgroup", help="The managment network or portgroup name on the vsphere or esxi server.", required=True)
@@ -124,6 +134,7 @@ class NodeSettings(Model):
         parser.add_argument('--extra-disk', dest='extra_disks', action='append', required=False, default=[])
         parser.add_argument("--luks-password", dest="luks_password", type=str, help="The password used for disk encryption.", default='1qaz2wsx!QAZ@WSX')
         parser.add_argument('--os-raid', dest='os_raid', default='no', help="Sets OS either enabled or disabled. Use yes|no when setting it.")
+        parser.add_argument('--service-node', dest="service_node", type=str, default='no', help="Create a service node to run catalog apps.")
 
         if is_for_ctrl_setup:
             parser.add_argument('--vm-template', dest='template', required=True, help="The name of the VM or Template to clone from.")
@@ -133,9 +144,9 @@ class NodeSettings(Model):
 
 class HwNodeSettings(Model):
     unused_ips = None
-    valid_node_types = ("master_server", "remote_sensor", "controller", "sensor", "server", "mip", "gipsvc", "rhel_work_station_repo", "rhel_server_repo")
+    valid_node_types = ("primary_server", "remote_sensor", "controller", "sensor", "server", "mip", "gipsvc", "rhel_work_station_repo", "rhel_server_repo")
     valid_sensor_types = ("remote_sensor", "sensor")
-    valid_server_types = ("master_server", "server")
+    valid_server_types = ("primary_server", "server")
     valid_node_types_no_ctrl = valid_sensor_types + valid_server_types
 
     def __init__(self):
@@ -249,14 +260,21 @@ class VCenterSettings(Model):
         self.password = ''
         self.username = ''
         self.ipaddress = ''
-        self.datacenter = ''
-        self.cluster = 'DEV_Cluster'
+        self.datacenter = None
+        self.datastore = ''
+        self.folder = None
+        self.portgroup = ''
+        self.cluster = None
 
     def from_namespace(self, namespace: Namespace):
         self.password = self.b64decode_string(namespace.vcenter_password)
         self.username = namespace.vcenter_username
         self.ipaddress = namespace.vcenter_ipaddress
         self.datacenter = namespace.vcenter_datacenter
+        self.datastore = namespace.vcenter_datastore
+        self.folder = namespace.vcenter_folder
+        self.portgroup = namespace.vcenter_portgroup
+        self.cluster = namespace.vcenter_cluster
 
     @staticmethod
     def add_args(parser: ArgumentParser):
@@ -267,7 +285,15 @@ class VCenterSettings(Model):
         parser.add_argument("--vcenter-password", dest="vcenter_password", required=True,
                             help="A password to the vcenter hosted on our local network.")
         parser.add_argument("--vcenter-datacenter", dest="vcenter_datacenter", required=False,
-                            help="The data center to use on vsphere.", default="DEV_Datacenter")
+                            help="The data center to use on vsphere.", default=None)
+        parser.add_argument("--vcenter-datastore", dest="vcenter_datastore", required=False,
+                            help="The datastore to use on vsphere.", default="DEV-vSAN")
+        parser.add_argument("--vcenter-folder", dest="vcenter_folder", required=False,
+                            help="The folder to use on vsphere.", default=None)
+        parser.add_argument("--vcenter-portgroup", dest="vcenter_portgroup", required=False,
+                            help="The distributed portgroup to use on vsphere.", default="Interal")
+        parser.add_argument("--vcenter-cluster", dest="vcenter_cluster", required=False,
+                            help="The cluster to use on vsphere.", default=None)
 
 class ESXiSettings(Model):
 
@@ -315,10 +341,6 @@ class RepoSettings(Model):
         parser.add_argument('--repo-url', dest='repo_url', required=True,
                             help="The branch name bootstrap will use when setting up the controller.")
 
-    # def __getstate__(self):
-    #     result = self.__dict__.copy()
-    #     result['password'] = u'<REDACTED>'
-    #     return result
 
 class BasicNodeCreds(Model):
     def __init__(self):

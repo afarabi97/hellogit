@@ -2,7 +2,8 @@ import os
 import hashlib
 
 from pathlib import Path
-from typing import List, Dict, Union
+from typing import Dict, Union
+
 
 def hash_file(some_path: Union[str, Path], chunk_size=8192) -> Dict:
     path = None #type: Path
@@ -38,9 +39,6 @@ def md5_sum(some_path: Union[str, Path], chunk_size=10000000) -> str:
         raise ValueError("Invalid type passed into hash_file function.")
 
     md5 = hashlib.md5()
-    sha1 = hashlib.sha1()
-    sha256 = hashlib.sha256()
-
     with open(str(path), 'rb') as fp:
         while True:
             chunk = fp.read(chunk_size)

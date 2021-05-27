@@ -1,10 +1,11 @@
 ---
 
-kibana_dir: "{{ install_dir  }}/kibana"
+kibana_dir: "{{ tfplenum_config_dir  }}/kibana"
 core_install_dir: /opt/tfplenum/core
 resource_allocation: "{{ core_install_dir }}/playbooks/roles/elasticsearch/tasks/resource_allocations.yml"
 default_elastic_user: elastic
 elastic_url: "https://{{ elastic_fqdn }}:{{ elastic_port }}"
+kibana_uri: "kibana.{{ kit_domain }}"
 hunt_space_siem_indices_payload:
   changes:
     securitySolution:defaultIndex:

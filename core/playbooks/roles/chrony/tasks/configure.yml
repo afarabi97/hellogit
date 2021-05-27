@@ -5,5 +5,22 @@
     src: 'chrony.conf.j2'
     dest: "{{ chrony_conf_file }}"
   notify: 'restart chrony'
+  when: inventory_hostname != "localhost"
+
+- block:
+  - name: 'Configure Server Chrony'
+    become: yes
+    template:
+      src: 'chrony-server.conf.j2'
+      dest: "{{ chrony_conf_file }}"
+    notify: 'restart chrony'
+  - name: Allow ntp firewall
+    firewalld:
+      zone: public
+      service: ntp
+      permanent: yes
+      immediate: yes
+      state: enabled
+  when: inventory_hostname == "localhost"
 
 - meta: flush_handlers

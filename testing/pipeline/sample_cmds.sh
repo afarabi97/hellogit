@@ -5,7 +5,6 @@ pushd $SCRIPT_DIR > /dev/null
 
 function setup_ctrl {
     python pipeline.py \
-    --system-name "DIP" \
     setup-controller \
     --vcenter-ipaddress "10.10.103.10" \
     --vcenter-username "svc.gitlab@sil.lab" \
@@ -22,7 +21,6 @@ function setup_ctrl {
     --vm-template "dip-ctrl.lan" \
     --gateway "10.40.12.1" \
     --vm-prefix "navarro" \
-    --run-type clone_from_nightly \
     --network-block-index 1 \
     --vm-datastore "dev-vol01"
 }
@@ -54,7 +52,7 @@ function run_kit {
 }
 
 function create_gip_services_vm {
-    python pipeline.py --system-name GIP \
+    python pipeline.py \
     gip-setup create-gip-service-vm  \
     --vcenter-username "svc.gitlab@sil.lab" \
     --vcenter-password 'MXFhejJ3c3ghUUFaQFdTWA==' \

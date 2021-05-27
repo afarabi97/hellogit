@@ -1,0 +1,129 @@
+---
+
+- block:
+  - name: kube_init_command
+    set_fact:
+      kube_init_cmd: "{{ kube_init_cmd }} --upload-certs"
+  when: enable_kube_ha
+
+- name: Kube | Init Kubernetes cluster # noqa 305
+  shell: "{{ kube_init_cmd }}"
+  register: init_kube_cluster_result
+  changed_when: init_kube_cluster_result.stdout == 0
+
+- name: Output to file
+  copy:
+    content: "{{  init_kube_cluster_result.stdout }}"
+    dest: "{{ kube_init_file }}"
+
+- name: Get Certificate
+  shell: |
+    awk '/--control-plane --certificate-key/{print;}' {{ kube_init_file }}
+  register: certificate_key
+  changed_when: false
+  when: enable_kube_ha
+
+- name: Get Join Command
+  shell: |
+    awk '/^kubeadm join/{print;getline;print;}' {{ kube_init_file }}
+  register: join_command
+  changed_when: false
+  when: enable_kube_ha
+
+- name: Validate Join Command
+  shell: |
+    echo "{{ join_command.stdout }} {{ certificate_key.stdout }}" > "{{ kube_primary_join_file }}"
+  register: create_join_script
+  changed_when: create_join_script.rc == 0
+  when: enable_kube_ha
+
+- name: Remove temp file
+  file:
+    path: "{{ kube_init_file }}"
+    state: absent
+
+- name: Create Worker Node Join Script
+  shell: |
+    kubeadm token create --ttl 0 --print-join-command 2>/dev/null >"{{ kube_worker_join_file }}"
+  register: result
+  changed_when: result.rc == 0
+
+- name: Update credential permissions
+  file:
+    path: "{{ kubernetes_conf_file }}"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Kube | Retrieve files
+  fetch:
+    src: "{{ item }}"
+    dest: files/
+    flat: yes
+  with_items:
+    - "{{ kubernetes_conf_file }}"
+    - "{{ kube_worker_join_file }}"
+  tags: pull_join_script
+
+- name: Kube | Retrieve Control Plane Join Script
+  fetch:
+    src: "{{ item }}"
+    dest: files/
+    flat: yes
+  with_items:
+    - "{{ kube_primary_join_file }}"
+  when: enable_kube_ha
+  tags: pull_join_script
+
+- name: Copy Creds to Controller
+  copy:
+    src: files/admin.conf
+    dest: "{{ kubeconfig_path }}"
+    mode: 0600
+  delegate_to: localhost
+
+- name: Retrieve generated credentials
+  import_role:
+    name: kubernetes/common
+    tasks_from: creds
+
+- name: Label Control Plane
+  command: 'kubectl label nodes {{ inventory_hostname }} role={{ node_type | lower }} --overwrite=true'
+  changed_when: true
+
+- name: Install Calico
+  command: "kubectl apply -f {{ kube_dir }}/calico.yml"
+  register: result
+  changed_when: result.rc == 0
+
+- name: Wait for Calico CNI to be created
+  wait_for:
+    path: "{{ item }}"
+  with_items:
+    - /etc/cni/net.d/calico-kubeconfig
+    - /etc/cni/net.d/10-calico.conflist
+    - /opt/cni/bin/calico
+
+- name: Get calicoctl from controller
+  get_url:
+    url: "{{ offline_repo_base }}/calicoctl"
+    dest: /usr/local/bin/calicoctl
+    mode: 0755
+
+- name: Restart Crio and Kubelet
+  service:
+    state: restarted
+    name: "{{ item  }}"
+  with_items:
+    - crio
+    - kubelet
+
+- name: Kube | Wait for Primary Node to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "node"
+    namespace: ""
+    resource_name: "{{ inventory_hostname }}"
+    label: ""

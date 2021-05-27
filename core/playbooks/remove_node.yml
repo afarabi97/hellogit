@@ -1,0 +1,145 @@
+# Name: remove-node
+# Description: This playbook will unschedule and remove a node from the kubernetes cluster. BE CAREFUL!
+# Requirement: Add node to nodes_to_remove group in inventory.yml
+# Usage: ansible-playbook remove-node.yml -u <user>
+# Example: ansible-playbook -i inventory/misc/inventory.yml remove-node.yml -u root
+
+---
+
+- name: Set controller variables on hosts
+  hosts:
+    - servers
+    - sensors
+  gather_facts: no
+  ignore_errors: yes
+  ignore_unreachable: yes
+  tags: always
+  tasks:
+    # - name: Set Vars
+    #   set_fact:
+    #     host_list: "{{ groups['servers'] + groups['sensors'] }}"
+    #     ansible_controller_hostname: "{{ hostvars.localhost.ansible_controller_hostname }}"
+    #     ansible_controller_ip: "{{ hostvars.localhost.ansible_controller_ip }}"
+    #   ignore_errors: yes
+
+    - name: Create nodes to remove group
+      add_host:
+        hostname: "{{ node }}"
+        groups: nodes_to_remove
+      when: node is defined
+      ignore_errors: yes
+
+- name: Remove installed apps
+  hosts: nodes_to_remove
+  gather_facts: no
+  ignore_errors: yes
+  ignore_unreachable: yes
+  tasks:
+    - block:
+      - name: Disable and Stop Auditbeat
+        service:
+          name: auditbeat
+          state: stopped
+          enabled: no
+
+      - name: Remove auditbeat
+        dnf:
+          name: auditbeat-{{ elastic_7_version }}
+          state: absent
+
+      - name: Removes a cron file from under /etc/cron.d
+        cron:
+          name: node-health
+          state: absent
+
+      - name: Delete install directory
+        file:
+          path: "{{ item }}"
+          state: absent
+        with_items:
+          - /etc/auditbeat
+          - /opt/metrics
+      when: hostvars[inventory_hostname].deployment_type == "Baremetal"
+
+- name: Remove node from cluster
+  hosts: localhost
+  gather_facts: no
+  ignore_errors: yes
+  ignore_unreachable: yes
+  tasks:
+    - name: Get current node list
+      shell: |
+        set -o pipefail
+        kubectl get nodes --no-headers=true | awk '{ print $1 }'
+      register: node_list
+      changed_when: False
+
+    - name: remove-node | Drain node except daemonsets resource
+      shell: |
+        kubectl drain --force --ignore-daemonsets --grace-period 30 --timeout 60s --delete-emptydir-data {{ item }}
+      failed_when: false
+      ignore_errors: yes
+      when: item in node_list.stdout
+      with_items: "{{ groups['nodes_to_remove'] }}"
+      register: results
+      changed_when: results.rc == 0
+
+    - name: Delete nodes from k8s cluster
+      shell: |
+        kubectl delete node {{ item }}
+      when: item in node_list.stdout
+      with_items: "{{ groups['nodes_to_remove'] }}"
+      register: results
+      changed_when: results.rc == 0
+
+- name: Clean up node
+  hosts: nodes_to_remove
+  gather_facts: no
+  ignore_errors: yes
+  ignore_unreachable: yes
+  roles:
+    - { role: kubernetes/reset }
+  tasks:
+    - name: Reboot system # noqa 301
+      command: "/sbin/shutdown -r +1 --no-wall"
+      async: 0
+      poll: 0
+      when: hostvars[inventory_hostname].deployment_type == "Baremetal"
+
+- name: Update VPN Server
+  hosts: localhost
+  tasks:
+    - name: Set Default Folder for ESXI
+      set_fact:
+        folder: "/ha-datacenter/vm"
+    - name: Set folder for Vcenter
+      set_fact:
+        folder: "/{{ esxi.datacenter }}/vm/{{ esxi.folder }}"
+      when: esxi.vcenter
+
+    - include: remove_items.yml
+      with_items: "{{ groups['nodes_to_remove'] }}"
+      loop_control:
+        loop_var: index
+      vars:
+        node_index: "{{ index }}"
+
+    - name: Generate CRL
+      shell: |
+        ./easyrsa gen-crl
+      args:
+        chdir: /etc/openvpn/
+      register: results
+      changed_when: results.rc == 0
+      ignore_errors: yes
+
+    - name: Restart Dhcpd
+      service:
+        name: dhcpd
+        state: restarted
+    - name: Restart Dnsmasq
+      service:
+        name: dnsmasq
+        state: restarted
+
+

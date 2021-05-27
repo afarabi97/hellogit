@@ -1,0 +1,8 @@
+---
+
+- name: Copy over hosts template
+  template:
+    src: templates/hosts.j2
+    dest: "/etc/hosts"
+
+...

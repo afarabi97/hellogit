@@ -3,34 +3,6 @@
   set_fact:
     ansible_controller_ip: "{{ hostvars.localhost.ansible_default_ipv4.address }}"
 
-- name: Set System Name from tfplenum ini
-  set_fact:
-    system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
-    cacheable: yes
-
-- name: Add Server to Master Server Group
-  add_host:
-    hostname: "{{ item }}"
-    groups: master_server
-  when: hostvars[item].is_master | default(false)
-  with_items: "{{ groups['servers'] }}"
-
-- block:
-  - name: Tag Servers to be control plane nodes
-    set_fact:
-      is_control_plane_node: true
-    with_items:  "{{ groups['servers'][1:3] }}"
-    delegate_to: "{{ item }}"
-    delegate_facts: True
-  - name: Enable HA Cluster
-    set_fact:
-      enable_kube_ha: true
-      kube_virtual_ip: "{{ kubernetes_services_cidr | ipaddr('1') | ipaddr('address') }}"
-      cacheable: yes
-  when:
-    - not addnode
-    - groups['servers'] | length | int > 2
-
 - name: Clear Arp Cache
   shell: |
     ip -s -s neih flush all

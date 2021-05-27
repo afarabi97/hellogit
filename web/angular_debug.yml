@@ -7,3 +7,5 @@ roles:
   - controller-admin
   - controller-maintainer
   - operator
+  - metrics
+  - controller-node-state

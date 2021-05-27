@@ -10,7 +10,7 @@
   any_errors_fatal: true
   tasks:
     - block:
-      - name: Set RHEL ISO To server for DIP bootstrap
+      - name: Set RHEL ISO To server for Bootstrap
         set_fact:
           iso_rhel_checksum: "{{ iso_rhel_server_checksum }}"
           iso_rhel_url_labrepo: "{{ iso_rhel_server_url_labrepo }}"
@@ -18,15 +18,6 @@
       - name: Import DIP/GIP variables
         include_vars:
           file: "{{ dip_core_vars }}"
-      when:
-        - "system_name == 'DIP' or system_name == 'GIP'"
-    - name: Set RHEL ISO for MIP bootstrap
-      set_fact:
-        iso_rhel_checksum: "{{ iso_rhel_server_checksum }}"
-        iso_rhel_url_labrepo: "{{ iso_rhel_server_url_labrepo }}"
-        iso_rhel_path: "{{ iso_rhel_server_path }}"
-      when:
-        - "system_name == 'MIP'"
 
     - name: Check for labrepo
       uri:

@@ -1,0 +1,59 @@
+<h1 mat-dialog-title style="padding-left: 24px;">Node Info</h1>
+<div mat-dialog-content
+     fxLayout="column" fxLayoutAlign="start stretch"
+     style="margin-right: 0px;padding-left: 44px; padding-right: 0px; overflow: unset;">
+
+    <div fxLayout="row" fxLayoutAlign="start stretch" >
+      <div fxLayoutAlign="start stretch" style="background-color: #222;" fxFlex="50">
+      <mat-list>
+        <mat-list-item>
+          <mat-icon mat-list-icon>computer</mat-icon>
+          <h4 mat-line>Hostname: {{ backingObj?.hostname }}</h4>
+        </mat-list-item>
+
+        <mat-list-item>
+          <mat-icon mat-list-icon>developer_board</mat-icon>
+          <h4 mat-line>CPU Cores: {{ backingObj?.deviceFacts['cpus_available'] | number:'1.0-2' }}</h4>
+        </mat-list-item>
+
+        <mat-list-item>
+          <mat-icon mat-list-icon>memory</mat-icon>
+          <h4 mat-line>Memory: {{ backingObj?.deviceFacts['memory_available'] | number:'1.0-2' }} GB</h4>
+        </mat-list-item>
+
+        <mat-list-item>
+          <mat-icon mat-list-icon>info</mat-icon>
+          <h4 mat-line>IP Address: {{ backingObj?.ip_address }}</h4>
+        </mat-list-item>
+
+        <mat-list-item>
+          <mat-icon mat-list-icon>info</mat-icon>
+          <h4 mat-line>Mng MAC: {{ backingObj?.mac_address }}</h4>
+        </mat-list-item>
+
+        <mat-list-item *ngFor="let disk of backingObj?.deviceFacts['disks']">
+          <mat-icon mat-list-icon>sd_storage</mat-icon>
+          <h4 mat-line>{{ disk.name }} Drive:
+            <span *ngIf="disk.size_tb < 1">{{disk.size_gb | number: "1.0-2" }} GB</span>
+            <span *ngIf="disk.size_tb > 1">{{disk.size_tb | number: "1.0-2" }} TB</span>
+          </h4>
+        </mat-list-item>
+      </mat-list>
+    </div>
+    <div fxLayoutAlign="start stretch" style="background-color: #222; margin-left: 15px;" fxFlex="50">
+      <mat-list>
+        <mat-list-item style="margin-top: 10px;" *ngFor="let iface of backingObj?.deviceFacts['interfaces']">
+          <mat-icon mat-list-icon>cloud</mat-icon>
+          <h4 mat-line>{{ iface.name }}
+            <div>{{iface.ip_address}}</div>
+            <div>{{iface.mac_address}}</div>
+            <div>{{iface.speed}}</div>
+          </h4>
+        </mat-list-item>
+      </mat-list>
+    </div>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-raised-button color="warn" (click)="onNoClick()">Close</button>
+  </div>
+</div>

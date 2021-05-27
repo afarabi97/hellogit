@@ -3,20 +3,18 @@ import { MatDialog } from '@angular/material/dialog';
 import { forkJoin, interval, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { KitFormClass, ObjectUtilitiesClass, VersionClass } from '../classes';
+import { KitFormClass, ObjectUtilitiesClass, VersionClass, KitStatusClass } from '../classes';
 import { returnDate } from '../functions/cvah.functions';
 import { NotificationsComponent } from '../notifications/component/notifications.component';
 import { CookieService } from '../services/cookies.service';
 import { UserService } from '../services/user.service';
-import { WeaponSystemNameService } from '../services/weapon-system-name.service';
 import { WebsocketService } from '../services/websocket.service';
-import { KitService } from '../system-setup/services/kit.service';
 import { ToolsService } from '../tools-form/services/tools.service';
 import { DIPTimeClass } from './classes/dip-time.class';
-import { SYSTEM_NAMES_ALL } from './constants/navbar.constants';
 import { getSideNavigationButtons } from './functions/navbar.functions';
 import { NavGroupInterface } from './interfaces';
 import { NavBarService } from './services/navbar.service';
+import { KitSettingsService } from '../system-setupv2/services/kit-settings.service';
 
 /**
  * Component used for top navbar related functionality
@@ -36,12 +34,10 @@ import { NavBarService } from './services/navbar.service';
 })
 export class TopNavbarComponent implements OnInit, OnDestroy {
   @ViewChild('notifications') notifications: NotificationsComponent;
-  readonly systemNames: string[] = SYSTEM_NAMES_ALL;
   showLinkNames: boolean;
   time: Date;
   timezone: string;
   version: string;
-  systemName: string;
   sideNavigationButtons: NavGroupInterface[];
   controllerMaintainer: boolean;
 
@@ -58,24 +54,23 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
    * @param {ToolsService} toolService_
    * @param {NavBarService} navBarService_
    * @param {WebsocketService} websocketService_
-   * @param {WeaponSystemNameService} weaponSystemNameService_
    * @param {UserService} userService_
    * @param {KitService} kitService_
    * @param {ChangeDetectorRef} changeDetectorRef_
+   * @param {MatDialog} matDialog_
    * @memberof TopNavbarComponent
    */
   constructor(private cookieService_: CookieService,
               private toolService_: ToolsService,
               private navBarService_: NavBarService,
               private websocketService_: WebsocketService,
-              private weaponSystemNameService_: WeaponSystemNameService,
               private userService_: UserService,
-              private kitService_: KitService,
-              private changeDetectorRef_: ChangeDetectorRef) {
+              private changeDetectorRef_: ChangeDetectorRef,
+              private kitSettingsSrv: KitSettingsService,
+              private matDialog_: MatDialog) {
     this.showLinkNames = true;
     this.kitStatus = false;
     this.controllerMaintainer = this.userService_.isControllerMaintainer();
-    this.systemName = this.weaponSystemNameService_.getSystemName();
     this.showLinkNames = this.cookieService_.get('isOpen') === 'true';
   }
 
@@ -88,7 +83,7 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
     this.buildNavBar();
     this.getCurrentDipTime_();
     this.getVersion_();
-    this.socketRefresh_();
+    // this.socketRefresh_();
   }
 
   /**
@@ -138,19 +133,19 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
    * @memberof TopNavbarComponent
    */
   buildNavBar(): void {
-    this.sideNavigationButtons = getSideNavigationButtons(this.systemName, this.userService_, false, []);
+    this.sideNavigationButtons = getSideNavigationButtons(this.userService_, false, []);
     this.changeDetectorRef_.detectChanges();
-    forkJoin({ htmlSpaces: this.toolService_.getSpaces(),
-               kitData: this.kitService_.getKitForm() })
+    forkJoin({ htmlSpaces: this.toolService_.getSpaces(), kitData: this.kitSettingsSrv.getKitStatus() })
       .pipe(takeUntil(this.ngUnsubscribe$_))
-      .subscribe((data: { htmlSpaces: string[]; kitData: KitFormClass }) => {
+      .subscribe((data: { htmlSpaces: string[]; kitData: KitStatusClass}) => {
         this.htmlSpaces = data.htmlSpaces;
         /* istanbul ignore else */
         if (ObjectUtilitiesClass.notUndefNull(data.kitData) &&
-            ObjectUtilitiesClass.notUndefNull(data.kitData.complete)) {
-          this.kitStatus = data.kitData.complete;
+            ObjectUtilitiesClass.notUndefNull(data.kitData.base_kit_deployed)) {
+          this.kitStatus = data.kitData.base_kit_deployed;
         }
-        this.sideNavigationButtons = getSideNavigationButtons(this.systemName, this.userService_, this.kitStatus, this.htmlSpaces);
+        //TODO fix the nav bar with new kit status
+        this.sideNavigationButtons = getSideNavigationButtons(this.userService_, this.kitStatus, this.htmlSpaces);
         this.changeDetectorRef_.detectChanges();
       });
   }
@@ -240,10 +235,11 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
           /* istanbul ignore else */
           if (message['role'] === 'kit' && message['status'] === 'COMPLETED') {
             this.kitStatus = true;
-            this.sideNavigationButtons = getSideNavigationButtons(this.systemName, this.userService_, this.kitStatus, this.htmlSpaces);
+            this.sideNavigationButtons = getSideNavigationButtons(this.userService_, this.kitStatus, this.htmlSpaces);
           } else if(message['role'] === 'kit' && message['status'] === 'IN_PROGRESS') {
+            //TODO fix this
             this.kitStatus = false;
-            this.sideNavigationButtons = getSideNavigationButtons(this.systemName, this.userService_, this.kitStatus, this.htmlSpaces);
+            this.sideNavigationButtons = getSideNavigationButtons(this.userService_, this.kitStatus, this.htmlSpaces);
           }
         });
   }

@@ -107,22 +107,11 @@
     image_list: []
     local_image_list: []
   tags: pull-docker-images
-- debug:
-    msg: "{{ kube_images }}"
-- name: Set Image List
-  set_fact:
-    image_list: "{{ image_list }} + ['{{ item.image }}']"
-  with_items:
-    - "{{ kube_images }}"
-  when: (system_name == "GIP" and item.for_gip) or
-        (system_name == "DIP" and item.for_dip) or
-        (system_name == "MIP")
-  tags: pull-docker-images
 
 - name: Set local image List
   set_fact:
     local_image_list: "{{ local_image_list }} + ['{{ nexus_url }}/{{ item[item.find('/')+1:] }}']"
-  with_items: "{{ image_list }}"
+  with_items: "{{ kube_images }}"
   tags: pull-docker-images
 
 - name: Overwrite Image List

@@ -11,7 +11,7 @@
 # label (optional): kubernetes resource label
 
 # Example:
-# - name: Wait for Master Node
+# - name: Wait for Primary Node
 #   import_role:
 #     name: kubernetes/common
 #     tasks_from: kube_wait

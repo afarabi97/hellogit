@@ -5,22 +5,9 @@
 # We follow the guidance to include naming conventions there.
 
 ---
-
-- name: Tag master server
-  hosts: localhost
-  tags: always
-  tasks:
-    - name: Set Master Server
-      add_host:
-        hostname: "{{ item }}"
-        groups: master_server
-      when: hostvars[item].is_master | default(false)
-      with_items: "{{ groups['all'] }}"
-      changed_when: false
-
 - name: Verify tfplenum has been deployed
   hosts:
-    - master_server
+    - control_plane
     - servers
     - sensors
   gather_facts: no
@@ -29,22 +16,22 @@
   tags: preflight
 
 # - name: Replay PCAPs
-  # hosts:
-  # - localhost
-  # gather_facts: yes
-  # roles:
-  #   - replay
-  # tags: replay
+#   hosts:
+#   - localhost
+#   gather_facts: yes
+#   roles:
+#     - replay
+#   tags: replay
 
 - name: Verify kubernetes is healthy
-  hosts: master_server
+  hosts: localhost
   gather_facts: no
   roles:
     - kubernetes
   tags: kubernetes
 
 - name: Get ES Password from K8s
-  hosts: master_server
+  hosts: localhost
   tags: always
   tasks:
     - name: Get ES Password
@@ -60,7 +47,7 @@
 
 - name: Validate Elasticsearch
   hosts:
-  - master_server
+  - localhost
   gather_facts: no
   roles:
     - elasticsearch
@@ -68,7 +55,7 @@
 
 - name: Validate Kibana
   hosts:
-  - master_server
+  - localhost
   gather_facts: no
   roles:
     - kibana
@@ -76,17 +63,16 @@
 
 - name: Validate Zeek
   hosts:
-    - master_server
+    - localhost
     - sensors
   gather_facts: false
   roles:
     - zeek
-  tags:
-    - zeek
+  tags: zeek
 
 - name: Validate Suricata
   hosts:
-  - master_server
+  - localhost
   - sensors
   gather_facts: no
   roles:
@@ -95,7 +81,7 @@
 
 - name: Validate Arkime
   hosts:
-  - master_server
+  - localhost
   gather_facts: no
   roles:
     - arkime
@@ -103,7 +89,7 @@
 
 - name: Validate WikiJS
   hosts:
-  - master_server
+  - localhost
   gather_facts: no
   roles:
     - wikijs
@@ -111,7 +97,7 @@
 
 - name: Validate Hive
   hosts:
-  - master_server
+  - localhost
   gather_facts: no
   roles:
     - hive
@@ -119,7 +105,7 @@
 
 - name: Validate Cortex
   hosts:
-  - master_server
+  - localhost
   gather_facts: no
   roles:
     - cortex
@@ -127,7 +113,7 @@
 
 - name: Validate MISP
   hosts:
-  - master_server
+  - localhost
   gather_facts: no
   roles:
     - misp
@@ -135,7 +121,7 @@
 
 - name: Validate RocketChat
   hosts:
-  - master_server
+  - localhost
   gather_facts: no
   roles:
     - rocketchat

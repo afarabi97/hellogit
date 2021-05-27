@@ -1,5 +1,14 @@
 ---
 
+- name: Get ES Password
+  shell: set -o pipefail && kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  register: es_password
+  changed_when: es_password.rc == 0
+
+- name: Set Elastic Password
+  set_fact:
+    elastic_password: "{{ es_password.stdout }}"
+
 - name: Stop auditd service
   shell: |
     service auditd stop
@@ -31,34 +40,9 @@
     name: auditbeat-{{ elastic_7_version }}
     state: installed
 
-- name: Get ES Password
-  shell: set -o pipefail && kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
-  register: es_password
-  changed_when: es_password.rc == 0
-
-- name: set_fact domain
-  set_fact:
-    domain: "{{ '.'.join(groups['servers'][0].split('.')[1:]) }}"
-
-- name: Copy Audit External Template
-  template:
-    src: "templates/auditbeat-external.yml.j2"
-    dest: "{{ audit_dir }}/auditbeat.yml"
-    owner: root
-    group: root
-    mode: 0600
-  delegate_to: localhost
-  run_once: true
-
-- name: Run Audit Beat External Setup
-  command: "/usr/bin/auditbeat setup -e"
-  delegate_to: localhost
-  register: ret_val
-  changed_when: ret_val.rc == 0
-  run_once: true
-  retries: 3
-  until: ret_val.rc == 0
-  delay: 10
+- import_tasks: setup.yml
+  when: inventory_hostname == "localhost"
+  tags: auditbeat-setup
 
 - name: Copy Audit Template
   template:
@@ -82,23 +66,4 @@
     state: started
     enabled: yes
 
-- name: Load Index Policies
-  uri:
-    url: "{{ elastic_url }}/_ilm/policy/{{ item }}"
-    method: PUT
-    validate_certs: no
-    user: "{{ default_elastic_user }}"
-    password: "{{ es_password.stdout }}"
-    force_basic_auth: yes
-    body_format: json
-    body: "{{ lookup('template', 'templates/ilm_policy.json.j2') }}"
-    status_code: 200, 201
-  with_items:
-    - auditbeat-internal
-    - auditbeat-external
-  register: policy_results
-  until: policy_results.status == 200
-  retries: 10
-  delay: 5
-  when: inventory_hostname != "localhost"
 ...

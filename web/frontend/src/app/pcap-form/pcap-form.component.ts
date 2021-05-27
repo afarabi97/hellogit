@@ -150,7 +150,7 @@ export class PcapFormComponent implements OnInit {
       let form = result as FormGroup;
       if (form && form.valid){
         this.pcapSrv.replayPcap(form.getRawValue()).subscribe(data => {
-          this.pcapSrv.displaySnackBar("Replaying " + form.get('pcap').value + " on " + form.get('sensor').value +
+          this.pcapSrv.displaySnackBar("Replaying " + form.get('pcap').value + " on " + form.get('sensor_hostname').value +
                                 ". Open the notification manager to track its progress.");
         }, err => {
           console.error(err);

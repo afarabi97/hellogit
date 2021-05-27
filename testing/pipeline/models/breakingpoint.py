@@ -1,6 +1,6 @@
 from argparse import Namespace, ArgumentParser
-from typing import Dict
-from models import Model, add_args_from_instance
+from models import Model
+
 
 class BPSettings(Model):
     def __init__(self):

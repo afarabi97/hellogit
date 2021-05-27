@@ -1,0 +1,104 @@
+---
+- name: Add the node
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: "Power off the VM"
+      ignore_errors: yes
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        name: "{{ hostname }}"
+        folder: "{{ vcenter.folder }}"
+        state: poweredoff
+        validate_certs: False
+      delegate_to: localhost
+
+    - name: "Removing VM"
+      ignore_errors: yes
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        name: "{{ hostname }}"
+        state: absent
+        validate_certs: False
+      delegate_to: localhost
+
+    - name: "Cloning Server VM"
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        guest_id: "rhel7_64Guest"
+        validate_certs: False
+        name: "{{ hostname }}"
+        folder: "{{ vcenter.folder }}"
+        state: poweredon
+        networks:
+          - name: "{{ vcenter.portgroup }}"
+            mac: "{{ mac_address }}"
+        customization:
+          autologon: no
+          dns_servers: "{{ dns_servers }}"
+          domain: lan
+          password: "{{ password }}"
+          hostname: "{{ hostname }}"
+        hardware:
+          memory_mb: "{{ memory }}"
+          num_cpus: "{{ cpu }}"
+        disk:
+        - size_gb: 50
+          type: thin
+          datastore: "{{ vcenter.datastore }}"
+        - size_gb: 50
+          type: thin
+          datastore: "{{ vcenter.datastore }}"
+      delegate_to: localhost
+      when: "node_type == 'Server' or node_type == 'Service'"
+
+    - name: "Cloning Sensor VM"
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        guest_id: "rhel7_64Guest"
+        validate_certs: False
+        name: "{{ hostname }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        folder: "{{ vcenter.folder }}"
+        state: poweredon
+        networks:
+          - name: "{{ vcenter.portgroup }}"
+            mac: "{{ mac_address }}"
+          - name: "Monitoring Portgroup"
+            mac: "{{ sensing_mac }}"
+        customization:
+          autologon: no
+          dns_servers: "{{ dns_servers }}"
+          domain: lan
+          password: "{{ password }}"
+          hostname: "{{ hostname }}"
+        hardware:
+          memory_mb: "{{ memory }}"
+          num_cpus: "{{ cpu }}"
+        disk:
+        - size_gb: 50
+          type: thin
+          datastore: "{{ vcenter.datastore }}"
+        - size_gb: 50
+          type: thin
+          datastore: "{{ vcenter.datastore }}"
+      delegate_to: localhost
+      when: "node_type == 'Sensor'"

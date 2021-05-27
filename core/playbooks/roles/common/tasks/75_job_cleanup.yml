@@ -2,7 +2,7 @@
 - name: Copy Job Cleanup script.
   copy:
     src: files/job_cleanup.py
-    dest: /opt/tfplenum/job_cleanup.py
+    dest: "{{ tfplenum_opt_dir }}/job_cleanup.py"
     mode: 0755
     owner: root
     group: root
@@ -10,7 +10,7 @@
 - name: Create a cronjob.
   cron:
     name: job-cleanup
-    job: /opt/metrics-env/bin/python /opt/tfplenum/job_cleanup.py
+    job: "/opt/metrics-env/bin/python {{ tfplenum_opt_dir }}/job_cleanup.py"
     minute: 0
     state: present
     user: root

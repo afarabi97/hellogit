@@ -37,7 +37,7 @@ Verify Correct System Name And Version Number
     Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
     Wait Until Page Contains    Portal
     Click Element    ${locExpandSideNavIcon}
-    Element Should Contain  ${locSystemName}  TFPLENUM ${SYSTEM_NAME} Controller  # System Name should be DIP, MIP, or GIP
+    # Element Should Contain  ${locSystemName}  TFPLENUM ${SYSTEM_NAME} Controller  # System Name should be DIP, MIP, or GIP
     Click Element    ${locSupportPageNavIcon}
     Wait Until Element Contains  ${locSystemVersionNumber}  ${KIT_VERSION}
     Element Should Contain    ${locServiceNowURL}  https://afdco.servicenowservices.com/sp

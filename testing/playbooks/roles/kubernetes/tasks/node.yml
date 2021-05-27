@@ -11,7 +11,7 @@
   register: node_results
   changed_when: node_results.failed
   with_items:
-  - "{{ groups['master_server'] }}"
+  - "{{ groups['control_plane'] }}"
   - "{{ groups['servers'] }}"
   - "{{ groups['sensors'] }}"
 
@@ -33,7 +33,7 @@
   register: node_results
   changed_when: node_results.failed
   with_items:
-  - "{{ groups['master_server'] }}"
+  - "{{ groups['control_plane'] }}"
   - "{{ groups['servers'] }}"
   - "{{ groups['sensors'] }}"
 
@@ -54,7 +54,7 @@
   register: node_results
   changed_when: node_results.failed
   with_items:
-  - "{{ groups['master_server'] }}"
+  - "{{ groups['control_plane'] }}"
   - "{{ groups['servers'] }}"
   - "{{ groups['sensors'] }}"
 

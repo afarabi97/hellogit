@@ -76,7 +76,7 @@ data:
           defaultOrganisation: ${?THEHIVE_ORGANIZATION}
         }
       ]
-      defaultUserDomain: "{{ .Values.system_name }}.local"
+      defaultUserDomain: "dip.local"
     }
 
     notification.webhook.endpoints = [

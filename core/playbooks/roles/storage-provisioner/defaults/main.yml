@@ -1,0 +1,3 @@
+---
+storage_dir: "{{ tfplenum_config_dir  }}/storage"
+fsType: xfs

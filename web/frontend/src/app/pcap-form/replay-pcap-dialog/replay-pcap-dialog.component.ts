@@ -9,6 +9,8 @@ import { PcapService } from '../../services/pcap.service';
 import { SensorHostInfoService } from '../../services/sensor-host-info.service';
 import { SortingService } from '../../services/sorting.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+
 
 @Component({
   selector: 'replay-pcap-dialog',
@@ -47,14 +49,33 @@ export class ReplayPcapDialog implements OnInit {
   initializeForm() {
     this.pcapForm = this.formBuilder.group({
       pcap: new FormControl(this.pcap_name),
-      sensor: new FormControl(undefined, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
-      ifaces: new FormControl(undefined, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]))
+      sensor_ip: new FormControl(undefined, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
+      preserve_timestamp: new FormControl(true),
+      ifaces: new FormControl(undefined)
     });
 
     this.pcapForm.get('pcap').disable();
   }
 
+  isPreserveTimestamp(): boolean {
+    return this.pcapForm.get('preserve_timestamp').value;
+  }
+
+  preserveTimestamp(event: MatCheckboxChange){
+    if (event.checked){
+      this.pcapForm.get('ifaces').setValidators(null);
+    } else {
+      this.pcapForm.get('ifaces').setValidators(Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]));
+    }
+  }
+
   onSubmit() {
+    for (const sensor of this.selectableSensors){
+      if (sensor.management_ip == this.pcapForm.get('sensor_ip').value){
+        this.pcapForm.addControl('sensor_hostname', new FormControl(sensor.hostname));
+        break;
+      }
+    }
     this.dialogRef.close(this.pcapForm);
   }
 

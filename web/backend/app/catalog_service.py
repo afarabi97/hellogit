@@ -3,17 +3,19 @@ import os
 import requests
 import json
 import yaml
+import glob
 from typing import List
 from datetime import timedelta, datetime
 
 from app import logger, rq_logger, conn_mng, REDIS_CLIENT
-from app.models.kit_setup import DIPKickstartForm, DIPKitForm
+from app.models.nodes import Node
+from app.models.settings.kit_settings import GeneralSettingsForm
 from app.service.socket_service import NotificationMessage, NotificationCode
-from app.service.system_info_service import get_system_name, get_auth_base
+from app.service.system_info_service import get_auth_base
 from app.service.job_service import run_command2
 from rq.decorators import job
-from app.utils.constants import KICKSTART_ID, KIT_ID
-from app.utils.connection_mngs import FabricConnectionWrapper, KubernetesWrapper, KubernetesWrapper2
+from app.utils.constants import KIT_ID, NODE_TYPES
+from app.utils.connection_mngs import KubernetesWrapper, KubernetesWrapper2
 
 
 HELM_BINARY_PATH = "/usr/local/bin/helm"
@@ -24,7 +26,7 @@ _PMO_SUPPORTED_CHARTS = ['cortex', 'hive', 'misp', 'logstash', 'arkime', 'arkime
 
 
 def _get_domain() -> str:
-    kickstart_configuration = DIPKickstartForm.load_from_db() # type: DIPKickstartForm
+    kickstart_configuration = GeneralSettingsForm.load_from_db() # type: Dict
     return kickstart_configuration.domain
 
 def _get_elastic_nodes(node_type="coordinating") -> list:
@@ -88,12 +90,10 @@ def get_node_type(hostname: str) -> str:
     Get node type for a node
 
     """
-    nodes = []
-    kit_configuration = DIPKitForm.load_from_db() # type: DIPKitForm
-    nodes = kit_configuration.nodes
-    node_list = list(filter(lambda node: node.hostname == hostname, nodes))
-    if len(node_list) == 1:
-        return node_list[0].node_type
+
+    node = Node.load_from_db_using_hostname(hostname) # type: Node
+    if node:
+        return node.node_type
     return None
 
 
@@ -103,9 +103,9 @@ def get_nodes(details: bool=False) -> list:
 
     """
     nodes = []
-    kit_configuration = DIPKitForm.load_from_db() # type: DIPKitForm
+    kit_nodes = Node.load_all_from_db() # type: List[Model]
 
-    for node in kit_configuration.nodes:
+    for node in kit_nodes:
         host_simple = {}
         if not details:
             host_simple['hostname'] = node.hostname
@@ -119,16 +119,24 @@ def get_nodes(details: bool=False) -> list:
     return nodes
 
 def get_node_apps(node_hostname: str) -> list:
+    node = Node.load_from_db_using_hostname(node_hostname)
     deployed_apps = []
-    saved_values = list(conn_mng.mongo_catalog_saved_values.find({}))
-    for val in saved_values:
-        if "values" in val and "node_hostname" in val["values"]:
-            node_type = get_node_type(val["values"]["node_hostname"])
-            if node_type:
-                hostname = val["values"]["node_hostname"]
-                if hostname == node_hostname:
-                    deployed_apps.append(val["application"])
-
+    if node.node_type == NODE_TYPES.sensor.value:
+        saved_values = list(conn_mng.mongo_catalog_saved_values.find({"values.node_hostname": node.hostname}))
+        for val in saved_values:
+            deployed_apps.append({"application": val["application"], "deployment_name": val["deployment_name"]})
+    elif node.node_type == NODE_TYPES.service_node.value or node.node_type == NODE_TYPES.server.value:
+        saved_values = list(conn_mng.mongo_catalog_saved_values.find({"values.node_hostname": "server"}))
+        field_selector = "spec.nodeName={}".format(node.hostname)
+        for val in saved_values:
+            with KubernetesWrapper(conn_mng) as kube_apiv1:
+                try:
+                    label_selector = "component={}".format(val["application"])
+                    api_response = kube_apiv1.list_pod_for_all_namespaces(watch=False, label_selector=label_selector, field_selector=field_selector)
+                    if len(api_response.items) > 0:
+                        deployed_apps.append({"application": val["application"], "deployment_name": val["deployment_name"]})
+                except:
+                    pass
     return deployed_apps
 
 def execute_kubelet_cmd(cmd: str) -> bool:
@@ -139,20 +147,24 @@ def execute_kubelet_cmd(cmd: str) -> bool:
     """
 
     try:
-        with FabricConnectionWrapper() as ssh_conn:
-            ssh_conn.run(cmd, hide=True)
-        return True
+        stdout, ret_code = run_command2(command=cmd, working_dir=WORKING_DIR, use_shell=True)
+        if ret_code == 0:
+            return True
     except Exception:
         return False
 
     return False
 
-def get_system_charts():
-    system = get_system_name()
-    CHARTS = '/opt/tfplenum/bootstrap/playbooks/group_vars/all/chartmuseum.yml'
-    with open(CHARTS) as file:
-        charts = yaml.load(file, Loader=yaml.FullLoader)
-    return charts['{}_charts'.format(system.lower())]
+# def get_system_charts():
+#     # TODO THis is jacked and needs to be fixed
+#     ret_val = []
+#     for chart in glob.glob("/opt/tfplenum/charts"):
+#         ret_val.append(chart)
+
+#     # CHARTS = '/opt/tfplenum/bootstrap/playbooks/group_vars/all/chartmuseum.yml'
+#     # with open(CHARTS) as file:
+#     #     charts = yaml.load(file, Loader=yaml.FullLoader)
+#     return charts['{}_charts'.format(system.lower())]
 
 def get_repo_charts() -> list:
     """
@@ -160,8 +172,7 @@ def get_repo_charts() -> list:
 
     : return (list): Returns a list of charts
     """
-    system_charts = get_system_charts()
-
+    # system_charts = get_system_charts()
     stdout, ret_code = run_command2(command="helm repo update", working_dir=WORKING_DIR, use_shell=True)
     if ret_code == 0:
         print("helm repo cache updated.")
@@ -173,7 +184,7 @@ def get_repo_charts() -> list:
         charts = json.loads(response.text)
         for key, value in charts.items():
             application = key
-            if application not in _CHART_EXEMPTS and application in system_charts:
+            if application not in _CHART_EXEMPTS and application:
                 for chart in value:
                     t_chart = {}
                     t_chart["application"] = application
@@ -292,8 +303,6 @@ def generate_values(application: str, namespace: str, configs: list=None) -> lis
         values = get_values(application)
         if 'domain' in values:
             values['domain'] = _get_domain()
-        if 'system_name' in values:
-            values['system_name'] = get_system_name()
         if 'auth_base' in values:
             values['auth_base'] = get_auth_base()
         if 'elastic_coordinating_nodes' in values:
@@ -439,7 +448,7 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
     return response
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
-def delete_helm_apps (application: str, namespace: str, nodes: List):
+def delete_helm_apps (application: str, nodes: List, namespace: str="default"):
     # Send Update Notification to websocket
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.DELETING.name.capitalize(), application=application.capitalize())
     response = []
@@ -475,15 +484,15 @@ def delete_helm_apps (application: str, namespace: str, nodes: List):
                 # Remove kube node label
                 if node_hostname:
                     execute_kubelet_cmd("kubectl label nodes " + node_hostname + " " + application + "-")
-
-                stdout, ret_code = run_command2(command="helm delete " + deployment_to_uninstall, working_dir=WORKING_DIR, use_shell=True)
+                cmd = "helm delete {}".format(deployment_to_uninstall)
+                stdout, ret_code = run_command2(command=cmd, working_dir=WORKING_DIR, use_shell=True)
                 if ret_code == 0 and stdout != '':
                     # PVC deletion takes significatly longer than the other Resources and is the final thing to be removed
                     # Thus, once the PVC is gone, It has been completely removed
                     check_deployment_pvc_deletetion(deployment_to_uninstall)
                     results = stdout.strip()
                     # Remove old saved values
-                    conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_to_uninstall})
+                    conn_mng.mongo_catalog_saved_values.delete_one({"deployment_name": deployment_to_uninstall})
 
                     # Send Update Notification to websocket
                     message = '%s %s on %s' % (NotificationCode.DELETING.name.capitalize(), application, node_hostname)
@@ -491,10 +500,10 @@ def delete_helm_apps (application: str, namespace: str, nodes: List):
                     notification.post_to_websocket_api()
                 if ret_code != 0 and stdout != '':
                     results = stdout.strip()
-                    rq_logger.exception(exc)
+                    rq_logger.exception(results)
                     # Send Update Notification to websocket
                     notification.set_status(status=NotificationCode.ERROR.name)
-                    notification.set_exception(exception=exc)
+                    notification.set_exception(exception=results)
                     notification.post_to_websocket_api()
                 response.append(results)
                 sleep(1)

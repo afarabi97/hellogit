@@ -10,12 +10,6 @@
     - name: Set template ova name
       set_fact:
         ctrl_name: "{{ '.'.join(node.template.split('.')[:-1]) }}"
-      when: "run_type == 'build_from_scratch'"
-
-    - name: Set controller ova name
-      set_fact:
-        ctrl_name: "{{ '.'.join(node.ctrl_name.split('.')[:-1]) }}"
-      when: "run_type == 'clone_from_nightly'"
 
     - name: "Power on the VM {{ ctrl_name }}"
       vmware_guest_powerstate:
@@ -33,31 +27,32 @@
         delay: 20
         state: started
 
-    - name: Run command inside a virtual machine
-      vmware_vm_shell:
-        hostname: "{{ esxi.ipaddress}}"
-        username: "{{ esxi.username }}"
-        password: "{{ esxi.password }}"
-        vm_id: "{{ ctrl_name }}"
-        vm_username: "{{ node.username }}"
-        vm_password: "{{ node.password }}"
-        vm_shell: /usr/bin/sudo
-        vm_shell_args: "{{ item }}"
-        vm_shell_cwd: "/usr/sbin"
-        validate_certs: no
-      delegate_to: localhost
-      with_items:
-        - "nmcli con del ens192"
-        - "nmcli con del 'System ens192'"
-        - "nmcli con add type ethernet con-name ens192 ifname ens192 master br0"
-        - "nmcli con modify 'Bridge br0' ipv4.address '{{ node.ipaddress }}/24'"
-        - "nmcli con modify 'Bridge br0' ipv4.gateway '{{ node.gateway }}'"
-        - "nmcli conn modify 'Bridge br0' ipv4.dns {{ node.dns_servers[0] }}'"
-        - "nmcli con modify 'Bridge br0' ipv4.method manual"
-        - "nmcli con down 'Bridge br0'"
-        - "nmcli con up 'Bridge br0'"
-        - "echo nameserver {{ node.dns_servers[0] }} >> /etc/resolv.conf"
-      when: "run_type == 'clone_from_nightly'"
+    # TODO: Build from release
+    # - name: Run command inside a virtual machine
+    #   vmware_vm_shell:
+    #     hostname: "{{ esxi.ipaddress}}"
+    #     username: "{{ esxi.username }}"
+    #     password: "{{ esxi.password }}"
+    #     vm_id: "{{ ctrl_name }}"
+    #     vm_username: "{{ node.username }}"
+    #     vm_password: "{{ node.password }}"
+    #     vm_shell: /usr/bin/sudo
+    #     vm_shell_args: "{{ item }}"
+    #     vm_shell_cwd: "/usr/sbin"
+    #     validate_certs: no
+    #   delegate_to: localhost
+    #   with_items:
+    #     - "nmcli con del ens192"
+    #     - "nmcli con del 'System ens192'"
+    #     - "nmcli con add type ethernet con-name ens192 ifname ens192 master br0"
+    #     - "nmcli con modify 'Bridge br0' ipv4.address '{{ node.ipaddress }}/24'"
+    #     - "nmcli con modify 'Bridge br0' ipv4.gateway '{{ node.gateway }}'"
+    #     - "nmcli conn modify 'Bridge br0' ipv4.dns {{ node.dns_servers[0] }}'"
+    #     - "nmcli con modify 'Bridge br0' ipv4.method manual"
+    #     - "nmcli con down 'Bridge br0'"
+    #     - "nmcli con up 'Bridge br0'"
+    #     - "echo nameserver {{ node.dns_servers[0] }} >> /etc/resolv.conf"
+    #   when: "run_type == 'clone_from_nightly'"
 
     - name: Wait for SSH port
       wait_for:
@@ -89,6 +84,5 @@
         - "nmcli con down ens192"
         - "nmcli con up ens192"
         - "echo nameserver {{ node.dns_servers[0] }} >> /etc/resolv.conf"
-      when: "run_type == 'build_from_scratch'"
 ...
 

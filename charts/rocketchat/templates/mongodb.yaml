@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -50,7 +51,7 @@ spec:
         - mountPath: /bitnami/mongodb
           name: mongo-data
       nodeSelector:
-        role: server
+        role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}
       restartPolicy: Always
       securityContext:
         runAsUser: 0

@@ -32,10 +32,8 @@ publish sonarqube results:
   only:
     variables:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
+
   dependencies:
     - sonarqube front-end code base
     - sonarqube back-end code base

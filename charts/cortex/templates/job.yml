@@ -66,7 +66,7 @@ spec:
           mountPath: /etc/ssl/certs/container
           readOnly: true
       nodeSelector:
-        role: "server"
+        role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}
       volumes:
       - name: setup
         configMap:
@@ -76,6 +76,6 @@ spec:
           defaultMode: 420
           optional: false
           secretName: webca-certificate
-      nodeSelector:
-        role: server
       restartPolicy: Never
+
+

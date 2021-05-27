@@ -4,7 +4,7 @@ from kubernetes import client, config, utils
 from typing import Dict, List
 from elasticsearch.client import ClusterClient, SnapshotClient, IndicesClient
 from elasticsearch.exceptions import ConflictError
-from app.kit_controller import _get_domain
+from app.catalog_service import _get_domain
 from base64 import b64decode
 import os
 

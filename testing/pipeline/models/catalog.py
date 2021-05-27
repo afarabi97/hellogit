@@ -1,10 +1,13 @@
-from typing import Union
 from argparse import Namespace, ArgumentParser
 from models import Model, add_args_from_instance
-from models.common import NodeSettings, HwNodeSettings
-from models.kickstart import KickstartSettings, HwKickstartSettings
-from typing import Dict
+from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
+from models.kit import KitSettingsV2
+from models.node import NodeSettingsV2
+from typing import Dict, List
 from models.constants import SubCmd
+
+
+DEPLOYMENT_NAME_PATTERN = "{}-{}"
 
 
 class SuricataSettings(Model):
@@ -18,13 +21,14 @@ class SuricataSettings(Model):
         self.suricata_threads = 2
         self.node_hostname = ""
         self.interfaces = ""
+        self.flow = True
 
-    def set_from_node_settings(self, node_settings: Union[NodeSettings, HwNodeSettings]):
-        self.affinity_hostname = node_settings.hostname
-        pos = node_settings.hostname.rfind(".")
-        self.deployment_name = "{}-{}".format(node_settings.hostname[:pos], "suricata")
-        self.node_hostname = node_settings.hostname
-        self.interfaces = node_settings.monitoring_interface
+    def set_from_node_settings(self, node: NodeSettingsV2):
+        self.affinity_hostname = node.hostname
+        pos = node.hostname.rfind(".")
+        self.deployment_name = DEPLOYMENT_NAME_PATTERN.format(node.hostname[:pos], "suricata")
+        self.node_hostname = node.hostname
+        self.interfaces = node.monitoring_interfaces
 
 
 class ArkimeCaptureSettings(Model):
@@ -42,12 +46,12 @@ class ArkimeCaptureSettings(Model):
         self.deployment_name = ""
         self.interfaces = ""
 
-    def set_from_node_settings(self, node_settings: Union[NodeSettings,HwNodeSettings]):
-        self.affinity_hostname = node_settings.hostname
-        pos = node_settings.hostname.rfind(".")
-        self.deployment_name = "{}-{}".format(node_settings.hostname[:pos], "arkime")
-        self.node_hostname = node_settings.hostname
-        self.interfaces = node_settings.monitoring_interface
+    def set_from_node_settings(self, node: NodeSettingsV2):
+        self.affinity_hostname = node.hostname
+        pos = node.hostname.rfind(".")
+        self.deployment_name = DEPLOYMENT_NAME_PATTERN.format(node.hostname[:pos], "arkime")
+        self.node_hostname = node.hostname
+        self.interfaces = node.monitoring_interfaces
 
 
 class ArkimeViewerSettings(Model):
@@ -56,6 +60,7 @@ class ArkimeViewerSettings(Model):
         self.user = "assessor"
         self.password = "password"
         self.deployment_name = "arkime-viewer"
+        self.serviceNode = False
 
     def to_dict(self) -> Dict:
         arkime_dict = super().to_dict()
@@ -63,6 +68,9 @@ class ArkimeViewerSettings(Model):
         del arkime_dict["password"]
         arkime_dict["pass"] = cache
         return arkime_dict
+
+    def install_on_service_node(self, srv_node_exists: bool):
+        self.serviceNode = srv_node_exists
 
 
 class ZeekSettings(Model):
@@ -76,12 +84,12 @@ class ZeekSettings(Model):
         self.log_retention_hours = "24"
         self.interfaces = ""
 
-    def set_from_node_settings(self, node_settings: Union[NodeSettings,HwNodeSettings]):
-        self.affinity_hostname = node_settings.hostname
-        pos = node_settings.hostname.rfind(".")
-        self.deployment_name = "{}-{}".format(node_settings.hostname[:pos], "zeek")
-        self.node_hostname = node_settings.hostname
-        self.interfaces = node_settings.monitoring_interface
+    def set_from_node_settings(self, node: NodeSettingsV2):
+        self.affinity_hostname = node.hostname
+        pos = node.hostname.rfind(".")
+        self.deployment_name = DEPLOYMENT_NAME_PATTERN.format(node.hostname[:pos], "zeek")
+        self.node_hostname = node.hostname
+        self.interfaces = node.monitoring_interfaces
 
 
 class LogstashSettings(Model):
@@ -92,14 +100,20 @@ class LogstashSettings(Model):
         self.deployment_name = "logstash"
         self.external_fqdn = ""
         self.external_ip = ""
+        self.serviceNode = False
 
+    def install_on_service_node(self, srv_node_exists: bool):
+        self.serviceNode = srv_node_exists
 
 class WikijsSettings(Model):
     def __init__(self):
         self.node_hostname = "server"
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "wikijs"
+        self.serviceNode = False
 
+    def install_on_service_node(self, srv_node_exists: bool):
+        self.serviceNode = srv_node_exists
 
 class MispSettings(Model):
     def __init__(self):
@@ -107,6 +121,10 @@ class MispSettings(Model):
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "misp"
         self.cortexIntegration = True
+        self.serviceNode = False
+
+    def install_on_service_node(self, srv_node_exists: bool):
+        self.serviceNode = srv_node_exists
 
 
 class HiveSettings(Model):
@@ -116,20 +134,30 @@ class HiveSettings(Model):
         self.deployment_name = "hive"
         self.cortexIntegration = True
         self.mispIntegration = True
+        self.serviceNode = False
 
+    def install_on_service_node(self, srv_node_exists: bool):
+        self.serviceNode = srv_node_exists
 
 class CortexSettings(Model):
     def __init__(self):
         self.node_hostname = "server"
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "cortex"
+        self.serviceNode = False
 
+    def install_on_service_node(self, srv_node_exists: bool):
+        self.serviceNode = srv_node_exists
 
 class RocketchatSettings(Model):
     def __init__(self):
         self.node_hostname = "server"
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "rocketchat"
+        self.serviceNode = False
+
+    def install_on_service_node(self, srv_node_exists: bool):
+        self.serviceNode = srv_node_exists
 
 
 class MattermostSettings(Model):
@@ -179,66 +207,81 @@ class CatalogSettings(Model):
         self.redmine_settings = dict()
         self.netflow_filebeat_settings = dict()
 
+    def _service_node_exists(self, nodes: List[NodeSettingsV2]) -> bool:
+        for node in nodes:
+            if node.is_service():
+                return True
+        return False
+
     def set_from_kickstart(self,
-                           kickstart_settings: Union[KickstartSettings,HwKickstartSettings],
+                           nodes: List[NodeSettingsV2],
+                           kit_settings: KitSettingsV2,
                            namespace: Namespace):
-        for sensor in kickstart_settings.sensors:
-            if namespace.which == SubCmd.suricata:
-                suricata_settings = SuricataSettings()
-                suricata_settings.set_from_node_settings(sensor)
-                suricata_settings.from_namespace(namespace)
-                self.suricata_settings[sensor.hostname] = suricata_settings
 
-            if namespace.which == SubCmd.arkime_capture:
-                arkime_capture_settings = ArkimeCaptureSettings()
-                arkime_capture_settings.set_from_node_settings(sensor)
-                arkime_capture_settings.from_namespace(namespace)
-                self.arkime_capture_settings[sensor.hostname] = arkime_capture_settings
+        service_node_exists = self._service_node_exists(nodes)
+        for node in nodes: # type : NodeSettingsV2
 
-            if namespace.which == SubCmd.zeek:
-                zeek_settings = ZeekSettings()
-                zeek_settings.set_from_node_settings(sensor)
-                zeek_settings.from_namespace(namespace)
-                self.zeek_settings[sensor.hostname] = zeek_settings
+            if node.is_sensor():
+                if namespace.which == SubCmd.suricata:
+                    suricata_settings = SuricataSettings()
+                    suricata_settings.set_from_node_settings(node)
+                    suricata_settings.from_namespace(namespace)
+                    self.suricata_settings[node.hostname] = suricata_settings
 
-            if namespace.which == SubCmd.arkime_viewer:
-                self.arkime_viewer_settings = ArkimeViewerSettings()
-                self.arkime_viewer_settings.from_namespace(namespace)
+                if namespace.which == SubCmd.arkime_capture:
+                    arkime_capture_settings = ArkimeCaptureSettings()
+                    arkime_capture_settings.set_from_node_settings(node)
+                    arkime_capture_settings.from_namespace(namespace)
+                    self.arkime_capture_settings[node.hostname] = arkime_capture_settings
 
-            if namespace.which == SubCmd.logstash:
-                logstash_settings = LogstashSettings()
-                logstash_settings.from_namespace(namespace)
-                self.logstash_settings = logstash_settings
+                if namespace.which == SubCmd.zeek:
+                    zeek_settings = ZeekSettings()
+                    zeek_settings.set_from_node_settings(node)
+                    zeek_settings.from_namespace(namespace)
+                    self.zeek_settings[node.hostname] = zeek_settings
 
-        server = kickstart_settings.get_master_kubernetes_server()
-        if server:
-            if namespace.which == SubCmd.wikijs:
-                self.wikijs_settings = WikijsSettings()
-                self.wikijs_settings.from_namespace(namespace)
-            elif namespace.which == SubCmd.misp:
-                self.misp_settings = MispSettings()
-                self.misp_settings.from_namespace(namespace)
-            elif namespace.which == SubCmd.cortex:
-                self.cortex_settings = CortexSettings()
-                self.cortex_settings.from_namespace(namespace)
-            elif namespace.which == SubCmd.hive:
-                self.hive_settings = HiveSettings()
-                self.hive_settings.from_namespace(namespace)
-            elif namespace.which == SubCmd.rocketchat:
-                self.rocketchat_settings = RocketchatSettings()
-                self.rocketchat_settings.from_namespace(namespace)
-            elif namespace.which == SubCmd.mattermost:
-                self.mattermost_settings = MattermostSettings()
-                self.mattermost_settings.from_namespace(namespace)
-            elif namespace.which == SubCmd.nifi:
-                self.nifi_settings = NifiSettings()
-                self.nifi_settings.from_namespace(namespace)
-            elif namespace.which == SubCmd.redmine:
-                self.redmine_settings = RedmineSettings()
-                self.redmine_settings.from_namespace(namespace)
-            elif namespace.which == SubCmd.netflow_filebeat:
-                self.netflow_filebeat_settings = NetflowFilebeatSettings()
-                self.netflow_filebeat_settings.from_namespace(namespace)
+                if namespace.which == SubCmd.arkime_viewer:
+                    self.arkime_viewer_settings = ArkimeViewerSettings()
+                    self.arkime_viewer_settings.from_namespace(namespace)
+                    self.arkime_viewer_settings.install_on_service_node(service_node_exists)
+
+                if namespace.which == SubCmd.logstash:
+                    logstash_settings = LogstashSettings()
+                    logstash_settings.from_namespace(namespace)
+                    self.logstash_settings = logstash_settings
+
+        if namespace.which == SubCmd.wikijs:
+            self.wikijs_settings = WikijsSettings()
+            self.wikijs_settings.install_on_service_node(service_node_exists)
+            self.wikijs_settings.from_namespace(namespace)
+        elif namespace.which == SubCmd.misp:
+            self.misp_settings = MispSettings()
+            self.misp_settings.install_on_service_node(service_node_exists)
+            self.misp_settings.from_namespace(namespace)
+        elif namespace.which == SubCmd.cortex:
+            self.cortex_settings = CortexSettings()
+            self.cortex_settings.install_on_service_node(service_node_exists)
+            self.cortex_settings.from_namespace(namespace)
+        elif namespace.which == SubCmd.hive:
+            self.hive_settings = HiveSettings()
+            self.hive_settings.install_on_service_node(service_node_exists)
+            self.hive_settings.from_namespace(namespace)
+        elif namespace.which == SubCmd.rocketchat:
+            self.rocketchat_settings = RocketchatSettings()
+            self.rocketchat_settings.install_on_service_node(service_node_exists)
+            self.rocketchat_settings.from_namespace(namespace)
+        elif namespace.which == SubCmd.mattermost:
+            self.mattermost_settings = MattermostSettings()
+            self.mattermost_settings.from_namespace(namespace)
+        elif namespace.which == SubCmd.nifi:
+            self.nifi_settings = NifiSettings()
+            self.nifi_settings.from_namespace(namespace)
+        elif namespace.which == SubCmd.redmine:
+            self.redmine_settings = RedmineSettings()
+            self.redmine_settings.from_namespace(namespace)
+        elif namespace.which == SubCmd.netflow_filebeat:
+            self.netflow_filebeat_settings = NetflowFilebeatSettings()
+            self.netflow_filebeat_settings.from_namespace(namespace)
 
     @staticmethod
     def add_args(parser: ArgumentParser):

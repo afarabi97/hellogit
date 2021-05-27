@@ -1,0 +1,5 @@
+---
+# defaults file for roles/kickstart
+#
+tftp_dir: /var/lib/tftpboot
+kick_cfg: ks.cfg

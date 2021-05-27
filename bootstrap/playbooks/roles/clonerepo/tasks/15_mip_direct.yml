@@ -31,21 +31,14 @@
 
 - name: Fetch MIP resources.
   get_url:
-    url: "{{ mip_repo }}/{{ item }}"
-    dest: "{{ web_root }}/MIP/"
-  loop:
-    - "vmware/{{ vmware_file }}"
-    - "vscode/{{ vscode_file }}"
-    - "gitkraken/{{ gitkraken_file }}"
-    - "google-chrome/{{ chrome_file }}"
-    - "nexpose/{{ nexpose_file }}"
-    - "burpsuite/{{ burpsuite_file }}"
-    - "drivers/{{ nvidia_driver }}"
-    - "drivers/{{ amd_driver }}"
-
-- name: "Download direct rpms"
-  get_url:
-    url: "{{ item.url }}"
+    url: "{{ mip_repo }}/{{ item.src }}"
     dest: "{{ item.dest }}"
-  with_items:
-    - "{{ mip_direct_download_rpms }}"
+  loop:
+    - { "src": "vmware/{{ vmware_file }}", "dest": "{{ web_root }}/MIP/" }
+    - { "src": "vscode/{{ vscode_file }}", "dest": "{{ extras_dir }}/Packages" }
+    - { "src": "gitkraken/{{ gitkraken_file }}", "dest": "{{ extras_dir }}/Packages" }
+    - { "src": "google-chrome/{{ chrome_file }}", "dest": "{{ extras_dir }}/Packages" }
+    - { "src": "nexpose/{{ nexpose_file }}", "dest": "{{ web_root }}/MIP/" }
+    - { "src": "burpsuite/{{ burpsuite_file }}", "dest": "{{ web_root }}/MIP/" }
+    - { "src": "drivers/{{ nvidia_driver }}", "dest": "{{ web_root }}/MIP/"}
+    - { "src": "drivers/{{ amd_driver }}", "dest": "{{ web_root }}/MIP/"}

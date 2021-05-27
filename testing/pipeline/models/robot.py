@@ -1,10 +1,8 @@
 import os
-import logging
 from argparse import Namespace, ArgumentParser
 from models import Model
-from models.constants import SubCmd, RobotSubCmd
 from util.yaml_util import YamlManager
-from typing import List, Dict, Union
+
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 ROBOTEST_DIR = PIPELINE_DIR + "../robotest"
@@ -14,7 +12,6 @@ ROBOTEST_OUTPUT_DIR = PIPELINE_DIR + "../robotest-output"
 class RobotSettings(Model):
     def __init__(self):
         super().__init__()
-        self.system_name = None                 # from_namespace
         self.tfplenum_robot_container = None    # from_namespace
         self.jira_username = None               # from_namespace
         self.jira_password = None               # from_namespace
@@ -66,9 +63,7 @@ class RobotSettings(Model):
         parser.add_argument('--kit-version', dest='kit_version', help="The version number of the kit")
         parser.add_argument('--pipeline', dest='pipeline', help="Var to determine if kit is virtual or baremetal")
 
-
     def from_namespace(self, namespace: Namespace):
-        self.system_name = namespace.system_name
         self.tfplenum_robot_container = namespace.tfplenum_robot_container
         self.jira_username = namespace.jira_username
         self.jira_password = namespace.jira_password
@@ -82,22 +77,9 @@ class RobotSettings(Model):
         self.pipeline = namespace.pipeline
         self._get_model_settings_from_yaml()
 
-
-
     def _get_model_settings_from_yaml(self):
-        if self.system_name == 'DIP':
-            self.model_settings = YamlManager.load_ctrl_settings_from_yaml(self.system_name)
-            self._build_command(self.model_settings)
-        elif self.system_name == 'MIP':
-            self.model_settings = YamlManager.load_ctrl_settings_from_yaml(
-                self.system_name)
-            self._build_command(self.model_settings)
-        elif self.system_name == 'GIP':
-            self.model_settings = YamlManager.load_gip_service_settings_from_yaml()
-            self._build_command(self.model_settings)
-        else:
-            logging.info("There Is No Robot Test For The System: {}".format(self.system_name))
-
+        self.model_settings = YamlManager.load_ctrl_settings_from_yaml()
+        self._build_command(self.model_settings)
 
     def _build_command(self, model: Model):
         self.username = model.node.username
@@ -108,18 +90,18 @@ class RobotSettings(Model):
 
         docker run --env=JIRA_USERNAME={} --env=JIRA_PASSWORD={} --env=JIRA_PROJECT_KEY={} -i --network="host"
         --volume={}/tests:/usr/src/robot/tests --volume={}:/usr/src/robot/output {} --add-host=dip-controller.{}:{}
-        pipenv run python -m run.runner -c {} -r {} -p {} -h -b {} -v HOST:{} -v HOST_USERNAME:{}' -v HOST_PASSWORD:{} -v SYSTEM_NAME:{} -v KIT_VERSION:{} -v PIPELINE:{}
+        pipenv run python -m run.runner -c {} -r {} -p {} -h -b {} -v HOST:{} -v HOST_USERNAME:{}' -v HOST_PASSWORD:{} -v KIT_VERSION:{} -v PIPELINE:{}
         """
         # 1.    Environment Variables
         self.command = f"docker run --env=JIRA_USERNAME={self.jira_username} --env=JIRA_PASSWORD='{self.jira_password}' --env=JIRA_PROJECT_KEY={self.jira_project_key} -i --network=\"host\" "
         # 2.    Volume Mappings
-        self.command += f"--volume={ROBOTEST_DIR}:/usr/src/robot/tests --volume={ROBOTEST_OUTPUT_DIR}:/usr/src/robot/output --add-host=dip-controller.{self.domain}:{self.ipaddress} "
+        self.command += f"--volume={ROBOTEST_DIR}:/usr/src/robot/tests --volume={ROBOTEST_OUTPUT_DIR}:/usr/src/robot/output --add-host=controller.{self.domain}:{self.ipaddress} "
         # 3.    Tfplenum Container
         self.command += f"{self.tfplenum_robot_container} python3 -m run.runner "
         # 4.    Robotframework & Jira Variables that determine the output(category, report, project version)
         self.command += f"-c {self.robot_category} -r '{self.jira_report}' -p {self.jira_project_version} -h -b {self.robot_browser} "
         # 5.    Calculated Variables That Are Necessary To Run Robot on a specific machine
-        self.command += f"-v HOST:{self.ipaddress} -v HOST_USERNAME:{self.username} -v HOST_PASSWORD:{self.password} -v SYSTEM_NAME:{self.system_name} -v KIT_VERSION:{self.kit_version} -v PIPELINE:{self.pipeline} "
+        self.command += f"-v HOST:{self.ipaddress} -v HOST_USERNAME:{self.username} -v HOST_PASSWORD:{self.password} -v KIT_VERSION:{self.kit_version} -v PIPELINE:{self.pipeline} "
         # 6.    TODO: All the variables passed to robot framework via gitlab
 
         print("COMMAND:", self.command)

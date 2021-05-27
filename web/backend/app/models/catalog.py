@@ -1,6 +1,6 @@
 from app import api
 from app.models import Model
-from app.models.kit_setup import Node
+from app.models.nodes import Node
 from flask_restx import fields
 from flask_restx.fields import Nested
 

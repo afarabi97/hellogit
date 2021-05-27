@@ -18,14 +18,14 @@ def disconnect():
     print('Client disconnected')
 
 
-@app.route('/api/get_console_logs/<job_name>', methods=['GET'])
-def get_console_logs(job_name: str) -> Response:
+@app.route('/api/get_console_logs/<job_id>', methods=['GET'])
+def get_console_logs(job_id: str) -> Response:
     """
     Gets the console logs by Job name.
 
     :param job_name: The name of the job (EX: Kickstart or Kit)
     """
-    job_list =  {"jobName": job_name}
+    job_list =  {"jobid": job_id}
     logs = list(conn_mng.mongo_console.find(job_list, {'_id': False}))
     return jsonify(logs)
 

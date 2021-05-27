@@ -3,7 +3,7 @@ import os
 import unittest
 
 from app import app, conn_mng
-from app.models.kit_setup import MIPKickstartSchema, MIPKickstartForm
+from app.models.settings.mip_settings import MipSettingsForm
 from app.tests.base_test_setup import BaseTestCase
 from datetime import datetime, timedelta
 from flask.wrappers import Response
@@ -26,7 +26,7 @@ class MIPKickstartTests(BaseTestCase):
         job_id = response.json["job_id"]
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(job_id)
-        kickstart = MIPKickstartForm.load_from_db()
+        kickstart = MipSettingsForm.load_from_db()
         self.assertEqual(IPv4Address("10.10.101.11"), kickstart.dns)
         response = self.app.get("/api/job/" + job_id)
         self._wait_for_job_to_finish(job_id)
@@ -73,7 +73,7 @@ class MIPKickstartTests(BaseTestCase):
         del self.mip_kickstart["dns"]
         response = self.app.post('/api/kickstart/mip', json=self.mip_kickstart)
         self.assertEqual(response.status_code, 200)
-        kickstart = MIPKickstartForm.load_from_db()
+        kickstart = MipSettingsForm.load_from_db()
         self.assertIsNotNone(kickstart)
         self.assertEqual(IPv4Address("0.0.0.0"), kickstart.upstream_dns)
         self.assertEqual(IPv4Address("0.0.0.0"), kickstart.upstream_ntp)

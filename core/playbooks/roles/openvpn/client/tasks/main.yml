@@ -1,0 +1,14 @@
+---
+
+- import_tasks: 00_preflight.yml
+
+- block:
+    - import_tasks: 10_gen_certs.yml
+    - import_tasks: 20_add_client.yml
+  tags: add-vpn-client
+
+- import_tasks: 30_setup_clients.yml
+  when: inventory_hostname in groups['sensors']
+  tags: add-vpn-client
+
+...

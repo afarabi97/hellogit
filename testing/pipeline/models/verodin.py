@@ -1,5 +1,6 @@
 from argparse import Namespace, ArgumentParser
-from models import Model, add_args_from_instance
+from models import Model
+
 
 class VerodinSettings(Model):
 

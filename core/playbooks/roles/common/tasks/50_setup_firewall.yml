@@ -14,7 +14,7 @@
     state: enabled
   with_items:
     - dns
-  when: inventory_hostname in groups['master_server']
+  when: inventory_hostname in groups['control_plane']
 
 - name: Allow common services thru firewall
   firewalld:
@@ -39,7 +39,9 @@
     - 5044/tcp
     - 5045/tcp
     - 9200/tcp
-  when: inventory_hostname in groups['servers']
+  when:
+    - "'servers' in groups"
+    - inventory_hostname in groups['servers']
 
 - name: Set target to internal zone
   shell: |

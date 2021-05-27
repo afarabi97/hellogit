@@ -49,5 +49,5 @@ class GipCreationJob:
         with FabricConnectionWrapper(self.service_settings.node.username,
                                      self.service_settings.node.password,
                                      self.service_settings.node.ipaddress) as remote_shell:
-          self._copy(ROOT_DIR + 'playbooks.zip', '/tmp', remote_shell)
-          remote_shell.run('unzip -d /opt /tmp/playbooks.zip'  )
+            self._copy(ROOT_DIR + 'playbooks.zip', '/tmp', remote_shell)
+            remote_shell.run('unzip -d /opt /tmp/playbooks.zip'  )

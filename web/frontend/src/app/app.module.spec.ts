@@ -36,13 +36,5 @@ describe('AppModule', () => {
         expect(value).toBeDefined();
       }));
     });
-
-    describe('initializeSystemName', () => {
-      it('should call initializeSystemName', fakeAsync(() => {
-        const value = AppModuleFunctions.initializeSystemName(serviceAppLoad);
-
-        expect(value).toBeDefined();
-      }));
-    });
   });
 });

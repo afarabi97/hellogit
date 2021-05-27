@@ -16,7 +16,6 @@ export * from './rule-sync.class';
 export * from './rule.class';
 export * from './status.class';
 export * from './success-message.class';
-export * from './system-name.class';
 export * from './user-portal-link.class';
 export * from './user.class';
 export * from './version.class';

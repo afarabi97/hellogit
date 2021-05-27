@@ -15,7 +15,7 @@ class CreateApiToken:
     def __init__(self):
         self._uid = "api_token"
         self._displayName = 'API Key'
-        self._email = "api-token@{{ system_name | lower }}.local"
+        self._email = "api-token@controller.local"
         self._roles = ["operator"]
         self._exp = 1
         self._private_key_file = None

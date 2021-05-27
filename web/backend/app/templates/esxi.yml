@@ -1,0 +1,15 @@
+---
+
+all:
+  vars:
+    esxi:
+      ipaddress: {{ template_ctx.ip_address }}
+      username: {{ template_ctx.username|default('root') }}
+      password: "{{ template_ctx.password }}"
+      datastore: {{ template_ctx.datastore|default('datastore1') }}
+      portgroup: {{ template_ctx.portgroup|default('Interal') }}
+      datacenter: {{ template_ctx.datacenter |default('None') }}
+      cluster: {{ template_ctx.cluster|default('None') }}
+      folder: {{ template_ctx.folder|default('None') }}
+      vcenter: {{ template_ctx.vcenter|default('None') }}
+

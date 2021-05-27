@@ -1,0 +1,64 @@
+<mat-card [formGroup]="generalSettingsForm">
+  <mat-card-header *ngIf="hasTitle">
+    <mat-card-title>
+      <a id="app-settings-general-settings-form-mat-card-mat-card-header-mat-card-title-a" (click)="toggleCard()">
+        <em *ngIf="!isCardVisible"
+            class="material-icons">chevron_right</em>
+        <em *ngIf="isCardVisible"
+            class="material-icons">expand_more</em>
+        <span style="vertical-align: top;">General Settings</span>
+      </a>
+      </mat-card-title>
+  </mat-card-header>
+  <mat-card-content *ngIf="isCardVisible || !hasTitle" fxLayout="column" fxLayoutAlign="space-around stretch">
+    <form [formGroup]="generalSettingsForm">
+      <div fxLayout="column" fxLayoutAlign="start stretch">
+        <!-- Domain -->
+        <mat-form-field>
+          <mat-label>Domain</mat-label>
+          <input matInput type="text" placeholder="You must enter a domain name for the kit." formControlName="domain"
+            matTooltip="{{ getTooltip('domain') }}" />
+          <mat-icon matSuffix
+            *ngIf="generalSettingsForm.get('domain').valid && generalSettingsForm.get('domain').touched"
+            color="primary">
+            check_circle</mat-icon>
+          <mat-icon matSuffix
+            *ngIf="generalSettingsForm.get('domain').invalid && generalSettingsForm.get('domain').touched" color="warn">
+            error
+          </mat-icon>
+          <mat-error>{{ getErrorMessage(generalSettingsForm.get("domain")) }}</mat-error>
+        </mat-form-field>
+        <!-- Controller Interface -->
+        <mat-form-field>
+          <mat-label>Controller IP Address</mat-label>
+          <input [readonly]="isReadOnly" matInput formControlName="controller_interface"
+            placeholder="Enter your controller ip address here.">
+        </mat-form-field>
+        <!-- Gateway -->
+        <mat-form-field>
+          <mat-label>Gateway</mat-label>
+          <input readonly matInput formControlName="gateway" placeholder="Enter your kit's gateway here.">
+        </mat-form-field>
+        <!-- Netmask -->
+        <mat-form-field>
+          <mat-label>Netmask</mat-label>
+          <input readonly matInput formControlName="netmask" placeholder="Please enter a valid Netmask">
+        </mat-form-field>
+        <!-- DHCP Range -->
+        <mat-form-field>
+          <mat-label>DHCP Range</mat-label>
+          <mat-select formControlName="dhcp_range" (selectionChange)="checkDhcpRange()">
+            <mat-option *ngFor="let option of dhcp_range_options; let j = index;" [value]="option">{{ option }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix *ngIf="dhcp_used_ips" matTooltip="The following IPs are in use: {{ dhcp_used_ips }}"
+            color="warn">warning</mat-icon>
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-card-content>
+  <mat-card-actions *ngIf="isCardVisible">
+    <button matTooltip="{{ buttonToolTip }}" mat-raised-button color="primary" [disabled]="!generalSettingsForm.valid || jobRunning" (click)="saveSettings()">Save</button>
+    <button *ngIf="job_id" mat-raised-button color="primary" (click)="openPreviousJob()">Open Console</button>
+  </mat-card-actions>
+</mat-card>

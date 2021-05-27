@@ -1,0 +1,34 @@
+---
+- name: set existing pki
+  set_fact:
+    existing_pki: False
+
+- name: Install net-tools
+  dnf:
+    name: [ net-tools, openvpn, easy-rsa ]
+    state: present
+
+- name: Create directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ ovpn_dir }}/pki/private/"
+    - "{{ ovpn_dir }}/pki/issued/"
+
+- name: Copy easy-rsa executable to /etc/openvpn
+  shell: |
+    cp -r /usr/share/easy-rsa/3/* /etc/openvpn/
+  register: results
+  changed_when: results.rc == 0
+
+- name: Check for existing pki
+  stat:
+    path: "{{ ovpn_dir }}/pki/private/{{ inventory_hostname_short }}.key"
+  register: existing_key
+  delegate_to: localhost
+
+- name: set existing pki
+  set_fact:
+    existing_pki: True
+  when: existing_key.stat.exists

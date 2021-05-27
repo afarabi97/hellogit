@@ -1,0 +1,113 @@
+---
+- name: Set_fact management_interface ipv4
+  set_fact:
+    management_interface: "{{ ansible_default_ipv4.interface }}"
+
+- name: Delete existing files
+  file:
+    state: absent
+    path: "{{ item }}"
+  with_items:
+    - "{{ dnsmasq_conf_file }}"
+    - "{{ host_dir }}"
+
+- name: Install dnsmasq
+  yum:
+    name:
+      - dnsmasq
+      - bind-utils
+    state: installed
+
+- name: Create dnsmasq conf
+  template:
+    src: templates/10-dnsmasq.conf.j2
+    dest: "{{ dnsmasq_conf_file }}"
+  register: dnsmasq_conf
+
+- name: Configure firewalld
+  firewalld:
+    zone: public
+    service: dns
+    permanent: true
+    state: enabled
+    immediate: yes
+
+- name: "Create dnsmasq directory for override"
+  file:
+    path: "/etc/systemd/system/dnsmasq.service.d"
+    state: directory
+    owner: root
+
+- name: override default dnsmasq service
+  copy:
+    src: "files/override.conf"
+    dest: "/etc/systemd/system/dnsmasq.service.d/override.conf"
+    group: root
+    owner: root
+    mode: 0644
+  register: dnsmasq_conf
+
+- name: Start dnsmasq and enable it
+  systemd:
+    name: dnsmasq
+    state: restarted
+    enabled: yes
+    daemon-reload: yes
+
+- name: Wipe Host file
+  copy:
+    src: files/default_hosts
+    dest: /etc/hosts
+  notify:
+    - "Restart Dnsmasq"
+    - "Restart NetworkManager"
+
+- name: Add Controller to Host file
+  blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} Controller Block"
+    block: |
+      {{ server_ip }} {{ ansible_controller_hostname }}
+  notify:
+    - "Restart Dnsmasq"
+    - "Restart NetworkManager"
+
+- name: Add Control Plane to Host File
+  blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} Node {{ item }}"
+    block: |
+      {{ hostvars[item].management_ipv4 }} {{ item }}
+  with_items: "{{ groups['control_plane'] }}"
+  notify: "Restart Dnsmasq"
+  when: "'control_plane' in groups"
+
+- name: Add Nodes to Host file
+  blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} Node {{ item }}"
+    block: |
+      {{ hostvars[item].management_ipv4 }} {{ item }}
+  loop: "{{ groups['nodes'] }}"
+  notify: "Restart Dnsmasq"
+  when: "'nodes' in groups"
+
+- name: Add Nodes to Host file
+  blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} Mip Node {{ item }}"
+    block: |
+      {{ hostvars[item].management_ipv4 }} {{ item }}
+  loop: "{{ groups['mips'] }}"
+  notify: "Restart Dnsmasq"
+  when: "'mips' in groups"
+
+- import_tasks: update-etc-hosts.yml
+  tags: update_etc_hosts
+
+- name: update-dns cron
+  cron:
+    name: update-dns
+    user: root
+    job: "cd /opt/tfplenum/core/playbooks/ && export ANSIBLE_LOG_PATH={{ tfplenum_log_path }}/dnsupdate.log;ansible-playbook controller_playbook.yml -i inventory -t update_etc_hosts"
+    state: present

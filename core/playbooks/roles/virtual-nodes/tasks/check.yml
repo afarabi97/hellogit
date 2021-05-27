@@ -1,0 +1,20 @@
+---
+
+- name: Power On VM {{ node }}
+  vmware_guest:
+    hostname: "{{ esxi.ipaddress }}"
+    username: "{{ esxi.username }}"
+    password: "{{ esxi.password }}"
+    datacenter: "{{ esxi.datacenter }}"
+    cluster: "{{ esxi.cluster }}"
+    folder: "{{ folder }}"
+    validate_certs: no
+    name: "{{ node }}"
+    state: present
+  register: check_results
+  ignore_errors: yes
+
+- name: Missing VM
+  set_fact:
+    missing_vms: True
+  when: check_results.failed

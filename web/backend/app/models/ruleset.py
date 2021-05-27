@@ -89,6 +89,15 @@ class PCAPMetadata(Model):
 class PCAPReplayModel(Model):
     DTO = api.model('PCAPReplay', {
         'pcap': fields.String(example="2019-07-09-password-protected-Word-doc-pushes-Dridex.pcap", description="The name of the PCAP as saved on disk."),
-        'sensor': fields.String(example="10.40.12.67", description="The IP Address or FQDN of the sensor we wish to replay our PCAP against."),
-        'ifaces': fields.List(fields.String(description="The network interface to replay the traffic against."))
+        'sensor_ip': fields.String(example="10.40.12.67", description="The IP Address of the sensor we wish to replay our PCAP against."),
+        'sensor_hostname': fields.String(example="sensor3.flash", description="The FQDN of the sensor we wish to replay our PCAP against."),
+        'ifaces': fields.List(fields.String(description="The network interface to replay the traffic against.")),
+        'preserve_timestamp': fields.Boolean(description="If set to true it will preserve the replayed PCAPs timestamp data.")
     })
+
+    def __init__(self, payload: Dict):
+        self.pcap = payload['pcap']
+        self.sensor_ip = payload['sensor_ip']
+        self.preserve_timestamp = payload['preserve_timestamp']
+        self.ifaces = payload['ifaces']
+        self.sensor_hostname = payload['sensor_hostname']

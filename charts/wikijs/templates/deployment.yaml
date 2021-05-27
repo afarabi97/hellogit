@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -82,7 +83,7 @@ spec:
           mountPath: /etc/ssl/certs/container
           readOnly: true
       nodeSelector:
-        role: "server"
+        role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}
       volumes:
       - name: configmap
         configMap:

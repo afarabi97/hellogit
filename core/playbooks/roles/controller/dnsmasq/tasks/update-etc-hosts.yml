@@ -1,0 +1,69 @@
+---
+- name: Set Cluster Status
+  set_fact:
+    cluster_status: False
+
+- name: Checking if kubectl is Installed
+  stat:
+    path: /usr/bin/kubectl
+  register: kubectl_installed
+
+- name: Check if k8s cluster is ready
+  shell: |
+    kubectl get nodes --no-headers -l node-role.kubernetes.io/control-plane= | awk '{ print $2 }'
+  register: cluster_status_results
+  changed_when: no
+  ignore_errors: yes
+
+- name: Set Cluster Status
+  set_fact:
+    cluster_status: True
+  when: "'Ready' in cluster_status_results.stdout"
+
+- name: Update Kube Services
+  block:
+  - name: Get Kube Services
+    shell: |
+      kubectl get services --all-namespaces --no-headers=true | grep -v '<none>' | grep -v '<pending>' | awk '{ print $5 " " $2 ".{{ kit_domain }}" }'
+    register: external_services
+    changed_when: no
+
+  - name: Set Kube Svc Variable
+    set_fact:
+      kube_hosts: "{{ external_services.stdout_lines }}"
+    when:
+      - external_services is defined
+      - external_services.stdout_lines|length > 0
+
+  - name: Add Kubernetes Services to Host
+    blockinfile:
+      path: /etc/hosts
+      marker: "# {mark} Kubernetes {{ item.split(' ')[1] }} Service"
+      block: |
+        {{ item }}
+    loop: "{{ kube_hosts }}"
+    when:
+      - kube_hosts is defined
+    notify: "Restart Dnsmasq"
+
+  - name: Get External Kube DNS
+    shell: |
+      kubectl get svc -n kube-system kube-dns-external -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+    register: external_kube_dns_results
+    changed_when: no
+
+  - name: Set External Kube DNS Variable
+    set_fact:
+      external_kube_dns: "{{ external_kube_dns_results.stdout }}"
+    when:
+      - external_kube_dns_results is defined
+      - external_kube_dns_results.stdout
+  when:
+    - kubectl_installed.stat.exists
+    - cluster_status
+
+- name: Update dnsmasq conf
+  template:
+    src: templates/20-kube-dns.conf.j2
+    dest: "/etc/dnsmasq.d/20-kube-dns.conf"
+  notify: "Restart Dnsmasq"

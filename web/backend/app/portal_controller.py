@@ -10,8 +10,7 @@ from typing import List
 from flask import Response, request, jsonify
 from bson import ObjectId
 from app.middleware import operator_required
-from app.utils.constants import KICKSTART_ID
-from app.kit_controller import _get_domain
+from app.models.settings.kit_settings import GeneralSettingsForm
 
 
 DISCLUDES = ("elasticsearch",
@@ -28,12 +27,16 @@ HTTPS_STR = 'https://'
 HTTP_STR = 'http://'
 
 
+def _get_domain() -> str:
+    kickstart_configuration = GeneralSettingsForm.load_from_db() #type: Dict
+    return kickstart_configuration.domain
+
 def get_app_credentials(app: str, user_key: str, pass_key: str):
     username = ""
     password = ""
     collection = conn_mng.mongo_catalog_saved_values
     application = collection.find_one({'application': app})
-    if application:
+    if application and "values" in application:
         if pass_key in application['values']:
             password = application['values'][pass_key]
         if user_key in application['values']:
@@ -45,22 +48,12 @@ def get_app_credentials(app: str, user_key: str, pass_key: str):
 
 def _append_portal_link(portal_links: List, dns: str, ip: str = None):
     short_dns = dns.split('.')[0]
-    if short_dns == "grr-frontend":
-        if ip:
-            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': 'admin/password'})
-        else:
-            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': 'admin/password'})
-    elif short_dns == "arkime":
+    if short_dns == "arkime":
         logins = get_app_credentials('arkime-viewer','username','password')
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif short_dns == "kubernetes-dashboard":
-        if ip:
-            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': ''})
-        else:
-            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': ''})
     elif short_dns == "hive":
         logins = get_app_credentials('hive','superadmin_username','superadmin_password')
         if ip:

@@ -52,6 +52,6 @@ spec:
           optional: false
           secretName: webca-certificate
       nodeSelector:
-        role: "server"
+        role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}
 
 ...

@@ -28,7 +28,8 @@
         "composite": true,
         "composites": {
           "realm": [
-            "controller-maintainer"
+            "controller-maintainer",
+            "controller-node-state"
           ]
         },
         "clientRole": false,
@@ -48,23 +49,27 @@
         "attributes": {}
       },
       {
+        "name": "controller-node-state",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      },
+      {
         "name": "operator",
         "composite": true,
         "composites": {
           "realm": [
-{% if system_name == 'DIP' or system_name == 'GIP' %}
             "elk-kibana-admin",
             "misp-operator",
             "arkime-user",
             "nifi-user"
-{% endif %}
           ]
         },
         "clientRole": false,
         "containerId": "{{ realm_id }}",
         "attributes": {}
-      }{{ ',' if system_name == 'DIP' or system_name == 'GIP' else '' }}
-{% if system_name == 'DIP' or system_name == 'GIP' %}
+      },
       {
         "name": "misp-admin",
         "composite": true,
@@ -138,7 +143,6 @@
         "containerId": "{{ realm_id }}",
         "attributes": {}
       }
-{% endif %}
     ]
   }
 }

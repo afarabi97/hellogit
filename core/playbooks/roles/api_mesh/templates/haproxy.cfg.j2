@@ -32,9 +32,7 @@ backend kube_api_backend
   default-server inter 15s downinter 15s rise 2 fall 2 slowstart 60s maxconn 1000 maxqueue 256 weight 100
   option httpchk GET /healthz
   http-check expect status 200
-  server {{ hostvars[groups['master_server'][0]].inventory_hostname_short }} {{ hostvars[groups['master_server'][0]].management_ipv4 }}:{{ kube_api_port }} check check-ssl verify none
-{% for host in groups['servers'] %}
-{% if hostvars[host].is_control_plane_node %}
+{% for host in groups['control_planes'] %}
   server {{ hostvars[host].inventory_hostname_short }} {{ hostvars[host].management_ipv4 }}:{{ kube_api_port }} check check-ssl verify none
-{% endif %}
+
 {% endfor %}

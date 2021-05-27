@@ -1,18 +1,15 @@
-import os
 import sys
 from util.ssh import wait_for_connection
 from util.ansible_util import execute_playbook, Target
 from util.connection_mngs import FabricConnectionWrapper
+from util.constants import MINIO_PREFIX, PIPELINE_DIR, ROOT_DIR, MINIO_DIR, SKIP_MINIO_BUILD_AND_TEMPLATE
 from models.common import NodeSettings, VCenterSettings
+from util.vmware_util import get_vms_in_folder
 
-JOBS_DIR = os.path.dirname(os.path.realpath(__file__))
-PIPELINE_DIR = JOBS_DIR + "/../"
-TESTING_DIR = PIPELINE_DIR + "/../"
-ROOT_DIR = TESTING_DIR + "/../"
-GIP_DIR = ROOT_DIR + "/gip/"
-MINIO_DIR = GIP_DIR + "/minio/"
+
 MINIO_PLAYBOOK = MINIO_DIR + 'site.yml'
 CLONE_VM = PIPELINE_DIR + 'playbooks/create_virtual_machine_from_template.yml'
+
 
 class CloneTemplate:
     def __init__(self, vmware_guest_params):
@@ -28,20 +25,36 @@ class StandAloneMinIO:
         self._ip = node.ipaddress
         self._user = node.username
         self._password = node.password
+        self._node = node
+        self._vcenter = vcenter
 
     def grow(self):
         with FabricConnectionWrapper(self._user, self._password, self._ip) as remote_shell:
-          remote_shell.run('pvcreate /dev/sdb; vgextend rhel /dev/sdb; lvextend -l  +100%PVS /dev/rhel/root /dev/sdb; xfs_growfs /root')
-    
+            remote_shell.run('pvcreate /dev/sdb; vgextend rhel /dev/sdb; lvextend -l  +100%PVS /dev/rhel/root /dev/sdb; xfs_growfs /root')
+
+    def _is_built_already(self) -> bool:
+        commit_hash = self._node.commit_hash
+        vms = get_vms_in_folder("Releases", self._vcenter)
+        for vm_name in vms:
+            if MINIO_PREFIX in vm_name and commit_hash in vm_name:
+                return True
+        return False
+
     def create(self):
-        CloneTemplate(self._vmware_guest_params).clone()
-        wait_for_connection(self._ip, 22, 30)
-        self.grow()
-        execute_playbook([MINIO_PLAYBOOK],
-                         extra_vars={'ansible_user': self._user, 'ansible_password': self._password},
-                         targets=Target("minio", self._ip),
-                         tags=['install'],
-                         timeout=300)
+        if self._node.pipeline == "export-all" and self._is_built_already():
+            print("The Minio template is already built. Skipping")
+            # This file is created and saved in pipeline artifacts so that export stage can check to see if we need to recreate the template or not.
+            with open(SKIP_MINIO_BUILD_AND_TEMPLATE, 'w') as f:
+                pass
+        else:
+            CloneTemplate(self._vmware_guest_params).clone()
+            wait_for_connection(self._ip, 22, 30)
+            self.grow()
+            execute_playbook([MINIO_PLAYBOOK],
+                            extra_vars={'ansible_user': self._user, 'ansible_password': self._password},
+                            targets=Target("minio", self._ip),
+                            tags=['install'],
+                            timeout=300)
 
     def create_certificate(self):
         execute_playbook([MINIO_PLAYBOOK],
@@ -73,7 +86,7 @@ def create_vmware_guest_params(vcenter: VCenterSettings, node: NodeSettings):
 
 def networks_for(node: NodeSettings):
     network = {}
-    
+
     network['name'] = node.portgroup
     network['ip'] = node.ipaddress
     network['gateway'] = node.gateway

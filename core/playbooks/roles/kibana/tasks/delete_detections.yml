@@ -2,7 +2,7 @@
 - name: Delete SIEM Signals Index
   uri:
     method: DELETE
-    url: "https://{{ kibana_fqdn }}/api/detection_engine/index"
+    url: "https://{{ kibana_uri }}/api/detection_engine/index"
     return_content: yes
     validate_certs: no
     user: "{{ default_elastic_user }}"

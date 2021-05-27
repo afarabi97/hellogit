@@ -4,6 +4,14 @@
     "node_affinity": "Server - Any",
     "formControls": [
         {
+            "type": "service-node-checkbox",
+            "default_value": false,
+            "description": "Install App on Service Node",
+            "trueValue": true,
+            "falseValue": false,
+            "name": "serviceNode"
+        },
+        {
             "type": "textinput",
             "default_value": "2",
             "description": "Enter how many logstash replicas to run",
@@ -12,6 +20,7 @@
             "name": "replicas",
             "error_message": "Enter valid number"
         },
+        
         {
             "type": "textinput",
             "default_value": "12",

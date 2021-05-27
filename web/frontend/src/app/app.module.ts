@@ -1,4 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -11,7 +12,6 @@ import {FlexLayoutModule} from "@angular/flex-layout";
 
 import { AppComponent } from './app.component';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
-import { KickstartComponent } from './system-setup/kickstart/kickstart.component';
 import { AppRoutingModule } from './modules/cvah-modules/app-routing.module';
 
 //Common components
@@ -21,17 +21,22 @@ import { PasswordMessageComponent } from './common/components/password-message.c
 import { SecurityAlertsComponent } from './security-alerts/security-alerts.component';
 import { AlertDrillDownDialog } from './security-alerts/alert-drilldown-dialog/alert-drilldown-dialog.component';
 
+//Setup pages
+
+import { SystemSettingsComponent } from './system-setupv2/system-settings/system-settings.component';
+import { NodeManagementComponent } from './system-setupv2/node-mng/node-mng.component';
+import { NodeStateProgressBarComponent } from './system-setupv2/node-state-progress-bar/node-state-progress-bar.component';
+import { VMWareSettingsComponent } from './system-setupv2/system-settings/vmware-settings/vmware-settings.component';
+import { GeneralSettingsPaneComponent } from './system-setupv2/system-settings/general-settings/general-settings-pane.component';
+import { KitSettingsPaneComponent } from './system-setupv2/system-settings/kit-settings/kit-settings-pane.component';
+import { MIPSettingsPaneComponent } from './system-setupv2/system-settings/mip-settings/mip-settings-pane.component';
+import { AddNodeDialog } from './system-setupv2/add-node-dialog/add-node-dialog.component';
+import { NodeInfoDialog } from './system-setupv2/node-info-dialog/node-info-dialog.component';
+
 //Kit Page
-import { KitComponent } from './system-setup/kit/kit.component';
-import { TotalServerResourcesCardComponent } from './system-setup/components/total-server-resources-card/total-server-resources-card.component';
-import { TotalSensorResourcesCardComponent } from './system-setup/components/total-sensor-resources-card/total-sensor-resources-card.component';
-import { TotalSystemResourceCardComponent } from './system-setup/components/total-system-resource-card/total-system-resource-card.component';
-import { KickstartNodeFormComponent } from './system-setup/components/kickstart-node-form/kickstart-node-form.component';
-import { KitNodeFormComponent } from './system-setup/components/kit-node-form/kit-node-form.component';
 
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
 import { SupportComponent } from './support/support.component';
-import { AddNodeComponent } from './system-setup/add-node/add-node.component';
 import { LogIngestComponent } from './log-ingest/log-ingest.component';
 
 //Tools page
@@ -48,7 +53,6 @@ import { ModalTableComponent } from './system-health/table-dialog/modal-table.co
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
 import { ConfigmapEditorComponent } from './configmap-editor/configmap-editor.component';
 import { MaterialModule } from './modules/utilily-modules/material.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 //PCAP Test Page
 import { PcapFormComponent } from './pcap-form/pcap-form.component';
@@ -73,6 +77,7 @@ import { NotificationsModuleComponent } from './notifications/notification-modul
 
 // ConfirmDialog
 import { ConfirmDailogComponent } from './confirm-dailog/confirm-dailog.component';
+import { DoubleConfirmDialogComponent } from './double-confirm-dialog/double-confirm-dialog.component';
 
 import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.component';
 
@@ -85,7 +90,7 @@ import { InjectorModule } from './modules/utilily-modules/injector.module';
 import { CookieService } from './services/cookies.service';
 
 // Kickstart Form
-import { UnusedIpAddressAutoCompleteComponent } from './system-setup/components/unused-ipaddress-autocomplete-ctrl.component';
+import { UnusedIpAddressAutoCompleteComponent } from './system-setupv2/components/unused-ipaddress-autocomplete-ctrl.component';
 
 // Date-Time
 import { DateTimeModule } from './modules/date-time/date-time.module';
@@ -99,45 +104,33 @@ import { PodLogModalDialogComponent } from './pod-log-dialog/pod-log-dialog.comp
 // ES Scale
 import { ESScaleComponent } from './es-scale/es-scale.component';
 
-// MIP Configuration
-import { MIPConfigComponent } from './mip-config/mip-config.component';
-import { MIPConfigNodeComponent } from './mip-config-node/mip-config-node.component';
-import { MIPConfigPasswordComponent } from './mip-config-password/mip-config-password.component';
-import { MIPConfigValidationComponent } from './mip-config-validation/mip-config-validation.component';
 
 // Index Management
 import { IndexManagementComponent } from './index-management/component/index-management.component';
 
-import { SystemNameClass, UserClass } from './classes';
+import { UserClass } from './classes';
+
 import { NgxMatDatetimePickerModule, NgxMatTimepickerModule, NgxMatNativeDateModule } from '@angular-material-components/datetime-picker';
 import { DockerRegistryModule } from './modules/docker-registry/docker-registry.module';
 import { NGXMonacoTextEditorModule } from './modules/ngx-monaco-text-editor/ngx-monaco-text-editor.module';
 import { PolicyManagementModule } from './modules/policy-management/policy-management.module';
 import { PortalModule } from './modules/portal/portal.module';
+import { AddMipDialog } from './system-setupv2/add-mip-dialog/add-mip-dialog.component';
+import { MipManagementComponent } from './system-setupv2/mip-mng/mip-mng.component';
 
 export function initializeApp(appLoadService: AppLoadService): () => Promise<UserClass> {
   return (): Promise<UserClass> => appLoadService.getCurrentUser();
 }
 
-export function initializeSystemName(appLoadService: AppLoadService): () => Promise<SystemNameClass> {
-  return (): Promise<SystemNameClass> => appLoadService.getSystemName();
-}
-
 @NgModule({
   declarations: [
-    MIPConfigNodeComponent,
-    MIPConfigComponent,
-    MIPConfigPasswordComponent,
-    MIPConfigValidationComponent,
     AppComponent,
     TopNavbarComponent,
-    KickstartComponent,
     UnusedIpAddressAutoCompleteComponent,
-    KitComponent,
     SecurityAlertsComponent,
-    TotalServerResourcesCardComponent,
-    TotalSensorResourcesCardComponent,
-    TotalSystemResourceCardComponent,
+    SystemSettingsComponent,
+    NodeManagementComponent,
+    NodeStateProgressBarComponent,
     ServerStdoutComponent,
     SupportComponent,
     ToolsFormComponent,
@@ -162,20 +155,26 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     NotificationsComponent,
     NotificationsModuleComponent,
     ConfirmDailogComponent,
+    DoubleConfirmDialogComponent,
     NodeBackgroundComponent,
     CatalogPageComponent,
     ReplayPcapDialog,
     AlertDrillDownDialog,
+    AddNodeDialog,
+    NodeInfoDialog,
     ModalTableComponent,
-    AddNodeComponent,
-    KickstartNodeFormComponent,
     PasswordMessageComponent,
-    KitNodeFormComponent,
     ESScaleComponent,
     PodLogModalDialogComponent,
     RepositorySettingsComponent,
     IndexManagementComponent,
-    LogIngestComponent
+    LogIngestComponent,
+    VMWareSettingsComponent,
+    GeneralSettingsPaneComponent,
+    KitSettingsPaneComponent,
+    MIPSettingsPaneComponent,
+    AddMipDialog,
+    MipManagementComponent
   ],
   imports: [
     BrowserModule,
@@ -203,16 +202,17 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     AppLoadService,
     UserService,
     { provide: APP_INITIALIZER, useFactory: initializeApp, deps: [AppLoadService], multi: true},
-    { provide: APP_INITIALIZER, useFactory: initializeSystemName, deps: [AppLoadService], multi: true},
     { provide: HTTP_INTERCEPTORS, useClass: UnauthorizedInterceptor, multi: true },
     ControllerAdminRequiredGuard,
     ControllerMaintainerRequiredGuard,
-    OperatorRequiredGuard
+    OperatorRequiredGuard,
+    NodeManagementComponent
   ],
   bootstrap: [AppComponent],
   entryComponents: [
     NotificationsModuleComponent,
     ConfirmDailogComponent,
+    DoubleConfirmDialogComponent,
     AgentInstallerDialogComponent,
     AgentDetailsDialogComponent,
     AgentTargetDialogComponent,
@@ -220,6 +220,9 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     ModalDialogDisplayMatComponent,
     ReplayPcapDialog,
     AlertDrillDownDialog,
+    AddNodeDialog,
+    AddMipDialog,
+    NodeInfoDialog,
     ModalTableComponent,
     PodLogModalDialogComponent
   ]

@@ -2,19 +2,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: arkime-viewer
+  name: {{ .Release.Name }}
   labels:
-    component: arkime
+    component: {{ .Release.Name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: arkime-viewer
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        component: arkime
-        app: arkime-viewer
+        component: {{ .Release.Name }}
+        app: {{ .Release.Name }}
     spec:
       containers:
       - name: shibboleth-proxy
@@ -65,7 +65,7 @@ spec:
           readOnly: true
       restartPolicy: Always
       nodeSelector:
-        role: server
+        role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}
       volumes:
       - name: configini
         configMap:

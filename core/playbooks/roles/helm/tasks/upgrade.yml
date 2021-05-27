@@ -8,7 +8,7 @@
   - meta: end_play
   when:
     - OLD_VERSION.stdout | version(helm_version,'>=')
-    - inventory_hostname in groups['master_server']
+    - inventory_hostname == "localhost"
 
 - name: Downloading and Unpacking Helm
   unarchive:

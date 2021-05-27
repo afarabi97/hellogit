@@ -6,7 +6,6 @@ nifi_replicas: 1
 nifi_base_dir: /opt/nifi/nifi-current
 path: '/data/nifi'
 domain: lan
-system_name: dip
 auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
 busyboxImage: busybox:1.32.1
 
@@ -14,3 +13,5 @@ busyboxImage: busybox:1.32.1
 proxy:
   image: tfplenum/shibboleth_proxy
   version: 3.0.4
+
+serviceNode: false

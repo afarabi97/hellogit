@@ -14,5 +14,5 @@ org_admin_password: Password!123456
 org_name: thehive_org
 case_template: MISP
 domain: lan
-system_name: dip
 auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
+serviceNode: false

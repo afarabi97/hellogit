@@ -1,8 +1,5 @@
-import sys
 import os
 import subprocess
-import stat
-import datetime
 
 from fabric import Connection
 from util.hash_util import create_hashes, md5_sum
@@ -12,6 +9,7 @@ from time import sleep
 from util.connection_mngs import FabricConnectionWrapper
 from jobs.create_multiboot import Multiboot_Create
 from util.network import retry
+
 
 class DriveCreationJob:
     def __init__(self, drive_settings: DriveCreationSettings):
@@ -117,30 +115,37 @@ class DriveHashCreationJob:
             raise Exception(error_message.format(stdout, stderr))
 
     def _create_text_description_file(self):
-        readme_txt = ("See CVAH 3.6/Documentation/ folder for additional details on how to setup or operate "
+        path = self._drive_hash_settings.rsync_source + "/"
+        readme_txt = ("Please see CVAH 3.6/Documentation/ folder for additional details on how to setup or operate "
                       "the Deployable Interceptor Platform (DIP) or the Mobile Interceptor Platform (MIP).")
 
         if self._drive_hash_settings.is_GIP():
-            readme_txt_gip = ("See CVAH 3.6/Documentation/ folder for additional details on how to setup or operate "
+            readme_txt_gip = ("Please see CVAH 3.6/Documentation/ folder for additional details on how to setup or operate "
                               "the Garrison Interceptor Platform (GIP)")
-            with open("GIP_Drive_Readme.txt", 'w') as script:
+            with open(path + "GIP_Drive_Readme.txt", 'w') as script:
                 script.write(readme_txt_gip)
         elif self._drive_hash_settings.is_CPT():
-            with open("CPT_Drive_Readme.txt", 'w') as script:
+            with open(path + "CPT_Drive_Readme.txt", 'w') as script:
                 script.write(readme_txt)
         else:
-            with open("MDT_Drive_Readme.txt", 'w') as script:
+            with open(path + "MDT_Drive_Readme.txt", 'w') as script:
                 script.write(readme_txt)
 
     def execute(self):
         self._create_text_description_file()
         create_hashes(self._drive_hash_settings.rsync_source)
+        self._create_verification_script()
 
-    def _run_verification_script(self):
-        self._run_command("./validate_drive.sh", "HASH check failed with stdout {} and stderr {}")
+    def run_verification_script(self):
+        print("Performing validation of drive.")
+        with FabricConnectionWrapper(self._drive_hash_settings.username,
+                                     self._drive_hash_settings.password,
+                                     self._drive_hash_settings.ipaddress) as shell:
+            shell.run(self._drive_hash_settings.rsync_source + "/validate_drive.sh")
 
     def _create_verification_script(self):
-        md5_hash = md5_sum("drive_md5_hashes.txt")
+        path = self._drive_hash_settings.rsync_source + "/"
+        md5_hash = md5_sum(path + "drive_md5_hashes.txt")
         validation_script = '''
 #!/bin/bash
 
@@ -170,26 +175,7 @@ popd 1>/dev/null 2>&1
 exit $STATUS
         '''
 
-        with open("validate_drive.sh", 'w') as script:
+        with open(path + "validate_drive.sh", 'w') as script:
             script.write(validation_script)
 
-        os.chmod("validate_drive.sh", 0o755 )
-
-
-    def create_verification_script_and_validate(self):
-        directory_to_walk = self._drive_hash_settings.rsync_source
-        if not directory_to_walk.endswith("/"):
-            directory_to_walk = directory_to_walk + "/"
-
-        cur_cwd = os.getcwd()
-        try:
-            cwd = Path(directory_to_walk)
-            if not cwd.exists() or not cwd.is_dir():
-                raise NotADirectoryError("{} is not a directory or does not exist".
-                                             format(directory_to_walk))
-
-            os.chdir(directory_to_walk)
-            self._create_verification_script()
-            self._run_verification_script()
-        finally:
-            os.chdir(cur_cwd)
+        os.chmod(path + "validate_drive.sh", 0o755 )

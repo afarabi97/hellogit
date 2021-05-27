@@ -18,16 +18,6 @@ from uuid import uuid4
 from app.utils.constants import DATE_FORMAT_STR
 
 
-def netmask_to_cidr(netmask: str) -> int:
-    '''
-    Converts a standards netmask to the associated CIDR notation.
-
-    :param netmask: netmask ip addr (eg: 255.255.255.0)
-    :return: equivalent cidr number to given netmask ip (eg: 24)
-    '''
-    return sum([bin(int(x)).count('1') for x in netmask.split('.')])
-
-
 def is_ipv4_address(s: str) -> bool:
     if s is None or len(s) == 0:
         return False

@@ -9,12 +9,11 @@
     - name: Set template ova name
       set_fact:
         ctrl_name: "{{ '.'.join(node.template.split('.')[:-1]) }}"
-      when: "run_type == 'build_from_scratch'"
 
     - name: Set vm facts
       set_fact:
         vm_name: "{{ ctrl_name }}"
-        new_vm_name: "{{ node.ctrl_owner }}Pipeline-{{ system_name }}-Controller-{{ ansible_date_time.date }}"
+        new_vm_name: "{{ node.ctrl_owner }}Pipeline-Controller-{{ ansible_date_time.date }}"
         datacenter: None #Required variables
         cluster_name: None #Required variables
 

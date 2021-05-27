@@ -32,6 +32,19 @@
   retries: 60
   delay: 5
 
+- name: Check ES License
+  uri:
+    url: "{{ elastic_url }}/_license"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+  register: results
+  until: results.status == 200 and results.json.license.status == 'active'
+  retries: 60
+  delay: 5
+
 - name: Create roles
   uri:
     method: POST
@@ -133,4 +146,5 @@
     - super_user
     - read_only
     - kibana_admin
+
 ...

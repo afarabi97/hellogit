@@ -11,6 +11,7 @@
     - localhost
     - all
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - name: Run gather facts
       setup:
@@ -20,8 +21,16 @@
     - always
     - system-info
 
+- name: Reset
+  hosts: localhost
+  gather_facts: no
+  roles:
+    - reset
+  tags:
+    - reset
+
 - name: Set Kit Size
-  hosts: master_server
+  hosts: servers
   tags: always
   gather_facts: no
   any_errors_fatal: true
@@ -33,22 +42,23 @@
       set_fact:
         total_mem_gb: "{{ (ansible_memtotal_mb/1024)|round|int }}"
 
-    - name: Set Kit Size For GIP
-      block:
-      - name: Set Default GIP Kit Size
-        set_fact:
-          kit_size: 99
-          kit_size_name: "GIP Default (testing only)"
-          cacheable: yes
-      - name: Set GIP Kit Size
-        set_fact:
-          kit_size: 100
-          kit_size_name: "GIP Gen1"
-          cacheable: yes
-        when:
-          - ansible_processor_vcpus >= 55
-          - total_mem_gb >= 90
-      when: system_name == "GIP"
+    # TODO fix this
+    # - name: Set Kit Size For GIP
+    #   block:
+    #   - name: Set Default GIP Kit Size
+    #     set_fact:
+    #       kit_size: 99
+    #       kit_size_name: "GIP Default (testing only)"
+    #       cacheable: yes
+    #   - name: Set GIP Kit Size
+    #     set_fact:
+    #       kit_size: 100
+    #       kit_size_name: "GIP Gen1"
+    #       cacheable: yes
+    #     when:
+    #       - ansible_processor_vcpus >= 55
+    #       - total_mem_gb >= 90
+    #   when: system_name == "GIP"
 
     - name: Set Kit Size For DIP
       block:
@@ -89,53 +99,8 @@
         when:
           - ansible_processor_vcpus == 64
           - total_mem_gb >= 500
-      when: system_name == "DIP"
     - debug:
         msg: "Kit size: {{ kit_size_name }} ({{ kit_size }})"
-
-- name: Setup Repos
-  hosts:
-    - servers
-    - sensors
-  gather_facts: yes
-  any_errors_fatal: true
-  pre_tasks:
-    - name: Setup repos pre_tasks
-      setup:
-  roles:
-    - repos
-  tags: repos
-
-- name: Remove existing SSH keys
-  hosts:
-    - localhost
-    - servers
-    - sensors
-  connection: ssh
-  any_errors_fatal: true
-  tasks:
-    - import_tasks: remove_ssh_info.yml
-  tags: genkeys
-
-- name: Generate SSH keys
-  hosts:
-    - localhost
-    - servers
-    - sensors
-  connection: ssh
-  any_errors_fatal: true
-  tasks:
-    - import_tasks: generate_ssh_keys.yml
-  tags: genkeys
-
-- name: Perform preflight checks
-  any_errors_fatal: true
-  hosts:
-    - servers
-    - sensors
-  roles:
-    - preflight_checks
-  tags: preflight
 
 - name: Common Setup
   hosts:
@@ -152,22 +117,6 @@
   tags:
     - common
 
-- name: Create Certificate Authority
-  hosts: localhost
-  any_errors_fatal: true
-  pre_tasks:
-    - name: Create cert authority pre_tasks
-      setup:
-  tasks:
-    - import_role:
-        name: certificate_authority/localhost
-        tasks_from: create_ca
-    - import_role:
-        name: certificate_authority/localhost
-        tasks_from: create_controller_cert
-  tags:
-    - certificate_authority
-
 - name: Configure CA on all systems
   hosts:
     - localhost
@@ -183,9 +132,7 @@
     - certificate_authority
 
 - name: OpenVPN
-  hosts:
-    - localhost
-    - sensors
+  hosts: sensors
   gather_facts: yes
   any_errors_fatal: true
   pre_tasks:
@@ -193,26 +140,25 @@
       setup:
   tasks:
     - import_role:
-        name: openvpn/common
-      when: system_name == "DIP"
+        name: openvpn/client
   tags:
     - openvpn
 
-- name: API Mesh
-  hosts:
-    - servers
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - name: Run gather facts
-      setup:
-  tasks:
-    - import_role:
-        name: api_mesh
-      when: enable_kube_ha
-  tags:
-    - api-mesh
-    - kubernetes
+# - name: API Mesh
+#   hosts:
+#     - control_planes
+#   gather_facts: no
+#   any_errors_fatal: true
+#   pre_tasks:
+#     - name: Run gather facts
+#       setup:
+#   tasks:
+#     - import_role:
+#         name: api_mesh
+#       when: enable_kube_ha
+#   tags:
+#     - api-mesh
+#     - kubernetes
 
 - name: Setup CRI-O
   hosts:
@@ -229,23 +175,8 @@
     - crio
     - kubernetes
 
-- name: Configure kube master
-  hosts:
-    - master_server
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - name: Configure kube master pre_tasks
-      setup:
-  roles:
-    - kubernetes/master
-  tags:
-    - kube-master
-    - kubernetes
-
 - name: Configure kube nodes
   hosts:
-    - "!master_server"
     - servers
     - sensors
   serial: 1
@@ -273,25 +204,6 @@
   tags:
     - certificate_authority
 
-- name: Deploy Single Sign On
-  hosts: localhost
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - name: Deploy SSO pre_tasks
-      setup:
-  roles:
-    - sso
-  tags: sso
-
-- name: helm
-  any_errors_fatal: true
-  hosts:
-    - all
-  roles:
-    - helm
-  tags: helm
-
 - name: Setup Storage
   hosts:
     - servers
@@ -307,16 +219,13 @@
 
 - name: chartmuseum
   any_errors_fatal: true
-  hosts:
-    - master_server
-    - localhost
+  hosts: localhost
   roles:
     - chartmuseum
   tags: chartmuseum
 
 - name: Setup Controller API Key
-  hosts:
-    - localhost
+  hosts: localhost
   tasks:
     - name: generate Admin API key
       script: /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 1.0
@@ -348,7 +257,9 @@
     - node-health
 
 - name: Deploy Elasticsearch
-  hosts: servers
+  hosts:
+    - localhost
+    - servers
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -360,7 +271,7 @@
     - elasticsearch
 
 - name: Deploy kibana
-  hosts: master_server
+  hosts: localhost
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -385,9 +296,10 @@
     - audit
   tags:
     - audit
+    - auditbeat
 
 - name: Deploy metric services
-  hosts: master_server
+  hosts: localhost
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -400,7 +312,7 @@
 
 - name: Deploy Arkime
   hosts:
-    - master_server
+    - localhost
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -409,13 +321,11 @@
   tasks:
     - import_role:
         name: arkime
-      when: system_name == "DIP"
   tags:
     - arkime
 
 - name: Setup Log Management
-  hosts:
-    - sensors
+  hosts: sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -438,7 +348,7 @@
     - node-health
 
 - name: Run Filebeat Setup
-  hosts: master_server
+  hosts: localhost
   gather_facts: no
   any_errors_fatal: true
   tasks:
@@ -449,7 +359,7 @@
     - run-filebeat-setup
 
 - name: Run Winlogbeat Setup
-  hosts: master_server
+  hosts: localhost
   gather_facts: no
   any_errors_fatal: true
   tasks:
@@ -460,8 +370,7 @@
     - run-winlogbeat-setup
 
 - name: Setup extenral beats certificates.
-  hosts:
-    - localhost
+  hosts: localhost
   gather_facts: no
   any_errors_fatal: false
   tasks:

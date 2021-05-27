@@ -3,7 +3,7 @@
 - name: Delete {{ item }} spaces
   uri:
     method: DELETE
-    url: "https://{{ kibana_fqdn }}/api/spaces/space/{{ item }}"
+    url: "https://{{ kibana_uri }}/api/spaces/space/{{ item }}"
     return_content: yes
     validate_certs: no
     user: "{{ default_elastic_user }}"

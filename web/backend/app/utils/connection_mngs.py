@@ -1,9 +1,8 @@
 import os
-
-from app import rq_logger
+from app import app, rq_logger, logger
 from base64 import b64decode
 from bson import ObjectId
-from datetime import datetime
+from datetime import datetime, timedelta
 from elasticsearch import Elasticsearch
 from elasticsearch.client import ClusterClient, SnapshotClient, IndicesClient
 from elasticsearch.exceptions import ConflictError
@@ -12,11 +11,17 @@ from kubernetes import client, config
 from kubernetes.client.models.v1_secret import V1Secret
 from kubernetes.client.rest import ApiException
 from pathlib import Path
-from app.models.kit_setup import DIPKickstartForm, DIPKitForm
+from app.models.nodes import Node
+from app.models.settings.kit_settings import KitSettingsForm
 from app.utils.db_mngs import MongoConnectionManager
-from app.utils.constants import KIT_ID, DATE_FORMAT_STR, KICKSTART_ID, NODE_TYPES
+from app.utils.constants import KIT_ID, DATE_FORMAT_STR, NODE_TYPES
 from time import sleep
-from typing import Dict, List
+from typing import Dict, List, Union
+import paramiko
+import socket
+import sys
+from paramiko import SSHException
+
 
 
 KUBEDIR = "/root/.kube"
@@ -57,55 +62,6 @@ def objectify(some_dict: Dict) -> Dict:
     return some_dict
 
 
-def get_master_node_ip(kit_form) -> str:
-    """
-    Returns a the IP address and root password of the master node from the kit form passed in.
-
-    :param kit_form:
-    :return:
-    """
-    for node in kit_form.nodes:
-        try:
-            if node.node_type == NODE_TYPES[0] and node.is_master_server:
-                return str(node.ip_address)
-        except KeyError:
-            pass
-
-    return None
-
-
-class FabricConnectionWrapper():
-
-    def __init__(self, conn_mongo: MongoConnectionManager=None):
-        self._connection = None  # type: Connection
-        self._conn_mongo = conn_mongo
-
-    def _establish_fabric_connection(self, conn_mongo: MongoConnectionManager) -> None:
-        kickstart_form = DIPKickstartForm.load_from_db()
-        kit_form = DIPKitForm.load_from_db()
-
-        master_ip = get_master_node_ip(kit_form)
-        password = kickstart_form.root_password
-        self._connection = Connection(master_ip,
-                                      user=USERNAME,
-                                      connect_timeout=CONNECTION_TIMEOUT,
-                                      connect_kwargs={'password': password,
-                                                      'allow_agent': False,
-                                                      'look_for_keys': False})
-
-    def __enter__(self):
-        if self._conn_mongo:
-            self._establish_fabric_connection(self._conn_mongo)
-        else:
-            with MongoConnectionManager() as conn_mng:
-                self._establish_fabric_connection(conn_mng)
-        return self._connection
-
-    def __exit__(self, *exc):
-        if self._connection:
-            self._connection.close()
-
-
 class FabricConnection():
 
     def __init__(self,
@@ -120,8 +76,8 @@ class FabricConnection():
         self._use_ssh_key = use_ssh_key
 
     def _set_root_password(self) -> str:
-        kickstart_form = DIPKickstartForm.load_from_db()
-        self._password = kickstart_form.root_password
+        kit_settings = KitSettingsForm.load_from_db()
+        self._password = kit_settings.password
 
     def _establish_fabric_connection(self) -> None:
         if self._use_ssh_key:
@@ -165,21 +121,8 @@ class KubernetesWrapper():
             self._mongo_conn = mongo_conn
             self._is_close = False
 
-        self._get_and_save_kubernetes_config()
         config.load_kube_config()
         self._kube_apiv1 = client.CoreV1Api()
-
-    def _get_and_save_kubernetes_config(self) -> None:
-        """
-        Retrieves the kuberntes configuration file from the master server.
-        """
-        if not os.path.exists(KUBEDIR):
-            os.makedirs(KUBEDIR)
-
-        config_path = KUBEDIR + '/config'
-        if not os.path.exists(config_path) or not os.path.isfile(config_path):
-            with FabricConnectionWrapper(self._mongo_conn) as fab_conn:
-                fab_conn.get(config_path, config_path)
 
     def close(self) -> None:
         """
@@ -317,18 +260,89 @@ def get_kubernetes_secret(conn_mng: MongoConnectionManager,
         retries -= 1
 
 
-def get_kubernetes_secret_v2(conn_mng: MongoConnectionManager,
-                          secret_name: str,
-                          namespace: str="default",
-                          retries:int=3) -> V1Secret:
-    while retries != 0:
-        try:
-            with KubernetesWrapper2(conn_mng) as api:
-                v1 = api.core_V1_API
-                return v1.read_namespaced_secret(secret_name, namespace)
-        except ApiException as e:
-            if retries == 0:
-                raise e
-            sleep(10)
 
-        retries -= 1
+class SSHFailure(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+class SSHClient():
+    """
+    Represents an SSH connection to a remote server
+
+    Attributes:
+        client (SSHClient): An SSHClient object on which you can run commands
+    """
+
+    client = None  # type: SSHClient
+
+    def __init__(self, hostname: str, username: str=None, password: str=None, port=22) -> None:
+        """
+        Initializes a new SSH connection
+
+        :param hostname (str): The hostname of the server you want to connect to
+        :param username (str): The username of the server you want to connect to
+        :param password (str): The password of the server you want to connect to
+        :param port (int): The port number SSH is running on. Defaults to 22
+        :return:
+        """
+        try:
+            self.client = paramiko.SSHClient()
+            self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            save_stderr = sys.stdout
+            if username and password:
+                self.client.connect(hostname, port=port, username=username, password=password)
+            else:
+                self.client.connect(hostname, port=port)
+            sys.stderr = save_stderr
+
+        except Exception as e:
+            logger.error('Connection Failed')
+            logger.error(e)
+            self.client.close()
+
+    def run_command(self, command: str, working_directory=None) -> tuple:
+        """
+        Runs a command on the SSH client
+
+        :param command (str): The command you want to run on the host
+        :param working_directory (str): The directory in which you want to run the command
+        :returns: A tuple containing stdout and stderr from the command run
+        """
+
+        # Change into the working directory if it is specified
+        if working_directory is not None:
+            stdin, stdout, stderr = self.client.exec_command("cd " + working_directory + ";" + command)
+        else:
+            stdin, stdout, stderr = self.client.exec_command(command)
+
+        return (stdout.read(), stderr.read())
+
+    @staticmethod
+    def test_connection(hostname: str, username: str=None, password: str=None, port=22, timeout=5) -> bool:
+        """
+        Tests whether a server is responding to SSH connections
+
+        :param hostname (str): The hostname of the server you want to connect to
+        :param username (str): The username of the server you want to connect to
+        :param password (str): The password of the server you want to connect to
+        :param port (int): The port number SSH is running on. Defaults to 22
+        :param timeout (int): The length of time before the target is considered failed
+        :return (bool): Returns true if the connection succeeded and false otherwise
+        """
+
+        try:
+            logger.info("I AM HERE")
+            client = paramiko.SSHClient() # type: SSHClient
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            save_stderr = sys.stdout
+            if username and password:
+                client.connect(hostname=hostname, username=username, password=password, port=port, timeout=timeout)
+            else:
+                client.connect(hostname=hostname, port=port, timeout=timeout)
+            sys.stderr = save_stderr
+            client.close()
+            return True
+        except (SSHException, socket.error) as e:
+            logger.exception("{} received error: ".format(hostname))
+            logger.exception(str(e))
+            return False

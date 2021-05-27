@@ -1,18 +1,19 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}
   labels:
-    component: misp
+    component: {{ .Release.Name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: misp
+      component: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        component: misp
+        component: {{ .Release.Name }}
     spec:
       initContainers:
       - name: misp-init
@@ -148,7 +149,7 @@ spec:
         - name: misp-saml
           mountPath: /etc/shibboleth/misp-saml-certs/
       nodeSelector:
-        role: "server"
+        role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}
       volumes:
       - name: misp-vol
         persistentVolumeClaim:

@@ -49,23 +49,6 @@ CHARTMUSEUM_FQDN = "chartmuseum.{}".format(domain)
 CHARTS_PATH="/opt/tfplenum/charts"
 os.environ['REQUESTS_CA_BUNDLE'] = "/etc/pki/tls/certs/ca-bundle.crt"
 
-CHARTS = '/opt/tfplenum/bootstrap/playbooks/group_vars/all/chartmuseum.yml'
-INI = "/etc/tfplenum.ini"
-
-def get_system_name():
-    config = configparser.ConfigParser()
-    config.read(INI)
-    try:
-        return config['tfplenum']['system_name']
-    except KeyError:
-        return None
-
-
-def get_charts(system):
-    with open(CHARTS) as file:
-        charts = yaml.load(file, Loader=yaml.FullLoader)
-    return charts['{}_charts'.format(system.lower())]
-
 
 def get_chartmuseum_uri():
     return "https://" + CHARTMUSEUM_FQDN
@@ -109,12 +92,7 @@ def push_chart(chartmuseum_uri, chart_name, chart_version):
 
 def main():
     chartmuseum_uri = get_chartmuseum_uri()
-    system_name = get_system_name()
-    charts_to_update = get_charts(system_name)
-    print(charts_to_update)
-    filtered_charts = filter(lambda chart: (chart['name'] in charts_to_update), charts)
-
-    for chart in filtered_charts:
+    for chart in charts:
         print("Deleting " + chart["name"] + " " + chart["version"])
         delete_chart(chartmuseum_uri, chart["name"], chart["version"])
         is_packaged = package_chart(chart["name"], chart["version"])

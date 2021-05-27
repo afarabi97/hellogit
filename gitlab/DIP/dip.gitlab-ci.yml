@@ -1,16 +1,13 @@
-Setup DIP Controller:
+Setup Controller:
   stage: build
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    echo "tfplenum-dip-cache-${CI_PIPELINE_ID}"
-
     echo "VM_PREFIX is $VM_PREFIX"
-    echo "TEMPLATE TO CLONE IS $DIP_TEMPLATE_TO_CLONE"
+    echo "TEMPLATE TO CLONE IS $TEMPLATE_TO_CLONE"
     python3 testing/pipeline/pipeline.py           \
-    --system-name         "DIP"                    \
     setup-controller                               \
     --vcenter-ipaddress   "$VCENTER_IPADDRESS"     \
     --vcenter-username    "$VCENTER_USERNAME"      \
@@ -21,29 +18,27 @@ Setup DIP Controller:
     --repo-url            "$REPO_URL"              \
     --portgroup           "$VCENTER_PORTGROUP"     \
     --network-id          "$NETWORK_ID"            \
-    --network-block-index $DIP_NETWORK_BLOCK_INDEX \
+    --network-block-index $NETWORK_BLOCK_INDEX \
     --dns-servers         $DNS_SERVERS             \
     --vm-folder           "$VMWARE_FOLDER"         \
     --vm-password         "$DEFAULT_TEMPLATE_PASSWORD"   \
-    --vm-template         "$DIP_TEMPLATE_TO_CLONE" \
+    --vm-template         "$TEMPLATE_TO_CLONE" \
     --gateway             "$VM_GATEWAY"            \
-    --vm-prefix           "$VM_PREFIX-dip"         \
+    --vm-prefix           "$VM_PREFIX"         \
     --domain              "$KIT_DOMAIN"            \
     --branch-name         "$CI_COMMIT_REF_NAME"    \
-    --run-type            "$BUILD_TYPE"            \
     --vm-datastore        "$VCENTER_DATASTORE"     \
-    --update-code         "$UPDATE_CODE"           \
     --ctrl-cpu            "$CTRL_CPU"              \
-    --ctrl-memory         "$CTRL_MEMORY"
+    --ctrl-memory         "$CTRL_MEMORY"           \
+    --pipeline            "$PIPELINE"              \
+    --commit-hash         "$CI_COMMIT_SHORT_SHA"
   artifacts:
     untracked: true
   only:
     variables:
-      - $PIPELINE == "only_build"
+      - $PIPELINE == "controller-only"
       - $PIPELINE == "export-all"
-      - $PIPELINE == "developer-dip"
       - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
       - $EXPORT_DIP == "yes" && $PIPELINE == "minor-release"
       - $EXPORT_BOTH == "yes" && $PIPELINE == "minor-release"
 
@@ -53,7 +48,6 @@ Create a standalone MinIO server:
     - tfplenum-buildv2
   script: |
     args=(
-      --system-name "DIP"
       gip-setup minio
       create
       --vcenter-ipaddress "$VCENTER_IPADDRESS"
@@ -62,18 +56,20 @@ Create a standalone MinIO server:
       --vcenter-datacenter "$VCENTER_DATACENTER"
       --portgroup "$VCENTER_PORTGROUP"
       --network-id "$NETWORK_ID"
-      --network-block-index "$DIP_NETWORK_BLOCK_INDEX"
+      --network-block-index "$MINIO_NETWORK_BLOCK_INDEX"
       --dns-servers $DNS_SERVERS
       --vm-folder "$VMWARE_FOLDER"
       --vm-password "$DEFAULT_TEMPLATE_PASSWORD"
       --vm-template "$MINIO_TEMPLATE_TO_CLONE"
       --gateway "$VM_GATEWAY"
-      --vm-prefix "$VM_PREFIX-dip"
+      --vm-prefix "$VM_PREFIX"
       --vm-datastore "$VCENTER_DATASTORE"
       --disk-size $MINIO_DISK_SIZE
       --ctrl-cpu $MINIO_CPU
       --ctrl-memory $MINIO_MEMORY
       --extra-disk $MINIO_STORAGE_SIZE
+      --pipeline "$PIPELINE"
+      --commit-hash "$CI_COMMIT_SHORT_SHA"
     )
 
     echo "${args[@]}"
@@ -83,17 +79,12 @@ Create a standalone MinIO server:
       - $PIPELINE == "export-minio"
       - $PIPELINE == "export-all"
       - $PIPELINE == "export-gip"
-      - $MINIO_VM == "yes" && $PIPELINE == "developer-dip"
       - $MINIO_VM == "yes" && $PIPELINE == "developer-all"
   artifacts:
-    paths:
-      - vcentersettings_minio.yml
-      - nodesettings_minio.yml
+    untracked: true
 
-
-DIP Kickstart:
-  needs: ["Setup DIP Controller"]
-  stage: kickstart
+Kit Settings:
+  stage: kit-settings
   tags:
     - tfplenum-buildv2
   script: |
@@ -101,56 +92,162 @@ DIP Kickstart:
     echo "Current working directory is $(pwd)"
     echo "VM_PREFIX is $VM_PREFIX"
     python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
-    run-kickstart \
+    run-kit-settings \
     --vcenter-ipaddress "$VCENTER_IPADDRESS" \
     --vcenter-username "$VCENTER_USERNAME" \
     --vcenter-password "$VCENTER_PASSWORD" \
     --vcenter-datacenter "$VCENTER_DATACENTER" \
-    --portgroup "$VCENTER_PORTGROUP" \
-    --network-id "$NETWORK_ID" \
-    --network-block-index $DIP_NETWORK_BLOCK_INDEX \
-    --dns-servers $DNS_SERVERS \
-    --vm-folder "$VMWARE_FOLDER" \
-    --vm-password "$DEFAULT_VM_PASSWORD" \
-    --vm-prefix "$VM_PREFIX" \
-    --domain "$KIT_DOMAIN" \
-    --gateway "$VM_GATEWAY" \
-    --num-servers $NUM_SERVERS \
-    --num-sensors $NUM_SENSORS \
-    --server-cpu $SERVER_CPU \
-    --server-mem $SERVER_MEM \
-    --sensor-cpu $SENSOR_CPU \
-    --sensor-mem $SENSOR_MEM \
-    --vm-datastore "$VCENTER_DATASTORE" \
-    --os-raid "$VM_RAID" \
+    --vcenter-datastore "$VCENTER_DATASTORE" \
+    --vcenter-folder "$VMWARE_FOLDER" \
+    --vcenter-portgroup "$VCENTER_PORTGROUP" \
+    --vcenter-cluster "$VCENTER_CLUSTER" \
     --upstream-dns "$UPSTREAM_DNS" \
-    --upstream-ntp "$UPSTREAM_NTP"
+    --upstream-ntp "$UPSTREAM_NTP" \
+    --gateway "$VM_GATEWAY" \
+    --network-id "$NETWORK_ID" \
+    --network-block-index $NETWORK_BLOCK_INDEX \
+    --domain "$KIT_DOMAIN" \
+    --kit-password "$DEFAULT_VM_PASSWORD"
   artifacts:
     untracked: true
-  retry: 2
   only:
     variables:
-      - $PIPELINE == "developer-dip"
       - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
 
-DIP Kit:
-  needs: ["DIP Kickstart", "Setup DIP Controller"]
-  stage: kit
+Control Plane:
+  stage: control-plane
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-kit
+    echo "VM_PREFIX is $VM_PREFIX"
+    python3 testing/pipeline/pipeline.py setup-control-plane
+  only:
+    variables:
+      - $PIPELINE == "developer-all"
+
+Server Setup:
+  stage: server-setup
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "VM_PREFIX is $VM_PREFIX"
+    python3 testing/pipeline/pipeline.py \
+    add-node \
+    --node-type Server \
+    --deployment-type Baremetal \
+    --vm-prefix "$VM_PREFIX" \
+    --cpu $SERVER_CPU \
+    --memory $SERVER_MEM \
+    --start-index 1 \
+    --num-nodes $NUM_SERVERS \
+    --os-raid "$VM_RAID" \
+    --dns-servers $DNS_SERVERS
   artifacts:
     untracked: true
   only:
     variables:
-      - $PIPELINE == "developer-dip"
       - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
+
+Kit Deploy:
+  stage: deploy-kit
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "Deploying Kit"
+    python3 testing/pipeline/pipeline.py deploy-kit
+  only:
+    variables:
+      - $PIPELINE == "developer-all"
+
+Sensor Setup:
+  stage: node-setup
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "VM_PREFIX is $VM_PREFIX"
+    START_INDEX=$(($NUM_SERVERS+1))
+    echo "$START_INDEX"
+    python3 testing/pipeline/pipeline.py \
+    add-node \
+    --node-type Sensor \
+    --deployment-type Baremetal \
+    --vm-prefix "$VM_PREFIX" \
+    --cpu $SENSOR_CPU \
+    --memory $SENSOR_MEM \
+    --start-index $START_INDEX \
+    --num-nodes $NUM_SENSORS \
+    --os-raid "$VM_RAID" \
+    --dns-servers $DNS_SERVERS \
+    --monitoring-interface $MONITORING_INTERFACE
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "developer-all"
+
+Service Setup:
+  stage: node-setup
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "VM_PREFIX is $VM_PREFIX"
+    START_INDEX=$(($NUM_SERVERS+$NUM_SENSORS+1))
+    echo "$START_INDEX"
+    python3 testing/pipeline/pipeline.py \
+    add-node \
+    --node-type Service \
+    --deployment-type Virtual \
+    --vm-prefix "$VM_PREFIX" \
+    --cpu $SERVICE_CPU \
+    --memory $SERVICE_MEM \
+    --start-index $START_INDEX \
+    --num-nodes $NUM_SERVICE_NODES \
+    --os-raid "$VM_RAID" \
+    --dns-servers $DNS_SERVERS
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "developer-all"
+      - $PIPELINE == "hw-developer-dip"
+
+MIP Setup:
+  stage: node-setup
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "VM_PREFIX is $VM_PREFIX"
+    START_INDEX=$(($NUM_SERVERS+$NUM_SENSORS+$NUM_SERVICE_NODES+1))
+    echo "$START_INDEX"
+    python3 testing/pipeline/pipeline.py \
+    add-node \
+    --node-type MIP \
+    --deployment-type Virtual \
+    --vm-prefix "$VM_PREFIX" \
+    --cpu $MIP_CPU \
+    --memory $MIP_MEM \
+    --start-index $START_INDEX \
+    --num-nodes $NUM_MIPS \
+    --os-raid "$VM_RAID" \
+    --dns-servers $DNS_SERVERS
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "developer-all"
+      - $PIPELINE == "hw-developer-dip"
 
 Secure MinIO with a TLS certificate:
   stage: configure:minio
@@ -158,7 +255,6 @@ Secure MinIO with a TLS certificate:
     - tfplenum-buildv2
   script: |
     args=(
-      --system-name "DIP"
       gip-setup minio
       create-certificate
     )
@@ -167,44 +263,19 @@ Secure MinIO with a TLS certificate:
     python3 testing/pipeline/pipeline.py "${args[@]}"
   only:
     variables: # The TLS certificate should not be exported.
-      - $MINIO_VM == "yes" && $PIPELINE == "developer-dip" && $MINIO_USE_TLS == "yes"
       - $MINIO_VM == "yes" && $PIPELINE == "developer-all" && $MINIO_USE_TLS == "yes"
 
-Perform DIP STIGs:
-  stage: stig-kit
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-stigs
-  only:
-    variables:
-      - $RUN_STIGS == "yes" && $PIPELINE == "developer-dip"
-      - $RUN_STIGS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_STIGS == "yes" && $PIPELINE == "developer-dip-mip"
-
-Perform DIP Security Scans:
+Perform Security Scans:
   stage: security_scans
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-oscap-scans
-
-    # python3 testing/pipeline/run_acas.py \
-    # --ipaddress "$ACAS_IPADDRESS" \
-    # --username "$ACAS_USERNAME" \
-    # --password "$ACAS_PASSWORD" \
-    # --scan_name "$DIP_ACAS_SCAN_TO_RUN" \
-    # --report-name "DIP_ACAS_Report.pdf" \
-    # --nodes-to-scan $(cat dipnodestoscan.txt)
+    python3 testing/pipeline/pipeline.py run-oscap-scans
   only:
     variables:
-      - $RUN_SECURITY_SCANS == "yes" && $PIPELINE == "developer-dip"
       - $RUN_SECURITY_SCANS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_SECURITY_SCANS == "yes" && $PIPELINE == "developer-dip-mip"
   artifacts:
     untracked: true
 
@@ -215,21 +286,19 @@ CVAH Catalog PMO Apps:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog suricata
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog arkime-viewer
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog arkime-capture
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog zeek
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog logstash
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog wikijs
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog cortex
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog misp
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog hive
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog rocketchat
+    python3 testing/pipeline/pipeline.py run-catalog suricata
+    python3 testing/pipeline/pipeline.py run-catalog arkime-viewer
+    python3 testing/pipeline/pipeline.py run-catalog arkime-capture
+    python3 testing/pipeline/pipeline.py run-catalog zeek
+    python3 testing/pipeline/pipeline.py run-catalog logstash
+    python3 testing/pipeline/pipeline.py run-catalog wikijs
+    python3 testing/pipeline/pipeline.py run-catalog cortex
+    python3 testing/pipeline/pipeline.py run-catalog misp
+    python3 testing/pipeline/pipeline.py run-catalog hive
+    python3 testing/pipeline/pipeline.py run-catalog rocketchat
   only:
     variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip"
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip-mip"
 
 CVAH Catalog Community Apps:
   stage: catalog
@@ -238,15 +307,13 @@ CVAH Catalog Community Apps:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog mattermost
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog nifi
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog redmine
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog netflow-filebeat
+    python3 testing/pipeline/pipeline.py run-catalog mattermost
+    python3 testing/pipeline/pipeline.py run-catalog nifi
+    python3 testing/pipeline/pipeline.py run-catalog redmine
+    python3 testing/pipeline/pipeline.py run-catalog netflow-filebeat
   only:
     variables:
-      - $RUN_INTEGRATION == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "developer-dip"
       - $RUN_INTEGRATION == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "developer-dip-mip"
 
 # Run Python Unit Tests:
 #   tags:
@@ -255,12 +322,10 @@ CVAH Catalog Community Apps:
 #   script: |
 #     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
 #     echo "Current working directory is $(pwd)"
-#     python3 testing/pipeline/pipeline.py --system-name "DIP" run-unit-tests
+#     python3 testing/pipeline/pipeline.py run-unit-tests
 #   only:
 #     variables:
-#       - $PIPELINE == "developer-dip"
 #       - $PIPELINE == "developer-all"
-#       - $PIPELINE == "developer-dip-mip"
 
 System Function Testing:
   stage: integration-test
@@ -269,12 +334,10 @@ System Function Testing:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-integration-tests
+    python3 testing/pipeline/pipeline.py run-integration-tests
   only:
     variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip"
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip-mip"
   artifacts:
     paths:
       - "./*.xml"
@@ -288,12 +351,10 @@ Simulate Power Failure:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" simulate-power-failure
+    python3 testing/pipeline/pipeline.py simulate-power-failure
   only:
     variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip"
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip-mip"
 
 System Function Testing2:
   stage: rerun-integration-test
@@ -302,31 +363,15 @@ System Function Testing2:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-integration-tests
+    python3 testing/pipeline/pipeline.py run-integration-tests
   only:
     variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip"
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip-mip"
   artifacts:
     paths:
       - "./*.xml"
     reports:
       junit: "./*.xml"
-
-DIP Create Nightly:
-  stage: publish-nightly
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-publish-nightly --nightly-prefix "$NIGHTLY_PREFIX"
-  only:
-    variables:
-      - $CREATE_NIGHTLY == "yes" && $PIPELINE == "developer-dip"
-      - $CREATE_NIGHTLY == "yes" && $PIPELINE == "developer-all"
-      - $CREATE_NIGHTLY == "yes" && $PIPELINE == "developer-dip-mip"
 
 DIP Cleanup:
   stage: cleanup
@@ -335,9 +380,7 @@ DIP Cleanup:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-cleanup
+    python3 testing/pipeline/pipeline.py run-cleanup
   only:
     variables:
-      - $IS_CLEANUP == "yes" && $PIPELINE == "developer-dip"
       - $IS_CLEANUP == "yes" && $PIPELINE == "developer-all"
-      - $IS_CLEANUP == "yes" && $PIPELINE == "developer-dip-mip"

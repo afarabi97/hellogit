@@ -33,13 +33,14 @@ class AsyncJob:
 
     def __init__(self,
                  job_name: str,
+                 job_id: str,
                  command: str,
                  output_fn: Callable=log_to_console,
                  working_dir: str=None,
                  use_shell: bool=False):
 
         self._job_name = job_name
-        self._job_id = str(uuid4())[-12:]
+        self._job_id = job_id
         if not output_fn:
             raise ValueError("An asynchronous job requires an output function.")
         self._output_fn = output_fn

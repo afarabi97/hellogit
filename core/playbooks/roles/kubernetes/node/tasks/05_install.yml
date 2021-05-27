@@ -8,13 +8,12 @@
     name: kubernetes/common
     tasks_from: creds
 
-- name: Kube | Control Plane Join Script for Kube Masters
+- name: Kube | Control Plane Join Script
   set_fact:
     join_script_file: files/join-control-plane.sh
   when:
     - enable_kube_ha
-    - inventory_hostname in groups['servers']
-    - is_control_plane_node
+    - inventory_hostname in groups['control_planes']
 
 - name: Kube | Copy join node cmd to nodes
   copy:
@@ -27,17 +26,6 @@
     "{{ join_script_path }}"
   register: join_results
   changed_when: join_results.rc == 0
-  when:
-    - enable_kube_ha
-    - inventory_hostname in groups['servers']
-    - is_control_plane_node
-
-- name: Kube | Join Kubernetes cluster
-  shell: |
-    "{{ join_script_path }}"
-  register: join_results
-  changed_when: join_results.rc == 0
-  when: inventory_hostname in groups['sensors'] or (inventory_hostname in groups['servers'] and not is_control_plane_node)
 
 - name: Kube | Wait for Nodes to Register
   pause:
@@ -69,19 +57,5 @@
     resource_name: "{{ inventory_hostname }}"
     label: ""
 
-- name: Kube | Label sensors
-  command: 'kubectl label nodes {{ inventory_hostname }} role=sensor --overwrite=true'
-  when: inventory_hostname in groups['sensors']
-
-- name: Kube | Label secondary servers
-  command: 'kubectl label nodes {{ inventory_hostname }} role=server --overwrite=true'
-  when: inventory_hostname in groups['servers']
-  register: debug_output
-
-- name: Kube | Remove NoSchedule Taint
-  shell: |
-    kubectl taint node {{ inventory_hostname }} node-role.kubernetes.io/master-
-  when:
-    - enable_kube_ha
-    - inventory_hostname in groups['servers']
-    - is_control_plane_node
+- name: Kube | Label node
+  command: 'kubectl label nodes {{ inventory_hostname }} role={{ node_type | lower }} --overwrite=true'

@@ -1,0 +1,155 @@
+# site.yml is the overall playbook, but all it does is include the other playbooks that are part of the site. For more
+# information about the structure see:
+# http://docs.ansible.com/ansible/latest/playbooks_best_practices.html
+# http://docs.ansible.com/ansible/latest/intro_inventory.html
+# We follow the guidance to include naming conventions there.
+
+---
+
+- name: Set System info for control plane
+  hosts:
+    - localhost
+    - control_plane
+  gather_facts: no
+  pre_tasks:
+    - name: Run gather facts
+      setup:
+  roles:
+    - system_info
+  tags:
+    - common
+    - deploy-control-plane
+
+- name: Common Setup
+  hosts: control_plane
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - name: Common setup pre_tasks
+      setup:
+  roles:
+    - common
+    - chrony
+  tags:
+    - common
+    - deploy-control-plane
+
+- name: Configure CA on all systems
+  hosts:
+    - localhost
+    - control_plane
+  any_errors_fatal: true
+  pre_tasks:
+    - name: Configure CA on all systems pre_tasks
+      setup:
+  roles:
+    - certificate_authority/common
+  tags:
+    - certificate_authority
+    - deploy-control-plane
+
+# - name: API Mesh
+#   hosts:
+#     - control_planes
+#   gather_facts: no
+#   any_errors_fatal: true
+#   pre_tasks:
+#     - name: Run gather facts
+#       setup:
+#   tasks:
+#     - import_role:
+#         name: api_mesh
+#       when: enable_kube_ha
+#   tags:
+#     - api-mesh
+#     - kubernetes
+
+- name: Setup CRI-O
+  hosts: control_plane
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - name: Setup CRI-O pre_tasks
+      setup:
+  roles:
+    - crio
+  tags:
+    - crio
+    - kubernetes
+    - deploy-control-plane
+
+- name: Configure kube primary server
+  hosts: control_plane
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - name: Configure kube primary pre_tasks
+      setup:
+  roles:
+    - kubernetes/primary
+  tags:
+    - kube-primary
+    - kubernetes
+    - deploy-control-plane
+
+- name: Deploy Single Sign On
+  hosts: localhost
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - name: Deploy SSO pre_tasks
+      setup:
+  roles:
+    - sso
+  tags:
+    - sso
+    - deploy-control-plane
+
+- name: Setup Controller API Key
+  hosts:
+    - localhost
+  tasks:
+    - name: generate Metrics API key
+      script: /opt/sso-idp/gen_api_token.py --roles "metrics" --exp 87600
+      args:
+        executable: /opt/tfplenum/web/tfp-env/bin/python3
+      register: metrics_api_key
+    - name: Trim output
+      set_fact:
+        metrics_api_key: "{{ metrics_api_key.stdout | replace('\n', '') }}"
+    - name: Delete Previous API Key Secret
+      command: "kubectl delete secret metrics-api-key --ignore-not-found"
+      register: api_key_sec
+      changed_when: api_key_sec.rc == 0
+    - name: Create API Key Secret
+      command: |
+        kubectl create secret generic metrics-api-key --from-literal=api-key={{ metrics_api_key }}
+      register: api_key_sec
+      changed_when: api_key_sec.rc == 0
+  tags:
+    - node-health
+    - deploy-control-plane
+
+- name: Schedule a cron job to gather health metrics.
+  hosts: control_plane
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - node-health
+  tags:
+    - node-health
+    - deploy-control-plane
+
+- name: Setup Storage Provisioner
+  hosts: localhost
+  serial: 1
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - name: Run gather facts
+      setup:
+  roles:
+    - storage-provisioner
+  tags:
+    - storage-provisioner
+    - deploy-control-plane

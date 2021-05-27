@@ -1,0 +1,26 @@
+---
+all:
+  children:
+    mips:
+      hosts:
+        {% for node in template_ctx.mips -%}
+        {{ node.hostname }}:
+          management_ipv4: {{ node.ip_address }}
+          mac: {{ node.mac_address }}
+          pxe_type: uefi
+          {%- if node.model == "SCSI/SATA/USB" %}
+          boot_drive: sda
+          root_partition: '3'
+          {%- endif %}
+          {%- if node.model == "NVMe" %}
+          boot_drive: nvme0n1
+          root_partition: 'p3'
+          {%- endif %}
+          node_type: {{ node.node_type }}
+          deployment_type: {{ node.deployment_type }}
+          {%- if node.deployment_type == "Virtual" %}
+          memory: 24576
+          cpu: 16
+          {% endif %}
+        {% endfor %}
+...

@@ -19,7 +19,6 @@
     mode: "0775"
   loop: "{{ range(0, number_of_server_apps)|list }}"
 
-
 - name: Create Binding Directories
   file:
     path: "{{ app_disk_discovery_dir }}/{{ item }}"
@@ -36,3 +35,8 @@
     state: mounted
     fstype: none
   loop: "{{ range(0, number_of_server_apps)|list }}"
+
+- name: Setup Elastic Directories
+  import_role:
+    name: elasticsearch
+    tasks_from: setup_data_dir

@@ -1,8 +1,9 @@
 ---
 #### Main Role Configuration ####
 
+es_dir: "{{ tfplenum_config_dir  }}/elastic"
 es_upgrade_ver: "{{ elastic_7_version }}"
-elastic_dir: "{{ install_dir }}/elasticsearch"
+elastic_dir: "{{ tfplenum_config_dir  }}/elasticsearch"
 elastic_user: "1000"
 elastic_group: "1000"
 
@@ -54,7 +55,7 @@ filebeat_modules:
 elasticsearch_plugins:
   - repository-s3-{{ elastic_7_version }}.zip
 
-elastic_url: "https://{{ elastic_fqdn }}:{{ elastic_port }}"
+elastic_url: "https://elasticsearch.{{ kit_domain }}:{{ elastic_port }}"
 
 filebeat_external_name: filebeat-external
 filebeat_pipeline_all: filebeat-all_modules

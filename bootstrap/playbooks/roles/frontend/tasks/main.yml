@@ -1,4 +1,32 @@
 ---
+
+- name: Set icon url
+  set_fact:
+    icon_url: https://github.com/Prodian0013/files/blob/master
+  tags:
+    - build_frontend
+    - install_angular
+
+- name: Set icon url
+  set_fact:
+    icon_url: https://nexus.sil.lab/repository/dip-repo/icons
+  when: labrepo_check
+  tags:
+    - build_frontend
+    - install_angular
+
+- name: Get Icons
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}/"
+    validate_certs: no
+  with_items:
+  - { url: "{{ icon_url }}/material-icons-outlined.woff2",  dest: "{{ web_install_dir }}/frontend/src/assets/fonts" }
+  - { url: "{{ icon_url }}/material-icons.woff2",  dest: "{{ web_install_dir }}/frontend/src/assets/fonts" }
+  tags:
+    - build_frontend
+    - install_angular
+
 - import_tasks: 05_install_node.yml
   tags: install_node
 
@@ -30,7 +58,7 @@
 - import_tasks: 45_restart_services.yml
   tags: restart_frontend_services
 - import_tasks: 55_preload_pcaps.yml
-  when: system_name == 'DIP' and labrepo_check
+  when: labrepo_check
 
 # Set ip forwarding on in /proc and in the sysctl file and reload if necessary
 -  name: "Enable IP Forwarding so docker containers can reach outside of the network."

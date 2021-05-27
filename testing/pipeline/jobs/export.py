@@ -7,28 +7,26 @@ import shutil
 import sys
 
 from fabric import Connection
-from invoke.exceptions import UnexpectedExit
 from util.ansible_util import execute_playbook, take_snapshot
 from util.connection_mngs import FabricConnectionWrapper
-from util.hash_util import hash_file
 from models import Model
 from models.export import ExportSettings, ExportLocSettings
 from models.ctrl_setup import ControllerSetupSettings
-from models.common import BasicNodeCreds, NodeSettings, VCenterSettings
+from models.common import NodeSettings, VCenterSettings
 from pathlib import Path
 from typing import Tuple, Union
-from io import StringIO
 from util.ansible_util import (power_on_vms, revert_to_baseline_and_power_on_vms,
-                               power_off_vms, power_off_vms_gracefully)
+                               power_off_vms_gracefully)
 from util.docs_exporter import MyConfluenceExporter
 from util.ssh import test_nodes_up_and_alive
+from util.constants import (PIPELINE_DIR, TESTING_DIR, SKIP_REPOSYNC_BUILD_AND_TEMPLATE,
+                            SKIP_CTRL_BUILD_AND_TEMPLATE, SKIP_MINIO_BUILD_AND_TEMPLATE,
+                            CONTROLLER_PREFIX, MINIO_PREFIX, REPO_SYNC_PREFIX)
 from models.gip_settings import GIPServiceSettings
 from models.rhel_repo_vm import RHELRepoSettings
 
 
-PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 CTRL_EXPORT_PREP = PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"
-TESTING_DIR = PIPELINE_DIR + "/../"
 
 
 def create_export_path(export_loc: ExportLocSettings) -> Tuple[Path]:
@@ -64,13 +62,12 @@ def clear_based_on_pattern(some_path: Union[str, Path], pattern: str):
 def prepare_for_export(username: str,
                        password: str,
                        ctrl_ip: str,
-                       is_controller: bool=True,
-                       ctrl_type: str="dip"):
+                       is_controller: bool=True):
     with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
         remote_shell.put(PIPELINE_DIR + "scripts/reset_system.sh", "/tmp/reset_system.sh")
         remote_shell.sudo('chmod 755 /tmp/reset_system.sh')
         if is_controller:
-            remote_shell.sudo('/tmp/reset_system.sh --reset-controller --iface=ens192 --hostname={}'.format(ctrl_type + "-controller.lan"))
+            remote_shell.sudo('/tmp/reset_system.sh --reset-controller --iface=ens192 --hostname={}'.format("controller.lan"))
         else:
             remote_shell.sudo('/tmp/reset_system.sh --reset-node --iface=ens192')
 
@@ -136,13 +133,15 @@ def export(vcenter_settings: VCenterSettings,
         mdt_destination_path = "{}/{}".format(str(mdt_export_path), export_name)
         shutil.copy2(cpt_destination_path, mdt_destination_path)
 
+
 class MinIOExport:
+
     def __init__(self, node: NodeSettings, vcenter: VCenterSettings, export_loc: ExportLocSettings):
         self._node = node
         self._vcenter = vcenter
         self._export_loc = export_loc
-        self._export_prefix = "minio"
-        self._release_template_name = self._export_loc.render_export_name(self._export_prefix)[0:-4]
+        self._export_prefix = MINIO_PREFIX
+        self._release_template_name = self._export_loc.render_export_name(self._export_prefix, node.commit_hash)[0:-4]
         self._export_prep_vars = {
             "python_executable": sys.executable,
             "vcenter": self._vcenter,
@@ -155,7 +154,7 @@ class MinIOExport:
         with FabricConnectionWrapper(self._node.username, self._node.password, self._node.ipaddress) as shell:
             shell.put(PIPELINE_DIR + "scripts/reset_system.sh", "/tmp/reset_system.sh")
             shell.sudo('chmod 755 /tmp/reset_system.sh')
-    
+
     def _cleanup(self):
         self._copy_reset_script()
         commands = [{"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete ens192'}, {"vm_shell": '/tmp/reset_system.sh', "vm_shell_args": '--reset-node --iface=ens192'}]
@@ -168,11 +167,13 @@ class MinIOExport:
         execute_playbook([self._execute_commands_playbook], execute_commands_vars)
 
     def export(self):
-        power_on_vms(self._vcenter, self._node)
-        test_nodes_up_and_alive(self._node, 10)
-        self._cleanup()
-        power_off_vms_gracefully(self._vcenter, self._node)
-        execute_playbook([CTRL_EXPORT_PREP], self._export_prep_vars)
+        if not Path(SKIP_MINIO_BUILD_AND_TEMPLATE).exists():
+            power_on_vms(self._vcenter, self._node)
+            test_nodes_up_and_alive(self._node, 10)
+            self._cleanup()
+            power_off_vms_gracefully(self._vcenter, self._node)
+            execute_playbook([CTRL_EXPORT_PREP], self._export_prep_vars)
+
         export(self._vcenter, self._export_loc, self._release_template_name, self._export_prefix)
 
 
@@ -182,6 +183,13 @@ class ControllerExport:
         self.ctrl_settings = ctrl_settings
         self.vcenter_settings = ctrl_settings.vcenter
         self.export_loc = export_loc
+        self._export_prefix = CONTROLLER_PREFIX
+        self._export_name = ""
+        self._release_vm_name = ""
+
+    def _set_private(self, commit_hash: str):
+        self._export_name = self.export_loc.render_export_name(self._export_prefix, commit_hash)
+        self._release_vm_name = self._export_name[0:len(self._export_name)-4]
 
     def _run_reclaim_disk_space(self, remote_shell: Connection):
         stat_vfs = os.statvfs("/")
@@ -198,32 +206,31 @@ class ControllerExport:
 
         remote_shell.sudo('vmware-toolbox-cmd disk shrinkonly', warn=True)
 
-    def export_controller(self, system_name: str):
-        logging.info("Exporting the controller to OVA.")
-        valid_system_names = ["DIP", "MIP", "GIP"]
-        if system_name not in valid_system_names:
-            raise ValueError("Invalid system name {}.  It must be {}".format(system_name, str(valid_system_names)))
-
+    def create_ctrl_template(self):
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         commit_hash = get_commit_hash(self.ctrl_settings.node.username,
                                       self.ctrl_settings.node.password,
                                       self.ctrl_settings.node.ipaddress)
+        self._set_private(commit_hash)
         prepare_for_export(self.ctrl_settings.node.username,
                            self.ctrl_settings.node.password,
-                           self.ctrl_settings.node.ipaddress,
-                           ctrl_type=system_name.lower())
+                           self.ctrl_settings.node.ipaddress)
 
         payload = self.ctrl_settings.to_dict()
-        export_prefix = "{}_Controller".format(system_name)
-        export_name = self.export_loc.render_export_name(export_prefix, commit_hash)
-        release_vm_name = export_name[0:len(export_name)-4]
-        payload["release_template_name"] = release_vm_name
+
+        payload["release_template_name"] = self._release_vm_name
         execute_playbook([CTRL_EXPORT_PREP], payload)
+
+    def export_controller(self):
+        if not Path(SKIP_CTRL_BUILD_AND_TEMPLATE).exists():
+            self.create_ctrl_template()
+
+        logging.info("Exporting the controller to OVA.")
         export(self.vcenter_settings,
                self.export_loc,
-               release_vm_name,
-               export_prefix)
+               self._release_vm_name,
+               self._export_prefix)
 
 
 class GIPServiceExport(ControllerExport):
@@ -245,7 +252,7 @@ class GIPServiceExport(ControllerExport):
 
         payload = self.ctrl_settings.to_dict()
         export_prefix = "GIP_Services"
-        export_name = self.export_loc.render_export_name(export_prefix)
+        export_name = self.export_loc.render_export_name(export_prefix, self.ctrl_settings.node.commit_hash)
         release_vm_name = export_name[0:len(export_name)-4]
         payload["release_template_name"] = release_vm_name
         execute_playbook([CTRL_EXPORT_PREP], payload)
@@ -258,26 +265,31 @@ class GIPServiceExport(ControllerExport):
 class ReposyncServerExport(ControllerExport):
     def __init__(self, repo_settings: RHELRepoSettings, export_loc: ExportLocSettings):
         super().__init__(repo_settings, export_loc)
+        self._export_prefix = REPO_SYNC_PREFIX
+        self._set_private(repo_settings.node.commit_hash)
 
-    def export_reposync_server(self):
-        logging.info("Exporting the Reposync server VM to OVA.")
+    def create_release_template(self):
+        logging.info("Creating release template for RepoSync Server.")
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
+
         prepare_for_export(self.ctrl_settings.node.username,
                            self.ctrl_settings.node.password,
                            self.ctrl_settings.node.ipaddress,
                            False)
-
         payload = self.ctrl_settings.to_dict()
-        export_prefix = "Reposync_Server"
-        export_name = self.export_loc.render_export_name(export_prefix)
-        release_vm_name = export_name[0:len(export_name)-4]
-        payload["release_template_name"] = release_vm_name
+        payload["release_template_name"] = self._release_vm_name
         execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
+
+    def export_reposync_server(self):
+        if not Path(SKIP_REPOSYNC_BUILD_AND_TEMPLATE).exists():
+            self.create_release_template()
+
+        logging.info("Exporting the Reposync server VM to OVA.")
         export(self.vcenter_settings,
                self.export_loc,
-               release_vm_name,
-               export_prefix)
+               self._release_vm_name,
+               self._export_prefix)
 
 
 class ConfluenceExport:

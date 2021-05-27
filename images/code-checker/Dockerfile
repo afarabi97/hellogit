@@ -6,7 +6,7 @@ RUN yum -y install centos-release-ansible-29 epel-release && \
     yum -y install ansible make python36 python36-devel python-pip python-wheel wget bzip2 gtk3 \
     libXt gcc krb5-workstation krb5-devel && \
     pushd /opt/tfplenum/bootstrap/playbooks && \
-    ansible-playbook site.yml -i localhost -e 'system_name=DIP' -t install_node && \
+    ansible-playbook site.yml -i localhost -t install_node && \
     # Download, Install Google-Chrome-Stable:
     popd > /dev/null && \
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm -P /usr/local && \

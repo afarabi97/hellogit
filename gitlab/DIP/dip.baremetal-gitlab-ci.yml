@@ -1,5 +1,6 @@
 ---
-Setup Hardware DIP Controller:
+
+Setup Hardware Controller:
   stage: build
   tags:
     - tfplenum-buildv2
@@ -8,9 +9,7 @@ Setup Hardware DIP Controller:
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/baremetal_pipeline.py \
-    --system-name "DIP" \
     setup-baremetal-controller \
-    --run-type "$BUILD_TYPE" \
     --esxi-ipaddress "$ESXI_IPADDRESS" \
     --esxi-username "$ESXI_USERNAME" \
     --esxi-password "$ESXI_PASSWORD" \
@@ -22,7 +21,7 @@ Setup Hardware DIP Controller:
     --template "$TEMPLATE_OVA" \
     --gateway "$CONTROLLER_GATEWAY" \
     --ipaddress "$CONTROLLER_IPADDRESS" \
-    --dns-servers $CONTROLLER_DNS_SERVERS \
+    --dns-servers $DNS_SERVERS \
     --repo-username "$REPO_USERNAME" \
     --repo-password "$REPO_PASSWORD" \
     --repo-url "$REPO_URL" \
@@ -30,40 +29,7 @@ Setup Hardware DIP Controller:
     --domain "$KIT_DOMAIN" \
     --redfish-user "$REDFISH_USER" \
     --redfish-password "$REDFISH_PASSWORD" \
-    --monitoring-interface "$MONITORING_INTERFACE"
-  artifacts:
-    untracked: true
-  only:
-    variables:
-      - $PIPELINE == "hw-developer-dip"
-      - $PIPELINE == "dip_only_build"
-
-Hardware DIP Kickstart:
-  stage: kickstart
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/baremetal_pipeline.py \
-    --system-name "DIP" \
-    run-kickstart \
-    --node-password "$DEFAULT_VM_PASSWORD" \
-    --vm-datastore "$ESXI_DATASTORE" \
-    --ctrl-path "$DIP_CONTROLLER_PATH" \
-    --ctrl-name "$CONTROLLER_OVA" \
-    --template-path "$TEMPLATE_PATH" \
-    --template "$DIP_TEMPLATE_OVA" \
-    --gateway "$CONTROLLER_GATEWAY" \
-    --ipaddress "$CONTROLLER_IPADDRESS" \
-    --dns-servers $CONTROLLER_DNS_SERVERS \
-    --server-oob $SERVER_OOB \
-    --sensor-oob $SENSOR_OOB \
-    --domain "$KIT_DOMAIN" \
-    --redfish-user "$REDFISH_USER" \
-    --redfish-password "$REDFISH_PASSWORD" \
-    --upstream-dns "$UPSTREAM_DNS" \
-    --upstream-ntp "$UPSTREAM_NTP" \
+    --monitoring-interface "$MONITORING_INTERFACE" \
     --management-password "$MANAGEMENT_PASSWORD" \
     --mp-external-ip "$MP_EXTERNAL_IP" \
     --pfsense-ip "$PFSENSE_IP" \
@@ -72,20 +38,105 @@ Hardware DIP Kickstart:
     --run-remote-node "$RUN_REMOTE_NODE"
   artifacts:
     untracked: true
-  retry: 2
+  only:
+    variables:
+      - $PIPELINE == "hw-developer-dip"
+      - $PIPELINE == "dip_only_build"
+
+Hardware Kit Settings:
+  stage: kit-settings
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "VM_PREFIX is $VM_PREFIX"
+    python3 testing/pipeline/baremetal_pipeline.py \
+    run-kit-settings \
+    --vcenter-ipaddress "$ESXI_IPADDRESS" \
+    --vcenter-username "$ESXI_USERNAME" \
+    --vcenter-password "$ESXI_PASSWORD" \
+    --vcenter-datastore "$ESXI_DATASTORE" \
+    --vcenter-portgroup "$ESXI_PORTGROUP" \
+    --upstream-dns "$UPSTREAM_DNS" \
+    --upstream-ntp "$UPSTREAM_NTP" \
+    --gateway "$CONTROLLER_GATEWAY" \
+    --network-id "$NETWORK_ID" \
+    --network-block-index $NETWORK_BLOCK_INDEX \
+    --domain "$KIT_DOMAIN" \
+    --kit-password "$DEFAULT_VM_PASSWORD"
+  artifacts:
+    untracked: true
   only:
     variables:
       - $PIPELINE == "hw-developer-dip"
 
-Hardware DIP Kit:
-  stage: kit
+Hardware Control Plane:
+  stage: control-plane
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-kit
-  retry: 2
+    echo "VM_PREFIX is $VM_PREFIX"
+    python3 testing/pipeline/baremetal_pipeline.py setup-control-plane
+  only:
+    variables:
+      - $PIPELINE == "hw-developer-dip"
+
+Hardware Server Setup:
+  stage: server-setup
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "VM_PREFIX is $VM_PREFIX"
+    python3 testing/pipeline/baremetal_pipeline.py \
+    add-node \
+    --dns-servers $DNS_SERVERS \
+    --node-type Server \
+    --deployment-type "Baremetal" \
+    --redfish-password "$REDFISH_PASSWORD" \
+    --redfish-user "$REDFISH_USER" \
+    --start-index 1 \
+    --pxe-type "$PXE_TYPE" \
+    --idrac-ip-addresses $SERVER_OOB
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "hw-developer-dip"
+
+Hardware Kit Deploy:
+  stage: deploy-kit
+  tags:
+    - tfplenum-buildv2
+  script: |
+    python3 testing/pipeline/baremetal_pipeline.py deploy-kit
+  only:
+    variables:
+      - $PIPELINE == "hw-developer-dip"
+
+Hardware Sensor Setup:
+  stage: node-setup
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "VM_PREFIX is $VM_PREFIX"
+    python3 testing/pipeline/baremetal_pipeline.py  \
+    add-node \
+    --dns-servers $DNS_SERVERS \
+    --node-type Sensor \
+    --deployment-type "Baremetal" \
+    --redfish-password "$REDFISH_PASSWORD" \
+    --redfish-user "$REDFISH_USER" \
+    --start-index 3 \
+    --pxe-type "$PXE_TYPE" \
+    --idrac-ip-addresses $SENSOR_OOB \
+    --monitoring-interface $MONITORING_INTERFACE
   artifacts:
     untracked: true
   only:
@@ -100,7 +151,7 @@ Remote Node Automation:
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/baremetal_pipeline.py \
-    --system-name "DIP" run-remote-node
+     run-remote-node
   only:
     variables:
       - $RUN_REMOTE_NODE == "yes" && $PIPELINE == "hw-developer-dip"
@@ -112,7 +163,7 @@ Hardware System Function Testing:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-integration-tests
+    python3 testing/pipeline/baremetal_pipeline.py run-integration-tests
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-dip"
@@ -129,7 +180,7 @@ Hardware Simulate Power Failure:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" simulate-power-failure
+    python3 testing/pipeline/baremetal_pipeline.py simulate-power-failure
   only:
     variables:
       - $RUN_POWER_FAILURE == "yes" && $PIPELINE == "hw-developer-dip"
@@ -141,16 +192,16 @@ Hardware CVAH Catalog PMO Apps:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog suricata
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog arkime-viewer
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog arkime-capture
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog zeek
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog logstash
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog wikijs
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog cortex
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog misp
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog hive
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog rocketchat
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog suricata
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog arkime-viewer
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog arkime-capture
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog zeek
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog logstash
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog wikijs
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog cortex
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog misp
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog hive
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog rocketchat
   only:
     variables:
       - $RUN_CATALOG == "yes" && $PIPELINE == "hw-developer-dip"
@@ -162,10 +213,10 @@ Hardware CVAH Catalog Community Apps:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog mattermost
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog nifi
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog redmine
-    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog netflow-filebeat
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog mattermost
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog nifi
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog redmine
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog netflow-filebeat
   only:
     variables:
       - $RUN_CATALOG == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "hw-developer-dip"
@@ -178,7 +229,7 @@ Verodin Automation:
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/baremetal_pipeline.py \
-    --system-name "DIP" run-verodin \
+    run-verodin \
     --verodin-ipaddress "$VERODIN_IPADDRESS" \
     --verodin-username "$VERODIN_USERNAME" \
     --verodin-password "$VERODIN_PASSWORD" \
@@ -198,7 +249,7 @@ BreakingPoint Automation:
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/baremetal_pipeline.py \
-    --system-name "DIP" run-bp \
+    run-bp \
     --bp-host $BREAKINGPOINT_IP \
     --bp-pass $BREAKINGPOINT_PASSWORD \
     --bp-test $BREAKINGPOINT_TEST_NAME

@@ -1,4 +1,4 @@
 %YAML 1.1
 ---
 
-cert_manager_dir: "/tmp/cert_manager"
+cert_manager_dir: "{{ tfplenum_config_dir  }}/cert_manager"

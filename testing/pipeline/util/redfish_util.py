@@ -1,7 +1,7 @@
 #from future import standard_library
 #import redfish
 #standard_library.install_aliases()
-
+import logging
 import sys
 import requests
 import json
@@ -82,7 +82,7 @@ def logout(token):
     session_url = TOKEN_LOOKUP[token]['session_url']
     resp = requests.delete(session_url, headers=h, verify=False)
 
-@retry()
+@retry(count=10, time_to_sleep_between_retries=300)
 def get_token(ip, username, password):
     headers = {
         'OData-Version': '4.0',
@@ -114,6 +114,8 @@ def get_token(ip, username, password):
         'session_url': host + session_url if session_url else None
     }
     if not token:
+        logging.warn(url)
+        logging.warn(body)
         raise Exception("Invalid login for redfish.")
     return token
 

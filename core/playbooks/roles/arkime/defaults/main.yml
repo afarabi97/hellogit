@@ -16,7 +16,7 @@ arkime_login: 'assessor'
 arkime_pass: 'password'
 
 # Location of arkime dirs/files
-arkime_dir: '{{ install_dir }}/arkime'
+arkime_dir: '{{ tfplenum_config_dir }}/arkime'
 arkime_path: '{{ data_path }}/moloch'
 arkime_config_path: "{{ arkime_path }}/etc"
 arkime_pcap_path: "{{ arkime_path }}/raw"
@@ -24,10 +24,10 @@ arkime_pcap_path: "{{ arkime_path }}/raw"
 es_arkime_user: arkime
 es_arkime_password: password
 
-elastic_url: "https://{{ elastic_fqdn }}:{{ elastic_port }}"
+elastic_url: "https://elasticsearch.{{ kit_domain }}:{{ elastic_port }}"
 elastic_user: elastic
 
-indices: 
+indices:
   - users_v*
   - stats_v*
   - lookups_v*

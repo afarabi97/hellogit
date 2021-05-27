@@ -14,8 +14,8 @@ from rq import Queue
 import signal
 
 from app.utils.db_mngs import MongoConnectionManager
-from app.utils.constants import (CORE_DIR, PLAYBOOK_DIR, DEPLOYER_DIR, WEB_DIR, TESTING_DIR, UPGRADES_DIR,
-                                 AGENT_PKGS_DIR, MIP_KICK_DIR, MIP_CONFIG_DIR, STIGS_DIR)
+from app.utils.constants import (CORE_DIR, PLAYBOOK_DIR, WEB_DIR, TESTING_DIR, UPGRADES_DIR,
+                                 AGENT_PKGS_DIR, MIP_DIR, STIGS_DIR)
 from flask_cors import CORS
 from flask import Flask, url_for
 from flask_restx import Api, Namespace
@@ -26,7 +26,7 @@ from pathlib import Path
 from random import randint
 from app.middleware import AuthMiddleware, Auth
 import pymongo
-
+from rq_scheduler import Scheduler
 
 APP_DIR = Path(__file__).parent  # type: Path
 TEMPLATE_DIR = APP_DIR / 'templates'  # type: Path
@@ -120,6 +120,9 @@ socketio = SocketIO(app, message_queue=REDIS)
 
 REDIS_CLIENT = Redis()
 REDIS_QUEUE = Queue(connection=REDIS_CLIENT)
+SCHEDULER = Scheduler(connection=REDIS_CLIENT)
+
+
 
 # load_swagger_namespaces
 KIT_SETUP_NS = Namespace('Kit Setup',
@@ -157,11 +160,11 @@ api.add_namespace(TOOLS_NS)
 # Load the REST API
 from app import (agent_builder_controller, catalog_controller, common_controller, configmap_controller,
                  console_controller, curator_controller, health_controller,
-                 kickstart_controller, kit_controller, mip_config_controller,
+                 kit_controller, mip_controller,
                  node_controller, notification_controller, pcap_controller,
                  portal_controller, registry_controller, ruleset_controller,
                  scale_controller, task_controller, tools_controller,
-                 version_controller, cold_log_controller, alerts_controller)
+                 version_controller, cold_log_controller, alerts_controller, settings_controller)
 
 #This is a hack needed to get coverage to work correctly within the python unittest framework.
 def receive_signal(signal_number, frame):

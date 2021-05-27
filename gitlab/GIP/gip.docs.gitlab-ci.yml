@@ -7,7 +7,6 @@ Download GIP Documents:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "DIP Setup Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "GIP" \
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \

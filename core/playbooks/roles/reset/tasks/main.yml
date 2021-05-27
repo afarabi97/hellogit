@@ -1,0 +1,40 @@
+---
+
+- name: Remove all nodes
+  shell: |
+    kubectl drain --force --ignore-daemonsets --grace-period 30 --timeout 60s --delete-emptydir-data {{ item }}
+    kubectl delete node {{ item }}
+  ignore_errors: yes
+  with_items:
+    - "{{ groups['servers'] }}"
+    - "{{ groups['sensors'] }}"
+
+- name: Reset All
+  shell: |
+    kubectl delete -f {{ tfplenum_config_dir  }}/{{ item }}  --ignore-not-found
+  ignore_errors: yes
+  with_items:
+    - elasticsearch/deploy.yml
+    - elasticsearch/certificate.yml
+    - elasticsearch/filebeat.yml
+    - elasticsearch/winlogbeat.yml
+    - elasticsearch/license.yml
+    - elasticsearch/maps_server.yml
+    - kibana/kibana.yml
+    - kibana/certificate.yml
+    - elasticsearch/operator.yml
+    - cert_manager/ca_issuer.yml
+    - cert_manager/operator.yml
+
+- name: Remove all helm installs
+  shell: |
+    helm ls --all --short | xargs -L1 helm delete
+  ignore_errors: yes
+
+- name: Clean up more stuff
+  shell: |
+    kubectl delete secret {{ item }} --ignore-not-found
+  ignore_errors: yes
+  with_items:
+    - webca-key-pair
+    - webca-certificate

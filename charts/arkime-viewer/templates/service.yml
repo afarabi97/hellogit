@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    component: arkime
+    component: {{ .Release.Name }}
   name: arkime
 spec:
   ports:

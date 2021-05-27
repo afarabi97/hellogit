@@ -9,7 +9,9 @@
     - tfplenum-backend
     - mongod
     - redis
-    - "rqworker@1"
-    - "rqworker@2"
-    - "rqworker@3"
-    - "rqworker@4"
+
+- name: Restart RQ Workers
+  systemd:
+    name: "rqworker@{{ item }}"
+    state: restarted
+  with_sequence: start=1 end={{number_of_rq_workers}}

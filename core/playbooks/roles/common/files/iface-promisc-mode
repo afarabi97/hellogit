@@ -1,6 +1,6 @@
 #!/bin/bash
 
-watchdir=/opt/tfplenum/interfaces
+watchdir=/etc/tfplenum/interfaces
 
 function enable_iface_promisc () {
   monitor_interfaces=`cat $watchdir/monitor_interfaces`

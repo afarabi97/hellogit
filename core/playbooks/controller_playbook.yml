@@ -1,0 +1,116 @@
+# site.yml is the overall playbook, but all it does is include the other playbooks that are part of the site. For more
+# information about the structure see:
+# http://docs.ansible.com/ansible/latest/playbooks_best_practices.html
+# http://docs.ansible.com/ansible/latest/intro_inventory.html
+# We follow the guidance to include naming conventions there.
+
+---
+
+- name: Set System Name
+  hosts: localhost
+  gather_facts: no
+  pre_tasks:
+    - name: Run gather facts
+      setup:
+  roles:
+    - system_info
+  tags:
+    - always
+    - system-info
+
+- name: Setup Controller Kickstart Services
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - controller/setup
+    - controller/kickstart
+  tags:
+    - controller_setup
+
+- name: Setup Controller Dns and Ntp Services
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - controller/dnsmasq
+    - chrony
+  tags:
+    - setup_controller_kit_settings
+
+- name: Update Keycloak Client and Controller Shibboleth Configs
+  hosts: localhost
+  gather_facts: yes
+  any_errors_fatal: true
+  tasks:
+    - import_role:
+        name: controller/setup
+        tasks_from: update_portal_client
+  tags:
+    - update_portal_client
+
+- name: Generate SSH keys
+  hosts: localhost
+  connection: ssh
+  any_errors_fatal: true
+  tasks:
+    - import_tasks: generate_ssh_keys.yml
+  tags: genkeys
+
+- name: OpenVPN
+  hosts: localhost
+  gather_facts: yes
+  any_errors_fatal: true
+  pre_tasks:
+    - name: OpenVPN pre_tasks
+      setup:
+  tasks:
+    - import_role:
+        name: openvpn/server
+  tags:
+    - openvpn
+
+- name: helm
+  any_errors_fatal: true
+  hosts: localhost
+  roles:
+    - helm
+  tags: helm
+
+- name: Generate ISO
+  hosts:
+    - localhost
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - name: generate iso pre_tasks
+      setup:
+  roles:
+    - controller/isos
+  tags:
+    - isos
+
+- name: Create Certificate Authority
+  hosts: localhost
+  any_errors_fatal: true
+  pre_tasks:
+    - name: Create cert authority pre_tasks
+      setup:
+  tasks:
+    - import_role:
+        name: certificate_authority/localhost
+        tasks_from: create_ca
+    - import_role:
+        name: certificate_authority/localhost
+        tasks_from: create_controller_cert
+  tags:
+    - certificate_authority
+
+- name: Configure CA on all systems
+  hosts: localhost
+  any_errors_fatal: true
+  pre_tasks:
+    - name: Configure CA on all systems pre_tasks
+      setup:
+  roles:
+    - certificate_authority/common
+  tags:
+    - certificate_authority

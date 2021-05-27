@@ -1,8 +1,0 @@
----
-
-- import_tasks: 05_Verify_SSH_keys.yml
-- import_tasks: 10_network.yml
-- import_tasks: 15_required_variables.yml
-- import_tasks: 30_minimum_hardware_check.yml
-
-...

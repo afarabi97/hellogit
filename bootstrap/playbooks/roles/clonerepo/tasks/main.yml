@@ -40,8 +40,6 @@
       tags: pip
     - import_tasks: 15_dip_direct.yml
       tags: direct
-  when:
-    - "system_name == 'DIP' or system_name == 'GIP'"
 
 - name: MIP tasks
   block:
@@ -50,8 +48,6 @@
       file: "{{ mip_core_vars }}"
   - import_tasks: 15_mip_direct.yml
     tags: direct
-  when:
-    - "system_name == 'MIP'"
 
 - import_tasks: 20_download_rpms.yml
   tags: downloadrpms

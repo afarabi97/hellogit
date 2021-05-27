@@ -1,0 +1,154 @@
+<h1 mat-dialog-title>Add Node Dialog</h1>
+<div mat-dialog-content [formGroup]="nodeForm"
+     fxLayout="column" fxLayoutAlign="start stretch"
+     style="overflow: unset; overflow: auto;">
+    <!-- <p>Executing this form will replay the selected PCAP on the selected Sensor. Are you sure you want to do this?</p> -->
+    <!-- Hostname -->
+    <mat-form-field>
+      <mat-label>Hostname</mat-label>
+      <input matInput
+            placeholder="Enter a node hostname without the domain" formControlName="hostname"
+            matTooltip="{{ getTooltip('hostname') }}"/>
+      <mat-icon matSuffix *ngIf="nodeForm.get('hostname')?.valid &&
+                                 nodeForm.get('hostname')?.touched"
+                color="primary">check_circle</mat-icon>
+      <mat-icon matSuffix *ngIf="nodeForm.get('hostname')?.invalid &&
+                                 nodeForm.get('hostname')?.touched"
+                color="warn">error</mat-icon>
+      <mat-error>{{ getErrorMessage(nodeForm.get("hostname")) }}</mat-error>
+    </mat-form-field>
+    <br />
+    <!-- IP Address-->
+    <unused-ipaddress-autocomplete-ctrl
+      [formControlInput]="nodeForm.get('ip_address')"
+      matTooltip="{{ getTooltip('ip_address') }}"
+      [options]="availableIPs"
+      inputPlaceHolder='Enter your node IP address here'
+      [matError]="getErrorMessage(nodeForm.get('ip_address'))">
+    </unused-ipaddress-autocomplete-ctrl>
+
+    <!-- Node Type -->
+    <label id="node-radio-group-label" style="margin-top: 15px;">Node Type</label>
+    <mat-radio-group class="radio-group" aria-labelledby="node-radio-group-label" formControlName="node_type"
+        (change)="onNodeTypeChange($event)"
+        fxLayout="column"
+        fxLayoutAlign="space-between none" >
+        <mat-radio-button checked  class="radio-button" value="Server">Server</mat-radio-button>
+        <mat-radio-button  class="radio-button" value="Sensor">Sensor</mat-radio-button>
+        <mat-radio-button  class="radio-button" value="Service">Service</mat-radio-button>
+    </mat-radio-group>
+
+    <!-- Deployment Type -->
+    <div *ngIf="isNodeType == true" style="margin-top: 10px;">
+      <label id="deployment-radio-group-label">Deployment Type</label>
+      <mat-radio-group class="radio-group" aria-labelledby="deployment-radio-group-label"
+        (change)="onDeploymentTypeChange($event)"
+        formControlName="deployment_type"
+        fxLayout="column" fxLayoutAlign="space-between none" >
+        <mat-radio-button class="radio-button" *ngFor="let opt of deploymentOptions" [value]="opt.value">
+          {{ opt.text }}
+        </mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <ng-container *ngIf="isBaremetalDeployment()">
+      <!-- MAC Address -->
+      <mat-form-field>
+        <mat-label>MAC Address</mat-label>
+        <input matInput placeholder="Enter a mac address" formControlName="mac_address"
+              matTooltip="{{ getTooltip('mac_address') }}"/>
+        <mat-icon matSuffix *ngIf="nodeForm.get('mac_address')?.valid &&
+                                   nodeForm.get('mac_address')?.touched"
+                  color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix *ngIf="nodeForm.get('mac_address')?.invalid &&
+                                   nodeForm.get('mac_address')?.touched"
+                  color="warn">error</mat-icon>
+        <mat-error>{{ getErrorMessage(nodeForm.get("mac_address")) }}</mat-error>
+      </mat-form-field>
+      <!-- Boot Drive -->
+      <mat-form-field *ngIf="!isRaid" style="margin-top: 5px;">
+        <mat-label>Boot Drive</mat-label>
+        <input matInput
+               placeholder="Enter a Boot Drive"
+               formControlName="boot_drives" matTooltip="{{ getTooltip('boot_drives') }}"/>
+        <mat-icon matSuffix *ngIf="nodeForm.get('boot_drives')?.valid &&
+                                   nodeForm.get('boot_drives')?.touched"
+                  color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix *ngIf="nodeForm.get('boot_drives')?.invalid &&
+                                   nodeForm.get('boot_drives')?.touched"
+                  color="warn">error</mat-icon>
+        <mat-error>{{ getErrorMessage(nodeForm.get("boot_drives")) }}</mat-error>
+      </mat-form-field>
+      <!-- Data Drive -->
+      <mat-form-field *ngIf="!isRaid">
+        <mat-label>Data Drive</mat-label>
+        <input matInput
+              placeholder="Enter a Data Drive"
+              formControlName="data_drives" matTooltip="{{ getTooltip('data_drives') }}"/>
+        <mat-icon *ngIf="nodeForm.get('data_drives')?.valid &&
+                         nodeForm.get('data_drives')?.touched"
+                  color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix *ngIf="nodeForm.get('data_drives')?.invalid &&
+                                   nodeForm.get('data_drives')?.touched"
+                  color="warn">error</mat-icon>
+        <mat-error>{{ getErrorMessage(nodeForm.get("data_drives"))}}</mat-error>
+      </mat-form-field>
+      <!-- Raid Drives -->
+      <mat-form-field *ngIf="isRaid">
+        <mat-label>Raid Drives</mat-label>
+        <input matInput
+              placeholder="Enter list of drives" formControlName="raid_drives"
+              matTooltip="{{ getTooltip('raid_drives') }}" />
+      </mat-form-field>
+      <!-- Root Partition Size -->
+      <mat-form-field *ngIf="isRaid">
+        <mat-label>Raid Root Partition Size (GB)</mat-label>
+        <input matInput
+              placeholder="Enter the size of the Root Partition"
+              formControlName="os_raid_root_size" type="number" min="50"
+              matTooltip="{{ getTooltip('os_raid_root_size') }}" />
+      </mat-form-field>
+
+      <mat-checkbox disableRipple
+                    style="padding-bottom: 25px;" (change)="checkRaidChanged($event)"
+                    formControlName="os_raid" matTooltip="{{ getTooltip('os_raid') }}">
+        Software RAID all drives
+      </mat-checkbox>
+
+      <!-- PXE Type -->
+      <mat-form-field>
+        <mat-label>PXE Type</mat-label>
+        <mat-select disableRipple
+                    formControlName="pxe_type"
+                    matTooltip="{{ getTooltip('pxe_type') }}">
+          <mat-option *ngFor="let pxe of pxe_types; let i = index;"
+                      [value]="pxe">{{ pxe }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </ng-container>
+
+    <ng-container *ngIf="isVirtualMachineDeployment()">
+      <div style="margin-top: 10px;">
+        <p>This will deploy to the configured ESXI or VCenter server.</p>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="isISOSensorDeployment()">
+      <div style="margin-top: 10px;">
+        <p>This will be added to the node management page after which you will be able to download the ISO and OpenVPN certificates.</p>
+      </div>
+    </ng-container>
+    <div mat-dialog-actions>
+      <button mat-raised-button
+              color="warn" (click)="onNoClick()">Cancel</button>
+      <button mat-raised-button cdkFocusInitial
+              color="primary" [disabled]="!nodeForm.valid" (click)="onSubmit()">Add</button>
+      <mat-checkbox
+          disableRipple
+          style="margin-top: 0; vertical-align: middle; margin-left: 10px"
+          (change)="checkDuplicate($event)" matTooltip="{{ getTooltip('duplicate_node') }}">
+          Duplicate Node
+      </mat-checkbox>
+    </div>
+</div>
+

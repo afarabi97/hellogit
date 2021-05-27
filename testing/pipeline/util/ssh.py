@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import paramiko
@@ -6,6 +7,7 @@ import sys
 
 from datetime import datetime, timedelta
 from models.common import NodeSettings
+from models.node import NodeSettingsV2
 from models.ctrl_setup import ControllerSetupSettings
 from paramiko import SSHException
 from time import sleep
@@ -102,7 +104,7 @@ class SSHClient():
         sftp = self.client.open_sftp()
         sftp.put(source, dest)
 
-def test_nodes_up_and_alive(nodes_to_test: Union[NodeSettings, List[NodeSettings]], minutes_timeout: int) -> None:
+def test_nodes_up_and_alive(nodes_to_test: Union[NodeSettings, NodeSettingsV2, List[NodeSettings]], minutes_timeout: int) -> None:
     """
     Checks to see if a list of VMs are up and alive by using SSH. Does not return
     until all VMs are up.
@@ -113,7 +115,7 @@ def test_nodes_up_and_alive(nodes_to_test: Union[NodeSettings, List[NodeSettings
     :return:
     """
     # Make a clone of the list so we do not delete the reference list by accident.
-    if isinstance(nodes_to_test, NodeSettings):
+    if isinstance(nodes_to_test, NodeSettings) or isinstance(nodes_to_test, NodeSettingsV2):
         nodes_to_test = [nodes_to_test]
 
     nodes_to_test = nodes_to_test.copy()
@@ -127,11 +129,18 @@ def test_nodes_up_and_alive(nodes_to_test: Union[NodeSettings, List[NodeSettings
         for node in nodes_to_test: # type: NodeSettings
             logging.info("Machines remaining:")
             logging.info([node.hostname for node in nodes_to_test])
-            logging.info("Testing " + node.hostname + " (" + node.ipaddress + ")")
+            if isinstance(node, NodeSettingsV2):
+                ip_address = node.ip_address
+                password = node.kit_settings.settings.password
+            else:
+                ip_address = node.ipaddress
+                password = node.password
+
+            logging.info("Testing " + node.hostname + " (" + ip_address + ")")
             result = SSHClient.test_connection(
-                node.ipaddress,
+                ip_address,
                 node.username,
-                node.password,
+                password,
                 timeout=5)
             if result:
                 nodes_to_test.remove(node)
@@ -141,6 +150,55 @@ def test_nodes_up_and_alive(nodes_to_test: Union[NodeSettings, List[NodeSettings
             break
 
         sleep(5)
+
+
+async def test_nodes_up_and_alive_async(nodes_to_test: Union[NodeSettings, NodeSettingsV2, List[NodeSettings]], minutes_timeout: int) -> None:
+    """
+    Checks to see if a list of VMs are up and alive by using SSH. Does not return
+    until all VMs are up.
+
+    :param kit: an instance of a Kit object
+    :param nodes_to_test: A list of Node objects you would like to test for liveness
+    :param minutes_timeout: The amount of time in minutes we will wait for vms to become alive before failing.
+    :return:
+    """
+    # Make a clone of the list so we do not delete the reference list by accident.
+    if isinstance(nodes_to_test, NodeSettings) or isinstance(nodes_to_test, NodeSettingsV2):
+        nodes_to_test = [nodes_to_test]
+
+    nodes_to_test = nodes_to_test.copy()
+    # Wait until all VMs are up and active
+    future_time = datetime.utcnow() + timedelta(minutes=minutes_timeout)
+    while True:
+        if future_time <= datetime.utcnow():
+            logging.error("The machines took too long to come up")
+            exit(3)
+
+        for node in nodes_to_test: # type: NodeSettings
+            logging.info("Machines remaining:")
+            logging.info([node.hostname for node in nodes_to_test])
+            if isinstance(node, NodeSettingsV2):
+                ip_address = node.ip_address
+                password = node.kit_settings.settings.password
+            else:
+                ip_address = node.ipaddress
+                password = node.password
+
+            logging.info("Testing " + node.hostname + " (" + ip_address + ")")
+            result = SSHClient.test_connection(
+                ip_address,
+                node.username,
+                password,
+                timeout=5)
+            if result:
+                nodes_to_test.remove(node)
+
+        if not nodes_to_test:
+            logging.info("All machines up and active.")
+            break
+
+        await asyncio.sleep(5)
+
 
 def wait_for_connection(host: str, port: int, minutes_timeout: int):
     client = paramiko.SSHClient()

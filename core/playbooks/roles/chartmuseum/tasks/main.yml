@@ -1,10 +1,7 @@
 ---
 
 - import_tasks: uninstall.yml
-  when: inventory_hostname in groups['master_server']
-
 - import_tasks: install.yml
-  when: inventory_hostname in groups['master_server']
 
 - name: Create directory
   file:
@@ -23,8 +20,6 @@
     group: root
 
 - import_tasks: load_charts.yml
-  when: inventory_hostname == "localhost"
-  tags: build-load-charts
 
 - name: update helm repo
   shell: |

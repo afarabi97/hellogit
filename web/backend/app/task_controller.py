@@ -3,14 +3,17 @@ import os
 from app import app, conn_mng, REDIS_QUEUE, api, REDIS_CLIENT
 from app.common import OK_RESPONSE, JSONEncoder
 from app.middleware import controller_admin_required
-from app.models.common import BackgroundJob, WorkerModel, JobID
+from app.models.common import BackgroundJob, WorkerModel, JobID, COMMON_MESSAGE
 from flask import Response
 from flask_restx import Resource, fields, Namespace
 from rq import Worker
 from rq.job import Job
+from rq.exceptions import NoSuchJobError
 from rq.registry import StartedJobRegistry, FinishedJobRegistry, FailedJobRegistry, DeferredJobRegistry
 from app.utils.utils import kill_child_processes
 from typing import List, Dict
+from app.models.nodes import NodeJob
+
 
 ns = Namespace('Job Queue', path="/api", description="Job Queue related operations.")
 api.add_namespace(ns)
@@ -68,6 +71,10 @@ class RedisJob(Resource):
     @ns.response(200, 'BackgroundJob', JobID.DTO)
     @controller_admin_required
     def delete(self, job_id: str):
+        job_obj = NodeJob.load_jobs_by_job_id(job_id) # type: NodeJob
+        if job_obj:
+            job_obj.set_error("Job killed by User")
+
         workers = Worker.all(queue=REDIS_QUEUE)
         for worker in workers:
             job = worker.get_current_job()
@@ -79,6 +86,26 @@ class RedisJob(Resource):
         job = Job.fetch(job_id, connection=REDIS_CLIENT)
         job.delete()
         return JobID(job).to_dict()
+
+
+@ns.route('/job/<job_id>/retry')
+@ns.doc(params={'job_id': "A background job's job_id"})
+class RedisJobRetry(Resource):
+
+    @ns.doc(description="Retry a Job by ID. This API REST call will also kill the Job if it is running.")
+    @ns.response(200, 'BackgroundJob', JobID.DTO)
+    @ns.response(400, 'CommonMsg', COMMON_MESSAGE)
+    @controller_admin_required
+    def put(self, job_id: str):
+        try:
+            job = Job.fetch(job_id, connection=REDIS_CLIENT)
+            job.requeue()
+            job_obj = NodeJob.load_jobs_by_job_id(job_id) # type: NodeJob
+            if job_obj:
+                job_obj.set_inprogress(job_id)
+            return JobID(job).to_dict()
+        except NoSuchJobError:
+            return {"message": "The passed in job ID no longer exists on the redis queue.  It is possible that something erased it."}, 400
 
 
 @ns.route('/jobs')
@@ -98,3 +125,15 @@ class RedisJobs(Resource):
             job.delete()
 
         return ret_val
+
+
+@ns.route('/jobs/<process_name>')
+class RedisJobsByProcess(Resource):
+
+    @ns.response(200, 'BackgroundJob', [BackgroundJob.DTO])
+    def get(self, process_name: str):
+        jobs = []
+        for job in get_all_jobs():
+            if "tags" in job.meta and process_name in job.meta["tags"]:
+                jobs.append(job)
+        return transform_jobs(jobs)

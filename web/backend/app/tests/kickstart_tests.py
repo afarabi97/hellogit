@@ -3,7 +3,7 @@ import os
 import unittest
 
 from app import app, conn_mng
-from app.models.kit_setup import DIPKickstartSchema, DIPKickstartForm
+from app.models.settings.kit_settings import KitSettingsForm
 from app.tests.base_test_setup import BaseTestCase
 from datetime import datetime, timedelta
 from flask.wrappers import Response
@@ -77,7 +77,7 @@ class KickstartTests(BaseTestCase):
         del self.kickstart_form2["upstream_ntp"]
         response = self.app.post('/api/kickstart', json=self.kickstart_form2)
         self.assertEqual(response.status_code, 200)
-        kickstart = DIPKickstartForm.load_from_db()
+        kickstart = KitSettingsForm.load_from_db()
         self.assertIsNotNone(kickstart)
         self.assertEqual(IPv4Address("0.0.0.0"), kickstart.upstream_dns)
         self.assertEqual(IPv4Address("0.0.0.0"), kickstart.upstream_ntp)

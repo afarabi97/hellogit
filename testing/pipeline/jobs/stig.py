@@ -1,7 +1,4 @@
-import os
-import logging
 from models.stig import STIGSettings, ExecutorType
-from util.api_tester import APITester
 from util.connection_mngs import FabricConnectionWrapper
 from util.ansible_util import execute_playbook, Target
 

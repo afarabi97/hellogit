@@ -13,9 +13,7 @@ from rq.decorators import job
 from kubernetes import client, config, utils
 from app import conn_mng, REDIS_CLIENT, logger
 from app.service.socket_service import NotificationMessage, NotificationCode
-from app.utils.connection_mngs import FabricConnectionWrapper
 from app.utils.elastic import ElasticWrapper, ElasticsearchManager
-from app.kit_controller import _get_domain
 from app.service.scale_service import check_scale_status
 from app.dao import elastic_deploy
 

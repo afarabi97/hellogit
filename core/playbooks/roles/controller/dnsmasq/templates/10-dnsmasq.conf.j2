@@ -1,0 +1,14 @@
+bind-interfaces
+expand-hosts
+local=/{{ kit_domain }}/
+domain={{ kit_domain }}
+interface={{ management_interface }}
+listen-address={{ server_ip }},127.0.0.1
+
+{% if upstream_dns is defined
+    and upstream_dns != None
+    and upstream_dns != "None"
+    and upstream_dns != ""
+    and upstream_dns != "null" %}
+server={{ upstream_dns }}
+{% endif %}

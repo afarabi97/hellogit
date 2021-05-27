@@ -2,7 +2,6 @@
 ## ref: https://hub.docker.com/r/rocketchat/rocket.chat/tags
 ##
 domain: lan
-system_name: dip
 auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
 image:
   repository: rocketchat/rocket.chat
@@ -19,3 +18,5 @@ mongoImage:
 admin_user: admin
 admin_pass: password!
 admin_email: admin@dip.local
+
+serviceNode: false

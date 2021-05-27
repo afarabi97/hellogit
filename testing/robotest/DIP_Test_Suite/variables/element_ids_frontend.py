@@ -557,7 +557,6 @@ APP_ADD_NODE__APP_KIT_NODE_FORM__MAT_FORM_FIELD_SELECT_NODE_TYPE = 'app-add-node
 APP_ADD_NODE__APP_KIT_NODE_FORM__SELECT_NODE_TYPE_MAT_SELECT = 'app-add-node-app-kit-node-form-div-div-mat-form-field-select-node-type-mat-select' # mat-select
 APP_ADD_NODE__APP_KIT_NODE_FORM__SELECT_NODE_TYPE_MAT_OPTION_SERVER = 'app-add-node-app-kit-node-form-div-div-mat-form-field-select-node-type-mat-select-mat-option-server' # mat-option
 APP_ADD_NODE__APP_KIT_NODE_FORM__SELECT_NODE_TYPE_MAT_OPTION_SENSOR = 'app-add-node-app-kit-node-form-div-div-mat-form-field-select-node-type-mat-select-mat-option-sensor' # mat-option
-APP_ADD_NODE__APP_KIT_NODE_FORM__MAT_CHECKBOX_KUBERNETES_MASTER_SERVER = 'app-add-node-app-kit-node-form-div-div-div-mat-checkbox-kubernetes-master-server' # mat-checkbox
 
 # TODO app-kit-form-dip-*-app-kit-node-form-div-mat-card-mat-card-content-mat-list-mat-list-item-developer-board-h4-cpu-cores-available # h4
 # TODO app-kit-form-dip-*-app-kit-node-form-div-mat-card-mat-card-content-mat-list-mat-list-item-memory-h4-memory-available # h4

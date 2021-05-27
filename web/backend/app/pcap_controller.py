@@ -1,10 +1,8 @@
-from app import app, conn_mng, api, POLICY_NS
-from app.common import OK_RESPONSE, ERROR_RESPONSE
+from app import api, POLICY_NS
 from app.models.common import JobID, COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
-from app.models.kit_setup import DIPKickstartForm
+from app.models.settings.kit_settings import KitSettingsForm
 from app.models.ruleset import PCAPMetadata, PCAPReplayModel
-from app.utils.constants import KICKSTART_ID
-from app.service.pcap_service import replay_pcap_srv
+from app.service.pcap_service import replay_pcap_using_tcpreplay, replay_pcap_using_preserve_timestamp
 from datetime import datetime
 from flask import jsonify, request, Response
 from flask_restx import Resource
@@ -90,7 +88,10 @@ class ReplayPcapCtrl(Resource):
     @operator_required
     def post(self) -> Response:
         payload = request.get_json()
-        kickstart_configuration = DIPKickstartForm.load_from_db() #type: DIPKickstartForm
-        root_password = kickstart_configuration.root_password
-        job = replay_pcap_srv.delay(payload, root_password)
+        kit_settings = KitSettingsForm.load_from_db() #type: Dict
+        if payload['preserve_timestamp']:
+            job = replay_pcap_using_preserve_timestamp.delay(payload, kit_settings.password)
+        else:
+            job = replay_pcap_using_tcpreplay.delay(payload, kit_settings.password)
+
         return JobID(job).to_dict(), 200

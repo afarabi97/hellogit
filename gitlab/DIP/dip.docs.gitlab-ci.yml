@@ -6,7 +6,6 @@
 #     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
 #     echo "DIP Offline Documents - Current working directory is $(pwd)"
 #     python3 testing/pipeline/pipeline.py \
-#     --system-name "DIP" \
 #     run-export export-html-docs \
 #     --username "$CONFLUENCE_USERNAME" \
 #     --password "$CONFLUENCE_PASSWORD" \
@@ -32,7 +31,6 @@ DIP Setup Documents:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "DIP Setup Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
@@ -57,7 +55,6 @@ DIP User Documents:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "DIP User Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
@@ -72,56 +69,6 @@ DIP User Documents:
       - $PIPELINE == "export-docs"
       - $PIPELINE == "export-all"
 
-# TODO bring this back when we have training docs
-# DIP Training Documents:
-#   stage: docs
-#   needs: ["Clear Staging Environment"]
-#   tags:
-#     - tfplenum-buildv2
-#   script: |
-#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-#     echo "DIP Training Documents - Current working directory is $(pwd)"
-#     python3 testing/pipeline/pipeline.py \
-#     --system-name "DIP" \
-#     run-export export-single-page-pdf \
-#     --username "$CONFLUENCE_USERNAME" \
-#     --password "$CONFLUENCE_PASSWORD" \
-#     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
-#     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
-#     --staging-export-path "$DRIVE_STAGING_FOLDER" \
-#     --export-version "$TFPLENUM_EXPORT_VERSION" \
-#     --page-titles "$DIP_CONFLUENCE_TRAINING_DOCS"
-#   retry: 2
-#   only:
-#     variables:
-#       - $PIPELINE == "export-docs"
-#       - $PIPELINE == "export-all"
-
-# TODO bring this back when we have arch docs
-# DIP Architecture Documents:
-#   stage: docs
-#   needs: ["Clear Staging Environment"]
-#   tags:
-#     - tfplenum-buildv2
-#   script: |
-#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-#     echo "DIP ARCH Documents - Current working directory is $(pwd)"
-#     python3 testing/pipeline/pipeline.py \
-#     --system-name "DIP" \
-#     run-export export-single-page-pdf \
-#     --username "$CONFLUENCE_USERNAME" \
-#     --password "$CONFLUENCE_PASSWORD" \
-#     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
-#     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
-#     --staging-export-path "$DRIVE_STAGING_FOLDER" \
-#     --export-version "$TFPLENUM_EXPORT_VERSION" \
-#     --page-titles "$DIP_CONFLUENCE_ARCH_DOCS"
-#   retry: 2
-#   only:
-#     variables:
-#       - $PIPELINE == "export-docs"
-#       - $PIPELINE == "export-all"
-
 
 DIP Maintenance Documents:
   stage: docs
@@ -132,7 +79,6 @@ DIP Maintenance Documents:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "DIP MAINT Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
@@ -157,7 +103,6 @@ DIP TroubleShooting Documents:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "DIP Trouble Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
@@ -182,7 +127,6 @@ DIP VDD Documents:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "DIP VDD Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \

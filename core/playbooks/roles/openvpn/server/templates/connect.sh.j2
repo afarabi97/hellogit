@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cn="$common_name"
+key=`/opt/tfplenum/web/tfp-env/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-node-state,controller-admin" --exp 0.1`
+/opt/tfplenum/web/tfp-env/bin/python3 /opt/tfplenum/web/backend/setup_vpn.py --state "connect" --hostname "${cn}.{{ kit_domain }}" --bearer "${key}"

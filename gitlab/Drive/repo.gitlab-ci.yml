@@ -7,7 +7,7 @@ Test Reposync Server VM:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
 
-    python3 testing/pipeline/pipeline.py --system-name REPO test-server-repository-vm \
+    python3 testing/pipeline/pipeline.py test-server-repository-vm \
     --vcenter-ipaddress "$VCENTER_IPADDRESS" \
     --vcenter-username "$VCENTER_USERNAME" \
     --vcenter-password "$VCENTER_PASSWORD" \
@@ -38,7 +38,7 @@ Build Server Reposync VM for Export:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
 
-    python3 testing/pipeline/pipeline.py --system-name REPO build-server-for-export \
+    python3 testing/pipeline/pipeline.py build-server-for-export \
     --vcenter-ipaddress "$VCENTER_IPADDRESS" \
     --vcenter-username "$VCENTER_USERNAME" \
     --vcenter-password "$VCENTER_PASSWORD" \
@@ -53,7 +53,9 @@ Build Server Reposync VM for Export:
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX" \
     --disk-size "$REPO_SERVER_DISK_SIZE" \
-    --vm-template "$REPO_SERVER_TEMPLATE_TO_CLONE"
+    --vm-template "$REPO_SERVER_TEMPLATE_TO_CLONE" \
+    --pipeline "$PIPELINE" \
+    --commit-hash "$CI_COMMIT_SHORT_SHA"
   retry: 2
   artifacts:
     untracked: true
@@ -61,19 +63,3 @@ Build Server Reposync VM for Export:
     variables:
       - $PIPELINE == "export-reposync"
       - $PIPELINE == "export-all"
-
-Perform Reposync Server STIGs:
-  stage: stig-kit
-  needs: ["Build Server Reposync VM for Export"]
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "SERVER"
-  artifacts:
-    untracked: true
-  only:
-    variables:
-      - $RUN_STIGS == "yes" && $PIPELINE == "export-reposync"
-      - $RUN_STIGS == "yes" && $PIPELINE == "export-all"

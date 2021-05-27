@@ -6,12 +6,6 @@ fi
 
 pushd /opt/tfplenum/bootstrap/playbooks > /dev/null
 
-cat <<EOF > /etc/tfplenum.ini
-[tfplenum]
-system_name = DIP
-version = 3.6.0
-EOF
-
 make install_angular
 make build_frontend_only
 

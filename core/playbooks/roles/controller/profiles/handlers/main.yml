@@ -1,0 +1,11 @@
+---
+
+- name: Restart Dhcpd
+  service:
+    name: dhcpd
+    state: restarted
+
+- name: Restart Dnsmasq
+  service:
+    name: dnsmasq
+    state: restarted

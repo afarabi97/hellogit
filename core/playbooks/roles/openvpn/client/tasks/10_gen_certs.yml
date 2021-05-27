@@ -1,0 +1,25 @@
+---
+
+- name: Generate a PKI request for all remote sensors
+  shell: |
+    ./easyrsa --batch gen-req {{ inventory_hostname_short }} nopass
+  args:
+    chdir: "{{ ovpn_dir }}"
+  when: not existing_pki
+  environment:
+    EASYRSA_REQ_CN: "{{ inventory_hostname_short }}"
+  register: results
+  changed_when: results.rc == 0
+  delegate_to: localhost
+
+- name: Sign pki request for remote sensors
+  shell: |
+    ./easyrsa --batch sign-req client {{ inventory_hostname_short }}
+  args:
+    chdir: "{{ ovpn_dir }}"
+  when: not existing_pki
+  environment:
+    EASYRSA_REQ_CN: "{{ inventory_hostname_short }}"
+  register: results
+  changed_when: results.rc == 0
+  delegate_to: localhost

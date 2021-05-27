@@ -2,7 +2,6 @@
 image: 'tfplenum/arkime'
 port: "8005"
 domain: lan
-system_name: dip
 auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
 # Username and password for Web login
 username: 'assessor'
@@ -31,3 +30,5 @@ es_password: password
 proxy:
   image: tfplenum/shibboleth_proxy
   version: 3.0.4
+
+serviceNode: false

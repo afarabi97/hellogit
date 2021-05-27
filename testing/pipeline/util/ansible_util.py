@@ -11,6 +11,7 @@ from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 from typing import List, Dict, Union
 from models.common import NodeSettings, VCenterSettings
+from models.node import NodeSettingsV2
 
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
@@ -94,8 +95,8 @@ def revert_to_baseline_and_power_on_vms(vcenter: VCenterSettings, nodes: Union[N
     execute_playbook([REVERT_AND_POWER_CONTROL_NODES], extra_vars)
 
 
-def power_on_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeSettings]]):
-    if isinstance(nodes, NodeSettings):
+def power_on_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, NodeSettingsV2]):
+    if isinstance(nodes, NodeSettings) or isinstance(nodes, NodeSettingsV2):
         nodes = [nodes]
 
     nodes_ary = [node.to_dict() for node in nodes]
@@ -103,8 +104,8 @@ def power_on_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeS
     execute_playbook([POWER_CONTROL_NODES], extra_vars)
 
 
-def power_off_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeSettings]]):
-    if isinstance(nodes, NodeSettings):
+def power_off_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, NodeSettingsV2]):
+    if isinstance(nodes, NodeSettings) or isinstance(nodes, NodeSettingsV2):
         nodes = [nodes]
 
     nodes_ary = [node.to_dict() for node in nodes]
@@ -138,7 +139,3 @@ def take_snapshot(vcenter: VCenterSettings, node: NodeSettings, snapshot_name: s
 def create_template(vcenter: VCenterSettings, node: NodeSettings, template_name: str="Test_Template"):
     extra_vars = { 'node': node.to_dict(), 'python_executable': sys.executable, 'vcenter': vcenter, 'template_name': template_name}
     execute_playbook([PIPELINE_DIR + "playbooks/create_template.yml"], extra_vars)
-
-def create_nightly(vcenter: VCenterSettings, node: NodeSettings, nightly_vm_name: str):
-    extra_vars = { 'node': node.to_dict(), 'python_executable': sys.executable, 'vcenter': vcenter, 'controller': nightly_vm_name}
-    execute_playbook([PIPELINE_DIR + "playbooks/create_nightly.yml"], extra_vars)

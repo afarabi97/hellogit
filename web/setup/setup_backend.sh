@@ -17,12 +17,6 @@ function run_cmd {
     fi
 }
 
-cat <<EOF > /etc/tfplenum.ini
-[tfplenum]
-system_name = DIP
-version = 3.6.0
-EOF
-
 pushd $TFPLENUM_DIR/bootstrap/playbooks > /dev/null
 run_cmd make setup_python_env
 popd > /dev/null

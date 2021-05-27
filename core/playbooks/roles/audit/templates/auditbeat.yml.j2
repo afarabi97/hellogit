@@ -79,7 +79,7 @@ setup.kibana:
     ssl.enabled: true
     ssl.certificate_authorities: ["/etc/pki/ca-trust/source/anchors/webCA.crt"]
     username: {{ default_elastic_user }}
-    password: {{ es_password.stdout }}
+    password: {{ elastic_password }}
 #================================ Outputs =====================================
 
 # Configure what output to use when sending the data collected by the beat.
@@ -94,7 +94,7 @@ output.elasticsearch:
 {% endif %}
     protocol: "https"
     username: {{ default_elastic_user }}
-    password: {{ es_password.stdout }}
+    password: {{ elastic_password }}
     ssl.certificate_authorities: ["/etc/pki/ca-trust/source/anchors/webCA.crt"]
 #================================ Processors =====================================
 

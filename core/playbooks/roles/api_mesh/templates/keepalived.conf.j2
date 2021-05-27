@@ -1,12 +1,12 @@
 vrrp_instance VRRP1 {
-{% if inventory_hostname in groups['master_server'] %}
+{% if inventory_hostname in groups['primary_server'] %}
     state MASTER
 {% else %}
     state BACKUP
 {% endif %}
     interface {{ management_interface }}
     virtual_router_id 41
-{% if inventory_hostname in groups['master_server'] %}
+{% if inventory_hostname in groups['primary_server'] %}
     priority 200
 {% else %}
     priority 100

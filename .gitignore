@@ -53,17 +53,18 @@ infrastructure/Kit_*/
 *.rpm
 *.env
 
-controllersetupsettings_dip.yml
-controllersetupsettings_mip.yml
-kickstartsettings.yml
-kitsettings.yml
-mipkickstartsettings.yml
+controllersetupsettings.yml
 catalogsettings.yml
 mipnodestoscan.txt
 dipnodestoscan.txt
-mipconfigsettings.yml
 kubernetes_config
 hwcontrollersetupsettings_dip.yml
 hwkickstartsettings.yml
 hwkitsettings.yml
 kitsettingsv2.yml
+core/playbooks/inventory/*.yml
+kitsettingsv2.yml
+mip_nodes.yml
+mip_settings.yml
+*nodesettingsv2*.yml
+hwcontrollersetupsettings.yml

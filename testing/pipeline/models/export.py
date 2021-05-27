@@ -14,7 +14,6 @@ class ConfluenceSettings(Model):
 
 
 class ExportLocSettings(Model):
-    export_date_str = None
 
     def __init__(self):
         self.cpt_export_path = './cpt'
@@ -23,26 +22,14 @@ class ExportLocSettings(Model):
         self.export_version = 'RC'
 
     @property
-    def export_date(self) -> str:
-        if self.export_date_str is None:
-            self.export_date_str = datetime.now()
-
-        return self.export_date_str.strftime("%m-%d-%Y")
-
-    @property
     def publish_to_mdt(self) -> bool:
         return self.mdt_export_path != './mdt'
 
     def render_export_name(self,
                            export_prefix: str,
-                           export_hash: str=None,
+                           export_hash: str,
                            export_suffix: str=".ova") -> str:
-        if export_hash:
-            return (export_prefix + "_" + self.export_version + "_" +
-                    self.export_date + "_" + export_hash + export_suffix)
-        else:
-            return (export_prefix + "_" + self.export_version + "_" +
-                    self.export_date + export_suffix)
+        return (export_prefix + "_" + self.export_version + "_" + export_hash + export_suffix)
 
 
 class HtmlExportSettings(Model):

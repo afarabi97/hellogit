@@ -67,7 +67,9 @@
           type: thin
           datastore: "{{ item.datastore }}"
       delegate_to: localhost
-      with_items: "{{ servers }}"
+      with_items:
+        - "{{ control_planes }}"
+        - "{{ servers }}"
 
     - name: "Cloning Sensor VM"
       vmware_guest:

@@ -6,7 +6,7 @@
       command: docker images -q
       register: docker_images
       changed_when: docker_images.rc == 0
-      
+
     - name: Remove docker images from docker after uploaded to registry
       command: "docker rmi -f {{ item }}"
       register: result
@@ -14,8 +14,6 @@
       changed_when: result.rc == 0
       with_items:
         "{{ docker_images.stdout_lines }}"
-  when:
-    - "system_name == 'DIP' or system_name == 'GIP'"
   tags:
     - pull-docker-images
     - pull-helm-images
@@ -24,6 +22,7 @@
   mount:
     state: absent
     path: "{{ mnt_pth }}"
+  ignore_errors: yes
 
 - name: Remove isos
   file:

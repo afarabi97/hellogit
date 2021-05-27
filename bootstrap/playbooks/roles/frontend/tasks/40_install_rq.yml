@@ -5,17 +5,24 @@
     src: files/rqworker@.service
     dest: /etc/systemd/system/rqworker@.service
 
+- name: rq | copy service
+  copy:
+    src: files/rq-scheduler.service
+    dest: /etc/systemd/system/rq-scheduler.service
+
 - name: rq | Reload systemd
   systemd:
     daemon-reload: yes
 
 - name: rq | Enable Service
   systemd:
-    name: "{{ item }}"
+    name: "rqworker@{{ item }}"
     enabled: yes
     state: stopped
-  with_items:
-    - "rqworker@1"
-    - "rqworker@2"
-    - "rqworker@3"
-    - "rqworker@4"
+  with_sequence: start=1 end={{number_of_rq_workers}}
+
+- name: rq scheduler | Enable Service
+  systemd:
+    name: rq-scheduler.service
+    enabled: yes
+    state: stopped

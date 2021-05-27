@@ -3,8 +3,7 @@ from models import add_args_from_instance, Model
 from models.constants import SubCmd
 from models.common import VCenterSettings, NodeSettings
 from models.ctrl_setup import ControllerSetupSettings
-from models.kickstart import GIPKickstartSettings
-from models.kit import KitSettings
+
 
 class GIPServiceSettings(Model):
     def __init__(self):
@@ -29,19 +28,3 @@ class GIPServiceSettings(Model):
 
         self.node.disk_size = 250
         self.node.hostname = "{}-services.{}".format(namespace.vm_prefix, namespace.domain)
-
-class GIPKitSettings(Model):
-    def __init__(self):
-        super().__init__()
-        self.kit_settings = None # type: KitSettings
-
-    @staticmethod
-    def add_args(parser: ArgumentParser):
-        gip_kit_parser = parser.add_parser(SubCmd.run_gip_kit,
-                                                            help="Builds a Kit from an existing GIP controller. This requires Kickstart to have already been setup on the GIP controller.")
-        gip_kit_parser.set_defaults(which=SubCmd.run_gip_kit)
-        # KitSettings.add_args(gip_kit_parser)
-
-    def from_kickstart(self, gip_kickstart_settings: GIPKickstartSettings):
-        self.kit_settings = KitSettings()
-        self.kit_settings.from_kickstart(gip_kickstart_settings)

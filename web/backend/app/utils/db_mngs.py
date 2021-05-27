@@ -40,8 +40,30 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.kickstart
 
     @property
+    def mongo_settings(self) -> Collection:
+        """
+        Returns a mongo object that can do database manipulations.
+
+        :return:
+        """
+        return self._tfplenum_database.settings
+
+    @property
+    def mongo_kit_status(self) -> Collection:
+        """
+        Returns a mongo object that can do database manipulations.
+
+        :return:
+        """
+        return self._tfplenum_database.kit_status
+
+    @property
     def mongo_node(self) -> Collection:
         return self._tfplenum_database.nodes
+
+    @property
+    def mongo_jobs(self) -> Collection:
+        return self._tfplenum_database.jobs
 
     @property
     def mongo_configurations(self) -> Collection:

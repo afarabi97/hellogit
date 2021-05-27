@@ -5,17 +5,17 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}
   labels:
-    component: jcat-nifi
+    component: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
-      component: jcat-nifi
+      component: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        component: jcat-nifi
-        app: jcat-nifi
+        component: {{ .Release.Name }}
+        app: {{ .Release.Name }}
     spec:
       securityContext:
         fsGroup: 1000

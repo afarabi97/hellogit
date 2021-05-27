@@ -12,6 +12,7 @@ sqlUsername: redmine
 sqlPassword: P@ssw0rdP@ssw0rd!
 sqlRootPassword: P@ssw0rdP@ssw0rd!
 domain: lan
+serviceNode: false
 
 
 

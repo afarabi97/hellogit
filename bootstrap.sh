@@ -1,8 +1,7 @@
 #!/bin/bash
 set -x
-export DIP_VERSION=3.6.0
-echo "${DIP_VERSION}" > /etc/dip-version
-bootstrap_version=1.4.0
+export CVAH_VERSION=3.6.0
+bootstrap_version=1.5.0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 EPEL_RPM_PUBLIC_URL="https://download.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
 RHEL_VERSION="8.2"
@@ -12,6 +11,7 @@ PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
 
 # Create tfplenum log dir
 mkdir -p /var/log/tfplenum
+mkdir -p /etc/tfplenum
 
 pushd "/opt" > /dev/null
 
@@ -54,20 +54,6 @@ function prompt_runtype() {
                 Full ) export RUN_TYPE=full; break;;
                 Bootstrap ) export RUN_TYPE=bootstrap; break;;
                 "Docker Images" ) export RUN_TYPE=dockerimages; break;;
-            esac
-        done
-    fi
-}
-
-function prompt_runtype_mip {
-    echo "Select a run type:"
-    echo "Full: Fresh Builds, Home Builds, A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs bootstrap ansible role."
-    echo "Bootstrap: Only runs bootstrap ansible role."
-    if [ -z "$RUN_TYPE" ]; then
-        select cr in "Full" "Bootstrap"; do
-            case $cr in
-                Full ) export RUN_TYPE=full; break;;
-                Bootstrap ) export RUN_TYPE=bootstrap; break;;
             esac
         done
     fi
@@ -378,29 +364,10 @@ function execute_bootstrap_playbook(){
     run_cmd make bootstrap
     popd > /dev/null
 
-    # Add STIGS to DIP Controller
-    if [ "$SYSTEM_NAME" == "DIP" ]; then
-        pushd "/opt/tfplenum/rhel8-stigs" > /dev/null
-        run_cmd make dip-controller-stigs
-        popd > /dev/null
-    fi
-
-    # Add STIGS to MIP Controller
-    # Do not uncomment this until the MIP CONTROLLER piece
-    # has been corrected.  This will cause the MIP CONTOLLER
-    # to REALLY fail during a a MIP STIG process.
-    #if [ "$SYSTEM_NAME" == "MIP" ]; then
-       #pushd "/opt/tfplenum/rhel8-stigs" > /dev/null
-       #run_cmd make mip-controller-stigs
-       #popd > /dev/null
-    #fi
-
-    # Add STIGS to GIP Controller
-    if [ "$SYSTEM_NAME" == "GIP" ]; then
-       pushd "/opt/tfplenum/rhel8-stigs" > /dev/null
-       run_cmd make gip-controller-stigs
-       popd > /dev/null
-    fi
+    #  Add STIGS to Controller
+    pushd "/opt/tfplenum/rhel8-stigs" > /dev/null
+    run_cmd make controller-stigs
+    popd > /dev/null
 }
 
 function execute_pull_docker_images_playbook(){
@@ -414,17 +381,9 @@ function prompts(){
     echo "---------------------------------"
     echo "TFPLENUM DEPLOYER BOOTSTRAP ${bootstrap_version}"
     echo "---------------------------------"
-    prompt_for_system
 
     export TFPLENUM_OS_TYPE=rhel
-    if [ "$SYSTEM_NAME" == "DIP" ] || [ "$SYSTEM_NAME" == "GIP" ]; then
-        prompt_runtype
-    fi
-
-    if [ "$SYSTEM_NAME" == "MIP" ]; then
-        prompt_runtype_mip
-    fi
-
+    prompt_runtype
     get_controller_ip
 
     if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
@@ -442,27 +401,12 @@ function prompts(){
     fi
 }
 
-function prompt_for_system() {
-    if [[ -z "${SYSTEM_NAME}" ]]; then
-        choices=( DIP MIP GIP )
-        echo "Select the platform this controller will manage:"
-        select system in "${choices[@]}"; do
-            case $system in
-                DIP ) SYSTEM_NAME="DIP"; break;;
-                MIP ) SYSTEM_NAME="MIP"; break;;
-                GIP ) SYSTEM_NAME="GIP"; break;;
-            esac
-        done
-    fi
-    export SYSTEM_NAME=$SYSTEM_NAME;
-    export BUILD_DATE=`date +"%FT%T%z"`
-cat <<EOF > /etc/tfplenum.ini
+export BUILD_DATE=`date +"%FT%T%z"`
+cat <<EOF > /etc/tfplenum/tfplenum.ini
 [tfplenum]
-system_name = ${SYSTEM_NAME}
-version = ${DIP_VERSION}
+version = ${CVAH_VERSION}
 build_date = ${BUILD_DATE}
 EOF
-}
 
 
 export BOOTSTRAP=true
@@ -481,7 +425,7 @@ if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
     execute_bootstrap_playbook
 fi
 
-if [ "$RUN_TYPE" == "dockerimages" ] && ([ "$SYSTEM_NAME" == "DIP" ] || [ "$SYSTEM_NAME" == "GIP" ]); then
+if [ "$RUN_TYPE" == "dockerimages" ]; then
     execute_pull_docker_images_playbook
 fi
 

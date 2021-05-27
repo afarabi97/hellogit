@@ -6,8 +6,11 @@ class SubCmd:
     # Top Level commands
     setup_ctrl = 'setup-controller'
     setup_baremetal_ctrl = 'setup-baremetal-controller'
-    run_kickstart = 'run-kickstart'
-    run_kit = 'run-kit'
+    run_kit_settings = 'run-kit-settings'
+    setup_control_plane = 'setup-control-plane'
+    add_node = 'add-node'
+    deploy_kit = 'deploy-kit'
+
     run_catalog = 'run-catalog'
     run_bp = 'run-bp'
     run_verodin = 'run-verodin'
@@ -16,12 +19,9 @@ class SubCmd:
     run_unit_tests = 'run-unit-tests'
     checkout_latest_code = 'checkout-latest-code'
     run_remote_node= 'run-remote-node'
-
     run_export = 'run-export'
 
     run_cleanup = 'run-cleanup'
-    run_publish_nightly = 'run-publish-nightly'
-
     gip_setup = 'gip-setup'
 
     test_server_repository_vm = 'test-server-repository-vm'

@@ -1,6 +1,6 @@
 {
   "controller_interface": "10.40.12.145",
-  "root_password": "mypassword1!Afoobar",
+  "password": "mypassword1!Afoobar",
   "netmask": "255.255.255.0",
   "gateway": "10.40.12.1",
   "domain": "lan",

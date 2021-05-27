@@ -58,7 +58,7 @@
 
 - name: Load Index Policies
   uri:
-    url: "{{ elastic_url }}/_ilm/policy/metricbeat"
+    url: "https://{{ elastic_uri }}/_ilm/policy/metricbeat"
     method: PUT
     validate_certs: no
     user: "{{ default_elastic_user }}"

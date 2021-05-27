@@ -1,4 +1,13 @@
 ---
+- name: Add pip config
+  blockinfile:
+    path: /root/.pip/pip.conf
+    marker: "# {mark} Ansible Block"
+    create: yes
+    block: |
+      [global]
+      index-url = http://{{ ansible_controller_hostname }}/offlinerepo/pip/simple
+      trusted-host = {{ ansible_controller_hostname }}
 
 # main.yml - Common tasks for TFplenum
 - import_tasks: 25_max_log_size.yml
@@ -14,6 +23,6 @@
     - enable-sensor-monitor-interface
     - change-interfaces
 - import_tasks: 75_job_cleanup.yml
-  when: inventory_hostname in groups['master_server']
+  when: inventory_hostname in groups['control_plane']
 
 ...

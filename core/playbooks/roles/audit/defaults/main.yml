@@ -1,4 +1,5 @@
 ---
+auditbeat_dir: "{{ tfplenum_config_dir  }}/auditbeat"
 audit_dir: "/etc/auditbeat"
 elastic_url: "https://{{ elastic_fqdn }}:{{ elastic_port }}"
 default_elastic_user: elastic

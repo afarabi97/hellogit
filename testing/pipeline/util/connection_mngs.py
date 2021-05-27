@@ -42,6 +42,10 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.nodes
 
     @property
+    def mongo_jobs(self) -> Collection:
+        return self._tfplenum_database.jobs
+
+    @property
     def mongo_configurations(self) -> Collection:
         """
         Returns a mongo object that be used for storing misc configuration information.
@@ -162,9 +166,9 @@ class KubernetesWrapper:
                  kubernetes_config_path: str="kubernetes_config"):
         """
         Initializes the Kubernetes connection for making API calls to Kubernetes.
-        :param username: The username of the master server node
-        :param password: The password of the master server node
-        :param ip_address: The IP Address of the master server node
+        :param username: The username of the node
+        :param password: The password of the  node
+        :param ip_address: The IP Address of the node
         :param kubernetes_config_path: The name and path where we want to save save the kubernetes configuation on the
                                        Integration runner (IE Jenkins server)
         """
@@ -187,7 +191,7 @@ class KubernetesWrapper:
 
     def _get_and_save_kubernetes_config(self) -> None:
         """
-        Retrieves the kuberntes configuration file from the master server.
+        Retrieves the kuberntes configuration file from server.
         """
         config_path = '/root/.kube/config'
         with FabricConnectionWrapper(self._username,

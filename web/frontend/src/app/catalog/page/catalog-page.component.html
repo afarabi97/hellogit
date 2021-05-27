@@ -33,7 +33,7 @@
         </form>
         <div fxLayout="row" fxLayoutAlign="space-between none" style="margin-top: 10px;">
           <button mat-button id="app-catalog-page-div-mat-card-div-button-cancel" (click)="navigateToCatalog()">Cancel</button>
-          <button mat-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;" (click)="stepper.next()"
+          <button mat-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;" (click)="stepper.next();getInterfaceDetails();"
                   *ngIf="processFormGroup.value.selectedProcess !== 'uninstall'" [disabled]="processFormGroup.invalid">Next</button>
           <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;"
                   *ngIf="processFormGroup.value.selectedProcess === 'uninstall'" (click)="runChart()" [disabled]="valueFormGroup.invalid">Run</button>
@@ -74,16 +74,24 @@
                                       formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
                                       matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
                       </div>
+                      <!-- cortex-checkbox -->
                       <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'cortex-checkbox'" >
                         <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-cortex-checkbox' }}"
                                       formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
                                       matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
                       </div>
+                      <!-- misp-checkbox -->
                       <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'misp-checkbox'" >
                         <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-misp-checkbox' }}"
                                       formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
                                       matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
                       </div>
+                      <!-- service-node-checkbox -->
+                      <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'service-node-checkbox'" >
+                        <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-service-node-checkbox' }}"
+                                formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
+                                matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required" >{{control?.description}}</mat-checkbox>
+                    </div>
                       <!-- Text Input List -->
                       <div class="stepper__body__selection" *ngSwitchCase="'textinputlist'" fxLayout="column" fxLayoutAlign="center none">
                         <div fxLayout="column" fxLayoutAlign="start center">
@@ -103,12 +111,18 @@
                               <mat-label>{{ control.name | capitalizeFirst }}</mat-label>
                               <mat-select id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select' }}"
                                           formControlName="{{control.name}}" multiple required
-                                          (selectionChange)="ifaceChange($event, sensor)">
+                                          >
                                 <mat-option *ngFor="let interface of sensorint.deviceFacts.potential_monitor_interfaces; let n = index;"
                                             id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select-' + n }}"
-                                            [value]="interface">{{interface}}</mat-option>
+                                            [value]="interface">{{interface}}<mat-icon matSuffix *ngIf="checkInterface(sensorint.hostname, interface)" matTooltip="{{ interface }} interface is disconnected" color="warn">warning</mat-icon>
+                                </mat-option>
                               </mat-select>
                             </mat-form-field>
+                            <button mat-button
+                                matTooltip="Refresh Interfaces" color="primary"
+                                (click)="getInterfaceDetails()">
+                                <em class="material-icons">refresh</em>
+                              </button>
                           </div>
                         </div>
                       </div>

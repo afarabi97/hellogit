@@ -1,0 +1,30 @@
+---
+all:
+  vars:
+    #############################
+    # Kubernetes Settings       #
+    #############################
+    # kubernetes_services_cidr is the range of addresses kubernetes will use for external services
+    # This includes cockpit, Moloch viewer, Kibana, elastichq, and
+    # the kubernetes dashboard. This range must be at least a /28. Ex: "192.168.1.16/28"
+
+    kubernetes_svc_first_ip: "{{ template_ctx.kubernetes_svc_first_ip }}"
+    kubernetes_svc_last_ip: "{{ template_ctx.kubernetes_svc_last_ip}}"
+
+    kit_domain: {{ template_ctx.domain }}
+
+    # The following variables are used for kickstart options.
+    # root_password: Sets root password for each node.
+    # Define: empty
+    root_password: "{{ template_ctx.password }}"
+
+    upstream_dns: {{ template_ctx.upstream_dns | default('') }}
+    upstream_ntp: {{ template_ctx.upstream_ntp | default('') }}
+
+    # default_boot_drive: This is the default drive used for operating system installation.
+    # Default: sda
+    default_boot_drive: sda
+    # default_data_drive: This is the default drive used for data.
+    # Default: sdb
+    default_data_drive: sdb
+
