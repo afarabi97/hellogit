@@ -42,8 +42,6 @@ zeek_intel_file_ext: dat
 # zeek_remote_dir_basename: "/opt/tfplenum/zeek/"
 # zeek_it_dirname_base: "INTEGRATION_TEST_"
 pcap_dir: "{{ install_dir }}/playbooks/roles/zeek/pcaps"
-test_interface: "ens224"
-
 
 # zeek_it_rulesets is a list that holds the information for each type of zeek
 zeek_it_rulesets:

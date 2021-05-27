@@ -19,9 +19,6 @@ spec:
       - name: filebeat-zeek
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
-        securityContext:
-          runAsUser: 0
-          runAsGroup: 0
         env:
         - name: ELASTICSEARCH_USERNAME
           valueFrom:

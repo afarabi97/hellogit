@@ -328,26 +328,18 @@
       args:
         executable: /opt/tfplenum/web/tfp-env/bin/python3
       register: metrics_api_key
-    - name: generate MISP Ruleset Generator API key
-      script: /opt/sso-idp/gen_api_token.py --roles "operator" --exp 87600
-      args:
-        executable: /opt/tfplenum/web/tfp-env/bin/python3
-      register: misp_ruleset_api_key
     - name: Trim output
       set_fact:
         admin_api_key: "{{ admin_api_key.stdout | replace('\n', '') }}"
         metrics_api_key: "{{ metrics_api_key.stdout | replace('\n', '') }}"
-        misp_ruleset_api_key: "{{ misp_ruleset_api_key.stdout | replace('\n', '') }}"
     - name: Delete Previous API Key Secret
       command: |
         kubectl delete secret metrics-api-key --ignore-not-found
-        kubectl delete secret ruleset-sync-api-key --ignore-not-found
       register: api_key_sec
       changed_when: api_key_sec.rc == 0
     - name: Create API Key Secret
       shell: |
         kubectl create secret generic metrics-api-key --from-literal=api-key={{ metrics_api_key }}
-        kubectl create secret generic ruleset-sync-api-key --from-literal=api-key={{ misp_ruleset_api_key }}
       register: api_key_sec
       changed_when: api_key_sec.rc == 0
   tags:

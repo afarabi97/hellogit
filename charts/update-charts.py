@@ -36,7 +36,9 @@ charts = [
         { "name": "netflow-filebeat",
                 "version": "1.0.0"},
         { "name": "squid",
-                "version": "1.1.0"}
+                "version": "1.1.0"},
+        { "name": "jcat-nifi",
+                "version": "1.0.0"}
     ]
 
 

@@ -22,6 +22,8 @@ spec:
         - "/bin/sh"
         - "-c"
         - "python3 -u /init_setup.py"
+        securityContext:
+          runAsUser: 0
         env:
         - name: CORTEX_INTEGRATION
           value: {{ .Values.cortexIntegration | quote }}

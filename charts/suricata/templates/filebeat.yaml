@@ -20,9 +20,6 @@ spec:
       - name: filebeat-suricata-alert
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
-        securityContext:
-          runAsUser: 0
-          runAsGroup: 0
         env:
         - name: ELASTICSEARCH_USERNAME
           valueFrom:
@@ -91,9 +88,6 @@ spec:
       - name: filebeat-suricata-dns
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
-        securityContext:
-          runAsUser: 0
-          runAsGroup: 0
         env:
         - name: ELASTICSEARCH_USERNAME
           valueFrom:
@@ -128,9 +122,6 @@ spec:
       - name: filebeat-suricata-tls
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
-        securityContext:
-          runAsUser: 0
-          runAsGroup: 0
         env:
         - name: ELASTICSEARCH_USERNAME
           valueFrom:
@@ -165,9 +156,6 @@ spec:
       - name: filebeat-suricata-flow
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
-        securityContext:
-          runAsUser: 0
-          runAsGroup: 0
         env:
         - name: ELASTICSEARCH_USERNAME
           valueFrom:
@@ -202,9 +190,6 @@ spec:
       - name: filebeat-suricata-other
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
-        securityContext:
-          runAsUser: 0
-          runAsGroup: 0
         env:
         - name: ELASTICSEARCH_USERNAME
           valueFrom:

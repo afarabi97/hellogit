@@ -22,6 +22,8 @@ spec:
         - "/bin/sh"
         - "-c"
         - "python3 /init_setup.py"
+        securityContext:
+          runAsUser: 0
         volumeMounts:
         - name: data
           mountPath: /tmp/elastic-data

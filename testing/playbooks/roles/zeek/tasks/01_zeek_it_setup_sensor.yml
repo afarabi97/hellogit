@@ -14,7 +14,7 @@
     owner: root
     group: root
     mode: "0644"
-    force: true
+    force: yes
   with_items: "{{ zeek_it_rulesets }}"
 
 - name: Zeek Integration Test | 001 | Create Test Load Files
@@ -24,9 +24,9 @@
     owner: root
     group: root
     mode: "0644"
-    force: true
+    force: yes
   when: item['zeek_type'] == 'script'
-  ignore_errors: true
+  ignore_errors: yes
   with_items: "{{ zeek_it_rulesets }}"
 
 
@@ -45,7 +45,7 @@
     owner: root
     group: root
     mode: '0755'
-    force: true
+    force: yes
   with_items:
     - "{{ misc_server }}/pcaps/zeek_it_intel.pcap"
     - "{{ misc_server }}/malware-pcaps/dns-dnskey.trace"

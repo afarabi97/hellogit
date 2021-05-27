@@ -41,10 +41,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   savedValues: any;
   statuses: StatusClass[];
   configArray: any[] = [];
-  kafkaArray: any[] = [];
-  cortexDisable: boolean;
-  mispDisable: boolean;
-  hiveDisable: boolean;
   gip_number: string;
 
   /**
@@ -68,9 +64,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     this.isReady = false;
     this.isLoading = true;
     this.isAdvance = false;
-    this.cortexDisable = true;
-    this.mispDisable = true;
-    this.hiveDisable = true;
     this.processList = PROCESS_LIST.map((p: ProcessInterface) => {
       p.children = [];
       return p;
@@ -110,13 +103,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
           this.gip_number = nodes[0].ip_address.split('.')[1];
         });
       }
-      if(this.chart.id === "hive") {
-        this.setupCortex();
-        this.setupMisp();
-      }
-      if(this.chart.id === "misp") {
-        this.setupCortex();
-      }
     }
   }
 
@@ -154,9 +140,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
           });
         }
       });
-      if(this.chart.devDependent === "zeek") {
-        this.setupKafkaArray();
-      }
     }
   }
 
@@ -286,9 +269,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       }
       if(object[key].external_net) {
         object[key].external_net = JSON.parse(object[key].external_net);
-      }
-      if(object[key].kafka_clusters) {
-        object[key].kafka_clusters = JSON.parse(object[key].kafka_clusters);
       }
       configArray.push(object);
     });
@@ -515,52 +495,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     return nodeControls;
   }
 
-  setupKafkaArray() {
-    const array = [];
-
-    this._CatalogService.getByString("zeek/saved-values").subscribe(values => {
-      if(values !== null) {
-        values.map( value => {
-          const val = `${value.deployment_name}.default.svc.cluster.local:9092`;
-          array.push(val);
-        });
-      }
-    });
-    this.kafkaArray = array;
-  }
-
-  setupCortex() {
-    let cortexValues;
-
-    this._CatalogService.getByString("cortex/saved-values").subscribe(values => {
-      cortexValues = values.length !== 0 ? values : null;
-      if(cortexValues != null) {
-        this.cortexDisable = false;
-      }
-    });
-  }
-
-  setupMisp() {
-    let mispValues;
-
-    this._CatalogService.getByString("misp/saved-values").subscribe(values => {
-      mispValues = values.length !== 0 ? values : null;
-      if(mispValues != null) {
-        this.mispDisable = false;
-      }
-    });
-  }
-
-  setupHive() {
-    let hiveValues;
-
-    this._CatalogService.getByString("hive/saved-values").subscribe(values => {
-      hiveValues = values.length !== 0 ? values : null;
-      if(hiveValues != null) {
-        this.hiveDisable = false;
-      }
-    });
-  }
   /**
    * parses out the domain on the deployment name so that Kubernetes doesnt crash
    *
@@ -745,12 +679,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
           formControl.setValue(value[control.name], { onlySelf: true } );
         }
         return formControl;
-      case 'kafka-cluster-cluster':
-        return new FormControl(JSON.stringify(this.kafkaArray));
-      case 'cortex-checkbox':
-        return new FormControl({ value: !this.cortexDisable, disabled: this.cortexDisable });
-      case 'misp-checkbox':
-        return new FormControl({ value: !this.mispDisable, disabled: this.mispDisable });  
       case 'suricata-list':
         const suricataControl: FormControl = new FormControl(control.default_value);
         if (valid_control) {
@@ -763,7 +691,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
           zeekControl.setValue(value[control.name], { onlySelf: true } );
         }
         return zeekControl;
-  
       default:
         return new FormControl([]);
     }

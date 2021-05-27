@@ -2,6 +2,7 @@
   set_fact:
     zeek_types: []
     zeek_types_dict: "{{ zeek_types_dict | default({}) }}"
+  ignore_errors: yes
 
 - name: Zeek Integration Test | 002 | Get Zeek Elastic Index
   uri:
@@ -15,13 +16,15 @@
   until: zeek_index_result.json | default('', true)
   retries: 60
   delay: 5
-  ignore_errors: true
-  when: inventory_hostname in groups['master_server']
+  ignore_errors: yes
 
 - name: Zeek Integration Test | 002 | Set Zeek Elastic Index Fact
   set_fact:
     zeek_index: "{{ zeek_index_result.json.aliases[0].indices[0] }}"
-  when: zeek_index_result
+  when:
+    - zeek_index_result is defined
+    - zeek_index_result.json.aliases|length > 0
+  ignore_errors: yes
 
 - name: Zeek Integration Test | 002 | Get All Zeek Elastic Types
   uri:
@@ -37,11 +40,12 @@
     body: "{{ lookup('template', 'zeek_it_get_all_types_body.json.j2') }}"
     method: GET
     body_format: json
+    status_code: [200, 201]
   register: zeek_types_result
-  until: zeek_types_result.json
+  until: zeek_types_result.status == 200 or zeek_types_result.status == 201
   retries: 60
   delay: 10
-  ignore_errors: true
+  ignore_errors: yes
 
 - name: Zeek Integration Test | 002 | Set Zeek Elastic Types
   set_fact:
@@ -49,8 +53,12 @@
     zeek_types_dict:
       "{{ zeek_types_dict | default({}) | combine ({ item.key : item.doc_count
       }) }}"
-  when: zeek_types_result
+  when:
+    - zeek_types_result is defined
+    - (zeek_types_result.status == 200 or zeek_types_result.status == 201)
+    - zeek_types_result.json.aggregations | length > 0
   with_items: "{{ zeek_types_result.json.aggregations.zeek_types.buckets }}"
+  ignore_errors: yes
 
 - name: Zeek Integration Test | 002 | Delete All For Last 24 Hours
   uri:
@@ -70,7 +78,7 @@
   until: zeek_sanitized_index_results.json
   retries: 80
   delay: 20
-  ignore_errors: true
+  ignore_errors: yes
 
 - name: Zeek Integration Test | 002 | Pause To Allow Changes To Take Effect
   pause:
