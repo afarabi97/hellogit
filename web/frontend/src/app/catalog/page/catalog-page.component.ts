@@ -101,11 +101,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
         this.savedValues = values.length !== 0 ? values : null;
       });
 
-      if (this.chart.id === "squid") {
-        this._CatalogService.getNodes().subscribe(nodes => {
-          this.gip_number = nodes[0].ip_address.split('.')[1];
-        });
-      }
       if(this.chart.node_affinity === "Server - Any") {
         this.setupServiceNode();
       }
@@ -493,10 +488,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     // Allowing them to change it causes breakages in other locations of the code.
     deployment_ctrl.disable();
     nodeControls.addControl("deployment_name", deployment_ctrl);
-
-    if (this.chart.id === "squid") {
-      nodeControls.addControl("jdms_gip_number", new FormControl(this.gip_number));
-    }
 
     return nodeControls;
   }
