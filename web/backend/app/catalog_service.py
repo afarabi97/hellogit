@@ -209,7 +209,7 @@ def _inspect_readme(application: str):
     appconfig = {}
     stdout, ret_code = run_command2(command="helm inspect readme chartmuseum/" + application, working_dir=WORKING_DIR, use_shell=True)
     if ret_code == 0 and stdout != '':
-        appconfig = json.loads(stdout.strip())
+        appconfig = yaml.full_load(stdout.strip())
     return appconfig
 
 
