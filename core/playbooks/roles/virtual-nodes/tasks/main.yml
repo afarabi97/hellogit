@@ -22,15 +22,23 @@
 - block:
   - name: Power On {{ node }}
     include: power_on.yml
+  - name: Get {{ node }} VM Facts
+    vmware_guest_facts:
+      hostname: "{{ esxi.ipaddress }}"
+      username: "{{ esxi.username }}"
+      password: "{{ esxi.password }}"
+      datacenter: "{{ esxi.datacenter }}"
+      folder: "{{ folder }}"
+      name: "{{ node }}"
+      validate_certs: no
+    register: vm_facts
   - name: Wait for {{ node }}
     community.vmware.vmware_guest_tools_wait:
       hostname: "{{ esxi.ipaddress }}"
       username: "{{ esxi.username }}"
       password: "{{ esxi.password }}"
-      name: "{{ node }}"
-      folder: "{{ folder }}"
+      uuid: "{{ vm_facts.instance.hw_product_uuid }}"
       validate_certs: no
       timeout: 900
-    register: vm_facts
   tags:
     - provision-virtual-machine

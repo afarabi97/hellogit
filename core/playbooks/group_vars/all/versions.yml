@@ -43,6 +43,7 @@ storage_provisioner_version: 2.3.4
 shibboleth_proxy_version: 3.0.4
 python_version: 3.9.0
 jcat_nifi_version: "AF-1.0"
+community_vmware_module_version: "1.10.0"
 
 # "docker Image List
 kube_images:

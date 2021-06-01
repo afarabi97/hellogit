@@ -48,7 +48,7 @@
 
 - name: Install VMWare Community
   shell:  |
-    ansible-galaxy collection install {{ tfplenumoffline_dir }}/community-vmware-1.7.1-dev8.tar.gz
+    ansible-galaxy collection install {{ tfplenumoffline_dir }}/community-vmware-{{ community_vmware_module_version }}.tar.gz
   register: collection_results
   changed_when: collection_results.rc == 0
 
