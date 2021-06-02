@@ -107,7 +107,7 @@ describe('ChartListComponent', () => {
           "isSensorApp": true
         },
         {
-          "appVersion": "3.2.0",
+          "appVersion": "4.0.1",
           "application": "zeek",
           "description": "Zeek (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know. Also provides Kafka and Zookeeper for message brokering.",
           "pmoSupported": true,

@@ -2,7 +2,7 @@ elastic_ingest_nodes: []
 home_net: ["192.168.0.0/16"]
 interfaces: ["eth0"]
 image_name: tfplenum/zeek
-image_tag: 3.2.2
+image_tag: 4.0.1
 affinity_hostname: {}
 ids_log_rotate_interval: 300
 zeek_log_path: /data/zeek
