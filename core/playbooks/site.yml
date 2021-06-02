@@ -378,4 +378,16 @@
       command: /opt/tfplenum/scripts/retrieve_beats_certs.py
       register: result
       changed_when: result.rc == 0
+
+- name: Run Stigs
+  hosts:
+    - servers
+    - sensors
+  gather_facts: no
+  any_errors_fatal: true
+  tasks:
+    - name: Run Kit Stigs
+      include_tasks: "{{ tfplenum_opt_dir }}/rhel8-stigs/rhel8-playbook-stig.yml"
+  tags:
+    - stigs
 ...

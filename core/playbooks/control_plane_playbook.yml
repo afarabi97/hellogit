@@ -153,3 +153,14 @@
   tags:
     - storage-provisioner
     - deploy-control-plane
+
+- name: Run Stigs
+  hosts: control_plane
+  gather_facts: no
+  any_errors_fatal: true
+  tasks:
+    - name: Run Kit Stigs
+      include_tasks: "{{ tfplenum_opt_dir }}/rhel8-stigs/rhel8-playbook-stig.yml"
+  tags:
+    - deploy-control-plane
+    - stigs

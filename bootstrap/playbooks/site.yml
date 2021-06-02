@@ -73,3 +73,13 @@
   tags:
     - registry
     - pull-docker-images
+
+- name: Run Stigs
+  hosts: localhost
+  gather_facts: no
+  any_errors_fatal: true
+  tasks:
+    - name: Run Controller Stigs
+      include_tasks: "{{ tfplenum_root_dir }}/rhel8-stigs/rhel8-playbook-stig.yml"
+  tags:
+    - stigs

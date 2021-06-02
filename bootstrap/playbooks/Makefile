@@ -5,7 +5,7 @@ CHECK := $(shell command -v ansible-playbook 2> /dev/null)
 INVENTORY ?= 'inventory.yml'
 PLAYBOOK ?= 'site.yml'
 
-.PHONY: execute_pre, frontend, install_angular, build_frontend_only, build_deploy_frontend, setup_python_env, bootstrap, sso, build_helm_charts, nightly_clone_rebuild_frontend, pull_docker_images, hosts_file
+.PHONY: execute_pre, frontend, install_angular, build_frontend_only, build_deploy_frontend, setup_python_env, bootstrap, sso, build_helm_charts, nightly_clone_rebuild_frontend, pull_docker_images, hosts_file, stigs
 
 # Default target, build *and* run tests
 all:
@@ -50,7 +50,10 @@ hosts_file:
 bootstrap:
 	@echo $(TFPLENUM_SERVER_IP)
 	@echo $(RHEL_SOURCE_REPO)
-	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ RHEL_SOURCE_REPO: "$(RHEL_SOURCE_REPO)" }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t execute_pre,frontend,sso,bootstrap)
+	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ RHEL_SOURCE_REPO: "$(RHEL_SOURCE_REPO)" }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t execute_pre,frontend,sso,bootstrap,stigs)
 
 pull_docker_images:
 	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t pull-docker-images
+
+stigs:
+	ansible-playbook $(PLAYBOOK) -i localhost -t stigs

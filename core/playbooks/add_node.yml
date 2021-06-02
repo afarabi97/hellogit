@@ -192,3 +192,14 @@
     - node-health
   tags:
     - node-health
+
+- name: Run Stigs
+  hosts:
+    - servers
+    - sensors
+  gather_facts: no
+  any_errors_fatal: true
+  tasks:
+    - include: "{{ tfplenum_opt_dir }}/rhel8-stigs/rhel8-playbook-stig.yml tags=kit-stigs"
+  tags:
+    - stigs

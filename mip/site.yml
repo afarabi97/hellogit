@@ -242,6 +242,9 @@
   any_errors_fatal: true
   roles:
     - 901_common_STIG-remediation
+  tasks:
+    - name: Run Mip Stigs
+      include_tasks: "{{ tfplenum_root_dir }}/rhel8-stigs/rhel8-playbook-stig.yml"
   tags:
     - stigs
     - MDT
