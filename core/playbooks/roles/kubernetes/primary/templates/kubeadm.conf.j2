@@ -18,12 +18,15 @@ networking:
 controllerManager:
   extraArgs:
     node-cidr-mask-size: "{{ kube_network_node_prefix }}"
-{% if kube_virtual_ip is defined %}
 apiServer:
+  extraArgs:
+    event-ttl: 6h0m0s
+{% if kube_virtual_ip is defined %}
   certSANs:
   - "{{ kube_virtual_ip }}"
 controlPlaneEndpoint: "{{ kube_virtual_ip }}:8443"
 {% endif %}
+
 ---
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration

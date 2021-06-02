@@ -1,6 +1,7 @@
 adal==1.1.0
 aniso8601==8.0.0
 ansible==2.9.5
+anytree==2.8.0
 asn1crypto==0.24.0
 attrs==20.2.0
 bcrypt==3.1.4
@@ -31,6 +32,7 @@ google-auth==1.6.3
 greenlet==0.4.14
 gssapi==1.6.0
 gunicorn==19.9.0
+halo==0.0.31
 idna==2.8
 importlib-metadata==2.0.0
 invoke==1.2.0
