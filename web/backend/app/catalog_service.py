@@ -23,6 +23,7 @@ WORKING_DIR = "/root"
 _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
 _PMO_SUPPORTED_CHARTS = ['cortex', 'hive', 'misp', 'logstash', 'arkime', 'arkime-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek', 'jcat-nifi']
+_SENSOR_APPLICATIONS = ['arkime', 'suricata', 'zeek']
 
 
 def _get_domain() -> str:
@@ -192,6 +193,7 @@ def get_repo_charts() -> list:
                     t_chart["appVersion"] = chart["appVersion"]
                     t_chart["description"] = chart["description"]
                     t_chart["pmoSupported"] = (application in _PMO_SUPPORTED_CHARTS)
+                    t_chart["isSensorApp"] = (application  in _SENSOR_APPLICATIONS)
                     results.append(t_chart)
     except Exception as exc:
         logger.exception(exc)

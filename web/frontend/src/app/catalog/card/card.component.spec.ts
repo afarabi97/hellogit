@@ -30,7 +30,8 @@ describe('CardComponent', () => {
       "appVersion": "7.3.1",
       "application": "logstash",
       "description": "Logstash is an open source, server-side data processing pipeline that ingests data from a multitude of sources simultaneously, transforms it, and then sends it to your favorite stash.",
-      "pmoSupported": false
+      "pmoSupported": false,
+      "isSensorApp": false
     };
 
     component.chart = mockChart;

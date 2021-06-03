@@ -11,6 +11,7 @@ export class Chart {
   application: string;
   description: string;
   pmoSupported: boolean;
+  isSensorApp: boolean;
   nodes?: INodeInfo[];
 }
 

@@ -40,79 +40,92 @@ describe('ChartListComponent', () => {
           "appVersion": "4.0.5",
           "application": "hive",
           "description": "TheHive is a scalable 4-in-1 open source and free Security Incident Response Platform.",
-          "pmoSupported": true
+          "pmoSupported": true,
+          "isSensorApp": false
         },
         {
           "appVersion": "3.1.1",
           "application": "cortex",
           "description": "Cortex is a Powerful Observable Analysis and Active Response Engine.",
-          "pmoSupported": true
+          "pmoSupported": true,
+          "isSensorApp": false
         },
         {
           "appVersion": "7.8.1",
           "application": "logstash",
           "description": "Logstash is an open source, server-side data processing pipeline that ingests data from a multitude of sources simultaneously, transforms it, and then sends it to your favorite stash.",
-          "pmoSupported": true
+          "pmoSupported": true,
+          "isSensorApp": false
         },
         {
           "appVersion": "5.31.1",
           "application": "mattermost",
           "description": "Mattermost is a chat and file sharing platform",
-          "pmoSupported": false
+          "pmoSupported": false,
+          "isSensorApp": false
         },
         {
           "appVersion": "2.2.3v2",
           "application": "arkime",
           "description": "Large scale, open source, indexed packet capture and search.",
-          "pmoSupported": true
+          "pmoSupported": true,
+          "isSensorApp": true
         },
         {
           "appVersion": "2.2.3v2",
           "application": "arkime-viewer",
           "description": "Large scale, open source, indexed packet capture and search.",
-          "pmoSupported": true
+          "pmoSupported": true,
+          "isSensorApp": false
         },
         {
           "appVersion": "1.12.1",
           "application": "nifi",
           "description": "Easy to use, powerful, and reliable system to process and distribute data",
-          "pmoSupported": false
+          "pmoSupported": false,
+          "isSensorApp": false
         },
         {
           "appVersion": "4.1.1",
           "application": "redmine",
           "description": "Redmine is a flexible project management web application.  Written using the Ruby on Rails framework, it is cross platform and cross-database.",
-          "pmoSupported": false
+          "pmoSupported": false,
+          "isSensorApp": false
         },
         {
           "appVersion": "3.11.0",
           "application": "rocketchat",
           "description": "Prepare to take off with the ultimate chat platform, experience the next level of team communications",
-          "pmoSupported": true
+          "pmoSupported": true,
+          "isSensorApp": false
         },
         {
           "appVersion": "6.0.0",
           "application": "suricata",
           "description": "Suricata is a free and open source, mature, fast and robust network threat detection engine.",
-          "pmoSupported": true
+          "pmoSupported": true,
+          "isSensorApp": true
         },
         {
           "appVersion": "3.2.0",
           "application": "zeek",
           "description": "Zeek (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know. Also provides Kafka and Zookeeper for message brokering.",
-          "pmoSupported": true
+          "pmoSupported": true,
+          "isSensorApp": true
         },
         {
           "appVersion": "2.5.170",
           "application": "wikijs",
           "description": "Modern Wiki based on NodeJS.",
-          "pmoSupported": true
+          "pmoSupported": true,
+          "isSensorApp": false
         },
         {
           "appVersion": "2.4.139",
           "application": "misp",
           "description": "MISP is a malware information sharing platform",
-          "pmoSupported": true
+          "pmoSupported": true,
+          "isSensorApp": false
         },
       ];
 

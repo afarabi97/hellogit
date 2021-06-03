@@ -7,6 +7,9 @@ import { CookieService } from '../../services/cookies.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { Chart } from '../interface/chart.interface';
 import { CatalogService } from '../services/catalog.service';
+import { KitSettingsService } from '../../system-setupv2/services/kit-settings.service';
+import { Node } from '../../system-setupv2/models/kit';
+
 
 @Component({
   selector: 'app-catalog',
@@ -18,6 +21,9 @@ export class CatalogComponent implements OnInit, OnDestroy {
   filteredCharts: Chart[];
   ioConnection: any;
   showCharts = { 'pmo': true, 'comm': false };
+  hasSensors: boolean;
+  nodes: Node[];
+
   @ViewChild('pmoElement')  public pmoElement: MatSlideToggle;
   @ViewChild('commElement') public commElement: MatSlideToggle;
 
@@ -30,7 +36,8 @@ export class CatalogComponent implements OnInit, OnDestroy {
    constructor(public _CatalogService: CatalogService,
                private titleSvc: Title,
                public _WebsocketService: WebsocketService,
-               private cookieService: CookieService) { }
+               private cookieService: CookieService,
+               private kitSettingsSrv: KitSettingsService) { }
 
   /**
    * Gets all the charts
@@ -39,6 +46,8 @@ export class CatalogComponent implements OnInit, OnDestroy {
    */
   ngOnInit() {
     this.titleSvc.setTitle("Catalog");
+    this.hasSensors = false;
+    this.nodes = [];
     this._CatalogService.isLoading = false;
     if(this.cookieService.get('chartFilter') !== '') {
       const show = JSON.parse(this.cookieService.get('chartFilter'));
@@ -53,8 +62,18 @@ export class CatalogComponent implements OnInit, OnDestroy {
     }
     this._CatalogService.get_all_application_statuses().subscribe(data => {
       this.charts = data;
-      this._CatalogService.isLoading = true;
-      this.filterCharts();
+
+      this.kitSettingsSrv.getNodes().subscribe((nodes: Node[]) => {
+        this.nodes = nodes;
+        for (const node of this.nodes){
+          if (node.node_type.toLowerCase() === "sensor"){
+            this.hasSensors = true;
+          }
+        }
+        this._CatalogService.isLoading = true;
+        this.filterCharts();
+      });
+
     });
 
     this.ioConnection = this._WebsocketService.onBroadcast()
@@ -102,6 +121,17 @@ export class CatalogComponent implements OnInit, OnDestroy {
     return filteredCharts;
   }
 
+  private filterSensorApplications() {
+    if (!this.hasSensors){
+      this.filteredCharts = this.filteredCharts.filter((obj,index,ary) => {
+        if (obj.isSensorApp){
+          return false;
+        }
+        return true;
+      });
+    }
+  }
+
   pmoToggle(event: MatSlideToggle){
     this.showCharts['pmo'] = event.checked;
     this.filterCharts();
@@ -113,9 +143,11 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   filterCharts() {
-    this.filteredCharts = this.filterPMOApplications(this.showCharts['pmo']).concat(
-      this.filterCommunityApplications(this.showCharts['comm'])
+    this.filteredCharts = this.filterPMOApplications(this.showCharts['pmo'])
+      .concat(this.filterCommunityApplications(this.showCharts['comm'])
     ).sort((a, b) => a.application.localeCompare(b.application));
+
+    this.filterSensorApplications();
     this.updateCookie();
   }
 
