@@ -38,6 +38,13 @@ function update_system_pkgs {
     run_cmd apt-get install open-vm-tools perl curl python3.6 python3-pip sshpass -y
 }
 
+function setup_certs {
+    pushd /usr/local/share/ca-certificates > /dev/null
+    run_cmd curl -s -o gitlab.sil.lab.crt http://misc.labrepo.sil.lab/gitlab.sil.lab.crt
+    update-ca-certificates
+    popd > /dev/null
+}
+
 function setup_gitlab_runner {
     run_cmd curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | sudo bash
     run_cmd sudo apt-get install gitlab-runner
@@ -139,6 +146,7 @@ EOF
 disable_host_key_checking
 update_system_pkgs
 install_nodejs
+setup_certs
 setup_gitlab_runner
 install_packages
 install_requirements
