@@ -40,6 +40,6 @@
 - name: Install Curator Pip Module
   pip:
     name: "elasticsearch-curator"
-    version: "5.8.1"
+    version: "5.8.4"
     virtualenv: "{{ web_install_dir }}/tfp-env"
     extra_args: --no-deps
