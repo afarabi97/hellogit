@@ -25,8 +25,8 @@
 #	Variables that need DEFAULTS
 
 PowerShell_Version=0
-VERSION="7.0.0"
-POWER="powershell-${VERSION}-1.rhel.7.x86_64.rpm"
+VERSION="7.1.3"
+POWER="powershell-${VERSION}-1.centos.8.x86_64.rpm"
 Verbose="1>/dev/null 2>&1"
 
 PS_Version()
@@ -38,7 +38,7 @@ PS_Version()
 
 Install_PowerShell_7 ()
 {
-	echo "Getting ${PWOER}"
+	echo "Getting ${POWER}"
 	wget https://github.com/PowerShell/PowerShell/releases/download/v${VERSION}/${POWER} ${Verbose}
 	echo "Installing ${POWER}"
 	yum localinstall --assumeyes ${POWER} ${Verbose}

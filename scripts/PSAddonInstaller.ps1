@@ -62,6 +62,23 @@ param(
 )
 
 #==========================================================================================#
+#                  Gets the required dependent packages if not present:
+#==========================================================================================#
+
+if((Get-PackageProvider -ListAvailable | select -ExpandProperty Name) -notcontains 'NuGet'){
+	Install-PackageProvider -Name NuGet -RequiredVersion 2.8.5.201 -Force
+	Register-PackageSource -provider NuGet -name nugetRepository -location https://www.nuget.org/api/v2
+}
+
+if((Get-PackageProvider -ListAvailable | select -ExpandProperty Name) -notcontains 'PowerShellGet'){
+	Install-PackageProvider -Name PowerShellGet -Force -AllowClobber
+}
+
+if((Get-PSRepository | select -ExpandProperty Name) -notcontains 'PSGallery'){
+	Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
+}
+
+#==========================================================================================#
 # 								Input Validation
 #==========================================================================================#
 
@@ -104,7 +121,7 @@ if ($Linux_Usage) {
 		$PWSH_PATH		= "/bin/pwsh"
 	}
 	if (!$PWSH) {
-		$PWSH			= "powershell-7.0.0.1.rhel.7.x86-64"
+		$PWSH			= "powershell-7.1.3-1.centos.8.x86_64"
 	}
 } else {
 	$MSI_Extension			= ".msi"
@@ -183,7 +200,7 @@ function InstallModules {
 			$modname = $module.Split(":")[0] -replace ",","" -replace '"',""
 			$modversion = $module.Split(":")[1] -replace ",","" -replace '"',""
 			write-verbose -Message "Installing Module $i : $modname $modversion"
-			Install-Module -Scope AllUsers -Name $modname -RequiredVersion $modversion -AllowClobber `
+			Install-Module -Scope AllUsers -Name $modname -RequiredVersion $modversion -AllowClobber
 				-SkipPublisherCheck -Force -AllowPrerelease -AcceptLicense | Out-Null
 		}
 	}
@@ -247,30 +264,53 @@ function InstallSavedModules {
 
 # Next set of lines gets values from array within this script/input:
 
-$modules = @("Advanced-Threat-Analytics:0.0.12",
-	"ORCA:1.9.11",
-	"ExchangeOnlineManagement:2.0.4",
-	"CIF3:0.9.5",
-	"PowerSponse:0.3.0",
-	"PSURLhaus:0.4.0",
-	"CimSweep:0.6.0.0",
-	"VMware.VimAutomation.Security:12.1.0.17009513",
-	"NTFSSecurity:4.2.6",
-	"Az.Security:0.9.0",
-	"CYB3RTools:1.2.1",
-	"DSInternals:4.4.1",
-	"SecurityFever:2.8.1",
-	"Hardening:1.0.1",
-	"psprivilege:0.1.0",
-	"HAWK:2.0.0",
-	"AutoRuns:13.98",
+$modules = @(
+	"Advanced-Threat-Analytics:0.0.12",
+	"AutoRuns:13.98.1",
+	"Az.Accounts:2.2.8",
+	"Az.Security:0.10.0",
+	"AzureAD:2.0.2.130",
+	"BAMCIS.Common:1.0.4.0",
+	"BAMCIS.DynamicParam:1.0.0.0",
+	"BAMCIS.Logging:1.0.0.2",
+	"BAMCIS.Networking:1.0.0.1",
 	"BAMCIS.OffensiveSecurity:1.0.1.3",
-    "BAMCIS.UserAccounts:1.0.1",
-    "BAMCIS.DynamicParam:1.0.0.0",
-    "PSWinReportingV2:2.0.20",
+	"BAMCIS.TokenManipulation:1.0.0.1",
+	"BAMCIS.UserAccounts:1.0.1",
+	"CIF3:0.9.5",
+	"CimSweep:0.6.0.0",
+	"CloudConnect:1.1.2",
+	"ComputerManagementDsc:8.5.0-preview0001",
+	"CYB3RTools:2.2.1",
+	"DSInternals:4.4.1",
+	"ESENT:1.0.0.1",
+	"ExchangeOnlineManagement:2.0.5-Preview1",
+	"FileSystemDsc:1.2.0-preview0002",
 	"HardenedPS:0.0.1",
-    "ComputerManagementDsc:8.4.1-preview0003",
-    "FileSystemDsc:1.2.0-preview0002") | sort
+	"Hardening:1.0.1",
+	"HAWK:2.0.1",
+	"MSOnline:1.1.183.57",
+	"NTFSSecurity:4.2.6",
+	"ORCA:1.10.6",
+	"powershell-yaml:0.4.2",
+	"PowerSponse:0.3.0",
+	"PSAppInsights:0.9.6",
+	"PSEventViewer:1.0.17",
+	"PSFramework:1.6.198",
+	"psprivilege:0.1.0",
+	"PSURLhaus:0.4.0",
+	"PSWinReportingV2:2.0.20",
+	"PSWriteExcel:0.1.12",
+	"PSWriteHTML:0.0.148",
+	"RobustCloudCommand:2.0.0",
+	"SecurityFever:2.8.1",
+	"VMware.Vim:7.0.2.17839075",
+	"VMware.VimAutomation.Cis.Core:12.3.0.17839331",
+	"VMware.VimAutomation.Common:12.3.0.17838947",
+	"VMware.VimAutomation.Core:12.3.0.17839688",
+	"VMware.VimAutomation.Sdk:12.2.0.17531155",
+	"VMware.VimAutomation.Security:12.3.0.17833870",
+	"VMware.VimAutomation.Storage:12.3.0.17855705") | sort
 
 # ---- or ------
 
