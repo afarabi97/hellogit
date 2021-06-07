@@ -21,7 +21,7 @@ formControls:
   required: true
   name: superadmin_password
   default_value: Password!123456
-  regexp: ^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[!@#$%^&()<>.?])[A-Za-z\d!@#$%^&()<>.?]{15,}$
+  regexp: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()<>.?])[A-Za-z\d!@#$%^&*()<>.?]{15,}$
   error_message: >
     Please enter a vaild password it must have a minimum of fifteen characters,
     at least one uppercase letter, one lowercase letter, one number and one special
@@ -45,7 +45,7 @@ formControls:
   required: true
   name: org_admin_password
   default_value: Password!123456
-  regexp: ^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[!@#$%^&()<>.?])[A-Za-z\d!@#$%^&()<>.?]{15,}$
+  regexp: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()<>.?])[A-Za-z\d!@#$%^&*()<>.?]{15,}$
   error_message: >
     Please enter a vaild password it must have a minimum of fifteen characters,
     at least one uppercase letter, one lowercase letter, one number and one special

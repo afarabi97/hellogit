@@ -26,7 +26,7 @@ formControls:
   default_value: 25%
   description: Enter freespaceG (can be number of Gigs to keep free, or a percentage of disk)
   required: false
-  regexp: "^(\d+|\d{1,2}%)$"
+  regexp: ^(\d+|\d{1,2}%)$
   name: freespaceG
   error_message: Enter a number or a percentage
 - type: textinput

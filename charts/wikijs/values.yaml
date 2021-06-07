@@ -3,7 +3,7 @@ wikijsImage: requarks/wiki:2.5.170
 python_image: tfplenum/python:3.9.0
 busyboxImage: busybox:1.32.1
 domain: lan
-auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
+auth_base: https://controller.lan/auth/realms/CVAH-SSO
 
 # database variables
 mariadbImage: mariadb:10.5.8

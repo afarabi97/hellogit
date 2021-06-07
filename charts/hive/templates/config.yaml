@@ -82,7 +82,7 @@ data:
     notification.webhook.endpoints = [
     {
       name: tfplenum
-      url: "https://dip-controller.{{ .Values.domain }}/api/hive/webhook"
+      url: "https://controller.{{ .Values.domain }}/api/hive/webhook"
       version: 0
       wsConfig: {
           ssl.trustManager.stores = [{

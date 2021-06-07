@@ -86,10 +86,10 @@ class RobotSettings(Model):
         self.password = model.node.password
         self.ipaddress = model.node.ipaddress
         """
-        docker run -e JIRA_USERNAME -e JIRA_PASSWORD -e JIRA_PROJECT_KEY -i --network="host" -v $(pwd)/testing/robotest:/usr/src/robot/tests -v $(pwd)/testing/robotest-output:/usr/src/robot/output --add-host=dip-controller.lan:$(IP_address) tfplenum/robot-automator:1.1.0 pipenv run python -m run.runner -c DIP_Test_Suite -r 'Ad hoc' -h -b Firefox
+        docker run -e JIRA_USERNAME -e JIRA_PASSWORD -e JIRA_PROJECT_KEY -i --network="host" -v $(pwd)/testing/robotest:/usr/src/robot/tests -v $(pwd)/testing/robotest-output:/usr/src/robot/output --add-host=controller.lan:$(IP_address) tfplenum/robot-automator:1.1.0 pipenv run python -m run.runner -c DIP_Test_Suite -r 'Ad hoc' -h -b Firefox
 
         docker run --env=JIRA_USERNAME={} --env=JIRA_PASSWORD={} --env=JIRA_PROJECT_KEY={} -i --network="host"
-        --volume={}/tests:/usr/src/robot/tests --volume={}:/usr/src/robot/output {} --add-host=dip-controller.{}:{}
+        --volume={}/tests:/usr/src/robot/tests --volume={}:/usr/src/robot/output {} --add-host=controller.{}:{}
         pipenv run python -m run.runner -c {} -r {} -p {} -h -b {} -v HOST:{} -v HOST_USERNAME:{}' -v HOST_PASSWORD:{} -v KIT_VERSION:{} -v PIPELINE:{}
         """
         # 1.    Environment Variables

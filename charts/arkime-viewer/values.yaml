@@ -2,7 +2,7 @@
 image: 'tfplenum/arkime'
 port: "8005"
 domain: lan
-auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
+auth_base: https://controller.lan/auth/realms/CVAH-SSO
 # Username and password for Web login
 username: 'assessor'
 password: 'password'

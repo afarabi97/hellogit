@@ -245,7 +245,7 @@ export class NodeManagementComponent implements OnInit {
   downloadISO(){
     const ISOurl = document.createElement('a');
     ISOurl.setAttribute('target', '_blank');
-    ISOurl.setAttribute('href', `http://dip-controller.${this.kitSettings.domain}/offlinerepo/tfplenum/dip-virtual-sensor.iso`);
+    ISOurl.setAttribute('href', `http://controller.${this.kitSettings.domain}/offlinerepo/tfplenum/dip-virtual-sensor.iso`);
     ISOurl.setAttribute('download', `dip-virtual-sensor.iso`);
     document.body.appendChild(ISOurl);
     ISOurl.click();

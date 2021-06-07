@@ -12,5 +12,5 @@ org_admin_password: password!
 org_user_username: user_thehive
 misp_user: user_misp
 domain: lan
-auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
+auth_base: https://controller.lan/auth/realms/CVAH-SSO
 serviceNode: false

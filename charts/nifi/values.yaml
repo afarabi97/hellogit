@@ -6,7 +6,7 @@ nifi_replicas: 1
 nifi_base_dir: /opt/nifi/nifi-current
 path: '/data/nifi'
 domain: lan
-auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
+auth_base: https://controller.lan/auth/realms/CVAH-SSO
 busyboxImage: busybox:1.32.1
 
 ### proxy info

@@ -4,7 +4,7 @@ mispModulesImage: tfplenum/misp-modules:2.4.136
 python_image: tfplenum/python:3.9.0
 busyboxImage: busybox:1.32.1
 domain: lan
-auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
+auth_base: https://controller.lan/auth/realms/CVAH-SSO
 elastic_ingest_nodes: []
 cortex_url: https://cortex.default.svc.cluster.local
 modules_url: misp-modules.default.svc.cluster.local
