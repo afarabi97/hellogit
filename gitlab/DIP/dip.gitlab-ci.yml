@@ -219,7 +219,7 @@ Service Setup:
   only:
     variables:
       - $PIPELINE == "developer-all"
-      - $PIPELINE == "hw-developer-dip"
+      - $PIPELINE == "hw-developer-all"
 
 MIP Setup:
   stage: node-setup
@@ -247,7 +247,7 @@ MIP Setup:
   only:
     variables:
       - $PIPELINE == "developer-all"
-      - $PIPELINE == "hw-developer-dip"
+      - $PIPELINE == "hw-developer-all"
 
 Secure MinIO with a TLS certificate:
   stage: configure:minio

@@ -1,7 +1,6 @@
 import os
 import sys
 import subprocess
-
 from typing import Union
 from fabric import Connection
 from models.common import RepoSettings
@@ -156,31 +155,23 @@ class BaremetalControllerSetup(ControllerSetupJob):
 
 
     def get_controller_name(self) -> str:
-        # TODO consider removal
-        # if self.system_name == 'MIP':
-        #     for name in self.get_vm_list():
-        #         if f"{ self.ctrl_owner }Pipeline-{ self.system_name }" in name:
-        #             return name
-        # else:
         for name in self.get_vm_list():
             if f"Pipeline-" in name:
                 return name
 
     def unemployed_ctrls(self) -> list:
         unemployed_controllers = []
-        # TODO consider removal
-        # if self.system_name == "MIP":
-        #     name = self.get_controller_name()
-        #     if name:
-        #         unemployed_controllers.append(name)
-        # else:
         for name in self.get_vm_list():
             if "controller" in name.lower():
                 unemployed_controllers.append(name)
         return unemployed_controllers
 
     def copy_controller(self) -> None:
-        path_type = self.baremetal_ctrl_settings.node.template_path + "/" + self.baremetal_ctrl_settings.node.template
+        if self.baremetal_ctrl_settings.node.build_from_release:
+            path_type = self.baremetal_ctrl_settings.node.release_path + "/" + self.baremetal_ctrl_settings.node.release_ova
+        else:
+            path_type = self.baremetal_ctrl_settings.node.template_path + "/" + self.baremetal_ctrl_settings.node.template
+
         cmd = ("ovftool --noSSLVerify --network=Internal --overwrite \
                 --datastore='{datastore}' --diskMode=thin '{path}' \
                 vi://'{username}':'{password}'@'{ipaddress}'"
@@ -196,6 +187,15 @@ class BaremetalControllerSetup(ControllerSetupJob):
 
         execute_playbook([PIPELINE_DIR + 'playbooks/ctrl_config.yml'],
                          self.baremetal_ctrl_settings.to_dict())
+
+    def reset_controller(self) -> None:
+        with FabricConnectionWrapper(self.baremetal_ctrl_settings.node.username,
+                                    self.baremetal_ctrl_settings.node.password,
+                                    self.baremetal_ctrl_settings.node.ipaddress) as remote_shell:
+            remote_shell.put(PIPELINE_DIR + "scripts/reset_system.sh", "/tmp/reset_system.sh")
+            remote_shell.sudo('chmod 755 /tmp/reset_system.sh')
+            remote_shell.sudo('/tmp/reset_system.sh --reset-controller --reset-temp-ctrl=yes --hostname={}'.format("controller.lan"))
+
 
     # TODO consider removal
     # def _at_controller_limit(self):
@@ -218,17 +218,14 @@ class BaremetalControllerSetup(ControllerSetupJob):
         self.baremetal_ctrl_settings.esxi_ctrl_name = self.get_controller_name()
         #Sets list of unemployed controllers to be powered off
         self.baremetal_ctrl_settings.esxi_unemployed_ctrls = self.unemployed_ctrls()
-        # TODO consider removal
-        # if self.baremetal_ctrl_settings.run_type == self.baremetal_ctrl_settings.valid_run_types[1]:
-        #     execute_playbook([PIPELINE_DIR + 'playbooks/power_control_esxi.yml'],
-        #                         self.baremetal_ctrl_settings.to_dict())
-        #     self.copy_controller(self.baremetal_ctrl_settings.run_type)
-            #hwsettings._update_nightly_controller(False)
-
-        # elif self.baremetal_ctrl_settings.run_type == self.baremetal_ctrl_settings.valid_run_types[0]:
         execute_playbook([PIPELINE_DIR + 'playbooks/power_control_esxi.yml'],
                             self.baremetal_ctrl_settings.to_dict())
         self.copy_controller()
-        execute_playbook([PIPELINE_DIR + 'playbooks/rename_ctrl.yml'],
+
+        if not self.baremetal_ctrl_settings.node.build_from_release:
+            hwsettings._run_bootstrap(False)
+            execute_playbook([PIPELINE_DIR + 'playbooks/rename_ctrl.yml'],
                             self.baremetal_ctrl_settings.to_dict())
-        hwsettings._run_bootstrap(False)
+
+        if self.baremetal_ctrl_settings.node.build_from_release and self.baremetal_ctrl_settings.node.reset_controller:
+            self.reset_controller()

@@ -150,8 +150,6 @@ class HwNodeSettings(Model):
     valid_node_types_no_ctrl = valid_sensor_types + valid_server_types
 
     def __init__(self):
-        self.ctrl_path = ''
-        self.ctrl_name = ''
         self.username = 'root'
         self.password = ''
         self.luks_password = ''
@@ -159,6 +157,8 @@ class HwNodeSettings(Model):
         self.domain = 'lan'
         self.dns_servers = []
         self.template_path = ''
+        self.release_path = ''
+        self.release_ova = ''
         self.mng_mac = ''
         self.mng_interface = ''
         self.sensing_mac = ''
@@ -187,6 +187,8 @@ class HwNodeSettings(Model):
         self.network_id = ''
         self.network_block_index = 0
         self.ctrl_owner = ""
+        self.build_from_release = ''
+        self.reset_controller = ''
 
     def set_hostname(self, node_type: str="ctrl", index: int=0):
         self.hostname = "{}{}.{}".format(node_type, index + 1, self.domain)
@@ -209,12 +211,14 @@ class HwNodeSettings(Model):
         self.username = namespace.username or self.username
         self.password = self.b64decode_string(namespace.password)
         self.datastore = namespace.datastore
-        self.ctrl_path = namespace.ctrl_path
-        self.ctrl_name = namespace.ctrl_name
         self.template_path = namespace.template_path
+        self.release_path = namespace.release_path
         self.template = namespace.template
+        self.release_ova = namespace.release_ova
         self.redfish_user = namespace.redfish_user
         self.monitoring_interface = namespace.monitoring_interface
+        self.build_from_release = namespace.build_from_release == "yes"
+        self.reset_controller = namespace.reset_controller == "yes"
         if self.node_type == 'mip':
             self.network_id = namespace.network_id
             self.network_block_index = namespace.network_block_index
@@ -225,10 +229,10 @@ class HwNodeSettings(Model):
 
     @staticmethod
     def add_args(parser: ArgumentParser, is_for_ctrl_setup: bool=False):
-        parser.add_argument("--ctrl-path", dest="ctrl_path", required=True, help="ctrl_path where controller ova is stored")
-        parser.add_argument("--ctrl-name", dest="ctrl_name", required=True, help="Name of controller ova")
         parser.add_argument("--template-path", dest="template_path", required=True, help="where controller template is stored")
+        parser.add_argument("--release-path", dest="release_path", required=False, help="where release controller is stored")
         parser.add_argument("--template", dest="template", required=True, help="Name of controller template")
+        parser.add_argument("--release-ova", dest="release_ova", required=False, help="Name of release ova")
         parser.add_argument('--vm-datastore', dest='datastore', required=True, help="The name of vsphere's datastore where it will be storing its VMs.")
         parser.add_argument('--dns-servers', dest='dns_servers', nargs="+", required=True, help="The dns servers that will be used for nodes created.")
         parser.add_argument("--gateway", dest="gateway", help="The gateway ipaddress for the VM.", required=True)
@@ -243,8 +247,9 @@ class HwNodeSettings(Model):
         parser.add_argument("--network-id", dest="network_id", help="The network ID the application will be selecting IPs from.")
         parser.add_argument("--network-block-index", dest="network_block_index", help="The network block index to use. If left as default it will default to 1 which uses 64 as the last octet. [64, 128, 192]",
                             default=0, choices=range(0, 3), type=int)
-        parser.add_argument('--ctrl-owner', dest='ctrl_owner', default="default",
-                            help="The name of the person who created the controller.")
+        parser.add_argument('--ctrl-owner', dest='ctrl_owner', default="default", help="The name of the person who created the controller.")
+        parser.add_argument('--build-from-release', dest='build_from_release', default="no", help="Build kit from pre-existing controller")
+        parser.add_argument('--reset-controller', dest='reset_controller', default="no", help="Resets configurations on controller")
 
     def set_from_defaults(self, other):
         for key in self.__dict__:

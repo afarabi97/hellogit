@@ -5,7 +5,7 @@ Setup Hardware Controller:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "Setup Baremetal DIP Controller"
+    echo "Setup Baremetal Controller"
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/baremetal_pipeline.py \
@@ -15,8 +15,8 @@ Setup Hardware Controller:
     --esxi-password "$ESXI_PASSWORD" \
     --node-password "$DEFAULT_TEMPLATE_PASSWORD" \
     --vm-datastore "$ESXI_DATASTORE" \
-    --ctrl-path "$DIP_CONTROLLER_PATH" \
-    --ctrl-name "$CONTROLLER_OVA" \
+    --release-path "$RELEASE_PATH" \
+    --release-ova "$RELEASE_OVA" \
     --template-path "$TEMPLATE_PATH" \
     --template "$TEMPLATE_OVA" \
     --gateway "$CONTROLLER_GATEWAY" \
@@ -35,13 +35,15 @@ Setup Hardware Controller:
     --pfsense-ip "$PFSENSE_IP" \
     --switch-ip "$SWITCH_IP" \
     --monitoring-interface "$MONITORING_INTERFACE" \
-    --run-remote-node "$RUN_REMOTE_NODE"
+    --run-remote-node "$RUN_REMOTE_NODE" \
+    --build-from-release "$BUILD_FROM_RELEASE" \
+    --reset-controller "$RESET_CONTROLLER" \
   artifacts:
     untracked: true
   only:
     variables:
-      - $PIPELINE == "hw-developer-dip"
-      - $PIPELINE == "dip_only_build"
+      - $PIPELINE == "hw-developer-all"
+      - $PIPELINE == "ctrl_only_build"
 
 Hardware Kit Settings:
   stage: kit-settings
@@ -69,7 +71,7 @@ Hardware Kit Settings:
     untracked: true
   only:
     variables:
-      - $PIPELINE == "hw-developer-dip"
+      - $PIPELINE == "hw-developer-all"
 
 Hardware Control Plane:
   stage: control-plane
@@ -82,7 +84,7 @@ Hardware Control Plane:
     python3 testing/pipeline/baremetal_pipeline.py setup-control-plane
   only:
     variables:
-      - $PIPELINE == "hw-developer-dip"
+      - $PIPELINE == "hw-developer-all"
 
 Hardware Server Setup:
   stage: server-setup
@@ -106,7 +108,7 @@ Hardware Server Setup:
     untracked: true
   only:
     variables:
-      - $PIPELINE == "hw-developer-dip"
+      - $PIPELINE == "hw-developer-all"
 
 Hardware Kit Deploy:
   stage: deploy-kit
@@ -116,7 +118,7 @@ Hardware Kit Deploy:
     python3 testing/pipeline/baremetal_pipeline.py deploy-kit
   only:
     variables:
-      - $PIPELINE == "hw-developer-dip"
+      - $PIPELINE == "hw-developer-all"
 
 Hardware Sensor Setup:
   stage: node-setup
@@ -141,7 +143,7 @@ Hardware Sensor Setup:
     untracked: true
   only:
     variables:
-      - $PIPELINE == "hw-developer-dip"
+      - $PIPELINE == "hw-developer-all"
 
 Remote Node Automation:
   stage: remote-node
@@ -154,7 +156,7 @@ Remote Node Automation:
      run-remote-node
   only:
     variables:
-      - $RUN_REMOTE_NODE == "yes" && $PIPELINE == "hw-developer-dip"
+      - $RUN_REMOTE_NODE == "yes" && $PIPELINE == "hw-developer-all"
 
 Hardware System Function Testing:
   stage: integration-test
@@ -166,7 +168,7 @@ Hardware System Function Testing:
     python3 testing/pipeline/baremetal_pipeline.py run-integration-tests
   only:
     variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-dip"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
   artifacts:
     paths:
       - "./*.xml"
@@ -183,7 +185,7 @@ Hardware Simulate Power Failure:
     python3 testing/pipeline/baremetal_pipeline.py simulate-power-failure
   only:
     variables:
-      - $RUN_POWER_FAILURE == "yes" && $PIPELINE == "hw-developer-dip"
+      - $RUN_POWER_FAILURE == "yes" && $PIPELINE == "hw-developer-all"
 
 Hardware CVAH Catalog PMO Apps:
   stage: catalog
@@ -204,7 +206,7 @@ Hardware CVAH Catalog PMO Apps:
     python3 testing/pipeline/baremetal_pipeline.py run-catalog rocketchat
   only:
     variables:
-      - $RUN_CATALOG == "yes" && $PIPELINE == "hw-developer-dip"
+      - $RUN_CATALOG == "yes" && $PIPELINE == "hw-developer-all"
 
 Hardware CVAH Catalog Community Apps:
   stage: catalog
@@ -219,7 +221,7 @@ Hardware CVAH Catalog Community Apps:
     python3 testing/pipeline/baremetal_pipeline.py run-catalog netflow-filebeat
   only:
     variables:
-      - $RUN_CATALOG == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "hw-developer-dip"
+      - $RUN_CATALOG == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "hw-developer-all"
 
 Verodin Automation:
   stage: verodin-test
@@ -239,7 +241,7 @@ Verodin Automation:
   retry: 2
   only:
     variables:
-      - $RUN_CATALOG == "yes" && $RUN_VERODIN == "yes" && $PIPELINE == "hw-developer-dip"
+      - $RUN_CATALOG == "yes" && $RUN_VERODIN == "yes" && $PIPELINE == "hw-developer-all"
 
 BreakingPoint Automation:
   stage: breakingpoint-test
@@ -255,6 +257,6 @@ BreakingPoint Automation:
     --bp-test $BREAKINGPOINT_TEST_NAME
   only:
     variables:
-      - $RUN_BREAKINGPOINT == "yes" && $PIPELINE == "hw-developer-dip"
+      - $RUN_BREAKINGPOINT == "yes" && $PIPELINE == "hw-developer-all"
       - $RUN_BREAKINGPOINT == "yes" && $PIPELINE == "hw-bp-test"
 ...

@@ -30,3 +30,20 @@
         validate_certs: False
       delegate_to: localhost
       when: esxi_ctrl_name != ""
+
+    - name: Set release ova name
+      set_fact:
+        release_ctrl: "{{ '.'.join(node.release_ova.split('.')[:-1]) }}"
+      when: node.build_from_release
+
+    - name: "Remove previously built release ova: {{ release_ctrl }}"
+      ignore_errors: yes
+      vmware_guest:
+        hostname: "{{ esxi.ipaddress }}"
+        username: "{{ esxi.username }}"
+        password: "{{ esxi.password }}"
+        name:  "{{ release_ctrl }}"
+        state: absent
+        validate_certs: False
+      delegate_to: localhost
+      when: node.build_from_release

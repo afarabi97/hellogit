@@ -52,6 +52,8 @@ variables:
 
   # Yes no flag variables
   VM_RAID: "no"
+  RESET_CONTROLLER: "no"
+  BUILD_FROM_RELEASE: "no"
   RUN_REMOTE_NODE: "no"
   RUN_INTEGRATION: "no"
   COMMUNITY_APPS: "no"
@@ -160,8 +162,8 @@ variables:
 
   DRIVE_STAGING_FOLDER: "$MASTER_DRIVE_CREATION_PATH/staging_$TFPLENUM_EXPORT_VERSION"
   DRIVE_GIP_STAGING_FOLDER: "$MASTER_DRIVE_CREATION_PATH/staging_gip_$TFPLENUM_EXPORT_VERSION"
-  TEMPLATE_PATH: "/mnt/drive_creation/templates/"
-  DIP_CONTROLLER_PATH: "/mnt/drive_creation/v$TFPLENUM_EXPORT_VERSION/CPT/Data/CVAH\ $TFPLENUM_EXPORT_VERSION/Software/DIP/"
+  TEMPLATE_PATH: "/mnt/drive_creation/templates"
+  RELEASE_PATH: "/mnt/drive_creation/v$TFPLENUM_EXPORT_VERSION/CPT/Data/CVAH $TFPLENUM_EXPORT_VERSION/Software/DIP"
 
   # Options for the export-powershell-modules pipeline.
   POWERSHELL_MODULES_CPT_EXPORT_DIR: "$MASTER_DRIVE_CREATION_PATH/v$TFPLENUM_EXPORT_VERSION/CPT/Data/CVAH $TFPLENUM_EXPORT_VERSION/Software/AppStore/PowerShell_Modules"

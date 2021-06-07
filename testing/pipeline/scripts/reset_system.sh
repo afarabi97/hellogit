@@ -26,7 +26,7 @@ arguments:
   -h, --help            show this help message and exit
   --reset-controller    Resets a controller back to something that can be export.  Clears its database, history, resets its network configuration scripts, etc.
   --reset-node          Runs general reset on a node. Clears its database, history, resets its network configuration scripts, etc.
-  --iface=<iface_name>  The name of the network interface to reset.
+  --reset-temp-ctrl     Runs everything execept password reset and network reset
   --hostname=<hostname> The hostname you wish to set the node to.
 "
 }
@@ -35,10 +35,6 @@ function parse_command_line_args {
     for e in "$ARGUMENTS"; do
         for i in $e; do
         case $i in
-            -i=*|--iface=*)
-            IFACE_NAME="${i#*=}"
-            shift # past argument=value
-            ;;
             -h|--help)
             SHOW_HELP=yes
             shift # past argument with no value
@@ -55,6 +51,10 @@ function parse_command_line_args {
             HOST_NAME="${i#*=}"
             shift # past argument=value
             ;;
+            --reset-temp-ctrl=*)
+            RESET_TEMP_CONTROLLER="${i#*=}"
+            shift # past argument=value
+            ;;
             *)
                 # Unknown commmand line flag
             ;;
@@ -62,9 +62,17 @@ function parse_command_line_args {
         done
     done
 
+
     if [[ $SHOW_HELP == "yes" ]]; then
         help_info
         exit 0
+    fi
+
+    if [[ $RESET_TEMP_CONTROLLER == "yes" ]];then
+        RESET_NODE=no
+        RESET_CONTROLLER=no
+    else
+        RESET_TEMP_CONTROLLER=no
     fi
 
     if [[ -z $RESET_CONTROLLER && -z $RESET_NODE ]]; then
@@ -72,14 +80,9 @@ function parse_command_line_args {
         exit 2
     fi
 
-    if [[ -z "$IFACE_NAME" ]]; then
-        echo "The --iface=<iface_name> name is required. Please add this flag into your command line and try again."
-        exit 2
-    fi
-
-    echo "IFACE_NAME  = ${IFACE_NAME}"
     echo "RESET_CTRL  = $RESET_CONTROLLER"
     echo "RESET_NODE  = $RESET_NODE"
+    echo "RESET_TEMP_CONTROLLER = $RESET_TEMP_CONTROLLER"
 }
 
 function reset_password {
@@ -136,36 +139,30 @@ function wait_for_mongo {
 }
 
 function clear_tfplenum_database {
-    if [[ $RESET_CONTROLLER != "yes" ]]; then
-        return
+    if [[ $RESET_CONTROLLER == "yes" || $RESET_TEMP_CONTROLLER == "yes" ]]; then
+
+        wait_for_mongo
+
+        collections=(
+            'catalog_saved_values'
+            'console'
+            'counters'
+            'elastic_deploy'
+            'jobs'
+            'metrics'
+            'nodes'
+            'notifications'
+            'settings'
+        )
+
+        for collection in "${collections[@]}"
+        do
+            echo "Clearing $collection"
+            local cmd="db.${collection}.drop();"
+            mongo --eval $cmd tfplenum_database
+        done
     fi
-    wait_for_mongo
-
-    collections=(
-        'add_node_wizard'
-        'catalog_saved_values'
-        'kit'
-        'kickstart'
-        'console'
-        'counters'
-        'elastic_deploy'
-        'kickstart_archive'
-        'kit_archive'
-        'last_jobs'
-        'metrics'
-        'notifications'
-        'configurations'
-        'celery_tasks'
-    )
-
-    for collection in "${collections[@]}"
-    do
-        echo "Clearing $collection"
-        local cmd="db.${collection}.drop();"
-        mongo --eval $cmd tfplenum_database
-    done
 }
-
 function cleanup_extra_files {
     rm -rf /root/.ssh/*
     rm -f /opt/tfplenum/.editorconfig
@@ -207,16 +204,30 @@ function reset_sso {
 
 
 parse_command_line_args
-update_network_scripts
-clear_etc_hosts
-cleanup_extra_files
-reset_password
-clear_tfplenum_database
-change_hostname
-clear_history
-reset_sso
-reset_openvpn_server
-reset_dhcp
-reset_kickstart
+if [[ $RESET_CONTROLLER == "yes" || $RESET_NODE == "yes" ]]; then
+    update_network_scripts
+    clear_etc_hosts
+    cleanup_extra_files
+    reset_password
+    clear_tfplenum_database
+    change_hostname
+    clear_history
+    reset_sso
+    reset_openvpn_server
+    reset_dhcp
+    reset_kickstart
+
+elif [[ $RESET_TEMP_CONTROLLER == "yes" ]]; then
+    echo "Cleaning Temporary Controller!"
+    clear_etc_hosts
+    cleanup_extra_files
+    clear_tfplenum_database
+    change_hostname
+    clear_history
+    reset_sso
+    reset_openvpn_server
+    reset_dhcp
+    reset_kickstart
+fi
 
 echo "Cleanup complete!"
