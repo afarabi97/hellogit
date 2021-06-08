@@ -43,21 +43,37 @@ class HealthServiceTotalsWildcardModel(Model):
     })
 
 class HealthServiceNodeInfoModel(Model):
-    DTO = api.model('HealthServiceNodeInfoModel', {
-        'status': fields.Nested({
-            'allocatable': fields.Nested({
-                'cpu': fields.String(example="16000m"),
-                'ephermeral-storage': fields.String(example="16.775Gi"),
-                'memory': fields.String(example="15.401Gi")
-            }),
-            'capacity': fields.Nested({
-                'cpu': fields.String(example="16000m"),
-                'ephermeral-storage': fields.String(example="18.639Gi"),
-                'memory': fields.String(example="15.499Gi")
-            })
-        }),
-        'node_type': fields.String(example="Sensor"),
-        'public_ip': fields.String(required=False)
+    DTO = api.schema_model('HealthServiceNodeInfoModel', {
+        "required": ["status", "node_type", "public_ip"],
+        "type": "object",
+        "properties": {
+            "status": {
+                "type": "object",
+                "required": ["allocatable", "capacity"],
+                "properties": {
+                    "allocatable": {
+                        "type": "object",
+                        "required": ["cpu", "ephemeral-storage", "memory"],
+                        "properties": {
+                            "cpu": {"type": "string"},
+                            "ephemeral-storage": {"type": "string"},
+                            "memory": {"type": "string"}
+                        }
+                    },
+                    "capacity": {
+                        "type": "object",
+                        "required": ["cpu", "ephemeral-storage", "memory"],
+                        "properties": {
+                            "cpu": {"type": "string"},
+                            "ephemeral-storage": {"type": "string"},
+                            "memory": {"type": "string"}
+                        }
+                    }
+                }
+            },
+            "node_type": {"type": "string"},
+            "public_ip": {"type": "string"}
+        }
     })
 
 class HealthServiceNodeInfoWildcardModel(Model):
