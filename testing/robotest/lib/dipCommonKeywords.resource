@@ -6,6 +6,12 @@ Library     SSHLibrary          15s
 
 
 *** Keywords ***
+Set DIP Kit Global Variables
+    [Documentation]  Checks if kit is bare-metal or virtual and sets global variables
+    ${first_3_chars} =  Get Substring  ${PIPELINE}  0  3
+    ${IS_BARE_METAL_KIT} =  Set Variable If  '${first_3_chars}' == 'hw-'  ${True}  ${False}
+    Set Global Variable  ${IS_BARE_METAL_KIT}
+
 Open SSH Connection
     [Arguments]  ${host}  ${host_username}  ${host_password}
     [Documentation]  Perform The Suite Setup Functionality of Setting The Log Level, And SSH'ing Into The Host

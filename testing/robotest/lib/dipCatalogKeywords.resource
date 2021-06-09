@@ -2,12 +2,11 @@
 Resource    ../include/dipCommonVariables.resource
 Resource    ../include/dipCatalogVariables.resource
 
-Library     SeleniumLibrary     30s    run_on_failure=NONE
-Library     String
 
 *** Keywords ***
 Download App From Catalog
     [Arguments]  ${application_name}  ${config_app_button}
+    Wait Until Element Is Visible    ${locCatalogPageNavIcon}
     Click Element    ${locCatalogPageNavIcon}
     Wait Until Page Contains    CVAH CATALOG
     Wait Until Page Contains    ${application_name}
@@ -16,15 +15,15 @@ Download App From Catalog
     Click Element   ${locSelectProcessDropdown}
     Click Element   ${locInstallButton}
     ${next_btn_list} =   Get WebElements  id=app-catalog-page-div-mat-card-div-button-next-get-config
-    ${first_3_chars} =  String.Get Substring  ${PIPELINE}  0  3
-    Run Keyword if  '${application_name}' == 'Moloch' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
+    Run Keyword if  '${application_name}' == 'Arkime' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
     ...  Run Keywords  Click Element  ${locNodeSelection}
     ...  AND  Wait Until Page Contains Element  ${locFirstNodeOption}
     ...  AND  Click Element  ${locFirstNodeOption}
     ...  AND  Press Keys  None  TAB
     ...  AND  Click Button  ${next_btn_list[0]}  # Next btn
-    ...  AND  Run Keyword if  '${application_name}' == 'Moloch' and '${first_3_chars}' != 'hw-'
+    ...  AND  Run Keyword if  '${application_name}' == 'Arkime' and ${IS_BARE_METAL_KIT} is ${False}
     ...                        Input Text  ${locMemLimitInput}  6Gi  # If virtual kit decrease memory limit from 20Gi to 6Gi
+    ...  AND  SeleniumLibrary.Capture Page Screenshot    filename=Arkime-screenshot-{index}.png
     ...  AND  Click Element  ${locInterfaceSelection}
     ...  AND  Click Element  ${locFirstInterfaceOption}
     ...  AND  Press Keys  None  TAB
@@ -33,6 +32,8 @@ Download App From Catalog
     ...  AND  Click Button    ${next_btn_list[2]}  # Run btn
     ...  ELSE
     ...  Run Keywords  Click Button    ${next_btn_list[0]}  # Next btn
+    ...  AND  Run Keyword if  '${application_name}' == 'Logstash' and ${IS_BARE_METAL_KIT} is ${False}
+    ...                        Input Text  ${locHeapSizeInput}  4  # If virtual kit decrease heap_size from 12 to 4
     ...  AND  Wait Until Page Contains    server
     ...  AND  Click Button    ${next_btn_list[1]}  # Next btn
     ...  AND  Wait Until Page Contains    Enable Edit
@@ -42,6 +43,7 @@ Download App From Catalog
 Verify App Has Been Installed
     [Arguments]  ${application_name}  ${application_card}  ${app_card_circle}
     # Visual confirmation on the Catalog Page that the app is installed
+    Wait Until Element Is Visible    ${locCatalogPageNavIcon}
     Click Element    ${locCatalogPageNavIcon}
     Wait Until Page Contains    CVAH CATALOG
     Wait Until Page Contains Element    ${application_card}
@@ -54,18 +56,18 @@ Verify App Has Been Installed
     Sleep  10s
     # Visual confirmation on the Health Page that the app is installed
     Click Element   ${locHealthPageNavIcon}
-    Wait Until Page Contains    sensor1
     Wait Until Page Contains    server1
     Wait Until Page Does Not Contain    Pod Errors  5m
     ${app_name_lowercase} =  Convert To Lower Case  ${application_name}
     ${expectedText} =  Set Variable If
-    ...  '${app_name_lowercase}' == 'moloch' or '${app_name_lowercase}' == 'zeek'
-    ...  -sensor1-${app_name_lowercase}    ${app_name_lowercase}: running  # else var assigned "${app_name_lowercase}: running"
+    ...  '${app_name_lowercase}' == 'arkime' or '${app_name_lowercase}' == 'zeek'
+    ...  -${app_name_lowercase}-    ${app_name_lowercase}: running  # else var assigned "${app_name_lowercase}: running"
     ${app_on_health_page} =  Set Variable  False
     ${pod_status_tables} =  Get WebElements  xpath=//*[contains(@id, "mat-tab-label-")]
     ${num_tables} =  Get Length  ${pod_status_tables}
     FOR    ${index}    IN RANGE    ${num_tables}
         Click Element    ${pod_status_tables[${index}]}
+        Wait Until Page Contains Element  xpath=//*[contains(@id, "-pod-status-table-tr-mat-row-undefined")]
         ${app_on_health_page} =  Run Keyword And Return Status  Page Should Contain  ${expectedText}
         Run Keyword If	'${app_on_health_page}' == 'True'	Exit For Loop
     END
@@ -82,7 +84,7 @@ Uninstall App
     ${process_select_options} =  Get WebElements  xpath=//*[contains(@id, "-form-field-process-mat-select-mat-option-")]
     ${uninstall_button} =  Set Variable  ${process_select_options[-1]}  # Uninstall btn should be last index position of options list
     Click Element  ${uninstall_button}
-    Run Keyword if  '${application_name}' == 'Moloch' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
+    Run Keyword if  '${application_name}' == 'Arkime' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
     ...  Run Keywords  Click Element  ${locNodeSelection}
     ...  AND  Click Element  ${locFirstNodeOption}
     ...  AND  Press Keys  None  TAB

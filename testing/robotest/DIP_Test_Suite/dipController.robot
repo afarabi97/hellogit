@@ -36,8 +36,57 @@ Verify Correct System Name And Version Number
     ...                Also checks that the Service Now web address is correct.
     Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
     Wait Until Page Contains    Portal
-    Click Element    ${locExpandSideNavIcon}
-    # Element Should Contain  ${locSystemName}  TFPLENUM ${SYSTEM_NAME} Controller  # System Name should be DIP, MIP, or GIP
     Click Element    ${locSupportPageNavIcon}
     Wait Until Element Contains  ${locSystemVersionNumber}  ${KIT_VERSION}
     Element Should Contain    ${locServiceNowURL}  https://afdco.servicenowservices.com/sp
+
+Install And Uninstall Apps From Catalog Page
+    [Tags]    THISISCVAH-8137
+    [Documentation]    Download apps from Catalog page and verify successful download within Notifications & Health pages
+    Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
+    Wait Until Page Contains    Portal
+    Set Selenium Speed  0.5s
+    Set DIP Kit Global Variables
+
+    Download App From Catalog    Arkime-viewer  ${locArkimeViewerConfigAppBtn}
+    Verify App Has Been Installed    Arkime-viewer  ${locArkimeViewerAppCard}  ${locArkimeViewerAppCardCircle}
+    Download App From Catalog    Arkime  ${locArkimeConfigAppBtn}
+    Verify App Has Been Installed    Arkime  ${locArkimeAppCard}  ${locArkimeAppCardCircle}
+    Uninstall App    Arkime  ${locArkimeAppCard}  ${locArkimeConfigAppBtn}
+    Uninstall App    Arkime-viewer  ${locArkimeViewerAppCard}  ${locArkimeViewerConfigAppBtn}
+
+    Download App From Catalog    Cortex  ${locCortexConfigAppBtn}
+    Verify App Has Been Installed    Cortex  ${locCortexAppCard}  ${locCortexAppCardCircle}
+    Uninstall App    Cortex  ${locCortexAppCard}  ${locCortexConfigAppBtn}
+
+    Download App From Catalog    Hive  ${locHiveConfigAppBtn}
+    Verify App Has Been Installed    Hive  ${locHiveAppCard}  ${locHiveAppCardCircle}
+    Uninstall App    Hive  ${locHiveAppCard}  ${locHiveConfigAppBtn}
+
+    Download App From Catalog    Jcat-nifi  ${locJcatNifiConfigAppBtn}
+    Verify App Has Been Installed    Jcat-nifi  ${locJcatNifiAppCard}  ${locJcatNifiAppCardCircle}
+    Uninstall App    Jcat-nifi  ${locJcatNifiAppCard}  ${locJcatNifiConfigAppBtn}
+
+    Download App From Catalog    Logstash  ${locLogstashConfigAppBtn}
+    Verify App Has Been Installed    Logstash  ${locLogstashAppCard}  ${locLogstashAppCardCircle}
+    Uninstall App    Logstash  ${locLogstashAppCard}  ${locLogstashConfigAppBtn}
+
+    Download App From Catalog    Misp  ${locMispConfigAppBtn}
+    Verify App Has Been Installed    Misp  ${locMispAppCard}  ${locMispAppCardCircle}
+    Uninstall App    Misp  ${locMispAppCard}  ${locMispConfigAppBtn}
+
+    Download App From Catalog    Rocketchat  ${locRocketchatConfigAppBtn}
+    Verify App Has Been Installed    Rocketchat  ${locRocketchatAppCard}  ${locRocketchatAppCardCircle}
+    Uninstall App    Rocketchat  ${locRocketchatAppCard}  ${locRocketchatConfigAppBtn}
+
+    Download App From Catalog    Suricata  ${locSuricataConfigAppBtn}
+    Verify App Has Been Installed    Suricata  ${locSuricataAppCard}  ${locSuricataAppCardCircle}
+    Uninstall App    Suricata  ${locSuricataAppCard}  ${locSuricataConfigAppBtn}
+
+    Download App From Catalog    Wikijs  ${locWikijsConfigAppBtn}
+    Verify App Has Been Installed    Wikijs  ${locWikijsAppCard}  ${locWikijsAppCardCircle}
+    Uninstall App    Wikijs  ${locWikijsAppCard}  ${locWikijsConfigAppBtn}
+
+    Download App From Catalog    Zeek  ${locZeekConfigAppBtn}
+    Verify App Has Been Installed    Zeek  ${locZeekAppCard}  ${locZeekAppCardCircle}
+    Uninstall App    Zeek  ${locZeekAppCard}  ${locZeekConfigAppBtn}
