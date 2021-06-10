@@ -153,7 +153,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   {
                       "names": [
                           "dip-controller.lan/elastic-maps-service/elastic-maps-server-ubi8@sha256:b1c2ecbe84f5319b9e61ee1224200d537f20f35c6c8606185e2bb9dae5814b40",
-                          "dip-controller.lan/elastic-maps-service/elastic-maps-server-ubi8:7.11.1"
+                          "dip-controller.lan/elastic-maps-service/elastic-maps-server-ubi8:7.13.1"
                       ],
                       "size_bytes": 1243897115
                   },
@@ -167,14 +167,14 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   {
                       "names": [
                           "dip-controller.lan/beats/metricbeat@sha256:1200faae67a93d43c39ee0a886f84a08a81acd106603dd94fc1c0823ec24d3ef",
-                          "dip-controller.lan/beats/metricbeat:7.11.1"
+                          "dip-controller.lan/beats/metricbeat:7.13.1"
                       ],
                       "size_bytes": 500704798
                   },
                   {
                       "names": [
                           "dip-controller.lan/beats/filebeat@sha256:808e0e57fd80f0bd60934aeeca04f18d7a92d6e7cba0b819e55f92458348fcb2",
-                          "dip-controller.lan/beats/filebeat:7.11.1"
+                          "dip-controller.lan/beats/filebeat:7.13.1"
                       ],
                       "size_bytes": 477899843
                   },
@@ -338,14 +338,14 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   {
                       "names": [
                           "dip-controller.lan/beats/metricbeat@sha256:1200faae67a93d43c39ee0a886f84a08a81acd106603dd94fc1c0823ec24d3ef",
-                          "dip-controller.lan/beats/metricbeat:7.11.1"
+                          "dip-controller.lan/beats/metricbeat:7.13.1"
                       ],
                       "size_bytes": 500704798
                   },
                   {
                       "names": [
                           "dip-controller.lan/eck/eck-operator@sha256:4d2897e4b88403a7086f8b58788eae94960a68205ac95d6c0d68065299caf6ac",
-                          "dip-controller.lan/eck/eck-operator:1.4.0"
+                          "dip-controller.lan/eck/eck-operator:1.6.0"
                       ],
                       "size_bytes": 169976379
                   },
@@ -512,21 +512,21 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   {
                       "names": [
                           "dip-controller.lan/kibana/kibana@sha256:0570b27bb7c2947a50eeb1dd7cc09fa4bc51f1f234b1f113e01ac8e7443999a4",
-                          "dip-controller.lan/kibana/kibana:7.11.1"
+                          "dip-controller.lan/kibana/kibana:7.13.1"
                       ],
                       "size_bytes": 1060333202
                   },
                   {
                       "names": [
                           "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
-                          "dip-controller.lan/elasticsearch/elasticsearch:7.11.1"
+                          "dip-controller.lan/elasticsearch/elasticsearch:7.13.1"
                       ],
                       "size_bytes": 830307717
                   },
                   {
                       "names": [
                           "dip-controller.lan/beats/metricbeat@sha256:1200faae67a93d43c39ee0a886f84a08a81acd106603dd94fc1c0823ec24d3ef",
-                          "dip-controller.lan/beats/metricbeat:7.11.1"
+                          "dip-controller.lan/beats/metricbeat:7.13.1"
                       ],
                       "size_bytes": 500704798
                   },
@@ -753,7 +753,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   {
                       "names": [
                           "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
-                          "dip-controller.lan/elasticsearch/elasticsearch:7.11.1"
+                          "dip-controller.lan/elasticsearch/elasticsearch:7.13.1"
                       ],
                       "size_bytes": 830307717
                   },
@@ -767,21 +767,21 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   {
                       "names": [
                           "dip-controller.lan/beats/metricbeat@sha256:1200faae67a93d43c39ee0a886f84a08a81acd106603dd94fc1c0823ec24d3ef",
-                          "dip-controller.lan/beats/metricbeat:7.11.1"
+                          "dip-controller.lan/beats/metricbeat:7.13.1"
                       ],
                       "size_bytes": 500704798
                   },
                   {
                       "names": [
                           "dip-controller.lan/beats/filebeat@sha256:808e0e57fd80f0bd60934aeeca04f18d7a92d6e7cba0b819e55f92458348fcb2",
-                          "dip-controller.lan/beats/filebeat:7.11.1"
+                          "dip-controller.lan/beats/filebeat:7.13.1"
                       ],
                       "size_bytes": 477899843
                   },
                   {
                       "names": [
                           "dip-controller.lan/tfplenum/winlogbeat-setup@sha256:dfbe5f26d438732856dc5afcff0c91e5d3e83ecb57334d993347943a7dc82c9c",
-                          "dip-controller.lan/tfplenum/winlogbeat-setup:7.11.1"
+                          "dip-controller.lan/tfplenum/winlogbeat-setup:7.13.1"
                       ],
                       "size_bytes": 185577447
                   },
@@ -1653,7 +1653,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               }
                           }
                       ],
-                      "image": "elastic-maps-service/elastic-maps-server-ubi8:7.11.1",
+                      "image": "elastic-maps-service/elastic-maps-server-ubi8:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "maps-server",
                       "ports": [
@@ -1774,7 +1774,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://f46eaab9665c49e630b2b7d832ce20e750143c83912b43f932833b94f5325bf6",
-                      "image": "dip-controller.lan/elastic-maps-service/elastic-maps-server-ubi8:7.11.1",
+                      "image": "dip-controller.lan/elastic-maps-service/elastic-maps-server-ubi8:7.13.1",
                       "image_id": "dip-controller.lan/elastic-maps-service/elastic-maps-server-ubi8@sha256:b1c2ecbe84f5319b9e61ee1224200d537f20f35c6c8606185e2bb9dae5814b40",
                       "last_state": {},
                       "name": "maps-server",
@@ -2610,7 +2610,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               }
                           }
                       ],
-                      "image": "beats/filebeat:7.11.1",
+                      "image": "beats/filebeat:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "filebeat",
                       "resources": {},
@@ -2727,7 +2727,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://5b7fc68562156bc4409e83d99fc7757cabbbdd0f1dd77f9818b2aad7d1f29c6d",
-                      "image": "dip-controller.lan/beats/filebeat:7.11.1",
+                      "image": "dip-controller.lan/beats/filebeat:7.13.1",
                       "image_id": "dip-controller.lan/beats/filebeat@sha256:808e0e57fd80f0bd60934aeeca04f18d7a92d6e7cba0b819e55f92458348fcb2",
                       "last_state": {},
                       "name": "filebeat",
@@ -3234,7 +3234,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "labels": {
                   "beat.k8s.elastic.co/config-checksum": "728553c998051a2339638256bd4368ad912e11580d53bc9259250fd2",
                   "beat.k8s.elastic.co/name": "metricbeat",
-                  "beat.k8s.elastic.co/version": "7.11.1",
+                  "beat.k8s.elastic.co/version": "7.13.1",
                   "common.k8s.elastic.co/type": "beat",
                   "controller-revision-hash": "5b9bf4bb56",
                   "pod-template-generation": "1"
@@ -3294,7 +3294,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               }
                           }
                       ],
-                      "image": "beats/metricbeat:7.11.1",
+                      "image": "beats/metricbeat:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "metricbeat",
                       "resources": {
@@ -3501,7 +3501,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://4ecfcb9dfbc3bf9d1ba3e4f8e44a4eaba4ea11928d2f1fbdb10eb90759058b47",
-                      "image": "dip-controller.lan/beats/metricbeat:7.11.1",
+                      "image": "dip-controller.lan/beats/metricbeat:7.13.1",
                       "image_id": "dip-controller.lan/beats/metricbeat@sha256:1200faae67a93d43c39ee0a886f84a08a81acd106603dd94fc1c0823ec24d3ef",
                       "last_state": {
                           "terminated": {
@@ -3536,7 +3536,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "labels": {
                   "beat.k8s.elastic.co/config-checksum": "728553c998051a2339638256bd4368ad912e11580d53bc9259250fd2",
                   "beat.k8s.elastic.co/name": "metricbeat",
-                  "beat.k8s.elastic.co/version": "7.11.1",
+                  "beat.k8s.elastic.co/version": "7.13.1",
                   "common.k8s.elastic.co/type": "beat",
                   "controller-revision-hash": "5b9bf4bb56",
                   "pod-template-generation": "1"
@@ -3596,7 +3596,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               }
                           }
                       ],
-                      "image": "beats/metricbeat:7.11.1",
+                      "image": "beats/metricbeat:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "metricbeat",
                       "resources": {
@@ -3803,7 +3803,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://bc802cbf2d457d6716378712dafd78ff0f584cd79d6d1776ca587418cc154c0e",
-                      "image": "dip-controller.lan/beats/metricbeat:7.11.1",
+                      "image": "dip-controller.lan/beats/metricbeat:7.13.1",
                       "image_id": "dip-controller.lan/beats/metricbeat@sha256:1200faae67a93d43c39ee0a886f84a08a81acd106603dd94fc1c0823ec24d3ef",
                       "last_state": {
                           "terminated": {
@@ -3838,7 +3838,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "labels": {
                   "beat.k8s.elastic.co/config-checksum": "728553c998051a2339638256bd4368ad912e11580d53bc9259250fd2",
                   "beat.k8s.elastic.co/name": "metricbeat",
-                  "beat.k8s.elastic.co/version": "7.11.1",
+                  "beat.k8s.elastic.co/version": "7.13.1",
                   "common.k8s.elastic.co/type": "beat",
                   "controller-revision-hash": "5b9bf4bb56",
                   "pod-template-generation": "1"
@@ -3898,7 +3898,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               }
                           }
                       ],
-                      "image": "beats/metricbeat:7.11.1",
+                      "image": "beats/metricbeat:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "metricbeat",
                       "resources": {
@@ -4105,7 +4105,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://8d9513ab61f42689fdcd031d4e7824d0e675c316f60c3e099406c3cdf876cfad",
-                      "image": "dip-controller.lan/beats/metricbeat:7.11.1",
+                      "image": "dip-controller.lan/beats/metricbeat:7.13.1",
                       "image_id": "dip-controller.lan/beats/metricbeat@sha256:1200faae67a93d43c39ee0a886f84a08a81acd106603dd94fc1c0823ec24d3ef",
                       "last_state": {
                           "terminated": {
@@ -4140,7 +4140,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "labels": {
                   "beat.k8s.elastic.co/config-checksum": "728553c998051a2339638256bd4368ad912e11580d53bc9259250fd2",
                   "beat.k8s.elastic.co/name": "metricbeat",
-                  "beat.k8s.elastic.co/version": "7.11.1",
+                  "beat.k8s.elastic.co/version": "7.13.1",
                   "common.k8s.elastic.co/type": "beat",
                   "controller-revision-hash": "5b9bf4bb56",
                   "pod-template-generation": "1"
@@ -4200,7 +4200,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               }
                           }
                       ],
-                      "image": "beats/metricbeat:7.11.1",
+                      "image": "beats/metricbeat:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "metricbeat",
                       "resources": {
@@ -4407,7 +4407,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://239c322fbfec3b46c7d33072db730d98b0026b28deb42782f2e14ab1abc494de",
-                      "image": "dip-controller.lan/beats/metricbeat:7.11.1",
+                      "image": "dip-controller.lan/beats/metricbeat:7.13.1",
                       "image_id": "dip-controller.lan/beats/metricbeat@sha256:1200faae67a93d43c39ee0a886f84a08a81acd106603dd94fc1c0823ec24d3ef",
                       "last_state": {
                           "terminated": {
@@ -4461,7 +4461,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   "elasticsearch.k8s.elastic.co/node-voting_only": "false",
                   "elasticsearch.k8s.elastic.co/secure-settings-hash": "c9f95bec8eb0cbcd77233f935266b7c6d1bac2bccbfd4bab7ab70871",
                   "elasticsearch.k8s.elastic.co/statefulset-name": "tfplenum-es-coordinating",
-                  "elasticsearch.k8s.elastic.co/version": "7.11.1",
+                  "elasticsearch.k8s.elastic.co/version": "7.13.1",
                   "statefulset.kubernetes.io/pod-name": "tfplenum-es-coordinating-0"
               },
               "name": "tfplenum-es-coordinating-0",
@@ -4564,7 +4564,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "no"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "lifecycle": {
                           "pre_stop": {
@@ -4737,7 +4737,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-coordinating"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-filesystem",
                       "resources": {
@@ -4876,7 +4876,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-coordinating"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-keystore",
                       "resources": {
@@ -5019,7 +5019,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-coordinating"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "sysctl",
                       "resources": {},
@@ -5104,7 +5104,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                       "command": [
                           "sh",
                           "-c",
-                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.11.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
+                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.13.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
                       ],
                       "env": [
                           {
@@ -5148,7 +5148,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-coordinating"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "install-plugins",
                       "resources": {},
@@ -5417,7 +5417,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://dbc60f2eb9a2b049c144a4afed212d7ea8f3e2f762d18484ba01803b22962958",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elasticsearch",
@@ -5434,7 +5434,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "init_container_statuses": [
                   {
                       "container_id": "cri-o://e3912896b7c1ee058a64ab6245a8d8eff7d0c00f399a7796db4c9e2c629837ba",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-filesystem",
@@ -5452,7 +5452,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://eb10fbadd38bbec67c63a57b7a2a3403d65a63f505e0b809dfe91a89a1a8efef",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-keystore",
@@ -5470,7 +5470,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://405a483c1ff8b5679ea1933ffec223b90d9115e6302fa2a1ee84af5b0cac45ad",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "sysctl",
@@ -5488,7 +5488,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://04fdc3a2fed405d082a87d9cc32e294a55d0e71cccc0ae6ec1192be724fddf72",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "install-plugins",
@@ -5537,7 +5537,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   "elasticsearch.k8s.elastic.co/node-voting_only": "false",
                   "elasticsearch.k8s.elastic.co/secure-settings-hash": "c9f95bec8eb0cbcd77233f935266b7c6d1bac2bccbfd4bab7ab70871",
                   "elasticsearch.k8s.elastic.co/statefulset-name": "tfplenum-es-data",
-                  "elasticsearch.k8s.elastic.co/version": "7.11.1",
+                  "elasticsearch.k8s.elastic.co/version": "7.13.1",
                   "statefulset.kubernetes.io/pod-name": "tfplenum-es-data-0"
               },
               "name": "tfplenum-es-data-0",
@@ -5640,7 +5640,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "no"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "lifecycle": {
                           "pre_stop": {
@@ -5817,7 +5817,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-filesystem",
                       "resources": {
@@ -5960,7 +5960,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-keystore",
                       "resources": {
@@ -6107,7 +6107,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "sysctl",
                       "resources": {},
@@ -6196,7 +6196,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                       "command": [
                           "sh",
                           "-c",
-                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.11.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
+                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.13.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
                       ],
                       "env": [
                           {
@@ -6240,7 +6240,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "install-plugins",
                       "resources": {},
@@ -6515,7 +6515,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://99b9db8fa8b29e756b4e927af76644d0c19b5ba917befabc8b2b902949556658",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elasticsearch",
@@ -6532,7 +6532,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "init_container_statuses": [
                   {
                       "container_id": "cri-o://b0b189a4ffbbf9838ea50bf67adce11d6273c735c673c9de643c8a05502d40d2",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-filesystem",
@@ -6550,7 +6550,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://3c50255a3b8ac3982ce5cce8d164a20e9fdd48c5ca622deb05662b55158c8d3c",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-keystore",
@@ -6568,7 +6568,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://80153324cbe5e88c226b9fb80a90c632cf114a352bf12bc2525374c3510692d6",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "sysctl",
@@ -6586,7 +6586,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://d9a6d5509f5161163a9694a335c413b3e1d68c6dc8bc334b4a708b876b19b0a8",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "install-plugins",
@@ -6635,7 +6635,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   "elasticsearch.k8s.elastic.co/node-voting_only": "false",
                   "elasticsearch.k8s.elastic.co/secure-settings-hash": "c9f95bec8eb0cbcd77233f935266b7c6d1bac2bccbfd4bab7ab70871",
                   "elasticsearch.k8s.elastic.co/statefulset-name": "tfplenum-es-data",
-                  "elasticsearch.k8s.elastic.co/version": "7.11.1",
+                  "elasticsearch.k8s.elastic.co/version": "7.13.1",
                   "statefulset.kubernetes.io/pod-name": "tfplenum-es-data-1"
               },
               "name": "tfplenum-es-data-1",
@@ -6738,7 +6738,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "no"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "lifecycle": {
                           "pre_stop": {
@@ -6915,7 +6915,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-filesystem",
                       "resources": {
@@ -7058,7 +7058,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-keystore",
                       "resources": {
@@ -7205,7 +7205,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "sysctl",
                       "resources": {},
@@ -7294,7 +7294,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                       "command": [
                           "sh",
                           "-c",
-                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.11.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
+                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.13.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
                       ],
                       "env": [
                           {
@@ -7338,7 +7338,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "install-plugins",
                       "resources": {},
@@ -7613,7 +7613,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://4d9b3f8918ac0c65477b3dff3c4149b4183d162c7959dafe22a34630d190ea8d",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elasticsearch",
@@ -7630,7 +7630,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "init_container_statuses": [
                   {
                       "container_id": "cri-o://0a13dea5edeb395cf83baac777c96730ce1006d2b740512c3c8642ed56c1e2ac",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-filesystem",
@@ -7648,7 +7648,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://81b4aa6e3d6b05608f4d035569cbfade07715acb5baa4b45a5b652d6b3af7978",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-keystore",
@@ -7666,7 +7666,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://f3d09dd57ccf22501b3a9528de11d7e38a7c7f04ec1f013fe0752e0a75d8e5e9",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "sysctl",
@@ -7684,7 +7684,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://e65b3bf4d43a9745be35639ae6036a26fb3572c1540f8d7169ddb4d5137e98f6",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "install-plugins",
@@ -7733,7 +7733,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   "elasticsearch.k8s.elastic.co/node-voting_only": "false",
                   "elasticsearch.k8s.elastic.co/secure-settings-hash": "c9f95bec8eb0cbcd77233f935266b7c6d1bac2bccbfd4bab7ab70871",
                   "elasticsearch.k8s.elastic.co/statefulset-name": "tfplenum-es-data",
-                  "elasticsearch.k8s.elastic.co/version": "7.11.1",
+                  "elasticsearch.k8s.elastic.co/version": "7.13.1",
                   "statefulset.kubernetes.io/pod-name": "tfplenum-es-data-2"
               },
               "name": "tfplenum-es-data-2",
@@ -7836,7 +7836,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "no"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "lifecycle": {
                           "pre_stop": {
@@ -8013,7 +8013,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-filesystem",
                       "resources": {
@@ -8156,7 +8156,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-keystore",
                       "resources": {
@@ -8303,7 +8303,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "sysctl",
                       "resources": {},
@@ -8392,7 +8392,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                       "command": [
                           "sh",
                           "-c",
-                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.11.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
+                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.13.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
                       ],
                       "env": [
                           {
@@ -8436,7 +8436,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "install-plugins",
                       "resources": {},
@@ -8711,7 +8711,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://dc61a92c73e490956fae944dea626802ec8cabe562f52441af427b2d5133adbe",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elasticsearch",
@@ -8728,7 +8728,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "init_container_statuses": [
                   {
                       "container_id": "cri-o://b2e371e7a7aa73a7a23b36b31bb7212203d5977513cc703d3efe5bd0aab17743",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-filesystem",
@@ -8746,7 +8746,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://675d8e6cd594e7aeed967c82b87aec5351eb1d1f7583cd9b11d07635df833444",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-keystore",
@@ -8764,7 +8764,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://e2131e932f8be383e173964b4c64cfc09de2f496a0cd10dfc779b4a5cdd4d8fa",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "sysctl",
@@ -8782,7 +8782,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://92ec212c85d77f22d73cbc61bab6356ba9d07fda34189eedabf0cebd3c0926c9",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "install-plugins",
@@ -8831,7 +8831,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   "elasticsearch.k8s.elastic.co/node-voting_only": "false",
                   "elasticsearch.k8s.elastic.co/secure-settings-hash": "c9f95bec8eb0cbcd77233f935266b7c6d1bac2bccbfd4bab7ab70871",
                   "elasticsearch.k8s.elastic.co/statefulset-name": "tfplenum-es-data",
-                  "elasticsearch.k8s.elastic.co/version": "7.11.1",
+                  "elasticsearch.k8s.elastic.co/version": "7.13.1",
                   "statefulset.kubernetes.io/pod-name": "tfplenum-es-data-3"
               },
               "name": "tfplenum-es-data-3",
@@ -8934,7 +8934,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "no"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "lifecycle": {
                           "pre_stop": {
@@ -9111,7 +9111,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-filesystem",
                       "resources": {
@@ -9254,7 +9254,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-keystore",
                       "resources": {
@@ -9401,7 +9401,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "sysctl",
                       "resources": {},
@@ -9490,7 +9490,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                       "command": [
                           "sh",
                           "-c",
-                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.11.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
+                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.13.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
                       ],
                       "env": [
                           {
@@ -9534,7 +9534,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-data"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "install-plugins",
                       "resources": {},
@@ -9809,7 +9809,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://827184722fbbde5f90287f5b29da5fa9d17443d9c86c5d10852ba1e1c752306a",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elasticsearch",
@@ -9826,7 +9826,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "init_container_statuses": [
                   {
                       "container_id": "cri-o://0d6280d787ad7f358a7708c0bbb3daeeab6c918a25484f6ececbc799bf5547f8",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-filesystem",
@@ -9844,7 +9844,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://06a2d778a52d72907c671bc69984faf9189fde409af968c828c31e11cf59dfd2",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-keystore",
@@ -9862,7 +9862,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://ea9dd5e7df6d68ed85aa87d443b15e2dd7112b4e5811eaeb5547d95d05af5d80",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "sysctl",
@@ -9880,7 +9880,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://4e0e89594dcb94b198098d0722d61fe781e116b3e00c170a5acac3b73125247e",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "install-plugins",
@@ -9929,7 +9929,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   "elasticsearch.k8s.elastic.co/node-voting_only": "false",
                   "elasticsearch.k8s.elastic.co/secure-settings-hash": "c9f95bec8eb0cbcd77233f935266b7c6d1bac2bccbfd4bab7ab70871",
                   "elasticsearch.k8s.elastic.co/statefulset-name": "tfplenum-es-master",
-                  "elasticsearch.k8s.elastic.co/version": "7.11.1",
+                  "elasticsearch.k8s.elastic.co/version": "7.13.1",
                   "statefulset.kubernetes.io/pod-name": "tfplenum-es-master-0"
               },
               "name": "tfplenum-es-master-0",
@@ -10032,7 +10032,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "no"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "lifecycle": {
                           "pre_stop": {
@@ -10209,7 +10209,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-master"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-filesystem",
                       "resources": {
@@ -10352,7 +10352,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-master"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-keystore",
                       "resources": {
@@ -10499,7 +10499,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-master"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "sysctl",
                       "resources": {},
@@ -10588,7 +10588,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                       "command": [
                           "sh",
                           "-c",
-                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.11.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
+                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.13.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
                       ],
                       "env": [
                           {
@@ -10632,7 +10632,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-master"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "install-plugins",
                       "resources": {},
@@ -10907,7 +10907,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://1c03fca2055664899151b9330b11b3126712b97b61820bc2689190e554d18d98",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elasticsearch",
@@ -10924,7 +10924,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "init_container_statuses": [
                   {
                       "container_id": "cri-o://1ac15228ba76bb3fafca0703eababadc14f79d40d75c11caa9fc6a9c91db2831",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-filesystem",
@@ -10942,7 +10942,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://e3642d5eb83c659354b7f0eb230997676595db4a231c12b3b71fba1ea15b4163",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-keystore",
@@ -10960,7 +10960,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://ca26109da25c3a58f24156b47aea5db8de6b1e99b1b2e2f8a1c5f9b7d661c74c",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "sysctl",
@@ -10978,7 +10978,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://a6bb962116cef5b7c51de47301c83e3c96a2d3a54e69b14e79c9c848151ebdec",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "install-plugins",
@@ -11027,7 +11027,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   "elasticsearch.k8s.elastic.co/node-voting_only": "false",
                   "elasticsearch.k8s.elastic.co/secure-settings-hash": "c9f95bec8eb0cbcd77233f935266b7c6d1bac2bccbfd4bab7ab70871",
                   "elasticsearch.k8s.elastic.co/statefulset-name": "tfplenum-es-master",
-                  "elasticsearch.k8s.elastic.co/version": "7.11.1",
+                  "elasticsearch.k8s.elastic.co/version": "7.13.1",
                   "statefulset.kubernetes.io/pod-name": "tfplenum-es-master-1"
               },
               "name": "tfplenum-es-master-1",
@@ -11130,7 +11130,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "no"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "lifecycle": {
                           "pre_stop": {
@@ -11307,7 +11307,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-master"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-filesystem",
                       "resources": {
@@ -11450,7 +11450,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-master"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-keystore",
                       "resources": {
@@ -11597,7 +11597,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-master"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "sysctl",
                       "resources": {},
@@ -11686,7 +11686,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                       "command": [
                           "sh",
                           "-c",
-                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.11.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
+                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.13.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
                       ],
                       "env": [
                           {
@@ -11730,7 +11730,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-master"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "install-plugins",
                       "resources": {},
@@ -12005,7 +12005,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://cb88b256c0dc661831c4108ebde39e38142126c444e20052586e4cdb7f81bf25",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elasticsearch",
@@ -12022,7 +12022,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "init_container_statuses": [
                   {
                       "container_id": "cri-o://fed6524d69be84fc3b1784bf1e4244e314be0a38b8c17fe519c98c4d53374e8d",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-filesystem",
@@ -12040,7 +12040,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://d2e63429c43e872d6c1ef70bc22dbe406a120563cec5fd681e2d0b203064735b",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-keystore",
@@ -12058,7 +12058,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://c01d668b59c3d74c232afef32ed1d28eb0b22074d81e1ad4b26802587c5ac8de",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "sysctl",
@@ -12076,7 +12076,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://d2b3a572391a47f1a81731a5d5aabb68e259300aedf207229d6ad6336277fb0c",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "install-plugins",
@@ -12125,7 +12125,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   "elasticsearch.k8s.elastic.co/node-voting_only": "false",
                   "elasticsearch.k8s.elastic.co/secure-settings-hash": "c9f95bec8eb0cbcd77233f935266b7c6d1bac2bccbfd4bab7ab70871",
                   "elasticsearch.k8s.elastic.co/statefulset-name": "tfplenum-es-master",
-                  "elasticsearch.k8s.elastic.co/version": "7.11.1",
+                  "elasticsearch.k8s.elastic.co/version": "7.13.1",
                   "statefulset.kubernetes.io/pod-name": "tfplenum-es-master-2"
               },
               "name": "tfplenum-es-master-2",
@@ -12228,7 +12228,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "no"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "lifecycle": {
                           "pre_stop": {
@@ -12405,7 +12405,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-master"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-filesystem",
                       "resources": {
@@ -12548,7 +12548,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-master"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-keystore",
                       "resources": {
@@ -12695,7 +12695,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-master"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "sysctl",
                       "resources": {},
@@ -12784,7 +12784,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                       "command": [
                           "sh",
                           "-c",
-                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.11.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
+                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.13.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
                       ],
                       "env": [
                           {
@@ -12828,7 +12828,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-master"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "install-plugins",
                       "resources": {},
@@ -13103,7 +13103,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://94bc13207425b017457432cd261b41b00404e7fc6322f2c1e80a71f543e217c8",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elasticsearch",
@@ -13120,7 +13120,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "init_container_statuses": [
                   {
                       "container_id": "cri-o://a936c0178dadfb7e8c4397a9ea46e9ef3e670183c5441e9f59058b182c9d6b04",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-filesystem",
@@ -13138,7 +13138,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://3718a35bb04f6a77e6a2f7e5cc7501d6bdf9dccf716330b92871379eac247d66",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-keystore",
@@ -13156,7 +13156,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://cf636da1c7d9db833c079183d489470fffcfd7d524a72cc8abdb6cafc317c5a2",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "sysctl",
@@ -13174,7 +13174,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://dc9b90e6a8da35a52c20cbdc1832bc121a50fe69e4e3996debe326af6762062d",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "install-plugins",
@@ -13223,7 +13223,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   "elasticsearch.k8s.elastic.co/node-voting_only": "false",
                   "elasticsearch.k8s.elastic.co/secure-settings-hash": "c9f95bec8eb0cbcd77233f935266b7c6d1bac2bccbfd4bab7ab70871",
                   "elasticsearch.k8s.elastic.co/statefulset-name": "tfplenum-es-ml",
-                  "elasticsearch.k8s.elastic.co/version": "7.11.1",
+                  "elasticsearch.k8s.elastic.co/version": "7.13.1",
                   "statefulset.kubernetes.io/pod-name": "tfplenum-es-ml-0"
               },
               "name": "tfplenum-es-ml-0",
@@ -13326,7 +13326,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "no"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "lifecycle": {
                           "pre_stop": {
@@ -13499,7 +13499,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-ml"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-filesystem",
                       "resources": {
@@ -13638,7 +13638,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-ml"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-keystore",
                       "resources": {
@@ -13781,7 +13781,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-ml"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "sysctl",
                       "resources": {},
@@ -13866,7 +13866,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                       "command": [
                           "sh",
                           "-c",
-                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.11.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
+                          "set -o pipefail\nTEMPORARY_FILE=$(mktemp)\nbin/elasticsearch-plugin install --batch file:///tmp/plugins/repository-s3-7.13.1.zip 2>&1 | tee $TEMPORARY_FILE\nRETURN_CODE=$?\ngrep -q \"already exists\" $TEMPORARY_FILE\nALREADY_EXISTS=$?\nif [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then\n  echo \"Success: RC: $RETURN_CODE\"\n  exit 0\nelse\n  echo \"Failure: RC: $RETURN_CODE\"\n  exit 1\nfi\n"
                       ],
                       "env": [
                           {
@@ -13910,7 +13910,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "tfplenum-es-ml"
                           }
                       ],
-                      "image": "elasticsearch/elasticsearch:7.11.1",
+                      "image": "elasticsearch/elasticsearch:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "install-plugins",
                       "resources": {},
@@ -14179,7 +14179,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://641e9f17ea15549491c591a457f94430608ae32f30d2884b332e9af3885dc463",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elasticsearch",
@@ -14196,7 +14196,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "init_container_statuses": [
                   {
                       "container_id": "cri-o://55d98c668f203defdc929ad1b48353bd64d05c676836794033ed4a67d483c698",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-filesystem",
@@ -14214,7 +14214,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://d53cd2c66ab12520c46323c4e19d3150f700ec3c43a896e53f8f889598581650",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "elastic-internal-init-keystore",
@@ -14232,7 +14232,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://e8e4b4a16cb58125c55f932e866656ac3fc14ff9e9d3ed800471e3e80265a4d1",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "sysctl",
@@ -14250,7 +14250,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://59e7dacc5e088a280d030b4d4c2e041c62dbe873f0661ee1cef6136583a3a8fc",
-                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.11.1",
+                      "image": "dip-controller.lan/elasticsearch/elasticsearch:7.13.1",
                       "image_id": "dip-controller.lan/elasticsearch/elasticsearch@sha256:4228b7a8ef40b7593b1a7493bebf68022f0562446cef75dbff49f3af3c1d044d",
                       "last_state": {},
                       "name": "install-plugins",
@@ -14286,7 +14286,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   "common.k8s.elastic.co/type": "kibana",
                   "kibana.k8s.elastic.co/config-checksum": "2688cca6ef8e0e566fdd42eddb01c87aeb1946614da184ddf5d3d72f",
                   "kibana.k8s.elastic.co/name": "tfplenum",
-                  "kibana.k8s.elastic.co/version": "7.11.1",
+                  "kibana.k8s.elastic.co/version": "7.13.1",
                   "pod-template-hash": "9ff97b84f"
               },
               "name": "tfplenum-kb-9ff97b84f-vmkwz",
@@ -14333,7 +14333,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "https://elasticsearch.default.svc.cluster.local:9200"
                           }
                       ],
-                      "image": "kibana/kibana:7.11.1",
+                      "image": "kibana/kibana:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "kibana",
                       "ports": [
@@ -14443,7 +14443,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               }
                           }
                       ],
-                      "image": "kibana/kibana:7.11.1",
+                      "image": "kibana/kibana:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-keystore",
                       "resources": {
@@ -14542,7 +14542,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               }
                           }
                       ],
-                      "image": "kibana/kibana:7.11.1",
+                      "image": "kibana/kibana:7.13.1",
                       "image_pull_policy": "IfNotPresent",
                       "name": "elastic-internal-init-config",
                       "resources": {
@@ -14691,7 +14691,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://07ebedecea72faf1dac23eae8fa4b2f864606559a97d01024ced9874c0ad3bb9",
-                      "image": "dip-controller.lan/kibana/kibana:7.11.1",
+                      "image": "dip-controller.lan/kibana/kibana:7.13.1",
                       "image_id": "dip-controller.lan/kibana/kibana@sha256:0570b27bb7c2947a50eeb1dd7cc09fa4bc51f1f234b1f113e01ac8e7443999a4",
                       "last_state": {},
                       "name": "kibana",
@@ -14708,7 +14708,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "init_container_statuses": [
                   {
                       "container_id": "cri-o://5428e4db1e137594d508a94b130c75583397172a3fca7dfa2406eb2ae7ed5281",
-                      "image": "dip-controller.lan/kibana/kibana:7.11.1",
+                      "image": "dip-controller.lan/kibana/kibana:7.13.1",
                       "image_id": "dip-controller.lan/kibana/kibana@sha256:0570b27bb7c2947a50eeb1dd7cc09fa4bc51f1f234b1f113e01ac8e7443999a4",
                       "last_state": {},
                       "name": "elastic-internal-init-keystore",
@@ -14726,7 +14726,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   },
                   {
                       "container_id": "cri-o://b402dc8054af7db7b23801cc2e2ddcf672f7fd43c4555e2f5025e55c42592818",
-                      "image": "dip-controller.lan/kibana/kibana:7.11.1",
+                      "image": "dip-controller.lan/kibana/kibana:7.13.1",
                       "image_id": "dip-controller.lan/kibana/kibana@sha256:0570b27bb7c2947a50eeb1dd7cc09fa4bc51f1f234b1f113e01ac8e7443999a4",
                       "last_state": {},
                       "name": "elastic-internal-init-config",
@@ -14811,7 +14811,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               "value": "elastic-webhook-server-cert"
                           }
                       ],
-                      "image": "eck/eck-operator:1.4.0",
+                      "image": "eck/eck-operator:1.6.0",
                       "image_pull_policy": "IfNotPresent",
                       "name": "manager",
                       "ports": [
@@ -14930,7 +14930,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://1a1ea5d08cceab56420d450dcae548f967bbc396d44e7efdca460c7f390aae88",
-                      "image": "dip-controller.lan/eck/eck-operator:1.4.0",
+                      "image": "dip-controller.lan/eck/eck-operator:1.6.0",
                       "image_id": "dip-controller.lan/eck/eck-operator@sha256:4d2897e4b88403a7086f8b58788eae94960a68205ac95d6c0d68065299caf6ac",
                       "last_state": {
                           "terminated": {

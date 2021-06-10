@@ -1,8 +1,20 @@
 {% macro node_type(is_master, is_data, is_ingest, is_ml) %}
-node.master: {{ is_master | string }}
-node.data: {{ is_data | string }}
-node.ingest: {{ is_ingest | string }}
-node.ml: {{ is_ml | string }}
+node.roles:
+{% if is_master %}
+  - master
+{% endif %}
+{% if is_data %}
+  - data
+{% endif %}
+{% if is_ingest %}
+  - ingest
+{% endif %}
+{% if is_ml %}
+  - ml
+{% endif %}
+{% if not is_master and not is_data and not is_ingest and not is_ml %}
+  []
+{% endif %}
 {%- endmacro %}
 
 {% macro containers(memory, cpu, java_memory) -%}

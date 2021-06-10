@@ -1,4 +1,4 @@
-elastic_image: elasticsearch/elasticsearch:7.11.1
+elastic_image: elasticsearch/elasticsearch:7.13.1
 cortex_image: tfplenum/cortex:3.1.1-1
 python_image: tfplenum/python:3.9.0
 cortex_port: 9001

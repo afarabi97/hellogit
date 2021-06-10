@@ -1,0 +1,51 @@
+---
+
+- name: Reset payload each page
+  set_fact:
+    enable_payload: []
+
+- name: Get page {{ item }} detections
+  uri:
+    method: GET
+    url: "https://{{ kibana_uri }}/api/detection_engine/rules/_find?page={{ item }}&per_page={{ per_page }}"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    headers:
+      kbn-xsrf: true
+    status_code: [200]
+  register: detections
+  until: (detections.status == 200)
+  retries: 10
+  delay: 5
+
+- name:
+  set_fact:
+    enable_payload: "{{ enable_payload + [ payload ] }}"
+  vars:
+    payload:
+      enabled: true
+      id: "{{ item.id }}"
+  with_items: "{{ detections.json.data }}"
+
+- name: Enable detections {{ item }}
+  uri:
+    method: PATCH
+    url: "https://{{ kibana_uri }}/api/detection_engine/rules/_bulk_update"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    body: "{{ enable_payload }}"
+    headers:
+      kbn-xsrf: true
+    status_code: [200]
+  register: detections
+  until: (detections.status == 200)
+  retries: 20
+  delay: 5

@@ -97,48 +97,11 @@
   retries: 10
   delay: 5
 
-- name: Get all detections
-  uri:
-    method: GET
-    url: "https://{{ kibana_uri }}/api/detection_engine/rules/_find?page=1&per_page={{ detections.json.total | int }}"
-    return_content: yes
-    validate_certs: no
-    user: "{{ default_elastic_user }}"
-    password: "{{ es_password.stdout }}"
-    force_basic_auth: yes
-    body_format: json
-    headers:
-      kbn-xsrf: true
-    status_code: [200]
-  register: detections
-  until: (detections.status == 200)
-  retries: 10
-  delay: 5
+- set_fact:
+    per_page: 200
+- set_fact:
+    number_of_pages: "{{ (detections.json.total / per_page) | round | int }}"
 
-- name:
-  set_fact:
-    enable_payload: "{{ enable_payload|default([]) + [ payload ] }}"
-  vars:
-    payload:
-      enabled: true
-      id: "{{ item.id }}"
-  with_items: "{{ detections.json.data }}"
-
-- name: Enable detections
-  uri:
-    method: PATCH
-    url: "https://{{ kibana_uri }}/api/detection_engine/rules/_bulk_update"
-    return_content: yes
-    validate_certs: no
-    user: "{{ default_elastic_user }}"
-    password: "{{ es_password.stdout }}"
-    force_basic_auth: yes
-    body_format: json
-    body: "{{ enable_payload }}"
-    headers:
-      kbn-xsrf: true
-    status_code: [200]
-  register: detections
-  until: (detections.status == 200)
-  retries: 20
-  delay: 5
+- name: Process Detections
+  include_tasks: process_detections.yml
+  with_sequence: start=1 end="{{ number_of_pages }}"

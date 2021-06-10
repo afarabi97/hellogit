@@ -8,17 +8,14 @@ metadata:
     "helm.sh/hook-delete-policy": "before-hook-creation"
 data:
   misp.yml: |-
-    # Module: misp
-    # Docs: https://www.elastic.co/guide/en/beats/filebeat/7.11/filebeat-module-misp.html
-    - module: misp
-      threat:
+    - module: threatintel
+      misp:
         enabled: true
         var.api_key: "${FILEBEAT_USER_API_KEY}"
-        var.json_objects_array: 'response.Attribute'
-        var.url: 'https://misp.default.svc.cluster.local/attributes/restSearch'
-        var.http_method: 'POST'
+        var.url: 'https://misp.default.svc.cluster.local/events/restSearch'
         var.interval: '300s'
-        var.ssl.verification_mode: none
+        var.ssl.certificate_authorities:
+        - "/etc/ssl/certs/container/ca.crt"
 
   filebeat.yml: |-
 

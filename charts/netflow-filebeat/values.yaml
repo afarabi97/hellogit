@@ -4,7 +4,7 @@ elastic_ingest_nodes: []
 home_net: ["192.168.0.0/16"]
 interfaces: ["eth0"]
 image_name: beats/filebeat
-image_tag: 7.11.1
+image_tag: 7.13.1
 affinity_hostname: {}
 netflow_port: 2055
 shards: {}

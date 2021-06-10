@@ -75,6 +75,8 @@ formControls:
   - tunnel
   - weird
   - x509
+  - ntp
+  - signature
   description: Uncheck the Zeek log types that are not needed
   required: true
   regexp: ''
