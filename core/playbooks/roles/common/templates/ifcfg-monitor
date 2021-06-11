@@ -16,4 +16,4 @@ PEERDNS=yes
 PEERROUTES=yes
 USERS=root
 NM_CONTROLLED=no
-ETHTOOL_OPTS="-G ${DEVICE} rx 4096; -K ${DEVICE} rx off; -K ${DEVICE} tx off; -K ${DEVICE} sg off; -K ${DEVICE} tso off; -K ${DEVICE} ufo off; -K ${DEVICE} gso off; -K ${DEVICE} gro off; -K ${DEVICE} lro off"
+ETHTOOL_OPTS="-G ${DEVICE} rx 4096; -K ${DEVICE} rx off; -K ${DEVICE} tx off; -K ${DEVICE} sg off; -K ${DEVICE} tso off; -K ${DEVICE} ufo off; -K ${DEVICE} gso off; -K ${DEVICE} gro off; -K ${DEVICE} lro off; -L ${DEVICE} combined 1"
