@@ -114,7 +114,7 @@ chrome_file: google-chrome-stable_current_x86_64_89.0.4389.128.rpm
 gitkraken_file: gitkraken-amd64_7.5.5.rpm
 nexpose_file: Rapid7Setup-Linux64_6.6.83.bin
 vmware_file: VMware-Workstation-Full-16.1.1-17801498.x86_64.bundle
-vscode_file: code-1.53.2-1613044734.el7.x86_64.rpm
+vscode_file: code-1.56.2-1620838566.el8.x86_64.rpm
 
 software:
   - "{{ web_server }}/{{ vmware_file }}"
