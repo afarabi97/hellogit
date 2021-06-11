@@ -34,6 +34,8 @@ maxESRequests: "500"
 packetsPerPoll: "500000"
 magicMode: "basic"
 tpacketv3BlockSize: 8388608
+tpacketv3NumThreads: 2
 maxPacketsInQueue: "400000"
 es_user: arkime
 es_password: password
+rotateIndex: "hourly6"

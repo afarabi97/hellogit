@@ -50,6 +50,27 @@ formControls:
   regexp: ^(\d?[1-9]|[1-9]0)Gi$
   name: mem_limit
   error_message: Enter a valid setting
+- type: textinput
+  default_value: 3
+  description: Enter number of threads to use to process packets.
+  required: false
+  regexp: ^\d+$
+  name: packetThreads
+  error_message: Enter a number
+- type: textinput
+  default_value: 2
+  description: Enter number of threads used to read packets from each interface.
+  required: false
+  regexp: ^\d+$
+  name: tpacketv3NumThreads
+  error_message: Enter a number
+- type: textinput
+  default_value: 400000
+  description: Enter number of packets per packet thread that can be waiting to be processed.
+  required: false
+  regexp: ^\d+$
+  name: maxPacketsInQueue
+  error_message: Enter a number
 - type: interface
   default_value: ''
   description: Select your network interfaces

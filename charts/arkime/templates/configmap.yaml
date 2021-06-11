@@ -7,7 +7,7 @@ data:
     [default]
     elasticsearch={{ include "createEsNodeList" . }}
     caTrustFile=/etc/ssl/certs/container/ca.crt
-    rotateIndex=hourly6
+    rotateIndex={{ .Values.rotateIndex }}
     passwordSecret=default-password
     httpRealm=Arkime
     interface={{- range  .Values.interfaces }}{{ . }};{{- end }}
@@ -56,7 +56,7 @@ data:
     logFileCreation=true
     magicMode={{ .Values.magicMode }}
     pcapReadMethod=tpacketv3
-    tpacketv3NumThreads=2
+    tpacketv3NumThreads={{ .Values.tpacketv3NumThreads }}
     tpacketv3BlockSize={{ .Values.tpacketv3BlockSize|int }}
     maxPacketsInQueue={{ .Values.maxPacketsInQueue }}
     [class1]
