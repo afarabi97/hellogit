@@ -24,4 +24,4 @@
     host: chartmuseum.{{ kit_domain }}
     connect_timeout: 3
     delay: 3
-    timeout: 180
+    timeout: 300
