@@ -220,16 +220,6 @@ stages:
   - range-mip-kickstart
   - range-mip-kit
 
-default:
-  before_script:
-    - |
-      python3 testing/pipeline/pipeline.py \
-          checkout-latest-code \
-          --repo-username "$REPO_USERNAME" \
-          --repo-password "$REPO_PASSWORD" \
-          --repo-url "$REPO_URL" \
-          --branch-name "$CI_COMMIT_REF_NAME"
-
 include:
   - local: gitlab/test-compile.yml
   - local: gitlab/code-analysis.yml
