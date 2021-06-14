@@ -37,7 +37,7 @@ describe('ChartListComponent', () => {
   it('should list chart', waitForAsync(() => {
       const charts = [
         {
-          "appVersion": "4.0.5",
+          "appVersion": "4.1.6",
           "application": "hive",
           "description": "TheHive is a scalable 4-in-1 open source and free Security Incident Response Platform.",
           "pmoSupported": true,
