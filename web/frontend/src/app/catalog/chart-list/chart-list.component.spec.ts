@@ -114,7 +114,7 @@ describe('ChartListComponent', () => {
           "isSensorApp": true
         },
         {
-          "appVersion": "2.5.170",
+          "appVersion": "2.5.201",
           "application": "wikijs",
           "description": "Modern Wiki based on NodeJS.",
           "pmoSupported": true,

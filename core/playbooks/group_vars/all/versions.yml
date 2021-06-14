@@ -30,7 +30,7 @@ redmine_version: "4.1.1"
 nifi_version: 1.12.1
 mariadb_version: 10.5.8
 mattermost_version: v5.31.1
-wikijs_version: 2.5.170
+wikijs_version: 2.5.201
 misp_version: 2.4.139
 misp_modules_version: 2.4.136
 redis_version: 6.0.10
