@@ -53,6 +53,12 @@ infrastructure/Kit_*/
 *.rpm
 *.env
 
+.devcontainer/**/*
+.history/**/*
+
+testing/regression/ctdt-testers/robot-output
+testing/regression/ctdt-testers/robot-output/**/*
+
 controllersetupsettings.yml
 catalogsettings.yml
 mipnodestoscan.txt
@@ -68,3 +74,5 @@ mip_nodes.yml
 mip_settings.yml
 *nodesettingsv2*.yml
 hwcontrollersetupsettings.yml
+web/frontend/yarn.lock
+.tool-versions
