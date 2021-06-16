@@ -26,7 +26,7 @@ hive_cortex_version: 3.1.1-1
 hive_version: 4.1.6-1
 cassandra_version: 3.11.9
 elastic_operator: 1.6.0
-redmine_version: "4.1.1"
+redmine_version: "4.2.1"
 nifi_version: 1.12.1
 mariadb_version: 10.5.8
 mattermost_version: v5.31.1

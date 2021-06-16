@@ -86,7 +86,7 @@ describe('ChartListComponent', () => {
           "isSensorApp": false
         },
         {
-          "appVersion": "4.1.1",
+          "appVersion": "4.2.1",
           "application": "redmine",
           "description": "Redmine is a flexible project management web application.  Written using the Ruby on Rails framework, it is cross platform and cross-database.",
           "pmoSupported": false,
