@@ -43,6 +43,8 @@ export class PortalComponent implements OnInit {
   user_portal_links: UserPortalLinkClass[];
   // Used for retaining if user is operator
   operator: boolean;
+  app_links_to_hide: Array<string>;
+  hidden_app_links: Array<string>;
 
   /**
    * Creates an instance of PortalComponent.
@@ -61,6 +63,8 @@ export class PortalComponent implements OnInit {
               private mat_snackbar_service_: MatSnackBarService,
               private portal_service_: PortalService,
               private user_service_: UserService) {
+    this.app_links_to_hide = ["arkime","misp","nifi"];
+    this.hidden_app_links = [];
     this.portal_links = [];
     this.user_portal_links = [];
     this.operator = this.user_service_.isOperator();
@@ -121,7 +125,6 @@ export class PortalComponent implements OnInit {
             this.api_add_user_portal_link_(response.getRawValue() as UserPortalLinkInterface);
           }
         });
-
   }
 
   /**
@@ -175,7 +178,10 @@ export class PortalComponent implements OnInit {
   private api_get_portal_links_(): void {
     this.portal_service_.get_portal_links()
       .pipe(untilDestroyed(this))
-      .subscribe((response: PortalLinkClass[]) => this.portal_links = response);
+      .subscribe((response: PortalLinkClass[]) => {
+        this.portal_links = response
+        this.get_hidden_app_links(this.portal_links)
+      });
   }
 
   /**
@@ -224,5 +230,23 @@ export class PortalComponent implements OnInit {
           const message: string = 'removing user portal link';
           this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
         });
+  }
+
+
+    /**
+   * Used for hiding link for specifc applications
+   *
+   * @private
+   * @memberof PortalComponent
+   */
+
+  private get_hidden_app_links( portal_links:PortalLinkClass[] ): void {
+
+      portal_links.forEach((link) => {
+        const app_name = link.dns.split("/")[2].split(".")[0]
+          if(this.app_links_to_hide.includes(app_name)){
+            this.hidden_app_links.push(link.dns)
+        }
+      });
   }
 }

@@ -28,12 +28,15 @@
                             <a id="{{ 'cvah-portal-portal-link-' + i + '-dns' }}"
                                href="{{ portal_link.dns }}" target="_blank">{{ portal_link.dns }}</a>
                         </div>
-                        <div style="margin-bottom: 10px; font-size: 1.2em;">
+                        <div *ngIf="!hidden_app_links.includes(portal_link.dns)" style="margin-bottom: 10px; font-size: 1.2em;">
                             <a id="{{ 'cvah-portal-portal-link-' + i + '-ip' }}"
                                href="{{ portal_link.ip }}" target="_blank">{{ portal_link.ip }}</a>
                         </div>
-                        <div *ngIf="portal_link.logins" id="{{ 'cvah-portal-portal-link-' + i + '-logins' }}">
-                            user/password: {{portal_link.logins}}
+                        <div *ngIf="hidden_app_links.includes(portal_link.dns)">
+                            IP Address: {{ portal_link.ip.split("/")[2] }}
+                       </div>
+                        <div *ngIf="portal_link.logins && !hidden_app_links.includes(portal_link.dns)" id="{{ 'cvah-portal-portal-link-' + i + '-logins' }}">
+                            user/password: {{ portal_link.logins }}
                         </div>
                     </div>
                 </mat-grid-tile>
