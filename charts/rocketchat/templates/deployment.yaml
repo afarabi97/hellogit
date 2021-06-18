@@ -119,6 +119,10 @@ spec:
           value: rocketchat_role
         - name: OVERWRITE_SETTING_SAML_Custom_Default_role_attribute_sync
           value: "true"
+        - name: Accounts_TwoFactorAuthentication_By_Email_Auto_Opt_In
+          value: "False"
+        - name: Accounts_TwoFactorAuthentication_By_Email_Enabled
+          value: "False"
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: IfNotPresent
         livenessProbe:
