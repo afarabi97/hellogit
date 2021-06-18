@@ -77,13 +77,6 @@ ansible_controller_hostname: "controller.{{ kit_domain }}"
 offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
 docker_registry_repo: "{{ ansible_controller_hostname }}"
 
-# kit size is defaulted -1
-# 0 == tiny  (old DL160s)
-# 1 == small (DL160s with extra memory)
-# 2 == large (R440s)
-# 3 == large (R440 Common Node)
-kit_size: -1
-
 # Local Provisioner
 base_discovery_dir: /mnt/disks
 app_disk_discovery_dir: "{{base_discovery_dir}}/apps"
@@ -104,5 +97,4 @@ tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
 TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
 
 ansible_controller_ip: "{{ hostvars.localhost.ansible_default_ipv4.address }}"
-
 ...

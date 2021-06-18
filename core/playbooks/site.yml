@@ -30,7 +30,9 @@
     - reset
 
 - name: Set Kit Size
-  hosts: servers
+  hosts:
+    - servers
+    - localhost
   tags: always
   gather_facts: no
   any_errors_fatal: true
@@ -38,10 +40,6 @@
     - name: Set kit size pre_tasks
       setup:
   tasks:
-    - name: Memory to GB
-      set_fact:
-        total_mem_gb: "{{ (ansible_memtotal_mb/1024)|round|int }}"
-
     # TODO fix this
     # - name: Set Kit Size For GIP
     #   block:
@@ -62,6 +60,9 @@
 
     - name: Set Kit Size For DIP
       block:
+      - name: Memory to GB
+        set_fact:
+          total_mem_gb: "{{ (ansible_memtotal_mb/1024)|round|int }}"
       - name: Set Default DIP Kit Size
         set_fact:
           kit_size: -1
@@ -99,6 +100,14 @@
         when:
           - ansible_processor_vcpus == 64
           - total_mem_gb >= 500
+      when: inventory_hostname in groups['servers']
+
+    - name: Set Kit Size for localhost
+      set_fact:
+        kit_size: "{{ hostvars[groups['servers'][0]]['kit_size'] }}"
+        kit_size_name: "{{ hostvars[groups['servers'][0]]['kit_size_name'] }}"
+        cacheable: yes
+      when: inventory_hostname == "localhost"
     - debug:
         msg: "Kit size: {{ kit_size_name }} ({{ kit_size }})"
 
