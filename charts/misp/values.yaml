@@ -1,4 +1,5 @@
 # Default values for misp
+hard_disk_drive: false
 mispImage: tfplenum/misp:2.4.139
 mispModulesImage: tfplenum/misp-modules:2.4.136
 python_image: tfplenum/python:3.9.0

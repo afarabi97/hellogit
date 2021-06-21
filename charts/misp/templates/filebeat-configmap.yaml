@@ -35,7 +35,11 @@ data:
       index.number_of_shards: {{ .Values.shards }}
       index.number_of_replicas: 1
       index.refresh_interval: 30s
+      setup.template.overwrite: false
+      {{- if .Values.hard_disk_drive }}
       index.merge.scheduler.max_thread_count: 1
+      {{- end }}
+
 
     setup.ilm:
       policy_name: filebeat-misp

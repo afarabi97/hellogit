@@ -85,10 +85,13 @@ setup.kibana:
 #-------------------------- Elasticsearch output ------------------------------
 output.elasticsearch:
   # Array of hosts to connect to.
-{% if "localhost" in inventory_hostname  %}
+{% if "localhost" in inventory_hostname %}
     hosts: ['elasticsearch.{{ kit_domain }}:{{ elastic_port }}']
 {% else %}
-    hosts: ['{{ elastic_fqdn }}:{{ elastic_port }}']
+{% for node in ingest_nodes %}
+    hosts:
+    - {{ node }}
+{% endfor %}
 {% endif %}
     protocol: "https"
     username: {{ default_elastic_user }}

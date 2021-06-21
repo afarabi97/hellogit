@@ -14,6 +14,7 @@ export class ElasticsearchNodeDataClass extends ElasticsearchNodeDataReturnClass
   max_scale_count_data: number;
   max_scale_count_master: number;
   max_scale_count_ml: number;
+  max_scale_count_ingest: number;
   server_node_count: number;
 
   /**
@@ -29,6 +30,7 @@ export class ElasticsearchNodeDataClass extends ElasticsearchNodeDataReturnClass
     this.max_scale_count_data = elasticsearch_node_data_interface.max_scale_count_data;
     this.max_scale_count_master = elasticsearch_node_data_interface.max_scale_count_master;
     this.max_scale_count_ml = elasticsearch_node_data_interface.max_scale_count_ml;
+    this.max_scale_count_ingest = elasticsearch_node_data_interface.max_scale_count_ingest;
     this.server_node_count = elasticsearch_node_data_interface.server_node_count;
   }
 }

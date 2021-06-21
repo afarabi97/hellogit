@@ -2,6 +2,12 @@
 
 {% import 'templates/node_set.yml.j2' as node_set %}
 
+{% if kit_size == 4 %}
+  {% set service = "tfplenum-es-ingest" %}
+{% else %}
+  {% set service = "tfplenum-es-coordinating" %}
+{% endif %}
+
 ---
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
@@ -18,15 +24,15 @@ spec:
   - secretName: s3-access-key
   - secretName: s3-secret-key
   nodeSets:
-{{ node_set.master(kit_domain, mdi, master_count, master_memory, master_num_procs, master_java_memory, plugin_list, enable_ml, ansible_controller_hostname)| indent(width=2,first=True) -}}
-{% if mdi == false -%}
-{{ node_set.data(kit_domain, data_count, data_memory, data_num_procs, data_java_memory, plugin_list, enable_ml, ansible_controller_hostname) | indent(width=2,first=True) }}
+{{ node_set.master(kit_domain, master_count, master_memory, master_num_procs, master_java_memory, plugin_list, enable_ml, ansible_controller_hostname)| indent(width=2,first=True) -}}
+{{ node_set.data(kit_domain, data_count, data_memory, data_num_procs, data_java_memory, plugin_list, enable_ml, ansible_controller_hostname, kit_size) | indent(width=2,first=True) }}
+{% if kit_size == 4 -%}
+{{ node_set.ingest(kit_domain, ingest_count, ingest_memory, ingest_num_procs, ingest_java_memory, plugin_list, enable_ml, ansible_controller_hostname) | indent(width=2,first=True) }}
 {%- endif %}
 {{ node_set.coordinating(kit_domain, coordinating_count, coordinating_memory, coordinating_num_procs, coordinating_java_memory, plugin_list, enable_ml, ansible_controller_hostname) | indent(width=2,first=True) }}
 {% if enable_ml -%}
 {{ node_set.ml(kit_domain, ml_count, ml_memory, ml_num_procs, ml_java_memory, plugin_list, enable_ml, ansible_controller_hostname) | indent(width=2,first=True) }}
 {%- endif %}
-
 ---
 apiVersion: v1
 kind: Service
@@ -58,11 +64,10 @@ spec:
   selector:
     common.k8s.elastic.co/type: elasticsearch
     elasticsearch.k8s.elastic.co/cluster-name: tfplenum
-    elasticsearch.k8s.elastic.co/statefulset-name: tfplenum-es-coordinating
+    elasticsearch.k8s.elastic.co/statefulset-name: {{ service }}
   ports:
   - name: https
     port: {{elastic_port}}
     targetPort: {{ elastic_port }}
   clusterIP: None
-
 ...

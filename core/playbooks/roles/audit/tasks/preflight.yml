@@ -1,8 +1,10 @@
 ---
+- name: Set Elastic Nodes
+  import_role:
+    name: elasticsearch
+    tasks_from: get_nodes
+
 - name: Checking if Auditbeat is Installed
   stat:
     path: /usr/bin/auditbeat
   register: auditbeat_installed
-
-
-

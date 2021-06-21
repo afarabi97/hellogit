@@ -13,7 +13,7 @@ path: '/data/moloch'
 config_path: "/opt/tfplenum/arkime/etc"
 
 # Kubernetes and docker info
-elastic_coordinating_nodes: []
+elastic_data_nodes: []
 version: 2.7.1
 cpu_request: 1000
 

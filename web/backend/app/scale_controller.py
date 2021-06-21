@@ -21,7 +21,7 @@ def scale_es() -> Response:
             for node_set in deployment['spec']['nodeSets']:
                 if node_set['name'] == name:
                     node_set['count'] = count
-    
+
     def get_new_count_from_payload(payload, name):
         if payload.get('elastic', None):
             return payload['elastic'].get(name, None)
@@ -35,6 +35,7 @@ def scale_es() -> Response:
         scale(deployment, 'coordinating', get_new_count_from_payload(request.get_json(), 'coordinating'))
         scale(deployment, 'ml', get_new_count_from_payload(request.get_json(), 'ml'))
         scale(deployment, 'data', get_new_count_from_payload(request.get_json(), 'data'))
+        scale(deployment, 'ingest', get_new_count_from_payload(request.get_json(), 'ingest'))
 
         elastic_deploy.update(deployment)
         return OK_RESPONSE

@@ -1,0 +1,11 @@
+- name: Create Elasticsearch Ingest Nodes
+  shell: |
+    set -o pipefail
+    kubectl get pods -l elasticsearch.k8s.elastic.co/node-ingest=true -o json
+  register: ingest_pods
+  changed_when: ingest_pods.rc == 0
+
+- name: Set Ingest Nodes list
+  set_fact:
+    ingest_nodes: "{{ ingest_nodes|default([]) + [ 'https://'+item.metadata.name+'.'+item.metadata.labels['elasticsearch.k8s.elastic.co/statefulset-name']+'.default.svc.cluster.local:9200' ] }}"
+  with_items: "{{ (ingest_pods.stdout | from_json).get('items') }}"

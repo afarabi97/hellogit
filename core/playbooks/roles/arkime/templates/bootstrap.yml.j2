@@ -1,4 +1,5 @@
-{% set number_of_shards = 2 %}{% if kit_size > 1 %}{% set number_of_shards = 4 %}{% endif %}
+{% set number_of_shards = 2 %}{% if kit_size > 1 and kit_size < 4 %}{% set number_of_shards = 4 %}
+{% elif kit_size == 4 %}{% set number_of_shards = groups['servers'] | length * 3 - 1 %}{% endif %}
 
 ---
 apiVersion: batch/v1

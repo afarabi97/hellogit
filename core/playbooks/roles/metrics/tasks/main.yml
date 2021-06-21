@@ -1,4 +1,9 @@
 ---
+- name: Set Elastic Nodes
+  import_role:
+    name: elasticsearch
+    tasks_from: get_nodes
+
 - name: "Create config directory"
   file:
     path: "{{ metrics_dir }}"

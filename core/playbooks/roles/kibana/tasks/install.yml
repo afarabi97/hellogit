@@ -25,18 +25,6 @@
     - { name: "kibana-key-secret-settings", literal: "xpack.security.encryptionKey", key: "{{ encryption_key }}" }
     - { name: "kibana-alert-secret-settings", literal: "xpack.encryptedSavedObjects.encryptionKey", key: "{{ alert_encryption_key }}" }
 
-- name: Create Elasticsearch Coordinating Nodes
-  shell: |
-    set -o pipefail
-    kubectl get pods | grep tfplenum-es-coordinating | awk '{ print $1 }'
-  register: coordinating_pods
-  changed_when: coordinating_pods.rc == 0
-
-- name: Set Coordinating Nodes list
-  set_fact:
-    coordinating_nodes: "{{ coordinating_nodes|default([]) + [ item ] }}"
-  with_items: "{{ coordinating_pods.stdout_lines }}"
-
 - name: Get ES Password
   shell: set -o pipefail && kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
   register: es_password

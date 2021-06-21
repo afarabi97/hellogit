@@ -14,8 +14,10 @@ spec:
   config:
     output:
       elasticsearch:
+{% for node in ingest_nodes %}
         hosts:
-        - https://{{ elastic_fqdn }}:{{ elastic_port }}
+        - {{ node }}
+{% endfor %}
         ssl:
           certificate_authorities:
           - /etc/ssl/certs/container/ca.crt

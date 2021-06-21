@@ -41,6 +41,7 @@ def parse_nodes(nodes):
     mdi = 0
     master = 0
     data = 0
+    ingest = 0
     coordinating = 0
     machine_learning = 0
 
@@ -52,8 +53,10 @@ def parse_nodes(nodes):
             else:
                 if "m" in role:
                     master += 1
-                elif "d" in role and "i" in role:
+                elif "d" in role:
                     data += 1
+                elif "i" in role:
+                    ingest += 1
                 elif "l" in role:
                     machine_learning += 1
                 elif  "m" not in role and  "d" not in role and "i" not in role and  "l" not in role:
@@ -62,7 +65,7 @@ def parse_nodes(nodes):
         if master == 0 and data == 0:
             master = mdi
 
-    return { "master": master, "data": data, "coordinating": coordinating, "ml": machine_learning }
+    return { "master": master, "data": data, "coordinating": coordinating, "ml": machine_learning, "ingest": ingest}
 
 def get_namespaced_custom_object_status() -> str:
     notification = NotificationMessage(role=_JOB_NAME)
@@ -94,6 +97,7 @@ def es_cluster_status() -> str:
         deploy_coordinating_count = 0
         deploy_data_count = 0
         deploy_ml_count = 0
+        deploy_ingest_count = 0
         deploy_total_count = 0
 
         if "spec" in deploy_config:
@@ -109,6 +113,8 @@ def es_cluster_status() -> str:
                         deploy_data_count = node["count"]
                     if node["name"] == "ml":
                         deploy_ml_count = node["count"]
+                    if node["name"] == "ingest":
+                        deploy_ingest_count = node["count"]
                     deploy_total_count += node["count"]
         nodes = get_es_nodes()
         es_node_count = None
@@ -122,6 +128,7 @@ def es_cluster_status() -> str:
                 and es_node_count["data"] == deploy_data_count
                 and es_node_count["coordinating"] == deploy_coordinating_count
                 and es_node_count["ml"] == deploy_ml_count
+                and es_node_count["ingest"] == deploy_ingest_count
                 and resp["status"]["phase"] == "Ready"
                 and resp["status"]["availableNodes"] == deploy_total_count):
             return resp["status"]["phase"]
@@ -187,11 +194,13 @@ def get_allowable_scale_count():
     request = []
     Q_ = ureg.Quantity
 
+    MAX_MASTER_PER_NODE = 1
     MAX_PER_NODE = 3
     coordinating_count = 0
     data_count = 0
     master_count = 0
     ml_count = 0
+    ingest_count = 0
     server_node_count = 0
 
     deploy_config = elastic_deploy.read()
@@ -217,6 +226,10 @@ def get_allowable_scale_count():
                         ml_memory_request = Q_(c["resources"]["requests"]["memory"]).to(ureg.Mi)
                         ml_cpu_request = Q_(c["resources"]["requests"]["cpu"])
                         ml_count = n["count"]
+                    if n["name"] == "ingest":
+                        ingest_memory_request = Q_(c["resources"]["requests"]["memory"]).to(ureg.Mi)
+                        ingest_cpu_request = Q_(c["resources"]["requests"]["cpu"])
+                        ingest_count = n["count"]
 
     if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
         config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
@@ -284,6 +297,7 @@ def get_allowable_scale_count():
     max_total_coordinating = 0
     max_total_data = 0
     max_total_ml = 0
+    max_total_ingest = 0
     for i in request:
         for key, value in i.items():
             if master_count > 0:
@@ -291,43 +305,58 @@ def get_allowable_scale_count():
                 es_master_mem_av = int((value["mem_remaining"] / master_memory_request))
                 master_min = min([es_master_cpu_av, es_master_mem_av])
 
-                if master_min >= MAX_PER_NODE:
-                    max_total_masters = max_total_masters + MAX_PER_NODE
-                else:
-                    max_total_masters = master_min
+            if master_min >= MAX_MASTER_PER_NODE:
+                max_total_masters = max_total_masters + MAX_MASTER_PER_NODE
+            else:
+                max_total_masters = master_min
 
             if coordinating_count > 0:
                 es_coordinating_cpu_av = int((value["cpu_remaining"] / coordinating_cpu_request))
                 es_coordinating_mem_av = int((value["mem_remaining"] / coordinating_memory_request))
                 coordinating_min = min([es_coordinating_cpu_av, es_coordinating_mem_av])
-
                 if coordinating_min >= MAX_PER_NODE:
                     max_total_coordinating = max_total_coordinating + MAX_PER_NODE
+                elif coordinating_min == 0:
+                    max_total_coordinating = coordinating_count
                 else:
-                    max_total_coordinating = coordinating_min
+                    max_total_coordinating = coordinating_count + coordinating_min
 
             if data_count > 0:
                 es_data_cpu_av = int((value["cpu_remaining"] / data_cpu_request))
                 es_data_mem_av = int((value["mem_remaining"] / data_memory_request))
                 data_min = min([es_data_cpu_av, es_data_mem_av])
-
                 if data_min >= MAX_PER_NODE:
                     max_total_data = max_total_data + MAX_PER_NODE
+                elif data_min == 0:
+                    max_total_data = data_count
                 else:
-                    max_total_data = data_min
+                    max_total_data = data_count + data_min
 
             if ml_count > 0:
                 es_ml_cpu_av = int((value["cpu_remaining"] / ml_cpu_request))
                 es_ml_mem_av = int((value["mem_remaining"] / ml_memory_request))
                 ml_min = min([es_ml_cpu_av, es_ml_mem_av])
-
                 if ml_min >= MAX_PER_NODE:
                     max_total_ml = max_total_ml + MAX_PER_NODE
+                elif ml_min == 0:
+                    max_total_ml = ml_count
                 else:
-                    max_total_ml = ml_min
+                    max_total_ml = ml_count + ml_min
+
+            if ingest_count > 0:
+                es_ingest_cpu_av = int((value["cpu_remaining"] / ingest_cpu_request))
+                es_ingest_mem_av = int((value["mem_remaining"] / ingest_memory_request))
+                ingest_min = min([es_ingest_cpu_av, es_ingest_mem_av])
+                if ingest_min >= MAX_PER_NODE:
+                    max_total_ingest = max_total_ingest + MAX_PER_NODE
+                elif data_min == 0:
+                    max_total_ingest = ingest_count
+                else:
+                    max_total_ingest = ingest_count + ingest_min
 
     return { "max_scale_count_master": max_total_masters,
             "max_scale_count_coordinating": max_total_coordinating,
             "max_scale_count_data": max_total_data,
             "max_scale_count_ml": max_total_ml,
+            "max_scale_count_ingest": max_total_ingest,
             "server_node_count": server_node_count }

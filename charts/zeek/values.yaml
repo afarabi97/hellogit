@@ -16,6 +16,7 @@ kibana_port: 443
 filebeat_image_name: beats/filebeat
 filebeat_image_tag: 7.13.1
 shards: {}
+hard_disk_drive: false
 log_types:
   - connection
   - ssh

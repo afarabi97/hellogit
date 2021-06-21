@@ -53,6 +53,8 @@ spec:
         env:
         - name: ELASTICSEARCH_HOSTS
           value: https://{{ elastic_fqdn }}:{{ elastic_port }}
+        - name: NEWSFEED_ENABLED
+          value: "false"
         resources:
           requests:
             memory: {{ kibana_memory }}Gi

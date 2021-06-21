@@ -100,6 +100,14 @@
         when:
           - ansible_processor_vcpus == 64
           - total_mem_gb >= 500
+      - name: Small Form Factor
+        set_fact:
+          kit_size: 4
+          kit_size_name: "Small Form Factor"
+          cacheable: yes
+        when:
+          - ansible_processor_vcpus == 128
+          - total_mem_gb >= 500
       when: inventory_hostname in groups['servers']
 
     - name: Set Kit Size for localhost

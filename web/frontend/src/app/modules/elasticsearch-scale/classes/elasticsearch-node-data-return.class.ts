@@ -12,6 +12,7 @@ export class ElasticsearchNodeDataReturnClass implements ElasticsearchNodeDataRe
   data: number;
   master: number;
   ml: number;
+  ingest: number;
 
   /**
    * Creates an instance of ElasticsearchNodeDataReturnClass.
@@ -24,5 +25,6 @@ export class ElasticsearchNodeDataReturnClass implements ElasticsearchNodeDataRe
     this.data = elasticsearch_node_data_return_interface.data;
     this.master = elasticsearch_node_data_return_interface.master;
     this.ml = elasticsearch_node_data_return_interface.ml;
+    this.ingest = elasticsearch_node_data_return_interface.ingest;
   }
 }

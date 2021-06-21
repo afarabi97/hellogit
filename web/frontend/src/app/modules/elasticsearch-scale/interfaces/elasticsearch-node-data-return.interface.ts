@@ -9,4 +9,5 @@ export interface ElasticsearchNodeDataReturnInterface {
   data: number;
   master: number;
   ml: number;
+  ingest: number;
 }

@@ -10,17 +10,14 @@ image_name: tfplenum/suricata
 image_tag: 6.0.0
 cpu_request: 1000
 affinity_hostname: {}
-ids_log_rotate_interval: 300
 suricata_log_path: /data/suricata
 filebeat_image_name: beats/filebeat
 filebeat_image_tag: 7.13.1
 pcapEnabled: false
 fpc_path: "/data/pcap"
 flow: false
-worker_num: 6
-bulk_max_size: 4096
-queue_mem_events: 65536
 shards: {}
+hard_disk_drive: false
 log_types:
   - alert
   - http

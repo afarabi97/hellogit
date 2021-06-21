@@ -2,16 +2,15 @@
 
 - name: Set Common Resources Allocations
   set_fact:
-    mdi: False
-    master_count: 1
+    master_count: 3
     coordinating_count: 1
     enable_ml: True
     enable_maps: True
 
-#- name: Multiple Masters if more than 2 servers are available
-#  set_fact:
-#    master_count: 3
-#  when: groups['servers']|length > 2
+# - name: Multiple Masters if more than 2 servers are available
+#   set_fact:
+#     master_count: 3
+#   when: groups['servers']|length > 2
 
 - name: Set Elastic Resource Allocations for DIP
   block:
@@ -31,6 +30,27 @@
       ml_memory: 1
       ml_java_memory: 1
       ml_num_procs: "1000m"
+  - name: Small Form Factor
+    set_fact:
+      master_java_memory: 15
+      master_memory: 15
+      master_num_procs: "1000m"
+      ingest_java_memory: 31
+      ingest_memory: 64
+      ingest_num_procs: "16000m"
+      ingest_count: "{{ groups['servers']|length * 2 }}"
+      data_java_memory: 31
+      data_memory: 64
+      data_num_procs: "24000m"
+      data_count: "{{ groups['servers']|length * 3 }}"
+      coordinating_java_memory: 31
+      coordinating_memory: 45
+      coordinating_num_procs: "3000m"
+      ml_count: "{{ groups['servers']|length }}"
+      ml_memory: 64
+      ml_java_memory: 24
+      ml_num_procs: "8000m"
+    when: kit_size == 4
   - name: R440 Common Node
     set_fact:
       master_java_memory: 15

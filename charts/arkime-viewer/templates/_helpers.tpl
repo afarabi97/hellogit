@@ -17,5 +17,5 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 
 {{- define "createEsNodeList" -}}
 {{- $local := dict "first" true -}}
-{{- range $k, $v := $.Values.elastic_coordinating_nodes -}}{{- if not $local.first -}},{{- end -}}https://{{- $.Values.es_user -}}:{{- $.Values.es_password -}}@{{- $v | replace "https://" "" -}}{{- $_ := set $local "first" false -}}{{- end -}}
+{{- range $k, $v := $.Values.elastic_data_nodes -}}{{- if not $local.first -}},{{- end -}}https://{{- $.Values.es_user -}}:{{- $.Values.es_password -}}@{{- $v | replace "https://" "" -}}{{- $_ := set $local "first" false -}}{{- end -}}
 {{- end -}}

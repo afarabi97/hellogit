@@ -24,7 +24,8 @@ class Disk(Model):
         "has_root": fields.Boolean(description="Flag indicating whether or not a disk has the root of a filesystem present."),
         "name": fields.String(example="sdb", description="Name of disk / storage device."),
         "size_gb": fields.Float(example=50.0, description="The size of the storage device in GB."),
-        "size_tb": fields.Float(example=0.048828125, description="The size of storage device in TB.")
+        "size_tb": fields.Float(example=0.048828125, description="The size of storage device in TB."),
+        "disk_rotation": fields.Integer(example=1, description="Determines whether disk is HDD or SSD"),
     })
 
     def __init__(self, name: str):
@@ -37,6 +38,7 @@ class Disk(Model):
         self.has_root = False
         self.size_gb = 0.0
         self.size_tb = 0.0
+        self.disk_rotation = 0
 
     def set_size(self, ansible_size: str):
         """
@@ -60,8 +62,8 @@ class Disk(Model):
             self.size_tb = size
 
     def __str__(self):
-        return "Disk: %s Size GB: %.2f Size TB: %.2f  HasRoot: %r" % (
-                self.name, self.size_gb, self.size_tb, self.has_root)
+        return "Disk: %s Size GB: %.2f Size TB: %.2f  HasRoot: %r Disk Rotation: %d" % (
+                self.name, self.size_gb, self.size_tb, self.has_root, self.disk_rotation)
 
 
 class Interface(Model):
@@ -221,6 +223,7 @@ class DeviceFacts(Model):
             (len(k['holders']) == 0 and len([a for a,b in k['partitions'].items() if len(b['holders']) > 0]) > 0)):
                 disk = Disk(i)
                 disk.set_size(k['size'])
+                disk.disk_rotation = k['rotational']
                 disks.append(disk)
             for j in k['partitions']:
                 partition_links[j] = i

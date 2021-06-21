@@ -12,5 +12,6 @@ export interface ElasticsearchNodeDataInterface extends ElasticsearchNodeDataRet
   max_scale_count_data: number;
   max_scale_count_master: number;
   max_scale_count_ml: number;
+  max_scale_count_ingest: number;
   server_node_count: number;
 }

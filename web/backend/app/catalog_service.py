@@ -64,6 +64,27 @@ def _get_elastic_nodes(node_type="coordinating") -> list:
             logger.exception(exc)
     return nodes
 
+def _get_drive_type() -> bool:
+    """
+    Gets drive type from device facts utilizing the value provided by disk_rotation key. The disk_rotation
+    artifact determines whether a drive is SSD/NVMe or HDD (1 == HDD 0 == SSD || NVMe)
+    """
+    disks = []
+    disk_rotation = []
+    sensors = list(conn_mng.mongo_node.find({"node_type": "Sensor"}))
+
+    for sensor in sensors:
+        disks.append(sensor['deviceFacts']['disks'])
+
+    for disk in disks:
+        for rotation in disk:
+            if "nvme" in rotation['name'].lower() or "sd" in rotation['name'].lower():
+                disk_rotation.append(rotation['disk_rotation'])
+
+    if '1' in disk_rotation:
+        return True
+    return False
+
 def _get_logstash_nodes() -> list:
     """
     Get the logstash nodes
@@ -307,14 +328,16 @@ def generate_values(application: str, namespace: str, configs: list=None) -> lis
             values['domain'] = _get_domain()
         if 'auth_base' in values:
             values['auth_base'] = get_auth_base()
-        if 'elastic_coordinating_nodes' in values:
-            values['elastic_coordinating_nodes'] = _get_elastic_nodes(node_type="coordinating")
         if 'elastic_ingest_nodes' in values:
             values['elastic_ingest_nodes'] = _get_elastic_nodes(node_type="ingest")
+        if 'elastic_data_nodes' in values:
+            values['elastic_data_nodes'] = _get_elastic_nodes(node_type="data")
         if 'shards' in values:
             values['shards'] = len(_get_elastic_nodes(node_type="data"))
         if 'logstash_nodes' in values:
             values['logstash_nodes'] = _get_logstash_nodes()
+        if 'hard_disk_drive' in values:
+            values['hard_disk_drive'] = _get_drive_type()
     except Exception as exec:
         logger.exception(exec)
     if configs:
