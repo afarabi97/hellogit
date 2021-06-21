@@ -226,6 +226,7 @@ stages:
   - range-mip-kit
 
 include:
+  - local: gitlab/pipeline-rules.yml
   - local: gitlab/test-compile.yml
   - local: gitlab/code-analysis.yml
   - local: gitlab/confluence-publish.yml

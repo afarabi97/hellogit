@@ -36,13 +36,7 @@ Setup Controller:
     --access-token        "$ACCESS_TOKEN"
   artifacts:
     untracked: true
-  only:
-    variables:
-      - $PIPELINE == "controller-only"
-      - $PIPELINE == "export-all"
-      - $PIPELINE == "developer-all"
-      - $EXPORT_DIP == "yes" && $PIPELINE == "minor-release"
-      - $EXPORT_BOTH == "yes" && $PIPELINE == "minor-release"
+  extends: .controller
 
 Create a standalone MinIO server:
   stage: build
@@ -112,9 +106,7 @@ Kit Settings:
     --kit-password "$DEFAULT_VM_PASSWORD"
   artifacts:
     untracked: true
-  only:
-    variables:
-      - $PIPELINE == "developer-all"
+  extends: .all-and-mip
 
 Control Plane:
   stage: control-plane
@@ -125,9 +117,7 @@ Control Plane:
     echo "Current working directory is $(pwd)"
     echo "VM_PREFIX is $VM_PREFIX"
     python3 testing/pipeline/pipeline.py setup-control-plane
-  only:
-    variables:
-      - $PIPELINE == "developer-all"
+  extends: .all-and-mip
 
 Server Setup:
   stage: server-setup
@@ -246,10 +236,7 @@ MIP Setup:
     --dns-servers $DNS_SERVERS
   artifacts:
     untracked: true
-  only:
-    variables:
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "hw-developer-all"
+  extends: .all-mip-hw
 
 Secure MinIO with a TLS certificate:
   stage: configure:minio

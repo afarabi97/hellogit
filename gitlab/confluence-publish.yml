@@ -29,10 +29,7 @@ publish sonarqube results:
     python3 $PATH_PWD/testing/confluence-update-scripts/sonar-confluence.py -u $CONFLUENCE_USERNAME \
     -pw $CONFLUENCE_PASSWORD -b $CI_COMMIT_REF_NAME -l $TFPLENUM_SONAR_SCAN_LINK -gs $TFPLENUM_QUALITY_GATE_STATUS \
     -tt $TFPLENUM_TOTAL_SCAN_TIME -pk "tfplenum-test" -ss $PATH_PWD/testing/pipeline/tfplenum-screenshot-$CI_COMMIT_SHORT_SHA.png
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+  extends: .code-checks
 
   dependencies:
     - sonarqube front-end code base

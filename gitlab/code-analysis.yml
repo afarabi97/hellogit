@@ -7,10 +7,7 @@ analyze ansible test playbooks:
     echo "Current working directory is $(pwd)"
     ansible-lint testing/playbooks/site.yml
   allow_failure: true
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+  extends: .code-checks
 
 analyze ansible bootstrap playbooks:
   tags:
@@ -21,10 +18,7 @@ analyze ansible bootstrap playbooks:
     echo "Current working directory is $(pwd)"
     ansible-lint bootstrap/playbooks/site.yml
   allow_failure: true
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+  extends: .code-checks
 
 analyze ansible core playbooks:
   tags:
@@ -36,10 +30,7 @@ analyze ansible core playbooks:
     ansible-lint core/playbooks/site.yml
     ansible-lint core/playbooks/remove-node.yml
   allow_failure: true
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+  extends: .code-checks
 
 analyze ansible deployer playbooks:
   tags:
@@ -50,10 +41,7 @@ analyze ansible deployer playbooks:
     echo "Current working directory is $(pwd)"
     ansible-lint deployer/playbooks/site.yml
   allow_failure: true
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+  extends: .code-checks
 
 analyze ansible stigs playbooks:
   tags:
@@ -64,10 +52,7 @@ analyze ansible stigs playbooks:
     echo "Current working directory is $(pwd)"
     ansible-lint stigs/playbooks/site.yml
   allow_failure: true
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+  extends: .code-checks
 
 analyze ansible mip playbooks:
   tags:
@@ -79,10 +64,7 @@ analyze ansible mip playbooks:
     ansible-lint mip/mip-core/site.yml
     ansible-lint mip/mip-deployer/site.yml
   allow_failure: true
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+  extends: .code-checks
 
 sonarqube front-end code base:
   tags:
@@ -111,10 +93,7 @@ sonarqube front-end code base:
     docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source=$PATH_PWD/web/frontend/,target=$PATH_PWD/web/frontend/ tfplenum/code-checker:1.1 \
       google-chrome --no-sandbox --headless --hide-scrollbars --disable-gpu --screenshot=$PATH_PWD/web/frontend/frontend-screenshot-$CI_COMMIT_SHORT_SHA.png -e $TFPLENUM_FRONTEND_SONAR_SCAN_LINK \
       --virtual-time-budget=9000000  --run-all-compositor-stages-before-draw --window-size=1440,900
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+  extends: .code-checks
   artifacts:
     paths:
       - web/frontend/frontend-sonarlink.txt
@@ -145,10 +124,7 @@ sonarqube back-end code base:
     docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source=$PATH_PWD/web/backend/,target=$PATH_PWD/web/backend/ tfplenum/code-checker:1.1 \
       google-chrome --no-sandbox --headless --hide-scrollbars --disable-gpu --screenshot=$PATH_PWD/web/backend/backend-screenshot-$CI_COMMIT_SHORT_SHA.png -e $TFPLENUM_BACKEND_SONAR_SCAN_LINK \
       --virtual-time-budget=9000000  --run-all-compositor-stages-before-draw --window-size=1440,900
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+  extends: .code-checks
   artifacts:
     paths:
       - web/backend/backend-sonarlink.txt
@@ -179,10 +155,7 @@ sonarqube testing pipeline:
     docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source=$PATH_PWD/testing/pipeline/,target=$PATH_PWD/testing/pipeline/ tfplenum/code-checker:1.1 \
       google-chrome --no-sandbox --headless --hide-scrollbars --disable-gpu --screenshot=$PATH_PWD/testing/pipeline/tfplenum-screenshot-$CI_COMMIT_SHORT_SHA.png -e $TFPLENUM_SONAR_SCAN_LINK \
       --virtual-time-budget=9000000  --run-all-compositor-stages-before-draw --window-size=1440,900
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+  extends: .code-checks
   artifacts:
     paths:
       - testing/pipeline/testing-sonarlink.txt

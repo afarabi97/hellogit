@@ -7,10 +7,7 @@ compile front-end:
     echo "Current working directory is $(pwd)"
     docker run --rm -v $(pwd):/opt/tfplenum nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/compile_frontend.sh
   allow_failure: false
-  only:
-    variables:
-      - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-all"
+  extends: .analysis
 
 environment setup backend:
   tags:
@@ -21,7 +18,4 @@ environment setup backend:
     echo "Current working directory is $(pwd)"
     docker run --rm -v $(pwd):/opt/tfplenum nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/setup_backend.sh
   allow_failure: false
-  only:
-    variables:
-      - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-all"
+  extends: .analysis
