@@ -68,8 +68,11 @@ class ControllerSetupJob:
                                                                     username=self.ctrl_settings.repo.username,
                                                                     password=self.ctrl_settings.repo.password)
         else:
-            curl_cmd = "curl -s -k -o /root/bootstrap.sh --header 'PRIVATE-TOKEN: RT8FscKP1ZQ8NcgTdcas' \
-                        'https://gitlab.sil.lab/api/v4/projects/1/repository/files/bootstrap.sh/raw?ref={}'".format(self.ctrl_settings.repo.branch_name)
+            curl_cmd = "curl -s -k -o /root/bootstrap.sh --header 'PRIVATE-TOKEN: {access_token}' \
+                        'https://gitlab.sil.lab/api/v4/projects/{project_id}/repository/files/bootstrap.sh/raw?ref={branch_name}'".format(
+                            access_token=self.ctrl_settings.repo.access_token,
+                            project_id=self.ctrl_settings.repo.project_id,
+                            branch_name=self.ctrl_settings.repo.branch_name)
 
         bootstrap_cmd = ("export BRANCH_NAME='" + self.ctrl_settings.repo.branch_name + "' && \
                          export TFPLENUM_SERVER_IP=" + self.ctrl_settings.node.ipaddress + " && \

@@ -318,7 +318,9 @@ function set_git_variables() {
 }
 
 function clone_repos(){
-    export REPO_URL="https://gitlab.sil.lab/tfplenum/tfplenum.git"
+    if [ -z "$REPO_URL" ]; then
+        export REPO_URL="https://gitlab.sil.lab/tfplenum/tfplenum.git"
+    fi
     git config --global http.sslVerify false
     if [ "$labrepo_check" != true ]; then
         export REPO_URL="https://bitbucket.di2e.net/scm/thisiscvah/tfplenum.git"

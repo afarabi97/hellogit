@@ -328,15 +328,21 @@ class RepoSettings(Model):
         self.username = ''
         self.url = ''
         self.branch_name = ''
+        self.project_id = 1
+        self.access_token = ''
 
     def from_namespace(self, namespace: Namespace):
         self.password = self.b64decode_string(namespace.repo_password)
         self.username = namespace.repo_username
         self.branch_name = namespace.repo_branch_name
         self.url = namespace.repo_url
+        self.project_id = namespace.project_id
+        self.access_token = namespace.access_token
 
     @staticmethod
     def add_args(parser: ArgumentParser):
+        parser.add_argument("--access-token", dest="access_token", required=True)
+        parser.add_argument("--project-id", dest="project_id", required=True)
         parser.add_argument("--repo-username", dest="repo_username", required=True,
                             help="A username to the DI2E git repo.")
         parser.add_argument("--repo-password", dest="repo_password", required=True,
