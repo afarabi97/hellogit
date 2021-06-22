@@ -35,11 +35,3 @@
   pip:
     requirements: "{{ web_install_dir }}/requirements.txt"
     virtualenv: "{{ web_install_dir }}/tfp-env"
-
-# Workaround for pip dep bug
-- name: Install Curator Pip Module
-  pip:
-    name: "elasticsearch-curator"
-    version: "5.8.4"
-    virtualenv: "{{ web_install_dir }}/tfp-env"
-    extra_args: --no-deps

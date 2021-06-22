@@ -1,23 +1,26 @@
 import logging
-import curator
+import re
 from flask import Response, jsonify, request
-
 from app import app, logger
 from app.middleware import controller_maintainer_required
 from app.service.curator_service import execute_curator
 from app.utils.elastic import ElasticWrapper
 
 
+EXCLUDE_FILTER = "^(.ml-config|.kibana|.monitoring|.watches|.apm|.triggered_watches|.security|.siem-signals|.security-tokens).*$"
+
 @app.route('/api/closed_indices', methods=['GET'])
 @controller_maintainer_required
 def get_closed_indices() -> Response:
     try:
+        filtered_indices = []
         client = ElasticWrapper()
-        ilo = curator.IndexList(client)
-        ilo.filter_closed(exclude=False)
-        indicies = ilo.indices
-        indicies.sort()
-        return (jsonify(indicies), 200)
+        indices = client.cat.indices(index="*", params={ "format": "json" })
+        for index in indices:
+            if index['status'] == "close":
+                filtered_indices.append(index["index"])
+        filtered_indices.sort()
+        return (jsonify(filtered_indices), 200)
     except Exception as exec:
         logger.exception(exec)
         return (jsonify({ "message": "Something went wrong getting the Elasticsearch indices." }), 500)
@@ -27,14 +30,20 @@ def get_closed_indices() -> Response:
 @controller_maintainer_required
 def get_opened_indices() -> Response:
     try:
+        regex = re.compile(EXCLUDE_FILTER)
+        open_indices = []
         client = ElasticWrapper()
-        ilo = curator.IndexList(client)
-        ilo.filter_closed()
-        ilo.filter_by_regex(kind="prefix", value="^(.kibana|.monitoring|.watches|.apm|.triggered_watches|.security).*$", exclude=True)
-        indicies = ilo.indices
-        indicies.sort()
-        return (jsonify(indicies), 200)
+        indices = client.cat.indices(index="*", params={ "format": "json" })
+        filtered = [i['index'] for i in indices if not regex.match(i['index']) and i['status'] == 'open']
+        all_aliases = client.indices.get_alias(index=filtered)
+        for index in filtered:
+            for key, val in all_aliases[index]["aliases"].items():
+                if "is_write_index" in val and not val['is_write_index']:
+                    open_indices.append(index)
+        open_indices.sort()
+        return (jsonify(open_indices), 200)
     except Exception as exec:
+        print(str(exec))
         logger.exception(exec)
         return (jsonify({ "message": "Something went wrong getting the Elasticsearch indices." }), 500)
 
