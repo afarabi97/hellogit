@@ -4,5 +4,6 @@ export const MockElasticsearchNodeDataReturnInterface: ElasticsearchNodeDataRetu
   coordinating: 1,
   data: 6,
   master: 3,
-  ml: 1
+  ml: 1,
+  ingest: 4
 };

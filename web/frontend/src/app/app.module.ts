@@ -19,7 +19,7 @@ import { AppComponent } from './app.component';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
 
 //Common components
-import { PasswordMessageComponent } from './common/components/password-message.component';
+import { PasswordMessageComponent } from './components/password-message/password-message.component';
 
 // Security Alerts
 import { SecurityAlertsComponent } from './security-alerts/security-alerts.component';
