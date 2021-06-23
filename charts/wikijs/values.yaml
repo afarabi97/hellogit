@@ -12,5 +12,5 @@ sqlUsername: wikijs
 sqlRootPassword: AIz#8-QlVpUHHckzuxnfv7cn0
 sqlUserPassword: -sMoJDGYkTm-f8kKD9(w%HbKf
 admin_email: admin@dip.local
-admin_pass: password!
+admin_pass: Password!123456
 serviceNode: false

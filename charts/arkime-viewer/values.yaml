@@ -5,7 +5,7 @@ domain: lan
 auth_base: https://controller.lan/auth/realms/CVAH-SSO
 # Username and password for Web login
 username: 'assessor'
-password: 'password'
+password: 'Password!123456'
 
 # Location of arkime dirs/files
 dir: '/opt/tfplenum/arkime'
