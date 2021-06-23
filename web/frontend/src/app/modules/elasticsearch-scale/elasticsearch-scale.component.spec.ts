@@ -346,7 +346,7 @@ describe('ElasticsearchScaleComponent', () => {
 
         component['api_get_elastic_nodes_']();
 
-        expect(component.node_sliders.length).toEqual(4);
+        expect(component.node_sliders.length).toEqual(5);
       });
 
       it('should call elasticsearch_service_.get_elastic_nodes() and handle error', () => {

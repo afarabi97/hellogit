@@ -42,7 +42,7 @@ describe('PasswordMessageComponent', () => {
     cleanStylesFromDOM();
   });
 
-  fit('should create PasswordMessageComponent', () => {
+  it('should create PasswordMessageComponent', () => {
     expect(component).toBeTruthy();
   });
 });
