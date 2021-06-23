@@ -29,7 +29,7 @@ elastic_operator: 1.6.0
 redmine_version: "4.2.1"
 nifi_version: 1.12.1
 mariadb_version: 10.5.8
-mattermost_version: v5.31.1
+mattermost_version: 5.36.1
 wikijs_version: 2.5.201
 misp_version: 2.4.139
 misp_modules_version: 2.4.136
@@ -80,7 +80,7 @@ kube_images:
   - "docker.io/redmine:{{ redmine_version }}"
   - "docker.io/apache/nifi:{{ nifi_version }}"
   - "docker.io/mariadb:{{ mariadb_version }}"
-  - "docker.io/mattermost/mattermost-prod-app:{{ mattermost_version }}"
+  - "docker.io/mattermost/mattermost-enterprise-edition:{{ mattermost_version }}"
   - "docker.io/requarks/wiki:{{ wikijs_version }}"
   - "docker.io/tfplenum/misp:{{ misp_version }}"
   - "docker.io/tfplenum/misp-modules:{{ misp_modules_version }}"

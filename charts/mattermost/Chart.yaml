@@ -1,7 +1,7 @@
 apiVersion: v1
 name: mattermost
-home: https://hub.docker.com/r/mattermost/mattermost-team-edition
+home: https://hub.docker.com/r/mattermost/mattermost-enterprise-edition
 version: 1.0.0
-appVersion: 5.31.1
+appVersion: 5.36.1
 description: Mattermost is a chat and file sharing platform
 details: This chart will install the mattermost application
