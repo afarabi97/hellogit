@@ -97,4 +97,22 @@ tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
 TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
 
 ansible_controller_ip: "{{ hostvars.localhost.ansible_default_ipv4.address }}"
+
+operator_node_affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 50
+      preference:
+        matchExpressions:
+        - key: role
+          operator: In
+          values:
+          - service
+    - weight: 20
+      preference:
+        matchExpressions:
+        - key: role
+          operator: In
+          values:
+          - server
 ...

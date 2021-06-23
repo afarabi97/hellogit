@@ -15,6 +15,7 @@ direct_download_package_names:
   - { url: "https://raw.githubusercontent.com/johanhaleby/kubetail/1.6.12/kubetail", dest: "/usr/local/bin", mode: "755" }
   - { url: "https://github.com/projectcalico/calicoctl/releases/download/{{ calico_version }}/calicoctl", dest: "{{ tfplenumoffline_dir }}", mode: "755" }
   - { url: "https://galaxy.ansible.com/download/community-vmware-{{ community_vmware_module_version }}.tar.gz",  dest: "{{ tfplenumoffline_dir }}", mode: "644" }
+  - { url: "https://galaxy.ansible.com/download/ansible-utils-{{ community_utils_module_version }}.tar.gz",  dest: "{{ tfplenumoffline_dir }}", mode: "644" }
 
 direct_download_rpms:
   - { url: "https://download.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm", dest: "{{ extras_dir }}/Packages" }

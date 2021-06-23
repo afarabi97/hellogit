@@ -8,6 +8,8 @@
     - "{{ webca_keypair_secret }}"
     - "{{ webca_cert_secret }}"
 
+- import_tasks: build_all_in_one.yml
+
 - name: Copy Templates
   template:
     src: "templates/{{ item }}.j2"

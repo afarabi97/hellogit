@@ -1,5 +1,6 @@
 ---
 
 - import_tasks: node.yml
+- import_tasks: cert-manager.yml
 
 ...

@@ -52,10 +52,17 @@
   register: collection_results
   changed_when: collection_results.rc == 0
 
+- name: Install Utils Community
+  shell:  |
+    ansible-galaxy collection install {{ tfplenumoffline_dir }}/ansible-utils-{{ community_utils_module_version }}.tar.gz
+  register: collection_results
+  changed_when: collection_results.rc == 0
+
 - import_role:
     name: cleanup
 
 - import_tasks: offline_repos.yml
+- import_tasks: download_operators.yml
 
 - name: Run tasks
   block:

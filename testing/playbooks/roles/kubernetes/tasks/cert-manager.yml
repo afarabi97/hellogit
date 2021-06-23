@@ -1,0 +1,30 @@
+---
+
+- name: Get Cert Manager Pods
+  shell: |
+    set -o pipefail && kubectl get pods -n cert-manager -o yaml
+  register: cert_man_pods
+  changed_when: cert_man_pods.failed
+
+- name: Set Pod Fact
+  set_fact:
+    cert_man_pods: "{{ cert_man_pods.stdout | from_yaml }}"
+
+- name: Get Nodes
+  shell: |
+    set -o pipefail && kubectl get node {{ item.spec.nodeName }} -o yaml
+  with_items: "{{ cert_man_pods['items'] }}"
+  register: cert_man_nodes
+  changed_when: cert_man_nodes.failed
+
+- name: Set Operator Node Fact
+  set_fact:
+    cert_man_nodes_list: "{{ cert_man_nodes_list|default([]) + [ item.stdout | from_yaml ] }}"
+  with_items: "{{ cert_man_nodes.results }}"
+
+- name: Test | Check Node Roles
+  assert:
+    that: item.metadata.labels.role in ['server', 'service']
+    msg: "Failed Cert Manager Operator pod is not running on a Server or Service node, its running on {{ item.metadata.labels.role }}"
+  with_items: "{{ cert_man_nodes_list }}"
+...

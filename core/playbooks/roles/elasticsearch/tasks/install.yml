@@ -16,6 +16,8 @@
   set_fact:
     plugin_list: "{{ elasticsearch_plugins | map('regex_replace', '(^)', '\\1file:///tmp/plugins/') | list }}"
 
+- import_tasks: build_all_in_one.yml
+
 - name: Copy Templates
   template:
     src: "templates/{{ item }}.j2"

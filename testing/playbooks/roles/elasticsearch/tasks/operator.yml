@@ -1,0 +1,30 @@
+---
+
+- name: Get Elastic Operator Pod
+  shell: |
+    set -o pipefail && kubectl get pods -n elastic-system -o yaml
+  register: operator_pod
+  changed_when: operator_pod.failed
+
+- name: Set Operator Fact
+  set_fact:
+    operator_pod: "{{ operator_pod.stdout | from_yaml }}"
+
+- name: Get Nodes
+  shell: |
+    set -o pipefail && kubectl get node {{ item.spec.nodeName }} -o yaml
+  with_items: "{{ operator_pod['items'] }}"
+  register: operator_node
+  changed_when: operator_node.failed
+
+- name: Set Operator Node Fact
+  set_fact:
+    operator_node_list: "{{ operator_node_list|default([]) + [ item.stdout | from_yaml ] }}"
+  with_items: "{{ operator_node.results }}"
+
+- name: Test | Check Node Roles
+  assert:
+    that: item.metadata.labels.role in ['server', 'service']
+    msg: "Failed Elastic Operator pod is not running on a Server or Service node, its running on {{ item.metadata.labels.role }}"
+  with_items: "{{ operator_node_list }}"
+...
