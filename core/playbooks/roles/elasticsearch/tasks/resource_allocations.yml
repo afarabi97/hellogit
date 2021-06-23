@@ -6,6 +6,7 @@
     coordinating_count: 1
     enable_ml: True
     enable_maps: True
+    mdil: False
 
 # - name: Multiple Masters if more than 2 servers are available
 #   set_fact:

@@ -182,8 +182,12 @@ volumes:
 {% set spec = None %}
 {% set storage = None %}
 
-{% macro master(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml, ansible_controller_hostname) %}
+{% macro master(kit_domain, mdil, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml, ansible_controller_hostname) %}
+{% if mdil %}
+  {% set config = node_type(true, true, true, true) %}
+{% else %}
   {% set config = node_type(true, false, false, false) %}
+{% endif %}
   {% set storage = volume_claim_templates() %}
   {% set spec = containers(memory, cpu, java_memory) + base_volumes() + saml_volumes() + elastic_empty_dir() %}
 {{ node_set('master', kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage, ansible_controller_hostname, data_node) }}
