@@ -9,7 +9,6 @@
       <p class="warning-text">NOTE: There is currently no validation on this feature. Utilization has the potential to destroy a cluster. Proceed with caution.</p>
       <p>The master node is responsible for lightweight cluster-wide actions such as creating or deleting an index, tracking which nodes are part of the cluster, and deciding which shards to allocate to which nodes. It is important for cluster health to have a stable master node. The Recommended count for master nodes is 3.</p>
       <p>Data nodes hold the shards that contain the documents you have indexed. Data nodes handle data related operations like CRUD, search, and aggregations. These operations are I/O-, memory-, and CPU-intensive. They execute pre-processing pipelines, composed of one or more ingest processors. Add more Data Nodes for expending heavy traffic.</p>
-      <p>Taking away the ability to handle master duties, to hold data, and pre-process documents leaves a coordinating node that can only route requests, handle the search reduce phase, and distribute bulk indexing. Add more Coordinating Nodes for search related issues.</p>
     </mat-card-content>
   </mat-card>
 

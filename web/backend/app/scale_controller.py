@@ -32,7 +32,6 @@ def scale_es() -> Response:
         deployment = elastic_deploy.read()
 
         scale(deployment, 'master', get_new_count_from_payload(request.get_json(), 'master'))
-        scale(deployment, 'coordinating', get_new_count_from_payload(request.get_json(), 'coordinating'))
         scale(deployment, 'ml', get_new_count_from_payload(request.get_json(), 'ml'))
         scale(deployment, 'data', get_new_count_from_payload(request.get_json(), 'data'))
         scale(deployment, 'ingest', get_new_count_from_payload(request.get_json(), 'ingest'))

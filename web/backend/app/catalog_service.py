@@ -30,20 +30,13 @@ def _get_domain() -> str:
     kickstart_configuration = GeneralSettingsForm.load_from_db() # type: Dict
     return kickstart_configuration.domain
 
-def _get_elastic_nodes(node_type="coordinating") -> list:
+def _get_elastic_nodes(node_type) -> list:
     """
     Get the different types of elastic nodes regardless of StatefulSet
-    All False -> Coordinating nodes
     """
     nodes = []
-    if node_type == "coordinating":
-        label_selector = ",".join([
-            "elasticsearch.k8s.elastic.co/node-master=false",
-            "elasticsearch.k8s.elastic.co/node-ingest=false",
-            "elasticsearch.k8s.elastic.co/node-data=false",
-            "elasticsearch.k8s.elastic.co/node-ml=false"
-        ])
-    elif node_type == "master":
+
+    if node_type == "master":
         label_selector = "elasticsearch.k8s.elastic.co/node-master=true"
     elif node_type == "ingest":
         label_selector = "elasticsearch.k8s.elastic.co/node-ingest=true"

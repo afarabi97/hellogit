@@ -8,7 +8,6 @@ import { ElasticsearchNodeDataReturnInterface } from "../interfaces";
  * @implements {ElasticsearchNodeDataReturnInterface}
  */
 export class ElasticsearchNodeDataReturnClass implements ElasticsearchNodeDataReturnInterface {
-  coordinating: number;
   data: number;
   master: number;
   ml: number;
@@ -21,7 +20,6 @@ export class ElasticsearchNodeDataReturnClass implements ElasticsearchNodeDataRe
    * @memberof ElasticsearchNodeDataReturnClass
    */
   constructor(elasticsearch_node_data_return_interface: ElasticsearchNodeDataReturnInterface) {
-    this.coordinating = elasticsearch_node_data_return_interface.coordinating;
     this.data = elasticsearch_node_data_return_interface.data;
     this.master = elasticsearch_node_data_return_interface.master;
     this.ml = elasticsearch_node_data_return_interface.ml;

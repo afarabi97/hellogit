@@ -8,7 +8,6 @@ import { ElasticsearchNodeDataReturnInterface } from './elasticsearch-node-data-
  * @extends {ElasticsearchNodeDataReturnInterface}
  */
 export interface ElasticsearchNodeDataInterface extends ElasticsearchNodeDataReturnInterface {
-  max_scale_count_coordinating: number;
   max_scale_count_data: number;
   max_scale_count_master: number;
   max_scale_count_ml: number;

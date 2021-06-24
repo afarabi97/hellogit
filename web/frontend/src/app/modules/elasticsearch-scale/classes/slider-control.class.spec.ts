@@ -16,7 +16,7 @@ describe('SliderControlClass', () => {
       const enum_keys_: string[] = Object.keys(NodeTitleEnum);
       const slider_controls: SliderControlClass[] = enum_keys_.map((v: string) => new SliderControlClass(v, MockElasticsearchNodeClass));
 
-      expect(slider_controls.length).toEqual(5);
+      expect(slider_controls.length).toEqual(4);
     });
 
     it(`should return new SliderControlClass for none defined type with error title`, () => {

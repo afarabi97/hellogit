@@ -14,9 +14,6 @@ node.roles:
 {% if is_ml %}
   - ml
 {% endif %}
-{% if not is_master and not is_data and not is_ingest and not is_ml %}
-  []
-{% endif %}
 {%- endmacro %}
 
 {% macro containers(memory, cpu, java_memory) -%}
@@ -211,22 +208,10 @@ volumes:
 {{ node_set('ingest', kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage, ansible_controller_hostname, data_node) }}
 {% endmacro %}
 
-{% macro coordinating(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml, ansible_controller_hostname) %}
-  {% set config = node_type(false, false, false, false) %}
-  {% set spec =  containers(memory, cpu, java_memory) + base_volumes() + saml_volumes() + elastic_empty_dir() %}
-{{ node_set('coordinating', kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage, ansible_controller_hostname, data_node) }}
-{% endmacro %}
-
 {% macro ml(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml, ansible_controller_hostname) %}
   {% set config = node_type(false, false, false, true) %}
   {% set spec =  containers(memory, cpu, java_memory) + base_volumes() + saml_volumes() + elastic_empty_dir() %}
 {{ node_set('ml', kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage, ansible_controller_hostname, data_node) }}
-{% endmacro %}
-
-{% macro gip_coordinating(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, ansible_controller_hostname) %}
-  {%- set config = gip_node_type(false, false, false, false) %}
-  {%- set spec = containers(memory, cpu, java_memory) + base_volumes() + saml_volumes() + elastic_empty_dir() -%}
-  {{- node_set('coordinating', kit_domain, count, config, spec, elasticsearch_plugins, ansible_controller_hostname, data_node) }}
 {% endmacro %}
 
 {% macro gip_ml(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, ansible_controller_hostname) %}
