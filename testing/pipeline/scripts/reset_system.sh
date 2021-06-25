@@ -92,10 +92,24 @@ function reset_password {
 }
 
 function update_network_scripts {
-    sed -i 's/^\(BOOTPROTO=\).*/\1dhcp/g' /etc/sysconfig/network-scripts/ifcfg-br0
-    sed -i '/^IPADDR/ d' /etc/sysconfig/network-scripts/ifcfg-br0
-    sed -i '/^GATEWAY/ d' /etc/sysconfig/network-scripts/ifcfg-br0
-    sed -i '/^DNS1/ d' /etc/sysconfig/network-scripts/ifcfg-br0
+    ENS192=/etc/sysconfig/network-scripts/ifcfg-ens192
+    BR0=/etc/sysconfig/network-scripts/ifcfg-br0
+
+    if [ -f "$ENS192" ]; then
+        sed -i 's/^\(BOOTPROTO=\).*/\1dhcp/g' /etc/sysconfig/network-scripts/ifcfg-ens192
+        sed -i '/^IPADDR/ d' /etc/sysconfig/network-scripts/ifcfg-ens192
+        sed -i '/^GATEWAY/ d' /etc/sysconfig/network-scripts/ifcfg-ens192
+        sed -i '/^DNS1/ d' /etc/sysconfig/network-scripts/ifcfg-ens192
+    fi
+
+    if [ -f "$BR0" ]; then
+        sed -i 's/^\(BOOTPROTO=\).*/\1dhcp/g' /etc/sysconfig/network-scripts/ifcfg-br0
+        sed -i '/^IPADDR/ d' /etc/sysconfig/network-scripts/ifcfg-br0
+        sed -i '/^GATEWAY/ d' /etc/sysconfig/network-scripts/ifcfg-br0
+        sed -i '/^DNS1/ d' /etc/sysconfig/network-scripts/ifcfg-br0
+    fi
+
+    nmcli conn delete id 'Wired connection 1' 2>/dev/null
     nmcli conn reload
 }
 
