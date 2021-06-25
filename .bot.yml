@@ -1,0 +1,44 @@
+pull_request_rules:
+  - name: forward-port patches to Devel branch
+    conditions:
+      - merged
+      - label=backport-devel
+    actions:
+      backport:
+        branch: devel
+        labels:
+          - "backport"
+  - name: backport patches to release/3.6.0.0 branch
+    conditions:
+      - merged
+      - label=backport-v3.6.0.0
+    actions:
+      backport:
+        branch: release/3.6.0.0
+        labels:
+          - "backport"
+comment_rules:
+  schedule_shortcuts:
+    phuket:
+      id: 147
+    ghostrider:
+      id: 210
+    greenlantern:
+      id: 181
+    flash:
+      id: 135
+    harlequin:
+      id: 131
+    batman:
+      id: 99
+    aquaman:
+      id: 96
+    catwoman:
+      id: 94
+    deadshot:
+      id: 93
+    rooks:
+      id: 184
+  pipeline_shortcuts:
+    test:
+      TEST: test

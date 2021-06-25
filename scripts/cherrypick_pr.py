@@ -156,10 +156,10 @@ def main():
         new_pr = request.json()
 
         # remove needs backport label from the original PR
-        branch_version_pattern = re.compile(r'release\/(?P<version>([0-9]+\.?)+)')
-        match = branch_version_pattern.match(args.to_branch)
-        if match:
-            session.put(base + "/merge_requests/{}".format(args.pr_number), json={"remove_labels": "backport::needed", "add_labels": "backport::v{}".format(match.group('version'))})
+        # branch_version_pattern = re.compile(r'release\/(?P<version>([0-9]+\.?)+)')
+        # match = branch_version_pattern.match(args.to_branch)
+        # if match:
+        #     session.put(base + "/merge_requests/{}".format(args.pr_number), json={"add_labels": "v{}".format(match.group('version'))})
 
         print("\nDone. PR created: {}".format(new_pr["web_url"]))
         print("Please go and check it and add the review tags")
