@@ -13,6 +13,8 @@ Setup Hardware Controller:
     --esxi-ipaddress "$ESXI_IPADDRESS" \
     --esxi-username "$ESXI_USERNAME" \
     --esxi-password "$ESXI_PASSWORD" \
+    --access-token  "$ACCESS_TOKEN" \
+    --project-id    "$CI_PROJECT_ID" \
     --node-password "$DEFAULT_TEMPLATE_PASSWORD" \
     --vm-datastore "$ESXI_DATASTORE" \
     --release-path "$RELEASE_PATH" \
