@@ -96,8 +96,6 @@ volumes:
     node.attr.molochtype: "hot"
 {% endif %}
     cluster.routing.allocation.awareness.attributes: node_name
-    script.cache.max_size: "500"
-    script.max_compilations_rate: "1024/1m"
     thread_pool.write.queue_size: 1000
     xpack.ml.enabled: {{ enable_ml | string }}
     xpack.security.authc.token.enabled: true

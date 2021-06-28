@@ -715,18 +715,14 @@ Please check the /var/log/tfplenum logs for more information`);
       }
     }
 
-    const url = `${prefix}/app/security/${page}?query=(language:kuery,query:'${query}')
-    &timerange=(global:(linkTo:!(timeline),timerange:(from:%27${startDateTime}%27,kind:absolute,to:%27${endDateTime}%27)),
-    timeline:(linkTo:!(global),timerange:(from:%27${startDateTime}%27,kind:absolute,to:%27${endDateTime}%27)))`;
-
-    return url.replace(/'/g, "%27").replace(/ /g, "%20").replace(/\(/g, "%28").replace(/\)/g, "%29");  //url.replaceAll("'", "%27").replaceAll(" ", "%20");
+    const url = `${prefix}/app/security/${page}?query=(language:kuery,query:'${query}')&timerange=(global:(linkTo:!(timeline),timerange:(from:%27${startDateTime}%27,kind:absolute,to:%27${endDateTime}%27)),timeline:(linkTo:!(global),timerange:(from:%27${startDateTime}%27,kind:absolute,to:%27${endDateTime}%27)))`;
+    return url.replace(/'/g, "%27").replace(/ /g, "%20").replace(/\(/g, "%28").replace(/\)/g, "%29");
   }
 
   private getMolochLink(alert: Object, prefix: string, expression: string) {
     const startTime = Math.floor(this.controlForm.get('startDatetime').value.getTime() / 1000);
     const stopTime = Math.floor(this.controlForm.get('endDatetime').value.getTime() / 1000);
-    const url = `${prefix}/sessions?graphType=lpHisto&seriesType=bars
-&expression=${expression}&startTime=${startTime}&stopTime=${stopTime}`;
+    const url = `${prefix}/sessions?graphType=lpHisto&seriesType=bars&expression=${expression}&startTime=${startTime}&stopTime=${stopTime}`;
     return url;
   }
 
