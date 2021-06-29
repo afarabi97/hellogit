@@ -1,45 +1,14 @@
 #!/bin/bash
+# Generate configuration files for DIP build.
 
-# Info #########################################################
-#	File: generate_config.sh
-#	Details: Generate configuration files for DIP build
-#
-VERSION=2.0
-# VERSION_NUM='1.0'
-# 	*Version is major.minor format
-# 	*Major is updated when new capability is added
-# 	*Minor is updated on fixes and improvements
-#
-# History ######################################################
-# 1 Nov 2018
-#   Initial Script Complete
-# 5 Nov 2018
-#   Polished Script and Added Arguments
-# 19 Feb 2019
-#   Added Dell Switch
-# 21 Feb 2019
-#   Reverted back to old style kit numbering
-# 22 Apr 2020
-#   Added MIP switch config build
-#
-# Description ##################################################
-# Generates configuration files for DIP build from baseline
-# configuration files
-################################################################
+VERSION=3.0
+#Version is major.minor format
 
-
-# User Configurable Variables ##################################
-# Script Variables
 FIREWALL_BASE_FILE="firewall.base.xml"
-CISCO_SWITCH_BASE_FILE="switch.base.cisco.conf"
 DELL_SWITCH_BASE_FILE="switch.base.dell.conf"
-MIP_DELL_SWITCH_BASE_FILE="mip.switch.base.dell.conf"
-USER_PROMPTED=
-IP_SECOND_OCTET=
-KIT_NUMBER=
-# End User Configurable Variables ##############################
+AUX_DELL_SWITCH_BASE_FILE="auxiliary.switch.base.dell.conf"
 
-# Function to check script is ran as root
+# If you want to have a script only run as root then set the owner to root and also set the execute bit.
 function check_root {
   if [ `whoami` != "root" ]; then
     echo "This script must be run as root."
@@ -47,25 +16,25 @@ function check_root {
   fi
 }
 
-# Function for Debug
-function debug {
-  menu_header
-  echo "Current Variable Settings"
-  blank_line
-  echo "Firewall Base File= " $FIREWALL_BASE_FILE
-  echo "Cisco Switch Base File = " $CISCO_SWITCH_BASE_FILE
-  echo "Dell Switch Base File = " $DELL_SWITCH_BASE_FILE
-  echo "MIP Dell Switch Base File = " $MIP_DELL_SWITCH_BASE_FILE
-  echo "User Prompted for Second IP Octet Already = " $USER_PROMPTED
-  echo "User Entered IP Second Octet = " $IP_SECOND_OCTET
-  blank_line
-  any_key
-  clear
+function decode_subnets {
+  a=$(echo -n ${1:0:3} | sed -e  "s/^0\{0,2\}//g")
+  b=$(echo -n ${1:3:3} | sed -e  "s/^0\{0,2\}//g")
+  if [ $((a <= 127)) == "1" ]; then
+    x="$(($a))"
+    y="$(($b * 4 + 124))"
+  else
+    x="$(($a))"
+    y="$((($b - 1) * 4))"
+  fi
+}
+
+function validate {
+  echo -n $1 | grep -q -E '^(((0[0-9][0-9]|1[0-2][0-7])(0[0-2][0-9]|0[0-3][0-2]))|((12[8-9]|1[3-9][0-9]|2[0-2][0-9]|23[012456789]|24[0-9]|25[0-3])(0[0-5][0-9]|06[0-4])))$'
 }
 
 # Function to output blank line
 function blank_line {
-  echo " "
+  echo ""
 }
 
 # Function to output an ASCII line
@@ -75,7 +44,7 @@ function print_line {
 
 # Function to output press any key message
 function any_key {
-  read -p "Press any key to continue"
+  read -n 1 -s -r -p "Press any key to continue"
 }
 
 # Function ASCII Menu Header
@@ -85,245 +54,162 @@ function menu_header {
   echo " / // // // ___/ /__/ _ \/ _ \/ _/ / _ \`/";
   echo "/____/___/_/   \___/\___/_//_/_//_/\_, / ";
   echo "Version ${VERSION}                       /___/  ";
-  blank_line
 }
 
 # Function to display the main main
 function main_menu {
   menu_header
-  echo "This script provides the ability to automate the"
-  echo "configuration of the DIP Kit.  Select an option"
-  echo "from the menu below to generate the required configurations"
   blank_line
   echo "1 - Create Firewall configuration"
-  echo "2 - Create Cisco Switch configuration"
-  echo "3 - Create Dell Switch configuration"
+  echo "2 - Create Dell Switch configuration"
+  echo "3 - Create auxiliary (secondary) DELL Switch configuration"
   echo "4 - Create Firewall, and Switch configuration"
-  echo "5 - Create MIP Dell Switch configuration"
   echo "X - Exit"
   echo "D - Debug this script"
   blank_line
   read -p "Please make a selection: " MENU_SELECTION
   case $MENU_SELECTION in
-    1 )clear && create_firewall_config && blank_line && main_menu;;
-    2 )clear && create_cisco_switch_config && blank_line && main_menu;;
-    3 )clear && create_dell_switch_config && blank_line && main_menu;;
-    4 )clear && create_all_config && blank_line && main_menu;;
-    5 )clear && create_mip_dell_switch_config && blank_line && main_menu;;
-    x|X )exit;;
-    d|D )clear && debug && blank_line && main_menu;;
-    * ) echo "Invalid Input" && sleep 1 && clear && main_menu;;
+    1 ) menu_firewall ;;
+    2 ) menu_dell_switch ;;
+    3 ) menu_aux_dell_switch ;;
+    4 ) menu_all ;;
+    x|X ) exit ;;
+    d|D ) menu_debug ;;
+    * ) menu_invalid ;;
   esac
 }
 
-# Function to check and verify basline files are present
-function check_files {
-  case $1 in
-    FIREWALL )
-      clear
-      menu_header
-      echo "Checking that the file Firewall/$FIREWALL_BASE_FILE"
-      if [ -e Firewall/$FIREWALL_BASE_FILE ] ; then
-        echo "Firewall Base file present"
-        print_line
-      else
-        echo "Firewall Base file missing - Verify $FIREWALL_BASE_FILE is in the"
-        echo "Firewall folder - Exiting Script"
-        blank_line
-        exit
-      fi
-      ;;
-    SWITCH_CISCO )
-      clear
-      menu_header
-      echo "Checking that the file Switch/$CISCO_SWITCH_BASE_FILE"
-      if [ -e Switch/$CISCO_SWITCH_BASE_FILE ] ; then
-        echo "Switch Base file present"
-        print_line
-      else
-        echo "Switch Base file missing - Verify $CISCO_SWITCH_BASE_FILE is in the"
-        echo "Switch folder - Exiting Script"
-        blank_line
-        exit
-      fi
-      ;;
-    SWITCH_DELL )
-      clear
-      menu_header
-      echo "Checking that the file Switch/$DELL_SWITCH_BASE_FILE"
-      if [ -e Switch/$DELL_SWITCH_BASE_FILE ] ; then
-        echo "Switch Base file present"
-        print_line
-      else
-        echo "Switch Base file missing - Verify $DELL_SWITCH_BASE_FILE is in the"
-        echo "Switch folder - Exiting Script"
-        blank_line
-        exit
-      fi
-      ;;
-    MIP_SWITCH_DELL )
-      clear
-      menu_header
-      echo "Checking that the file Switch/$iMIP_DELL_SWITCH_BASE_FILE"
-      if [ -e Switch/$MIP_DELL_SWITCH_BASE_FILE ] ; then
-        echo "MIP Switch Base file present"
-        print_line
-      else
-        echo "MIP Switch Base file missing - Verify $MIP_DELL_SWITCH_BASE_FILE is in the"
-        echo "Switch folder - Exiting Script"
-        blank_line
-        exit
-      fi
-      ;;
-  esac
+function menu_firewall {
+  create_firewall_config
+  clear
+  echo "The firewall configuration has been created."
+  blank_line
+  any_key
+  clear
+  main_menu
 }
 
-# Function to prompt user to IP/Kit Information
+function menu_dell_switch {
+  create_dell_switch_config
+  clear
+  echo "The dell switch configuration has been created."
+  blank_line
+  any_key
+  clear
+  main_menu
+}
+
+function menu_aux_dell_switch {
+  create_aux_dell_switch_config
+  clear
+  echo "The aux dell switch configuration has been created."
+  blank_line
+  any_key
+  clear
+  main_menu
+}
+
+function menu_all {
+  create_all_config
+  clear
+  echo "The firewall configuration has been created."
+  echo "The dell switch configuration has been created."
+  echo "The aux dell switch configuration has been created."
+  blank_line
+  any_key
+  clear
+  main_menu
+}
+
+function menu_debug {
+  clear
+  echo "Firewall Base File = $FIREWALL_BASE_FILE"
+  echo "Dell Switch Base File = $DELL_SWITCH_BASE_FILE"
+  echo "Auxiliary Dell Switch Base File = $AUX_DELL_SWITCH_BASE_FILE"
+  blank_line
+  any_key
+  clear
+  main_menu
+}
+
+function menu_invalid {
+  echo "Invalid Input"
+  clear
+  any_key
+  main_menu
+}
+
+# Function to prompt user
 function prompt_user {
-  if [ -z $USER_PROMPTED ] ; then
-    echo "Enter the domain for the kit (ie: lan, mission, custom.domain): "
-    while true; do
-      read -p "" DOMAIN
-      if [[ ${DOMAIN:0:1} =~ [0-9] ]]; then
-         echo "The domain can not start with a number"
-      else
-         break
-      fi
-
-    done
-    echo "Enter the desired second octet of your IP Address (101 - 150)"
-    read -p "this is your kit number and should be unique: " IP_SECOND_OCTET
-    if [[ $IP_SECOND_OCTET -gt 150 ||  $IP_SECOND_OCTET -lt 101 || ! $IP_SECOND_OCTET =~ ^[0-9]+$ ]]; then
-      echo "Please enter a number greater than 100 and less 151"
-      blank_line
-      prompt_user
+  read -p 'Enter domain: ' DOMAIN
+  while true;
+  do
+    read -p "Enter the string that encodes your subnets: " SUBNETS
+    validate $SUBNETS
+    if [ $? -eq 0 ]; then
+      break
     fi
-    KIT_NUMBER=$(expr $IP_SECOND_OCTET - 100)
-    USER_PROMPTED=true
-  else
-    echo "Using previously entered configuration to save time"
-    print_line
-  fi
+  done
+  decode_subnets $SUBNETS
 }
 
 # Function to create Firewall configuration
 function create_firewall_config {
-  check_files FIREWALL
-  prompt_user
-  echo "Creating Firewall configuration"
-  mkdir -p Kit_${KIT_NUMBER}
-  cp Firewall/$FIREWALL_BASE_FILE Kit_${KIT_NUMBER}/firewall.xml 2>/dev/null
-  sed -i "s/10\.101\./10\.${IP_SECOND_OCTET}\./g" Kit_${KIT_NUMBER}/firewall.xml
-  # custom domain
-  sed -i "s/\.lan/\.${DOMAIN}/g" Kit_${KIT_NUMBER}/firewall.xml
-  sed -i "s/<domain>lan<\/domain>/<domain>${DOMAIN}<\/domain>/g" Kit_${KIT_NUMBER}/firewall.xml
-  blank_line
-  echo "Generated Kit_${KIT_NUMBER}/firewall.xml"
-  blank_line
-  any_key
-  clear
-}
-
-# Function to create Cisco Switch configuration
-function create_cisco_switch_config {
-  check_files SWITCH_CISCO
-  prompt_user
-  echo "Creating Switch configuration"
-  mkdir -p Kit_${KIT_NUMBER}
-  cp Switch/$CISCO_SWITCH_BASE_FILE Kit_${KIT_NUMBER}/switch.conf 2>/dev/null
-  sed -i "s/10\.101/10\.${IP_SECOND_OCTET}/g" Kit_${KIT_NUMBER}/switch.conf
-  sed -i "s/DIP-101/DIP-${IP_SECOND_OCTET}/g" Kit_${KIT_NUMBER}/switch.conf
-  sed -i "s/132/"${KIT_NUMBER}"32/g" Kit_${KIT_NUMBER}/switch.conf
-  sed -i "s/134/"${KIT_NUMBER}"34/g" Kit_${KIT_NUMBER}/switch.conf
-  sed -i "s/135/"${KIT_NUMBER}"35/g" Kit_${KIT_NUMBER}/switch.conf
-  sed -i "s/136/"${KIT_NUMBER}"36/g" Kit_${KIT_NUMBER}/switch.conf
-  sed -i "s/137/"${KIT_NUMBER}"37/g" Kit_${KIT_NUMBER}/switch.conf
-  blank_line
-  echo "Generated Kit_${KIT_NUMBER}/switch.conf"
-  blank_line
-  any_key
-  clear
-}
-
-# Function to create MIP Dell Switch configuration
-function create_mip_dell_switch_config {
-  check_files MIP_SWITCH_DELL
-  prompt_user
-  echo "Creating MIP Switch configuration"
-  mkdir -p Kit_${KIT_NUMBER}
-  cp Switch/$MIP_DELL_SWITCH_BASE_FILE Kit_${KIT_NUMBER}/mip.switch.conf 2>/dev/null
-  sed -i "s/10\.101/10\.${IP_SECOND_OCTET}/g" Kit_${KIT_NUMBER}/mip.switch.conf
-  sed -i "s/MIP-101/MIP-${IP_SECOND_OCTET}/g" Kit_${KIT_NUMBER}/mip.switch.conf
-  sed -i "s/132/"${KIT_NUMBER}"32/g" Kit_${KIT_NUMBER}/mip.switch.conf
-  sed -i "s/134/"${KIT_NUMBER}"34/g" Kit_${KIT_NUMBER}/mip.switch.conf
-  sed -i "s/135/"${KIT_NUMBER}"35/g" Kit_${KIT_NUMBER}/mip.switch.conf
-  sed -i "s/136/"${KIT_NUMBER}"36/g" Kit_${KIT_NUMBER}/mip.switch.conf
-  sed -i "s/137/"${KIT_NUMBER}"37/g" Kit_${KIT_NUMBER}/mip.switch.conf
-  blank_line
-  echo "Generated Kit_${KIT_NUMBER}/mip.switch.conf"
-  blank_line
-  any_key
-  clear
+  mkdir -p Kit_${SUBNETS}
+  cp Firewall/$FIREWALL_BASE_FILE "Kit_${SUBNETS}/firewall.xml"
+  sed -i "s/10\.101\.32/10\.${x}\.$((y))/g" "Kit_${SUBNETS}/firewall.xml"
+  sed -i "s/10\.101\.35/10\.${x}\.$((y + 1))/g" "Kit_${SUBNETS}/firewall.xml"
+  sed -i "s/10\.101\.37/10\.${x}\.$((y + 2))/g" "Kit_${SUBNETS}/firewall.xml"
+  sed -i "s/10\.101\.33/10\.${x}\.$((y + 3))/g" "Kit_${SUBNETS}/firewall.xml"
+  sed -i "s/\.lan/\.${DOMAIN}/g" "Kit_${SUBNETS}/firewall.xml"
+  sed -i "s/<domain>lan<\/domain>/<domain>${DOMAIN}<\/domain>/g" "Kit_${SUBNETS}/firewall.xml"
 }
 
 # Function to create Dell Switch configuration
 function create_dell_switch_config {
-  check_files SWITCH_DELL
-  prompt_user
-  echo "Creating Switch configuration"
-  mkdir -p Kit_${KIT_NUMBER}
-  cp Switch/$DELL_SWITCH_BASE_FILE Kit_${KIT_NUMBER}/switch.conf 2>/dev/null
-  sed -i "s/10\.101/10\.${IP_SECOND_OCTET}/g" Kit_${KIT_NUMBER}/switch.conf
-  sed -i "s/DIP-101/DIP-${IP_SECOND_OCTET}/g" Kit_${KIT_NUMBER}/switch.conf
-  sed -i "s/132/"${KIT_NUMBER}"32/g" Kit_${KIT_NUMBER}/switch.conf
-  sed -i "s/134/"${KIT_NUMBER}"34/g" Kit_${KIT_NUMBER}/switch.conf
-  sed -i "s/135/"${KIT_NUMBER}"35/g" Kit_${KIT_NUMBER}/switch.conf
-  sed -i "s/136/"${KIT_NUMBER}"36/g" Kit_${KIT_NUMBER}/switch.conf
-  sed -i "s/137/"${KIT_NUMBER}"37/g" Kit_${KIT_NUMBER}/switch.conf
+  mkdir -p Kit_${SUBNETS}
+  cp Switch/$DELL_SWITCH_BASE_FILE Kit_${SUBNETS}/switch.conf 2>/dev/null
   blank_line
-  echo "Generated Kit_${KIT_NUMBER}/switch.conf"
-  blank_line
-  any_key
-  clear
+  sed -i "s/10\.101\.32/10\.${x}\.${y}/g" Kit_${SUBNETS}/switch.conf
+  sed -i "s/10\.101\.35/10\.${x}\.$((y + 1))/g" Kit_${SUBNETS}/switch.conf
+  sed -i "s/SW-DIP-101/SW-DIP-${SUBNETS}/g" Kit_${SUBNETS}/switch.conf
 }
 
-# Function to determine switch model/manufacture
-function create_switch_config {
-  menu_header
-  echo "Which type of switch are you using?"
-  blank_line
-  echo "1 - Cisco Switch"
-  echo "2 - Dell Switch"
-  blank_line
-  read -p "Please make a selection: " MENU_SELECTION
-  case $MENU_SELECTION in
-    1 )clear && create_cisco_switch_config && blank_line;;
-    2 )clear && create_dell_switch_config && blank_line;;
-    * ) echo "Invalid Input" && sleep 1 && clear && create_switch_config;;
-  esac
+# Function to create aux Dell Switch configuration
+function create_aux_dell_switch_config {
+  mkdir -p Kit_${SUBNETS}
+  cp Switch/$AUX_DELL_SWITCH_BASE_FILE Kit_${SUBNETS}/aux.switch.conf
+  sed -i "s/10\.101\.32/10\.${x}\.${y}/g" Kit_${SUBNETS}/aux.switch.conf
+  sed -i "s/10\.101\.35/10\.${x}\.$((y + 1))/g" Kit_${SUBNETS}/aux.switch.conf
+  sed -i "s/SW-AUX-101/SW-AUX-${SUBNETS}/g" Kit_${SUBNETS}/aux.switch.conf
 }
 
 # Function to create all configurations
 function create_all_config {
   create_firewall_config
-  create_switch_config
+  create_dell_switch_config
+  create_aux_dell_switch_config
 }
 
-#Start the script
-check_root
-clear
-if [[ ! $# == 1 ]] ; then
+function review {
+  echo "Global Kit ID: $SUBNETS"
+  echo "Management: 10.${x}.$((y)).0/24"
+  echo "Internal: 10.${x}.$((y + 1)).0/24"
+  echo "DMZ: 10.${x}.$((y + 2)).0/24"
+  echo "Spare: 10.${x}.$((y + 3)).0/24"
+}
+
+function main {
+  clear
+  menu_header
+  blank_line
+  prompt_user
+  blank_line
+  review
+  blank_line
+  any_key
+  clear
   main_menu
-else
-  case $1 in
-    switch|Switch|SWITCH|sw|Sw|SW )create_switch_config;;
-    firewall|Firewall|FIREWALL|fw|Fw|FW )create_firewall_config;;
-    all|All|ALL|a|A ) create_all_config;;
-    -h|-?|h|? ) echo "Command Line Arguments: "
-      echo "switch | SW - Create a Switch Configuration file"
-      echo "firewall | FW - Create a Firewall Configuration file"
-      echo "all | A - Create an Firewall, and SWitch Configuration file"
-    ;;
-    * )echo "Invalid Argument -  Valid arguments are: switch, firewall, all";;
-  esac
-fi
+}
+
+main

@@ -172,6 +172,13 @@
 			<subnet>24</subnet>
 			<spoofmac></spoofmac>
 		</opt2>
+		<opt3>
+			<descr><![CDATA[Spare]]></descr>
+			<if>em4</if>
+			<spoofmac></spoofmac>
+			<ipaddr>10.101.33.1</ipaddr>
+			<subnet>24</subnet>
+		</opt3>
 	</interfaces>
 	<staticroutes></staticroutes>
 	<dhcpd>
@@ -1192,6 +1199,38 @@
 			<created>
 				<time>1506345681</time>
 				<username>OpenVPN Wizard</username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1622762611</tracker>
+			<type>pass</type>
+			<interface>opt1</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<network>opt1</network>
+			</source>
+			<destination>
+				<network>lan</network>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow internal to management]]></descr>
+			<updated>
+				<time>1622762611</time>
+				<username><![CDATA[assessor@10.1.1.26 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1622762611</time>
+				<username><![CDATA[assessor@10.1.1.26 (Local Database)]]></username>
 			</created>
 		</rule>
 		<rule>
