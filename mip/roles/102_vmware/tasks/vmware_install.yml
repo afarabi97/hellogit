@@ -38,4 +38,18 @@
     owner: "{{ user }}"
     group: "{{ user }}"
     mode: '0774'
+
+- name: Check if the vmware-USBArbitrator service failed.
+  command: "systemctl show -p SubState --value  vmware-USBArbitrator"
+  register: result
+  changed_when: no
+  when: ansible_virtualization_role == "guest"
+
+# The vmware-USBArbitrator service can fail if the virtual machine doesn't have a USB controller.
+- name: Disable the vmware-USBArbitrator service.
+  systemd:
+    name: vmware-USBArbitrator
+    state: stopped
+    enabled: no
+  when: ansible_virtualization_role == "guest" and "failed" in result.stdout
 ...

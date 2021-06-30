@@ -39,7 +39,7 @@ network  --hostname=localhost.localdomain
 rootpw --iscrypted {{ mip_rootpw.stdout }}
 
 # System services
-services --disabled=abrtd,bluetooth,atd,avahi-daemon,rhnsd,ntpd,ModemManager
+services --disabled=abrtd,bluetooth,atd,avahi-daemon,rhnsd,ntpd,ModemManager,kdump,mcelog
 
 # System timezone
 timezone America/Chicago
@@ -100,6 +100,7 @@ EOF
 
 elfutils-libelf-devel
 libglvnd-devel
+rasdaemon
 @Development Tools
 # @x11
 {% if node_index is defined and hostvars[node_index].deployment_type == "Virtual" %}

@@ -26,7 +26,6 @@ PKCS15TOOL=/usr/bin/pkcs15-tool
 AUTHSELECT=/usr/bin/authselect
 OPENSCCFG=/etc/opensc.conf
 SUDOCFG=/etc/pam.d/sudo
-SSSD_CONF_FILE=/etc/sssd/sssd.conf
 INSTALLCERTS="./ans_2fa_rhel8_install_certs"
 
 fatal_error(){
@@ -74,13 +73,6 @@ fi
 if [ ! -e $OPENSCCFG ]
 then
 	fatal_error "$OPENSCCFG not found!\n"
-fi
-
-# NOTE:  This file isn't created until the sssd package is installed
-if [ ! -e $SSSD_CONF_FILE ]
-then
-	printf "%s not found! Creating empty file...\n" "$SSSD_CONF_FILE"
-	touch $SSSD_CONF_FILE
 fi
 
 # Begin configuration
