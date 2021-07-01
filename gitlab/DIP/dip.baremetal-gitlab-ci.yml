@@ -45,6 +45,7 @@ Setup Hardware Controller:
     variables:
       - $PIPELINE == "hw-developer-all"
       - $PIPELINE == "hw-developer-mip"
+      - $PIPELINE == "hw-controller-only"
 
 Hardware Kit Settings:
   stage: kit-settings
