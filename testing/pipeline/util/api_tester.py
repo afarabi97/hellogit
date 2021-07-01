@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from util.connection_mngs import MongoConnectionManager
 from typing import Union, List, Dict
 
-from models.ctrl_setup import ControllerSetupSettings
+from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
 from models.kit import KitSettingsV2
 from models.catalog import (ArkimeCaptureSettings, ArkimeViewerSettings, ZeekSettings, SuricataSettings,
                             WikijsSettings, MispSettings, HiveSettings, CortexSettings, RocketchatSettings, CatalogSettings,
@@ -423,7 +423,7 @@ class APITesterV2:
         response_dict = post_request(self._url.format("/api/node"), payload)
         wait_for_job_to_finish("Adding virtual node", self._url.format("/api/job/" + response_dict['job_id']), 60)
 
-    def run_add_virtual_mip_post(self, node: NodeSettingsV2):
+    def run_add_virtual_mip_post(self, node: Union[NodeSettingsV2, HwControllerSetupSettings]):
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
             mongo_manager.mongo_node.delete_one({"hostname": node.hostname})
 

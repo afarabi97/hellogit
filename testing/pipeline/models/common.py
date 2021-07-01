@@ -48,7 +48,7 @@ class NodeSettings(Model):
 
 
     def is_mip(self) -> bool:
-        return self.node_type == self.valid_node_types[5]
+        return self.node_type == self.valid_node_types[6]
 
     def set_hostname(self, vm_prefix: str, node_type: str="ctrl", index: int=0):
         if index == 0:

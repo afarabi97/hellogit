@@ -1,5 +1,4 @@
 ---
-
 Setup Hardware Controller:
   stage: build
   tags:
@@ -39,13 +38,13 @@ Setup Hardware Controller:
     --monitoring-interface "$MONITORING_INTERFACE" \
     --run-remote-node "$RUN_REMOTE_NODE" \
     --build-from-release "$BUILD_FROM_RELEASE" \
-    --reset-controller "$RESET_CONTROLLER" \
+    --reset-controller "$RESET_CONTROLLER"
   artifacts:
     untracked: true
   only:
     variables:
       - $PIPELINE == "hw-developer-all"
-      - $PIPELINE == "ctrl_only_build"
+      - $PIPELINE == "hw-developer-mip"
 
 Hardware Kit Settings:
   stage: kit-settings
@@ -68,12 +67,14 @@ Hardware Kit Settings:
     --network-id "$NETWORK_ID" \
     --network-block-index $NETWORK_BLOCK_INDEX \
     --domain "$KIT_DOMAIN" \
-    --kit-password "$DEFAULT_VM_PASSWORD"
+    --kit-password "$DEFAULT_VM_PASSWORD" \
+    --operator-type "$OPERATOR_TYPE"
   artifacts:
     untracked: true
   only:
     variables:
       - $PIPELINE == "hw-developer-all"
+      - $PIPELINE == "hw-developer-mip"
 
 Hardware Control Plane:
   stage: control-plane
@@ -146,6 +147,26 @@ Hardware Sensor Setup:
   only:
     variables:
       - $PIPELINE == "hw-developer-all"
+
+Hardware MIP Setup:
+  stage: node-setup
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/baremetal_pipeline.py \
+    add-node \
+    --node-type MIP \
+    --deployment-type Baremetal \
+    --dns-servers $DNS_SERVERS \
+    --short-hash "$CI_COMMIT_SHORT_SHA" \
+    --mip-ip-address $MIP_IP_ADDRESS
+  artifacts:
+    untracked: true
+  only:
+    variables:
+        - $PIPELINE == "hw-developer-mip"
 
 Remote Node Automation:
   stage: remote-node

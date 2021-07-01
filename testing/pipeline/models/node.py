@@ -2,9 +2,12 @@ import copy
 import logging
 
 from argparse import Namespace, ArgumentParser
+from os import name
 from models import Model
+from models import kit
 from models.kit import KitSettingsV2
 from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
+from util.connection_mngs import FabricConnectionWrapper
 from util.network import IPAddressManager
 from randmac import RandMac
 from typing import Dict, List, Union
@@ -203,21 +206,71 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
         self.serial = ''
         self.sku = ''
         self.index = 0
+        self.mip_ip_address = ''
+        self.short_hash = ''
 
     @classmethod
     def initalize_node_array(cls,
                              kit_settings: KitSettingsV2,
-                             namespace: Namespace) -> List[Model]:
-        ret_val = []
-        idrac_ip_addresses = namespace.idrac_ip_addresses
-        for index, idrac_ip in enumerate(namespace.idrac_ip_addresses):
-            node = HardwareNodeSettingsV2(kit_settings)
-            node.num_nodes = len(idrac_ip_addresses)
-            actual_index = node.start_index + index
-            node.from_namespace(namespace, idrac_ip, actual_index)
-            ret_val.append(node)
+                             namespace: Namespace, ctrl_settings: HwControllerSetupSettings) -> List[Model]:
+        if namespace.node_type == "MIP":
+            count = 0
+            ret_val = []
+            try:
+                for count, mip_ip in enumerate(namespace.mip_ip_address, start=1):
+                    node = HardwareNodeSettingsV2(kit_settings)
+                    with FabricConnectionWrapper(ctrl_settings.node.username,
+                                                kit_settings.settings.password,
+                                                mip_ip) as client:
+                        logging.info("Gathering MIP artifacts for MIP {}".format(mip_ip))
+                        interface = client.run("nmcli dev status | grep ethernet | head -n 1 | awk '{print $1}'").stdout.strip()
+                        mip_mac = client.run("ip address show dev {} | grep link/ether | awk '{{print $2}}'".format(interface)).stdout.strip()
+                        hw_type = client.run("dmidecode | grep  -A3 'System Information' | grep 'Product Name' | awk '{print $4}'").stdout.strip()
+                        pxe_type = cls._pxe_type(hw_type)
+                        hostname = cls._generate_mip_hostname(hw_type, count, namespace, ctrl_settings)
 
-        return ret_val
+                        node.hostname = hostname
+                        node.mac_address = mip_mac
+                        node.pxe_type = pxe_type
+                        node.node_type = namespace.node_type
+                        node.ip_address = mip_ip
+                        node.deployment_type = namespace.deployment_type
+                        ret_val.append(node)
+
+                return ret_val
+
+            except Exception as e:
+                print('ERROR: Check connection to MIPs!')
+                print(e)
+
+        else:
+            try:
+                ret_val = []
+                idrac_ip_addresses = namespace.idrac_ip_addresses
+                for index, idrac_ip in enumerate(namespace.idrac_ip_addresses):
+                    node = HardwareNodeSettingsV2(kit_settings)
+                    node.num_nodes = len(idrac_ip_addresses)
+                    actual_index = node.start_index + index
+                    node.from_namespace(namespace, idrac_ip, actual_index)
+                    ret_val.append(node)
+
+                return ret_val
+
+            except Exception as e:
+                logging.error("Idrac IP address must have a value")
+                logging.error(e)
+
+    @classmethod
+    def _generate_mip_hostname(cls, hw_type, num, namespace : Namespace, ctrl_settings: HwControllerSetupSettings) -> str:
+        hostname = "mip-{}-{}-{}.{}".format(hw_type, num, namespace.short_hash, ctrl_settings.node.domain)
+        return hostname
+
+    @classmethod
+    def _pxe_type(cls, hw_type) -> str:
+        if hw_type == "7720":
+            return "SCSI/SATA/USB"
+        else:
+            return "NVMe"
 
     def get_server_info(self):
         token = redfish.get_token(self.idrac_ip_address,
@@ -267,6 +320,8 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
         self.set_ipaddress()
         self.pxe_type = namespace.pxe_type
         self.set_idrac_values(self)
+        self.mip_ip_address = namespace.mip_ip_address
+        self.short_hash = namespace.short_hash
 
     def from_mongo(self, obj: Dict, redfish_username: str, redfish_password: str):
         super().from_mongo(obj)
@@ -279,20 +334,23 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
         parser.add_argument('--dns-servers', dest='dns_servers', nargs="+", required=True, help="The dns servers that will be used for nodes created.")
         parser.add_argument('--node-type', dest='node_type',
                             required=True, help="The type of node",
-                            choices=["Server", "Sensor", "Service"])
+                            choices=["Server", "Sensor", "Service", "MIP"])
         parser.add_argument('--deployment-type', dest='deployment_type',
                             required=True, help="The deployment type for node.",
                             choices=["Baremetal"])
         parser.add_argument('--os-raid', dest='os_raid', default='no', help="Sets OS either enabled or disabled. Use yes|no when setting it.")
-        parser.add_argument('--idrac-ip-addresses', dest="idrac_ip_addresses", help="The desired IP Address of the node.", required=True, nargs="+")
+        parser.add_argument('--idrac-ip-addresses', dest="idrac_ip_addresses", help="The desired IP Address of the node.", required=False, nargs="+")
         parser.add_argument("--redfish-password", dest="redfish_password", help="The redfish password used for idrac out of band management.")
         parser.add_argument("--redfish-user", dest="redfish_user", help="The redfish username used for idrac out of band management", default="root")
-        parser.add_argument('--start-index', type=int, dest="start_index", required=True,
+        parser.add_argument('--start-index', type=int, dest="start_index", required=False,
                             help="The index of the server or sensor.", default=1)
-        parser.add_argument('--pxe-type', dest='pxe_type', required=True, choices=["UEFI", "BIOS"], help="Sets the PXE type of the nodes being kickstarted.")
+        parser.add_argument('--pxe-type', dest='pxe_type', required=False, choices=["UEFI", "BIOS"],
+                            help="Sets the PXE type of the nodes being kickstarted.", default= "UEFI")
         parser.add_argument('--monitoring-interface', dest='monitoring_interface', required=False, \
                              default=["ens224"], nargs="+", help="The monitoring interfaces for the sensors.")
-
+        parser.add_argument("--mip-ip-address", dest="mip_ip_address", nargs="+",
+                            help="IP address of mips being built (IP address for each MIP needs to be preconfigured)", required=False)
+        parser.add_argument('--short-hash', dest='short_hash', help="short commit hash", default="null")
 
 def load_control_plane_nodes_from_mongo(ctrl_settings: Union[ControllerSetupSettings, HwControllerSetupSettings],
                                        kit_settings: KitSettingsV2) -> List[NodeSettingsV2]:
@@ -305,7 +363,6 @@ def load_control_plane_nodes_from_mongo(ctrl_settings: Union[ControllerSetupSett
             if node.is_control_plane():
                 ret_val.append(node)
     return ret_val
-
 
 def get_control_plane_node(nodes: NodeSettingsV2) -> NodeSettingsV2:
     for node in nodes:

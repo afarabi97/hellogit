@@ -4,6 +4,7 @@ import logging
 import sys
 import time
 from typing import Union, List
+from models.common import HwNodeSettings
 
 from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
 from models.kit import KitSettingsV2
@@ -81,9 +82,20 @@ class KitSettingsJob:
         self._open_mongo_port()
         self.api.run_control_plane_post()
 
+    def run_hw_mip_boot(self, node:HardwareNodeSettingsV2):
+        with FabricConnectionWrapper(node.username,
+                                     self.kit_settings.settings.password,
+                                     node.ip_address) as client:
+            logging.info("Setting boot order {}".format(node.ip_address))
+            # Set boot manager to use IPV4 netboot on next startup
+            client.run("efibootmgr -o `efibootmgr | grep IPV4 | awk '{print $1}' | sed 's/[^0-9]*//g'`")
+            # Reboot after 1 minute to avoid so we can get the return value of the command and not error out
+            client.run('shutdown -r +1')
+
     async def _run_add_baremetal_node(self, node: NodeSettingsV2):
         logging.info("Adding {}".format(node.hostname))
         self.api = APITesterV2(self.ctrl_settings, self.kit_settings)
+
         self.api.run_add_node_post(node)
         await asyncio.sleep(5)
         logging.info("Creating VM...")
@@ -97,12 +109,10 @@ class KitSettingsJob:
     async def _run_add_node_virtual(self, node: NodeSettingsV2):
         logging.info("Adding virtual node {}".format(node.hostname))
         self.api = APITesterV2(self.ctrl_settings, self.kit_settings)
-
         if node.is_mip():
             self.api.run_add_virtual_mip_post(node)
         else:
             self.api.run_add_virtual_node_post(node)
-        wait_for_next_job_in_chain(self.ctrl_settings.node.ipaddress, {"hostname": node.hostname})
         wait_for_next_job_in_chain(self.ctrl_settings.node.ipaddress, {"hostname": node.hostname})
 
     async def _do_virtual_add_node_work(self, nodes: List[NodeSettingsV2]):
@@ -121,24 +131,29 @@ class KitSettingsJob:
         loop = asyncio.new_event_loop()
         loop.run_until_complete(self._do_virtual_add_node_work(nodes))
 
-    async def _run_add_hardware_node(self, node:NodeSettingsV2):
+    async def _run_add_hardware_node(self, node:HardwareNodeSettingsV2):
         self._open_mongo_port()
         self.api = APITesterV2(self.ctrl_settings, self.kit_settings)
         self.api.run_add_node_post(node)
         await asyncio.sleep(5)
 
-        logging.info("Setting boot order and rebooting machines.")
-        # redfish
-        try:
-            self._clear_net_on_hwnode(node)
-        except Exception as e:
-            logging.warn(str(e))
-        self._set_boot_order_and_reboot(node)
+        if node.is_mip():
+            self.run_hw_mip_boot(node)
+        else:
+            logging.info("Setting boot order and rebooting machines.")
+            # redfish
+            try:
+                self._clear_net_on_hwnode(node)
+            except Exception as e:
+                logging.warn(str(e))
+            self._set_boot_order_and_reboot(node)
+
         logging.info("Waiting for nodes to pxe boot....")
         await asyncio.sleep(60 * 13)
         logging.info("Waiting for nodes to respond....")
         await test_nodes_up_and_alive_async(node, 30)
-        if node.node_type == "Sensor" or node.node_type == "Service":
+
+        if node.node_type == "Sensor" or node.node_type == "Service" or node.node_type == "MIP":
             wait_for_next_job_in_chain(self.ctrl_settings.node.ipaddress, {"hostname": node.hostname})
 
         try:

@@ -18,8 +18,8 @@
 .all-mip-hw:
   rules:
     - if: $PIPELINE == "developer-all"
-    - if: $PIPELINE == "hw-developer-all"
     - if: $PIPELINE == "developer-mip"
+    - if: $PIPELINE == "hw-developer-all"
 
 .controller:
   rules:

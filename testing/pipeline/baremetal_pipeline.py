@@ -2,7 +2,6 @@ import logging
 import sys
 import traceback
 from argparse import ArgumentParser, Namespace
-
 from jobs.integration_tests import IntegrationTestsJob, HwPowerFailureJob
 from jobs.ctrl_setup import BaremetalControllerSetup
 from jobs.kit import KitSettingsJob
@@ -122,7 +121,7 @@ class BaremetalRunner():
             elif args.which == SubCmd.add_node:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
-                nodes = HardwareNodeSettingsV2.initalize_node_array(kit_settings, args)
+                nodes = HardwareNodeSettingsV2.initalize_node_array(kit_settings, args, ctrl_settings)
                 YamlManager.save_nodes_to_yaml_files(nodes)
 
                 job = KitSettingsJob(ctrl_settings, kit_settings)

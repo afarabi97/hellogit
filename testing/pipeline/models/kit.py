@@ -16,6 +16,7 @@ class KitSettingsDef(Model):
         self.upstream_ntp = ''
         self.kubernetes_services_cidr = ''
         self.dhcp_range = ''
+        self.operator_type = ''
 
         # Everything below is not part of the vmware settings api payload
         self.network_id = ''
@@ -27,6 +28,7 @@ class KitSettingsDef(Model):
         self.network_id = namespace.network_id
         self.upstream_dns = namespace.upstream_dns
         self.upstream_ntp = namespace.upstream_ntp
+        self.operator_type = namespace.operator_type
         if ctrl_ip_override:
             self.controller_interface = ctrl_ip_override
         else:
@@ -49,7 +51,7 @@ class KitSettingsDef(Model):
                             default=0, choices=range(0, 3), type=int)
         parser.add_argument('--domain', dest='domain', required=False, help="The kit domain", default="lan")
         parser.add_argument("--kit-password", dest="password", help="The root password of the VMs after it is cloned.", required=True)
-
+        parser.add_argument("--operator-type", dest="operator_type", help="MIP build type (CPT or MDT)", choices=['MDT','CPT'], default="CPT", required=True)
 
 class KitSettingsV2(Model):
 
@@ -98,4 +100,4 @@ class KitSettingsV2(Model):
         return {"password": self.settings.password,
                 "user_password": self.settings.password,
                 "luks_password": self.settings.password,
-                "operator_type": "CPT"}
+                "operator_type": self.settings.operator_type}

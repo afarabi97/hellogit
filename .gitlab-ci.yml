@@ -36,6 +36,7 @@ variables:
   UPSTREAM_DNS: "10.10.101.248"
   UPSTREAM_NTP: "10.10.101.248"
   MONITORING_INTERFACE: "ens224"
+  OPERATOR_TYPE: "CPT"
 
   #VM Default variables
   VM_PREFIX: "test1" #EX <VM_PREFIX>-ctrl.<KIT_DOMAIN> | <VM_PREFIX>-sensor1.<KIT_DOMAIN> | <VM_PREFIX>-server1.<KIT_DOMAIN>

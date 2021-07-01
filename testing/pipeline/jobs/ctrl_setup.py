@@ -226,9 +226,9 @@ class BaremetalControllerSetup(ControllerSetupJob):
         self.copy_controller()
 
         if not self.baremetal_ctrl_settings.node.build_from_release:
-            hwsettings._run_bootstrap(False)
             execute_playbook([PIPELINE_DIR + 'playbooks/rename_ctrl.yml'],
                             self.baremetal_ctrl_settings.to_dict())
+            hwsettings._run_bootstrap(False)
 
         if self.baremetal_ctrl_settings.node.build_from_release and self.baremetal_ctrl_settings.node.reset_controller:
             self.reset_controller()
