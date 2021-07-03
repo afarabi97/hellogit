@@ -14,7 +14,10 @@
     name: rhel_repo
   when: "ansible_distribution == 'RedHat'"
 
-- import_tasks: additional_repos.yml
+- name: Include additional repos
+  include_role:
+    name: common
+    tasks_from: additional_repos
 
 - name: "Install required packages"
   dnf:
@@ -24,6 +27,8 @@
 - name: Execute clone repo role.
   include_role:
     name: clonerepo
+  tags:
+    - clonerepo
 
 - name: Add local repo
   template:

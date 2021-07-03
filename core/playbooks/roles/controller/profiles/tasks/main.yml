@@ -29,7 +29,7 @@
 - name: Generate API key
   script: /opt/sso-idp/gen_api_token.py --roles "controller-node-state" --exp 87600
   args:
-    executable: /opt/tfplenum/web/tfp-env/bin/python3
+    executable: /opt/tfplenum/core/tfp-env/bin/python3
   register: node_state_admin_api_key
 
 - name: Set Variables

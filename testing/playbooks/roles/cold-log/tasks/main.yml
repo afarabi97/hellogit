@@ -9,7 +9,7 @@
     - load-ml
 
 - name: Set bearer token
-  command: /opt/tfplenum/web/tfp-env/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 4
+  command: /opt/tfplenum/core/tfp-env/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 4
   register: keycloak_bearer_token
 
 - name: Create Cold-Log Indicies

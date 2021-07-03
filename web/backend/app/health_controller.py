@@ -1,7 +1,7 @@
 """
 Main module for handling all of the Kit Configuration REST calls.
 """
-from app import (logger, conn_mng, WEB_DIR, KUBERNETES_NS)
+from app import (logger, conn_mng, CORE_DIR, KUBERNETES_NS)
 from app.models.kubernetes import (HealthServiceModel, PipelineInfoModel,
                                    NodeOrPodStatusModel, PodLogsModel)
 from app.models.settings.kit_settings import KitSettingsForm
@@ -20,7 +20,7 @@ from kubernetes.client.models.v1_pod_list import V1PodList
 from kubernetes.client.models.v1_node_list import V1NodeList
 
 
-PYTHON_PATH = str(WEB_DIR / 'tfp-env/bin/python')
+PYTHON_PATH = str(CORE_DIR / 'tfp-env/bin/python')
 
 
 def _get_mem_total(memory_str: str) -> int:

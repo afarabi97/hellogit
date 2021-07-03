@@ -1,4 +1,4 @@
-#!/opt/tfplenum/web/tfp-env/bin/python
+#!/opt/tfplenum/core/tfp-env/bin/python
 import os
 import sys
 

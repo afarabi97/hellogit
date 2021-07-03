@@ -1,4 +1,4 @@
-#!/opt/tfplenum/web/tfp-env/bin/python
+#!/opt/tfplenum/core/tfp-env/bin/python
 import json
 import getpass
 import glob
@@ -17,7 +17,7 @@ RUN_CMD = 'run'
 class OfflineLogProcessor:
 
     def __init__(self):
-        api_gen_cmd = '/opt/tfplenum/web/tfp-env/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 0.5'
+        api_gen_cmd = '/opt/tfplenum/core/tfp-env/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 0.5'
         proc = subprocess.Popen(api_gen_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout, _ = proc.communicate()
         controller_api_key = stdout.decode('utf-8').strip()

@@ -99,7 +99,7 @@ class IntegrationTestsJob:
                                      ctrl_node.password,
                                      ctrl_node.ipaddress) as ctrl_shell:
             with ctrl_shell.cd("/opt/tfplenum/web/backend/"):
-                ctrl_shell.run("/opt/tfplenum/web/tfp-env/bin/python run_unit_tests.py")
+                ctrl_shell.run("/opt/tfplenum/core/tfp-env/bin/python run_unit_tests.py")
 
         print("Navigate to http://{}/htmlcov/ to see full unit test coverage report.".format(ctrl_node.ipaddress))
         _clean_up(wait = 0)

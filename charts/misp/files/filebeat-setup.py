@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import requests
 from requests.auth import HTTPBasicAuth
 import time, os, sys, re

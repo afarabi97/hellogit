@@ -4,7 +4,7 @@
   shell:  |
     dnf download --repoid="{{ item.repoid }}" --destdir="{{ item.destdir }}" {{ item.packages }}
   with_items:
-    - { repoid: "epel,kubernetes,mongodb-org-4.0,docker-ce", destdir: "{{ extras_dir }}/Packages/", packages: "{{ extra_packages | join(' ') }}" }
+    - { repoid: "epel,kubernetes,mongodb-org-4.0,docker-ce,shibboleth", destdir: "{{ extras_dir }}/Packages/", packages: "{{ extra_packages | join(' ') }}" }
   args:
     warn: false
 

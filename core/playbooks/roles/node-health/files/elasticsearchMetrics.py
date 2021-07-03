@@ -1,17 +1,16 @@
 from datetime import datetime, timezone
 import aniso8601
 from pathlib import Path
+from typing import List
+
 
 class ElasticsearchMetrics():
     _type = "elastic"
 
     def __init__(self, node, hostname, shortHostname, elasticsearch):
         self._node = node
-
-        self._zeek_query = 'observer.hostname:{} AND event.module:zeek'.format(hostname)
-        self._suricata_query = 'observer.hostname:"{}" AND event.module:suricata'.format(hostname)
-        self._arkime_query = 'node:{}'.format(shortHostname)
-
+        self._hostname = hostname
+        self._shortname = shortHostname
         self._elasticsearch = elasticsearch
 
     def _createMetric(self, name, value):
@@ -61,28 +60,41 @@ class ElasticsearchMetrics():
 
         return self._createMetric(name, value)
 
-    def _createQuery(self, query, field):
+    def _createMatchClause(self, key: str, value: str):
+        return \
+        {
+            "match": {
+                key: value
+            }
+        }
+
+    def _createQuery(self, must: List, sort_by: str='@timestamp'):
         return \
         {
             "size": 1,
-            "_source": field,
-            "sort": [{field: "desc"}],
+            "_source": sort_by,
+            "sort": [
+                {
+                    sort_by: "desc"
+                }
+            ],
             "query": {
-                "query_string" : {
-                    "query" : query
+                "bool": {
+                    "must": must
                 }
             }
         }
 
     def _lastZeekElasticEvents(self):
         index = 'filebeat-*'
-        query = self._zeek_query
-        body = self._createQuery(query=query, field='@timestamp')
+        match1 = self._createMatchClause('observer.hostname', self._hostname)
+        match2 = self._createMatchClause('event.module', 'zeek')
+        body = self._createQuery([match1, match2])
 
         name = 'last_zeek_elastic_events'
 
         try:
-            result = self._elasticsearch.search(index, body)
+            result = self._elasticsearch.search(index=index, body=body)
             timestamp = result['hits']['hits'][0]['_source']['@timestamp']
             date = aniso8601.parse_datetime(timestamp)
             value = date.strftime('%Y-%m-%d %H:%M:%S %z')
@@ -93,13 +105,14 @@ class ElasticsearchMetrics():
 
     def _lastSuricataElasticEvents(self):
         index = 'filebeat-*'
-        query = self._suricata_query
-        body = self._createQuery(query=query, field='@timestamp')
+        match1 = self._createMatchClause('observer.hostname', self._hostname)
+        match2 = self._createMatchClause('event.module', 'suricata')
+        body = self._createQuery([match1, match2])
 
         name = 'last_suricata_elastic_events'
 
         try:
-            result = self._elasticsearch.search(index, body)
+            result = self._elasticsearch.search(index=index, body=body)
             timestamp = result['hits']['hits'][0]['_source']['@timestamp']
             date = aniso8601.parse_datetime(timestamp)
             value = date.strftime('%Y-%m-%d %H:%M:%S %z')
@@ -110,13 +123,13 @@ class ElasticsearchMetrics():
 
     def _lastArkimeElasticEvents(self):
         index = 'sessions2*'
-        query = self._arkime_query
-        body = self._createQuery(query=query, field='timestamp')
+        match1 = self._createMatchClause('node', self._shortname)
+        body = self._createQuery([match1], 'timestamp')
 
         name = 'last_arkime_elastic_events'
 
         try:
-            result = self._elasticsearch.search(index, body)
+            result = self._elasticsearch.search(index=index, body=body)
             timestamp = result['hits']['hits'][0]['_source']['timestamp']
 
             date = datetime.fromtimestamp(timestamp/1000, tz=timezone.utc)

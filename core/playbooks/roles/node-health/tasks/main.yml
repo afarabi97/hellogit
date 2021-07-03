@@ -28,11 +28,11 @@
 - name: Install necessary packages into the virtual environment.
   pip:
     name:
-      - aniso8601==8.0.0
-      - elasticsearch==7.1.0
-      - kubernetes==10.0.1
-      - psutil==5.6.7
-      - requests==2.25.0
+      - aniso8601
+      - elasticsearch
+      - kubernetes
+      - psutil
+      - requests
     virtualenv: /opt/metrics-env
 
 - name: Copy python files.

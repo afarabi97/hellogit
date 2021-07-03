@@ -10,6 +10,17 @@
     name: "{{ item.value.name }}"
   loop: "{{ lookup('dict', additional_repo_info) }}"
 
+- name: Add Shibboleth yum repo
+  yum_repository:
+    name: shibboleth
+    description: Shibboleth (CentOS_7)
+    enabled: true
+    gpgcheck: true
+    gpgkey:
+      - https://shibboleth.net/downloads/service-provider/RPMS/repomd.xml.key
+      - https://shibboleth.net/downloads/service-provider/RPMS/cantor.repomd.xml.key
+    mirrorlist : https://shibboleth.net/cgi-bin/mirrorlist.cgi/CentOS_7
+
 - name: "Configure epel repo"
   yum_repository:
     name: "{{ epel_repo.name }}"

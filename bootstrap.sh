@@ -196,11 +196,11 @@ function subscription_prompts(){
 function setup_ansible(){
     local core_dir="/opt/tfplenum/core"
     pushd $core_dir > /dev/null
-    run_cmd dnf install -y make python36 libselinux-python3 policycoreutils-python3 python3-gobject sshpass
+    run_cmd dnf install -y make python36 libselinux-python3 policycoreutils-python3 python3-gobject sshpass gcc krb5-devel krb5-workstation net-tools nfs-utils nmap python36-devel unzip vim wget rsync scap-security-guide
     run_cmd pip3 install virtualenv cryptography==2.9.2
     run_cmd virtualenv --python=python3 --system-site-packages tfp-env
     run_cmd $core_dir/tfp-env/bin/python3 -m pip install -U pip==20.2.4
-    run_cmd $core_dir/tfp-env/bin/pip3 install -r $core_dir/requirements.txt
+    run_cmd $core_dir/tfp-env/bin/pip3 install -r $core_dir/../requirements.txt
     rm -f /usr/bin/ansible*
     rm -f /usr/bin/dir2pi
     run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-playbook /usr/bin/ansible-playbook

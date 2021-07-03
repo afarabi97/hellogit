@@ -421,7 +421,7 @@ def execute(exec_type: DEPLOYMENT_JOBS=DEPLOYMENT_JOBS.base_kit, stage: str=JOB_
         if not success:
             raise JobFailed("An unknown error occurred check the rq logs")
     except Exception as exc:
-        rq_logger.error(exc)
+        rq_logger.exception(exc)
         if node_service:
             node_service.handle_failure()
             success = False

@@ -6,9 +6,7 @@
     tasks_from: pip
 
 - name: "Download pip packages to the custom install repo"
-  shell: "/opt/tfplenum/core/tfp-env/bin/pip download -d {{ tfplenumoffline_dir }}/pip {{ item }}"
-  with_items:
-  - "{{ pip_downloads }}"
+  shell: "{{ core_install_dir }}/tfp-env/bin/pip3 download -d {{ tfplenumoffline_dir }}/pip -r {{ tfplenum_root_dir }}/requirements.txt"
 
 # TODO: broken module with python38
 - name: create pip repo

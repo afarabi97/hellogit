@@ -25,7 +25,7 @@
 - name: Install Setuptools
   pip:
     name: setuptools
-    version: 50.3.2
+    version: 44
     state: present
 
 - name: Install Pip Modules

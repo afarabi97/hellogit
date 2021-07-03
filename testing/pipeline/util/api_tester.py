@@ -92,6 +92,7 @@ def wait_for_job_to_finish(job_name: str, url: str, minutes_timeout: int):
         logging.info("Waiting for {} to complete sleeping 5 seconds then rechecking.".format(job_name))
         sleep(5)
         response_dict = get_request(url.format(job_name))
+        logging.info(response_dict)
         if response_dict["status"] == 'finished':
             return
         elif response_dict["status"] == 'failed':
@@ -137,7 +138,7 @@ def get_api_key(ctrl_settings: ControllerSetupSettings) -> str:
     api_key = ''
     logging.info('SSHing to controller to get API key.')
     with FabricConnectionWrapper(ctrl_settings.node.username, ctrl_settings.node.password, ctrl_settings.node.ipaddress) as remote_shell:
-        api_gen_cmd = '/opt/tfplenum/web/tfp-env/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 4'
+        api_gen_cmd = '/opt/tfplenum/core/tfp-env/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 4'
         ret_val = remote_shell.run(api_gen_cmd,hide=True)
         api_key = ret_val.stdout.strip()
     if api_key != '':
