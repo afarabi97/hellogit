@@ -46,6 +46,7 @@ class KitSettingsSchema(Schema):
     password = marsh_fields.Str(required=True)
     upstream_dns = marsh_fields.IPv4(required=False, allow_none=True)
     upstream_ntp = marsh_fields.IPv4(required=False, allow_none=True)
+    is_gip = marsh_fields.Bool()
     job_id = marsh_fields.Str()
     job_completed = marsh_fields.Bool(required=False, allow_none=True)
 
@@ -68,6 +69,8 @@ class KitSettingsForm(SettingsBase):
                                         description="This is the upstream DNS server that the controller uses for additional DNS lookups that are not on Kit."),
         'upstream_ntp': fields.String(required=False, example="10.10.101.11",
                                         description="This is the upstream NTP server where the controller will get its time from."),
+        'is_gip': fields.String(required=False, example=True,
+                                        description="Setting determines whether kit type is GIP."),
         'job_id': fields.String(required=False, description="The latest job that ran for Kit settings."),
         'job_completed': fields.Boolean(required=False, description="If kit settings job completed"),
     })
@@ -76,12 +79,13 @@ class KitSettingsForm(SettingsBase):
                  job_completed: bool=False,
                  upstream_dns: IPv4Address=IPv4Address("0.0.0.0"),
                  upstream_ntp: IPv4Address=IPv4Address("0.0.0.0"),
-                 _id: str=None, job_id: str=''):
+                 is_gip: bool=False, _id: str=None, job_id: str=''):
         self._id = _id or KIT_SETTINGS_ID
         self.kubernetes_services_cidr = kubernetes_services_cidr
         self.password = password
         self.upstream_dns = upstream_dns
         self.upstream_ntp = upstream_ntp
+        self.is_gip = is_gip
         self.job_id = job_id
         self.job_completed = job_completed
 

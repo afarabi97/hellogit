@@ -15,6 +15,9 @@
       <div fxLayout="column" fxLayoutAlign="start stretch">
         <p>Requires General Settings to be completed</p>
 
+        <!-- Kit Type -->
+        <mat-slide-toggle (change)="isGIPChecked($event)" formControlName="is_gip" matTooltip="Toggle on to enable building a GIP">Enable GIP Build</mat-slide-toggle>
+        <br>
         <!-- Password -->
         <cvah-password-message></cvah-password-message>
         <mat-form-field>

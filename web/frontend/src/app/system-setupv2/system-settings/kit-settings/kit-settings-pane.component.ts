@@ -7,6 +7,7 @@ import { KitSettingsService } from '../../services/kit-settings.service';
 import { Settings, GeneralSettings, KitStatus } from '../../models/kit';
 import { UserService } from '../../../services/user.service';
 import { WebsocketService } from '../../../services/websocket.service';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-kit-settings-pane',
@@ -20,6 +21,7 @@ export class KitSettingsPaneComponent implements OnInit {
   kubernetes_ip_options: string[];
   unused_ip_addresses: string[] = [];
   job_id: string;
+  is_gip: boolean = false;
   cidr_ranges: any = {};
   isReadOnly: boolean = true;
   dhcp_used_ips: string = "";
@@ -52,6 +54,7 @@ export class KitSettingsPaneComponent implements OnInit {
   }
 
   private createFormGroup(kitForm?) {
+    const is_gip = new FormControl(kitForm ? kitForm.is_gip : '');
     const password = new FormControl(kitForm ? kitForm.password : '');
     const re_password = new FormControl(kitForm ? kitForm.password : '');
 
@@ -63,7 +66,8 @@ export class KitSettingsPaneComponent implements OnInit {
       'upstream_dns': new FormControl(kitForm ? kitForm.upstream_dns : null,
         Validators.compose([validateFromArray(kitSettingsValidators.upstream_dns)])),
       'kubernetes_services_cidr': new FormControl(kitForm ? kitForm.kubernetes_services_cidr : '',
-        Validators.compose([validateFromArray(kitSettingsValidators.kubernetes_services_cidr)]))
+        Validators.compose([validateFromArray(kitSettingsValidators.kubernetes_services_cidr)])),
+      'is_gip': is_gip
     });
 
   // Since re_password is dependent on password, the formcontrol for password must exist first. Then we can add the dependency for validation
@@ -194,6 +198,12 @@ export class KitSettingsPaneComponent implements OnInit {
     let index = this.kubernetes_ip_options.indexOf(dhcp_range)
     if (index != -1) {
       this.kubernetes_ip_options.splice(index, 1);
+    }
+  }
+
+  isGIPChecked(event: MatSlideToggleChange){
+    if (event.checked){
+      this.kitForm.get('is_gip').setValue(true);
     }
   }
 

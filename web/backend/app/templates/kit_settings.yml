@@ -28,3 +28,6 @@ all:
     # Default: sdb
     default_data_drive: sdb
 
+    # The following var determines kit type
+    is_gip: {{ template_ctx.is_gip }}
+
