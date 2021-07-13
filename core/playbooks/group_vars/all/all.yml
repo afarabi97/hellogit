@@ -95,6 +95,7 @@ web_root: /var/www/html
 ks_template_dir: "{{ web_root }}/ks"
 tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
 TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
+TFPLENUM_ASSETS_DIR: "{{ web_root }}/frontend/assets"
 
 ansible_controller_ip: "{{ hostvars.localhost.ansible_default_ipv4.address }}"
 

@@ -13,7 +13,7 @@ import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { UserService } from '../../services/user.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { AddNodeDialog } from '../add-node-dialog/add-node-dialog.component';
-import { Job, KitStatus, Node, Settings } from '../models/kit';
+import { Job, KitStatus, Node, Settings, GeneralSettings } from '../models/kit';
 import { NodeInfoDialog } from '../node-info-dialog/node-info-dialog.component';
 import { KitSettingsService } from '../services/kit-settings.service';
 
@@ -199,8 +199,8 @@ export class NodeManagementComponent implements OnInit {
   downloadISO(){
     const ISOurl = document.createElement('a');
     ISOurl.setAttribute('target', '_blank');
-    ISOurl.setAttribute('href', `http://controller.${this.kitSettings.domain}/offlinerepo/tfplenum/dip-virtual-sensor.iso`);
-    ISOurl.setAttribute('download', `dip-virtual-sensor.iso`);
+    ISOurl.setAttribute('href', '/assets/dip-virtual-sensor.iso');
+    ISOurl.setAttribute('download', 'dip-virtual-sensor.iso');
     document.body.appendChild(ISOurl);
     ISOurl.click();
     ISOurl.remove();
