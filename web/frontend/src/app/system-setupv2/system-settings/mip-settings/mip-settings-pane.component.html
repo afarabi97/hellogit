@@ -32,6 +32,7 @@
           <mat-icon matSuffix *ngIf="mipForm.get('password').invalid && mipForm.get('password').touched"
             color="warn">error</mat-icon>
           <mat-error>{{getErrorMessage(mipForm.get("password"))}}</mat-error>
+          <mat-icon matSuffix matTooltip="Password requirements" (click)="passwordDialog()" class="password-dialog" color="primary">info</mat-icon>
         </mat-form-field>
         <mat-form-field>
         <mat-label>Retype Password</mat-label>
@@ -53,6 +54,7 @@
           <mat-icon matSuffix *ngIf="mipForm.get('user_password').invalid && mipForm.get('user_password').touched"
             color="warn">error</mat-icon>
           <mat-error>{{getErrorMessage(mipForm.get("user_password"))}}</mat-error>
+          <mat-icon matSuffix matTooltip="Password requirements" (click)="passwordDialog()" class="password-dialog" color="primary">info</mat-icon>
         </mat-form-field>
         <mat-form-field>
         <mat-label>Retype Password</mat-label>
@@ -75,6 +77,7 @@
             <mat-icon matSuffix *ngIf="mipForm.get('luks_password').invalid && mipForm.get('luks_password').touched"
               color="warn">error</mat-icon>
             <mat-error>{{getErrorMessage(mipForm.get("luks_password"))}}</mat-error>
+            <mat-icon matSuffix matTooltip="Password requirements" (click)="passwordDialog()" class="password-dialog" color="primary">info</mat-icon>
         </mat-form-field>
         <mat-form-field>
           <mat-label>Retype password</mat-label>

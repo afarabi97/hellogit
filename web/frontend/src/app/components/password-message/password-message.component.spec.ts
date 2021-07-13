@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { Subject } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { Subject, of  } from 'rxjs';
 
 import { PasswordMessageComponent } from './password-message.component';
 
@@ -8,6 +9,21 @@ function cleanStylesFromDOM(): void {
   const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
   for (let i = 0; i < styles.length; i++) {
     head.removeChild(styles[i]);
+  }
+}
+
+class MatDialogMock {
+  // When the component calls this.dialog.open(...) we'll return an object
+  // with an afterClosed method that allows to subscribe to the dialog result observable.
+  open() {
+    return {
+      afterClosed: () => of(null)
+    };
+  }
+  closeAll() {
+    return {
+      afterClosed: () => of(null)
+    };
   }
 }
 
@@ -22,6 +38,9 @@ describe('PasswordMessageComponent', () => {
     TestBed.configureTestingModule({
       declarations: [
         PasswordMessageComponent
+      ],
+      providers: [
+        { provide: MatDialog, useClass: MatDialogMock }
       ]
     }).compileComponents();
   }));

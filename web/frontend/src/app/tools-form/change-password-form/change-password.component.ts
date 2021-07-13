@@ -9,6 +9,7 @@ import { UserService } from '../../services/user.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
 import { ToolsService } from '../services/tools.service';
 import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
+import { PasswordMessageComponent } from '../../components/password-message/password-message.component'
 
 const DIALOG_WIDTH = "800px";
 
@@ -110,5 +111,11 @@ export class ChangePasswordFormComponent implements OnInit {
 
   public getErrorMessage(control: FormControl | AbstractControl): string {
     return control.errors ? control.errors.error_message : '';
+  }
+
+  passwordDialog() {
+    this.dialog.open(PasswordMessageComponent,{
+      minWidth: "400px"
+    });
   }
 }

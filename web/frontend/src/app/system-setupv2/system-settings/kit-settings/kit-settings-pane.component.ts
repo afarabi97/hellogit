@@ -8,6 +8,8 @@ import { Settings, GeneralSettings, KitStatus } from '../../models/kit';
 import { UserService } from '../../../services/user.service';
 import { WebsocketService } from '../../../services/websocket.service';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatDialog } from "@angular/material/dialog";
+import { PasswordMessageComponent } from '../../../components/password-message/password-message.component'
 
 @Component({
   selector: 'app-kit-settings-pane',
@@ -46,7 +48,8 @@ export class KitSettingsPaneComponent implements OnInit {
   constructor(public _WebsocketService:WebsocketService,
               private kitSettingsSrv: KitSettingsService,
               private userService: UserService,
-              private router: Router
+              private router: Router,
+              private dialog: MatDialog
               ) {
     this.hasTitle = true;
     this.controllerMaintainer = this.userService.isControllerMaintainer();
@@ -219,5 +222,11 @@ export class KitSettingsPaneComponent implements OnInit {
         })
       }
     }
+  }
+
+passwordDialog() {
+    this.dialog.open(PasswordMessageComponent,{
+      minWidth: "400px"
+    });
   }
 }

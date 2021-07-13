@@ -7,6 +7,8 @@ import { MatSnackBarService } from "../../../services/mat-snackbar.service"
 import { GeneralSettings, MipSettings, KitStatus } from '../../models/kit';
 import { UserService } from '../../../services/user.service';
 import { WebsocketService } from '../../../services/websocket.service';
+import { MatDialog } from "@angular/material/dialog";
+import { PasswordMessageComponent } from '../../../components/password-message/password-message.component'
 
 @Component({
   selector: 'app-mip-settings-pane',
@@ -29,7 +31,8 @@ export class MIPSettingsPaneComponent implements OnInit {
   constructor(public _WebsocketService:WebsocketService,
               private kitSettingsSrv: KitSettingsService,
               private userService: UserService,
-              private matSnackBarService: MatSnackBarService) {
+              private matSnackBarService: MatSnackBarService,
+              private dialog: MatDialog) {
     this.hasTitle = true;
     this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
@@ -140,5 +143,11 @@ export class MIPSettingsPaneComponent implements OnInit {
         this.matSnackBarService.displaySnackBar("MIP Settings Successfully Saved");
     });
 
+  }
+
+  passwordDialog() {
+    this.dialog.open(PasswordMessageComponent,{
+      minWidth: "400px"
+    });
   }
 }
