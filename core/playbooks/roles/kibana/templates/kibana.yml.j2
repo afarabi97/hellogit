@@ -53,6 +53,8 @@ spec:
           value: https://{{ elastic_fqdn }}:{{ elastic_port }}
         - name: NEWSFEED_ENABLED
           value: "false"
+        - name: NODE_OPTIONS
+          value: "--max-old-space-size={{ (kibana_memory * 1024 / 2) | int }}"
         resources:
           requests:
             memory: {{ kibana_memory }}Gi
