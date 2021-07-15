@@ -23,7 +23,6 @@ export class KitSettingsPaneComponent implements OnInit {
   kubernetes_ip_options: string[];
   unused_ip_addresses: string[] = [];
   job_id: string;
-  is_gip: boolean = false;
   cidr_ranges: any = {};
   isReadOnly: boolean = true;
   dhcp_used_ips: string = "";
@@ -57,7 +56,6 @@ export class KitSettingsPaneComponent implements OnInit {
   }
 
   private createFormGroup(kitForm?) {
-    const is_gip = new FormControl(kitForm ? kitForm.is_gip : '');
     const password = new FormControl(kitForm ? kitForm.password : '');
     const re_password = new FormControl(kitForm ? kitForm.password : '');
 
@@ -70,7 +68,7 @@ export class KitSettingsPaneComponent implements OnInit {
         Validators.compose([validateFromArray(kitSettingsValidators.upstream_dns)])),
       'kubernetes_services_cidr': new FormControl(kitForm ? kitForm.kubernetes_services_cidr : '',
         Validators.compose([validateFromArray(kitSettingsValidators.kubernetes_services_cidr)])),
-      'is_gip': is_gip
+      'is_gip': new FormControl(kitForm ? kitForm.is_gip : null)
     });
 
   // Since re_password is dependent on password, the formcontrol for password must exist first. Then we can add the dependency for validation
@@ -181,6 +179,10 @@ export class KitSettingsPaneComponent implements OnInit {
   }
 
   public saveKitSettings() {
+    if (this.kitForm.get('is_gip').value == null || this.kitForm.get('is_gip').value == undefined){
+      this.kitForm.get('is_gip').setValue(false)
+    }
+
     this.kitSettings = this.kitForm.getRawValue();
     this.kitSettingsSrv.updateKitSettings(this.kitForm.getRawValue()).subscribe((data) => {
       const job_id = data['job_id'];

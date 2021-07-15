@@ -69,7 +69,7 @@ class KitSettingsForm(SettingsBase):
                                         description="This is the upstream DNS server that the controller uses for additional DNS lookups that are not on Kit."),
         'upstream_ntp': fields.String(required=False, example="10.10.101.11",
                                         description="This is the upstream NTP server where the controller will get its time from."),
-        'is_gip': fields.String(required=False, example=True,
+        'is_gip': fields.Boolean(required=True, example=True,
                                         description="Setting determines whether kit type is GIP."),
         'job_id': fields.String(required=False, description="The latest job that ran for Kit settings."),
         'job_completed': fields.Boolean(required=False, description="If kit settings job completed"),
