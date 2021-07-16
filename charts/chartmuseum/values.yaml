@@ -115,9 +115,17 @@ nodeSelector: {}
 
 affinity:
   nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-      - matchExpressions:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 50
+      preference:
+        matchExpressions:
+        - key: role
+          operator: In
+          values:
+          - service
+    - weight: 20
+      preference:
+        matchExpressions:
         - key: role
           operator: In
           values:

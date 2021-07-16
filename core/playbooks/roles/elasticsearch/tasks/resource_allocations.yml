@@ -4,7 +4,6 @@
   set_fact:
     master_count: 3
     enable_ml: True
-    enable_maps: True
     mdil: False
 
 # - name: Multiple Masters if more than 2 servers are available

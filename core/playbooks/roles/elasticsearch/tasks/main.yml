@@ -24,5 +24,4 @@
     when: enable_ml
     tags: load-ml
   - import_tasks: "deploy_maps_service.yml"
-    when: enable_maps
   when: inventory_hostname == "localhost"

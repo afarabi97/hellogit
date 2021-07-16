@@ -1,0 +1,46 @@
+- name: Get elastic maps server status
+  uri:
+    url: "{{ maps_server_uri }}/status"
+    return_content: yes
+    validate_certs: no
+  register: maps_server_status
+  until: maps_server_status.status == 200
+  retries: 5
+  delay: 5
+
+- debug:
+    msg: "{{ maps_server_status.json.services }}"
+
+- name: Test | Elastic Maps Server
+  assert:
+    that: item.value.title == 'Success'
+    msg: "Elastic Maps Server - {{ item.key }} failed. Currently in status: {{ item.value.title }}."
+  with_dict: "{{ maps_server_status.json.services }}"
+
+- name: Get Elastic Map Server Pod Yaml Output
+  shell: |
+    set -o pipefail && kubectl get pods -l app=elastic-maps-server -o yaml
+  register: ems_pod
+  changed_when: ems_pod.failed
+
+- name: Set Elastic Maps Server Fact
+  set_fact:
+    ems_pod: "{{ ems_pod.stdout | from_yaml }}"
+
+- name: Get Nodes
+  shell: |
+    set -o pipefail && kubectl get node {{ item.spec.nodeName }} -o yaml
+  with_items: "{{ ems_pod['items'] }}"
+  register: ems_node
+  changed_when: ems_node.failed
+
+- name: Set Elastic Maps Server Node Fact
+  set_fact:
+    ems_node_list: "{{ ems_node_list|default([]) + [ item.stdout | from_yaml ] }}"
+  with_items: "{{ ems_node.results }}"
+
+- name: Test | Check Node Roles
+  assert:
+    that: item.metadata.labels.role in ['server', 'service']
+    msg: "Failed Elastic Maps Server pod is not running on a Server or Service node, its running on {{ item.metadata.labels.role }}"
+  with_items: "{{ ems_node_list }}"

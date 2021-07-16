@@ -1,5 +1,6 @@
 ---
 elastic_uri: "https://elasticsearch:9200"
+maps_server_uri: "https://elastic-maps-server"
 arkime_uri: "http://arkime.lan"
 install_dir: /opt/tfplenum/testing
 deployer_dir: /opt/tfplenum/deployer

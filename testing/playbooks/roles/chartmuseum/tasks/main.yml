@@ -1,0 +1,84 @@
+- name: Set Initial Facts
+  set_fact:
+    app_deployed: false
+    releases: ""
+
+- name: Check if Chartmuseum is Installed
+  command: helm list --filter 'chartmuseum$' --output json
+  register: app_installed
+  changed_when: app_installed.rc != 0
+  delegate_to: localhost
+
+- name: Update Installed Variable
+  set_fact:
+    releases: "{{ (app_installed.stdout | from_json) }}"
+  when:
+    - app_installed.stdout
+
+- name: update installed variable
+  set_fact:
+    app_deployed: true
+  when:
+    - app_installed is defined
+    - releases is defined and releases
+    - "'deployed' in item.status"
+  with_items: "{{ releases }}"
+
+- name: Test | Check Chartmuseum Helm Deployed
+  assert:
+    that: "'deployed' in item.status"
+    msg: "Failed to determine if chartmuseum is installed"
+  when: releases is defined and releases
+  with_items:
+    - "{{ releases }}"
+
+- name: Check Chartmuseum Pod
+  block:
+  - name: get chartmuseum pod
+    shell: |
+      set -o pipefail && {{ kubectl_get_pods_cmd }} | grep 'chartmuseum-'
+    register: get_pods
+    changed_when: get_pods.failed
+
+  - name: Get Chartmuseum Pod Status
+    shell: |
+      set -o pipefail && kubectl get pod {{ item }} --no-headers | awk '{ print $3 }'
+    with_items: "{{ get_pods.stdout_lines }}"
+    register: pod_status
+    changed_when: pod_status.failed
+    ignore_errors: yes
+
+  - name: Test | Check Chartmuseum Pod Status
+    assert:
+      that: item.stdout == 'Running' or item.stdout == 'Completed'
+      msg: "Failed it appears chartmuseum pod status is {{ item.stdout }}"
+    with_items: "{{ pod_status.results }}"
+  when: app_deployed
+
+- name: Get Chartmuseum Pod Yaml Output
+  shell: |
+    set -o pipefail && kubectl get pods -l app=chartmuseum -o yaml
+  register: chartmuseum_pod
+  changed_when: chartmuseum_pod.failed
+
+- name: Set Chartmuseum Fact
+  set_fact:
+    chartmuseum_pod: "{{ chartmuseum_pod.stdout | from_yaml }}"
+
+- name: Get Nodes
+  shell: |
+    set -o pipefail && kubectl get node {{ item.spec.nodeName }} -o yaml
+  with_items: "{{ chartmuseum_pod['items'] }}"
+  register: chartmuseum_node
+  changed_when: chartmuseum_node.failed
+
+- name: Set Chartmuseum Node Fact
+  set_fact:
+    chartmuseum_node_list: "{{ chartmuseum_node_list|default([]) + [ item.stdout | from_yaml ] }}"
+  with_items: "{{ chartmuseum_node.results }}"
+
+- name: Test | Check Node Roles
+  assert:
+    that: item.metadata.labels.role in ['server', 'service']
+    msg: "Failed Chartmuseum pod is not running on a Server or Service node, its running on {{ item.metadata.labels.role }}"
+  with_items: "{{ chartmuseum_node_list }}"

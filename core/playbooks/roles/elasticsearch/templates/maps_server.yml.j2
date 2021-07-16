@@ -5,17 +5,21 @@ metadata:
   name: elastic-maps-service-configs
 data:
   elastic-maps-server.yml: |
-    elasticsearch.host: 'https://elasticsearch.default.svc.cluster.local:9200'
-    elasticsearch.username: 'elastic'
-    elasticsearch.password: ${ELASTICSEARCH_PASSWORD}
-    elasticsearch.ssl.certificateAuthorities: [ "/etc/ssl/certs/container/ca.crt" ]
-    elasticsearch.ssl.verificationMode: 'full'
-    path.planet: "/usr/src/app/data/planet.mbtiles"
-    elasticsearch.ssl.certificate: /etc/ssl/certs/elasticsearch/tls.crt
-    elasticsearch.ssl.key: /etc/ssl/certs/elasticsearch/tls.key
-    ssl.enabled: true
-    ssl.certificate: /etc/ssl/certs/container/tls.crt
-    ssl.key: /etc/ssl/certs/container/tls.key
+    elasticsearch:
+      host: https://{{ elastic_fqdn }}:{{ elastic_port }}
+      username: elastic
+      password: {{ es_password.stdout }}
+      ssl:
+        certificateAuthorities: /etc/ssl/certs/container/ca.crt
+        verificationMode: full
+        certificate: /etc/ssl/certs/elasticsearch/tls.crt
+        key: /etc/ssl/certs/elasticsearch/tls.key
+    ssl:
+      enabled: true
+      certificate: /etc/ssl/certs/container/tls.crt
+      key: /etc/ssl/certs/container/tls.key
+    path:
+      planet: /usr/src/app/data/planet.mbtiles
     port: 4343
 ---
 apiVersion: apps/v1
@@ -42,12 +46,6 @@ spec:
         ports:
         - containerPort: 4343
           name: https
-        env:
-        - name: ELASTICSEARCH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: tfplenum-es-elastic-user
-              key: elastic
         volumeMounts:
         - name: configs
           subPath: elastic-maps-server.yml
@@ -73,6 +71,9 @@ spec:
       - name: configs
         configMap:
           name: elastic-maps-service-configs
+      affinity:
+{{ operator_node_affinity | to_nice_yaml(indent=2) | indent(width=8,first=True) }}
+
 ---
 apiVersion: v1
 kind: Service
@@ -84,7 +85,7 @@ spec:
   selector:
     component: elastic-maps-server
   ports:
-  - name: http
+  - name: https
     port: 443
     targetPort: 4343
   type: LoadBalancer
