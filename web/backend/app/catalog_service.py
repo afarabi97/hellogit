@@ -423,11 +423,11 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                     results = yaml.full_load(stdout.strip())
                     notification.set_status(status=results["STATUS"].upper())
                     notification.post_to_websocket_api()
-
+                    conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
+                    conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
+                    
                     if wait_for_deployment_to_ready(application, deployment_name, namespace) and application_setup_job_watcher(application=application, deployment_name=deployment_name, namespace=namespace):
                         response.append("release: \"" + deployment_name + "\" "  + results["STATUS"].upper())
-                        conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
-                        conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
                         # Send Update Notification to websocket
                         notification.set_message(message="Install completed.")
                         notification.set_status(status=NotificationCode.COMPLETED.name)
