@@ -18,6 +18,94 @@
 
 - import_tasks: build_all_in_one.yml
 
+- name: Create empty node set list
+  set_fact:
+    node_sets: []
+
+- name: Append master node to node sets
+  set_fact:
+    node_sets: "{{ node_sets + [node_set] }}"
+  vars:
+    node_set:
+      name: master
+      count: "{{ master_count }}"
+      node_roles: ["master", "data", "ingest", "ml"]
+      es_java_opts: "-Xms{{ master_java_memory }}g -Xmx{{ master_java_memory }}g"
+      min_memory: "{{ master_memory }}"
+      min_cpu: "{{ master_num_procs  }}"
+  when: mdil
+
+- name: Append master node to node sets
+  set_fact:
+    node_sets: "{{ node_sets + [node_set] }}"
+  vars:
+    node_set:
+      name: master
+      count: "{{ master_count }}"
+      node_roles: ["master"]
+      es_java_opts: "-Xms{{ master_java_memory }}g -Xmx{{ master_java_memory }}g"
+      min_memory: "{{ master_memory }}"
+      min_cpu: "{{ master_num_procs  }}"
+  when: not mdil
+
+- name: Append data node to node sets
+  set_fact:
+    node_sets: "{{ node_sets + [node_set] }}"
+  vars:
+    node_set:
+      name: data
+      count: "{{ data_count }}"
+      node_roles: ["data", "ingest"]
+      es_java_opts: "-Xms{{ data_java_memory }}g -Xmx{{ data_java_memory }}g"
+      min_memory: "{{ data_memory }}"
+      min_cpu: "{{ data_num_procs  }}"
+  when: not mdil and kit_size != 4
+
+- name: Append data node to node sets
+  set_fact:
+    node_sets: "{{ node_sets + [node_set] }}"
+  vars:
+    node_set:
+      name: data
+      count: "{{ data_count }}"
+      node_roles: ["data"]
+      es_java_opts: "-Xms{{ data_java_memory }}g -Xmx{{ data_java_memory }}g"
+      min_memory: "{{ data_memory }}"
+      min_cpu: "{{ data_num_procs  }}"
+  when: not mdil and kit_size == 4
+
+- name: Append ingest node to node sets
+  set_fact:
+    node_sets: "{{ node_sets + [node_set] }}"
+  vars:
+    node_set:
+      name: ingest
+      count: "{{ ingest_count }}"
+      node_roles: ["ingest"]
+      es_java_opts: "-Xms{{ ingest_java_memory }}g -Xmx{{ ingest_java_memory }}g"
+      min_memory: "{{ ingest_memory }}"
+      min_cpu: "{{ ingest_num_procs  }}"
+  when: not mdil and kit_size == 4
+
+- name: Append ml node to node sets
+  set_fact:
+    node_sets: "{{ node_sets + [node_set] }}"
+  vars:
+    node_set:
+      name: ml
+      count: "{{ ml_count }}"
+      node_roles: ["ml"]
+      es_java_opts: "-Xms{{ ml_java_memory }}g -Xmx{{ ml_java_memory }}g"
+      min_memory: "{{ ml_memory }}"
+      min_cpu: "{{ ml_num_procs  }}"
+  when: not mdil
+
+- name: Copy deploy template
+  template:
+    src: "templates/deploy.yml.j2"
+    dest: "{{ elastic_dir }}/deploy.yml"
+    mode: u+rw,g+rw
+
 - name: Copy Templates
   template:
     src: "templates/{{ item }}.j2"
@@ -26,7 +114,6 @@
   with_items:
     - operator.yml
     - certificate.yml
-    - deploy.yml
 
 - name: Install Elasticsearch Certificate
   shell: |

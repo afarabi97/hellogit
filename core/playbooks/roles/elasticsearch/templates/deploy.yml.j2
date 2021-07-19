@@ -1,7 +1,3 @@
-#jinja2: lstrip_blocks: True
-
-{% import 'templates/node_set.yml.j2' as node_set %}
-
 ---
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
@@ -18,17 +14,142 @@ spec:
   - secretName: s3-access-key
   - secretName: s3-secret-key
   nodeSets:
-{{ node_set.master(kit_domain, mdil, master_count, master_memory, master_num_procs, master_java_memory, plugin_list, enable_ml, ansible_controller_hostname)| indent(width=2,first=True) -}}
-{% if not mdil -%}
-{{ node_set.data(kit_domain, data_count, data_memory, data_num_procs, data_java_memory, plugin_list, enable_ml, ansible_controller_hostname, kit_size) | indent(width=2,first=True) }}
-{% if kit_size == 4 -%}
-{{ node_set.ingest(kit_domain, ingest_count, ingest_memory, ingest_num_procs, ingest_java_memory, plugin_list, enable_ml, ansible_controller_hostname) | indent(width=2,first=True) }}
-{%- endif %}
-{% if enable_ml -%}
-{{ node_set.ml(kit_domain, ml_count, ml_memory, ml_num_procs, ml_java_memory, plugin_list, enable_ml, ansible_controller_hostname) | indent(width=2,first=True) }}
-{%- endif %}
+{% for node_set in node_sets %}
+  - name: {{ node_set.name }}
+    count: {{ node_set.count | string }}
+    config:
+      node.max_local_storage_nodes: "25"
+{% if node_set.name == "data" %}
+      node.attr.molochtype: "hot"
 {% endif %}
-
+      node.roles: {{ node_set.node_roles }}
+      xpack.monitoring.collection.enabled: "true"
+      xpack.monitoring.collection.interval: 30s
+      node.attr.node_name: ${NODE_NAME}
+      cluster.routing.allocation.awareness.attributes: node_name
+      thread_pool.write.queue_size: 1000
+      xpack.ml.enabled: {{ enable_ml }}
+      xpack.security.authc.token.enabled: true
+      xpack.security.authc.realms.saml.saml1.order: 2
+      xpack.security.authc.realms.saml.saml1.attributes.principal: "uid"
+      xpack.security.authc.realms.saml.saml1.attributes.name: "displayName"
+      xpack.security.authc.realms.saml.saml1.attributes.mail: "email"
+      xpack.security.authc.realms.saml.saml1.attributes.groups: "roles"
+      xpack.security.authc.realms.saml.saml1.idp.metadata.path: "/usr/share/elasticsearch/config/sso-idp-metadata/idp.metadata.xml"
+      xpack.security.authc.realms.saml.saml1.ssl.verification_mode: none
+      xpack.security.authc.realms.saml.saml1.idp.use_single_logout: true
+      xpack.security.authc.realms.saml.saml1.idp.entity_id: "https://{{ ansible_controller_hostname }}/auth/realms/CVAH-SSO"
+      xpack.security.authc.realms.saml.saml1.sp.entity_id: "https://kibana.{{ kit_domain }}/"
+      xpack.security.authc.realms.saml.saml1.sp.acs: "https://kibana.{{ kit_domain }}/api/security/v1/saml"
+      xpack.security.authc.realms.saml.saml1.sp.logout: "https://kibana.{{ kit_domain }}/logout"
+      xpack.security.authc.realms.saml.saml1.signing.certificate: /usr/share/elasticsearch/config/kibana-saml-certs/tls.crt
+      xpack.security.authc.realms.saml.saml1.signing.key: /usr/share/elasticsearch/config/kibana-saml-certs/tls.key
+      xpack.security.authc.realms.saml.saml1.encryption.certificate: /usr/share/elasticsearch/config/kibana-saml-certs/tls.crt
+      xpack.security.authc.realms.saml.saml1.encryption.key: /usr/share/elasticsearch/config/kibana-saml-certs/tls.key
+      xpack.security.authc.realms.saml.saml1.signing.saml_messages: "*"
+{% if node_set.name in ["master", "data"] %}
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        storageClassName: elastic-disks
+        resources:
+          requests:
+            storage: 1Gi
+{% endif %}
+    podTemplate:
+      metadata:
+        labels:
+          component: elasticsearch
+      spec:
+        initContainers:
+        - name: sysctl
+          command:
+          - sh
+          - -c
+          - sysctl -w vm.max_map_count=262144
+          securityContext:
+            privileged: true
+        - name: install-plugins
+          command:
+          - sh
+          - -c
+          - |
+            set -o pipefail
+            TEMPORARY_FILE=$(mktemp)
+            bin/elasticsearch-plugin install --batch {{ " ".join(plugin_list) }} 2>&1 | tee $TEMPORARY_FILE
+            RETURN_CODE=$?
+            grep -q "already exists" $TEMPORARY_FILE
+            ALREADY_EXISTS=$?
+            if [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then
+              echo "Success: RC: $RETURN_CODE"
+              exit 0
+            else
+              echo "Failure: RC: $RETURN_CODE"
+              exit 1
+            fi
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          volumeMounts:
+          - name: elastic-plugins
+            mountPath: /tmp/plugins
+        containers:
+        - name: elasticsearch        
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: ES_JAVA_OPTS
+            value: {{ node_set.es_java_opts }}
+          resources:
+            requests:
+              cpu: {{ node_set.min_cpu | string }}
+              memory: {{ node_set.min_memory | string }}Gi
+          volumeMounts:
+          - mountPath: /usr/share/elasticsearch/config/kibana-saml-certs/
+            name: kibana-saml
+          - mountPath: /usr/share/elasticsearch/config/sso-idp-metadata
+            name: sso-idp-metadata
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: role
+                  operator: In
+                  values:
+                  - server
+        topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              elasticsearch.k8s.elastic.co/statefulset-name: tfplenum-es-{{ node_set.name }}
+          maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+        volumes:
+        - name: elastic-plugins
+          hostPath:
+            path: /data/elastic_plugins
+            type: DirectoryOrCreate
+{% if node_set.name in ["master", "coordinating", "ml"] %}
+        - name: elasticsearch-data
+          emptyDir: {}
+{% endif %}
+        - name: kibana-saml
+          secret:
+            defaultMode: 0444
+            secretName: kibana-saml
+        - name: sso-idp-metadata
+          secret:
+            defaultMode: 0444
+            secretName: sso-idp-metadata
+{% endfor %}
 ---
 apiVersion: v1
 kind: Service
@@ -44,9 +165,9 @@ spec:
   type: LoadBalancer
   selector:
     elasticsearch.k8s.elastic.co/cluster-name: "tfplenum"
-  {% if not mdil %}
+{% if not mdil %}
     elasticsearch.k8s.elastic.co/node-data: "true"
-  {% endif %}
+{% endif %}
 
 ---
 apiVersion: v1
@@ -59,9 +180,9 @@ spec:
   selector:
     common.k8s.elastic.co/type: elasticsearch
     elasticsearch.k8s.elastic.co/cluster-name: "tfplenum"
-  {% if not mdil %}
+{% if not mdil %}
     elasticsearch.k8s.elastic.co/statefulset-name: tfplenum-es-data
-  {% endif %}
+{% endif %}
   ports:
   - name: https
     port: {{ elastic_port }}
