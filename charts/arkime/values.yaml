@@ -1,6 +1,7 @@
 #### Arkime configuration variables ####
 image: 'tfplenum/arkime'
 port: "8005"
+domain: lan
 
 # Location of arkime dirs/files
 dir: '/opt/tfplenum/arkime'

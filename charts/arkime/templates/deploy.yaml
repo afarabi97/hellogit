@@ -1,5 +1,5 @@
+{{- $regexstring := printf "\\.(%s)?$" .Values.domain -}}
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,7 +24,7 @@ spec:
         image: "{{ .Values.image }}:{{ .Values.version }}"
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh"]
-        args: ["-c", "/data/moloch/db/db.pl --insecure https://$ELASTICSEARCH_USER:$ELASTICSEARCH_PASS@$ELASTICSEARCH_HOST:9200 sync-files {{ regexReplaceAll "\\.(lan)?$" .Values.affinity_hostname "" }} /data/moloch/raw/"]
+        args: ["-c", "/data/moloch/db/db.pl -vvvv --insecure https://$ELASTICSEARCH_USER:$ELASTICSEARCH_PASS@$ELASTICSEARCH_HOST:9200 sync-files {{ regexReplaceAll $regexstring .Values.affinity_hostname "" }} /data/moloch/raw/"]
         env:
         - name: ELASTICSEARCH_HOST
           value: {{ .Values.elastic_fqdn | quote }}
