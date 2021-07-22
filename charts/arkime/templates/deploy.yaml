@@ -22,6 +22,9 @@ spec:
       initContainers:
       - name: init-sync-files
         image: "{{ .Values.image }}:{{ .Values.version }}"
+        volumeMounts:
+        - name: data
+          mountPath: {{ .Values.pcap_path }}
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh"]
         args: ["-c", "/data/moloch/db/db.pl -vvvv --insecure https://$ELASTICSEARCH_USER:$ELASTICSEARCH_PASS@$ELASTICSEARCH_HOST:9200 sync-files {{ regexReplaceAll $regexstring .Values.affinity_hostname "" }} /data/moloch/raw/"]
