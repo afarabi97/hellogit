@@ -28,7 +28,7 @@ cassandra_version: 3.11.9
 elastic_operator: 1.6.0
 redmine_version: "4.2.1"
 nifi_version: 1.12.1
-mariadb_version: 10.5.8
+mariadb_version: 10.6.3
 mattermost_version: 5.36.1
 wikijs_version: 2.5.201
 misp_version: 2.4.148

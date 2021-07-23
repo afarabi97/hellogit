@@ -1,7 +1,7 @@
 # Default values for redmine and postgres
 replicas: 1
 redmineImage: redmine:4.2.1
-mariadbImage: mariadb:10.5.8
+mariadbImage: mariadb:10.6.3
 redmineInternalPort: 3000
 ### Nginx Config
 nginx_image: nginx:1.19.6

@@ -11,7 +11,7 @@ cortex_url: https://cortex.default.svc.cluster.local
 modules_url: misp-modules.default.svc.cluster.local
 
 # Database values
-mariadbImage: mariadb:10.5.8
+mariadbImage: mariadb:10.6.3
 sqlDatabase: misp-db
 sqlUsername: misp
 sqlRootPassword: A0@QlrLZPEDB3*aLcgPsMm805

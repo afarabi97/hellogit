@@ -6,7 +6,7 @@ domain: lan
 auth_base: https://controller.lan/auth/realms/CVAH-SSO
 
 # database variables
-mariadbImage: mariadb:10.5.8
+mariadbImage: mariadb:10.6.3
 sqlDatabase: mattermost-db
 sqlUsername: mmuser
 sqlPassword: mmuser_password
