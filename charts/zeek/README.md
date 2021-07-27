@@ -3,6 +3,15 @@ id: zeek
 type: chart
 node_affinity: Sensor
 formControls:
+- type: checkbox
+  default_value: false
+  description: >
+    Send to logstash instead of directly to Elasticsearch (Requires Logstash
+    to be installed first, verify Logstash is up and running before continuing)
+  trueValue: true
+  falseValue: false
+  name: use_logstash
+  dependent_app: logstash
 - type: textinputlist
   default_value: '["192.168.0.0/24"]'
   description: Enter your home/defended network in this format ["home network IP 1"," home network IP 2"] or ["any"]

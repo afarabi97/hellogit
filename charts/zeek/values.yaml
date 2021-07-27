@@ -1,4 +1,5 @@
 elastic_ingest_nodes: []
+logstash_nodes: []
 home_net: ["192.168.0.0/16"]
 interfaces: ["eth0"]
 image_name: tfplenum/zeek
@@ -57,3 +58,4 @@ log_types:
   - traceroute
   - ntp
   - signature
+use_logstash: false

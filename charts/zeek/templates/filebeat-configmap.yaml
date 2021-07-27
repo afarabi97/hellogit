@@ -1,4 +1,3 @@
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,6 +7,58 @@ metadata:
     "helm.sh/hook-weight": "-10"
     "helm.sh/hook-delete-policy": "before-hook-creation"
 data:
+  filebeat-setup.yml: |
+    filebeat.config.modules:
+      path: ${path.config}/modules.d/*.yml
+      reload.enabled: false
+
+    #==================== Elasticsearch template setting ==========================
+
+    setup.template.settings:
+      index.number_of_shards: {{ .Values.shards }}
+      index.number_of_replicas: 1
+      index.refresh_interval: 30s
+      index.merge.scheduler.max_thread_count: 1
+      setup.template.overwrite: false
+
+    setup.ilm:
+      policy_name: filebeat-zeek
+      rollover_alias: filebeat-zeek
+
+    #============================== Kibana =====================================
+
+    setup.dashboards.enabled: true
+    setup.kibana.host: "https://{{ .Values.kibana_fqdn }}:{{ .Values.kibana_port }}"
+    setup.kibana.ssl.enabled: true
+    setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
+    setup.kibana.username: ${ELASTICSEARCH_USERNAME}
+    setup.kibana.password: ${ELASTICSEARCH_PASSWORD}
+    # ssl.certificate: "/etc/ssl/certs/container/tls.crt"
+    # ssl.key: "/etc/ssl/certs/container/tls.key"
+
+    #================================ Outputs =====================================
+
+    #-------------------------- Elasticsearch output ------------------------------
+    output.elasticsearch:
+      hosts:
+      {{- range .Values.elastic_ingest_nodes }}
+        - {{ . }}
+      {{- end }}
+      username: ${ELASTICSEARCH_USERNAME}
+      password: ${ELASTICSEARCH_PASSWORD}
+      ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
+      # ssl.certificate: "/etc/ssl/certs/container/tls.crt"
+      # ssl.key: "/etc/ssl/certs/container/tls.key"
+      worker: 6
+      bulk_max_size: 4096
+      compression_level: 3
+      loadbalance: true
+
+    queue.mem:
+      events: 65536
+      flush.min_events: 4096
+      flush.timeout: 30s
+
   filebeat.yml: |
 
     filebeat.config.modules:
@@ -17,118 +68,139 @@ data:
     filebeat.modules:
     - module: zeek
       capture_loss:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "capture_loss" .Values.log_types) }}
         var.tags: [forwarded]
       connection:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "connection" .Values.log_types) }}
         var.tags: [forwarded]
       dce_rpc:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "dce_rpc" .Values.log_types) }}
         var.tags: [forwarded]
       dhcp:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "dhcp" .Values.log_types) }}
         var.tags: [forwarded]
       dnp3:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "dnp3" .Values.log_types) }}
         var.tags: [forwarded]
       dns:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "dns" .Values.log_types) }}
         var.tags: [forwarded]
       dpd:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "dpd" .Values.log_types) }}
         var.tags: [forwarded]
       files:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "files" .Values.log_types) }}
         var.tags: [forwarded]
       ftp:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "ftp" .Values.log_types) }}
         var.tags: [forwarded]
       http:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "http" .Values.log_types) }}
         var.tags: [forwarded]
       intel:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "intel" .Values.log_types) }}
         var.tags: [forwarded]
       irc:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "irc" .Values.log_types) }}
         var.tags: [forwarded]
       kerberos:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "kerberos" .Values.log_types) }}
         var.tags: [forwarded]
       modbus:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "modbus" .Values.log_types) }}
         var.tags: [forwarded]
       mysql:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "mysql" .Values.log_types) }}
         var.tags: [forwarded]
       notice:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "notice" .Values.log_types) }}
         var.tags: [forwarded]
       ntlm:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "ntlm" .Values.log_types) }}
         var.tags: [forwarded]
       ocsp:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "ocsp" .Values.log_types) }}
         var.tags: [forwarded]
       pe:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "pe" .Values.log_types) }}
         var.tags: [forwarded]
       radius:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "radius" .Values.log_types) }}
         var.tags: [forwarded]
       rdp:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "rdp" .Values.log_types) }}
         var.tags: [forwarded]
       rfb:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "rfb" .Values.log_types) }}
         var.tags: [forwarded]
       sip:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "sip" .Values.log_types) }}
         var.tags: [forwarded]
       smb_cmd:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "smb_cmd" .Values.log_types) }}
         var.tags: [forwarded]
       smb_files:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "smb_files" .Values.log_types) }}
         var.tags: [forwarded]
       smb_mapping:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "smb_mapping" .Values.log_types) }}
         var.tags: [forwarded]
       smtp:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "smtp" .Values.log_types) }}
         var.tags: [forwarded]
       snmp:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "snmp" .Values.log_types) }}
         var.tags: [forwarded]
       socks:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "socks" .Values.log_types) }}
         var.tags: [forwarded]
       ssh:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "ssh" .Values.log_types) }}
         var.tags: [forwarded]
       ssl:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "ssl" .Values.log_types) }}
         var.tags: [forwarded]
       stats:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "stats" .Values.log_types) }}
         var.tags: [forwarded]
       syslog:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "syslog" .Values.log_types) }}
         var.tags: [forwarded]
       traceroute:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "traceroute" .Values.log_types) }}
         var.tags: [forwarded]
       tunnel:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "tunnel" .Values.log_types) }}
         var.tags: [forwarded]
       weird:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "weird" .Values.log_types) }}
         var.tags: [forwarded]
       x509:
-        enabled: true
+        enabled: {{ ternary "true" "false" (has "x509" .Values.log_types) }}
         var.tags: [forwarded]
 
+    processors:
+      - add_fields:
+          target: observer
+          fields:
+            hostname: ${NODE_NAME}
+    {{ if .Values.use_logstash }}
+      - add_fields:
+          target: "@mymetadata"
+          fields:
+            custom_index: filebeat-zeek
+            pipeline: filebeat-all_modules # only used if default module pipeline isn't defined
+
+    #==================== Logstash Output setting ==========================
+    output.logstash:
+      hosts:
+      {{- range .Values.logstash_nodes }}
+        - {{ . }}
+      {{- end }}
+
+    {{ else }}
     #==================== Elasticsearch template setting ==========================
+
     setup.template.settings:
       index.number_of_shards: {{ .Values.shards }}
       index.number_of_replicas: 1
@@ -154,13 +226,6 @@ data:
     # ssl.key: "/etc/ssl/certs/container/tls.key"
 
     #================================ Outputs =====================================
-
-    processors:
-      - add_fields:
-          target: observer
-          fields:
-            hostname: ${NODE_NAME}
-
     #-------------------------- Elasticsearch output ------------------------------
     output.elasticsearch:
       hosts:
@@ -176,6 +241,7 @@ data:
       bulk_max_size: 4096
       compression_level: 3
       loadbalance: true
+    {{ end }}
 
     queue.mem:
       events: 65536
@@ -185,10 +251,10 @@ data:
     monitoring:
       enabled: true
       elasticsearch:
+        hosts:
+        {{- range .Values.elastic_ingest_nodes }}
+          - {{ . }}
+        {{- end }}
         username: ${ELASTICSEARCH_USERNAME}
         password: ${ELASTICSEARCH_PASSWORD}
-    #   username: ""
-    #   ssl:
-    #     ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
-    #     ssl.certificate: "/etc/ssl/certs/container/tls.crt"
-    #     ssl.key: "/etc/ssl/certs/container/tls.key"
+        ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]

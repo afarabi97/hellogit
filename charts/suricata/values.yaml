@@ -1,6 +1,7 @@
 kibana_fqdn: kibana.default.svc.cluster.local
 kibana_port: 443
 elastic_ingest_nodes: []
+logstash_nodes: []
 suricata_directory: /opt/tfplenum/suricata
 suricata_threads: 8
 home_net: ["192.168.0.0/16"]
@@ -18,6 +19,7 @@ fpc_path: "/data/pcap"
 flow: false
 shards: {}
 hard_disk_drive: false
+use_logstash: false
 log_types:
   - alert
   - http

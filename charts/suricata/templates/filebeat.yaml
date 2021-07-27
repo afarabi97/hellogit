@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-filebeat
   labels:
-    component: suricata-logshipper-bullshit
+    component: suricata-logshipper
 spec:
   replicas: 1
   selector:
@@ -15,6 +15,39 @@ spec:
       labels:
         component: suricata-logshipper
     spec:
+      initContainers:
+      {{- if .Values.use_logstash }}
+      - name: filebeat-init
+        image: {{ $.Values.filebeat_image_name }}:{{ $.Values.filebeat_image_tag }}
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: password
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        volumeMounts:
+        - name: data
+          mountPath: {{ $.Values.suricata_log_path }}
+          readOnly: true
+        - name: configs
+          subPath: filebeat-setup.yml
+          mountPath: /usr/share/filebeat/filebeat.yml
+          readOnly: true
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+        args: ['setup', '-e', '--modules', 'suricata', '--index-management', '--pipelines']
+      {{- end }}
       containers:
       {{ if has "alert" .Values.log_types }}
       - name: filebeat-suricata-alert
@@ -209,7 +242,7 @@ spec:
           value: "{{ .Values.suricata_log_path }}/eve-other*.json"
         volumeMounts:
         - name: data
-          mountPath: {{ .Values.suricata_log_path }}
+          mountPath: {{ $.Values.suricata_log_path }}
           readOnly: true
         - name: configs
           subPath: filebeat.yml

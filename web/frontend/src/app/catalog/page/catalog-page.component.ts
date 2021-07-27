@@ -755,4 +755,10 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     }
     return false
   }
+
+  createInputPlacehoder(control_name: string) {
+    const string = control_name.replace(/([a-z](?=[A-Z]))/g, '$1_').toLowerCase().split('_')
+                              .map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    return string;
+  }
 }

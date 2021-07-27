@@ -24,19 +24,23 @@ data:
     filter {
       if "" in [@metadata][index] {
         mutate { add_field => { "[@metadata][index]" => "%{[@mymetadata][index_suffix]}" } }
-        mutate { remove_field => [ "@mymetadata" ] }
       }
+      if [@metadata][beat] == "filebeat" {
+        mutate { add_field => { "[@mymetadata][pipeline]" => "filebeat-all_modules" } }
+        if ![@metadata][pipeline] {
+          mutate { add_field => { "[@metadata][pipeline]" => "%{[@mymetadata][pipeline]}" } }
+        }
+        else if [@metadata][pipeline] == "" {
+          mutate { update => { "[@metadata][pipeline]" => "%{[@mymetadata][pipeline]}" } }
+        }
+      }
+      mutate { remove_field => [ "@mymetadata" ] }
     }
 
     output {
-      #stdout {
-      #  codec  => rubydebug {
-      #    metadata => true
-      #  }
-      #}
 
       if [@metadata][beat] == "filebeat" {
-      if "" in [@metadata][index] {
+        if "" in [@metadata][index] {
           elasticsearch {
             hosts => {{ .Values.elastic_ingest_nodes | toJson }}
             cacert => '/etc/ssl/certs/container/ca.crt'
@@ -46,7 +50,7 @@ data:
             index => "%{[@metadata][index]}"
             template_name => "filebeat-external"
             ilm_enabled => false
-            pipeline => "filebeat-all_modules"
+            pipeline => "%{[@metadata][pipeline]}"
             manage_template => false
           }
         } else {
@@ -60,7 +64,7 @@ data:
             ilm_policy => "filebeat-external"
             ilm_enabled => true
             ilm_pattern => "{now/d}-000001"
-            pipeline => "filebeat-all_modules"
+            pipeline => "%{[@metadata][pipeline]}"
             manage_template => false
           }
         }
@@ -117,19 +121,16 @@ data:
     }
 
     filter {
-      if ![@metadata][ingest_pipeline] {
-        mutate {
-          add_field => {
-            "[@metadata][ingest_pipeline]" => "filebeat-all_modules"
-          }
+      if [@metadata][beat] == "filebeat" {
+        if ![@metadata][pipeline] {
+          mutate { add_field => { "[@metadata][pipeline]" => "%{[@mymetadata][pipeline]}" } }
         }
-      } else if [@metadata][ingest_pipeline] == "" {
-        mutate {
-          update => {
-            "[@metadata][ingest_pipeline]" => "filebeat-all_modules"
-          }
+        else if [@metadata][pipeline] == "" {
+          mutate { update => { "[@metadata][pipeline]" => "%{[@mymetadata][pipeline]}" } }
         }
       }
+      mutate { add_field => { "[@metadata][custom_index]" => "%{[@mymetadata][custom_index]}" } }
+      mutate { remove_field => [ "@mymetadata" ] }
     }
 
     output {
@@ -142,6 +143,6 @@ data:
         index => "%{[@metadata][custom_index]}"
         ilm_enabled => false
         manage_template => false
-        pipeline => "%{[@metadata][ingest_pipeline]}"
+        pipeline => "%{[@metadata][pipeline]}"
       }
     }

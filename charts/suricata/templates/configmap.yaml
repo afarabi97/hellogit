@@ -1,4 +1,3 @@
-{{- $root := . -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -57,9 +56,9 @@ data:
       enabled: yes
       interval: 60
     outputs:
-      {{ if has "alert" .Values.log_types }}
+      # Suricata Alert Logs
       - eve-log:
-          enabled: yes
+          enabled: {{ ternary "yes" "no" (has "alert" .Values.log_types) }}
           filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
           filename: eve-alerts-%Y-%m-%d-%H-%M.json
           rotate-interval: 300s
@@ -70,10 +69,9 @@ data:
             - alert:
                 metadata: yes     # enable inclusion of app layer metadata with alert. Default yes
                 tagged-packets: yes
-      {{- end }}
-      {{ if has "http" .Values.log_types }}
+      # Suricata HTTP Logs
       - eve-log:
-          enabled: yes
+          enabled: {{ ternary "yes" "no" (has "http" .Values.log_types) }}
           filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
           filename: eve-http-%Y-%m-%d-%H-%M.json
           rotate-interval: 300s
@@ -83,10 +81,9 @@ data:
           types:
             - http:
                 extended: yes
-      {{- end }}
-      {{ if has "dns" .Values.log_types }}
+      # Suricata DNS Logs
       - eve-log:
-          enabled: yes
+          enabled: {{ ternary "yes" "no" (has "dns" .Values.log_types) }}
           filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
           filename: eve-dns-%Y-%m-%d-%H-%M.json
           rotate-interval: 300s
@@ -101,10 +98,9 @@ data:
                 response: yes
                 formats: [detailed, grouped]
                 types: [a, aaaa, cname, mx, ns, ptr, txt]
-      {{- end }}
-      {{ if has "tls" .Values.log_types }}
+      # Suricata TLS Logs
       - eve-log:
-          enabled: yes
+          enabled: {{ ternary "yes" "no" (has "tls" .Values.log_types) }}
           filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
           filename: eve-tls-%Y-%m-%d-%H-%M.json
           rotate-interval: 300s
@@ -116,10 +112,9 @@ data:
                 extended: yes
                 session-resumption: no
                 custom: [subject, issuer, session_resumed, serial, fingerprint, sni, version, not_before, not_after, certificate, ja3, ja3s]
-      {{- end }}
-      {{ if has "flow" .Values.log_types }}
+      # Suricata Flow Logs
       - eve-log:
-          enabled: yes
+          enabled: {{ ternary "yes" "no" (has "flow" .Values.log_types) }}
           filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
           filename: eve-flow-%Y-%m-%d-%H-%M.json
           rotate-interval: 300s
@@ -128,10 +123,9 @@ data:
           community-id-seed: 0
           types:
             - flow:
-      {{- end }}
-      {{ if has "other" .Values.log_types }}
+      # Suricata Other (dnp3, ftp, nfs, smb, ssh.....) Logs
       - eve-log:
-          enabled: yes
+          enabled: {{ ternary "yes" "no" (has "other" .Values.log_types) }}
           filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
           filename: eve-other-%Y-%m-%d-%H-%M.json
           rotate-interval: 300s
@@ -159,7 +153,6 @@ data:
             - dhcp:
                 enabled: yes
                 extended: no
-      {{ end }}
       - pcap-log:
           enabled: {{ .Values.pcapEnabled }}
           filename: suri-%n-%t.pcap
@@ -193,7 +186,7 @@ data:
     af-packet:
         {{- range $i, $val :=  .Values.interfaces }}
       - interface: {{ $val }}
-        threads: {{ $root.Values.suricata_threads }}
+        threads: {{ $.Values.suricata_threads }}
         cluster-id: {{ sub 99 $i }}
         cluster-type: cluster_flow
         defrag: yes

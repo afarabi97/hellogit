@@ -7,6 +7,58 @@ metadata:
     "helm.sh/hook-weight": "-10"
     "helm.sh/hook-delete-policy": "before-hook-creation"
 data:
+  filebeat-setup.yml: |
+    filebeat.config.modules:
+      path: ${path.config}/modules.d/*.yml
+      reload.enabled: false
+
+    #==================== Elasticsearch template setting ==========================
+
+    setup.template.settings:
+      index.number_of_shards: {{ .Values.shards }}
+      index.number_of_replicas: 1
+      index.refresh_interval: 30s
+      index.merge.scheduler.max_thread_count: 1
+      setup.template.overwrite: false
+
+    setup.ilm:
+      policy_name: filebeat-suricata
+      rollover_alias: filebeat-suricata
+
+    #============================== Kibana =====================================
+
+    setup.dashboards.enabled: true
+    setup.kibana.host: "https://{{ .Values.kibana_fqdn }}:{{ .Values.kibana_port }}"
+    setup.kibana.ssl.enabled: true
+    setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
+    setup.kibana.username: ${ELASTICSEARCH_USERNAME}
+    setup.kibana.password: ${ELASTICSEARCH_PASSWORD}
+    # ssl.certificate: "/etc/ssl/certs/container/tls.crt"
+    # ssl.key: "/etc/ssl/certs/container/tls.key"
+
+    #================================ Outputs =====================================
+
+    #-------------------------- Elasticsearch output ------------------------------
+    output.elasticsearch:
+      hosts:
+      {{- range .Values.elastic_ingest_nodes }}
+        - {{ . }}
+      {{- end }}
+      username: ${ELASTICSEARCH_USERNAME}
+      password: ${ELASTICSEARCH_PASSWORD}
+      ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
+      # ssl.certificate: "/etc/ssl/certs/container/tls.crt"
+      # ssl.key: "/etc/ssl/certs/container/tls.key"
+      worker: 6
+      bulk_max_size: 4096
+      compression_level: 3
+      loadbalance: true
+
+    queue.mem:
+      events: 65536
+      flush.min_events: 4096
+      flush.timeout: 30s
+
   filebeat.yml: |
 
     filebeat.config.modules:
@@ -21,6 +73,26 @@ data:
         - ${LOG_PATH}
         var.tags: [forwarded]
 
+    processors:
+      - add_fields:
+          target: observer
+          fields:
+            hostname: ${NODE_NAME}
+    {{ if .Values.use_logstash }}
+      - add_fields:
+          target: "@mymetadata"
+          fields:
+            custom_index: filebeat-suricata
+            pipeline: filebeat-all_modules # only used if default module pipeline isn't defined
+
+    #==================== Logstash Output setting ==========================
+    output.logstash:
+      hosts:
+      {{- range .Values.logstash_nodes }}
+        - {{ . }}
+      {{- end }}
+
+    {{ else }}
     #==================== Elasticsearch template setting ==========================
 
     setup.template.settings:
@@ -48,13 +120,6 @@ data:
     # ssl.key: "/etc/ssl/certs/container/tls.key"
 
     #================================ Outputs =====================================
-
-    processors:
-      - add_fields:
-          target: observer
-          fields:
-            hostname: ${NODE_NAME}
-
     #-------------------------- Elasticsearch output ------------------------------
     output.elasticsearch:
       hosts:
@@ -70,6 +135,7 @@ data:
       bulk_max_size: 4096
       compression_level: 3
       loadbalance: true
+    {{ end }}
 
     queue.mem:
       events: 65536
@@ -79,10 +145,10 @@ data:
     monitoring:
       enabled: true
       elasticsearch:
+        hosts:
+        {{- range .Values.elastic_ingest_nodes }}
+          - {{ . }}
+        {{- end }}
         username: ${ELASTICSEARCH_USERNAME}
         password: ${ELASTICSEARCH_PASSWORD}
-    #   username: ""
-    #   ssl:
-    #     ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
-    #     ssl.certificate: "/etc/ssl/certs/container/tls.crt"
-    #     ssl.key: "/etc/ssl/certs/container/tls.key"
+        ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]

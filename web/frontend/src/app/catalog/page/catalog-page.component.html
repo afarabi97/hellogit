@@ -63,7 +63,7 @@
                       <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'textinput'">
                         <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text' }}">
                           <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-input' }}"
-                                matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
+                                matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" [placeholder]="createInputPlacehoder(control?.name)" [required]="control?.required">
                           <mat-error *ngIf="isInvalidForm(sensor, control)"
                                     id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-mat-error' }}">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
                         </mat-form-field>
@@ -74,30 +74,18 @@
                                       formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
                                       matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
                       </div>
-                      <!-- cortex-checkbox -->
-                      <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'cortex-checkbox'" >
-                        <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-cortex-checkbox' }}"
-                                      formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
-                                      matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
-                      </div>
-                      <!-- misp-checkbox -->
-                      <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'misp-checkbox'" >
-                        <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-misp-checkbox' }}"
-                                      formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
-                                      matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
-                      </div>
                       <!-- service-node-checkbox -->
                       <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'service-node-checkbox'" >
                         <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-service-node-checkbox' }}"
                                 formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
                                 matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required" >{{control?.description}}</mat-checkbox>
-                    </div>
+                      </div>
                       <!-- Text Input List -->
                       <div class="stepper__body__selection" *ngSwitchCase="'textinputlist'" fxLayout="column" fxLayoutAlign="center none">
                         <div fxLayout="column" fxLayoutAlign="start center">
                           <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list' }}" style="width: 100%;">
                             <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list-input' }}"
-                                  matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
+                                  matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" [placeholder]="createInputPlacehoder(control?.name)" [required]="control?.required">
                             <mat-error *ngIf="isInvalidForm(sensor, control)"
                                       id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
                           </mat-form-field>
@@ -108,7 +96,7 @@
                         <div *ngFor="let sensorint of nodeList; let m = index;">
                           <div *ngIf="sensorint === sensor">
                             <mat-form-field>
-                              <mat-label>{{ control.name | capitalizeFirst }}</mat-label>
+                              <mat-label>{{ createInputPlacehoder(control?.name) }}</mat-label>
                               <mat-select id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select' }}"
                                           formControlName="{{control.name}}" multiple required
                                           >

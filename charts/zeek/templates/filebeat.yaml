@@ -15,8 +15,37 @@ spec:
       labels:
         component: zeek-logshipper
     spec:
+      {{- if .Values.use_logstash }}
+      initContainers:
+      - name: filebeat-init
+        image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: password
+        volumeMounts:
+        - name: data
+          mountPath: {{ .Values.zeek_log_path }}
+          readOnly: true
+        - name: configs
+          subPath: filebeat-setup.yml
+          mountPath: /usr/share/filebeat/filebeat.yml
+          readOnly: true
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+        args: ['setup', '-e', '--modules', 'zeek', '--index-management', '--pipelines']
+      {{- end }}
       containers:
-      - name: filebeat-zeek
+      - name: filebeat
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
         env:
@@ -36,7 +65,7 @@ spec:
               fieldPath: spec.nodeName
         volumeMounts:
         - name: data
-          mountPath: {{ $.Values.zeek_log_path }}
+          mountPath: /var/log/bro/current
           readOnly: true
         - name: configs
           subPath: filebeat.yml
@@ -48,20 +77,9 @@ spec:
         args:
           - '-e'
           - '-E'
-          - 'name="{{ $.Release.Name }}"'
+          - 'name="{{ .Release.Name }}"'
           - '--modules'
           - 'zeek'
-          - '-M'
-          - 'zeek.*.enabled=false'
-      {{- range .Values.log_types }}
-      {{- $log_file := ternary "conn" . (eq . "connection") }}
-          - '-M'
-          - 'zeek.{{ . }}.enabled=true'
-          - '-M'
-          - 'zeek.{{ . }}.var.paths=[{{ $.Values.zeek_log_path }}/{{ $log_file }}*.log]'
-          - '-M'
-          - 'zeek.{{ . }}.var.tags=[forwarded]'
-      {{- end }}
       volumes:
       - name: data
         hostPath:
