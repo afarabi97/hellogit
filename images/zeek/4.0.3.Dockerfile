@@ -1,18 +1,21 @@
 # Create builder stage
 FROM centos:8 as builder
+
+ARG ZEEK_VERSION=4.0.3
+
 ENV WD /scratch
 WORKDIR /scratch
 
 # Install Required dev toolset
 RUN yum update -y && yum clean all
 RUN yum -y install epel-release wget dnf-plugins-core
-RUN yum config-manager --set-enabled PowerTools
+RUN yum config-manager --set-enabled powertools
 
 # Update repos and install required packages
 RUN curl -L -o /etc/yum.repos.d/zeek.repo https://download.opensuse.org/repositories/security:zeek/CentOS_8/security:zeek.repo
 RUN cat /etc/yum.repos.d/zeek.repo
 RUN yum install -y python3-pip
-RUN yum install -y libpcap-devel zeek-devel zeek git cmake3 cmake make gcc gcc-c++ librdkafka-devel kernel-devel kernel-headers
+RUN yum install -y libpcap-devel zeek-devel-${ZEEK_VERSION} zeek-${ZEEK_VERSION} git cmake3 cmake make gcc gcc-c++ librdkafka-devel kernel-devel kernel-headers
 
 # Build zkg with pip from source
 RUN pip3 install virtualenv
@@ -60,7 +63,7 @@ FROM centos:8 as rpms
 
 WORKDIR /rpms
 RUN yum install -y epel-release dnf-plugins-core
-RUN yum config-manager --set-enabled PowerTools
+RUN yum config-manager --set-enabled powertools
 RUN dnf download --installroot=/tmp/ --releasever=/ --destdir=. --archlist=x86_64 make openssl-libs pkgconf pkgconfig libmaxminddb libmaxminddb-devel openssl librdkafka librdkafka-devel libpcap libpcap-devel
 
 # Build the final image
