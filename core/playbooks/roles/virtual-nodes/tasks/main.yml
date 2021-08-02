@@ -39,6 +39,6 @@
       password: "{{ esxi.password }}"
       uuid: "{{ vm_facts.instance.hw_product_uuid }}"
       validate_certs: no
-      timeout: 900
+      timeout: 1200
   tags:
     - provision-virtual-machine
