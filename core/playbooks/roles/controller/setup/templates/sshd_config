@@ -13,12 +13,28 @@ PasswordAuthentication yes
 
 ChallengeResponseAuthentication no
 
+# RHEL-08-010521
+KerberosAuthentication no
 GSSAPIAuthentication no
 GSSAPICleanupCredentials no
+# RHEL-08-010500
+StrictModes yes
+# RHEL-08-010510
+Compression no
+# RHEL-08-010520
+IgnoreUserKnownHosts yes
+# RHEL-08-010830
+PermitUserEnvironment no
+# RHEL-08-020350
+PrintLastLog yes
+# RHEL-08-040161
+RekeyLimit 1G 1h
+# RHEL-08-040340
+X11Forwarding no
+# RHEL-08-040341
+X11UseLocalhost yes
 
 UsePAM yes
-
-X11Forwarding yes
 
 UseDNS no
 

@@ -399,6 +399,7 @@
   hosts:
     - servers
     - sensors
+    - mips
   gather_facts: no
   any_errors_fatal: true
   tasks:

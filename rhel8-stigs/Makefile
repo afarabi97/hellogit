@@ -32,7 +32,7 @@ kit-stigs:
 #	MIP STIGS	#
 #########################
 mip-stigs:
-	ansible-playbook $(PLAYBOOK) -i $(MIP_INVENTORY)
+	ansible-playbook '../mip/site.yml' -i $(MIP_INVENTORY)
 
 #########################
 #	GIP STIGS	#
