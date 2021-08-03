@@ -5,8 +5,8 @@
 # VERSIONS
 rocketchat_version: 3.11.0
 mongodb_version: 4.4.3
+busybox_version: "1.33.1"
 zeek_version: "4.0.3"
-busybox_version: "1.32.1"
 k8s_coredns_version: "v1.8.0"
 k8s_etcd_version: "3.4.13-0"
 k8s_pause_version: "3.4.1"

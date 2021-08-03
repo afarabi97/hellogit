@@ -3,7 +3,7 @@ hard_disk_drive: false
 mispImage: tfplenum/misp:2.4.148
 mispModulesImage: tfplenum/misp-modules:2.4.148
 python_image: tfplenum/python:3.9.0
-busyboxImage: busybox:1.32.1
+busyboxImage: busybox:1.33.1
 domain: lan
 auth_base: https://controller.lan/auth/realms/CVAH-SSO
 elastic_ingest_nodes: []
