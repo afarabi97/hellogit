@@ -112,7 +112,7 @@
     - name: generate Metrics API key
       script: /opt/sso-idp/gen_api_token.py --roles "metrics" --exp 87600
       args:
-        executable: /opt/tfplenum/core/tfp-env/bin/python3
+        executable: /opt/tfplenum/.venv/bin/python3
       register: metrics_api_key
     - name: Trim output
       set_fact:

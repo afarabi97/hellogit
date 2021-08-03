@@ -23,7 +23,7 @@
 
 - name: rules | Upload
   shell: |
-    {{ core_install_dir }}/tfp-env/bin/python preload_rules.py
+    {{ tfplenum_root_dir }}/.venv/bin/python3 preload_rules.py
   args:
     chdir: "{{ web_install_dir }}/backend"
   register: results

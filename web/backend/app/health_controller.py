@@ -20,9 +20,6 @@ from kubernetes.client.models.v1_pod_list import V1PodList
 from kubernetes.client.models.v1_node_list import V1NodeList
 
 
-PYTHON_PATH = str(CORE_DIR / 'tfp-env/bin/python')
-
-
 def _get_mem_total(memory_str: str) -> int:
     try:
         mem_str = str(memory_str)

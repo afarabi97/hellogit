@@ -6,6 +6,7 @@
 .fuse*
 node_modules
 tfp-env
+.venv
 .remote-sync.json
 frontend/src/assets/confluence/
 *monitor_install.exe

@@ -194,24 +194,30 @@ function subscription_prompts(){
 }
 
 function setup_ansible(){
-    local core_dir="/opt/tfplenum/core"
-    pushd $core_dir > /dev/null
+    local tfplenum_root_dir="/opt/tfplenum"
+    pushd $tfplenum_root_dir > /dev/null
     run_cmd dnf install -y make python36 libselinux-python3 policycoreutils-python3 python3-gobject sshpass gcc krb5-devel krb5-workstation net-tools nfs-utils nmap python36-devel unzip vim wget rsync scap-security-guide
     run_cmd pip3 install virtualenv cryptography==2.9.2
-    run_cmd virtualenv --python=python3 --system-site-packages tfp-env
-    run_cmd $core_dir/tfp-env/bin/python3 -m pip install -U pip==20.2.4
-    run_cmd $core_dir/tfp-env/bin/pip3 install -r $core_dir/../requirements.txt
+    run_cmd virtualenv --python=python3 --system-site-packages .venv
+    run_cmd $tfplenum_root_dir/.venv/bin/python3 -m pip install -U pip==20.2.4
+    run_cmd $tfplenum_root_dir/.venv/bin/pip3 install -r $tfplenum_root_dir/requirements.txt
     rm -f /usr/bin/ansible*
     rm -f /usr/bin/dir2pi
-    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-playbook /usr/bin/ansible-playbook
-    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-console /usr/bin/ansible-console
-    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-config /usr/bin/ansible-config
-    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-galaxy /usr/bin/ansible-galaxy
-    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-doc /usr/bin/ansible-doc
-    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-inventory /usr/bin/ansible-inventory
-    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-pull /usr/bin/ansible-pull
-    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible /usr/bin/ansible
-    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/dir2pi /usr/bin/dir2pi
+    rm -rf /usr/local/bin/gunicorn
+    rm -rf /usr/local/bin/rqworker
+    rm -rf /usr/local/bin/rqscheduler
+    run_cmd ln -s $tfplenum_root_dir/.venv/bin/ansible-playbook /usr/bin/ansible-playbook
+    run_cmd ln -s $tfplenum_root_dir/.venv/bin/ansible-console /usr/bin/ansible-console
+    run_cmd ln -s $tfplenum_root_dir/.venv/bin/ansible-config /usr/bin/ansible-config
+    run_cmd ln -s $tfplenum_root_dir/.venv/bin/ansible-galaxy /usr/bin/ansible-galaxy
+    run_cmd ln -s $tfplenum_root_dir/.venv/bin/ansible-doc /usr/bin/ansible-doc
+    run_cmd ln -s $tfplenum_root_dir/.venv/bin/ansible-inventory /usr/bin/ansible-inventory
+    run_cmd ln -s $tfplenum_root_dir/.venv/bin/ansible-pull /usr/bin/ansible-pull
+    run_cmd ln -s $tfplenum_root_dir/.venv/bin/ansible /usr/bin/ansible
+    run_cmd ln -s $tfplenum_root_dir/.venv/bin/dir2pi /usr/bin/dir2pi
+    run_cmd ln -s $tfplenum_root_dir/.venv/bin/gunicorn /usr/local/bin/gunicorn
+    run_cmd ln -s $tfplenum_root_dir/.venv/bin/rqworker /usr/local/bin/rqworker
+    run_cmd ln -s $tfplenum_root_dir/.venv/bin/rqscheduler /usr/local/bin/rqscheduler
     popd > /dev/null
 }
 

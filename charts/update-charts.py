@@ -1,4 +1,4 @@
-#!/bin/python
+#!/opt/tfplenum/.venv/bin/python3
 
 import os
 import subprocess

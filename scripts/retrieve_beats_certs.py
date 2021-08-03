@@ -1,4 +1,4 @@
-#!/opt/tfplenum/core/tfp-env/bin/python
+#!/opt/tfplenum/.venv/bin/python3
 import os
 import sys
 

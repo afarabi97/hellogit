@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/opt/tfplenum/core/tfp-env/bin/python run.py
+/opt/tfplenum/.venv/bin/python run.py
