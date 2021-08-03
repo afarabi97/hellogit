@@ -51,6 +51,8 @@ class CatalogJob:
                 self.runner.install_mattermost()
             elif application == SubCmd.nifi:
                 self.runner.install_nifi()
+            elif application == SubCmd.jcat_nifi:
+                self.runner.install_jcat_nifi()
             elif application == SubCmd.redmine:
                 self.runner.install_redmine()
             elif application == SubCmd.netflow_filebeat:

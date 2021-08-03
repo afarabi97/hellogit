@@ -173,6 +173,11 @@ class NifiSettings(Model):
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "nifi"
 
+class JcatNifiSettings(Model):
+    def __init__(self):
+        self.node_hostname = "server"
+        self.affinity_hostname = "Server - Any"
+        self.deployment_name = "jcat-nifi"
 
 class RedmineSettings(Model):
     def __init__(self):
@@ -204,6 +209,7 @@ class CatalogSettings(Model):
         self.rocketchat_settings = dict()
         self.mattermost_settings = dict()
         self.nifi_settings = dict()
+        self.jcat_nifi_settings = dict()
         self.redmine_settings = dict()
         self.netflow_filebeat_settings = dict()
 
@@ -276,6 +282,9 @@ class CatalogSettings(Model):
         elif namespace.which == SubCmd.nifi:
             self.nifi_settings = NifiSettings()
             self.nifi_settings.from_namespace(namespace)
+        elif namespace.which == SubCmd.jcat_nifi:
+            self.jcat_nifi_settings = JcatNifiSettings()
+            self.jcat_nifi_settings.from_namespace(namespace)
         elif namespace.which == SubCmd.redmine:
             self.redmine_settings = RedmineSettings()
             self.redmine_settings.from_namespace(namespace)
@@ -350,12 +359,17 @@ class CatalogSettings(Model):
         add_args_from_instance(nifi_parser, NifiSettings())
         nifi_parser.set_defaults(which=SubCmd.nifi)
 
+        jcat_nifi_parser = subparsers.add_parser(SubCmd.jcat_nifi,
+                                                help="This subcommand can be used to install jcat-nifi on your Kit's servers.")
+        add_args_from_instance(jcat_nifi_parser, JcatNifiSettings())
+        jcat_nifi_parser.set_defaults(which=SubCmd.jcat_nifi)
+
         redmine_parser = subparsers.add_parser(SubCmd.redmine,
                                                 help="This subcommand can be used to install redmine on your Kit's servers.")
         add_args_from_instance(redmine_parser, RedmineSettings())
         redmine_parser.set_defaults(which=SubCmd.redmine)
 
         netflow_filebeat_parser = subparsers.add_parser(SubCmd.netflow_filebeat,
-                                                help="This subcommand can be used to install redmine on your Kit's servers.")
+                                                help="This subcommand can be used to install netflow-filebeat on your Kit's servers.")
         add_args_from_instance(netflow_filebeat_parser, NetflowFilebeatSettings())
         netflow_filebeat_parser.set_defaults(which=SubCmd.netflow_filebeat)

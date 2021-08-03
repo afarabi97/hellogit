@@ -23,7 +23,7 @@ HELM_BINARY_PATH = "/usr/local/bin/helm"
 WORKING_DIR = "/root"
 _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
-_PMO_SUPPORTED_CHARTS = ['cortex', 'hive', 'misp', 'logstash', 'arkime', 'arkime-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek', 'jcat-nifi']
+_PMO_SUPPORTED_CHARTS = ['cortex', 'hive', 'misp', 'logstash', 'arkime', 'arkime-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek']
 _SENSOR_APPLICATIONS = ['arkime', 'suricata', 'zeek']
 
 

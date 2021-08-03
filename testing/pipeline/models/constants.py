@@ -48,6 +48,7 @@ class SubCmd:
     rocketchat = "rocketchat"
     mattermost = "mattermost"
     nifi = "nifi"
+    jcat_nifi = "jcat-nifi"
     redmine = "redmine"
     netflow_filebeat = "netflow-filebeat"
 

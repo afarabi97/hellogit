@@ -63,10 +63,6 @@ Install And Uninstall Apps From Catalog Page
     Verify App Has Been Installed    Hive  ${locHiveAppCard}  ${locHiveAppCardCircle}
     Uninstall App    Hive  ${locHiveAppCard}  ${locHiveConfigAppBtn}
 
-    Download App From Catalog    Jcat-nifi  ${locJcatNifiConfigAppBtn}
-    Verify App Has Been Installed    Jcat-nifi  ${locJcatNifiAppCard}  ${locJcatNifiAppCardCircle}
-    Uninstall App    Jcat-nifi  ${locJcatNifiAppCard}  ${locJcatNifiConfigAppBtn}
-
     Download App From Catalog    Logstash  ${locLogstashConfigAppBtn}
     Verify App Has Been Installed    Logstash  ${locLogstashAppCard}  ${locLogstashAppCardCircle}
     Uninstall App    Logstash  ${locLogstashAppCard}  ${locLogstashConfigAppBtn}

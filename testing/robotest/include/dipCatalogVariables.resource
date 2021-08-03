@@ -15,10 +15,6 @@ ${locHiveAppCard}                id=app-chart-list-div-app-card-3
 ${locHiveConfigAppBtn}           id=app-chart-list-3-app-card-div-div-div-button-configure-application
 ${locHiveAppCardCircle}          id=app-chart-list-3-app-card-div-div-div-button
 
-${locJcatNifiAppCard}            id=app-chart-list-div-app-card-4
-${locJcatNifiConfigAppBtn}       id=app-chart-list-4-app-card-div-div-div-button-configure-application
-${locJcatNifiAppCardCircle}      id=app-chart-list-4-app-card-div-div-div-button
-
 ${locLogstashAppCard}            id=app-chart-list-div-app-card-5
 ${locLogstashConfigAppBtn}       id=app-chart-list-5-app-card-div-div-div-button-configure-application
 ${locLogstashAppCardCircle}      id=app-chart-list-5-app-card-div-div-div-button

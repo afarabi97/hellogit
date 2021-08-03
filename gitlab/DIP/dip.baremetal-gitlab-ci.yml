@@ -241,6 +241,7 @@ Hardware CVAH Catalog Community Apps:
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/baremetal_pipeline.py run-catalog mattermost
     python3 testing/pipeline/baremetal_pipeline.py run-catalog nifi
+    python3 testing/pipeline/baremetal_pipeline.py run-catalog jcat-nifi
     python3 testing/pipeline/baremetal_pipeline.py run-catalog redmine
     python3 testing/pipeline/baremetal_pipeline.py run-catalog netflow-filebeat
   only:

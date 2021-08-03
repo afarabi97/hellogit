@@ -13,7 +13,7 @@ from models.catalog import (CatalogSettings, ArkimeCaptureSettings,
                             LogstashSettings, SuricataSettings,
                             WikijsSettings, MispSettings, HiveSettings,
                             RocketchatSettings, CortexSettings, MattermostSettings,
-                            RedmineSettings, NifiSettings, NetflowFilebeatSettings)
+                            RedmineSettings, NifiSettings, JcatNifiSettings, NetflowFilebeatSettings)
 from models.rhel_repo_vm import RHELRepoSettings
 from typing import Union, List
 
@@ -49,6 +49,7 @@ class YamlManager:
             cls.yaml.register_class(RocketchatSettings)
             cls.yaml.register_class(MattermostSettings)
             cls.yaml.register_class(NifiSettings)
+            cls.yaml.register_class(JcatNifiSettings)
             cls.yaml.register_class(RedmineSettings)
             cls.yaml.register_class(NetflowFilebeatSettings)
             cls.yaml.register_class(GIPServiceSettings)

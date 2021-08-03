@@ -15,7 +15,7 @@ from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
 from models.kit import KitSettingsV2
 from models.catalog import (ArkimeCaptureSettings, ArkimeViewerSettings, ZeekSettings, SuricataSettings,
                             WikijsSettings, MispSettings, HiveSettings, CortexSettings, RocketchatSettings, CatalogSettings,
-                            MattermostSettings, NifiSettings, RedmineSettings, NetflowFilebeatSettings)
+                            MattermostSettings, NifiSettings, JcatNifiSettings, RedmineSettings, NetflowFilebeatSettings)
 
 from models.node import NodeSettingsV2
 from util.kubernetes_util import wait_for_jobs_to_complete, wait_for_deployments_to_ready
@@ -232,6 +232,8 @@ class CatalogPayloadGenerator:
             return self._catalog_settings.mattermost_settings.deployment_name
         elif role == 'nifi':
             return self._catalog_settings.nifi_settings.deployment_name
+        elif role == 'jcat-nifi':
+            return self._catalog_settings.jcat_nifi_settings.deployment_name
         elif role == 'redmine':
             return self._catalog_settings.redmine_settings.deployment_name
         elif role == 'netflow-filebeat':
@@ -262,6 +264,8 @@ class CatalogPayloadGenerator:
             return self._catalog_settings.mattermost_settings.to_dict()
         elif role == 'nifi':
             return self._catalog_settings.nifi_settings.to_dict()
+        elif role == 'jcat-nifi':
+            return self._catalog_settings.jcat_nifi_settings.to_dict()
         elif role == 'redmine':
             return self._catalog_settings.redmine_settings.to_dict()
         elif role == 'netflow-filebeat':
@@ -508,6 +512,10 @@ class APITesterV2:
 
     def install_nifi(self):
         payload = self._catalog_payload_generator.generate("nifi", INSTALL, SERVER_ANY)
+        self.install_app(payload)
+
+    def install_jcat_nifi(self):
+        payload = self._catalog_payload_generator.generate("jcat-nifi", INSTALL, SERVER_ANY)
         self.install_app(payload)
 
     def install_redmine(self):
