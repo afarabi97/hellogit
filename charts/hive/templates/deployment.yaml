@@ -72,6 +72,9 @@ spec:
         - name: data
           mountPath: /tmp/thehive-data
           subPath: thehive
+        - name: data
+          mountPath: /tmp/thehive-indices
+          subPath: thehive-indices
       containers:
       - name: cassandra
         image: "{{ .Values.cassandra_image }}"
@@ -157,6 +160,9 @@ spec:
         - name: api-cache
           mountPath: /etc/thehive/webCA.jks
           subPath: keystore/webCA.jks
+        - name: data
+          mountPath: /opt/thp/thehive/index
+          subPath: thehive-indices
       nodeSelector:
         role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}
       volumes:

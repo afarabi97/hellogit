@@ -1,5 +1,5 @@
 cassandra_image: cassandra:3.11.9
-hive_image: thehiveproject/thehive4:4.1.6-1
+hive_image: thehiveproject/thehive4:4.1.9-1
 python_image: tfplenum/python:3.9.0
 nginx_image: nginx:1.19.6
 hive_port: 9000

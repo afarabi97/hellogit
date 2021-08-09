@@ -36,6 +36,11 @@ data:
             write-consistency-level: ONE
           }
         }
+        ## Index configuration
+        index.search {
+          backend : lucene
+          directory:  /opt/thp/thehive/index
+        }
       }
     }
 
