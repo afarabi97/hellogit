@@ -5,6 +5,21 @@
 # We follow the guidance to include naming conventions there.
 
 ---
+- name: Set Variables
+  hosts: localhost
+  any_errors_fatal: true
+  tasks:
+    - name: Import DIP/GIP variables
+      include_vars:
+        file: "{{ dip_core_vars }}"
+    - name: Get controller FQDN
+      set_fact:
+        controller_fqdn: "{{ lookup('file', '/etc/hostname') }}"
+    - name: Get Kit Domain
+      set_fact:
+        kit_domain: "{{ controller_fqdn.split('.')[1:] | join('.') }}"
+  tags: always
+
 - name: Verify tfplenum has been deployed
   hosts:
     - control_plane

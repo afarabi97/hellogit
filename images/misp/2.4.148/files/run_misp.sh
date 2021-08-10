@@ -113,7 +113,7 @@ GPGEOF
     $CAKE Admin setSetting "MISP.python_bin" "/var/www/MISP/venv/bin/python3"
     $CAKE Admin setSetting "MISP.redis_host" "${REDIS_HOST:=localhost}"
     $CAKE Admin setSetting "MISP.redis_port" "${REDIS_PORT:=6379}"
-    $CAKE Admin setSetting "MISP.redis_password" "${REDIS_CRED:=}"
+    $CAKE Admin setSetting "MISP.redis_password" "${REDIS_PASSWORD:=}"
     $CAKE Admin setSetting "Security.salt" $(openssl rand -base64 32|tr "/" "-")
 
     if [ -z "$MISP_MODULES_URL" ] || [ -z "$MISP_MODULES_PORT" ]; then

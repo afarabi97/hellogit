@@ -3,7 +3,7 @@ FROM python:3.8-buster AS build
 ENV DEBIAN_FRONTEND noninteractive
 ENV WORKDIR="/usr/local/src/misp_modules"
 ENV VENV_DIR="/misp_modules"
-ARG MISP_MODULES_VERSION=2.4.136
+ARG MISP_MODULES_VERSION=2.4.148
 ARG MISP_MODULES_TAG=v${MISP_MODULES_VERSION}
 ARG MAXMIND_API_KEY
 
@@ -48,54 +48,55 @@ ENV VENV_DIR="/misp_modules"
 COPY --from=build ${VENV_DIR} ${VENV_DIR}
 COPY --from=build /tmp/geoip ${VENV_DIR}/geoip
 
-# Install Packages to run it
-RUN set -eu \
-        ;apt-get update && apt-get install -y --no-install-recommends \
-         curl libpq5 tesseract-ocr libpoppler-cpp-dev imagemagick \
-         zbar-tools libzbar0 libgl1-mesa-glx \
-        ;apt-get -y autoremove \
-        ;apt-get -y clean \
-        ;rm -rf /var/lib/apt/lists/* \
-        ;chown -R nobody ${VENV_DIR}
-
 # Entrypoint
-        COPY files/entrypoint.sh /entrypoint.sh
-        ENTRYPOINT [ "/entrypoint.sh" ]
+COPY files/entrypoint.sh /entrypoint.sh
+ENTRYPOINT [ "/entrypoint.sh" ]
 
 # Add Healthcheck Config
-        COPY files/healthcheck.sh /healthcheck.sh
-        HEALTHCHECK --interval=1m --timeout=45s --retries=3 CMD ["/healthcheck.sh"]
+COPY files/healthcheck.sh /healthcheck.sh
+HEALTHCHECK --interval=1m --timeout=45s --retries=3 CMD ["/healthcheck.sh"]
+
+# Install Packages to run it
+RUN set -eu \
+    ;apt-get update && apt-get install -y --no-install-recommends \
+        curl libpq5 tesseract-ocr libpoppler-cpp-dev imagemagick \
+        zbar-tools libzbar0 libgl1-mesa-glx \
+    ;apt-get -y autoremove \
+    ;apt-get -y clean \
+    ;rm -rf /var/lib/apt/lists/* \
+    ;chown -R nobody ${VENV_DIR} /entrypoint.sh /healthcheck.sh \
+    ;chmod +x /entrypoint.sh /healthcheck.sh
+
 
 # Change Workdir
-        WORKDIR ${VENV_DIR}
+WORKDIR ${VENV_DIR}
 
 # Change from root to www-data
-        USER nobody
+USER nobody
 
 # Expose Port
-        EXPOSE 6666
+EXPOSE 6666
 
 # Shortterm ARG Variables:
-        ARG VENDOR="MISP"
-        ARG COMPONENT="misp-modules"
-        ARG BUILD_DATE
-        ARG GIT_REPO="https://github.com/MISP/misp-modules"
-        ARG VCS_REF
-        ARG RELEASE_DATE
-        ARG NAME="MISP-dockerized-misp-modules"
-        ARG DESCRIPTION="This docker container contains MISP modules in an Debian Container."
-        ARG DOCUMENTATION="https://misp.github.io/misp-modules/"
-        ARG AUTHOR="MISP"
-        ARG LICENSE="BSD-3-Clause"
+ARG VENDOR="MISP" \
+    COMPONENT="misp-modules" \
+    BUILD_DATE \
+    GIT_REPO="https://github.com/MISP/misp-modules" \
+    VCS_REF \
+    RELEASE_DATE \
+    NAME="MISP-dockerized-misp-modules" \
+    DESCRIPTION="This docker container contains MISP modules in an Debian Container." \
+    DOCUMENTATION="https://misp.github.io/misp-modules/" \
+    AUTHOR="MISP" \
+    LICENSE="BSD-3-Clause"
 
 # Longterm Environment Variables
-ENV \
-        BUILD_DATE=${BUILD_DATE} \
-        NAME=${NAME} \
-        PATH=$PATH:${VENV_DIR}/venv/bin
+ENV BUILD_DATE=${BUILD_DATE} \
+    NAME=${NAME} \
+    PATH=$PATH:${VENV_DIR}/venv/bin
 
 # Labels
-LABEL org.label-schema.build-date="${BUILD_DATE}" \
+LABEL   org.label-schema.build-date="${BUILD_DATE}" \
         org.label-schema.name="${NAME}" \
         org.label-schema.description="${DESCRIPTION}" \
         org.label-schema.vcs-ref="${VCS_REF}" \
@@ -104,9 +105,8 @@ LABEL org.label-schema.build-date="${BUILD_DATE}" \
         org.label-schema.vendor="${VENDOR}" \
         org.label-schema.version="${VERSION}" \
         org.label-schema.usage="${DOCUMENTATION}" \
-        org.label-schema.schema-version="1.0.0-rc1"
-
-LABEL   org.opencontainers.image.created="${BUILD_DATE}" \
+        org.label-schema.schema-version="1.0.0-rc1" \
+        org.opencontainers.image.created="${BUILD_DATE}" \
         org.opencontainers.image.url="${GIT_REPO}" \
         org.opencontainers.image.source="${GIT_REPO}" \
         org.opencontainers.image.version="${VERSION}" \

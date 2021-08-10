@@ -30,7 +30,7 @@ charts = [
         { "name": "wikijs",
                 "version": "1.0.0"},
         { "name": "misp",
-                "version": "1.0.0"},
+                "version": "2.4.148"},
         { "name": "cortex",
                 "version": "1.0.0"},
         { "name": "netflow-filebeat",

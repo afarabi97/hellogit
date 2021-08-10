@@ -1,0 +1,76 @@
+---
+- name: Get MISP API Key
+  shell: |
+    set -o pipefail && kubectl get secret misp-secret -o=jsonpath='{.data.cortex_user_api_key}' | base64 --decode
+  register: misp_key_results
+  changed_when: false
+
+- name: Set MISP Creds
+  set_fact:
+    misp_api_key: "{{ misp_key_results.stdout }}"
+
+- name: Get MISP server info
+  uri:
+    url: "https://misp.{{ kit_domain }}/servers/getVersion"
+    headers:
+      Accept: application/json
+      Content-Type: application/json
+      Authorization: "{{ misp_api_key }}"
+    return_content: yes
+    validate_certs: no
+  register: misp_server
+  until: misp_server.status == 200
+  retries: 10
+  delay: 5
+  ignore_errors: yes
+
+- name: Check MISP version
+  assert:
+    that: >
+      misp_server.json.version is version(misp_version, 'eq')
+    msg: "Failed it appears MISP version doesn't match {{ misp_version }}"
+
+- name: Get MISP users
+  uri:
+    url: "https://misp.{{ kit_domain }}/admin/users"
+    headers:
+      Accept: application/json
+      Content-Type: application/json
+      Authorization: "{{ misp_api_key }}"
+    return_content: yes
+    validate_certs: no
+  register: misp_users
+  until: misp_users.status == 200
+  retries: 10
+  delay: 5
+  ignore_errors: yes
+
+- name: Check MISP users
+  assert:
+    that: >
+      misp_users.json | length >= 4
+    msg: "Failed it appears MISP has less than the 4 expected users"
+
+- name: Get MISP organizations
+  uri:
+    url: "https://misp.{{ kit_domain }}/organisations"
+    headers:
+      Accept: application/json
+      Content-Type: application/json
+      Authorization: "{{ misp_api_key }}"
+    return_content: yes
+    validate_certs: no
+  register: misp_orgs
+  until: misp_orgs.status == 200
+  retries: 10
+  delay: 5
+  ignore_errors: yes
+
+- name: Check MISP organizations
+  assert:
+    that: >
+      misp_orgs.json | length >= 1 and
+      misp_orgs.json[0].Organisation.id == "1" and
+      misp_orgs.json[0].Organisation.type == "ADMIN" and
+      misp_orgs.json[0].Organisation.local
+    msg: "Failed it appears MISP organizations are not setup correctly"

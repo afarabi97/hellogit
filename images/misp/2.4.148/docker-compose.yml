@@ -5,7 +5,7 @@ services:
       - db
       - redis
     container_name: misp_web
-    image: tfplenum/misp:2.4.138
+    image: tfplenum/misp:2.4.148
     # entrypoint: sleep 5h
     restart: unless-stopped
     ports:
@@ -23,6 +23,7 @@ services:
       - REDIS_PORT=6379
       - MISP_MODULES_URL=misp_modules
       - MISP_MODULES_PORT=6666
+      - ADMIN_PASS=1qaz@WSX1qaz@WSX
       - EXTERNAL_CONFIG=/tmp/config.external.php
       - EXTERNAL_BOOTSRAP=/tmp/config.external.php
       - SETTING_Plugin_Enrichment_geoip_country_enabled=true
@@ -35,9 +36,14 @@ services:
       - SETTING_Plugin_CustomAuth_custom_logout=https://google.com
       - SETTING_MISP_host_org_id=1
       - SETTING_MISP_language=eng
-      - SETTING_MISP_org=Resnick
+      - SETTING_MISP_org=TEST
       - SETTING_MISP_baseurl=http://localhost:8080
       - SETTING_MISP_external_baseurl=http://localhost:8080
+      - SETTING_Security_advanced_authkeys=false
+      - SETTING_Security_csp_enforce=true
+      - SETTING_Plugin_Enrichment_hover_popover_only=false
+      - SETTING_Security_disable_browser_cache=true
+      - SETTING_Security_check_sec_fetch_site_header=true
   db:
     container_name: misp_db
     image: mariadb:latest
@@ -54,6 +60,6 @@ services:
     stop_grace_period: "${DOCKER_STOP_GRACE_PERIOD:-3s}"
   misp_modules:
     container_name: misp_modules
-    image: tfplenum/misp-modules:2.4.136
+    image: tfplenum/misp-modules:2.4.148
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     stop_grace_period: "${DOCKER_STOP_GRACE_PERIOD:-3s}"

@@ -5,7 +5,6 @@
     - import_tasks: 10_init_cluster.yml
 - import_tasks: 20_configure_dns.yml
 - import_tasks: 25_metallb.yml
-- import_tasks: 35_create_service_accounts.yml
 
 - name: Wait for etcd to be ready
   import_role:

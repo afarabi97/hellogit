@@ -9,4 +9,4 @@ data:
   filebeat-setup.py: |
 {{ .Files.Get "files/filebeat-setup.py" | indent 4 }}
   init_setup.py: |
-{{ .Files.Get "files/init_setup.py.py" | indent 4 }}
+{{ .Files.Get "files/init_setup.py" | indent 4 }}

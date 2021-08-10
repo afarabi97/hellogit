@@ -28,7 +28,7 @@
 
 - name: Test | Check MISP Helm Deployed
   assert:
-    that: "'deployed' in item.status"
+    that: "'deployed' in item.status and item.app_version is version(misp_version, 'eq')"
     msg: "Failed to determine if MISP is installed"
   when: releases is defined and releases
   with_items:
@@ -55,5 +55,7 @@
       that: item.stdout == 'Running' or item.stdout == 'Completed'
       msg: "Failed it appears misp pod status is {{ item.stdout }}"
     with_items: "{{ pod_status.results }}"
+
+  - import_tasks: check_config.yml
   when: app_deployed
 ...

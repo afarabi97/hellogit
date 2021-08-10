@@ -24,13 +24,32 @@ spec:
         - "/bin/sh"
         - "-c"
         - |-
-          chown -R 33:33 /tmp/misp
           python3 -u /init_setup.py
+          chown -R 33:33 /tmp/misp /tmp/misp1
         env:
         - name: MISP_MODULES_URL
           value: {{ .Values.modules_url }}
         - name: MISP_MODULES_PORT
           value: "6666"
+        - name: CORTEX_INTEGRATION
+          value: {{ .Values.cortexIntegration | quote}}
+{{- if .Values.cortexIntegration }}
+        - name: CORTEX_ADMIN_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: cortex-secret
+              key: org_admin_username
+        - name: CORTEX_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cortex-secret
+              key: org_admin_password
+        - name: CORTEX_USER_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: cortex-secret
+              key: misp_user
+{{- end }}
         volumeMounts:
         - name: misp-vol
           mountPath: /tmp/misp
@@ -38,6 +57,13 @@ spec:
         - name: misp-setup
           mountPath: /init_setup.py
           subPath: init_setup.py
+        - name: api-cache
+          mountPath: /tmp/misp1
+          subPath: env
+        - name: webca
+          mountPath: /etc/ssl/certs/container/ca.crt
+          subPath: ca.crt
+          readOnly: true
       containers:
       - name: mariadb
         image: {{ .Values.mariadbImage }}
@@ -65,13 +91,27 @@ spec:
       - name: misp
         image: {{ .Values.mispImage }}
         imagePullPolicy: Always
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "export $(cat /var/www/MISP/application.env | xargs) && /run_misp.sh"
         ports:
         - name: misp
           containerPort: 8443
         env:
+        - name: ADMIN_PASS
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: admin_pass
+        - name: ADMIN_AUTH_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: admin_user_api_key
         - name: SETTING_MISP_baseurl
           value: https://misp.{{ .Values.domain }}
-        - name: SETTING_MISP_baseurl
+        - name: SETTING_MISP_external_baseurl
           value: https://misp.{{ .Values.domain }}
         - name: SETTING_MISP_org
           valueFrom:
@@ -82,6 +122,8 @@ spec:
           value: eng
         - name: SETTING_MISP_host_org_id
           value: "1"
+        - name: SETTING_Security_advanced_authkeys
+          value: "false"
         - name: MYSQL_HOST
           value: 127.0.0.1
         - name: MYSQL_DATABASE
@@ -102,6 +144,8 @@ spec:
           value: {{ .Values.modules_url }}
         - name: MISP_MODULES_PORT
           value: "6666"
+        - name: SETTING_Plugin_Cortex_services_enable
+          value: "true"
         - name: SETTING_Plugin_Cortex_services_url
           value: {{ .Values.cortex_url }}
         - name: SETTING_Plugin_Cortex_services_port
@@ -122,6 +166,16 @@ spec:
           value: /etc/ssl/certs/container/ca.crt
         - name: SETTING_Plugin_CustomAuth_custom_logout
           value: /Shibboleth.sso/Logout
+        - name: SETTING_Security_csp_enforce
+          value: "true"
+        - name: SETTING_Plugin_Enrichment_hover_popover_only
+          value: "false"
+        - name: SETTING_Security_disable_browser_cache
+          value: "true"
+        - name: SETTING_Security_check_sec_fetch_site_header
+          value: "true"
+        - name: SETTING_Security_auth_enforced
+          value: "true"
         volumeMounts:
         - name: misp-vol
           mountPath: /var/www/MISP/app/Config
@@ -148,6 +202,9 @@ spec:
           mountPath: /etc/shibboleth/idp/
         - name: misp-saml
           mountPath: /etc/shibboleth/misp-saml-certs/
+        - name: api-cache
+          mountPath: /var/www/MISP/application.env
+          subPath: env/application.env
       nodeSelector:
         role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}
       volumes:
@@ -177,6 +234,8 @@ spec:
         secret:
           secretName: misp-saml
           defaultMode: 0444
+      - name: api-cache
+        emptyDir: {}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -201,4 +260,4 @@ spec:
         ports:
         - containerPort: 6666
       nodeSelector:
-        role: "server"
+        role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}

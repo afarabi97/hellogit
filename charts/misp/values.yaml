@@ -1,7 +1,7 @@
 # Default values for misp
 hard_disk_drive: false
-mispImage: tfplenum/misp:2.4.139
-mispModulesImage: tfplenum/misp-modules:2.4.136
+mispImage: tfplenum/misp:2.4.148
+mispModulesImage: tfplenum/misp-modules:2.4.148
 python_image: tfplenum/python:3.9.0
 busyboxImage: busybox:1.32.1
 domain: lan
@@ -23,7 +23,7 @@ admin_user: admin@admin.test
 admin_pass: 1qaz@WSX1qaz@WSX
 org_name: CPT HUNT
 cortexIntegration: false
-redisImage: redis:6.0.10
+redisImage: redis:6.2.5-alpine
 
 # Filebeat values
 filebeat_image_name: beats/filebeat

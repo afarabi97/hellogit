@@ -121,7 +121,7 @@ describe('ChartListComponent', () => {
           "isSensorApp": false
         },
         {
-          "appVersion": "2.4.139",
+          "appVersion": "2.4.148",
           "application": "misp",
           "description": "MISP is a malware information sharing platform",
           "pmoSupported": true,

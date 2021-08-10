@@ -1,4 +1,6 @@
 ---
+core_install_dir: /opt/tfplenum/core
+dip_core_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
 elastic_uri: "https://elasticsearch:9200"
 maps_server_uri: "https://elastic-maps-server"
 arkime_uri: "http://arkime.lan"

@@ -13,7 +13,6 @@ spec:
       labels:
         component: {{ .Release.Name }}-setup
     spec:
-      serviceAccountName: helm-apps-job
       restartPolicy: Never
       containers:
       - name: setup
@@ -47,11 +46,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-secret
               key: filebeat_user_api_key
-        - name: ADMIN_PASS
+        - name: ADMIN_API_KEY
           valueFrom:
             secretKeyRef:
               name: {{ .Release.Name }}-secret
-              key: admin_pass
+              key: admin_user_api_key
         - name: ORG_NAME
           valueFrom:
             secretKeyRef:

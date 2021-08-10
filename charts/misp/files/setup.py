@@ -1,18 +1,13 @@
 #!/usr/bin/python3
 import requests
 from requests.auth import HTTPBasicAuth
-import time, os, sys, re
-from kubernetes import config
-from kubernetes.client import Configuration
-from kubernetes.client.api import core_v1_api
-from kubernetes.client.rest import ApiException
-from kubernetes.stream import stream
+import time, os, sys
 
 URI="https://misp.default.svc.cluster.local"
 CORTEX_URI="https://cortex.default.svc.cluster.local/api"
 headers = {"Content-Type": "application/json", "Accept": "application/json"}
 cortex_headers = {"Content-Type": "application/json", "Accept": "application/json"}
-api_key = ''
+ADMIN_API_KEY=os.getenv('ADMIN_API_KEY',default='')
 HIVE_USER_EMAIL=os.environ['HIVE_USER_EMAIL']
 FILEBEAT_USER_EMAIL=os.environ['FILEBEAT_USER_EMAIL']
 FILEBEAT_USER_API_KEY=os.environ['FILEBEAT_USER_API_KEY']
@@ -23,7 +18,6 @@ ORG_ADMIN_USERNAME=os.getenv('CORTEX_ADMIN_USERNAME',default='')
 ORG_ADMIN_PASSWORD=os.getenv('CORTEX_ADMIN_PASSWORD',default='')
 CORTEX_USER_USERNAME=os.getenv('CORTEX_USER_USERNAME',default='')
 CORTEX_INTEGRATION=os.getenv('CORTEX_INTEGRATION',default='')
-ADMIN_PASS=os.environ['ADMIN_PASS']
 ORG_NAME=os.environ['ORG_NAME']
 VERIFY="/etc/ssl/certs/container/ca.crt"
 
@@ -34,13 +28,7 @@ class MISPSetup:
         print("Running MISP Setup Script")
         self._verify = VERIFY
         self._hive_user = None
-        self._misp_api_key = ''
-        config.load_incluster_config()
-        c = Configuration()
-        c.assert_hostname = False
-        Configuration.set_default(c)
-        self._core_v1 = core_v1_api.CoreV1Api()
-        self._misp_pod = {}
+        self._misp_api_key = ADMIN_API_KEY
 
     def post(self, url=None, data=None, requires_auth=False):
         max_retries = 10
@@ -107,55 +95,6 @@ class MISPSetup:
                 print("Setup Exception: " + str(e))
                 time.sleep(2)
                 continue
-
-    def search_for_pod(self):
-        return self._core_v1.list_pod_for_all_namespaces(label_selector="component=misp", watch=False)
-
-    def execute_command(self, pod_name: str, namespace: str, container: str, command: str):
-        print("Executing CMD: "+command)
-        exec_command = ['/bin/sh', '-c', command]
-        resp = stream(self._core_v1.connect_get_namespaced_pod_exec,
-                pod_name,
-                namespace,
-                container=container,
-                command=exec_command,
-                stderr=True, stdin=False,
-                stdout=True, tty=False)
-        return resp
-
-    def reset_password(self):
-        print("Executing Password Reset")
-        exec_command = '/var/www/MISP/app/Console/cake Password admin@admin.test "{password}" -o'.format(password=ADMIN_PASS)
-        return self.execute_command(pod_name=self._misp_pod.metadata.name, namespace=self._misp_pod.metadata.namespace, container='misp', command=exec_command)
-
-    def reset_authkey(self):
-        print("Executing Authkey Reset")
-        exec_command = '/var/www/MISP/app/Console/cake Authkey admin@admin.test'
-        resp = self.execute_command(pod_name=self._misp_pod.metadata.name, namespace=self._misp_pod.metadata.namespace, container='misp', command=exec_command)
-        match = re.search(r'^[a-zA-z0-9]{40}$', resp, re.MULTILINE)
-        try:
-            self._misp_api_key = match[0]
-            return self._misp_api_key
-        except Exception as e:
-            print("Something went wrong with resetting the API key")
-        sys.exit(1)
-
-    def conf_cortex_module(self, api_key: str):
-        print("Updating Cortex Module")
-        exec_command = [
-            '/var/www/MISP/app/Console/cake Admin setSetting "Plugin.Cortex_services_enable" true',
-            'chown www-data:www-data -R /var/www/MISP/app/Config',
-            '/var/www/MISP/app/Console/cake Admin setSetting "Plugin.Cortex_authkey" "{api_key}"'.format(api_key=api_key),
-            'chown www-data:www-data -R /var/www/MISP/app/Config',
-        ]
-        while True:
-            if exec_command:
-                com = exec_command.pop(0)
-                resp = self.execute_command(pod_name=self._misp_pod.metadata.name, namespace=self._misp_pod.metadata.namespace, container='misp', command=com)
-                print(resp)
-                time.sleep(5)
-            else:
-                break
 
     def get_users(self, user: str):
         print("Getting all users")
@@ -296,23 +235,13 @@ if __name__ == '__main__':
     setup = MISPSetup()
     if setup.get_status():
         print("MISP Ready")
-        print("Searching for MISP pod")
-        pods = setup.search_for_pod()
-        if pods and len(pods.items) == 1:
-            setup._misp_pod = pods.items[0]
-            print("Found pod - "+setup._misp_pod.metadata.name)
-            setup.reset_password()
-            setup.reset_authkey()
-            setup.setup_misp_filebeat_user()
-            setup.setup_misp_hive_user()
-            org = setup.get_org(org_id = 1)
-            if org.status_code == 200:
-                setup.edit_org_name(org_id=1,name=ORG_NAME)
-            elif org.status_code == 404:
-                setup.add_org(name=ORG_NAME)
+        setup.setup_misp_filebeat_user()
+        setup.setup_misp_hive_user()
+        org = setup.get_org(org_id = 1)
+        if org.status_code == 200:
+            setup.edit_org_name(org_id=1,name=ORG_NAME)
+        elif org.status_code == 404:
+            setup.add_org(name=ORG_NAME)
         if setup.get_cortex_status():
             setup.setup_misp_cortex_user()
             setup.enable_cortex_misp_analyzer()
-            api_key = setup.get_cortex_api()
-            time.sleep(10)
-            setup.conf_cortex_module(api_key)

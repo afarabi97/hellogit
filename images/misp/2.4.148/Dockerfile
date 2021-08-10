@@ -1,7 +1,7 @@
 FROM ubuntu:focal
 
 #User Input
-ARG MISP_VERSION=2.4.139
+ARG MISP_VERSION=2.4.148
 ARG MISP_TAG=v${MISP_VERSION}
 
 # Install core components
@@ -12,16 +12,18 @@ ENV PATH_TO_MISP /var/www/MISP
 # Apache and PHP 7.4 and install MySQL PDO extension
 RUN apt-get update && apt-get dist-upgrade -y && apt-get install -y --no-install-recommends \
     apache2 apache2-doc apache2-utils libapache2-mod-shib libapache2-mod-php php php-dev php-json php-zip php-intl \
-    php-mysql php-redis php-xml php-mbstring php-gd php-pear php-opcache pkg-config php-bcmath libbson-1.0 libmongoc-1.0-0 \
+    php-mysql php-redis php-xml php-mbstring php-gd php-pear php-opcache php-curl pkg-config php-bcmath libbson-1.0 libmongoc-1.0-0 \
     python3 python3-dev python3-pip python3-virtualenv libjpeg-dev libxml2-dev libxslt1-dev zlib1g-dev libfuzzy-dev cron logrotate \
     gcc make software-properties-common mariadb-client curl git gnupg-agent openssl zip locales \
-    libpoppler97 libpoppler-dev libpoppler-cpp-dev && apt-get clean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* && \
+    libpoppler97 libpoppler-dev libpoppler-cpp-dev g++ && apt-get clean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* && \
     a2dismod status && a2dissite 000-default && locale-gen en_US.UTF-8 && phpenmod redis && \
     sed -i \
         -e "s/max_execution_time = 30/max_execution_time = 300/" \
         -e "s/memory_limit = 128M/memory_limit = 2048M/" \
         -e "s/upload_max_filesize = 2M/upload_max_filesize = 50M/" \
         -e "s/post_max_size = 8M/post_max_size = 50M/" \
+        -e "s/session.use_strict_mode = 0/session.use_strict_mode = 1/" \
+        -e "s/session.sid_length = 26/session.sid_length = 32/" \
         /etc/php/7.4/apache2/php.ini
 
 WORKDIR /var/www
@@ -39,8 +41,12 @@ RUN git checkout tags/${MISP_TAG} && \
                  git+https://github.com/kbandla/pydeep.git \
                  ${PATH_TO_MISP}/cti-python-stix2 \
                  ${PATH_TO_MISP}/PyMISP \
-                 setuptools plyara python-magic lxml lief redis pyzmq mail-parser && \
+                 setuptools plyara python-magic lxml lief redis pyzmq mail-parser ssdeep && \
     git submodule init && git submodule update
+
+RUN cd /tmp && curl -o ssdeep-2.14.1.tar.gz -L https://github.com/ssdeep-project/ssdeep/releases/download/release-2.14.1/ssdeep-2.14.1.tar.gz && \
+    tar zxvf ssdeep-2.14.1.tar.gz && cd ssdeep-2.14.1 && ./configure && make && make install && pecl install ssdeep && \
+    echo 'extension=ssdeep.so' | tee -a /etc/php/7.4/apache2/php.ini /etc/php/7.4/cli/php.ini && phpenmod ssdeep && rm -rf /tmp/ssdeep* /tmp/pear
 
 WORKDIR ${PATH_TO_MISP}/app
 
@@ -67,7 +73,8 @@ COPY files/database.php ${PATH_TO_MISP}/app/Config/database.php
 # Replace the default salt
 RUN sed -i "s|\"sudo -u \"\s*\.\s*\$this->_runtime\['user'\]|\"\"|g" ${PATH_TO_MISP}/app/Plugin/CakeResque/Console/Command/CakeResqueShell.php && \
     sed -i -e "s|'host'\s*=>\s*'[a-zA-Z0-9._-]*',|'host' => env('REDIS_HOST','localhost'),|g" \
-           -e "s|'password'\s*=>\s*null|'password' => env('REDIS_CRED',null)|g" ${PATH_TO_MISP}/app/Plugin/CakeResque/Config/config.php && \
+           -e "s|'port'\s*=>\s*6379,|'port' => env('REDIS_PORT',null),|g"  \
+           -e "s|'password'\s*=>\s*null|'password' => env('REDIS_PASSWORD',null)|g" ${PATH_TO_MISP}/app/Plugin/CakeResque/Config/config.php && \
     sed -i "s/Listen 80/Listen 8080/g" /etc/apache2/ports.conf && \
     sed -i "s/Listen 443/Listen 8443/g" /etc/apache2/ports.conf && \
     sed -i "s/80/8080/g" /etc/apache2/sites-available/misp.conf
@@ -89,7 +96,7 @@ RUN chmod 0755 /run_misp.sh && touch /tmp/.firstboot.tmp && chown -R www-data:ww
 WORKDIR ${PATH_TO_MISP}/app/Config
 RUN tar czpf /tmp/MISPconfig.tgz .
 
-RUN chown -R www-data:www-data ${PATH_TO_MISP} && chmod -R 775 ${PATH_TO_MISP} && mkdir -p /run/shibboleth && \
+RUN chown -R www-data:www-data ${PATH_TO_MISP} /tmp/MISPconfig.tgz && chmod -R 775 ${PATH_TO_MISP} /tmp/MISPconfig.tgz && mkdir -p /run/shibboleth && \
     chown -R www-data:www-data /run/shibboleth /var/log/shibboleth /var/run/shibboleth && \
     chmod -R 775 /run/shibboleth /var/log/shibboleth /var/run/shibboleth
 
