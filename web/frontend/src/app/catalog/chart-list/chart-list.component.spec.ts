@@ -93,7 +93,7 @@ describe('ChartListComponent', () => {
           "isSensorApp": false
         },
         {
-          "appVersion": "3.11.0",
+          "appVersion": "3.17.0",
           "application": "rocketchat",
           "description": "Prepare to take off with the ultimate chat platform, experience the next level of team communications",
           "pmoSupported": true,

@@ -5,7 +5,7 @@ domain: lan
 auth_base: https://controller.lan/auth/realms/CVAH-SSO
 image:
   repository: rocketchat/rocket.chat
-  tag: 3.11.0
+  tag: 3.17.0
 
 nginxImage:
   repository: nginx

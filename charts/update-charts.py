@@ -20,7 +20,7 @@ charts = [
         { "name": "hive",
                 "version": "1.0.0"},
         { "name": "rocketchat",
-                "version": "1.1.13"},
+                "version": "1.1.14"},
         { "name": "nifi",
                 "version": "1.0.0"},
         { "name": "redmine",

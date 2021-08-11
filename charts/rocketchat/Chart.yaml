@@ -1,7 +1,7 @@
 apiVersion: v1
 name: rocketchat
-version: 1.1.13
-appVersion: 3.11.0
+version: 1.1.14
+appVersion: 3.17.0
 description: Prepare to take off with the ultimate chat platform, experience the next level of team communications
 home: https://rocket.chat/
 icon: https://raw.githubusercontent.com/RocketChat/Rocket.Chat.Artwork/master/Logos/icon.svg

@@ -3,7 +3,7 @@
 # Use include_vars function to utilize this file.
 
 # VERSIONS
-rocketchat_version: 3.11.0
+rocketchat_version: 3.17.0
 mongodb_version: 4.4.3
 busybox_version: "1.33.1"
 zeek_version: "4.0.3"
