@@ -1,18 +1,17 @@
 """
 Main module for handling all of the config map REST calls.
 """
-from typing import Dict, List
-from flask import jsonify, Response, request
-from flask_restx import Resource, fields
+from typing import List, Union
+
+from app import KUBERNETES_NS, conn_mng, logger
+from app.middleware import controller_maintainer_required
+from app.models.kubernetes import AssociatedPodModel, ConfigMapSave
+from app.service.configmap_service import bounce_pods
+from app.utils.connection_mngs import KitFormNotFound, KubernetesWrapper
+from flask import Response, jsonify, request
+from flask_restx import Resource
 from kubernetes import client
 from kubernetes.client.models.v1_pod_list import V1PodList
-from app import app, logger, conn_mng, KUBERNETES_NS
-from app.common import ERROR_RESPONSE, OK_RESPONSE
-from app.service.configmap_service import bounce_pods
-from app.middleware import controller_maintainer_required
-from app.utils.connection_mngs import KubernetesWrapper, KitFormNotFound
-from app.models.kubernetes import (ConfigMapViewModel, ConfigMapSave, ConfigMapSaveMetaData, ConfigMapSavePods,
-                                   ConfigMapCreateMetaData, ConfigMapCreatePost, ConfigMapCreateDataNested, AssociatedPodModel)
 
 
 def get_config_maps_tags(repo: str) -> List[str]:
@@ -23,7 +22,7 @@ def get_config_maps_tags(repo: str) -> List[str]:
     return []
 
 
-def get_imageid_and_size(repo: str, tag: str) -> [str, float]:
+def get_imageid_and_size(repo: str, tag: str) -> Union[str, float]:
     url = 'http://localhost:5000/v2/{repo}/manifests/{tag}'.format(repo=repo, tag=tag)
     headers = {'Accept': 'application/vnd.docker.distribution.manifest.v2+json'}
     response = request.get(url, headers=headers) # type: Response
@@ -65,41 +64,9 @@ class GetConfigMapsOnly(Resource):
             with KubernetesWrapper(conn_mng) as kube_apiv1:
                 api_response = kube_apiv1.list_config_map_for_all_namespaces()
                 return jsonify(api_response.to_dict())
-        except KitFormNotFound as e:
-            logger.exception(e)
+        except KitFormNotFound as exception:
+            logger.exception(exception)
             return jsonify([])
-
-        return ERROR_RESPONSE
-
-
-def _get_configmap_data(search_dict: Dict, namespace: str, config_name: str, data_name: str):
-    for i in search_dict['items']:
-        if i['metadata']['namespace'] == namespace and i['metadata']['name'] == config_name:
-            return i['data'][data_name]
-    return ''
-
-
-@KUBERNETES_NS.route('/configmap/data/<namespace>/<config_name>/<data_name>')
-class GetConfigMapCtrl(Resource):
-
-    @KUBERNETES_NS.response(200,
-                            "The content / value of the Kubernetes configmap or a blank string.",
-                            fields.String(example="app: local-volume-provisioner\n2331"))
-    @KUBERNETES_NS.response(500, "Error")
-    def get(self,
-            namespace: str,
-            config_name:str,
-            data_name: str) -> Response:
-        try:
-            with KubernetesWrapper(conn_mng) as kube_apiv1:
-                api_response = kube_apiv1.list_config_map_for_all_namespaces()
-                config_map = _get_configmap_data(api_response.to_dict(), namespace, config_name, data_name)
-                return config_map
-        except KitFormNotFound as e:
-            logger.exception(e)
-            return []
-
-        return ERROR_RESPONSE
 
 
 @KUBERNETES_NS.route("/configmap")
@@ -113,14 +80,12 @@ class ConfigMapCtrl(Resource):
         config_map = payload["configMap"]
         associated_pods = payload["associatedPods"]
         metadata = client.V1ObjectMeta(name=config_map['metadata']['name'], namespace=config_map['metadata']['namespace'])
-
         body = client.V1ConfigMap(
             api_version="v1",
             kind="ConfigMap",
             data=config_map['data'],
             metadata=metadata
         )
-
         config_map_name = config_map['metadata']['name']
         config_map_namespace = config_map['metadata']['namespace']
 
@@ -128,42 +93,3 @@ class ConfigMapCtrl(Resource):
             kube_apiv1.replace_namespaced_config_map(config_map_name, config_map_namespace, body)
             bounce_pods.delay(associated_pods)
             return jsonify({'name': config_map_name})
-
-        return ERROR_RESPONSE
-
-    @KUBERNETES_NS.doc(description="Creates a config map.")
-    @KUBERNETES_NS.expect(ConfigMapCreatePost.DTO)
-    @controller_maintainer_required
-    def post(self) -> Response:
-        payload = request.get_json()
-        namespace = payload['metadata']['namespace']
-        name = payload['metadata']['name']
-        metadata = client.V1ObjectMeta(name=name, namespace=namespace)
-
-        body = client.V1ConfigMap(
-            api_version="v1",
-            kind="ConfigMap",
-            metadata=metadata
-        )
-
-        with KubernetesWrapper(conn_mng) as kube_apiv1:
-            api_response = kube_apiv1.create_namespaced_config_map(namespace, body)
-            return jsonify(api_response.to_dict())
-
-        return ERROR_RESPONSE
-
-
-@KUBERNETES_NS.route('/configmap/<namespace>/<name>')
-class DeleteConfigMapCtrl(Resource):
-
-    @KUBERNETES_NS.doc(description="Delets a config map based on the name and namespace.")
-    @KUBERNETES_NS.response(200, "Success")
-    @KUBERNETES_NS.response(500, "Error")
-    @controller_maintainer_required
-    def delete(self, namespace: str, name: str) -> Response:
-        body = client.V1DeleteOptions()
-        with KubernetesWrapper(conn_mng) as kube_apiv1:
-            kube_apiv1.delete_namespaced_config_map(name, namespace, body=body)
-            return OK_RESPONSE
-
-        return ERROR_RESPONSE

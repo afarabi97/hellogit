@@ -53,8 +53,6 @@ import { UpdateEsLicenseComponent } from './tools-form/update-es-license-form/up
 import { SystemHealthComponent } from './system-health/system-health.component';
 import { ModalTableComponent } from './system-health/table-dialog/modal-table.component';
 
-import { ConfigmapsComponent } from './configmaps/configmaps.component';
-import { ConfigmapEditorComponent } from './configmap-editor/configmap-editor.component';
 import { MaterialModule } from './modules/utilily-modules/material.module';
 
 //PCAP Test Page
@@ -107,6 +105,7 @@ import { MipManagementComponent } from './system-setupv2/mip-mng/mip-mng.compone
 import { UserClass } from './classes';
 
 import { AppRoutingModule } from './modules/cvah-modules/app-routing.module';
+import { ConfigMapModule } from './modules/config-map/config-map.module';
 import { DateTimeModule } from './modules/date-time/date-time.module';
 import { DockerRegistryModule } from './modules/docker-registry/docker-registry.module';
 import { ElasticsearchScaleModule } from './modules/elasticsearch-scale/elasticsearch-scale.module';
@@ -135,8 +134,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     UpdateEsLicenseComponent,
     NodeMaintenanceFormComponent,
     SystemHealthComponent,
-    ConfigmapsComponent,
-    ConfigmapEditorComponent,
     PcapFormComponent,
     AgentBuilderChooserComponent,
     AgentInstallerDialogComponent,
@@ -183,6 +180,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     NgxMatDatetimePickerModule,
     NgxMatNativeDateModule,
     AppRoutingModule,
+    ConfigMapModule,
     DateTimeModule,
     DockerRegistryModule,
     ElasticsearchScaleModule,

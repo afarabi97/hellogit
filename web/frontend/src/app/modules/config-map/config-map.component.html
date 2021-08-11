@@ -1,0 +1,107 @@
+<div class="main-content2">
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title>Config Maps</mat-card-title>
+        </mat-card-header>
+
+        <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+        <mat-card-content>
+            <div class="table-wrapper">
+
+                <!-- Config Map Table -->
+                <table mat-table [dataSource]="config_maps" multiTemplateDataRows>
+
+                    <!-- Namespace -->
+                    <ng-container matColumnDef="namespace">
+                        <th scope="col" mat-header-cell *matHeaderCellDef>Namespace</th>
+                        <td mat-cell *matCellDef="let config; let i = dataIndex;"
+                            id="{{ 'cvah-config-map-table-td-' + i + '-namespace' }}">
+                            <a id="{{ 'cvah-config-map-outer-td-' + i + '-namespace-a' }}" (click)="toggle_table_row_expansion(config)">
+                                <em *ngIf="!is_config_map_expansion_row_visible(config)"
+                                    class="material-icons">chevron_right</em>
+                                <em *ngIf="is_config_map_expansion_row_visible(config)"
+                                    class="material-icons">expand_more</em>
+                                <span id="{{ 'cvah-config-map-table-td-' + i + '-namespace-value' }}"
+                                      class="span-namespace">{{ config.metadata.namespace }}</span>
+                            </a>
+                        </td>
+                    </ng-container>
+
+                    <!-- Config Name -->
+                    <ng-container matColumnDef="config_name">
+                        <th scope="col" mat-header-cell *matHeaderCellDef>Config Name</th>
+                        <td mat-cell *matCellDef="let config; let i = dataIndex;"
+                            id="{{ 'cvah-config-map-table-config-map-td-' + i + '-config-name' }}">{{ config.metadata.name }}</td>
+                    </ng-container>
+
+                    <!-- Creation Date -->
+                    <ng-container matColumnDef="creation_date">
+                        <th scope="col" mat-header-cell *matHeaderCellDef>Creation Date</th>
+                        <td mat-cell *matCellDef="let config; let i = dataIndex;"
+                            id="{{ 'cvah-config-map-table-config-map-td-' + i + '-creation-date' }}">{{ config.metadata.creation_timestamp }}</td>
+                    </ng-container>
+
+                    <!-- Expanded Detail -->
+                    <ng-container matColumnDef="expandedDetail">
+                        <td mat-cell *matCellDef="let config; let i = dataIndex;"
+                            id="{{ 'cvah-config-map-table-config-map-td-' + i + '-expanded-detail' }}"
+                            [attr.colspan]="config_map_columns.length">
+                            <button mat-raised-button id="{{ 'cvah-config-map-table-config-map-td-' + i + '-button-add-config-data' }}"
+                                    [disabled]="!controller_maintainer" class="button-add-config-map-data" color="primary"
+                                    matTooltip="Add Config Data" (click)="create_config_map_data(config)">Add Config Data</button>
+
+                            <!-- Config Map Data Table -->
+                            <table *ngIf="is_config_map_data_defined(config)" mat-table [dataSource]="config_map_data_keys(config.data)">
+
+                                <!-- File Name -->
+                                <ng-container matColumnDef="filename">
+                                    <th scope="row" mat-header-cell *matHeaderCellDef>Filename</th>
+                                    <td mat-cell *matCellDef="let filename; let j = index;"
+                                        id="{{ 'cvah-config-map-table-config-map-td-' + i + '-table-config-map-data-td-' + j + '-filename' }}">{{ filename }}</td>
+                                </ng-container>
+
+                                <!-- Actions -->
+                                <ng-container matColumnDef="actions">
+                                    <th scope="row" mat-header-cell *matHeaderCellDef>Actions</th>
+                                    <td mat-cell *matCellDef="let filename; let j = index;">
+                                        <div>
+                                            <button mat-button *ngIf="controller_maintainer"
+                                                    id="{{ 'cvah-config-map-table-config-map-td-' + i + '-table-config-map-data-td-' + j + '-button-edit' }}"
+                                                    matTooltip="Edit Config Data" color="primary" (click)="edit_config_map_data(filename, config)">
+                                                <em class="material-icons">edit</em>
+                                            </button>
+                                            <button mat-button *ngIf="!controller_maintainer"
+                                                    id="{{ 'cvah-config-map-table-config-map-td-' + i + '-table-config-map-data-td-' + j + '-button-visibility' }}"
+                                                    matTooltip="View Config Data" color="accent" (click)="view_config_map_data(filename, config)">
+                                                <em class="material-icons">visibility</em>
+                                            </button>
+                                            <button mat-button *ngIf="controller_maintainer"
+                                                    id="{{ 'cvah-config-map-table-config-map-td-' + i + '-table-config-map-data-td-' + j + '-button-delete' }}"
+                                                    matTooltip="Remove Config Data" color="warn" (click)="delete_config_map_data(filename, config)">
+                                                <em class="material-icons">delete</em>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </ng-container>
+
+                                <!-- Table Rows -->
+                                <tr mat-header-row *matHeaderRowDef="config_map_data_columns"></tr>
+                                <tr mat-row *matRowDef="let row; columns: config_map_data_columns; let j = index;"
+                                    id="{{ 'cvah-config-map-table-config-map-td-' + i + '-table-config-map-data-tr-' + j }}"></tr>
+                            </table>
+                        </td>
+                    </ng-container>
+
+                    <!-- Table Rows -->
+                    <tr mat-header-row *matHeaderRowDef="config_map_columns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: config_map_columns; let i = dataIndex;"
+                        id="{{ 'cvah-config-map-table-config-map-tr-' + i }}"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; let i = dataIndex;"
+                        id="{{ 'cvah-config-map-table-config-map-tr-expanded-detail-' + i }}"
+                        [hidden]="!is_config_map_expansion_row_visible(row)"></tr>
+                </table>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

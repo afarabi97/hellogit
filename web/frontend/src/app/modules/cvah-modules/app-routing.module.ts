@@ -4,7 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AgentBuilderChooserComponent } from '../../agent-builder-chooser/agent-builder-chooser.component';
 import { CatalogComponent } from '../../catalog/component/catalog.component';
 import { CatalogPageComponent } from '../../catalog/page/catalog-page.component';
-import { ConfigmapsComponent } from '../../configmaps/configmaps.component';
+import { ConfigmapsComponent } from '../config-map/config-map.component';
 import { ElasticsearchScaleComponent } from '../elasticsearch-scale/elasticsearch-scale.component';
 import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from '../../guards';
 import { IndexManagementComponent } from '../../index-management/component/index-management.component';

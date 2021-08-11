@@ -2,6 +2,11 @@ export const environment = {
   production: true,
 
   SENSOR_HOST_INFO_SERVICE_GET_SENSOR_HOST_INFO: `/api/get_sensor_hostinfo`,
+
+  CONFIG_MAP_SERVICE_GET_CONFIG_MAPS: `/api/configmaps`,
+  CONFIG_MAP_SERVICE_BASE_URL: `/api/configmap`,
+  CONFIG_MAP_SERVICE_GET_ASSOCIATED_PODS: `/api/associated/pods/`,
+
   ELASTICSEARCH_SERVICE_GET_ELASTIC_NODES: `/api/scale/elastic/nodes`,
   ELASTICSEARCH_SERVICE_POST_ELASTIC_NODES: `/api/scale/elastic`,
   ELASTICSEARCH_SERVICE_GET_ELASTIC_FULL_CONFIG: `/api/scale/elastic/advanced`,

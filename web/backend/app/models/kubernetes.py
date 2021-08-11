@@ -1,7 +1,6 @@
 from app import api
 from app.models import Model
 from flask_restx import fields
-from flask_restx.fields import Nested
 
 
 class DockerImageMetadataModel(Model):
@@ -230,7 +229,6 @@ class ConfigMapSave(Model):
     DTO = api.model('ConfigMapSave_Post', {
         'configMap': fields.Nested(ConfigMapSaveConfigMap.DTO),
         'associatedPods': fields.Nested(ConfigMapSavePods.DTO)
-
     })
 
 
@@ -245,12 +243,6 @@ class ConfigMapCreateMetaData(Model):
         'name': fields.String(example= "configmapconfig"),
         'creation_timestamp':fields.DateTime(example= 'Thu, 07 Jan 2021 20:26:36 GMT'),
         'namespace': fields.String(example = 'default')
-    })
-
-class ConfigMapCreatePost(Model):
-    DTO = api.model('ConfigMapCreatePost', {
-        'metadata': fields.Nested(ConfigMapCreateMetaData.DTO),
-        'data': fields.Nested(ConfigMapCreateDataNested.DTO)
     })
 
 

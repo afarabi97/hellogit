@@ -214,33 +214,21 @@ APP_CONFIGMAP_EDITOR__BUTTON_SAVE_AND_CLOSE = 'app-configmap-editor-div-mat-card
 APP_CONFIGMAP_EDITOR__BUTTON_CLOSE = 'app-configmap-editor-div-mat-card-mat-card-footer-button-close' # button
 
 
-# These are for configmaps.component.html
-APP_CONFIGMAPS__MAT_CARD_TITLE_BUTTON_ADD_CONFIG_MAP = 'app-configmaps-div-mat-card-mat-card-header-mat-card-title-button-add-config-map' # button
-APP_CONFIGMAPS_MAT_PROGRESS_ = 'app-configmaps-div-mat-card-mat-progress-bar' # mat-progress-bar
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-namespace # td
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-namespace-a # a
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-namespace-a-em-chevron-right # em
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-namespace-a-em-expand-more # em
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-namespace-a-span-namespace # span
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-config-name # td
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-creation-date # td
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-actions # td
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-actions-button # button
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-actions-button-em-delete # em
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-expanded-detail # td
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-expanded-detail-button-add-config-data # button
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-expanded-detail-table-td-*-filename # td
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-expanded-detail-table-td-*-actions # td
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-expanded-detail-table-td-*-actions-button-edit # button
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-expanded-detail-table-td-*-actions-button-edit-em # em
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-expanded-detail-table-td-*-actions-button-visibility # button
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-expanded-detail-table-td-*-actions-button-visibility-em # em
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-expanded-detail-table-td-*-actions-button-delete # button
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-expanded-detail-table-td-*-actions-button-delete-em # em
-# TODO app-configmaps-div-mat-card-mat-card-content-table-td-*-expanded-detail-table-tr-mat-row-* # tr
-# TODO app-configmaps-div-mat-card-mat-card-content-table-tr-mat-row-* # tr
-# TODO app-configmaps-div-mat-card-mat-card-content-table-tr-mat-row-expanded-detail-* # tr
-APP_CONFIGMAPS__APP_CONFIGMAP_EDITOR = 'app-configmaps-app-configmap-editor' # app-configmap-editor (internal)
+# These are for config-map.component.html
+# TODO cvah-config-map-table-td-*-namespace # td
+# TODO cvah-config-map-table-td-*-namespace-a # a
+# TODO cvah-config-map-table-td-*-namespace-value # span
+# TODO cvah-config-map-table-td-*-config-name # td
+# TODO cvah-config-map-table-td-*-creation-date # td
+# TODO cvah-config-map-table-td-*-expanded-detail # td
+# TODO cvah-config-map-table-td-*-button-add-config-data # button
+# TODO cvah-config-map-table-td-*-table-config-map-data-td-*-filename # td
+# TODO cvah-config-map-table-td-*-table-config-map-data-td-*-button-edit # button
+# TODO cvah-config-map-table-td-*-table-config-map-data-td-*-button-visibility # button
+# TODO cvah-config-map-table-td-*-table-config-map-data-td-*-button-delete # button
+# TODO cvah-config-map-table-td-*-table-config-map-data-tr-* # tr
+# TODO cvah-config-map-table-tr-* # tr
+# TODO cvah-config-map-table-tr-expanded-detail-* # tr
 
 
 # These are for change-kitclock.component.html
