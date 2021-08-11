@@ -84,7 +84,7 @@
 
 - name: Gen Password # noqa 306
   shell: |
-    /usr/bin/pwgen -cyBn -r \`\"\'\!\$\\\/\(\)\{\}\[\]\<\>\~\,\*\^\+\|\_\; 20 2 | tr -d '\n'
+    /usr/bin/pwgen -cyBn -r \`\"\'\!\$\\\/\(\)\{\}\[\]\<\>\~\,\*\^\+\|\_\#\@\; 20 2 | tr -d '\n'
   register: tpass
   changed_when: tpass.rc == 0
 
