@@ -16,7 +16,7 @@
       <div *ngIf="chart?.nodes?.length !== 0" style="margin-top:10px;">
         <div *ngFor="let node of chart.nodes; let i = index;"
              id="{{  generateUniqueHTMLID( 'app-card-div-div-div-div-' + i + '-node-info' ) }}"
-             style="color:lightgreen">{{node.hostname ? node.hostname : node.deployment_name}}: &nbsp; {{node.status}}</div>
+             [style.color]="installColor(node)">{{node.hostname ? node.hostname : node.deployment_name}}: &nbsp; {{node.status}}</div>
       </div>
       <div *ngIf="chart?.nodes?.length === 0">
         <p style="color:white">Not Installed</p>

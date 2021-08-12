@@ -55,9 +55,17 @@ export class CardComponent {
     if(this.chart.nodes !== undefined) {
       if( this.chart.nodes.length === 0 ) {
         return 'white';
-      } else {
-        return 'green';
       }
+      let in_progress = false;
+      let failed = false;
+      this.chart.nodes.map( chart => {
+        if( chart.status.toLowerCase() !== "deployed") {
+          in_progress = true;
+        } else if ( chart.status.toLowerCase() === "failed") {
+          failed = true;
+        }
+      });
+      return failed ? "red": (in_progress ? "yellow" : "green");
     }
     return 'white';
   }
@@ -70,5 +78,20 @@ export class CardComponent {
    */
   blue() {
     return "#3498db";
+  }
+
+  installColor(node) {
+    const status = node.status.toLowerCase();
+    const colors = {
+      "deployed": "lightgreen",
+      "pending install": "yellow",
+      "uninstalling": "yellow",
+      "uninstalled": "red",
+      "failed": "red",
+    }
+    if(colors[status]) {
+      return colors[status];
+    }
+    return "white";
   }
 }

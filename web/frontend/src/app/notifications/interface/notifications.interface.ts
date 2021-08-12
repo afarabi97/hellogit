@@ -16,5 +16,6 @@ export class Notification {
   action?: String;
   application: string;
   _id?: string;
+  data?: object;
 }
 

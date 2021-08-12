@@ -57,6 +57,7 @@ class NotificationMessage(object):
         self.exception = ""
         self.message = ""
         self.status = ""
+        self.data = {}
 
     def set_message(self, message: str) -> None:
         self.message = message
@@ -74,9 +75,12 @@ class NotificationMessage(object):
         if exception is not None:
             self.exception = str(exception)
 
+    def set_additional_data(self, data: dict) -> None:
+        self.data = data
+
     def to_json(self):
         self.timestamp = datetime.datetime.utcnow().isoformat()
-        return {"timestamp": self.timestamp, "role": self.role, "message": self.message, "action": self.action, "application": self.application,  "status": self.status, "exception": self.exception}
+        return {"timestamp": self.timestamp, "role": self.role, "message": self.message, "action": self.action, "application": self.application,  "status": self.status, "exception": self.exception, "data": self.data}
 
     def post_to_websocket_api(self) -> None:
         try:

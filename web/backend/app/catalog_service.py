@@ -106,7 +106,8 @@ def get_node_type(hostname: str) -> str:
     Get node type for a node
 
     """
-
+    if hostname == "Server":
+        return hostname
     node = Node.load_from_db_using_hostname(hostname) # type: Node
     if node:
         return node.node_type
@@ -277,7 +278,7 @@ def get_app_state(application: str, namespace: str) -> list:
                 values = None
                 node["application"] = application
                 node["appVersion"] = chart["app_version"]
-                node["status"] = chart["status"].upper()
+                node["status"] = chart["status"].replace("-", " ").upper()
                 node["deployment_name"] = chart["name"]
                 node["hostname"] = None
                 node["node_type"] = None
@@ -378,7 +379,7 @@ def _purge_helm_app_on_failure(deployment_name: str, namespace: str):
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def install_helm_apps (application: str, namespace: str, node_affinity: str, values: list, task_id=None):
     response = []
-
+    deployment_names =[]
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.INSTALLING.name.capitalize(), application=application.capitalize())
     for value in values:
         deployment_name = None
@@ -390,6 +391,7 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
         deployment_name, value_items = _build_values(value)
 
         if deployment_name and value_items:
+            deployment_names.append(deployment_name)
             # TODO start here on Monday this is totally messed up as it does not have the FQDN
             node_hostname = value_items.get("node_hostname", None)
             if node_hostname is None:
@@ -398,10 +400,6 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
             message = '%s %s on %s' % (NotificationCode.INSTALLING.name.capitalize(), application.capitalize(), node_hostname)
             notification.set_message(message=message)
             try:
-                # Send Update Notification to websocket
-                notification.set_exception(exception=None)
-                notification.set_status(status=NotificationCode.IN_PROGRESS.name)
-                notification.post_to_websocket_api()
 
                 if "Sensor" in node_affinity:
                     # Add kube node label
@@ -409,52 +407,25 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                 else:
                     if "nodeSelector" in value_items:
                         value_items["nodeSelector"] = { "role": "server" }
-
-                tpath = _write_values(deployment_name, value_items)
-
-                stdout, ret_code = run_command2(command="helm install " + deployment_name +
-                                                " chartmuseum/" + application +
-                                                " --namespace " + namespace +
-                                                " --values " + tpath,
-                    working_dir=WORKING_DIR, use_shell=True)
-
-                if ret_code == 0 and stdout != '':
-                    # Send Update Notification to websocket
-                    results = yaml.full_load(stdout.strip())
-                    notification.set_status(status=results["STATUS"].upper())
-                    notification.post_to_websocket_api()
-                    conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
-                    conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
-                    
-                    if wait_for_deployment_to_ready(application, deployment_name, namespace) and application_setup_job_watcher(application=application, deployment_name=deployment_name, namespace=namespace):
-                        response.append("release: \"" + deployment_name + "\" "  + results["STATUS"].upper())
-                        # Send Update Notification to websocket
-                        notification.set_message(message="Install completed.")
-                        notification.set_status(status=NotificationCode.COMPLETED.name)
-                        notification.post_to_websocket_api()
-                    else:
-                        err = "Deployments are not ready.  Check health page."
-                        logger.exception(err)
-                        # Send Update Notification to websocket
-                        notification.set_status(status=NotificationCode.ERROR.name)
-                        notification.set_exception(exception=err)
-                        notification.post_to_websocket_api()
-                if ret_code != 0 and stdout != '':
-                    results = stdout.strip()
-                    rq_logger.exception(results)
-                    # Send Update Notification to websocket
-                    notification.set_status(status=NotificationCode.ERROR.name)
-                    notification.set_exception(exception=results)
-                    notification.post_to_websocket_api()
-                    _purge_helm_app_on_failure(deployment_name, namespace)
-                if os.path.exists(tpath):
-                    os.remove(tpath)
-                sleep(1)
+                install_helm_command.delay(deployment_name=deployment_name, application=application, namespace=namespace, value_items=value_items)
+                conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
+                conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
+                while True:
+                    sleep(0.5)
+                    data = get_app_state(application=application, namespace=namespace)
+                    if len(list(filter(lambda d: d["deployment_name"] == deployment_name, data))) > 0:
+                        break
+                # Send Update Notification to websocket
+                notification.set_exception(exception=None)
+                notification.set_status(status=NotificationCode.IN_PROGRESS.name)
+                notification.set_additional_data(data=data)
+                notification.post_to_websocket_api()
             except Exception as exc:
                 rq_logger.error(exc)
                 # Send Update Notification to websocket
                 notification.set_status(status=NotificationCode.ERROR.name)
                 notification.set_exception(exception=exc)
+                notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
                 notification.post_to_websocket_api()
                 _purge_helm_app_on_failure(deployment_name, namespace)
         else:
@@ -463,7 +434,49 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
             # Send Update Notification to websocket
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_exception(exception=err)
+            notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
             notification.post_to_websocket_api()
+    # Send Update Notification to websocket
+    while len(list(filter(lambda d: d["deployment_name"] in deployment_names and d["status"].lower() == "deployed", get_app_state(application=application, namespace=namespace)))) < len(deployment_names):
+        sleep(0.5)
+    notification.set_message(message="Install completed.")
+    notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
+    notification.set_status(status=NotificationCode.COMPLETED.name)
+    notification.post_to_websocket_api()
+    return response
+
+@job('default', connection=REDIS_CLIENT, timeout="30m")
+def install_helm_command (deployment_name: str, application: str, namespace: str, value_items: dict):
+    response = []
+    tpath = _write_values(deployment_name, value_items)
+    stdout, ret_code = run_command2(command="helm install " + deployment_name +
+                                    " chartmuseum/" + application +
+                                    " --namespace " + namespace +
+                                    " --values " + tpath +
+                                    " --wait --wait-for-jobs",
+        working_dir=WORKING_DIR, use_shell=True)
+
+    notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.INSTALLING.name.capitalize(), application=application.capitalize())
+    if ret_code == 0 and stdout != '':
+        # Send Update Notification to websocket
+        results = yaml.full_load(stdout.strip())
+        notification.set_status(status=results["STATUS"].upper())
+        notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
+        notification.post_to_websocket_api()
+
+        response.append("release: \"" + deployment_name + "\" "  + results["STATUS"].upper())
+    if ret_code != 0 and stdout != '':
+        results = stdout.strip()
+        rq_logger.exception(results)
+        # Send Update Notification to websocket
+        notification.set_status(status=NotificationCode.ERROR.name)
+        notification.set_exception(exception=results)
+        notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
+        notification.post_to_websocket_api()
+        _purge_helm_app_on_failure(deployment_name, namespace)
+    if os.path.exists(tpath):
+        os.remove(tpath)
+    sleep(1)
     return response
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
@@ -496,15 +509,15 @@ def delete_helm_apps (application: str, nodes: List, namespace: str="default"):
             notification.set_message(message=message)
             notification.set_exception(exception=None)
             try:
-                # Send Update Notification to websocket
-                notification.set_status(status=NotificationCode.IN_PROGRESS.name)
-                notification.post_to_websocket_api()
-
                 # Remove kube node label
                 if node_hostname:
                     execute_kubelet_cmd("kubectl label nodes " + node_hostname + " " + application + "-")
                 cmd = "helm delete {}".format(deployment_to_uninstall)
                 stdout, ret_code = run_command2(command=cmd, working_dir=WORKING_DIR, use_shell=True)
+                # Send Update Notification to websocket
+                notification.set_status(status=NotificationCode.IN_PROGRESS.name)
+                notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
+                notification.post_to_websocket_api()
                 if ret_code == 0 and stdout != '':
                     # PVC deletion takes significatly longer than the other Resources and is the final thing to be removed
                     # Thus, once the PVC is gone, It has been completely removed
@@ -516,6 +529,7 @@ def delete_helm_apps (application: str, nodes: List, namespace: str="default"):
                     # Send Update Notification to websocket
                     message = '%s %s on %s' % (NotificationCode.DELETING.name.capitalize(), application, node_hostname)
                     notification.set_status(status=NotificationCode.DELETED.name)
+                    notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
                     notification.post_to_websocket_api()
                 if ret_code != 0 and stdout != '':
                     results = stdout.strip()
@@ -523,6 +537,7 @@ def delete_helm_apps (application: str, nodes: List, namespace: str="default"):
                     # Send Update Notification to websocket
                     notification.set_status(status=NotificationCode.ERROR.name)
                     notification.set_exception(exception=results)
+                    notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
                     notification.post_to_websocket_api()
                 response.append(results)
                 sleep(1)
@@ -531,6 +546,7 @@ def delete_helm_apps (application: str, nodes: List, namespace: str="default"):
                 # Send Update Notification to websocket
                 notification.set_status(status=NotificationCode.ERROR.name)
                 notification.set_exception(exception=exc)
+                notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
                 notification.post_to_websocket_api()
         else:
             err = "Error unable to determine deployment name please try again"
@@ -538,11 +554,13 @@ def delete_helm_apps (application: str, nodes: List, namespace: str="default"):
             # Send Update Notification to websocket
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_exception(exception=err)
+            notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
             notification.post_to_websocket_api()
 
     # Send Update Notification to websocket
     notification.set_message(message="Delete completed.")
     notification.set_status(status=NotificationCode.COMPLETED.name)
+    notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
     notification.post_to_websocket_api()
     return response
 
@@ -562,92 +580,3 @@ def check_deployment_pvc_deletetion(deployment_name: str):
             except Exception:
                 break
     return True
-
-@job('default', connection=REDIS_CLIENT, timeout="30m")
-def application_setup_job_watcher(application: str, deployment_name: str, namespace: str = 'default', timeout_minutes: int=10) -> bool:
-    notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.INSTALLING.name.capitalize(), application=application.capitalize())
-    setup_job = None
-    sleep(5)
-    with KubernetesWrapper2(conn_mng) as api:
-        batch_v1_api = api.batch_V1_API
-        try:
-            jobs = batch_v1_api.list_namespaced_job(namespace=namespace,watch=False)
-            for job in jobs.items:
-                job_name = job.metadata.name
-                if job_name.startswith(deployment_name+'-setup'):
-                    setup_job = job
-                    rq_logger.info("Found Job "+setup_job.metadata.name)
-                    break
-        except Exception as exc:
-            rq_logger.exception(exc)
-            # Send Update Notification to websocket
-            notification.set_status(status=NotificationCode.ERROR.name)
-            notification.set_exception(exception=exc)
-            notification.post_to_websocket_api()
-            return False
-
-        if setup_job is None:
-            return True
-
-        while True:
-            sleep(10)
-            try:
-                job = batch_v1_api.read_namespaced_job(setup_job.metadata.name, namespace=namespace, pretty=False)
-                containers = job.spec.template.spec.containers
-                succeeded = job.status.succeeded
-                failed = job.status.failed
-                active = job.status.active
-                if active is None and failed is None and succeeded == len(containers):
-                    # Send Update Notification to websocket
-                    return True
-                if active is None and failed is not None and failed > 0:
-                    # Send Update Notification to websocket
-                    notification.set_message(message='Setup Job Error')
-                    notification.set_status(status=NotificationCode.ERROR.name)
-                    notification.post_to_websocket_api()
-                    return False
-            except Exception as exc:
-                logger.exception(exc)
-                # Send Update Notification to websocket
-                notification.set_status(status=NotificationCode.ERROR.name)
-                notification.set_exception(exception=exc)
-                notification.post_to_websocket_api()
-                return False
-    return False
-
-def _check_deployment_states(items: list, application: str, deployment: str) -> bool:
-    """
-    Check Deployment states
-
-    :param items:
-    :return:
-    """
-    ret_val = True
-    matching_dep = False
-    for item in items:
-        deployment_name = item['metadata']['name']
-        if deployment in deployment_name:
-            matching_dep = True
-            status = item['status']
-            if status['replicas'] and status['ready_replicas'] != status['replicas']:
-                ret_val = False
-    if not matching_dep:
-        ret_val = False
-    return ret_val
-
-def wait_for_deployment_to_ready(application: str, deployment_name: str, namespace: str = 'default', timeout_minutes: int=10) -> bool:
-    future_time = datetime.utcnow() + timedelta(minutes=timeout_minutes)
-    with KubernetesWrapper2(conn_mng) as api:
-        while True:
-            if future_time <= datetime.utcnow():
-                return False
-            try:
-                apps_v1_api = api.apps_V1_API
-                deployments = apps_v1_api.list_namespaced_deployment(namespace=namespace,watch=False)
-                stateful_sets = apps_v1_api.list_namespaced_stateful_set(namespace=namespace,watch=False)
-                items = deployments.to_dict()['items'] + stateful_sets.to_dict()['items']
-                if len(items) > 0 and _check_deployment_states(items, application, deployment_name):
-                    return True
-                sleep(5)
-            except Exception:
-                return False
