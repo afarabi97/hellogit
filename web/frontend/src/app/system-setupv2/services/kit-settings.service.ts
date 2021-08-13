@@ -35,11 +35,6 @@ export class KitSettingsService {
     return this.http.get(url).pipe();
   }
 
-  gatherDeviceFacts(management_ip: string): Observable<Object> {
-    const url = `/api/gather-device-facts-async/${management_ip}`;
-    return this.http.get(url).pipe();
-  }
-
   getESXiSettings(): Observable<Object> {
     const url = `/api/settings/esxi`;
     return this.http.get(url).pipe();

@@ -1,7 +1,7 @@
 """
 This is the main module for all the shared REST calls
 """
-import os, signal
+import signal
 import netifaces
 import ipaddress
 from app import app, logger, conn_mng, api, REDIS_CLIENT, rq_logger
@@ -69,30 +69,6 @@ def replace_metrics():
 
     return jsonify(replaced), status
 
-@api.route("/api/gather-device-facts/<management_ip>")
-@api.doc(params={'management_ip': "The IP we wish to get additional information from."})
-class DeviceFactsCtrl(Resource):
-
-    @api.response(200, "DeviceFacts", DeviceFacts.DTO)
-    @api.doc(description="Gathers the device facts and displays it in the form of JSON.")
-    def get(self, management_ip: str):
-        try:
-            if management_ip in ["127.0.0.1", "localhost"]:
-                return create_device_facts_from_ansible_setup("localhost", "").to_dict()
-            try:
-                current_config = KitSettingsForm.load_from_db()
-            except ValidationError:
-                current_config = MipSettingsForm.load_from_db()
-            device_facts = create_device_facts_from_ansible_setup(
-                                management_ip, current_config.password)
-            return device_facts.to_dict()
-        except DBModelNotFound as e:
-            device_facts = create_device_facts_from_ansible_setup(
-                                management_ip, "")
-            return device_facts.to_dict()
-        except Exception as e:
-            logger.exception(e)
-            return {"error_message": str(e)}, 400
 
 def _is_valid_ip_block(available_ip_addresses: List[str], index: int) -> bool:
     """

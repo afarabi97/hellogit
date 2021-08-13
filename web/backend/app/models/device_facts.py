@@ -2,6 +2,8 @@ import json
 import os
 import re
 import uuid
+import subprocess
+import socket
 
 from app import api, conn_mng, REDIS_CLIENT, rq_logger
 from app.models import Model, DBModelNotFound, PostValidationError
@@ -303,46 +305,44 @@ class DeviceFacts(Model):
                 self.potential_monitor_interfaces.append(interface.name)
 
 
-def create_device_facts_from_ansible_setup(server_ip: str, password: str=None) -> DeviceFacts:
+def create_device_facts_from_ansible_setup(host: str, password: str=None) -> DeviceFacts:
     """
     Function opens ansible process to run setup on specified server and returns a json object
 
-    :param server_ip: fully qualified domain name of server
+    :param host: hostname or ip address
     :param password: password to server to create ansible ssh connection
 
     :return: Json object from ansible setup output
     """
     # Disable ssh host key checking
-    os.environ[
-        'ANSIBLE_SSH_ARGS'] = "-o ControlMaster=auto -o ControlPersist=60s -o " \
-                              "UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+    os.environ['ANSIBLE_SSH_ARGS'] = " ".join(["-o", "ControlMaster=auto", "-o", "ControlPersist=60s", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no"])
+    ip_address = socket.gethostbyname(host)
 
     # The following runs ansible setup module on the target node
-    if password:
-        password = password.replace('"', '\\"')
-        if password.find("'") != -1:
-            raise ValueError("The password you typed contained a single ' which is not allowed.")
+    ansible_command = ["ansible", "all", "-m", "setup", "-e", f"ansible_ssh_pass={password}", "-i", f"{ip_address},"]
+    if ip_address == "127.0.0.1":
+        ansible_command = ["ansible", ip_address, "-m", "setup"] 
 
-        ansible_string = "ansible all -m setup -e ansible_ssh_pass='" + password + "' -i " + server_ip + ","
-    if server_ip == "localhost" or server_ip == "127.0.0.1":
-        ansible_string = "ansible -m setup " + server_ip
-
-    pid_object = os.popen(ansible_string).read()
+    stdout = subprocess.run(ansible_command,
+                            shell=False,
+                            universal_newlines=True,
+                            stdout=subprocess.PIPE).stdout
+            
     json_object = {}
 
-    if pid_object.startswith(server_ip + " | UNREACHABLE! => "):
+    if stdout.startswith(ip_address + " | UNREACHABLE! => "):
         # This removes "hostname | status =>" (ie: "192.168.1.21 | SUCCESS =>")
         # from the beginning of the return to make the return a valid json object.
-        pid_object = pid_object.replace(server_ip + " | UNREACHABLE! => ", "")
-        json_object = json.loads(pid_object)
+        stdout = stdout.replace(ip_address + " | UNREACHABLE! => ", "")
+        json_object = json.loads(stdout)
 
-    if pid_object.startswith(server_ip + " | SUCCESS => "):
+    if stdout.startswith(ip_address + " | SUCCESS => "):
         # This removes "hostname | status =>" (ie: "192.168.1.21 | SUCCESS =>")
         # from the beginning of the return to make the return a valid json object.
-        pid_object = pid_object.replace(server_ip + " | SUCCESS => ", "")
-        json_object = json.loads(pid_object)
+        stdout = stdout.replace(ip_address + " | SUCCESS => ", "")
+        json_object = json.loads(stdout)
 
     if 'unreachable' in json_object and json_object['unreachable'] is True:
         raise Exception("Error: " + json_object['msg'])
 
-    return DeviceFacts(json_object, server_ip)
+    return DeviceFacts(json_object, ip_address)
