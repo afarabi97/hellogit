@@ -202,7 +202,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   {
                       "names": [
                           "dip-controller.lan/metallb/speaker@sha256:db0ebd9b3ef47881ed50d9bc036b65306f4ddbe8f0cf781b89b96cd881ce79b3",
-                          "dip-controller.lan/metallb/speaker:v0.9.3"
+                          "dip-controller.lan/metallb/speaker:v0.10.2"
                       ],
                       "size_bytes": 44539176
                   },
@@ -373,7 +373,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   {
                       "names": [
                           "dip-controller.lan/metallb/speaker@sha256:db0ebd9b3ef47881ed50d9bc036b65306f4ddbe8f0cf781b89b96cd881ce79b3",
-                          "dip-controller.lan/metallb/speaker:v0.9.3"
+                          "dip-controller.lan/metallb/speaker:v0.10.2"
                       ],
                       "size_bytes": 44539176
                   },
@@ -610,14 +610,14 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   {
                       "names": [
                           "dip-controller.lan/metallb/speaker@sha256:db0ebd9b3ef47881ed50d9bc036b65306f4ddbe8f0cf781b89b96cd881ce79b3",
-                          "dip-controller.lan/metallb/speaker:v0.9.3"
+                          "dip-controller.lan/metallb/speaker:v0.10.2"
                       ],
                       "size_bytes": 44539176
                   },
                   {
                       "names": [
                           "dip-controller.lan/metallb/controller@sha256:c8b0da00dd83db99bf00fb7088c33e7aaf52fa679f962610f1fe5ed173f66b77",
-                          "dip-controller.lan/metallb/controller:v0.9.3"
+                          "dip-controller.lan/metallb/controller:v0.10.2"
                       ],
                       "size_bytes": 40055095
                   },
@@ -837,7 +837,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                   {
                       "names": [
                           "dip-controller.lan/metallb/speaker@sha256:db0ebd9b3ef47881ed50d9bc036b65306f4ddbe8f0cf781b89b96cd881ce79b3",
-                          "dip-controller.lan/metallb/speaker:v0.9.3"
+                          "dip-controller.lan/metallb/speaker:v0.10.2"
                       ],
                       "size_bytes": 44539176
                   },
@@ -19767,7 +19767,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                           "--port=7472",
                           "--config=config"
                       ],
-                      "image": "metallb/controller:v0.9.3",
+                      "image": "metallb/controller:v0.10.2",
                       "image_pull_policy": "Always",
                       "name": "controller",
                       "ports": [
@@ -19873,7 +19873,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://6441af1214929e283fcc53fe53ea492529ed197ccc45cc44b01c823d3b3027ac",
-                      "image": "dip-controller.lan/metallb/controller:v0.9.3",
+                      "image": "dip-controller.lan/metallb/controller:v0.10.2",
                       "image_id": "dip-controller.lan/metallb/controller@sha256:c8b0da00dd83db99bf00fb7088c33e7aaf52fa679f962610f1fe5ed173f66b77",
                       "last_state": {},
                       "name": "controller",
@@ -19999,7 +19999,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               }
                           }
                       ],
-                      "image": "metallb/speaker:v0.9.3",
+                      "image": "metallb/speaker:v0.10.2",
                       "image_pull_policy": "Always",
                       "name": "speaker",
                       "ports": [
@@ -20136,7 +20136,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://a587f52a7145b781430a962910a18b3198c805e048225649b79355f8ec6992c6",
-                      "image": "dip-controller.lan/metallb/speaker:v0.9.3",
+                      "image": "dip-controller.lan/metallb/speaker:v0.10.2",
                       "image_id": "dip-controller.lan/metallb/speaker@sha256:db0ebd9b3ef47881ed50d9bc036b65306f4ddbe8f0cf781b89b96cd881ce79b3",
                       "last_state": {},
                       "name": "speaker",
@@ -20262,7 +20262,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               }
                           }
                       ],
-                      "image": "metallb/speaker:v0.9.3",
+                      "image": "metallb/speaker:v0.10.2",
                       "image_pull_policy": "Always",
                       "name": "speaker",
                       "ports": [
@@ -20399,7 +20399,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://39569235ab579d58d74cdc71af1289b306de75e2e33c3993390be883f2d04697",
-                      "image": "dip-controller.lan/metallb/speaker:v0.9.3",
+                      "image": "dip-controller.lan/metallb/speaker:v0.10.2",
                       "image_id": "dip-controller.lan/metallb/speaker@sha256:db0ebd9b3ef47881ed50d9bc036b65306f4ddbe8f0cf781b89b96cd881ce79b3",
                       "last_state": {},
                       "name": "speaker",
@@ -20525,7 +20525,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               }
                           }
                       ],
-                      "image": "metallb/speaker:v0.9.3",
+                      "image": "metallb/speaker:v0.10.2",
                       "image_pull_policy": "Always",
                       "name": "speaker",
                       "ports": [
@@ -20662,7 +20662,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://7274fb385c89136557fb3e83515ad02976c4b32feb666def0b59acfb46b32434",
-                      "image": "dip-controller.lan/metallb/speaker:v0.9.3",
+                      "image": "dip-controller.lan/metallb/speaker:v0.10.2",
                       "image_id": "dip-controller.lan/metallb/speaker@sha256:db0ebd9b3ef47881ed50d9bc036b65306f4ddbe8f0cf781b89b96cd881ce79b3",
                       "last_state": {},
                       "name": "speaker",
@@ -20788,7 +20788,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
                               }
                           }
                       ],
-                      "image": "metallb/speaker:v0.9.3",
+                      "image": "metallb/speaker:v0.10.2",
                       "image_pull_policy": "Always",
                       "name": "speaker",
                       "ports": [
@@ -20925,7 +20925,7 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
               "container_statuses": [
                   {
                       "container_id": "cri-o://44fb1b67685a24c2b5731969ff4850d48cdf6ca0b34c67502c31da8ba8ef385c",
-                      "image": "dip-controller.lan/metallb/speaker:v0.9.3",
+                      "image": "dip-controller.lan/metallb/speaker:v0.10.2",
                       "image_id": "dip-controller.lan/metallb/speaker@sha256:db0ebd9b3ef47881ed50d9bc036b65306f4ddbe8f0cf781b89b96cd881ce79b3",
                       "last_state": {},
                       "name": "speaker",

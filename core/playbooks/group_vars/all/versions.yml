@@ -13,7 +13,7 @@ k8s_pause_version: "3.4.1"
 k8s_resizer_version: "1.8.4"  # up to 1.8.11 works
 k8s_version: "1.21.1"
 kube_state_version: "v1.9.7"
-metallb_version: "v0.9.3"
+metallb_version: "v0.10.2"
 arkime_version: "2.7.1"
 suricata_version: "6.0.0"
 helm_version: "v3.6.0"
