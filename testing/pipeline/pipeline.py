@@ -6,6 +6,7 @@ from argparse import ArgumentParser, Namespace
 from jobs.ctrl_setup import ControllerSetupJob, checkout_latest_code
 from jobs.drive_creation import DriveCreationJob, DriveHashCreationJob
 from jobs.catalog import CatalogJob
+from jobs.internal_vdd import InternalVDDJob
 from jobs.kit import KitSettingsJob
 from jobs.oscap import OSCAPScanJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
@@ -14,9 +15,9 @@ from jobs.export import (ConfluenceExport, ControllerExport, GIPServiceExport,
 from jobs.gip_creation import GipCreationJob
 from jobs.minio import StandAloneMinIO
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
-from jobs.stig import StigJob
 from jobs.robot import RobotJob
 from models.ctrl_setup import ControllerSetupSettings
+from models.internal_vdd import InternalVDDSettings
 from models.kit import KitSettingsV2
 from models.catalog import CatalogSettings
 from models.common import NodeSettings, VCenterSettings, RepoSettings
@@ -27,7 +28,6 @@ from models.drive_creation import DriveCreationSettings, DriveCreationHashSettin
 from models.constants import SubCmd
 from models.gip_settings import GIPServiceSettings
 from models.rhel_repo_vm import RHELRepoSettings
-from models.stig import STIGSettings
 from models.robot import RobotSettings
 from util.yaml_util import YamlManager
 from util.ansible_util import delete_vms
@@ -156,16 +156,16 @@ class Runner:
         RobotSettings.add_args(robot_test_parser)
         robot_test_parser.set_defaults(which=SubCmd.run_robot)
 
-        # STIGS BEING APPLIED
-        stig_ctrl_parser = subparsers.add_parser(
-            SubCmd.run_stigs, help="This command is used to apply STIGs to the nodes for a given system.")
-        STIGSettings.add_args(stig_ctrl_parser)
-        stig_ctrl_parser.set_defaults(which=SubCmd.run_stigs)
-
         latest_code_parser = subparsers.add_parser(
             SubCmd.checkout_latest_code, help="Pulls the latest git commit of your branch.")
         RepoSettings.add_args(latest_code_parser)
         latest_code_parser.set_defaults(which=SubCmd.checkout_latest_code)
+
+        # Internal VDD Parser
+        internal_vdd_parser = subparsers.add_parser(
+            SubCmd.pull_internal_vdd, help="Pulls the target releases internal vdd")
+        InternalVDDSettings.add_args(internal_vdd_parser)
+        internal_vdd_parser.set_defaults(which=SubCmd.pull_internal_vdd)
 
         args = parser.parse_args()
 
@@ -267,17 +267,21 @@ class Runner:
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
                 job = OSCAPScanJob(ctrl_settings, kit_settings)
                 job.run_scan()
-            # elif args.which == SubCmd.run_stigs:
-            #     stig_settings = STIGSettings()
-            #     stig_settings.from_namespace(args)
-            #     executor = StigJob(stig_settings)
-            #     executor.run_stig()
-            #     stig_settings.take_snapshot_for_certain_systems()
+
+            # INTERNAL VDD SETTINGS
+            elif args.which == SubCmd.pull_internal_vdd:
+                internal_vdd_settings = InternalVDDSettings()
+                internal_vdd_settings.from_namespace(args)
+                job = InternalVDDJob(internal_vdd_settings)
+                job.pull_internal_vdd()
+
+            # ROBOT SETTINGS
             elif args.which == SubCmd.run_robot:
                 robot_settings = RobotSettings()
                 robot_settings.from_namespace(args)
-                executor = RobotJob(robot_settings)
-                executor.run_robot()
+                job = RobotJob(robot_settings)
+                job.run_robot()
+
             elif args.which == SubCmd.run_unit_tests:
                 pass
                 # TODO

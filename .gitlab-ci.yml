@@ -196,6 +196,7 @@ variables:
 stages:
   - test-compile
   - code-analysis
+  - pull-internal-vdd
   - publish-to-confluence
   - clean-staging-env
   - build
@@ -207,7 +208,6 @@ stages:
   - deploy-kit
   - node-setup
   - configure:minio
-  - stig-kit
   - security_scans
   - catalog
   - robot-test

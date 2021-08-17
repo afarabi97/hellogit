@@ -10,6 +10,7 @@ class SubCmd:
     setup_control_plane = 'setup-control-plane'
     add_node = 'add-node'
     deploy_kit = 'deploy-kit'
+    pull_internal_vdd = "pull-internal-vdd"
 
     run_catalog = 'run-catalog'
     run_bp = 'run-bp'
@@ -80,14 +81,3 @@ class StigSubCmd:
     GIPSVC = 'SERVICES'
     # Ran when system_name is REPO but we want
     RHEL_REPO_SERVER = 'SERVER'
-
-class RobotSubCmd:
-    tfplenum_robot_container = '--tfplenum-robot-container'
-    jira_username = '--tfplenum-robot-container'
-    jira_password = '--jira-password'
-    jira_report = '--jira-report'
-    jira_project_version = '--jira-project-version'
-    jira_project_key = '--jira-project-key'
-    robot_browser = '--robot-browser'
-    robot_category = '--robot-category'
-    robot_variables = '--robot-variables'

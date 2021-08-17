@@ -77,3 +77,7 @@ mip_settings.yml
 hwcontrollersetupsettings.yml
 web/frontend/yarn.lock
 .tool-versions
+umls/
+*-internal_vdd.csv
+tests/
+.pyreverserc

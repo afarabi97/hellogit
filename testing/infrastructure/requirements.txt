@@ -41,7 +41,9 @@ lxml==4.2.4
 MarkupSafe==1.0
 netifaces==0.10.4
 oauthlib==2.1.0
+numpy==1.19.5
 PAM==0.4.2
+pandas==1.1.5
 paramiko==2.4.1
 pyasn1==0.4.4
 pyasn1-modules==0.2.1
@@ -58,6 +60,7 @@ python-apt==1.6.5+ubuntu0.5
 python-dateutil==2.7.5
 python-debian==0.1.32
 pyvmomi==6.7.0.2018.9
+pytz==2021.1
 pyxdg==0.25
 PyYAML==3.12
 randmac==0.1

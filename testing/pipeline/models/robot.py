@@ -37,18 +37,18 @@ class RobotSettings(Model):
 
         Args:
             parser (ArgumentParser): [description]
-                RobotSubCmdself.tfplenum_robot_container       --tfplenum-robot-container
-                RobotSubCmdself.jira_username                  --jira-username
-                RobotSubCmdself.jira_password                  --jira-password
-                RobotSubCmdself.jira_report                    --jira-report
-                RobotSubCmdself.jira_project_version           --jira-project-version
-                RobotSubCmdself.jira_project_key               --jira-project-key
-                RobotSubCmdself.robot_browser                  --robot-browser
-                RobotSubCmdself.robot_category                 --robot-category
-                RobotSubCmdself.robot_variables                --robot-variables
-                RobotSubCmdself.domain                         --domain
-                RobotSubCmdself.kit_version                    --kit-version
-                RobotSubCmdself.pipeline                       --pipeline
+                tfplenum_robot_container       --tfplenum-robot-container
+                jira_username                  --jira-username
+                jira_password                  --jira-password
+                jira_report                    --jira-report
+                jira_project_version           --jira-project-version
+                jira_project_key               --jira-project-key
+                robot_browser                  --robot-browser
+                robot_category                 --robot-category
+                robot_variables                --robot-variables
+                domain                         --domain
+                kit_version                    --kit-version
+                pipeline                       --pipeline
         """
         # VARIABLES THAT CAN ONLY BE PASSED THROUGH GITLAB
         parser.add_argument('--tfplenum-robot-container', dest='tfplenum_robot_container', help='The docker image to pass in')
