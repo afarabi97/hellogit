@@ -29,7 +29,7 @@ elastic_operator: 1.6.0
 redmine_version: "4.2.1"
 nifi_version: 1.12.1
 mariadb_version: 10.6.3
-mattermost_version: 5.36.1
+mattermost_version: 5.38.0
 wikijs_version: 2.5.201
 misp_version: 2.4.148
 misp_modules_version: 2.4.148

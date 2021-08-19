@@ -1,5 +1,5 @@
 # Default values for mattermost
-mattermostImage: mattermost/mattermost-enterprise-edition:5.36.1
+mattermostImage: mattermost/mattermost-enterprise-edition:5.38.0
 python_image: tfplenum/python:3.9.0
 busyboxImage: busybox:1.33.1
 domain: lan

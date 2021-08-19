@@ -19,7 +19,7 @@ data:
     /mattermost/bin/mattermost config set ServiceSettings.SiteURL "https://mattermost.{{ .Values.domain }}"
     echo "Configuring Gitlab Settings"
     /mattermost/bin/mattermost config set GitLabSettings.Enable true
-    /mattermost/bin/mattermost config set GitLabSettings.Secret "'${OPEN_ID_SECRET}'"
+    /mattermost/bin/mattermost config set GitLabSettings.Secret "${OPEN_ID_SECRET}"
     /mattermost/bin/mattermost config set GitLabSettings.Id mattermost
     /mattermost/bin/mattermost config set GitLabSettings.Scope ""
     /mattermost/bin/mattermost config set GitLabSettings.AuthEndpoint "{{ .Values.auth_base }}/protocol/openid-connect/auth"
