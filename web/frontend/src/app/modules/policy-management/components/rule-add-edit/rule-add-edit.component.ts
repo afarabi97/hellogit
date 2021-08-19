@@ -1,9 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import * as FileSaver from 'file-saver';
+import { Subject } from 'rxjs';
 
 import { ErrorMessageClass, ObjectUtilitiesClass, RuleClass, RuleSetClass, SuccessMessageClass } from '../../../../classes';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
@@ -13,9 +14,7 @@ import {
   DIALOG_WIDTH_50PERCENT,
   MAT_SNACKBAR_CONFIGURATION_60000_DUR
 } from '../../../../constants/cvah.constants';
-import {
-  get_form_control_value_from_form_group
-} from '../../../../functions/cvah.functions';
+import { get_form_control_value_from_form_group } from '../../../../functions/cvah.functions';
 import {
   BackingObjectInterface,
   ConfirmDialogMatDialogDataInterface,
@@ -31,106 +30,79 @@ import { ModalDialogMatComponent } from '../../../../modal-dialog-mat/modal-dial
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { PcapService } from '../../../../services/pcap.service';
 import { RulesService } from '../../../../services/rules.service';
+import { EDIT } from '../../constants/policy-management.constant';
+import { DialogDataInterface } from '../../interfaces';
 
 /**
  * Component used for creating and editing a rule
  *
  * @export
- * @class PolicyManagementDialogComponent
+ * @class RuleAddEditComponent
  * @implements {OnInit}
  */
 @UntilDestroy({ checkProperties: true })
 @Component({
-  selector: 'cvah-policy-management-dialog',
-  templateUrl: 'policy-management-dialog.component.html',
+  selector: 'cvah-rule-add-edit',
+  templateUrl: 'rule-add-edit.component.html',
   styleUrls: [
-    'policy-management-dialog.component.scss'
+    'rule-add-edit.component.scss'
   ]
 })
-export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
-  @ViewChild('editorCard') private editor_card_: ElementRef;
-  @ViewChild('outerCard') private outer_card_: ElementRef;
+export class RuleAddEditComponent implements OnInit {
+  // Used for passing readonly value to text editor
+  readonly show_options: boolean = true;
+  readonly is_read_only: boolean = false;
+  readonly use_language: string = 'txt';
+  // Used for passing the rule text to the text editor
+  text: string;
+  // Used for triggering return text from text editor
+  get_return_text$: Subject<void> = new Subject<void>();
   // Used for passing rule form group to html
   rule_form_group: FormGroup;
   // Used for passing list of pcaps to html
   pcaps: Object[];
   // Used for retaining user selected pcap
   selected_pcap: string;
-  numbers: number[];
-  // Used for saving the state of user adding a rule
-  private user_adding_: boolean;
 
   /**
-   * Creates an instance of PolicyManagementDialogComponent.
+   * Creates an instance of RuleAddEditComponent.
    *
+   * @param {MatDialogRef<RuleAddEditComponent>} mat_dialog_ref_
    * @param {FormBuilder} form_builder_
    * @param {MatDialog} mat_dialog_
    * @param {MatSnackBarService} mat_snackbar_service_
    * @param {PcapService} pcap_service_
    * @param {RulesService} rules_service_
-   * @memberof PolicyManagementDialogComponent
+   * @param {DialogDataInterface} dialog_data
+   * @memberof RuleAddEditComponent
    */
-  constructor(private form_builder_: FormBuilder,
+  constructor(private mat_dialog_ref_: MatDialogRef<RuleAddEditComponent>,
+              private form_builder_: FormBuilder,
               private mat_dialog_: MatDialog,
               private mat_snackbar_service_: MatSnackBarService,
               private pcap_service_: PcapService,
-              private rules_service_: RulesService) {
+              private rules_service_: RulesService,
+              @Inject(MAT_DIALOG_DATA) public dialog_data: DialogDataInterface) {
+    this.text = '';
     this.selected_pcap = '';
-    this.numbers = new Array(1000).fill(true);
-    this.user_adding_ = false;
-  }
-
-  /**
-   * Triggers when the browser window resizes.
-   *
-   * @param {*} event
-   * @memberof PolicyManagementDialogComponent
-   */
-  /* istanbul ignore next */
-  @HostListener('window:resize', ['$event'])
-  on_resize(event: any): void {
-    this.resize_editor_(this.outer_card_);
   }
 
   /**
    * Used for making subscription calls for initializing the component
    *
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   ngOnInit(): void {
+    this.set_text_(undefined);
     this.get_is_user_adding_();
     this.api_get_pcaps_();
-  }
-
-  ngAfterViewInit(): void {
-    this.resize_editor_(this.outer_card_);
-  }
-
-  /**
-   * Triggers a KeyboardEvent when focused on the textarea from the #editorCard View.
-   * If the pressed key is a 'Tab', it inserts the tab character at the current cursor position.
-   * It does nothing if it is any other key.
-   *
-   * This was added to properly format Zeek Intel Files (*.dat)
-   *
-   * @param {KeyboardEvent} keyboard_event
-   * @memberof PolicyManagementDialog
-   */
-  // TODO - Remove when editor replaced
-  /* istanbul ignore next */
-  handle_tab(keyboard_event: KeyboardEvent): void {
-    /* istanbul ignore else */
-    if ((keyboard_event.code || keyboard_event.key) === 'Tab') {
-      keyboard_event.preventDefault();
-      document.execCommand('insertHTML', false, '&#009');
-    }
   }
 
   /**
    * Used for checking if rule is enabled
    *
    * @returns {boolean}
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   is_rule_enabled(): boolean {
     return get_form_control_value_from_form_group<boolean>(this.rule_form_group, 'isEnabled');
@@ -139,7 +111,7 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
   /**
    * Used for saving rule
    *
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   save(): void {
     const bypass_validation: DialogFormControlConfigClass = new DialogFormControlConfigClass();
@@ -170,15 +142,27 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
           /* istanbul ignore else */
           if (ObjectUtilitiesClass.notUndefNull(response) && response.valid) {
             this.rule_form_group.get('byPassValidation').setValue(response.value['byPassValidation']);
-            this.close_and_save_();
+            this.get_return_text_();
           }
         });
   }
 
   /**
+   * Used for passing text passed form child component text editor
+   * to update and save rule
+   *
+   * @param {string} text
+   * @memberof RuleAddEditComponent
+   */
+  editor_text_save(text: string): void {
+    this.set_rule_data_(text);
+    this.close_and_save_();
+  }
+
+  /**
    * Used for for closing rule editor
    *
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   close(): void {
     const mat_dialog_data: ConfirmDialogMatDialogDataInterface = {
@@ -205,24 +189,50 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Used for setting the rule form control text value
+   *
+   * @param {string} text
+   * @memberof RuleAddEditComponent
+   */
+  update_form_control_rule_text(text: string): void {
+    this.set_rule_data_(text);
+  }
+
+  /**
+   * Used for checking is a pcap has been selected for test
+   *
+   * @returns {boolean}
+   * @memberof RuleAddEditComponent
+   */
+  is_pcap_selected(): boolean {
+    return (ObjectUtilitiesClass.notUndefNull(this.selected_pcap)) &&
+           (this.selected_pcap !== '');
+  }
+
+  /**
    * Used for testing a rule
    *
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   test_rule(): void {
-    const edit_rule_set: RuleSetClass = this.rules_service_.get_edit_rule_set();
-    const payload: RulePCAPTestInterface = {
-      pcap_name: this.selected_pcap,
-      rule_content: this.rule_form_group.value['rule'],
-      ruleType: edit_rule_set.appType
-    };
-    this.api_test_rule_against_pcap_(payload);
+    if (ObjectUtilitiesClass.notUndefNull(this.dialog_data.rule_set)) {
+      const edit_rule_set: RuleSetClass = [this.dialog_data.rule_set].map((rs: RuleSetClass) => rs)[0];
+      const payload: RulePCAPTestInterface = {
+        pcap_name: this.selected_pcap,
+        rule_content: this.rule_form_group.value['rule'],
+        ruleType: edit_rule_set.appType
+      };
+      this.api_test_rule_against_pcap_(payload);
+    } else {
+      const message: string = 'rule set not passed to dialog window';
+      this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+    }
   }
 
   /**
    * Used for validating a rule
    *
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   validate(): void {
     const rule: RuleInterface = this.get_rule_data_();
@@ -230,20 +240,33 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Used for resizing the editor on browser resize
+   * Used for triggering text editor to send current text
    *
    * @private
-   * @param {ElementRef} element
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
-  // TODO - Remove when editor replaced
-  /* istanbul ignore next */
-  private resize_editor_(element: ElementRef): void {
-    /* istanbul ignore else */
-    if (element) {
-      const height: string = window.innerHeight > 400 ? `${window.innerHeight - 250}px` : '100px';
-      element.nativeElement.style.maxHeight = height;
-      element.nativeElement.style.height = height;
+  private get_return_text_(): void {
+    this.get_return_text$.next();
+  }
+
+  /**
+   * Used for setting the text editor text start value
+   *
+   * @private
+   * @param {string} rule_content
+   * @memberof RuleAddEditComponent
+   */
+  private set_text_(rule_content: string): void {
+    if (ObjectUtilitiesClass.notUndefNull(this.dialog_data.action)) {
+      if (this.dialog_data.action === EDIT) {
+        this.text = rule_content;
+      } else {
+        this.text = '';
+      }
+    } else {
+      this.close_editor_();
+      const message: string = 'rule action not passed to rule dialog window';
+      this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
     }
   }
 
@@ -252,14 +275,14 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
    *
    * @private
    * @param {RuleInterface} rule
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   private initialize_form_(rule: RuleInterface): void {
     const rule_form_group: FormGroup = this.form_builder_.group({
-      ruleName: new FormControl(rule ? rule.ruleName : '', Validators.compose([Validators.required])),
-      rule: new FormControl(rule ? rule.rule : '', Validators.compose([Validators.required])),
-      isEnabled: new FormControl(rule ? rule.isEnabled: true),
-      _id: new FormControl(rule ? rule._id : ''),
+      ruleName: new FormControl(ObjectUtilitiesClass.notUndefNull(rule) ? rule.ruleName : '', Validators.compose([Validators.required])),
+      rule: new FormControl(ObjectUtilitiesClass.notUndefNull(rule) ? rule.rule : '', Validators.compose([Validators.required])),
+      isEnabled: new FormControl(ObjectUtilitiesClass.notUndefNull(rule) ? rule.isEnabled: true),
+      _id: new FormControl(ObjectUtilitiesClass.notUndefNull(rule) ? rule._id : ''),
       byPassValidation: new FormControl(false),
       rule_set_id: new FormControl()
     });
@@ -277,7 +300,7 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
    *
    * @private
    * @param {FormGroup} rule_form_group
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   private set_rule_form_group_(rule_form_group: FormGroup): void {
     this.rule_form_group = rule_form_group;
@@ -287,14 +310,20 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
    * Used for deciding to update rule or create rule when closing and saving
    *
    * @private
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   private close_and_save_(): void {
-    const rule: RuleInterface = this.get_rule_data_();
-    if (!this.user_adding_) {
-      this.api_update_rule_(rule);
+    if (ObjectUtilitiesClass.notUndefNull(this.dialog_data.action)) {
+      const rule: RuleInterface = this.get_rule_data_();
+      if (this.dialog_data.action === EDIT) {
+        this.api_update_rule_(rule);
+      } else {
+        this.api_create_rule_(rule);
+      }
     } else {
-      this.api_create_rule_(rule);
+      this.close_editor_();
+      const message: string = 'rule action not passed to dialog window';
+      this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
     }
   }
 
@@ -303,56 +332,91 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
    *
    * @private
    * @returns {RuleInterface}
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   private get_rule_data_(): RuleInterface {
-    const edit_rule_set: RuleSetClass = this.rules_service_.get_edit_rule_set();
-    const rule: RuleInterface = this.rule_form_group.value as RuleInterface;
-    rule.rule_set_id = edit_rule_set._id;
+    if (ObjectUtilitiesClass.notUndefNull(this.dialog_data.rule_set)) {
+      const edit_rule_set: RuleSetClass = [this.dialog_data.rule_set].map((rs: RuleSetClass) => rs)[0];
+      const rule: RuleInterface = this.rule_form_group.value as RuleInterface;
+      rule.rule_set_id = edit_rule_set._id;
 
-    return rule;
+      return rule;
+    } else {
+      this.close_editor_();
+      const message: string = 'rule set not passed to dialog window';
+      this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+    }
+  }
+
+  /**
+   * Used for setting rule text value from text editor
+   *
+   * @private
+   * @param {string} text
+   * @memberof RuleAddEditComponent
+   */
+  private set_rule_data_(text: string): void {
+    this.rule_form_group.controls['rule'].setValue(text);
   }
 
   /**
    * Used for closing component
    *
    * @private
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   private close_editor_(): void {
-    this.rules_service_.set_is_user_editing(false);
+    this.mat_dialog_ref_.close();
+  }
+
+  /**
+   * Used for passing a rule back to parent component
+   * on save close text editor
+   *
+   * @private
+   * @param {RuleClass} rule
+   * @memberof RuleAddEditComponent
+   */
+  private save_close_editor_(rule: RuleClass): void {
+    this.mat_dialog_ref_.close(rule);
   }
 
   /**
    * Used for making call to get is user adding
    *
    * @private
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   private get_is_user_adding_(): void {
-    this.rules_service_.get_is_user_adding()
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        (response: boolean) => {
-          this.user_adding_ = response;
-          if (!response) {
-            const edit_rule: RuleClass = this.rules_service_.get_edit_rule();
-            this.initialize_form_(edit_rule as RuleInterface);
-          } else {
-            if (ObjectUtilitiesClass.notUndefNull(this.rule_form_group)) {
-              this.initialize_form_(this.rule_form_group.value as RuleInterface);
-            } else {
-              this.initialize_form_(null);
-            }
-          }
-        });
+    if (ObjectUtilitiesClass.notUndefNull(this.dialog_data.action)) {
+      if (this.dialog_data.action === EDIT) {
+        if (ObjectUtilitiesClass.notUndefNull(this.dialog_data.rule)) {
+          const edit_rule: RuleClass = [this.dialog_data.rule].map((r: RuleClass) => r)[0];
+          this.initialize_form_(edit_rule as RuleInterface);
+        } else {
+          this.close_editor_();
+          const message: string = 'rule not passed to dialog window';
+          this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        }
+      } else {
+        if (ObjectUtilitiesClass.notUndefNull(this.rule_form_group)) {
+          this.initialize_form_(this.rule_form_group.value as RuleInterface);
+        } else {
+          this.initialize_form_(null);
+        }
+      }
+    } else {
+      this.close_editor_();
+      const message: string = 'rule not passed to dialog window';
+      this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+    }
   }
 
   /**
    * Used for making api rest call to get pcaps
    *
    * @private
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   private api_get_pcaps_(): void {
     this.pcap_service_.get_pcaps()
@@ -370,7 +434,7 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
    *
    * @private
    * @param {RuleInterface} rule
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   private api_get_rule_content_(rule: RuleInterface): void {
     this.rules_service_.get_rule_content(rule._id)
@@ -378,14 +442,8 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
       .subscribe(
         (response: RuleClass) => {
           if (response instanceof RuleClass) {
-            let len = response.rule.split('\n').length;
-            /* istanbul ignore else */
-            if (len < 1000) {
-              len = 1000;
-            }
-            this.numbers = new Array(len).fill(true);
-            this.editor_card_.nativeElement.style.height = `${21 * len}px`;
             this.rule_form_group.get('rule').setValue(response.rule);
+            this.set_text_(response.rule);
           } else {
             const message: string = 'to get rule content';
             this.mat_snackbar_service_.generate_return_fail_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
@@ -406,7 +464,7 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
    *
    * @private
    * @param {RuleInterface} rule
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   private api_update_rule_(rule: RuleInterface): void {
     this.rules_service_.update_rule(rule)
@@ -416,7 +474,7 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
           if (response instanceof RuleClass) {
             const message: string = `updated rule ${response.ruleName}`;
             this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-            this.close_editor_();
+            this.save_close_editor_(response);
           } else {
             const message: string = 'to update rule';
             this.mat_snackbar_service_.generate_return_fail_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
@@ -437,7 +495,7 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
    *
    * @private
    * @param {RuleInterface} rule
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   private api_create_rule_(rule: RuleInterface): void {
     this.rules_service_.create_rule(rule)
@@ -447,7 +505,7 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
           if (response instanceof RuleClass) {
             const message: string = `created rule ${response.ruleName}`;
             this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-            this.close_editor_();
+            this.save_close_editor_(response);
           } else {
             const message: string = 'to create rule';
             this.mat_snackbar_service_.generate_return_fail_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
@@ -468,7 +526,7 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
    *
    * @private
    * @param {RulePCAPTestInterface} payload
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   private api_test_rule_against_pcap_(payload: RulePCAPTestInterface): void {
     this.rules_service_.test_rule_against_pcap(payload)
@@ -518,7 +576,7 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
    *
    * @private
    * @param {RuleInterface} rule
-   * @memberof PolicyManagementDialogComponent
+   * @memberof RuleAddEditComponent
    */
   private api_validate_rule_(rule: RuleInterface): void {
     this.rules_service_.validate_rule(rule)

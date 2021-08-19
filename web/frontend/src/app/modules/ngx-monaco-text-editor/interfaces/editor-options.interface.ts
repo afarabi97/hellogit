@@ -17,4 +17,6 @@ export interface EditorOptionsInterface {
   scrollBeyondLastLine: boolean;
   automaticLayout: boolean;
   links: boolean;
+  trimAutoWhitespace: boolean;
+  insertSpaces: boolean;
 }

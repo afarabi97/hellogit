@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
@@ -29,15 +29,7 @@ const entityConfig: EntityConfig = { entityPart: '', type: 'RulesService' };
 @Injectable({
   providedIn: 'root'
 })
-export class RulesService extends ApiService<any> implements RulesServiceInterface, OnDestroy {
-  // Used for storing rule needed for edit
-  private edit_rule_: RuleClass;
-  // Used for storing rule set needed fro edit
-  private edit_rule_set_: RuleSetClass;
-  // Used for passing boolean subject when adding
-  private is_user_adding$_: Subject<boolean> = new BehaviorSubject<boolean>(false);
-  // Used for passing boolean subject when editing
-  private is_user_editing$_: Subject<boolean> = new BehaviorSubject<boolean>(false);
+export class RulesService extends ApiService<any> implements RulesServiceInterface {
 
   /**
    * Creates an instance of RulesService.
@@ -46,96 +38,6 @@ export class RulesService extends ApiService<any> implements RulesServiceInterfa
    */
   constructor() {
     super(entityConfig);
-  }
-
-  /**
-   * Used for completing subjects
-   *
-   * @memberof RulesService
-   */
-  ngOnDestroy(): void {
-    this.is_user_adding$_.complete();
-    this.is_user_editing$_.complete();
-  }
-
-  /**
-   * Used to get edit rule
-   *
-   * @returns {RuleClass}
-   * @memberof RulesService
-   */
-  get_edit_rule(): RuleClass {
-    return this.edit_rule_;
-  }
-
-  /**
-   * Used to set edit rule
-   *
-   * @param {RuleClass} value
-   * @memberof RulesService
-   */
-  set_edit_rule(value: RuleClass): void {
-    this.edit_rule_ = value;
-  }
-
-  /**
-   * Used to get edit rule set
-   *
-   * @returns {RuleSetClass}
-   * @memberof RulesService
-   */
-  get_edit_rule_set(): RuleSetClass {
-    return this.edit_rule_set_;
-  }
-
-  /**
-   * Used to set edit rule set
-   *
-   * @param {RuleSetClass} value
-   * @memberof RulesService
-   */
-  set_edit_rule_set(value: RuleSetClass): void {
-    this.edit_rule_set_ = value;
-  }
-
-  /**
-   * Used to get observable user adding
-   *
-   * @returns {Observable<boolean>}
-   * @memberof RulesService
-   */
-  get_is_user_adding(): Observable<boolean> {
-    return this.is_user_adding$_.asObservable();
-  }
-
-  /**
-   * Used to set subject user adding
-   *
-   * @param {boolean} value
-   * @memberof RulesService
-   */
-  set_is_user_adding(value: boolean): void {
-    this.is_user_adding$_.next(value);
-  }
-
-  /**
-   * Used to get observable user editing
-   *
-   * @returns {Observable<boolean>}
-   * @memberof RulesService
-   */
-  get_is_user_editing(): Observable<boolean> {
-    return this.is_user_editing$_.asObservable();
-  }
-
-  /**
-   * Used to set subject user editing
-   *
-   * @param {boolean} value
-   * @memberof RulesService
-   */
-  set_is_user_editing(value: boolean): void {
-    this.is_user_editing$_.next(value);
   }
 
   /**

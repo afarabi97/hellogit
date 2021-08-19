@@ -1,0 +1,54 @@
+<h1 mat-dialog-title>{{ title }}</h1>
+<div mat-dialog-content [formGroup]="rule_set_form_group" fxLayout="column" fxLayoutAlign="start stretch" style="overflow: unset;">
+
+  <!-- Ruleset Name -->
+  <mat-form-field id="rule-set-add-edit-div-mat-form-field-ruleset-name">
+    <input matInput id="rule-set-add-edit-div-mat-form-field-ruleset-name-input"
+           placeholder="RuleSet Name" type="text" spellcheck="false" formControlName="name" required>
+  </mat-form-field>
+
+  <!-- Classification -->
+  <mat-form-field id="rule-set-add-edit-div-mat-form-field-classification">
+    <mat-label>Classification</mat-label>
+    <mat-select id="rule-set-add-edit-div-mat-form-field-classification-mat-select" formControlName="clearance">
+      <mat-option *ngFor="let clearanceLevel of clearance_levels; let i = index;"
+                  id="{{ 'rule-set-add-edit-div-mat-form-field-classification-mat-select-mat-option-' + i }}"
+                  [value]="clearanceLevel.value">
+        {{ clearanceLevel.value }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <!-- Rule Type -->
+  <mat-form-field id="rule-set-add-edit-div-mat-form-field-rule-type">
+    <mat-label>Rule Type</mat-label>
+    <mat-select id="rule-set-add-edit-div-mat-form-field-rule-type-mat-select"
+                formControlName="appType" (selectionChange)="change_sensor_list($event)">
+      <mat-option *ngFor="let ruleType of rule_types; let i = index;"
+                  id="{{ 'rule-set-add-edit-div-mat-form-field-rule-type-mat-select-mat-option-' + i }}"
+                  [value]="ruleType.value">
+        {{ ruleType.value }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <!-- Sensors -->
+  <mat-form-field id="rule-set-add-edit-div-mat-form-field-sensors">
+    <mat-label>Sensors</mat-label>
+    <mat-select id="rule-set-add-edit-div-mat-form-field-sensors-mat-select" formControlName="sensors" multiple>
+      <mat-option *ngFor="let sensor of sensor_list_selection; let i = index;"
+                  id="{{ 'rule-set-add-edit-div-mat-form-field-sensors-mat-select-mat-option-' + i }}"
+                  [value]="sensor">
+        {{ sensor }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-checkbox id="rule-set-add-edit-div-mat-checkbox-is-enabled"
+                [checked]="is_rule_set_enabled()" formControlName="isEnabled">Is Enabled?</mat-checkbox>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button cdkFocusInitial id="rule-set-add-edit-div-button-submit"
+          [disabled]="rule_set_form_group.invalid" color="primary" [mat-dialog-close]="dialog_data" (click)="submit()">Submit</button>
+  <button mat-raised-button id="rule-set-add-edit-div-button-cancel"
+          color="warn" (click)="cancel()">Cancel</button>
+</div>

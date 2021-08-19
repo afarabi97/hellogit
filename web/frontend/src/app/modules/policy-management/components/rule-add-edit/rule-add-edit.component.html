@@ -1,0 +1,48 @@
+<div mat-dialog-content [formGroup]="rule_form_group">
+  <div class="mat-form-field-wrapper">
+    <!-- Rule Name -->
+    <mat-form-field id="rule-add-edit-div-mat-card-mat-card-content-mat-form-field-rule-name">
+      <input matInput id="rule-add-edit-div-mat-card-mat-card-content-mat-form-field-rule-name-input"
+             placeholder="Add rule name here." type="text" spellcheck="false" formControlName="ruleName" required>
+    </mat-form-field>
+  </div>
+
+  <cvah-ngx-monaco-editor [show_options]="show_options" [is_read_only]="is_read_only" [text]="text"
+                          [use_language]="use_language" [return_editor_text$]="get_return_text$"
+                          (editor_text)="editor_text_save($event)" (keyup_text)="update_form_control_rule_text($event)">
+  </cvah-ngx-monaco-editor>
+  <div fxLayout="column" fxLayoutAlign="start" class="mat-form-field-wrapper">
+    <div fxFlex>
+      <!-- Is Enabled -->
+      <mat-checkbox id="rule-add-edit-div-mat-card-mat-card-content-div-div-mat-checkbox-rule-enable"
+                    [checked]="is_rule_enabled()" formControlName="isEnabled">Is Rule Enabled?</mat-checkbox>
+    </div>
+    <div fxFlex fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="16px">
+      <!-- PCAP Test -->
+      <mat-form-field fxFlex="58" id="rule-add-edit-div-mat-card-mat-card-content-div-div-mat-form-field-pcap-test">
+        <mat-label>PCAP to test against</mat-label>
+        <mat-select id="rule-add-edit-div-mat-card-mat-card-content-div-div-mat-form-field-pcap-test-mat-select" [(value)]="selected_pcap">
+          <mat-option *ngFor="let pcap of pcaps; let j = index;"
+                      id="{{ 'rule-add-edit-div-mat-card-mat-card-content-div-div-mat-form-field-pcap-test-mat-select-maty-option-' + j }}"
+                      [value]="pcap.name">
+            {{ pcap.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div fxFlex fxLayout="row" fxLayoutAlign="space-between center">
+        <button mat-raised-button id="rule-add-edit-div-mat-card-mat-card-footer-button-test-against-pcap"
+                matTooltip="Tests a rule against known PCAP" color="accent" class="btn-secondary" [disabled]="!rule_form_group.valid || !is_pcap_selected()"
+                (click)="test_rule()">Test against PCAP</button>
+        <button mat-raised-button id="rule-add-edit-div-mat-card-mat-card-footer-button-validate-syntax"
+                matTooltip="Validate syntax for form fields" color="accent" class="btn-secondary" [disabled]="!rule_form_group.valid"
+                (click)="validate()">Validate Syntax</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions class="editor-action-buttons">
+  <button mat-raised-button id="rule-add-edit-div-mat-card-mat-card-footer-button-save-and-close"
+          matTooltip="Save and close" color="primary" [disabled]="!rule_form_group.valid" (click)="save()">Save</button>
+  <button mat-raised-button id="rule-add-edit-div-mat-card-mat-card-footer-button-close-without-saving"
+          matTooltip="Close without saving" (click)="close()">Close</button>
+</div>

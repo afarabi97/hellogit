@@ -25,6 +25,7 @@ describe('NGXMonacoEditorComponent', () => {
   let spyNGOnInit: jasmine.Spy<any>;
   let spyNGOnChanges: jasmine.Spy<any>;
   let spyGetGetEditOptionClass: jasmine.Spy<any>;
+  let spyOnKeyup: jasmine.Spy<any>;
   let spySelectionChangeLanguage: jasmine.Spy<any>;
   let spySelectionChangeTheme: jasmine.Spy<any>;
   let spySelectionChangeWordWrap: jasmine.Spy<any>;
@@ -69,6 +70,7 @@ describe('NGXMonacoEditorComponent', () => {
     spyNGOnInit = spyOn(component, 'ngOnInit').and.callThrough();
     spyNGOnChanges = spyOn(component, 'ngOnChanges').and.callThrough();
     spyGetGetEditOptionClass = spyOn(component, 'get_edit_option_class').and.callThrough();
+    spyOnKeyup = spyOn(component, 'on_keyup').and.callThrough();
     spySelectionChangeLanguage = spyOn(component, 'selection_change_language').and.callThrough();
     spySelectionChangeTheme = spyOn(component, 'selection_change_theme').and.callThrough();
     spySelectionChangeWordWrap = spyOn(component, 'selection_change_word_wrap').and.callThrough();
@@ -94,6 +96,7 @@ describe('NGXMonacoEditorComponent', () => {
     spyNGOnInit.calls.reset();
     spyNGOnChanges.calls.reset();
     spyGetGetEditOptionClass.calls.reset();
+    spyOnKeyup.calls.reset();
     spySelectionChangeLanguage.calls.reset();
     spySelectionChangeTheme.calls.reset();
     spySelectionChangeWordWrap.calls.reset();
@@ -211,6 +214,16 @@ describe('NGXMonacoEditorComponent', () => {
         expect(return_value['option-button']).toBeTrue();
         expect(return_value['option-button-light']).toBeFalse();
         expect(return_value['option-button-dark']).toBeTrue();
+      });
+    });
+
+    describe('on_keyup()', () => {
+      it('should call on_keyup()', () => {
+        reset();
+
+        component.on_keyup();
+
+        expect(component.on_keyup).toHaveBeenCalled();
       });
     });
 

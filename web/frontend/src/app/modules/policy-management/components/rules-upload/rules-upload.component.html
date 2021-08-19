@@ -4,8 +4,8 @@
      style="overflow: unset;">
 
    <!-- Ruleset Name -->
-  <mat-form-field id="cvah-policy-management-upload-dialog-div-mat-form-field-ruleset-name">
-    <input matInput id="cvah-policy-management-upload-dialog-div-mat-form-field-ruleset-name-input"
+  <mat-form-field id="cvah-rules-upload-div-mat-form-field-ruleset-name">
+    <input matInput id="cvah-rules-upload-div-mat-form-field-ruleset-name-input"
            placeholder="Rule Set Name" type="text" formControlName="name" required>
   </mat-form-field>
 </div>
@@ -13,22 +13,22 @@
      style="overflow: unset;">
 
    <!-- File Name -->
-  <mat-form-field id="cvah-policy-management-upload-dialog-div-mat-form-field-file-name">
-    <input matInput id="cvah-policy-management-upload-dialog-div-mat-form-field-file-name-input"
+  <mat-form-field id="cvah-rules-upload-div-mat-form-field-file-name">
+    <input matInput id="cvah-rules-upload-div-mat-form-field-file-name-input"
            placeholder="{{ get_file_name_place_holder() }}" type="text" [formControl]="file_name_form_control">
   </mat-form-field>
 
-  <button mat-raised-button id="cvah-policy-management-upload-dialog-div-button-choose-rules-file"
+  <button mat-raised-button id="cvah-rules-upload-div-button-choose-rules-file"
           color="primary" style="float:right; margin-right: 10px;"
           (click)="fileInput.click()">Choose Rules File</button>
   <mat-hint>EX: .dat, .rules, .txt, .zip, .zeek</mat-hint>
-  <input hidden #fileInput id="cvah-policy-management-upload-dialog-div-input-hidden-type-file"
+  <input hidden #fileInput id="cvah-rules-upload-div-input-hidden-type-file"
          (change)="handle_file_input($event.target.files)" type="file" accept=".dat,.rules,.txt,.zeek,.zip">
 </div>
 <div mat-dialog-actions>
-  <button mat-raised-button id="cvah-policy-management-upload-dialog-div-button-upload"
+  <button mat-raised-button id="cvah-rules-upload-div-button-upload"
           color="primary" [mat-dialog-close]="dialog_data" [disabled]="!rules_file_to_upload"
           (click)="upload()" cdkFocusInitial>Upload</button>
-  <button mat-raised-button id="cvah-policy-management-upload-dialog-div-button-cancel"
+  <button mat-raised-button id="cvah-rules-upload-div-button-cancel"
           color="warn" (click)="cancel()">Cancel</button>
 </div>

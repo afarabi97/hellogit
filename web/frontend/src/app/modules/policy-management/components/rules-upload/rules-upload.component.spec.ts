@@ -6,8 +6,9 @@ import { of } from 'rxjs';
 import { MockRuleSetClass } from '../../../../../../static-data/class-objects-v3_6';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { InjectorModule } from '../../../utilily-modules/injector.module';
+import { DialogDataInterface } from '../../interfaces';
 import { PolicyManagementModule } from '../../policy-management.module';
-import { PolicyManagementUploadDialogComponent } from './policy-management-upload-dialog.component';
+import { RulesUploadComponent } from './rules-upload.component';
 
 interface MockFile {
   name: string;
@@ -51,9 +52,21 @@ class MatDialogMock {
   }
 }
 
-describe('PolicyManagementUploadDialogComponent', () => {
-  let component: PolicyManagementUploadDialogComponent;
-  let fixture: ComponentFixture<PolicyManagementUploadDialogComponent>;
+const MOCK_DIALOG_DATA_RULE_SET_DEFINED: DialogDataInterface = {
+  rule_set: MockRuleSetClass,
+  rule: undefined,
+  action: undefined
+};
+
+const MOCK_DIALOG_DATA_RULE_SET_UNDEFINED: DialogDataInterface = {
+  rule_set: undefined,
+  rule: undefined,
+  action: undefined
+};
+
+describe('RulesUploadComponent', () => {
+  let component: RulesUploadComponent;
+  let fixture: ComponentFixture<RulesUploadComponent>;
 
   // Setup spy references
   let spyNGOnInit: jasmine.Spy<any>;
@@ -83,13 +96,13 @@ describe('PolicyManagementUploadDialogComponent', () => {
       ],
       providers: [
         { provide: MatDialogRef, useClass: MatDialogMock },
-        { provide: MAT_DIALOG_DATA, useValue: {} }
+        { provide: MAT_DIALOG_DATA, useValue: MOCK_DIALOG_DATA_RULE_SET_DEFINED }
       ]
     }).compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PolicyManagementUploadDialogComponent);
+    fixture = TestBed.createComponent(RulesUploadComponent);
     component = fixture.componentInstance;
 
     // Add method spies
@@ -123,11 +136,11 @@ describe('PolicyManagementUploadDialogComponent', () => {
     cleanStylesFromDOM();
   });
 
-  it('should create PolicyManagementUploadDialogComponent', () => {
+  it('should create RulesUploadComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('PolicyManagementUploadDialogComponent methods', () => {
+  describe('RulesUploadComponent methods', () => {
     describe('ngOnInit()', () => {
       it('should call ngOnInit()', () => {
         reset();
@@ -135,14 +148,6 @@ describe('PolicyManagementUploadDialogComponent', () => {
         component.ngOnInit();
 
         expect(component.ngOnInit).toHaveBeenCalled();
-      });
-
-      it('should call rules_service_.get_edit_rule_set() from ngOnInit()', () => {
-        reset();
-
-        component.ngOnInit();
-
-        expect(component['rules_service_'].get_edit_rule_set).toHaveBeenCalled();
       });
 
       it('should call initialize_form_() from ngOnInit()', () => {
@@ -163,6 +168,15 @@ describe('PolicyManagementUploadDialogComponent', () => {
         component.ngOnInit();
 
         expect(component['set_file_name_control_']).toHaveBeenCalledTimes(1);
+      });
+
+      it('should call cancel() from ngOnInit()', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA_RULE_SET_UNDEFINED;
+        component.ngOnInit();
+
+        expect(component.cancel).toHaveBeenCalledTimes(1);
       });
     });
 

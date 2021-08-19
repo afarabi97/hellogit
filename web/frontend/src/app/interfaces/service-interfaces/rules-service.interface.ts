@@ -12,14 +12,6 @@ import { RuleInterface } from '../rule.interface';
  * @interface RulesServiceInterface
  */
 export interface RulesServiceInterface {
-  get_edit_rule(): RuleClass;
-  set_edit_rule(value: RuleClass): void;
-  get_edit_rule_set(): RuleSetClass;
-  set_edit_rule_set(value: RuleSetClass): void;
-  get_is_user_adding(): Observable<boolean>;
-  set_is_user_adding(value: boolean): void;
-  get_is_user_editing(): Observable<boolean>;
-  set_is_user_editing(value: boolean): void;
   get_rule_sets(): Observable<RuleSetClass[]>;
   create_rule_set(rule_set: RuleSetInterface): Observable<RuleSetClass>;
   update_rule_set(rule_set: RuleSetInterface): Observable<RuleSetClass>;

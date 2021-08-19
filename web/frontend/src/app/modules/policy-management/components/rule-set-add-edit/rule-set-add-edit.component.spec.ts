@@ -15,12 +15,14 @@ import {
   SURICATA,
   SURICATA_CAP_FIRST,
   ZEEK,
+  ZEEK_CAP_FIRST,
   ZEEK_INTEL,
   ZEEK_SCRIPTS,
   ZEEK_SIGNATURES
 } from '../../constants/policy-management.constant';
+import { DialogDataInterface } from '../../interfaces';
 import { PolicyManagementModule } from '../../policy-management.module';
-import { PolicyManagementAddDialogComponent } from './policy-management-add-dialog.component';
+import { RuleSetAddEditComponent } from './rule-set-add-edit.component';
 
 function cleanStylesFromDOM(): void {
   const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
@@ -38,9 +40,33 @@ class MatDialogMock {
   }
 }
 
-describe('PolicyManagementAddDialogComponent', () => {
-  let component: PolicyManagementAddDialogComponent;
-  let fixture: ComponentFixture<PolicyManagementAddDialogComponent>;
+const MOCK_DIALOG_DATA_ADD_RULE_SET: DialogDataInterface = {
+  rule_set: undefined,
+  rule: undefined,
+  action: ADD
+};
+
+const MOCK_DIALOG_DATA_EDIT_RULE_SET: DialogDataInterface = {
+  rule_set: MockRuleSetClass,
+  rule: undefined,
+  action: EDIT
+};
+
+const MOCK_DIALOG_DATA_EDIT_RULE_SET_UNDEFINED: DialogDataInterface = {
+  rule_set: undefined,
+  rule: undefined,
+  action: EDIT
+};
+
+const MOCK_DIALOG_DATA_UNDEFINED: DialogDataInterface = {
+  rule_set: undefined,
+  rule: undefined,
+  action: undefined
+};
+
+describe('RuleSetAddEditComponent', () => {
+  let component: RuleSetAddEditComponent;
+  let fixture: ComponentFixture<RuleSetAddEditComponent>;
 
   // Setup spy references
   let spyNGOnInit: jasmine.Spy<any>;
@@ -82,7 +108,7 @@ describe('PolicyManagementAddDialogComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PolicyManagementAddDialogComponent);
+    fixture = TestBed.createComponent(RuleSetAddEditComponent);
     component = fixture.componentInstance;
 
     // Add method spies
@@ -113,9 +139,8 @@ describe('PolicyManagementAddDialogComponent', () => {
         appType: new FormControl(''),
         isEnabled: new FormControl(true)
     });
-    component['rules_service_'].set_edit_rule_set(MockRuleSetClass);
     const random_dialog_data: number = Math.floor(Math.random() * (1 - 0 + 1) + 0);
-    component.dialog_data = random_dialog_data === 0 ? ADD : EDIT;
+    component.dialog_data = random_dialog_data === 0 ? MOCK_DIALOG_DATA_ADD_RULE_SET : MOCK_DIALOG_DATA_EDIT_RULE_SET;
 
     // Detect changes
     fixture.detectChanges();
@@ -141,11 +166,11 @@ describe('PolicyManagementAddDialogComponent', () => {
     cleanStylesFromDOM();
   });
 
-  it('should create PolicyManagementAddDialogComponent', () => {
+  it('should create RuleSetAddEditComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('PolicyManagementAddDialogComponent methods', () => {
+  describe('RuleSetAddEditComponent methods', () => {
     describe('ngOnInit()', () => {
       it('should call ngOnInit()', () => {
         reset();
@@ -155,8 +180,17 @@ describe('PolicyManagementAddDialogComponent', () => {
         expect(component.ngOnInit).toHaveBeenCalled();
       });
 
-      it('should call initialize_form_() from ngOnInit()', () => {
-        component.dialog_data = ADD;
+      it('should call set_title_() from ngOnInit() when dialog_data.action defined', () => {
+        reset();
+
+        expect(component['set_title_']).toHaveBeenCalledTimes(0);
+
+        component.ngOnInit();
+
+        expect(component['set_title_']).toHaveBeenCalledTimes(1);
+      });
+
+      it('should call initialize_form_() from ngOnInit() when dialog_data.action defined', () => {
         reset();
 
         expect(component['initialize_form_']).toHaveBeenCalledTimes(0);
@@ -166,27 +200,38 @@ describe('PolicyManagementAddDialogComponent', () => {
         expect(component['initialize_form_']).toHaveBeenCalledTimes(1);
       });
 
-      it('should call rules_service_.get_edit_rule_set() from ngOnInit()', () => {
-        component.dialog_data = EDIT;
-        reset();
-
-        component.ngOnInit();
-
-        expect(component['rules_service_'].get_edit_rule_set).toHaveBeenCalled();
-      });
-
-      it('should call get_sensor_type_() from ngOnInit()', () => {
-        component.dialog_data = EDIT;
+      it('should call get_sensor_type_() from ngOnInit() when dialog_data.action = EDIT and rule set defined', () => {
         reset();
 
         expect(component['get_sensor_type_']).toHaveBeenCalledTimes(0);
 
+        component.dialog_data = MOCK_DIALOG_DATA_EDIT_RULE_SET;
         component.ngOnInit();
 
         expect(component['get_sensor_type_']).toHaveBeenCalledTimes(1);
       });
 
-      it('should call api_change_sensor_selection_() from ngOnInit()', () => {
+      it('should call cancel() from ngOnInit() when dialog_data.action = EDIT and rule set undefined', () => {
+        reset();
+
+        expect(component.cancel).toHaveBeenCalledTimes(0);
+
+        component.dialog_data = MOCK_DIALOG_DATA_EDIT_RULE_SET_UNDEFINED;
+        component.ngOnInit();
+
+        expect(component.cancel).toHaveBeenCalled();
+      });
+
+      it('should call mat_snackbar_service_.generate_return_error_snackbar_message()() from ngOnInit() when dialog_data.action = EDIT and rule set undefined', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA_EDIT_RULE_SET_UNDEFINED;
+        component.ngOnInit();
+
+        expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
+      });
+
+      it('should call api_change_sensor_selection_() from ngOnInit() when dialog_data.action defined', () => {
         reset();
 
         expect(component['api_change_sensor_selection_']).toHaveBeenCalledTimes(0);
@@ -194,6 +239,26 @@ describe('PolicyManagementAddDialogComponent', () => {
         component.ngOnInit();
 
         expect(component['api_change_sensor_selection_']).toHaveBeenCalledTimes(1);
+      });
+
+      it('should call cancel() from ngOnInit() when dialog_data.action undefined', () => {
+        reset();
+
+        expect(component.cancel).toHaveBeenCalledTimes(0);
+
+        component.dialog_data = MOCK_DIALOG_DATA_UNDEFINED;
+        component.ngOnInit();
+
+        expect(component.cancel).toHaveBeenCalledTimes(1);
+      });
+
+      it('should call mat_snackbar_service_.generate_return_error_snackbar_message() from ngOnInit() when dialog_data.action undefined', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA_UNDEFINED;
+        component.ngOnInit();
+
+        expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
       });
     });
 
@@ -407,6 +472,14 @@ describe('PolicyManagementAddDialogComponent', () => {
         const return_value: string = component['get_sensor_type_'](SURICATA_CAP_FIRST);
 
         expect(return_value).toEqual(SURICATA);
+      });
+
+      it('should call get_sensor_type_() and return `zeek`', () => {
+        reset();
+
+        const return_value: string = component['get_sensor_type_'](ZEEK_CAP_FIRST);
+
+        expect(return_value).toEqual(ZEEK);
       });
 
       it('should call get_sensor_type_() and return `zeek`', () => {

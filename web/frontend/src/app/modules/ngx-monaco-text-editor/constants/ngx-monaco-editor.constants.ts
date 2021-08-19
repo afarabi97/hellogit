@@ -44,6 +44,7 @@ export const EDITOR_LANGAUAGES: string[] = [
   'st',
   'swift',
   'typescript',
+  'txt',
   'vb',
   'xml',
   'yaml'

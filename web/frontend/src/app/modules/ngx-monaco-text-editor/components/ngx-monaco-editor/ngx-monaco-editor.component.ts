@@ -49,6 +49,8 @@ export class NGXMonacoEditorComponent implements OnInit, OnChanges {
   @Input() return_editor_text$: Subject<void> = new Subject<void>();
   // Used for returning modified text back to parent component
   @Output() editor_text: EventEmitter<string> = new EventEmitter<string>();
+  // Used for passing current text on keyup
+  @Output() keyup_text: EventEmitter<string> = new EventEmitter<string>();
   // Used for keeping copying the text input value and passing into modified editor
   text1: string;
   // Used for keeping copying the text input value and passing into original editor
@@ -113,7 +115,7 @@ export class NGXMonacoEditorComponent implements OnInit, OnChanges {
     this.text2 = this.text;
     this.selected_lang = this.use_language;
     this.modified_options = {
-      fontFamily: 'sans-serif',
+      fontFamily: `Consolas, Monaco, 'Courier New', monospace`,
       theme: this.selected_theme,
       language: this.selected_lang,
       minimap: { enabled: false },
@@ -121,7 +123,9 @@ export class NGXMonacoEditorComponent implements OnInit, OnChanges {
       readOnly: this.is_read_only,
       scrollBeyondLastLine: false,
       automaticLayout: true,
-      links: false
+      links: false,
+      trimAutoWhitespace: false,
+      insertSpaces: false
     };
     this.original_options = Object.assign({}, this.modified_options, { readOnly: true });
     this.diff_options = Object.assign({}, this.original_options, { renderSideBySide: true });
@@ -163,6 +167,15 @@ export class NGXMonacoEditorComponent implements OnInit, OnChanges {
       'option-button-light': this.selected_theme === 'vs',
       'option-button-dark': this.selected_theme === 'vs-dark'
     };
+  }
+
+  /**
+   * Used for sending current updated text value on every keyup
+   *
+   * @memberof NGXMonacoEditorComponent
+   */
+  on_keyup(): void {
+    this.keyup_text.emit(this.text1);
   }
 
   /**

@@ -1,9 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import * as FileSaver from 'file-saver';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { MockRuleClass, MockRuleSetClass } from '../../../../../../static-data/class-objects-v3_6';
 import {
@@ -13,11 +14,13 @@ import {
 } from '../../../../../../static-data/interface-objects-v3_6';
 import { ErrorMessageClass } from '../../../../classes';
 import { CANCEL_DIALOG_OPTION, CONFIRM_DIALOG_OPTION } from '../../../../constants/cvah.constants';
-import { RulePCAPTestInterface } from '../../../../interfaces';
+import { RuleInterface, RulePCAPTestInterface } from '../../../../interfaces';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { InjectorModule } from '../../../utilily-modules/injector.module';
+import { ADD, EDIT } from '../../constants/policy-management.constant';
+import { DialogDataInterface } from '../../interfaces';
 import { PolicyManagementModule } from '../../policy-management.module';
-import { PolicyManagementDialogComponent } from './policy-management-dialog.component';
+import { RuleAddEditComponent } from './rule-add-edit.component';
 
 function cleanStylesFromDOM(): void {
   const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
@@ -48,22 +51,85 @@ class MatDialogMock {
   }
 }
 
-describe('PolicyManagementDialogComponent', () => {
-  let component: PolicyManagementDialogComponent;
-  let fixture: ComponentFixture<PolicyManagementDialogComponent>;
+class MatDialogRefMock {
+  close() {
+    return {
+      afterClosed: () => of ()
+    };
+  }
+}
+
+const MOCK_DIALOG_DATA__ACTION_ADD__RULE_SET_DEFINED__RULE_UNDEFINED: DialogDataInterface = {
+  rule_set: MockRuleSetClass,
+  rule: undefined,
+  action: ADD
+};
+
+const MOCK_DIALOG_DATA__ACTION_ADD__RULE_SET_UNDEFINED__RULE_UNDEFINED: DialogDataInterface = {
+  rule_set: undefined,
+  rule: undefined,
+  action: ADD
+};
+
+const MOCK_DIALOG_DATA__ACTION_EDIT__RULE_SET_DEFINED__RULE_DEFINED: DialogDataInterface = {
+  rule_set: MockRuleSetClass,
+  rule: MockRuleClass,
+  action: EDIT
+};
+
+const MOCK_DIALOG_DATA__ACTION_EDIT__RULE_SET_DEFINED__RULE_UNDEFINED: DialogDataInterface = {
+  rule_set: MockRuleSetClass,
+  rule: undefined,
+  action: EDIT
+};
+
+const MOCK_DIALOG_DATA__ACTION_EDIT__RULE_SET_UNDEFINED__RULE_DEFINED: DialogDataInterface = {
+  rule_set: undefined,
+  rule: MockRuleClass,
+  action: EDIT
+};
+
+const MOCK_DIALOG_DATA__ACTION_EDIT__RULE_SET_UNDEFINED__RULE_UNDEFINED: DialogDataInterface = {
+  rule_set: undefined,
+  rule: undefined,
+  action: EDIT
+};
+
+const MOCK_DIALOG_DATA__ACTION_UNDEFINED__RULE_SET_DEFINED__RULE_UNDEFINED: DialogDataInterface = {
+  rule_set: MockRuleSetClass,
+  rule: undefined,
+  action: undefined
+};
+
+const MOCK_DIALOG_DATA__ACTION_UNDEFINED__RULE_SET_UNDEFINED__RULE_UNDEFINED: DialogDataInterface = {
+  rule_set: undefined,
+  rule: undefined,
+  action: undefined
+};
+
+describe('RuleAddEditComponent', () => {
+  let component: RuleAddEditComponent;
+  let fixture: ComponentFixture<RuleAddEditComponent>;
 
   // Setup spy references
   let spyNGOnInit: jasmine.Spy<any>;
   let spyIsRuleEnabled: jasmine.Spy<any>;
   let spySave: jasmine.Spy<any>;
+  let spyEditorTextSave: jasmine.Spy<any>;
   let spyClose: jasmine.Spy<any>;
+  let spyUpdateFormControlRuleText: jasmine.Spy<any>;
+  let spyIsPCAPSelected: jasmine.Spy<any>;
   let spyTestRule: jasmine.Spy<any>;
   let spyValidate: jasmine.Spy<any>;
+  let spyGetReturnText: jasmine.Spy<any>;
+  let spySetText: jasmine.Spy<any>;
   let spyInitializeForm: jasmine.Spy<any>;
   let spySetRuleFormGroup: jasmine.Spy<any>;
   let spyCloseAndSave: jasmine.Spy<any>;
   let spyGetRuleData: jasmine.Spy<any>;
+  let spySetRuleData: jasmine.Spy<any>;
   let spyCloseEditor: jasmine.Spy<any>;
+  let spySaveCloseEditor: jasmine.Spy<any>;
   let spyGetIsUserAdding: jasmine.Spy<any>;
   let spyApiGetPcaps: jasmine.Spy<any>;
   let spyApiGetRuleContent: jasmine.Spy<any>;
@@ -72,7 +138,12 @@ describe('PolicyManagementDialogComponent', () => {
   let spyApiTestRuleAgainstPcap: jasmine.Spy<any>;
   let spyApiValidateRule: jasmine.Spy<any>;
 
+  // Used to handle subscriptions
+  const ngUnsubscribe$: Subject<void> = new Subject<void>();
+
   // Test Data
+  const editor_text_for_save: string = 'Fake Text';
+  const rule_content: string = 'Fake Rule Content';
   const create_mock_blob = (file: MockFile, message: boolean): Blob => {
     const blob = new Blob([file.body], { type: file.mimeType }) as any;
     blob['lastModifiedDate'] = new Date();
@@ -116,27 +187,36 @@ describe('PolicyManagementDialogComponent', () => {
         TestingModule
       ],
       providers: [
-        { provide: MatDialog, useClass: MatDialogMock }
+        { provide: MatDialog, useClass: MatDialogMock },
+        { provide: MatDialogRef, useClass: MatDialogRefMock },
+        { provide: MAT_DIALOG_DATA, useValue: MOCK_DIALOG_DATA__ACTION_EDIT__RULE_SET_DEFINED__RULE_DEFINED }
       ]
     }).compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PolicyManagementDialogComponent);
+    fixture = TestBed.createComponent(RuleAddEditComponent);
     component = fixture.componentInstance;
 
     // Add method spies
     spyNGOnInit = spyOn(component, 'ngOnInit').and.callThrough();
     spyIsRuleEnabled = spyOn(component, 'is_rule_enabled').and.callThrough();
     spySave = spyOn(component, 'save').and.callThrough();
+    spyEditorTextSave = spyOn(component, 'editor_text_save').and.callThrough();
     spyClose = spyOn(component, 'close').and.callThrough();
+    spyUpdateFormControlRuleText = spyOn(component, 'update_form_control_rule_text').and.callThrough();
+    spyIsPCAPSelected = spyOn(component, 'is_pcap_selected').and.callThrough();
     spyTestRule = spyOn(component, 'test_rule').and.callThrough();
     spyValidate = spyOn(component, 'validate').and.callThrough();
+    spyGetReturnText = spyOn<any>(component, 'get_return_text_').and.callThrough();
+    spySetText = spyOn<any>(component, 'set_text_').and.callThrough();
     spyInitializeForm = spyOn<any>(component, 'initialize_form_').and.callThrough();
     spySetRuleFormGroup = spyOn<any>(component, 'set_rule_form_group_').and.callThrough();
     spyCloseAndSave = spyOn<any>(component, 'close_and_save_').and.callThrough();
     spyGetRuleData = spyOn<any>(component, 'get_rule_data_').and.callThrough();
+    spySetRuleData = spyOn<any>(component, 'set_rule_data_').and.callThrough();
     spyCloseEditor = spyOn<any>(component, 'close_editor_').and.callThrough();
+    spySaveCloseEditor = spyOn<any>(component, 'save_close_editor_').and.callThrough();
     spyGetIsUserAdding = spyOn<any>(component, 'get_is_user_adding_').and.callThrough();
     spyApiGetPcaps = spyOn<any>(component, 'api_get_pcaps_').and.callThrough();
     spyApiGetRuleContent = spyOn<any>(component, 'api_get_rule_content_').and.callThrough();
@@ -149,25 +229,36 @@ describe('PolicyManagementDialogComponent', () => {
     spyOn<any>(component['pcap_service_'], 'get_pcaps').and.returnValue(of([pcap_data]));
     spyOn(FileSaver, 'saveAs').and.stub();
 
-    // Set Test Data
-    component['rules_service_'].set_edit_rule_set(MockRuleSetClass);
-
     // Detect changes
     fixture.detectChanges();
   });
 
+  afterAll(() => {
+    ngUnsubscribe$.next();
+    ngUnsubscribe$.complete();
+  });
+
   const reset = () => {
+    ngUnsubscribe$.next();
+
     spyNGOnInit.calls.reset();
     spyIsRuleEnabled.calls.reset();
     spySave.calls.reset();
+    spyEditorTextSave.calls.reset();
     spyClose.calls.reset();
+    spyUpdateFormControlRuleText.calls.reset();
+    spyIsPCAPSelected.calls.reset();
     spyTestRule.calls.reset();
     spyValidate.calls.reset();
+    spyGetReturnText.calls.reset();
+    spySetText.calls.reset();
     spyInitializeForm.calls.reset();
     spySetRuleFormGroup.calls.reset();
     spyCloseAndSave.calls.reset();
     spyGetRuleData.calls.reset();
+    spySetRuleData.calls.reset();
     spyCloseEditor.calls.reset();
+    spySaveCloseEditor.calls.reset();
     spyGetIsUserAdding.calls.reset();
     spyApiGetPcaps.calls.reset();
     spyApiGetRuleContent.calls.reset();
@@ -181,11 +272,11 @@ describe('PolicyManagementDialogComponent', () => {
     cleanStylesFromDOM();
   });
 
-  it('should create PolicyManagementDialogComponent', () => {
+  it('should create RuleAddEditComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('PolicyManagementDialogComponent methods', () => {
+  describe('RuleAddEditComponent methods', () => {
     describe('ngOnInit()', () => {
       it('should call ngOnInit()', () => {
         reset();
@@ -193,6 +284,14 @@ describe('PolicyManagementDialogComponent', () => {
         component.ngOnInit();
 
         expect(component.ngOnInit).toHaveBeenCalled();
+      });
+
+      it('should call set_text_() from ngOnInit()', () => {
+        reset();
+
+        component.ngOnInit();
+
+        expect(component['set_text_']).toHaveBeenCalled();
       });
 
       it('should call get_is_user_adding_() from ngOnInit()', () => {
@@ -259,24 +358,50 @@ describe('PolicyManagementDialogComponent', () => {
         expect(component.save).toHaveBeenCalled();
       });
 
-      it('should call close_and_save_() after mat dialog ref closed from within save()', () => {
+      it('should call get_return_text_() after mat dialog ref closed from within save()', () => {
         reset();
 
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(rule_form_group) } as MatDialogRef<typeof component>);
 
         component.save();
 
-        expect(component['close_and_save_']).toHaveBeenCalled();
+        expect(component['get_return_text_']).toHaveBeenCalled();
       });
 
-      it('should not call close_and_save_() after mat dialog ref closed from within save()', () => {
+      it('should not call get_return_text_() after mat dialog ref closed from within save()', () => {
         reset();
 
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         component.save();
 
-        expect(component['close_and_save_']).not.toHaveBeenCalled();
+        expect(component['get_return_text_']).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('editor_text_save()', () => {
+      it('should call editor_text_save()', () => {
+        reset();
+
+        component.editor_text_save(editor_text_for_save);
+
+        expect(component.editor_text_save).toHaveBeenCalled();
+      });
+
+      it('should call set_rule_data_() from within editor_text_save()', () => {
+        reset();
+
+        component.editor_text_save(editor_text_for_save);
+
+        expect(component['set_rule_data_']).toHaveBeenCalled();
+      });
+
+      it('should call close_and_save_() from within editor_text_save()', () => {
+        reset();
+
+        component.editor_text_save(editor_text_for_save);
+
+        expect(component['close_and_save_']).toHaveBeenCalled();
       });
     });
 
@@ -310,6 +435,51 @@ describe('PolicyManagementDialogComponent', () => {
       });
     });
 
+    describe('update_form_control_rule_text()', () => {
+      it('should call update_form_control_rule_text()', () => {
+        reset();
+
+        component.update_form_control_rule_text(editor_text_for_save);
+
+        expect(component.update_form_control_rule_text).toHaveBeenCalled();
+      });
+
+      it('should call set_rule_data_() from within update_form_control_rule_text()', () => {
+        reset();
+
+        component.update_form_control_rule_text(editor_text_for_save);
+
+        expect(component['set_rule_data_']).toHaveBeenCalled();
+      });
+    });
+
+    describe('is_pcap_selected()', () => {
+      it('should call is_pcap_selected()', () => {
+        reset();
+
+        component.is_pcap_selected();
+
+        expect(component.is_pcap_selected).toHaveBeenCalled();
+      });
+
+      it('should call is_pcap_selected() and return true', () => {
+        reset();
+
+        component.selected_pcap = 'Fake PCAP data';
+        const return_value: boolean = component.is_pcap_selected();
+
+        expect(return_value).toBeTrue();
+      });
+
+      it('should call is_pcap_selected() and return false', () => {
+        reset();
+
+        const return_value: boolean = component.is_pcap_selected();
+
+        expect(return_value).toBeFalse();
+      });
+    });
+
     describe('test_rule()', () => {
       it('should call test_rule()', () => {
         reset();
@@ -319,17 +489,10 @@ describe('PolicyManagementDialogComponent', () => {
         expect(component.test_rule).toHaveBeenCalled();
       });
 
-      it('should call rules_service_.get_edit_rule_set() from test_rule()', () => {
+      it('should call api_test_rule_against_pcap_() from test_rule() when dialog_data.rule_set defined', () => {
         reset();
 
-        component['initialize_form_'](MockRuleInterface);
-        component.test_rule();
-
-        expect(component['rules_service_'].get_edit_rule_set).toHaveBeenCalled();
-      });
-
-      it('should call api_test_rule_against_pcap_() from test_rule()', () => {
-        reset();
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_EDIT__RULE_SET_DEFINED__RULE_DEFINED;
 
         expect(component['api_test_rule_against_pcap_']).toHaveBeenCalledTimes(0);
 
@@ -337,6 +500,16 @@ describe('PolicyManagementDialogComponent', () => {
         component.test_rule();
 
         expect(component['api_test_rule_against_pcap_']).toHaveBeenCalledTimes(1);
+      });
+
+      it('should call mat_snackbar_service_.generate_return_error_snackbar_message() from test_rule() when dialog_data.rule_set undefined', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_EDIT__RULE_SET_UNDEFINED__RULE_DEFINED;
+        component['initialize_form_'](MockRuleInterface);
+        component.test_rule();
+
+        expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
       });
     });
 
@@ -372,11 +545,79 @@ describe('PolicyManagementDialogComponent', () => {
       });
     });
 
+    describe('private get_return_text_()', () => {
+      it('should call get_return_text_()', () => {
+        reset();
+
+        component['get_return_text_']();
+
+        expect(component['get_return_text_']).toHaveBeenCalled();
+      });
+
+      it('should call get_return_text_() and trigger a subject void', () => {
+        reset();
+
+        component.get_return_text$
+          .pipe(takeUntil(ngUnsubscribe$))
+          .subscribe(() => {
+            expect(component['get_return_text_']).toHaveBeenCalled();
+          });
+
+        component['get_return_text_']();
+      });
+    });
+
+    describe('private set_text_()', () => {
+      it('should call set_text_()', () => {
+        reset();
+
+        component['set_text_'](undefined);
+
+        expect(component['set_text_']).toHaveBeenCalled();
+      });
+
+      it('should call get_return_text_() from set_text_() and set text = passed rule_content when dialog_data.action defined and = EDIT', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_EDIT__RULE_SET_UNDEFINED__RULE_UNDEFINED;
+        component['set_text_'](rule_content);
+
+        expect(component.text).toEqual(rule_content);
+      });
+
+      it('should call get_return_text_() from set_text_() and set text = empty string when dialog_data.action defined and = ADD', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_ADD__RULE_SET_DEFINED__RULE_UNDEFINED;
+        component['set_text_'](undefined);
+
+        expect(component.text).toEqual('');
+      });
+
+      it('should call close_editor_() from set_text_() when dialog_data.action undefined', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_UNDEFINED__RULE_SET_UNDEFINED__RULE_UNDEFINED;
+        component['set_text_'](undefined);
+
+        expect(component['close_editor_']).toHaveBeenCalled();
+      });
+
+      it('should call mat_snackbar_service_.generate_return_error_snackbar_message() from set_text_() when dialog_data.action undefined', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_UNDEFINED__RULE_SET_UNDEFINED__RULE_UNDEFINED;
+        component['set_text_'](undefined);
+
+        expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
+      });
+    });
+
     describe('private initialize_form_()', () => {
       it('should call initialize_form_()', () => {
         reset();
 
-        component['initialize_form_'](MockRuleInterface);
+        component['initialize_form_'](undefined);
 
         expect(component['initialize_form_']).toHaveBeenCalled();
       });
@@ -430,7 +671,7 @@ describe('PolicyManagementDialogComponent', () => {
         expect(component['close_and_save_']).toHaveBeenCalled();
       });
 
-      it('should call get_rule_data_() from close_and_save_()', () => {
+      it('should call get_rule_data_() from close_and_save_() when dialog_data.action defined', () => {
         reset();
 
         component['initialize_form_'](MockRuleInterface);
@@ -442,11 +683,10 @@ describe('PolicyManagementDialogComponent', () => {
         expect(component['get_rule_data_']).toHaveBeenCalledTimes(1);
       });
 
-      it('should call api_update_rule_() from close_and_save_()', () => {
+      it('should call api_update_rule_() from close_and_save_() when dialog_data.action = EDIT', () => {
         reset();
 
         component['initialize_form_'](MockRuleInterface);
-        component['user_adding_'] = false;
 
         expect(component['api_update_rule_']).toHaveBeenCalledTimes(0);
 
@@ -458,14 +698,37 @@ describe('PolicyManagementDialogComponent', () => {
       it('should call api_update_rule_() from close_and_save_()', () => {
         reset();
 
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_ADD__RULE_SET_DEFINED__RULE_UNDEFINED;
         component['initialize_form_'](MockRuleInterface);
-        component['user_adding_'] = true;
 
         expect(component['api_create_rule_']).toHaveBeenCalledTimes(0);
 
         component['close_and_save_']();
 
         expect(component['api_create_rule_']).toHaveBeenCalledTimes(1);
+      });
+
+      it('should call close_editor_() from close_and_save_() when dialog_data.action undefined', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_UNDEFINED__RULE_SET_DEFINED__RULE_UNDEFINED;
+
+        expect(component['close_editor_']).toHaveBeenCalledTimes(0);
+
+        component['close_and_save_']();
+
+        expect(component['close_editor_']).toHaveBeenCalledTimes(1);
+      });
+
+      it('should call mat_snackbar_service_.generate_return_error_snackbar_message() from close_and_save_() when dialog_data.action undefined', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_UNDEFINED__RULE_SET_DEFINED__RULE_UNDEFINED;
+        component['initialize_form_'](MockRuleInterface);
+
+        component['close_and_save_']();
+
+        expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
       });
     });
 
@@ -479,13 +742,57 @@ describe('PolicyManagementDialogComponent', () => {
         expect(component['get_rule_data_']).toHaveBeenCalled();
       });
 
-      it('should call rules_service_.get_edit_rule_set() from get_rule_data_()', () => {
+      it('should call get_rule_data_() and return rule with rule_set_id = fialog_data.rule_set._id', () => {
         reset();
 
         component['initialize_form_'](MockRuleInterface);
+        const return_value: RuleInterface = component['get_rule_data_']();
+
+        expect(return_value.rule_set_id).toEqual(component.dialog_data.rule_set._id);
+      });
+
+      it('should call close_editor_() from get_rule_data_() when dialog_data.rule_set undefined', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_ADD__RULE_SET_UNDEFINED__RULE_UNDEFINED;
+        component['initialize_form_'](MockRuleInterface);
+
+        expect(component['close_editor_']).toHaveBeenCalledTimes(0);
+
         component['get_rule_data_']();
 
-        expect(component['rules_service_'].get_edit_rule_set).toHaveBeenCalled();
+        expect(component['close_editor_']).toHaveBeenCalledTimes(1);
+      });
+
+      it('should call mat_snackbar_service_.generate_return_error_snackbar_message() from get_rule_data_() when dialog_data.rule_set undefined', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_ADD__RULE_SET_UNDEFINED__RULE_UNDEFINED;
+        component['initialize_form_'](MockRuleInterface);
+
+        component['get_rule_data_']();
+
+        expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
+      });
+    });
+
+    describe('private set_rule_data_()', () => {
+      it('should call set_rule_data_()', () => {
+        reset();
+
+        component['initialize_form_'](MockRuleInterface);
+        component['set_rule_data_'](rule_content);
+
+        expect(component['set_rule_data_']).toHaveBeenCalled();
+      });
+
+      it('should call set_rule_data_() and set rule_form_group.rule = passed text', () => {
+        reset();
+
+        component['initialize_form_'](MockRuleInterface);
+        component['set_rule_data_'](rule_content);
+
+        expect(component.rule_form_group.controls['rule'].value).toEqual(rule_content);
       });
     });
 
@@ -497,13 +804,15 @@ describe('PolicyManagementDialogComponent', () => {
 
         expect(component['close_editor_']).toHaveBeenCalled();
       });
+    });
 
-      it('should call rules_service_.set_is_user_editing() from close_editor_()', () => {
+    describe('private save_close_editor_()', () => {
+      it('should call save_close_editor_()', () => {
         reset();
 
-        component['close_editor_']();
+        component['save_close_editor_'](MockRuleClass);
 
-        expect(component['rules_service_'].set_is_user_editing).toHaveBeenCalled();
+        expect(component['save_close_editor_']).toHaveBeenCalled();
       });
     });
 
@@ -516,32 +825,7 @@ describe('PolicyManagementDialogComponent', () => {
         expect(component['get_is_user_adding_']).toHaveBeenCalled();
       });
 
-      it('should call get_is_user_adding_() and set component.user_adding_ = false', () => {
-        reset();
-
-        component['get_is_user_adding_']();
-
-        expect(component['user_adding_']).toBeFalse();
-      });
-
-      it('should call get_is_user_adding_() and set component.user_adding_ = true', () => {
-        reset();
-
-        component['rules_service_'].set_is_user_adding(true);
-        component['get_is_user_adding_']();
-
-        expect(component['user_adding_']).toBeTrue();
-      });
-
-      it('should call rules_service_.get_edit_rule() when response false', () => {
-        reset();
-
-        component['get_is_user_adding_']();
-
-        expect(component['rules_service_'].get_is_user_adding).toHaveBeenCalled();
-      });
-
-      it('should call initialize_form_() when response false and rule_form_group defined', () => {
+      it('should call initialize_form_() when dialog_data.action is defined, dialog_data.action = EDIT, and dialog_data.rule is defined', () => {
         reset();
 
         component['get_is_user_adding_']();
@@ -549,23 +833,60 @@ describe('PolicyManagementDialogComponent', () => {
         expect(component['initialize_form_']).toHaveBeenCalled();
       });
 
-      it('should call initialize_form_() when response true and rule_form_group undefined', () => {
+      it('should call close_editor_() when dialog_data.action is defined, dialog_data.action = EDIT, and dialog_data.rule is undefined', () => {
         reset();
 
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_EDIT__RULE_SET_DEFINED__RULE_UNDEFINED;
+        component['get_is_user_adding_']();
+
+        expect(component['close_editor_']).toHaveBeenCalled();
+      });
+
+      it('should call mat_snackbar_service_.generate_return_error_snackbar_message() when dialog_data.action is defined, dialog_data.action = EDIT, and dialog_data.rule is undefined', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_EDIT__RULE_SET_DEFINED__RULE_UNDEFINED;
+        component['get_is_user_adding_']();
+
+        expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
+      });
+
+      it('should call initialize_form_() when dialog_data.action is defined, dialog_data.action = ADD, and rule_form_group is defined', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_ADD__RULE_SET_DEFINED__RULE_UNDEFINED;
+        component['initialize_form_'](MockRuleInterface);
+        component['get_is_user_adding_']();
+
+        expect(component['initialize_form_']).toHaveBeenCalled();
+      });
+
+      it('should call initialize_form_() when dialog_data.action is defined, dialog_data.action = ADD, and rule_form_group is undefined', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_ADD__RULE_SET_UNDEFINED__RULE_UNDEFINED;
         component.rule_form_group = undefined;
-        component['rules_service_'].set_is_user_adding(true);
         component['get_is_user_adding_']();
 
         expect(component['initialize_form_']).toHaveBeenCalled();
       });
 
-      it('should call initialize_form_() when response true', () => {
+      it('should call close_editor_() when dialog_data.action is undefined', () => {
         reset();
 
-        component['rules_service_'].set_is_user_adding(true);
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_UNDEFINED__RULE_SET_UNDEFINED__RULE_UNDEFINED;
         component['get_is_user_adding_']();
 
-        expect(component['initialize_form_']).toHaveBeenCalled();
+        expect(component['close_editor_']).toHaveBeenCalled();
+      });
+
+      it('should call mat_snackbar_service_.generate_return_error_snackbar_message() when dialog_data.action is undefined', () => {
+        reset();
+
+        component.dialog_data = MOCK_DIALOG_DATA__ACTION_UNDEFINED__RULE_SET_UNDEFINED__RULE_UNDEFINED;
+        component['get_is_user_adding_']();
+
+        expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
       });
     });
 
@@ -637,6 +958,14 @@ describe('PolicyManagementDialogComponent', () => {
         expect(component.rule_form_group.get('rule').value).toEqual(MockRuleClass.rule);
       });
 
+      it('should call rules_service_.get_rule_content() and call set_text_()', () => {
+        reset();
+
+        component['api_get_rule_content_'](MockRuleInterface);
+
+        expect(component['set_text_']).toHaveBeenCalled();
+      });
+
       it('should call rules_service_.get_rule_content() and handle unintended response', () => {
         reset();
 
@@ -699,14 +1028,14 @@ describe('PolicyManagementDialogComponent', () => {
         expect(component['mat_snackbar_service_'].generate_return_success_snackbar_message).toHaveBeenCalled();
       });
 
-      it('should call rules_service_.update_rule() and call close_editor_()', () => {
+      it('should call rules_service_.update_rule() and call save_close_editor_()', () => {
         reset();
 
-        expect(component['close_editor_']).toHaveBeenCalledTimes(0);
+        expect(component['save_close_editor_']).toHaveBeenCalledTimes(0);
 
         component['api_update_rule_'](MockRuleInterface);
 
-        expect(component['close_editor_']).toHaveBeenCalledTimes(1);
+        expect(component['save_close_editor_']).toHaveBeenCalledTimes(1);
       });
 
       it('should call rules_service_.update_rule() and handle unintended response', () => {
@@ -771,14 +1100,14 @@ describe('PolicyManagementDialogComponent', () => {
         expect(component['mat_snackbar_service_'].generate_return_success_snackbar_message).toHaveBeenCalled();
       });
 
-      it('should call rules_service_.create_rule() and call close_editor_()', () => {
+      it('should call rules_service_.create_rule() and call save_close_editor_()', () => {
         reset();
 
-        expect(component['close_editor_']).toHaveBeenCalledTimes(0);
+        expect(component['save_close_editor_']).toHaveBeenCalledTimes(0);
 
         component['api_create_rule_'](MockRuleInterface);
 
-        expect(component['close_editor_']).toHaveBeenCalledTimes(1);
+        expect(component['save_close_editor_']).toHaveBeenCalledTimes(1);
       });
 
       it('should call rules_service_.create_rule() and handle unintended response', () => {

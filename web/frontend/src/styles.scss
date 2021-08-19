@@ -1,7 +1,8 @@
 body {
     height: 100vh;
     width: 100vw;
-    cvah-ngx-monaco-text-editor {
+    cvah-ngx-monaco-text-editor,
+    cvah-rule-add-edit {
       flex-direction: column;
       height: 100%;
       display: flex;
@@ -14,6 +15,12 @@ body {
     }
     .mat-dialog-actions {
       margin-bottom: 0px;
+      padding-top: 16px;
+      flex-direction: row;
+      box-sizing: border-box;
+      display: flex;
+      place-content: center flex-end;
+      flex: 0 0 auto;
     }
 }
 

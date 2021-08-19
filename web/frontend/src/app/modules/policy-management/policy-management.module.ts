@@ -4,15 +4,15 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { NGXMonacoTextEditorModule } from '../ngx-monaco-text-editor/ngx-monaco-text-editor.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import {
-  PolicyManagementAddDialogComponent
-} from './components/policy-management-add-dialog/policy-management-add-dialog.component';
-import { PolicyManagementDialogComponent } from './components/policy-management-dialog/policy-management-dialog.component';
-import { PolicyManagementTableComponent } from './components/policy-management-table/policy-management-table.component';
+  RuleSetAddEditComponent
+} from './components/rule-set-add-edit/rule-set-add-edit.component';
+import { RuleAddEditComponent } from './components/rule-add-edit/rule-add-edit.component';
 import {
-  PolicyManagementUploadDialogComponent
-} from './components/policy-management-upload-dialog/policy-management-upload-dialog.component';
+  RulesUploadComponent
+} from './components/rules-upload/rules-upload.component';
 import { PolicyManagementComponent } from './policy-management.component';
 
 @NgModule({
@@ -22,23 +22,22 @@ import { PolicyManagementComponent } from './policy-management.component';
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    NGXMonacoTextEditorModule
   ],
   declarations: [
-    PolicyManagementAddDialogComponent,
-    PolicyManagementDialogComponent,
-    PolicyManagementTableComponent,
-    PolicyManagementUploadDialogComponent,
+    RuleSetAddEditComponent,
+    RuleAddEditComponent,
+    RulesUploadComponent,
     PolicyManagementComponent
   ],
   exports: [
     PolicyManagementComponent
   ],
   entryComponents: [
-    PolicyManagementAddDialogComponent,
-    PolicyManagementDialogComponent,
-    PolicyManagementTableComponent,
-    PolicyManagementUploadDialogComponent,
+    RuleSetAddEditComponent,
+    RuleAddEditComponent,
+    RulesUploadComponent,
     PolicyManagementComponent
   ]
 })

@@ -71,7 +71,7 @@
 
       <!-- Not Compare Mode -->
       <div *ngIf="!compare_mode" class="not-compare-mode">
-        <ngx-monaco-editor [options]="modified_options" [(ngModel)]="text1"></ngx-monaco-editor>
+        <ngx-monaco-editor [options]="modified_options" [(ngModel)]="text1" (keyup)="on_keyup()"></ngx-monaco-editor>
       </div>
 
       <!-- Compare Mode -->
@@ -80,7 +80,7 @@
         <!-- Not Inline Diff -->
         <div *ngIf="!inline_diff" class="not-inline-diff">
           <div class="modified-editor-wrapper">
-            <ngx-monaco-editor [options]="modified_options" [(ngModel)]="text1"></ngx-monaco-editor>
+            <ngx-monaco-editor [options]="modified_options" [(ngModel)]="text1" (keyup)="on_keyup()"></ngx-monaco-editor>
           </div>
           <mat-divider vertical="true"></mat-divider>
           <div class="original-editor-wrapper">
@@ -91,7 +91,7 @@
         <!-- Inline Diff -->
         <div *ngIf="inline_diff" class="inline-diff">
           <div class="diff-editor-wrapper">
-            <ngx-monaco-diff-editor [options]="diff_options" [originalModel]="original_model" [modifiedModel]="modified_model"></ngx-monaco-diff-editor>
+            <ngx-monaco-diff-editor [options]="diff_options" [originalModel]="original_model" [modifiedModel]="modified_model" (keyup)="on_keyup()"></ngx-monaco-diff-editor>
           </div>
         </div>
       </div>

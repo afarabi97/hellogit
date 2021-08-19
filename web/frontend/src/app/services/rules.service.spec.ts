@@ -65,14 +65,6 @@ describe('RulesService', () => {
   let httpMock: HttpTestingController;
 
   // Setup spy references
-  let spyGetEditRule: jasmine.Spy<any>;
-  let spySetEditRule: jasmine.Spy<any>;
-  let spyGetEditRuleSet: jasmine.Spy<any>;
-  let spySetEditRuleSet: jasmine.Spy<any>;
-  let spyGetIsUserAdding: jasmine.Spy<any>;
-  let spySetIsUserAdding: jasmine.Spy<any>;
-  let spyGetIsUserEditing: jasmine.Spy<any>;
-  let spySetIsUserEditing: jasmine.Spy<any>;
   let spyGetRuleSets: jasmine.Spy<any>;
   let spyCreateRuleSet: jasmine.Spy<any>;
   let spyUpdateRuleSet: jasmine.Spy<any>;
@@ -137,14 +129,6 @@ describe('RulesService', () => {
     httpMock = TestBed.inject(HttpTestingController);
 
     // Add method spies
-    spyGetEditRule = spyOn(service, 'get_edit_rule').and.callThrough();
-    spySetEditRule = spyOn(service, 'set_edit_rule').and.callThrough();
-    spyGetEditRuleSet = spyOn(service, 'get_edit_rule_set').and.callThrough();
-    spySetEditRuleSet = spyOn(service, 'set_edit_rule_set').and.callThrough();
-    spyGetIsUserAdding = spyOn(service, 'get_is_user_adding').and.callThrough();
-    spySetIsUserAdding = spyOn(service, 'set_is_user_adding').and.callThrough();
-    spyGetIsUserEditing = spyOn(service, 'get_is_user_editing').and.callThrough();
-    spySetIsUserEditing = spyOn(service, 'set_is_user_editing').and.callThrough();
     spyGetRuleSets = spyOn(service, 'get_rule_sets').and.callThrough();
     spyCreateRuleSet = spyOn(service, 'create_rule_set').and.callThrough();
     spyUpdateRuleSet = spyOn(service, 'update_rule_set').and.callThrough();
@@ -165,21 +149,11 @@ describe('RulesService', () => {
   afterAll(() => {
     ngUnsubscribe$.next();
     ngUnsubscribe$.complete();
-
-    service.ngOnDestroy();
   });
 
   const reset = () => {
     ngUnsubscribe$.next();
 
-    spyGetEditRule.calls.reset();
-    spySetEditRule.calls.reset();
-    spyGetEditRuleSet.calls.reset();
-    spySetEditRuleSet.calls.reset();
-    spyGetIsUserAdding.calls.reset();
-    spySetIsUserAdding.calls.reset();
-    spyGetIsUserEditing.calls.reset();
-    spySetIsUserEditing.calls.reset();
     spyGetRuleSets.calls.reset();
     spyCreateRuleSet.calls.reset();
     spyUpdateRuleSet.calls.reset();
@@ -205,200 +179,6 @@ describe('RulesService', () => {
   });
 
   describe('RulesService methods', () => {
-
-    describe('get_edit_rule()', () => {
-      it('should call get_edit_rule()', () => {
-        reset();
-
-        service.get_edit_rule();
-
-        expect(service.get_edit_rule).toHaveBeenCalled();
-
-        after();
-      });
-
-      it('should call get_edit_rule() and return rule', () => {
-        reset();
-
-        service['edit_rule_'] = MockRuleClass;
-        const return_value: RuleClass = service.get_edit_rule();
-
-        expect(return_value).toEqual(MockRuleClass);
-
-        after();
-      });
-    });
-
-    describe('set_edit_rule()', () => {
-      it('should call set_edit_rule()', () => {
-        reset();
-
-        service.set_edit_rule(MockRuleClass);
-
-        expect(service.set_edit_rule).toHaveBeenCalled();
-
-        after();
-      });
-
-      it('should call set_edit_rule() and set edit_rule_ to passed value', () => {
-        reset();
-
-        service.set_edit_rule(MockRuleClass);
-
-        expect(service['edit_rule_']).toEqual(MockRuleClass);
-
-        after();
-      });
-    });
-
-    describe('get_edit_rule_set()', () => {
-      it('should call get_edit_rule_set()', () => {
-        reset();
-
-        service.get_edit_rule_set();
-
-        expect(service.get_edit_rule_set).toHaveBeenCalled();
-
-        after();
-      });
-
-      it('should call get_edit_rule_set() and return rule set', () => {
-        reset();
-
-        service['edit_rule_set_'] = MockRuleSetClass;
-        const return_value: RuleSetClass = service.get_edit_rule_set();
-
-        expect(return_value).toEqual(MockRuleSetClass);
-
-        after();
-      });
-    });
-
-    describe('set_edit_rule_set()', () => {
-      it('should call set_edit_rule_set()', () => {
-        reset();
-
-        service.set_edit_rule_set(MockRuleSetClass);
-
-        expect(service.set_edit_rule_set).toHaveBeenCalled();
-
-        after();
-      });
-
-      it('should call set_edit_rule_set() and set edit_rule_set_ to passed value', () => {
-        reset();
-
-        service.set_edit_rule_set(MockRuleSetClass);
-
-        expect(service['edit_rule_set_']).toEqual(MockRuleSetClass);
-
-        after();
-      });
-    });
-
-    describe('get_is_user_adding()', () => {
-      it('should call get_is_user_adding() and return observable', () => {
-        reset();
-
-        const return_value: Observable<boolean> = service.get_is_user_adding();
-
-        expect(return_value).toBeDefined();
-
-        after();
-      });
-
-      it('should call get_is_user_adding() and subscribe returns boolean', () => {
-        reset();
-
-        service.get_is_user_adding()
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (response: boolean) => {
-              expect(response).toBeFalse();
-            });
-
-        after();
-      });
-    });
-
-    describe('set_is_user_adding()', () => {
-      it('should call set_is_user_adding()', () => {
-        reset();
-
-        service.set_is_user_adding(false);
-
-        expect(service.set_is_user_adding).toHaveBeenCalled();
-
-        after();
-      });
-
-      it('should call set_is_user_adding() and and change subject value', () => {
-        reset();
-
-        service.set_is_user_adding(true);
-
-        service.get_is_user_adding()
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (response: boolean) => {
-              expect(response).toBeTrue();
-            });
-
-        after();
-      });
-    });
-
-    describe('get_is_user_editing()', () => {
-      it('should call get_is_user_editing() and return observable', () => {
-        reset();
-
-        const return_value: Observable<boolean> = service.get_is_user_editing();
-
-        expect(return_value).toBeDefined();
-
-        after();
-      });
-
-      it('should call get_is_user_editing() and subscribe returns boolean', () => {
-        reset();
-
-        service.get_is_user_editing()
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (response: boolean) => {
-              expect(response).toBeFalse();
-            });
-
-        after();
-      });
-    });
-
-    describe('set_is_user_editing()', () => {
-      it('should call set_is_user_editing()', () => {
-        reset();
-
-        service.set_is_user_editing(false);
-
-        expect(service.set_is_user_editing).toHaveBeenCalled();
-
-        after();
-      });
-
-      it('should call set_is_user_editing() and and change subject value', () => {
-        reset();
-
-        service.set_is_user_editing(true);
-
-        service.get_is_user_editing()
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (response: boolean) => {
-              expect(response).toBeTrue();
-            });
-
-        after();
-      });
-    });
 
     describe('REST get_rule_sets()', () => {
       it('should call get_rule_sets()', () => {

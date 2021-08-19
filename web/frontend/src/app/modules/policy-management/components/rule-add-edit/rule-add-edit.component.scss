@@ -1,0 +1,30 @@
+.mat-dialog-content {
+  flex: 1 1 1e-09px;
+  box-sizing: border-box;
+  flex-direction: column;
+  display: flex;
+  max-height: unset;
+  margin-bottom: 0px;
+  cvah-ngx-monaco-editor {
+    flex: 1 1 1e-09px;
+    box-sizing: border-box;
+  }
+  .mat-form-field-wrapper {
+    background-color: black;
+    padding: 16px;
+  }
+}
+.mat-dialog-actions {
+  flex-direction: row;
+  box-sizing: border-box;
+  display: flex;
+  place-content: center flex-end;
+  flex: 0 0 auto;
+  margin-bottom: 0px;
+}
+.editor-action-buttons {
+  background-color: black;
+  button:last-child {
+    margin-right: 15px;
+  }
+}
