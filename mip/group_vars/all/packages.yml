@@ -109,12 +109,12 @@ nvidia_driver: NVIDIA_Quadro_RHEL82_440_64.tar.gz
 amd_driver: amdgpu-pro-20.10-1101037-rhel-8.1.tar.xz
 
 #Third Party Software
-burpsuite_file: burpsuite_pro_linux_v2021_4.sh
-chrome_file: google-chrome-stable_current_x86_64_89.0.4389.128.rpm
-gitkraken_file: gitkraken-amd64_7.5.5.rpm
-nexpose_file: Rapid7Setup-Linux64_6.6.83.bin
-vmware_file: VMware-Workstation-Full-16.1.1-17801498.x86_64.bundle
-vscode_file: code-1.56.2-1620838566.el8.x86_64.rpm
+burpsuite_file: burpsuite_pro_linux_v2021_8_1.sh
+chrome_file: google-chrome-stable_current_x86_64_92.0.4515.131.rpm
+gitkraken_file: gitkraken-amd64_7.7.2.rpm
+nexpose_file: Rapid7Setup-Linux64_6.6.97.bin
+vmware_file: VMware-Workstation-Full-16.1.2-17966106.x86_64.bundle
+vscode_file: code-1.59.0-1628120127.el8.x86_64.rpm
 
 software:
   - "{{ web_server }}/{{ vmware_file }}"
