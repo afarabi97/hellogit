@@ -1,8 +1,9 @@
 import os
 import tempfile
 import json
+import uuid
 
-from app import (app, conn_mng, get_next_sequence, POLICY_NS, api)
+from app import (app, conn_mng, POLICY_NS, api)
 from app.utils.logging import logger
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.middleware import operator_required
@@ -40,7 +41,7 @@ class Rules(Resource):
     @POLICY_NS.doc(description="Returns a list of all the saved Rules based on the RuleSet ID passed in.")
     @POLICY_NS.response(200, 'Rules', [RuleModel.DTO])
     def get(self, rule_set_id: str) -> Response:
-        rules = conn_mng.mongo_rule.find({'rule_set_id': int(rule_set_id)}, projection={"rule": False})
+        rules = conn_mng.mongo_rule.find({'rule_set_id': rule_set_id}, projection={"rule": False})
         return list(rules)
 
 @POLICY_NS.route('/rule/<rule_id>/content')
@@ -50,24 +51,23 @@ class RuleContent(Resource):
     @POLICY_NS.response(200, 'Rules', RuleModel.DTO)
     @POLICY_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     def get(self, rule_id: str) -> Response:
-        rule = conn_mng.mongo_rule.find_one({'_id': int(rule_id)})
+        rule = conn_mng.mongo_rule.find_one({'_id': rule_id})
         if rule:
             return rule
         return {"error_message": "Failed to find rule content for rule ID {}.".format(rule_id)}, 400
 
 def create_ruleset_service(ruleset: Dict) -> InsertOneResult:
     ruleset['state'] = RULESET_STATES[0]
-    ruleset["_id"] = get_next_sequence("rulesetid")
+    ruleset["_id"] = uuid.uuid4().hex
     dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
     ruleset['createdDate'] = dt_string
     ruleset['lastModifiedDate'] = dt_string
     ret_val = conn_mng.mongo_ruleset.insert_one(ruleset)
     return ret_val
 
-def create_rule_service(rule: Dict, ruleset_id: int=0, projection={"rule": False}) -> Dict:
-    rule["_id"] = get_next_sequence("ruleid")
-    if ruleset_id != 0:
-        rule["rule_set_id"] = ruleset_id
+def create_rule_service(rule: Dict, ruleset_id: str, projection={"rule": False}) -> Dict:
+    rule["_id"] = uuid.uuid4().hex
+    rule["rule_set_id"] = ruleset_id
     dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
     rule['createdDate'] = dt_string
     rule['lastModifiedDate'] = dt_string
@@ -185,9 +185,9 @@ class DeleteRuleSet(Resource):
     @POLICY_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
     @operator_required
     def delete(self, ruleset_id: str) -> Response:
-        rules_deleted = conn_mng.mongo_rule.delete_many({'rule_set_id': int(ruleset_id)})
+        rules_deleted = conn_mng.mongo_rule.delete_many({'rule_set_id': ruleset_id})
         if rules_deleted:
-            ret_val = conn_mng.mongo_ruleset.delete_one({'_id': int(ruleset_id)})
+            ret_val = conn_mng.mongo_ruleset.delete_one({'_id': ruleset_id})
             if ret_val.deleted_count == 1:
                 return {"success_message": "Successfully deleted rule set."}
         return {"error_message": "Failed to delete ruleset ID {}.".format(ruleset_id)}, 500
@@ -399,7 +399,7 @@ class RulesCtrl(Resource):
     @operator_required
     def post(self) -> Response:
         rule = request.get_json()
-        rule["_id"] = get_next_sequence("ruleid")
+        rule["_id"] = uuid.uuid4().hex
         ruleset_id = rule["rule_set_id"]
         by_pass_validation = rule['byPassValidation']
         rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id})
@@ -423,7 +423,7 @@ class RulesCtrl(Resource):
 
             if is_valid:
                 del rule["byPassValidation"]
-                rule = create_rule_service(rule)
+                rule = create_rule_service(rule, ruleset_id)
                 conn_mng.mongo_ruleset.update_one({'_id': ruleset_id}, {"$set": {"state": RULESET_STATES[1]}})
                 if rule:
                     return rule
@@ -485,7 +485,7 @@ class DeleteRule(Resource):
     @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @operator_required
     def delete(self, rule_id: str) -> Response:
-        ret_val = conn_mng.mongo_rule.delete_one({'_id': int(rule_id)})  # type: DeleteResult
+        ret_val = conn_mng.mongo_rule.delete_one({'_id': rule_id})  # type: DeleteResult
         if ret_val.deleted_count == 1:
             return {"success_message": "Successfully deleted rule ID {} from the rule set.".format(rule_id)}
         return {"error_message": "Failed to delete a rule for ruleset ID {}.".format(rule_id)}, 500
@@ -498,14 +498,13 @@ class ToggleRule(Resource):
     @POLICY_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @operator_required
     def put(self, rule_id: str) -> Response:
-        id_to_modify = int(rule_id)
-        rule = conn_mng.mongo_rule.find_one({'_id': id_to_modify},
+        rule = conn_mng.mongo_rule.find_one({'_id': rule_id},
                                             projection={"rule": False})
         ruleset_id = rule["rule_set_id"]
         dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
         rule['lastModifiedDate'] = dt_string
         rule['isEnabled'] = not rule['isEnabled']
-        rule = conn_mng.mongo_rule.find_one_and_update({'_id': id_to_modify},
+        rule = conn_mng.mongo_rule.find_one_and_update({'_id': rule_id},
                                                        {'$set': rule},
                                                        projection={"rule": False},
                                                        return_document=ReturnDocument.AFTER)

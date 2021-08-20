@@ -21,7 +21,6 @@ from flask_restx import Api, Namespace
 from flask_socketio import SocketIO
 
 from pathlib import Path
-from random import randint
 from app.middleware import AuthMiddleware, Auth
 import pymongo
 from rq_scheduler import Scheduler
@@ -32,30 +31,8 @@ TEMPLATE_DIR = APP_DIR / 'templates'  # type: Path
 
 conn_mng = MongoConnectionManager()
 
-SEQUENCE_ID_COUNTERS = ["rulesetid", "ruleid"]
-
 os.environ['REQUESTS_CA_BUNDLE'] = "/etc/pki/tls/certs/ca-bundle.crt"
 
-def _initalize_counters():
-    try:
-        for counter in SEQUENCE_ID_COUNTERS:
-            dbrecord = conn_mng.mongo_counters.find_one({"_id": counter})
-            if dbrecord == None:
-                data = {"_id": counter, "seq": randint(100, 100000)}
-                conn_mng.mongo_counters.insert_one(data)
-    except pymongo.errors.DuplicateKeyError:
-        # race condition of multiple api workers coming online will produce
-        # dupcliate key error
-        pass
-
-
-def get_next_sequence(key: str):
-    if key not in SEQUENCE_ID_COUNTERS:
-        raise ValueError("Invalid must be one of these values: " + str(SEQUENCE_ID_COUNTERS))
-    ret = conn_mng.mongo_counters.find_one_and_update({"_id": key}, {'$inc': {'seq': 3}})
-    return ret['seq']
-
-_initalize_counters()
 init_loggers()
 
 # Setup Flask
