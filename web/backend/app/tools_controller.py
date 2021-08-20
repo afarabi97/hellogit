@@ -23,7 +23,8 @@ from pymongo import ReturnDocument
 from werkzeug.utils import secure_filename
 from fabric import Connection
 
-from app import app, conn_mng, logger, api, TOOLS_NS
+from app import app, conn_mng, api, TOOLS_NS
+from app.utils.logging import logger
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.dao import elastic_deploy
 from app.middleware import controller_maintainer_required

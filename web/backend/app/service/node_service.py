@@ -1,4 +1,5 @@
-from app import logger, CORE_DIR, MIP_DIR, STIGS_DIR, conn_mng, REDIS_CLIENT, rq_logger, SCHEDULER
+from app import CORE_DIR, MIP_DIR, STIGS_DIR, conn_mng, REDIS_CLIENT, SCHEDULER
+from app.utils.logging import rq_logger
 from app.models.nodes import Command, Node, NodeJob, NodeSchema
 from app.models.settings.kit_settings import KitSettingsForm
 from app.models.settings.esxi_settings import EsxiSettingsForm

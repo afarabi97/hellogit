@@ -3,7 +3,7 @@ Main module for handling all of the config map REST calls.
 """
 from flask import jsonify, Response, request
 from flask_restx import Resource, fields
-from app import app, logger, conn_mng, ALERTS_NS
+from app import app, conn_mng, ALERTS_NS
 from app.common import ERROR_RESPONSE, OK_RESPONSE
 from elasticsearch.exceptions import ConnectionTimeout, RequestError
 from typing import List, Dict

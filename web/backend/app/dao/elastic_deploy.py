@@ -1,4 +1,4 @@
-from app import app, logger, conn_mng
+from app import app, conn_mng
 from typing import Dict, List
 
 DEFAULT_QUERY={"kind": "Elasticsearch"}

@@ -1,6 +1,7 @@
 import datetime
 
-from app import app, conn_mng, rq_logger, REDIS
+from app import app, conn_mng, REDIS
+from app.utils.logging import rq_logger
 from enum import Enum
 from flask_socketio import SocketIO
 from uuid import uuid4

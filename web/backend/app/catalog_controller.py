@@ -1,4 +1,5 @@
-from app import app, logger, conn_mng, CATALOG_NS
+from app import app, conn_mng, CATALOG_NS
+from app.utils.logging import logger
 from app.common import ERROR_RESPONSE
 from flask import jsonify, request, Response
 from flask_restx import Resource, fields

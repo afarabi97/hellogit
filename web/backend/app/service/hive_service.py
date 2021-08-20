@@ -2,7 +2,8 @@ import json
 import requests
 
 from typing import Dict, List
-from app import app, logger, conn_mng, ALERTS_NS
+from app import app, conn_mng, ALERTS_NS
+from app.utils.logging import logger
 
 from app.models.common import HiveSettingsModel
 from app.catalog_service import _get_domain

@@ -1,9 +1,10 @@
 """
 Main module for handling all of the Kit Configuration REST calls.
 """
-from app import (logger, conn_mng, CORE_DIR, KUBERNETES_NS)
+from app import (conn_mng, CORE_DIR, KUBERNETES_NS)
 from app.models.kubernetes import (HealthServiceModel, PipelineInfoModel,
                                    NodeOrPodStatusModel, PodLogsModel)
+from app.utils.logging import logger
 from app.models.settings.kit_settings import KitSettingsForm
 from app.models.nodes import Node
 from app.resources import convert_kib_to_gib, convert_gib_to_kib, convert_mib_to_kib

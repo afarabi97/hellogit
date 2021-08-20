@@ -2,7 +2,7 @@ import os
 import sys
 import tempfile
 
-from app import rq_logger
+from app.utils.logging import rq_logger
 from app.models.cold_log import WinlogbeatInstallModel
 from ansible import context
 from ansible.cli import CLI

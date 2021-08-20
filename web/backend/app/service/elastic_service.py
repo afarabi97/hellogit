@@ -11,7 +11,8 @@ from elasticsearch import Elasticsearch
 from fabric import Connection
 from rq.decorators import job
 from kubernetes import client, config, utils
-from app import conn_mng, REDIS_CLIENT, logger
+from app import conn_mng, REDIS_CLIENT
+from app.utils.logging import logger
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.utils.elastic import ElasticWrapper, ElasticsearchManager
 from app.service.scale_service import check_scale_status

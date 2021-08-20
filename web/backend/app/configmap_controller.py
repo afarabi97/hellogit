@@ -3,7 +3,8 @@ Main module for handling all of the config map REST calls.
 """
 from typing import List, Union
 
-from app import KUBERNETES_NS, conn_mng, logger
+from app import KUBERNETES_NS, conn_mng
+from app.utils.logging import logger
 from app.middleware import controller_maintainer_required
 from app.models.kubernetes import AssociatedPodModel, ConfigMapSave
 from app.service.configmap_service import bounce_pods

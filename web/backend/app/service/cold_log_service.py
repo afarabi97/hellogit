@@ -4,7 +4,8 @@ import shutil
 import tempfile
 import traceback
 
-from app import app, rq_logger, conn_mng, TEMPLATE_DIR, REDIS_CLIENT
+from app import app, conn_mng, TEMPLATE_DIR, REDIS_CLIENT
+from app.utils.logging import rq_logger
 from app.models.cold_log import ColdLogUploadModel, WinlogbeatInstallModel
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationMessage, NotificationCode

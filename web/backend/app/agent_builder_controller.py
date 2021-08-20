@@ -6,7 +6,8 @@ import requests
 import urllib3
 import shutil
 
-from app import (app, logger, conn_mng, TEMPLATE_DIR, AGENT_PKGS_DIR)
+from app import (app, conn_mng, TEMPLATE_DIR, AGENT_PKGS_DIR)
+from app.utils.logging import logger
 from app.common import cursor_to_json_response
 from app.service.job_service import run_command2
 from app.service.agent_service import (perform_agent_reinstall,

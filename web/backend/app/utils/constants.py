@@ -16,6 +16,9 @@ UPGRADES_DIR = SHARED_DIR / '../../../../upgrades'
 AGENT_PKGS_DIR = SHARED_DIR / '../../../../agent_pkgs'
 MIP_DIR = SHARED_DIR / '../../../../mip'
 
+TFPLENUM_LOG_FILENAME = "/var/log/tfplenum/tfplenum.log"
+REDIS_QUEUE_LOG_FILENAME = "/var/log/tfplenum/rq.log"
+
 KIT_ID = "kit_form"
 MIP_CONFIG_ID = "mip_config"
 PORTAL_ID = 'portal_links'

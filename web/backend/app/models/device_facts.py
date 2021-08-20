@@ -5,7 +5,7 @@ import uuid
 import subprocess
 import socket
 
-from app import api, conn_mng, REDIS_CLIENT, rq_logger
+from app import api, conn_mng, REDIS_CLIENT
 from app.models import Model, DBModelNotFound, PostValidationError
 from ipaddress import IPv4Address
 from flask_restx import fields
@@ -321,13 +321,13 @@ def create_device_facts_from_ansible_setup(host: str, password: str=None) -> Dev
     # The following runs ansible setup module on the target node
     ansible_command = ["ansible", "all", "-m", "setup", "-e", f"ansible_ssh_pass={password}", "-i", f"{ip_address},"]
     if ip_address == "127.0.0.1":
-        ansible_command = ["ansible", ip_address, "-m", "setup"] 
+        ansible_command = ["ansible", ip_address, "-m", "setup"]
 
     stdout = subprocess.run(ansible_command,
                             shell=False,
                             universal_newlines=True,
                             stdout=subprocess.PIPE).stdout
-            
+
     json_object = {}
 
     if stdout.startswith(ip_address + " | UNREACHABLE! => "):

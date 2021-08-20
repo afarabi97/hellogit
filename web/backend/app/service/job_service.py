@@ -2,7 +2,8 @@ import os
 import shlex
 import subprocess
 
-from app import conn_mng, rq_logger
+from app import conn_mng
+from app.utils.logging import rq_logger
 from app.service.socket_service import log_to_console
 from app.utils.constants import DATE_FORMAT_STR
 from datetime import datetime

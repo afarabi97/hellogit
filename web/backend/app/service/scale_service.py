@@ -7,7 +7,8 @@ import traceback
 from elasticsearch import Elasticsearch
 from kubernetes import client, config
 
-from app import logger, REDIS_CLIENT
+from app import REDIS_CLIENT
+from app.utils.logging import logger
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.dao import elastic_deploy
 from rq.decorators import job

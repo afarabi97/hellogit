@@ -7,7 +7,8 @@ import glob
 from typing import List
 from datetime import timedelta, datetime
 
-from app import logger, rq_logger, conn_mng, REDIS_CLIENT
+from app import conn_mng, REDIS_CLIENT
+from app.utils.logging import logger, rq_logger
 from app.models.nodes import Node
 from app.models.settings.kit_settings import GeneralSettingsForm
 from app.service.socket_service import NotificationMessage, NotificationCode

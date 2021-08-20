@@ -1,7 +1,8 @@
 import logging
 import re
 from flask import Response, jsonify, request
-from app import app, logger
+from app import app
+from app.utils.logging import logger
 from app.middleware import controller_maintainer_required
 from app.service.curator_service import execute_curator
 from app.utils.elastic import ElasticWrapper

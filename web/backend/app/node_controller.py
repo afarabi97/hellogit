@@ -1,6 +1,6 @@
 from app.middleware import login_required_roles, controller_admin_required
 from flask import request, Response, jsonify, send_from_directory, send_file
-from app import app, logger, conn_mng, KIT_SETUP_NS, SCHEDULER
+from app import app, conn_mng, KIT_SETUP_NS, SCHEDULER
 from app.common import ERROR_RESPONSE
 from app.models.nodes import NodeJob, JobSchema, Node, NodeSchema, _generate_inventory
 from app.models.settings.mip_settings import MipSettingsForm

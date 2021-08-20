@@ -10,7 +10,7 @@ import os
 import traceback
 import zipfile
 
-from app import conn_mng, AGENT_PKGS_DIR, REDIS_CLIENT, rq_logger
+from app import conn_mng, AGENT_PKGS_DIR, REDIS_CLIENT
 from app.service.socket_service import NotificationMessage, NotificationCode, notify_page_refresh
 from app.service.job_service import run_command2, run_command
 from bson import ObjectId

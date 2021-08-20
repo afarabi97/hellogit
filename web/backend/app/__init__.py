@@ -7,7 +7,6 @@ import eventlet
 # WARNING: this monkey patch stuff needs to be the very first thing that happens before other imports.
 # If you move it after the socketio and flask imports it will result in a very nasty SSL recurisve error with the kubernetes API.
 eventlet.monkey_patch(all=False, os=True, select=False, socket=True, thread=False, time=True)
-import logging
 import os
 from redis import Redis
 from rq import Queue
@@ -20,44 +19,22 @@ from flask_cors import CORS
 from flask import Flask, url_for
 from flask_restx import Api, Namespace
 from flask_socketio import SocketIO
-from logging.handlers import RotatingFileHandler
-from logging import Logger
+
 from pathlib import Path
 from random import randint
 from app.middleware import AuthMiddleware, Auth
 import pymongo
 from rq_scheduler import Scheduler
+from app.utils.logging import init_loggers
 
 APP_DIR = Path(__file__).parent  # type: Path
 TEMPLATE_DIR = APP_DIR / 'templates'  # type: Path
 
 conn_mng = MongoConnectionManager()
-TFPLENUM_LOG_FILENAME = "/var/log/tfplenum/tfplenum.log"
-REDIS_QUEUE_LOG_FILENAME = "/var/log/tfplenum/rq.log"
-logger = logging.getLogger('tfplenum_logger')
-rq_logger = logging.getLogger('rq.worker')
+
 SEQUENCE_ID_COUNTERS = ["rulesetid", "ruleid"]
 
 os.environ['REQUESTS_CA_BUNDLE'] = "/etc/pki/tls/certs/ca-bundle.crt"
-
-
-def _setup_logger(log_handle: Logger, log_file_name: str, max_bytes: int=10000000, backup_count: int=10):
-    """
-    Sets up logging for the REST interface.
-
-    :param log_handle:
-    :param log_file_name:
-    :param log_path:
-    :param max_bytes:
-    :param backup_count:
-    :return:
-    """
-    handler = RotatingFileHandler(log_file_name, maxBytes=max_bytes, backupCount=backup_count)
-    log_handle.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(levelname)7s:%(asctime)s:%(filename)20s:%(funcName)20s():%(lineno)5s:%(message)s')
-    handler.setFormatter(formatter)
-    log_handle.addHandler(handler)
-
 
 def _initalize_counters():
     try:
@@ -78,10 +55,8 @@ def get_next_sequence(key: str):
     ret = conn_mng.mongo_counters.find_one_and_update({"_id": key}, {'$inc': {'seq': 3}})
     return ret['seq']
 
-
 _initalize_counters()
-_setup_logger(logger, TFPLENUM_LOG_FILENAME)
-_setup_logger(rq_logger, REDIS_QUEUE_LOG_FILENAME)
+init_loggers()
 
 # Setup Flask
 app = Flask(__name__)

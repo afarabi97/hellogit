@@ -4,7 +4,8 @@ import shutil
 import traceback
 import glob
 
-from app import REDIS_CLIENT, rq_logger
+from app import REDIS_CLIENT
+from app.utils.logging import rq_logger
 from app.models.ruleset import PCAPReplayModel
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.job_service import run_command2

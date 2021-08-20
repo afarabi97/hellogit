@@ -1,5 +1,5 @@
 import os
-from app import app, rq_logger, logger
+from app.utils.logging import logger
 from base64 import b64decode
 from bson import ObjectId
 from datetime import datetime, timedelta

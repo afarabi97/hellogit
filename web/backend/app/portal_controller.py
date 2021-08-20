@@ -1,7 +1,8 @@
 """
 Main module that controls the REST calls for the portal page.
 """
-from app import (app, conn_mng, logger)
+from app import app, conn_mng
+from app.utils.logging import logger
 from app.common import ERROR_RESPONSE, cursor_to_json_response
 from flask import jsonify, Response
 from app.utils.connection_mngs import  KubernetesWrapper2

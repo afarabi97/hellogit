@@ -4,7 +4,8 @@ This is the main module for all the shared REST calls
 import signal
 import netifaces
 import ipaddress
-from app import app, logger, conn_mng, api, REDIS_CLIENT, rq_logger
+from app import app, conn_mng, api, REDIS_CLIENT
+from app.utils.logging import logger
 from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.service.job_service import run_command
 from app.service.socket_service import NotificationMessage, NotificationCode

@@ -1,6 +1,7 @@
 import requests
 
-from app import app, logger, KUBERNETES_NS
+from app import app, KUBERNETES_NS
+from app.utils.logging import logger
 from app.models.kubernetes import DockerImageModel
 from requests.exceptions import ConnectionError
 from flask import jsonify

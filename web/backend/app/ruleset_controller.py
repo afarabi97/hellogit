@@ -2,7 +2,8 @@ import os
 import tempfile
 import json
 
-from app import (app, logger, conn_mng, get_next_sequence, POLICY_NS, api)
+from app import (app, conn_mng, get_next_sequence, POLICY_NS, api)
+from app.utils.logging import logger
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.middleware import operator_required
 from app.models.common import (JobID, COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE,

@@ -1,4 +1,5 @@
-from app import REDIS_CLIENT, rq_logger
+from app import REDIS_CLIENT
+from app.utils.logging import rq_logger
 import io
 import json
 import logging

@@ -6,7 +6,7 @@ import os
 import re
 import uuid
 
-from app import api, conn_mng, rq_logger, TEMPLATE_DIR, CORE_DIR, MIP_DIR
+from app import api, conn_mng, TEMPLATE_DIR, CORE_DIR, MIP_DIR
 from app.models import Model, DBModelNotFound, PostValidationError
 from app.models.settings.settings_base import SettingsBase
 from ipaddress import IPv4Address, ip_network

@@ -5,7 +5,7 @@ from typing import Dict, Tuple
 from flask import request, Response, jsonify
 from flask_restx import Resource
 from pymongo.collection import ReturnDocument
-from app import app, logger, conn_mng, KIT_SETUP_NS
+from app import app, conn_mng, KIT_SETUP_NS
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.models import PostValidationError, DBModelNotFound
 from app.models.common import JobID, COMMON_ERROR_DTO

@@ -1,5 +1,6 @@
 
-from app import app, logger
+from app import app
+from app.utils.logging import logger
 from app.common import ERROR_RESPONSE, OK_RESPONSE
 from flask import request, jsonify, Response
 import traceback

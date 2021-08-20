@@ -5,7 +5,7 @@ https://flask-restplus.readthedocs.io/en/0.9.2/example.html
 import re
 import uuid
 
-from app import api, conn_mng, rq_logger, TEMPLATE_DIR, CORE_DIR, MIP_DIR
+from app import api, conn_mng, TEMPLATE_DIR, CORE_DIR, MIP_DIR
 from app.models import Model, DBModelNotFound, PostValidationError
 from app.models.settings.settings_base import SettingsBase, validate_password_stigs
 from app.models.settings.general_settings import GeneralSettingsForm
