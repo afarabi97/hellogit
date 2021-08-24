@@ -99,34 +99,32 @@ def wait_for_job_to_finish(job_name: str, url: str, minutes_timeout: int):
             logging.error("Job failed horribly.  See /var/log/tfplenum/rq.log for details.")
             exit(2)
 
-
 def wait_for_next_job_in_chain(controller_ip: str, node_to_check: Dict, timeout:int=30):
     job_found = False
-    sleep(10)
     with MongoConnectionManager(controller_ip) as mongo_manager:
         node_id = mongo_manager.mongo_node.find_one(node_to_check)["_id"]
-        jobs = mongo_manager.mongo_jobs.find({"node_id": node_id})
-        jobs = list(jobs)
-        num_jobs = len(jobs)
-        jobs_completed = 0
-        for job in jobs:
-            if job["error"]:
-                logging.error("A job has failed exiting")
-                exit(1)
-            elif job["inprogress"]:
+        while True:
+            jobs_completed = 0
+            jobs = list(mongo_manager.mongo_jobs.find({"node_id": node_id}))
+            num_jobs = len(jobs)
+            for job in jobs:
+                if job["error"]:
+                    logging.error("A job has failed exiting")
+                    exit(1)
+                elif job["inprogress"]:
+                    job_found = True
+                    wait_for_job_to_finish(job["description"], "https://{}{}".format(controller_ip, "/api/job/" + job['job_id']), timeout)
+                elif job["complete"]:
+                    jobs_completed += 1
+            sleep(1)
+            if num_jobs == jobs_completed:
+                # If all the jobs for a given node are completed, then we dont care and pass this edge case.
                 job_found = True
-                wait_for_job_to_finish(job["description"], "https://{}{}".format(controller_ip, "/api/job/" + job['job_id']), timeout)
-            elif job["complete"]:
-                jobs_completed += 1
-
-        if num_jobs == jobs_completed:
-            # If all the jobs for a given node are completed, then we dont care and pass this edge case.
-            job_found = True
+                break
 
     if not job_found:
         logging.error("The next job in chain was not found. Failing")
         exit(2)
-
 
 def get_api_key(ctrl_settings: ControllerSetupSettings) -> str:
     """
@@ -406,7 +404,6 @@ class APITesterV2:
     def run_control_plane_post(self):
         response_dict = post_request(self._url.format("/api/control-plane"), None)
         wait_for_job_to_finish("Creating Kickstart Profiles", self._url.format("/api/job/" + response_dict['job_id']), 60)
-        wait_for_next_job_in_chain(self._controller_ip, {"node_type": "Control-Plane"})
         wait_for_next_job_in_chain(self._controller_ip, {"node_type": "Control-Plane"})
         _clean_up(wait=0)
 
