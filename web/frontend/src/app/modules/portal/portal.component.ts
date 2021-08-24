@@ -43,8 +43,10 @@ export class PortalComponent implements OnInit {
   user_portal_links: UserPortalLinkClass[];
   // Used for retaining if user is operator
   operator: boolean;
-  app_links_to_hide: Array<string>;
-  hidden_app_links: Array<string>;
+  // List of hidden app links
+  hidden_app_links: string[];
+  // List of link names that should be hidden
+  private app_links_to_hide_: string[];
 
   /**
    * Creates an instance of PortalComponent.
@@ -63,7 +65,7 @@ export class PortalComponent implements OnInit {
               private mat_snackbar_service_: MatSnackBarService,
               private portal_service_: PortalService,
               private user_service_: UserService) {
-    this.app_links_to_hide = ["arkime","misp","nifi"];
+    this.app_links_to_hide_ = ['arkime', 'misp', 'nifi'];
     this.hidden_app_links = [];
     this.portal_links = [];
     this.user_portal_links = [];
@@ -105,10 +107,10 @@ export class PortalComponent implements OnInit {
       description: new DialogFormControl(descriptionFormControlConfig),
     });
     const mat_dialog_data: BackingObjectInterface = {
-      title: "Add Link",
-      instructions: "Please enter link data",
+      title: 'Add Link',
+      instructions: 'Please enter link data',
       dialogForm: form_group,
-      confirmBtnText: "Submit"
+      confirmBtnText: 'Submit'
     };
     const mat_dialog_ref: MatDialogRef<ModalDialogMatComponent, any> = this.mat_dialog_.open(ModalDialogMatComponent, {
       width: DIALOG_WIDTH_800PX,
@@ -138,7 +140,7 @@ export class PortalComponent implements OnInit {
     $event.stopPropagation();
 
     const confirm_dialog_mat_dialog_data: ConfirmDialogMatDialogDataInterface = {
-      title: `Remove User Link "${user_portal_link.name}"?`,
+      title: `Remove User Link '${user_portal_link.name}'?`,
       message: `Confirm deletion of link to ${user_portal_link.url}. This action cannot be undone.`,
       option1: CANCEL_DIALOG_OPTION,
       option2: CONFIRM_DIALOG_OPTION
@@ -170,6 +172,23 @@ export class PortalComponent implements OnInit {
   }
 
   /**
+   * Used for hiding link for specifc applications
+   *
+   * @private
+   * @param {PortalLinkClass[]} portal_links
+   * @memberof PortalComponent
+   */
+  private get_hidden_app_links_(portal_links: PortalLinkClass[]): void {
+    portal_links.forEach((link: PortalLinkClass) => {
+      const app_name = link.dns.split('/')[2].split('.')[0];
+      /* istanbul ignore else */
+      if (this.app_links_to_hide_.includes(app_name)) {
+        this.hidden_app_links.push(link.dns);
+      }
+    });
+  }
+
+  /**
    * Used for making api rest call to get portal links
    *
    * @private
@@ -179,8 +198,8 @@ export class PortalComponent implements OnInit {
     this.portal_service_.get_portal_links()
       .pipe(untilDestroyed(this))
       .subscribe((response: PortalLinkClass[]) => {
-        this.portal_links = response
-        this.get_hidden_app_links(this.portal_links)
+        this.portal_links = response;
+        this.get_hidden_app_links_(this.portal_links);
       });
   }
 
@@ -230,23 +249,5 @@ export class PortalComponent implements OnInit {
           const message: string = 'removing user portal link';
           this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
         });
-  }
-
-
-    /**
-   * Used for hiding link for specifc applications
-   *
-   * @private
-   * @memberof PortalComponent
-   */
-
-  private get_hidden_app_links( portal_links:PortalLinkClass[] ): void {
-
-      portal_links.forEach((link) => {
-        const app_name = link.dns.split("/")[2].split(".")[0]
-          if(this.app_links_to_hide.includes(app_name)){
-            this.hidden_app_links.push(link.dns)
-        }
-      });
   }
 }

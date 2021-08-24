@@ -30,6 +30,7 @@ describe('PortalComponent', () => {
   let spyOpenAddUserPortalLink: jasmine.Spy<any>;
   let spyOpenConfirmRemoveUserPortalLink: jasmine.Spy<any>;
   let spyGoToUrl: jasmine.Spy<any>;
+  let spyGetHiddenAppLinks: jasmine.Spy<any>;
   let spyApiGetPortalLInks: jasmine.Spy<any>;
   let spyApiGetUserPortalLinks: jasmine.Spy<any>;
   let spyApiAddUserPortalLink: jasmine.Spy<any>;
@@ -67,6 +68,7 @@ describe('PortalComponent', () => {
     spyOpenAddUserPortalLink = spyOn(component, 'open_add_user_portal_link').and.callThrough();
     spyOpenConfirmRemoveUserPortalLink = spyOn(component, 'open_confirm_remove_user_portal_link').and.callThrough();
     spyGoToUrl = spyOn(component, 'go_to_url').and.callThrough();
+    spyGetHiddenAppLinks = spyOn<any>(component, 'get_hidden_app_links_').and.callThrough();
     spyApiGetPortalLInks = spyOn<any>(component, 'api_get_portal_links_').and.callThrough();
     spyApiGetUserPortalLinks = spyOn<any>(component, 'api_get_user_portal_links_').and.callThrough();
     spyApiAddUserPortalLink = spyOn<any>(component, 'api_add_user_portal_link_').and.callThrough();
@@ -81,6 +83,7 @@ describe('PortalComponent', () => {
     spyOpenAddUserPortalLink.calls.reset();
     spyOpenConfirmRemoveUserPortalLink.calls.reset();
     spyGoToUrl.calls.reset();
+    spyGetHiddenAppLinks.calls.reset();
     spyApiGetPortalLInks.calls.reset();
     spyApiGetUserPortalLinks.calls.reset();
     spyApiAddUserPortalLink.calls.reset();
@@ -174,6 +177,32 @@ describe('PortalComponent', () => {
       });
     });
 
+    describe('private get_hidden_app_links_()', () => {
+      it('should call get_hidden_app_links_()', () => {
+        reset();
+
+        component.portal_links = [];
+        component['api_get_portal_links_']();
+        component['get_hidden_app_links_'](component.portal_links);
+
+        expect(component['get_hidden_app_links_']).toHaveBeenCalled();
+      });
+
+      it('should call get_hidden_app_links_() and add links that should be hidden to list', () => {
+        reset();
+
+        component.portal_links = [];
+        component.hidden_app_links = [];
+
+        expect(component.hidden_app_links.length > 0).toBeFalse();
+
+        component['api_get_portal_links_']();
+        component['get_hidden_app_links_'](component.portal_links);
+
+        expect(component.hidden_app_links.length > 0).toBeTrue();
+      });
+    });
+
     describe('private api_get_portal_links_()', () => {
       it('should call api_get_portal_links_()', () => {
         reset();
@@ -193,6 +222,15 @@ describe('PortalComponent', () => {
         component['api_get_portal_links_']();
 
         expect(component.portal_links.length > 0).toBeTrue();
+      });
+
+      it('should call get_hidden_app_links_() from portal_links() response', () => {
+        reset();
+
+        component.user_portal_links = [];
+        component['api_get_portal_links_']();
+
+        expect(component['get_hidden_app_links_']).toHaveBeenCalled();
       });
     });
 

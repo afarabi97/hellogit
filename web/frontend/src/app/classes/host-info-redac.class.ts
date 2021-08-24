@@ -18,7 +18,7 @@ export class HostInfoRedacClass implements HostInfoClass {
    * @param {HostInfoInterface} host_info_interface
    * @memberof HostInfo
    */
-  constructor(host_info_class: HostInfoClass){
+  constructor(host_info_class: HostInfoClass) {
     this.hostname = host_info_class.hostname;
     this.management_ip = host_info_class.management_ip;
     this.mac = undefined;

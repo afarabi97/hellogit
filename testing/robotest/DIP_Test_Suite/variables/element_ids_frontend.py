@@ -215,20 +215,20 @@ APP_CONFIGMAP_EDITOR__BUTTON_CLOSE = 'app-configmap-editor-div-mat-card-mat-card
 
 
 # These are for config-map.component.html
-# TODO cvah-config-map-table-td-*-namespace # td
-# TODO cvah-config-map-table-td-*-namespace-a # a
-# TODO cvah-config-map-table-td-*-namespace-value # span
-# TODO cvah-config-map-table-td-*-config-name # td
-# TODO cvah-config-map-table-td-*-creation-date # td
-# TODO cvah-config-map-table-td-*-expanded-detail # td
-# TODO cvah-config-map-table-td-*-button-add-config-data # button
-# TODO cvah-config-map-table-td-*-table-config-map-data-td-*-filename # td
-# TODO cvah-config-map-table-td-*-table-config-map-data-td-*-button-edit # button
-# TODO cvah-config-map-table-td-*-table-config-map-data-td-*-button-visibility # button
-# TODO cvah-config-map-table-td-*-table-config-map-data-td-*-button-delete # button
-# TODO cvah-config-map-table-td-*-table-config-map-data-tr-* # tr
-# TODO cvah-config-map-table-tr-* # tr
-# TODO cvah-config-map-table-tr-expanded-detail-* # tr
+# TODO cvah-config-map-outer-table-td-*-namespace # td
+# TODO cvah-config-map-outer-table-td-*-namespace-a # a
+# TODO cvah-config-map-outer-table-td-*-namespace-value # span
+# TODO cvah-config-map-outer-table-td-*-config-name # td
+# TODO cvah-config-map-outer-table-td-*-creation-date # td
+# TODO cvah-config-map-outer-table-td-*-expanded-detail # td
+# TODO cvah-config-map-outer-table-td-*-button-add-config-data # button
+# TODO cvah-config-map-outer-table-td-*-table-config-map-data-td-*-filename # td
+# TODO cvah-config-map-outer-table-td-*-table-config-map-data-td-*-button-edit # button
+# TODO cvah-config-map-outer-table-td-*-table-config-map-data-td-*-button-visibility # button
+# TODO cvah-config-map-outer-table-td-*-table-config-map-data-td-*-button-delete # button
+# TODO cvah-config-map-outer-table-td-*-table-config-map-data-tr-* # tr
+# TODO cvah-config-map-outer-table-tr-* # tr
+# TODO cvah-config-map-outer-table-tr-expanded-detail-* # tr
 
 
 # These are for change-kitclock.component.html

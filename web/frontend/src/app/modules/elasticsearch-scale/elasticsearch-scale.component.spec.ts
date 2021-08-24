@@ -2,17 +2,16 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
-import { RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
 import { CONFIRM_DIALOG_OPTION } from 'src/app/constants/cvah.constants';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import {
-    MockElasticsearchConfigurationClass,
+  MockElasticsearchConfigurationClass,
   MockElasticsearchNodeClass,
-    MockStatusNoneElasticsearchCheckClass,
-    MockStatusPendingElasticsearchCheckClass,
-    MockStatusUnknownElasticsearchCheckClass
+  MockStatusNoneElasticsearchCheckClass,
+  MockStatusPendingElasticsearchCheckClass,
+  MockStatusUnknownElasticsearchCheckClass
 } from 'static-data/class-objects-v3_7';
 import { MockElasticsearchNodeReturnInterface } from 'static-data/interface-objects-v3_7';
 

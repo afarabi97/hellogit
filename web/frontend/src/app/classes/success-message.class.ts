@@ -16,7 +16,7 @@ export class SuccessMessageClass implements SuccessMessageInterface {
    * @param {SuccessMessageInterface} success_message_interface
    * @memberof SuccessMessage
    */
-  constructor(success_message_interface: SuccessMessageInterface){
+  constructor(success_message_interface: SuccessMessageInterface) {
     this.success_message = success_message_interface.success_message;
   }
 }

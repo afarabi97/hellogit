@@ -20,7 +20,7 @@ import { DockerRegistryService } from './services/docker-registry.service';
 @Component({
   selector: 'cvah-docker-registry',
   templateUrl: './docker-registry.component.html',
-  styleUrls: ['./docker-registry.component.css']
+  styleUrls: ['./docker-registry.component.scss']
 })
 export class DockerRegistryComponent implements OnInit {
   // Used for showing docker registry data within html table

@@ -16,13 +16,13 @@
                     <ng-container matColumnDef="namespace">
                         <th scope="col" mat-header-cell *matHeaderCellDef>Namespace</th>
                         <td mat-cell *matCellDef="let config; let i = dataIndex;"
-                            id="{{ 'cvah-config-map-table-td-' + i + '-namespace' }}">
+                            id="{{ 'cvah-config-map-outer-table-td-' + i + '-namespace' }}">
                             <a id="{{ 'cvah-config-map-outer-td-' + i + '-namespace-a' }}" (click)="toggle_table_row_expansion(config)">
                                 <em *ngIf="!is_config_map_expansion_row_visible(config)"
                                     class="material-icons">chevron_right</em>
                                 <em *ngIf="is_config_map_expansion_row_visible(config)"
                                     class="material-icons">expand_more</em>
-                                <span id="{{ 'cvah-config-map-table-td-' + i + '-namespace-value' }}"
+                                <span id="{{ 'cvah-config-map-outer-table-td-' + i + '-namespace-value' }}"
                                       class="span-namespace">{{ config.metadata.namespace }}</span>
                             </a>
                         </td>

@@ -18,7 +18,7 @@ export class HostInfoClass implements HostInfoInterface {
    * @param {HostInfoInterface} host_info_interface
    * @memberof HostInfo
    */
-  constructor(host_info_interface: HostInfoInterface){
+  constructor(host_info_interface: HostInfoInterface) {
     this.hostname = host_info_interface.hostname;
     this.mac = host_info_interface.mac;
     this.management_ip = host_info_interface.management_ip;
