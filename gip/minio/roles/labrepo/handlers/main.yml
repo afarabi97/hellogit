@@ -1,4 +1,0 @@
-- name: Clean up Yum's metadata.
-  command: yum clean metadata
-  args:
-    warn: no

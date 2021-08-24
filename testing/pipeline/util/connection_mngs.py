@@ -7,7 +7,7 @@ from fabric import Connection, Config
 
 
 USERNAME = 'root'
-CONNECTION_TIMEOUT = 20
+CONNECTION_TIMEOUT = 60
 
 
 class MongoConnectionManager(object):

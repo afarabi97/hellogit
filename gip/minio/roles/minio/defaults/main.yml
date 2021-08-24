@@ -7,8 +7,6 @@ minio_volumes: /usr/local/share/minio
 minio_local_bin: /usr/local/bin/minio
 minio_configuration_directory: /etc/minio
 minio_systemd_service: minio.service
-minio_binding_port: 443
-minio_certificate_subject_alt_names:
-  - "minio.lan"
+minio_binding_port: 9000
+minio_console_port: 9001
 minio_certs_dir: /root/.minio/certs
-certificate_creation_delegate: "{{ controller }}"

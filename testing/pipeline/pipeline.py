@@ -20,7 +20,7 @@ from models.ctrl_setup import ControllerSetupSettings
 from models.internal_vdd import InternalVDDSettings
 from models.kit import KitSettingsV2
 from models.catalog import CatalogSettings
-from models.common import NodeSettings, VCenterSettings, RepoSettings
+from models.common import RepoSettings
 from models.node import NodeSettingsV2
 
 from models.export import ExportSettings
@@ -29,8 +29,10 @@ from models.constants import SubCmd
 from models.gip_settings import GIPServiceSettings
 from models.rhel_repo_vm import RHELRepoSettings
 from models.robot import RobotSettings
+from models.minio import MinIOSettings
 from util.yaml_util import YamlManager
 from util.ansible_util import delete_vms
+from util.constants import MINIO_PREFIX
 
 
 class Runner:
@@ -117,28 +119,14 @@ class Runner:
             SubCmd.run_cleanup, help="This subcommand powers off and deletes all VMs.")
         cleanup_parser.set_defaults(which=SubCmd.run_cleanup)
 
-        gip_setup_parser = subparsers.add_parser( SubCmd.gip_setup,
+        gip_setup_parser = subparsers.add_parser(SubCmd.gip_setup,
                                                   help="Configures GIP VMs and other related commands.")
         gip_setup_subparsers = gip_setup_parser.add_subparsers(help="gip setup commands")
         GIPServiceSettings.add_args(gip_setup_subparsers) # Creates a parser and adds arguments to it.
 
-        # minio
-        minio_parser = gip_setup_subparsers.add_parser(SubCmd.minio_command)
-        minio_parser.set_defaults(application='minio')
-        # minio commands
-        minio_commands = minio_parser.add_subparsers(help="Commands for creating a stand alone MinIO server.")
-        # setup minio
-        minio_setup_parser = minio_commands.add_parser(
-            SubCmd.setup_minio.name,
-            help="Creates a stand alone MinIO server.")
-        minio_setup_parser.set_defaults(which=SubCmd.setup_minio.id)
-        NodeSettings.add_args(minio_setup_parser, True)
-        VCenterSettings.add_args(minio_setup_parser)
-        # create certificate minio
-        minio_create_certificate_parser = minio_commands.add_parser(
-            SubCmd.create_certificate_minio.name,
-            help="Creates a TLS certificate on the MinIO server.")
-        minio_create_certificate_parser.set_defaults(which=SubCmd.create_certificate_minio.id)
+        minio_setup_parser = subparsers.add_parser(SubCmd.setup_minio, help="Creates a stand alone MinIO server.")
+        minio_setup_parser.set_defaults(which=SubCmd.setup_minio)
+        MinIOSettings.add_args(minio_setup_parser)
 
         test_server_vm_parser = subparsers.add_parser(
             SubCmd.test_server_repository_vm, help="Tests the reposync server repository VM.")
@@ -170,30 +158,17 @@ class Runner:
         args = parser.parse_args()
 
         try:
-            if args.which == SubCmd.setup_minio.id:
-                vcenter = VCenterSettings()
-                vcenter.from_namespace(args)
-                node = NodeSettings()
-                node.from_namespace(args)
-                StandAloneMinIO(vcenter, node).create()
-                yaml_name = "{}_{}.yml".format(VCenterSettings.__name__.lower(), "minio")
-                yaml_name2 = "{}_{}.yml".format(NodeSettings.__name__.lower(), "minio")
-                YamlManager.save_to_yaml(vcenter, yaml_name)
-                YamlManager.save_to_yaml(node, yaml_name2)
-            elif args.which == SubCmd.create_certificate_minio.id:
-                StandAloneMinIO(
-                    YamlManager.load_vcenter_settings(),
-                    YamlManager.load_node_settings(),
-                    YamlManager.load_ctrl_settings_from_yaml().node.ipaddress) \
-                .create_certificate()
-            elif args.which == SubCmd.export_minio.id:
+            if args.which == SubCmd.setup_minio:
+                minio_settings = MinIOSettings(args)
+                YamlManager.save_to_yaml(minio_settings)
+                StandAloneMinIO(minio_settings).create()
+            elif args.which == SubCmd.export_minio:
+                minio_settings = YamlManager.load_minio_settings_from_yaml()
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-                MinIOExport(
-                    YamlManager.load_node_settings(),
-                    YamlManager.load_vcenter_settings(),
-                    export_settings.export_loc) \
-                .export()
+                minio_settings.export_loc = export_settings.export_loc
+                minio_settings.release_template_name = minio_settings.export_loc.render_export_name(MINIO_PREFIX, minio_settings.commit_hash)[0:-4]
+                MinIOExport(minio_settings).export_minio()
             elif args.which == SubCmd.test_server_repository_vm:
                 repo_settings = RHELRepoSettings()
                 repo_settings.from_namespace(args, True)

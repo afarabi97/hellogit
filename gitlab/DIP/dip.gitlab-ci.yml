@@ -44,8 +44,7 @@ Create a standalone MinIO server:
     - tfplenum-buildv2
   script: |
     args=(
-      gip-setup minio
-      create
+      setup-minio
       --vcenter-ipaddress "$VCENTER_IPADDRESS"
       --vcenter-username "$VCENTER_USERNAME"
       --vcenter-password "$VCENTER_PASSWORD"
@@ -58,16 +57,17 @@ Create a standalone MinIO server:
       --vm-password "$DEFAULT_TEMPLATE_PASSWORD"
       --vm-template "$MINIO_TEMPLATE_TO_CLONE"
       --gateway "$VM_GATEWAY"
-      --vm-prefix "$VM_PREFIX"
+      --vm-name "$VM_PREFIX-minio.$KIT_DOMAIN"
+      --hostname "minio"
+      --domain "$KIT_DOMAIN"
       --vm-datastore "$VCENTER_DATASTORE"
-      --disk-size $MINIO_DISK_SIZE
-      --ctrl-cpu $MINIO_CPU
-      --ctrl-memory $MINIO_MEMORY
-      --extra-disk $MINIO_STORAGE_SIZE
-      --pipeline "$PIPELINE"
+      --disk-size "$MINIO_DISK_SIZE"
+      --storage-disk-size "$MINIO_STORAGE_SIZE"
+      --cpu $MINIO_CPU
+      --memory $MINIO_MEMORY
       --commit-hash "$CI_COMMIT_SHORT_SHA"
+      --pipeline "$PIPELINE"
     )
-
     echo "${args[@]}"
     python3 testing/pipeline/pipeline.py "${args[@]}"
   only:
@@ -238,22 +238,6 @@ MIP Setup:
   artifacts:
     untracked: true
   extends: .all-mip-hw
-
-Secure MinIO with a TLS certificate:
-  stage: configure:minio
-  tags:
-    - tfplenum-buildv2
-  script: |
-    args=(
-      gip-setup minio
-      create-certificate
-    )
-
-    echo "${args[@]}"
-    python3 testing/pipeline/pipeline.py "${args[@]}"
-  only:
-    variables: # The TLS certificate should not be exported.
-      - $MINIO_VM == "yes" && $PIPELINE == "developer-all" && $MINIO_USE_TLS == "yes"
 
 Perform Security Scans:
   stage: security_scans

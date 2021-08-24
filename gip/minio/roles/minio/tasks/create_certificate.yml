@@ -20,7 +20,7 @@
       subjectAltName = @alt_names
 
       [alt_names]:
-      DNS.1 = minio.lan
+      DNS.1 = {{ hostname }}.{{ domain }}
 
 - name: Generate private key with RSA
   command: "openssl genrsa -out {{ minio_certs_dir }}/private.key 2048"

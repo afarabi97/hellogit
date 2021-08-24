@@ -70,7 +70,7 @@ variables:
   UPDATE_CODE: "yes"
   IS_CLEANUP: "no"
   RUN_ROBOT_TESTS: "yes"
-  MINIO_USE_TLS: "yes"
+  MINIO_USE_TLS: "no"
   CREATE_MULTIBOOT: "yes"
   RUN_CREATE_MASTER_DRIVE: "no"
   RUN_CREATE_GIP_DRIVE: "no"
@@ -92,8 +92,8 @@ variables:
   MINIO_MEMORY: 8192
   MINIO_CPU: 2
   MINIO_VM: "no"
-  MINIO_TEMPLATE_TO_CLONE: "MinIO_Template"
-  MINIO_DISK_SIZE: 10
+  MINIO_TEMPLATE_TO_CLONE: "RHEL8 Template"
+  MINIO_DISK_SIZE: 100
 
   # Hardware specific variables
   REDFISH_USER: "root"
@@ -207,7 +207,6 @@ stages:
   - server-setup
   - deploy-kit
   - node-setup
-  - configure:minio
   - security_scans
   - catalog
   - robot-test

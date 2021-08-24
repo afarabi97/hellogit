@@ -1,0 +1,56 @@
+---
+- name: Create a virtual machine from a template.
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: "Remove {{ vmname }}."
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        folder: "{{ folder }}"
+        name: "{{ vmname }}"
+        state: absent
+        force: yes
+        validate_certs: no
+      delegate_to: localhost
+      ignore_errors: yes
+
+    - name: "Create {{ vmname }} from {{ template }}."
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        folder: "{{ folder }}"
+        name: "{{ vmname }}"
+        template: "{{ template }}"
+        networks:
+          - name: "{{ portgroup }}"
+            ip: "{{ ip }}"
+            gateway: "{{ gateway }}"
+            netmask: 255.255.255.0
+            start_connected: yes
+        hardware:
+          memory_mb: "{{ memory }}"
+          num_cpus: "{{ cpu }}"
+        disk:
+          - size_gb: "{{ disk_size }}"
+            datastore: "{{ datastore }}"
+            type: thin
+          - size_gb: "{{ storage_disk_size }}"
+            datastore: "{{ datastore }}"
+            type: thin
+        customization:
+          dns_servers: "{{ dns_servers }}"
+          hostname: "{{ hostname.split('.')[0] }}"
+          domain: "{{ domain }}"
+        state: poweredon
+        validate_certs: no
+      delegate_to: localhost

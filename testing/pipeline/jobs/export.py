@@ -4,7 +4,6 @@ import tempfile
 import subprocess
 import shlex
 import shutil
-import sys
 
 from fabric import Connection
 from util.ansible_util import execute_playbook, take_snapshot
@@ -12,14 +11,15 @@ from util.connection_mngs import FabricConnectionWrapper
 from models import Model
 from models.export import ExportSettings, ExportLocSettings
 from models.ctrl_setup import ControllerSetupSettings
-from models.common import NodeSettings, VCenterSettings
+from models.common import VCenterSettings
+from models.minio import MinIOSettings
+from models.common import VCenterSettings
 from pathlib import Path
 from typing import Tuple, Union
-from util.ansible_util import (power_on_vms, revert_to_baseline_and_power_on_vms,
-                               power_off_vms_gracefully)
+from util.ansible_util import (power_on_vms, revert_to_baseline_and_power_on_vms)
 from util.docs_exporter import MyConfluenceExporter
 from util.ssh import test_nodes_up_and_alive
-from util.constants import (PIPELINE_DIR, TESTING_DIR, SKIP_REPOSYNC_BUILD_AND_TEMPLATE,
+from util.constants import (PIPELINE_DIR, SKIP_REPOSYNC_BUILD_AND_TEMPLATE,
                             SKIP_CTRL_BUILD_AND_TEMPLATE, SKIP_MINIO_BUILD_AND_TEMPLATE,
                             CONTROLLER_PREFIX, MINIO_PREFIX, REPO_SYNC_PREFIX)
 from models.gip_settings import GIPServiceSettings
@@ -27,6 +27,7 @@ from models.rhel_repo_vm import RHELRepoSettings
 
 
 CTRL_EXPORT_PREP = PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"
+MINIO_EXPORT_PREP =  PIPELINE_DIR + "playbooks/minio_export_prep.yml"
 
 
 def create_export_path(export_loc: ExportLocSettings) -> Tuple[Path]:
@@ -135,46 +136,20 @@ def export(vcenter_settings: VCenterSettings,
 
 
 class MinIOExport:
+    def __init__(self, minio_settings: MinIOSettings):
+        self.minio_settings = minio_settings
 
-    def __init__(self, node: NodeSettings, vcenter: VCenterSettings, export_loc: ExportLocSettings):
-        self._node = node
-        self._vcenter = vcenter
-        self._export_loc = export_loc
-        self._export_prefix = MINIO_PREFIX
-        self._release_template_name = self._export_loc.render_export_name(self._export_prefix, node.commit_hash)[0:-4]
-        self._export_prep_vars = {
-            "python_executable": sys.executable,
-            "vcenter": self._vcenter,
-            "node": self._node,
-            "release_template_name": self._release_template_name
-        }
-        self._execute_commands_playbook = str(Path(PIPELINE_DIR) / Path('playbooks/execute_commands.yml'))
-
-    def _copy_reset_script(self):
-        with FabricConnectionWrapper(self._node.username, self._node.password, self._node.ipaddress) as shell:
-            shell.put(PIPELINE_DIR + "scripts/reset_system.sh", "/tmp/reset_system.sh")
-            shell.sudo('chmod 755 /tmp/reset_system.sh')
-
-    def _cleanup(self):
-        self._copy_reset_script()
-        commands = [{"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete ens192'}, {"vm_shell": '/tmp/reset_system.sh', "vm_shell_args": '--reset-node --iface=ens192'}]
-        execute_commands_vars = {
-            "python_executable": sys.executable,
-            "vcenter": self._vcenter,
-            "node": self._node,
-            "commands": commands
-        }
-        execute_playbook([self._execute_commands_playbook], execute_commands_vars)
-
-    def export(self):
+    def export_minio(self):
         if not Path(SKIP_MINIO_BUILD_AND_TEMPLATE).exists():
-            power_on_vms(self._vcenter, self._node)
-            test_nodes_up_and_alive(self._node, 10)
-            self._cleanup()
-            power_off_vms_gracefully(self._vcenter, self._node)
-            execute_playbook([CTRL_EXPORT_PREP], self._export_prep_vars)
-
-        export(self._vcenter, self._export_loc, self._release_template_name, self._export_prefix)
+            execute_playbook([MINIO_EXPORT_PREP], {
+                "commands": [
+                    {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete ens192'},
+                    {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete "Wired connection 1"'},
+                    {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": '--password Q9sIxtbggUGaw root'}
+                ],
+                **self.minio_settings.to_dict()
+            })
+        export(self.minio_settings.vcenter, self.minio_settings.export_loc, self.minio_settings.release_template_name, MINIO_PREFIX)
 
 
 class ControllerExport:

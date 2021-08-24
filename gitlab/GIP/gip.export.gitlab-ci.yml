@@ -42,7 +42,7 @@ Export GIP MinIO:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    run-export minio \
+    run-export export-minio \
     --cpt-export-path "$GIP_EXPORT_LOC" \
     --staging-export-path "$DRIVE_GIP_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION"

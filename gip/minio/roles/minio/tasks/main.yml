@@ -1,4 +1,8 @@
 ---
+- name: Set hostname.
+  hostname:
+    name: "{{ hostname }}.{{ domain }}"
+
 - name: Create a system acount for the MinIO server to run as.
   user:
     name: "{{ minio_system_account }}"
@@ -61,25 +65,22 @@
   notify: "Reload the systemd daemon."
 
 - name: Open the port that the MinIO server is listening on.
-  firewalld:
-    port: "{{ minio_binding_port }}/tcp"
-    immediate: yes
-    permanent: yes
-    state: enabled
-  when: ansible_facts['python']['version']['major'] == 2
-
-# RHEL7 doesn't have firewalld bindings for Python3.
-- name: Open the port that the MinIO server is listening on (command).
   command: "firewall-cmd --permanent --add-port {{ minio_binding_port }}/tcp"
   register: result
   changed_when: (result.rc == 0) and ("ALREADY_ENABLED" not in result.stderr)
   notify: "Restart the firewalld service."
-  when: ansible_facts['python']['version']['major'] == 3
+
+- name: Open the MinIO server console address port.
+  command: "firewall-cmd --permanent --add-port {{ minio_console_port }}/tcp"
+  register: result
+  changed_when: (result.rc == 0) and ("ALREADY_ENABLED" not in result.stderr)
+  notify: "Restart the firewalld service."
 
 - name: Give MiniIO binary cap net bind service permissions
   command: "setcap cap_net_bind_service=+ep {{ minio_local_bin }}"
 
 - import_tasks: create_certificate.yml
+  when: use_tls | default("no")
 
 - name: Start the MinIO service.
   systemd:

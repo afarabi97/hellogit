@@ -15,6 +15,7 @@ from models.catalog import (CatalogSettings, ArkimeCaptureSettings,
                             RocketchatSettings, CortexSettings, MattermostSettings,
                             RedmineSettings, NifiSettings, JcatNifiSettings, NetflowFilebeatSettings)
 from models.rhel_repo_vm import RHELRepoSettings
+from models.minio import MinIOSettings
 from typing import Union, List
 
 
@@ -59,7 +60,7 @@ class YamlManager:
             cls.yaml.register_class(KitSettingsDef)
             cls.yaml.register_class(NodeSettingsV2)
             cls.yaml.register_class(HardwareNodeSettingsV2)
-
+            cls.yaml.register_class(MinIOSettings)
 
     @classmethod
     def save_to_yaml(cls, some_model: Model, yaml_name: str=None):
@@ -102,12 +103,8 @@ class YamlManager:
         return ret_val
 
     @classmethod
-    def load_node_settings(cls):
-        return cls._load_from_yaml(YAML_APPLICATION_FILE.format(NodeSettings.__name__.lower(), "minio"))
-
-    @classmethod
-    def load_vcenter_settings(cls):
-        return cls._load_from_yaml(YAML_APPLICATION_FILE.format(VCenterSettings.__name__.lower(), "minio"))
+    def load_minio_settings_from_yaml(cls) -> MinIOSettings:
+        return cls._load_from_yaml(f"{MinIOSettings.__name__.lower()}.yml")
 
     @classmethod
     def load_ctrl_settings_from_yaml(cls) -> Union[ControllerSetupSettings,HwControllerSetupSettings]:

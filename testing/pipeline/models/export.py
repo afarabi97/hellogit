@@ -1,5 +1,4 @@
 from argparse import Namespace, ArgumentParser
-from datetime import datetime
 from models import Model, populate_model_from_namespace, add_args_from_instance
 from models.constants import SubCmd
 from models.drive_creation import DriveCreationSettings, DriveCreationHashSettings
@@ -81,7 +80,7 @@ class ExportSettings(Model):
         if SubCmd.export_gip_service_vm == namespace.which:
             populate_model_from_namespace(self.export_loc, namespace)
 
-        if namespace.which == SubCmd.export_minio.id:
+        if namespace.which == SubCmd.export_minio:
             populate_model_from_namespace(self.export_loc, namespace)
 
         if SubCmd.export_reposync_server == namespace.which:
@@ -168,7 +167,7 @@ class ExportSettings(Model):
         add_args_from_instance(drive_parser, DriveCreationSettings(), True)
 
         export_minio_name_help="Exports the MinIO server to the provided location."
-        minio = subparsers.add_parser(SubCmd.export_minio.name,
-                                      help=export_minio_name_help)
-        add_args_from_instance(minio, ExportLocSettings(), True)
-        minio.set_defaults(which=SubCmd.export_minio.id, application='minio')
+        export_minio_parser = subparsers.add_parser(SubCmd.export_minio,
+                                                    help=export_minio_name_help)
+        add_args_from_instance(export_minio_parser, ExportLocSettings(), True)
+        export_minio_parser.set_defaults(which=SubCmd.export_minio)

@@ -77,12 +77,15 @@ Export DIP MinIO:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py \
-    run-export minio \
-    --cpt-export-path "$SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
-    --mdt-export-path "$SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
-    --staging-export-path "$DRIVE_STAGING_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION"
+    args=(
+      run-export export-minio
+      --cpt-export-path "$SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER"
+      --mdt-export-path "$SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER"
+      --staging-export-path "$DRIVE_STAGING_FOLDER"
+      --export-version "$TFPLENUM_EXPORT_VERSION"
+    )
+    echo "${args[@]}"
+    python3 testing/pipeline/pipeline.py "${args[@]}"
   only:
     variables:
       - $PIPELINE == "export-minio"
