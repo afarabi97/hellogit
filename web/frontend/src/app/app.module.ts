@@ -100,7 +100,6 @@ import { CopyTokenModalDialogComponent } from './system-setupv2/copy-token-dialo
 import { PodLogModalDialogComponent } from './pod-log-dialog/pod-log-dialog.component';
 
 // Index Management
-import { IndexManagementComponent } from './index-management/component/index-management.component';
 import { AddMipDialog } from './system-setupv2/add-mip-dialog/add-mip-dialog.component';
 import { MipManagementComponent } from './system-setupv2/mip-mng/mip-mng.component';
 
@@ -111,6 +110,7 @@ import { ConfigMapModule } from './modules/config-map/config-map.module';
 import { DateTimeModule } from './modules/date-time/date-time.module';
 
 import { DockerRegistryModule } from './modules/docker-registry/docker-registry.module';
+import { ElasticsearchIndexManagementModule } from './modules/elasticsearch-index-management/elasticsearch-index-management.module';
 import { ElasticsearchScaleModule } from './modules/elasticsearch-scale/elasticsearch-scale.module';
 import { PmoSupportModule } from './modules/pmo-support/pmo-support.module';
 import { PolicyManagementModule } from './modules/policy-management/policy-management.module';
@@ -171,7 +171,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     PasswordMessageComponent,
     PodLogModalDialogComponent,
     RepositorySettingsComponent,
-    IndexManagementComponent,
     LogIngestComponent,
     VMWareSettingsComponent,
     GeneralSettingsPaneComponent,
@@ -203,6 +202,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ConfigMapModule,
     DateTimeModule,
     DockerRegistryModule,
+    ElasticsearchIndexManagementModule,
     ElasticsearchScaleModule,
     PmoSupportModule,
     PolicyManagementModule,

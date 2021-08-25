@@ -1,0 +1,74 @@
+<div class="main-content2" fxLayout="column" fxLayoutAlign="center center">
+  <div fxLayout="column" fxLayoutAlign="center none">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>ElasticSearch Index Management</mat-card-title>
+      </mat-card-header>
+      <mat-progress-bar *ngIf="is_loading" mode="indeterminate"></mat-progress-bar>
+      <mat-card-content fxLayout="column" fxLayoutAlign="space-around stretch">
+        <mat-horizontal-stepper #stepper linear="true">
+
+          <!-- Index Action -->
+          <mat-step [stepControl]="index_management_actions_form_group" [editable]="is_editable">
+            <ng-template matStepLabel>Index Action</ng-template>
+            <div>
+              <p>Select an action; Close or Delete</p>
+              <p>Close: A closed index will block read / write operations and does not allow all operations that opened indices allow.</p>
+              <p>Delete: A delete index will delete all metadata in the index and clear out all shards and replicas tied to it.
+                 To delete an index it must be closed first.</p>
+            </div>
+            <form [formGroup]="index_management_actions_form_group" #ima_form_directive="ngForm">
+              <div fxLayout="column" fxLayoutAlign="start stretch">
+
+                <!-- Action -->
+                <mat-form-field>
+                  <mat-label>Action</mat-label>
+                  <mat-select id="cvah-elasticsearch-index-management-mat-select-action"
+                              formControlName="action" required>
+                    <mat-option *ngFor="let action of actions; let i = index;"
+                                id="{{ 'cvah-elasticsearch-index-management-action-mat-option-' + i }}"
+                                [value]="action.value">{{ action.name }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <div fxLayout="row" fxLayoutAlign="end none" style="margin-top: 10px;" fxLayoutGap="10px">
+                  <button mat-raised-button id="cvah-elasticsearch-index-management-button-next"
+                          [disabled]="index_management_actions_form_group.invalid"
+                          color="primary" (click)="next()">Next</button>
+                </div>
+              </div>
+            </form>
+          </mat-step>
+
+          <!-- Index List -->
+          <mat-step [stepControl]="index_management_list_form_group" [editable]="is_editable">
+            <ng-template matStepLabel>Index List</ng-template>
+            <div>
+              <p>Select one or more Index and Click Update</p>
+            </div>
+            <form [formGroup]="index_management_list_form_group" #iml_form_directive="ngForm">
+              <div fxLayout="column" fxLayoutAlign="start stretch">
+
+                <!-- List -->
+                <mat-form-field>
+                  <mat-label>List</mat-label>
+                  <mat-select id="cvah-elasticsearch-index-management-mat-select-list"
+                              formControlName="index_list" multiple>
+                    <mat-option *ngFor="let indice of indices; let j = index;"
+                                id="{{ 'cvah-elasticsearch-index-management-list-mat-option-' + j }}"
+                                [value]="indice">{{ indice }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <div fxLayout="row" fxLayoutAlign="end none" style="margin-top: 10px;" fxLayoutGap="10px">
+                  <button mat-raised-button id="cvah-elasticsearch-index-management-button-back"
+                          color="warn" (click)="back()">Back</button>
+                  <button mat-raised-button id="cvah-elasticsearch-index-management-button-update"
+                          color="primary" (click)="update()" [disabled]="is_index_list_empty()">Update</button>
+                </div>
+              </div>
+            </form>
+          </mat-step>
+        </mat-horizontal-stepper>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

@@ -7,4 +7,5 @@
  */
 export interface MatOptionInterface {
   value: string;
+  name?: string;
 }

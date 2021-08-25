@@ -19,6 +19,8 @@ import { ConfigMapService } from '../config-map/services/config-map.service';
 import { ConfigMapServiceSpy } from '../config-map/services/config-map.service.spec';
 import { DockerRegistryService } from '../docker-registry/services/docker-registry.service';
 import { DockerRegistryServiceSpy } from '../docker-registry/services/docker-registry.service.spec';
+import { IndexManagementService } from '../elasticsearch-index-management/services/index-management.service';
+import { IndexManagementServiceSpy } from '../elasticsearch-index-management/services/index-management.service.spec';
 import { ElasticsearchService } from '../elasticsearch-scale/services/elasticsearch.service';
 import { ElasticsearchServiceSpy } from '../elasticsearch-scale/services/elasticsearch.service.spec';
 import { SystemVersionService } from '../pmo-support/services/system-version.service';
@@ -47,6 +49,7 @@ import { HealthServiceSpy } from '../../health-dashboard/services/health.service
     { provide: NavBarService, useClass: NavbarServiceSpy },
     { provide: ConfigMapService, useClass: ConfigMapServiceSpy },
     { provide: DockerRegistryService, useClass: DockerRegistryServiceSpy },
+    { provide: IndexManagementService, useClass: IndexManagementServiceSpy },
     { provide: ElasticsearchService, useClass: ElasticsearchServiceSpy },
     { provide: SystemVersionService, useClass: SystemVersionServiceSpy },
     { provide: KitTokenSettingsService, useClass: KitTokenSettingsServiceSpy },

@@ -341,11 +341,14 @@ APP_MODAL_DIALOG__APP_DATE_TIME_MAT_FORM_FIELD_TIMEZONE_MAT_SELECT = 'app-modal-
 # TODO app-modal-dialog-mat-app-date-time-div-mat-form-field-timezone-mat-select-mat-option-* # mat-option
 
 
-# These are for elasticconfig-editor.component.html
-# TODO app-elasticconfig-editor-div-mat-card-mat-card-content-div-div-div-* # div
-APP_ELASTICCONFIG_EDITOR__TEXTAREA_TEXT = 'app-elasticconfig-editor-div-mat-card-mat-card-content-div-div-textarea-text' # textarea
-APP_ELASTICCONFIG_EDITOR__BUTTON_CLOSE_WITHOUT_SAVING = 'app-elasticconfig-editor-div-mat-card-mat-card-footer-button-close-without-saving' # button
-APP_ELASTICCONFIG_EDITOR__BUTTON_SAVE_CLOSE = 'app-elasticconfig-editor-div-mat-card-mat-card-footer-button-save-and-close' # button
+# These are for index-management.component.html
+CVAH_ELASTICSEARCH_INDEX_MANAGEMENT__MAT_SELECT_ACTION = 'cvah-elasticsearch-index-management-mat-select-action' # mat-select
+# TODO cvah-elasticsearch-index-management-action-mat-option-* # mat-option
+CVAH_ELASTICSEARCH_INDEX_MANAGEMENT__BUTTON_NEXT = 'cvah-elasticsearch-index-management-button-next' # button
+CVAH_ELASTICSEARCH_INDEX_MANAGEMENT__MAT_SELECT_LIST = 'cvah-elasticsearch-index-management-mat-select-list' # mat-select
+# TODO cvah-elasticsearch-index-management-list-mat-option-* # mat-option
+CVAH_ELASTICSEARCH_INDEX_MANAGEMENT__BUTTON_BACK = 'cvah-elasticsearch-index-management-button-back' # button
+CVAH_ELASTICSEARCH_INDEX_MANAGEMENT__BUTTON_UPDATE = 'cvah-elasticsearch-index-management-button-update' # button
 
 
 # These are for elasticsearch-scale.component.html
@@ -356,21 +359,6 @@ APP_ELASTICCONFIG_EDITOR__BUTTON_SAVE_CLOSE = 'app-elasticconfig-editor-div-mat-
 # TODO cvah-elasticsearch-scale-server-node-count # h2
 CVAH_ELASTICSEARCH_SCALE__BUTTON_EDIT_CONFIGURATION = 'cvah-elasticsearch-scale-button-edit-configuration' # button
 CVAH_ELASTICSEARCH_SCALE__BUTTON_RUN = 'cvah-elasticsearch-scale-button-run' # button
-
-
-# These are for index-management.component.html
-APP_INDEX_MANAGEMENT__MAT_STEP_INDEX_ACTION = 'app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-action' # mat-step
-APP_INDEX_MANAGEMENT__INDEX_ACTION_MAT_FORM_FIELD_ACTION = 'app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-action-form-div-mat-form-field-action' # mat-form-field
-APP_INDEX_MANAGEMENT__INDEX_ACTION_ACTION_MAT_SELECT = 'app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-action-form-div-mat-form-field-action-mat-select' # mat-select
-# TODO app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-action-form-div-mat-form-field-action-mat-select-mat-option-* # mat-option
-APP_INDEX_MANAGEMENT__INDEX_ACTION_BUTTON_NEXT = 'app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-action-form-div-div-button-next' # button
-APP_INDEX_MANAGEMENT__MAT_STEP_INDEX_LIST = 'app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-list' # mat-step
-APP_INDEX_MANAGEMENT__INDEX_LIST_MAT_FORM_FIELD_LIST = 'app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-list-form-div-mat-form-field-list' # mat-form-field
-APP_INDEX_MANAGEMENT__INDEX_LIST_LIST_MAT_SELECT = 'app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-list-form-div-mat-form-field-list-mat-select' # mat-select
-# TODO app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-list-form-div-mat-form-field-list-mat-select-mat-option-* # mat-option
-APP_INDEX_MANAGEMENT__INDEX_LIST_LIST_BUTTON_BACK = 'app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-list-form-div-div-button-back' # button
-APP_INDEX_MANAGEMENT__INDEX_LIST_LIST_BUTTON_UPDATE = 'app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-list-form-div-div-button-update' # button
-APP_INDEX_MANAGEMENT__MAT_SPINNER = 'app-index-management-div-mat-spinner' # mat-spinner
 
 
 # These are for kickstart.component.html

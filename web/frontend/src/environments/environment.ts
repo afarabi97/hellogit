@@ -11,6 +11,10 @@ export const environment = {
   CONFIG_MAP_SERVICE_BASE_URL: `/api/configmap`,
   CONFIG_MAP_SERVICE_GET_ASSOCIATED_PODS: `/api/associated/pods/`,
 
+  INDEX_MANAGEMENT_SERVICE_INDEX_MANAGEMENT: `/api/index_management`,
+  INDEX_MANAGEMENT_SERVICE_GET_CLOSED_INDICES: `/api/closed_indices`,
+  INDEX_MANAGEMENT_SERVICE_GET_OPENED_INDICES: `/api/opened_indices`,
+
   ELASTICSEARCH_SERVICE_GET_ELASTIC_NODES: `/api/scale/elastic/nodes`,
   ELASTICSEARCH_SERVICE_POST_ELASTIC_NODES: `/api/scale/elastic`,
   ELASTICSEARCH_SERVICE_GET_ELASTIC_FULL_CONFIG: `/api/scale/elastic/advanced`,

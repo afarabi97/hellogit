@@ -1,0 +1,38 @@
+@mixin index-page-theme($theme) {
+    .cvah-index-management {
+        .stepper__footer {
+            border-top: 1px solid #D7D9DD;
+        }
+
+        .stepper__header {
+            border-bottom: 1px solid #D7D9DD;
+        }
+
+        .line-numbers div {
+            font-size: map-get($theme, primary-font-size);
+        }
+
+        .text-area {
+            font-size: map-get($theme, primary-font-size);
+            background-color: map-get($theme, first-elevation-dark-background);
+            color: map-get($theme, primary-text-color);
+        }
+
+        mat-card {
+            background-color: map-get($theme, first-elevation-dark-background);
+        }
+
+        .mat-flat-button.mat-primary, .mat-raised-button.mat-primary, .mat-fab.mat-primary, .mat-mini-fab.mat-primary{
+            background-color: map-get($theme, primary-btn-color);
+            color: map-get($theme, primary-btn-text-color);
+        }
+
+        .mat-flat-button.mat-warn, .mat-raised-button.mat-warn, .mat-fab.mat-warn, .mat-mini-fab.mat-warn {
+            background-color: map-get($theme, danger-btn-color);
+            color: map-get($theme, primary-btn-text-color);
+        }
+        mat-vertical-stepper {
+            background-color: inherit;
+        }
+    }
+}

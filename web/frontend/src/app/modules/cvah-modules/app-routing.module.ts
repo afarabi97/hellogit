@@ -7,7 +7,7 @@ import { CatalogPageComponent } from '../../catalog/page/catalog-page.component'
 import { ConfigmapsComponent } from '../config-map/config-map.component';
 import { ElasticsearchScaleComponent } from '../elasticsearch-scale/elasticsearch-scale.component';
 import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from '../../guards';
-import { IndexManagementComponent } from '../../index-management/component/index-management.component';
+import { ElasticsearchIndexManagementComponent } from '../elasticsearch-index-management/elasticsearch-index-management.component';
 import { LogIngestComponent } from '../../log-ingest/log-ingest.component';
 import { PcapFormComponent } from '../../pcap-form/pcap-form.component';
 import { SecurityAlertsComponent } from '../../security-alerts/security-alerts.component';
@@ -41,7 +41,7 @@ const routes: Routes = [
   { path: 'tools', component: ToolsFormComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
   { path: 'application/:id', component : CatalogPageComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
   { path: 'es_scale', component: ElasticsearchScaleComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
-  { path: 'index_management', component: IndexManagementComponent, canActivate: [ControllerMaintainerRequiredGuard] },
+  { path: 'index_management', component: ElasticsearchIndexManagementComponent, canActivate: [ControllerMaintainerRequiredGuard] },
   { path: 'logingest', component: LogIngestComponent, canActivate: [ OperatorRequiredGuard ] },
 ];
 
