@@ -49,11 +49,12 @@ class DockerRegistry(Resource):
                 for repo in repos:
                     tags = get_docker_repo_tags(repo)
                     metadata = []
-                    for tag in tags:
-                        image_id, image_size = get_imageid_and_size(repo, tag)
-                        metadata.append({'tag': tag, 'image_id': image_id, 'image_size': image_size})
+                    if tags:
+                        for tag in tags:
+                            image_id, image_size = get_imageid_and_size(repo, tag)
+                            metadata.append({'tag': tag, 'image_id': image_id, 'image_size': image_size})
 
-                    ret_val.append({"name": repo, "metadata": metadata})
+                        ret_val.append({"name": repo, "metadata": metadata})
         except ConnectionError as e:
             logger.exception(e)
 
