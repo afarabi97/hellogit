@@ -6,6 +6,30 @@ pull_request_rules:
     actions:
       backport:
         branch: devel
+        assignees:
+          - "{{ author }}"
+        labels:
+          - "backport"
+  - name: backport patches to release/3.5.1.0 branch
+    conditions:
+      - merged
+      - label=backport-v3.5.1.0
+    actions:
+      backport:
+        branch: release/3.5.1.0
+        assignees:
+          - "{{ author }}"
+        labels:
+          - "backport"
+  - name: backport patches to release/3.5.2.0 branch
+    conditions:
+      - merged
+      - label=backport-v3.5.2.0
+    actions:
+      backport:
+        branch: release/3.5.2.0
+        assignees:
+          - "{{ author }}"
         labels:
           - "backport"
   - name: backport patches to release/3.6.0.0 branch
@@ -15,6 +39,8 @@ pull_request_rules:
     actions:
       backport:
         branch: release/3.6.0.0
+        assignees:
+          - "{{ author }}"
         labels:
           - "backport"
 comment_rules:
@@ -40,5 +66,5 @@ comment_rules:
     rooks:
       id: 184
   pipeline_shortcuts:
-    test:
-      TEST: test
+    dev_all:
+      PIPELINE: developer-all
