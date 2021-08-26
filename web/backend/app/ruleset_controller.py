@@ -101,7 +101,6 @@ def create_rule_srv_wrapper(rule_set: Dict,
         elif rule_type == RULE_TYPES[3]:
             is_valid, error_output = _validate_zeek_signature(rule)
 
-    is_valid = True
     if is_valid:
         return create_rule_service(rule, rule_set_id)
 
@@ -363,7 +362,7 @@ class UploadRule(Resource):
     def post(self) -> Response:
         rule_set = json.loads(request.form['ruleSetForm'], encoding="utf-8")
         if 'upload_file' not in request.files:
-            return {"error_message": "Failed to upload file. No file was found in the request."}
+            return {"error_message": "Failed to upload file. No file was found in the request."}, 400
 
         by_pass_validation = rule_set.get('byPassValidation', False)
         rule_set = conn_mng.mongo_ruleset.find_one({'_id': rule_set['_id']})
@@ -381,13 +380,13 @@ class UploadRule(Resource):
                         rule_or_rules = create_rule_from_file(Path(abs_save_path), rule_set, by_pass_validation=by_pass_validation)
                 except InvalidRuleSyntax as e:
                     logger.error(str(e))
-                    return {"error_message": str(e)}
+                    return {"error_message": str(e)}, 400
         if rule_or_rules:
             if not isinstance(rule_or_rules, list):
                 return [rule_or_rules]
             return rule_or_rules
         else:
-            return {"error_message": "Failed to upload rules file for an unknown reason."}
+            return {"error_message": "Failed to upload rules file for an unknown reason."}, 500
 
 @POLICY_NS.route('/rule')
 class RulesCtrl(Resource):
@@ -428,8 +427,8 @@ class RulesCtrl(Resource):
                 if rule:
                     return rule
             elif error_output:
-                return {"error_message": error_output.split('\n')}
-        return {"error_message": "Failed to create a rule for ruleset ID {}.".format(ruleset_id)}
+                return {"error_message": error_output.split('\n')}, 400
+        return {"error_message": "Failed to create a rule for ruleset ID {}.".format(ruleset_id)}, 500
 
     @POLICY_NS.doc(description="Updates an exiting Rule.")
     @POLICY_NS.expect(RuleModel.DTO)
@@ -474,8 +473,8 @@ class RulesCtrl(Resource):
                     if rule_set:
                         return rule
             else:
-                return {"error_message": error_output.split('\n')}
-        return {"error_message": "Failed to update a rule for ruleset ID {}.".format(ruleset_id)}
+                return {"error_message": error_output.split('\n')}, 400
+        return {"error_message": "Failed to update a rule for ruleset ID {}.".format(ruleset_id)}, 500
 
 @POLICY_NS.route('/rule/<rule_id>')
 class DeleteRule(Resource):

@@ -42,7 +42,7 @@ export class SortingService {
    */
   public rule_set_alphanum(a,b) {
     a = a['name'];
-    b = b['nameame'];
+    b = b['name'];
 
     return naturalSort(a, b);
   }

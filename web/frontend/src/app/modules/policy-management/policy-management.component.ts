@@ -629,7 +629,7 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
       .subscribe(
         (response: RuleSetClass[]) => {
           this.rules_visible_ = new Array(response.length).fill(false);
-          this.rule_sets_data_source.data = response;
+          this.rule_sets_data_source.data = response.sort(this.sorting_service_.rule_set_alphanum);
         },
         (error: HttpErrorResponse) => {
           const message: string = 'getting rule sets';
@@ -696,8 +696,8 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
    * @memberof PolicyManagementComponent
    */
   private api_update_rule_set_(rule_set: RuleSetInterface, enabling_rule_set: boolean): void {
-    const rule_set_enabled_diabled: string = rule_set.isEnabled ? 'enabled' : 'diabled';
-    const rule_set_enabling_diabling: string = rule_set.isEnabled ? 'enabling' : 'diabling';
+    const rule_set_enabled_disabled: string = rule_set.isEnabled ? 'enabled' : 'disabled';
+    const rule_set_enabling_disabling: string = rule_set.isEnabled ? 'enabling' : 'disabling';
     this.rules_service_.update_rule_set(rule_set)
       .pipe(untilDestroyed(this))
       .subscribe(
@@ -709,10 +709,10 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
             } else {
               this.api_get_rule_sets_();
             }
-            const message: string = `${enabling_rule_set ? rule_set_enabled_diabled : 'updated'} rule set`;
+            const message: string = `${enabling_rule_set ? rule_set_enabled_disabled : 'updated'} rule set`;
             this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           } else {
-            const message: string = `${enabling_rule_set ? rule_set_enabling_diabling : 'updating'} rule set`;
+            const message: string = `${enabling_rule_set ? rule_set_enabling_disabling : 'updating'} rule set`;
             this.mat_snackbar_service_.generate_return_fail_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           }
         },
@@ -720,7 +720,7 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
           if (error instanceof ErrorMessageClass) {
             this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           } else {
-            const message: string = `${enabling_rule_set ? rule_set_enabling_diabling : 'updating'} rule set`;
+            const message: string = `${enabling_rule_set ? rule_set_enabling_disabling : 'updating'} rule set`;
             this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           }
         });
@@ -776,8 +776,8 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
    * @memberof PolicyManagementComponent
    */
   private api_toggle_rule_(rule: RuleClass, rule_set: RuleSetClass): void {
-    const rule_enable_diable: string = !rule.isEnabled ? 'enabled' : 'diabled';
-    const rule_enabling_diabling: string = !rule.isEnabled ? 'enabling' : 'diabling';
+    const rule_enable_disable: string = !rule.isEnabled ? 'enabled' : 'disabled';
+    const rule_enabling_disabling: string = !rule.isEnabled ? 'enabling' : 'disabling';
     this.rules_service_.toggle_rule(rule._id)
       .pipe(untilDestroyed(this))
       .subscribe(
@@ -788,10 +788,10 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
             rule_set.state = 'Dirty';
             const rule_set_index: number = this.get_rule_set_index_(rule_set);
             this.rule_sets_data_source.data[rule_set_index] = rule_set;
-            const message: string = `${rule_enable_diable} rule`;
+            const message: string = `${rule_enable_disable} rule`;
             this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           } else {
-            const message: string = `${rule_enabling_diabling} rule`;
+            const message: string = `${rule_enabling_disabling} rule`;
             this.mat_snackbar_service_.generate_return_fail_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           }
         },
@@ -799,7 +799,7 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
           if (error instanceof ErrorMessageClass) {
             this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           } else {
-            const message: string = `${rule_enabling_diabling} rule`;
+            const message: string = `${rule_enabling_disabling} rule`;
             this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           }
         });
