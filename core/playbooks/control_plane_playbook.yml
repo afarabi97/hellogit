@@ -105,7 +105,7 @@
     - sso
     - deploy-control-plane
 
-- name: Setup Controller API Key
+- name: Setup Metrics API Key
   hosts:
     - localhost
   tasks:
