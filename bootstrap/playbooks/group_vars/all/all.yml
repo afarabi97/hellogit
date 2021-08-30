@@ -2,8 +2,8 @@
 
 web_root: /var/www/html
 tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
-tfplenum_root_dir: /opt/tfplenum
-core_install_dir: /opt/tfplenum/core
+tfplenum_root_dir: "{{ playbook_dir }}/../.."
+core_install_dir: "{{ tfplenum_root_dir }}/core"
 web_install_dir: "{{ tfplenum_root_dir }}/web"
 zeek_sample_dir: "{{ tfplenum_root_dir }}/scripts/zeek_samples"
 dip_core_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
@@ -11,14 +11,14 @@ chart_dir: "{{ tfplenumoffline_dir }}/charts"
 base_iso_dir: "{{ tfplenumoffline_dir }}/tfplenum"
 baseos_dir: "{{ base_iso_dir }}/BaseOS"
 extras_dir: "{{ base_iso_dir }}/Extras"
-mip_core_vars: /opt/tfplenum/mip/group_vars/all/packages.yml
+mip_core_vars: "{{ tfplenum_root_dir }}/mip/group_vars/all/packages.yml"
 keycloak_version: 11.0.3
 mip_repo: "https://nexus.sil.lab/repository/mip-repo"
 dod_nmil_file: "Certificates_PKCS7_v5.7_DoD.pem"
 dod_smil_file: "Certificates_PKCS7_v5.5_SIPR.pem"
 dod_nmil_download: "{{ misc_server }}/dod_certs/{{ dod_nmil_file }}"
 dod_smil_download: "{{ misc_server }}/dod_certs/{{ dod_smil_file }}"
-offline_cert_dir: /opt/tfplenum/scripts/dod_certs
+offline_cert_dir: "{{ tfplenum_root_dir }}/scripts/dod_certs"
 
 server_repos:
   - codeready-builder-for-rhel-8-x86_64-rpms

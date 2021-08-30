@@ -1,21 +1,16 @@
 compile front-end:
+  cache:
+    key: "compile-frontend-end"
+    paths:
+      - web/frontend/node_modules
+      - web/frontend/src/assets/fonts
+  image: nexus.sil.lab/tfplenum/code-checker:1.1
   tags:
-    - tfplenum-buildv2
+    - docker-runner
   stage: test-compile
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    docker run --rm -v $(pwd):/opt/tfplenum nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/compile_frontend.sh
-  allow_failure: false
-  extends: .analysis
-
-environment setup backend:
-  tags:
-    - tfplenum-buildv2
-  stage: test-compile
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    docker run --rm -v $(pwd):/opt/tfplenum nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/setup_backend.sh
+    ansible-playbook bootstrap/playbooks/site.yml --connection=local -i localhost, -t install_angular,build_frontend
   allow_failure: false
   extends: .analysis
