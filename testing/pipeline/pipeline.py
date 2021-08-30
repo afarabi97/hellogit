@@ -16,6 +16,7 @@ from jobs.gip_creation import GipCreationJob
 from jobs.minio import StandAloneMinIO
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
 from jobs.robot import RobotJob
+from jobs.manifest import VerifyManifestJob
 from models.ctrl_setup import ControllerSetupSettings
 from models.internal_vdd import InternalVDDSettings
 from models.kit import KitSettingsV2
@@ -25,6 +26,7 @@ from models.node import NodeSettingsV2
 
 from models.export import ExportSettings
 from models.drive_creation import DriveCreationSettings, DriveCreationHashSettings
+from models.manifest import ManifestSettings
 from models.constants import SubCmd
 from models.gip_settings import GIPServiceSettings
 from models.rhel_repo_vm import RHELRepoSettings
@@ -114,6 +116,11 @@ class Runner:
             SubCmd.run_catalog, help="This subcommand installs applications on your Kit.")
         CatalogSettings.add_args(catalog_parser)
         catalog_parser.set_defaults(which=SubCmd.run_catalog)
+
+        verify_manifest_parser = subparsers.add_parser(
+            SubCmd.verify_manifest, help="This command is used generate a manifest of deliverables to the release candidate.")
+        ManifestSettings.add_args(verify_manifest_parser)
+        verify_manifest_parser.set_defaults(which=SubCmd.verify_manifest)
 
         cleanup_parser = subparsers.add_parser(
             SubCmd.run_cleanup, help="This subcommand powers off and deletes all VMs.")
@@ -332,6 +339,11 @@ class Runner:
                 drive_settings = DriveCreationSettings()
                 drive_settings.from_namespace(args)
                 executor = DriveCreationJob(drive_settings)
+                executor.execute()
+            elif args.which == SubCmd.verify_manifest:
+                generate_settings = ManifestSettings()
+                generate_settings.from_namespace(args)
+                executor = VerifyManifestJob(generate_settings)
                 executor.execute()
             elif args.which == SubCmd.run_cleanup:
                 pass

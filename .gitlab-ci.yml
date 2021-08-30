@@ -199,6 +199,7 @@ stages:
   - pull-internal-vdd
   - publish-to-confluence
   - clean-staging-env
+  - verify-manifest
   - build
   - docs
   - unit-test

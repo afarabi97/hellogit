@@ -71,6 +71,9 @@ class SubCmd:
     run_gip_kickstart = 'run-gip-kickstart'
     run_gip_kit = 'run-gip-kit'
 
+    # verify manifest subcommands
+    verify_manifest = 'verify-manifest'
+
 class StigSubCmd:
     # Ran when system_name is GIP but we want
     # to Secure The  GIP Services VM

@@ -359,3 +359,80 @@ DIP Cleanup:
   only:
     variables:
       - $IS_CLEANUP == "yes" && $PIPELINE == "developer-all"
+
+Verify CPT Manifest:
+  stage: verify-manifest
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py verify-manifest \
+    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --version $VERSION \
+    --type CPT
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "verify-manifest-cpt"
+      - $PIPELINE == "verify-manifest-all"
+      - $PIPELINE == "export-all"
+
+Verify MDT Manifest:
+  stage: verify-manifest
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py verify-manifest \
+    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --version $VERSION \
+    --type MDT
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "verify-manifest-mdt"
+      - $PIPELINE == "verify-manifest-all"
+      - $PIPELINE == "export-all"
+
+Verify GIP Manifest:
+  stage: verify-manifest
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py verify-manifest \
+    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --version $VERSION \
+    --type GIP
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "verify-manifest-gip"
+      - $PIPELINE == "verify-manifest-all"
+      - $PIPELINE == "export-all"
+
+Verify MULTIBOOT Manifest:
+  stage: verify-manifest
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py verify-manifest \
+    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --version $VERSION \
+    --type MULTIBOOT
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "verify-manifest-multiboot"
+      - $PIPELINE == "verify-manifest-all"
+      - $PIPELINE == "export-all"
+
