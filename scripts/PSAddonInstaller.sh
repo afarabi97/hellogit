@@ -25,7 +25,7 @@
 #	Variables that need DEFAULTS
 
 PowerShell_Version=0
-VERSION="7.1.3"
+VERSION="7.1.4"
 POWER="powershell-${VERSION}-1.centos.8.x86_64.rpm"
 Verbose="1>/dev/null 2>&1"
 
