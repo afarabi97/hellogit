@@ -138,6 +138,10 @@ class MongoConnectionManager(object):
     def mongo_hive_settings(self) -> Collection:
         return self._tfplenum_database.hive_settings
 
+    @property
+    def mongo_kit_tokens(self) -> Collection:
+        return self._tfplenum_database.kit_tokens
+
     def close(self):
         """
         Closes the clients mongo collection gracefully.

@@ -13,7 +13,7 @@ import { PcapFormComponent } from '../../pcap-form/pcap-form.component';
 import { SecurityAlertsComponent } from '../../security-alerts/security-alerts.component';
 import { ServerStdoutComponent } from '../../server-stdout/server-stdout.component';
 import { PmoSupportComponent } from '../pmo-support/pmo-support.component';
-import { SystemHealthComponent } from '../../system-health/system-health.component';
+import { HealthDashboardComponent } from '../../health-dashboard/dashboard/health-dashboard.component';
 import { ToolsFormComponent } from '../../tools-form/tools.component';
 import { PolicyManagementComponent } from '../policy-management/policy-management.component';
 import { DockerRegistryComponent } from '../docker-registry/docker-registry.component';
@@ -26,7 +26,7 @@ const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
   { path: 'portal', component:  PortalComponent},
   { path: 'support', component:  PmoSupportComponent},
-  { path: 'health', component:  SystemHealthComponent},
+  { path: 'health', component:  HealthDashboardComponent},
   { path: 'alerts', component:  SecurityAlertsComponent},
   { path: 'settings', component: SystemSettingsComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'node-mng', component: NodeManagementComponent, canActivate: [ ControllerAdminRequiredGuard ] },

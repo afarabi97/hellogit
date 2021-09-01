@@ -1,0 +1,17 @@
+@import '~@angular/material/theming';
+@mixin dashboard-theme($theme) {
+    $config: mat-get-color-config($theme);
+    $background: map-get($config, background);
+    .selector .mat-row {
+      user-select: none;
+      cursor: pointer;
+      &:hover, &:focus {
+        background: mat-color($background, 'hover');
+      }
+    }
+    .selector .mat-row.selected {
+      &, &:hover, &:focus {
+        background: mat-color($background, 'hover', 0.12);
+      }
+    }
+}

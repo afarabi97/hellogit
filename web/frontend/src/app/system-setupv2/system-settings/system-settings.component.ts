@@ -40,6 +40,10 @@ export class SystemSettingsComponent implements OnInit {
   }
 
   public updateGeneralSettings(value: GeneralSettings): void {
-    this.generalSettings = value
+    this.generalSettings = value;
+  }
+
+  public updateKitSettings(value: Settings): void {
+    this.kitSettings = value;
   }
 }

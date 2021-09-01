@@ -63,12 +63,6 @@ export const environment = {
 
   ADD_NODE_SERVICE_ADD_NODE_WIZARD_STATE: `/api/get_add_node_wizard_state`,
 
-  HEALTH_STATUS_SERVICE_GET_HEALTH_STATUS: `/api/health/status`,
-  HEALTH_STATUS_SERVICE_GET_PIPELINE_STATUS: `/api/pipeline/status`,
-  HEALTH_STATUS_SERVICE_DESCRIBE_POD: `/api/pod/describe/`,
-  HEALTH_STATUS_SERVICE_POD_LOGS: `/api/pod/logs/`,
-  HEALTH_STATUS_SERVICE_DESCRIBE_NODE: `/api/node/describe/`,
-
   DOCKER_REGISTRY_SERVICE_GET_DOCKER_REGISTRY: `/api/docker/registry`,
 
   PORTAL_SERVICE_GET_PORTAL_LINKS: `/api/get_portal_links`,
@@ -88,11 +82,18 @@ export const environment = {
 
   ENDGAME_SERVICE_ENDGAME_SENSOR_PROFILES: `/api/endgame_sensor_profiles`,
 
-  SYSTEM_HEALTH_SERVICE_GET_HEALTH_STATUS: `/api/health/status`,
-  SYSTEM_HEALTH_SERVICE_GET_PIPELINE_STATUS: `/api/pipeline/status`,
-  SYSTEM_HEALTH_SERVICE_DESCRIBE_POD: `/api/pod/describe`,
-  SYSTEM_HEALTH_SERVICE_POD_LOGS: `/api/pod/logs`,
-  SYSTEM_HEALTH_SERVICE_DESCRIBE_NODE: `/api/node/describe`,
+  HEALTH_SERVICE_GET_NODES_STATUS: `/api/health/nodes/status`,
+  HEALTH_SERVICE_GET_PODS_STATUS: `/api/health/pods/status`,
+  HEALTH_SERVICE_GET_APPLICATIONS_STATUS: `/api/health/applications/status`,
+  HEALTH_SERVICE_GET_SNMP_STATUS: `/api/health/snmp/status`,
+  HEALTH_SERVICE_GET_SNMP_ALERTS: `/api/health/snmp/alerts`,
+  HEALTH_SERVICE_GET_DATASTORES: `/api/health/datastores`,
+  HEALTH_SERVICE_DESCRIBE_NODE: `/api/node/describe`,
+  HEALTH_SERVICE_DESCRIBE_POD: `/api/pod/describe`,
+  HEALTH_SERVICE_POD_LOGS: `/api/pod/logs`,
+  HEALTH_SERVICE_WRITE_REJECTS: `/api/write/rejects`,
+  HEALTH_SERVICE_APP: `/api/app`,
+  HEALTH_SERVICE_REMOTE: `/api/remote-health`,
 
   RULES_SERVICE_RULE_SETS: `/api/ruleset`,
   RULES_SERVICE_RULE_SETS_SYNC: `/api/rulesets/sync`,
@@ -103,7 +104,14 @@ export const environment = {
   RULES_SERVICE_TEST_RULE_AGAINST_PCAP: `/api/pcap/rule/test`,
 
   POLICY_MANAGEMENT_SERVICE_CHECK_CATALOG_STATUS: `/api/catalog/chart`,
-  POLICY_MANAGEMENT_SERVICE_GET_JOBS: `/api/jobs`
+  POLICY_MANAGEMENT_SERVICE_GET_JOBS: `/api/jobs`,
+
+  KIT_TOKENS_SETTINGS_SERVICE: `/api/kit/tokens`,
+  HEALTH_DASHBOARD_STATUS: `/api/health/dashboard/status`,
+  REMOTE_HEALTH_DASHBOARD_STATUS: `/api/remote/health/dashboard/status`,
+  HEALTH_DASHBOARD_KIBANA_INFO: `/api/health/dashboard/kibana/info`,
+  REMOTE_HEALTH_DASHBOARD_KIBANA_INFO: `/api/remote/health/dashboard/kibana/info`,
+  GENERATE_TOKEN: `/api/kit/tokens/generate`
 };
 
 /*

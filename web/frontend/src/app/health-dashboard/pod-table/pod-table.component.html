@@ -1,0 +1,124 @@
+<mat-card>
+  <mat-card-header>
+      <mat-card-title>
+        <a (click)="toggle_pods_card()">
+            <span class="material-icons">{{ is_pods_visible ? "expand_more" : "chevron_right" }}</span>
+            <span style="vertical-align: top;">Pods</span>
+        </a>
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content *ngIf="is_pods_visible" fxLayout="column" fxLayoutAlign="space-around stretch">
+    <table mat-table [dataSource]="group_header_data" aria-describedby="Nodes" multiTemplateDataRows>
+      <!-- Name -->
+      <ng-container matColumnDef="node_name">
+          <th scope="col" mat-header-cell *matHeaderCellDef>Node Name</th>
+          <td mat-cell *matCellDef="let group;">
+            <span class="material-icons" style="vertical-align:middle;">
+              {{ expanded_group === group ? "expand_more" : "chevron_right" }}
+            </span>
+            <span style="vertical-align:middle;">
+              {{ group.group_name }}
+            </span>
+          </td>
+      </ng-container>
+
+      <!-- Group Status -->
+      <ng-container matColumnDef="group_status">
+        <th scope="col" mat-header-cell *matHeaderCellDef>Group Status</th>
+        <td mat-cell *matCellDef="let group;">
+          <mat-icon matSuffix *ngIf="group.group_status === 'check_circle'" style="color: lightgreen;">
+          check_circle
+          </mat-icon>
+          <mat-icon matSuffix *ngIf="group.group_status === 'warning'" style="color: yellow;">
+            warning
+          </mat-icon>
+          <mat-icon *ngIf="group.group_status === 'circle'" color="accent">
+            circle
+          </mat-icon>
+          <mat-icon *ngIf="group.group_status === 'error'" style="color: darkred;">
+            error
+          </mat-icon>
+        </td>
+    </ng-container>
+
+      <!-- Filtered Pods Subgroup -->
+      <ng-container matColumnDef="expand_group_drawer">
+        <td mat-cell *matCellDef="let pod; let i = index">
+          <div class="node-detail" [@detailExpand]="pod === expanded_group ? 'expanded' : 'collapsed'">
+            <div *ngIf="expanded_group">
+              <table mat-table [dataSource]="filtered_group_data[group_header_data.indexOf(expanded_group)]" class="inner-table">
+                <!-- Namespace -->
+                <ng-container matColumnDef="namespace">
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Namespace</th>
+                  <td mat-cell *matCellDef="let pod;">{{ pod.namespace }}</td>
+                </ng-container>
+
+                <!-- Name -->
+                <ng-container matColumnDef="name">
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
+                  <td mat-cell *matCellDef="let pod;">{{ pod.name }}</td>
+                </ng-container>
+
+                <!-- Status -->
+                <ng-container matColumnDef="status">
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Status</th>
+                  <td mat-cell *matCellDef="let pod;">
+                    <mat-icon matSuffix *ngIf="get_pod_icon_status(pod.status_brief, pod.warnings) === 'check_circle'"
+                      style="color: lightgreen;" matTooltip="{{ pod.states }}">
+                      check_circle
+                    </mat-icon>
+                    <mat-icon matSuffix *ngIf="get_pod_icon_status(pod.status_brief, pod.warnings) === 'warning'"
+                      style="color: yellow;" matTooltip="{{ pod.states }}">
+                      warning
+                    </mat-icon>
+                    <mat-icon *ngIf="get_pod_icon_status(pod.status_brief, pod.warnings) === 'circle'"
+                      color="accent" matTooltip="{{ pod.states }}">
+                      circle
+                    </mat-icon>
+                    <mat-icon *ngIf="get_pod_icon_status(pod.status_brief, pod.warnings) === 'error'"
+                      style="color: darkred;" matTooltip="{{ pod.states }}">
+                      error
+                    </mat-icon>
+                  </td>
+                </ng-container>
+
+                <!-- Restart Count -->
+                <ng-container matColumnDef="restart_count">
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Restarts</th>
+                  <td mat-cell *matCellDef="let pod;" style="text-align: center;">{{ pod.restart_count }}</td>
+                </ng-container>
+
+                <!-- Actions -->
+                <ng-container matColumnDef="actions">
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let pod;" [hidden]="token">
+                    <button mat-button matTooltip="Click to run describe pod." color="primary"
+                      (click)="describe_pod(pod.name, pod.namespace)">
+                      <em class="material-icons">info</em>
+                    </button>
+                    <button mat-button matTooltip="Click to view pod logs." color="primary"
+                      (click)="pod_logs(pod.name, pod.namespace)">
+                      <em class="material-icons">help</em>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <!-- Default Table lines -->
+                <tr mat-header-row *matHeaderRowDef="pod_displayed_cols(); sticky: true" class="col-header"></tr>
+                <tr mat-row *matRowDef="let rowData; columns: pod_displayed_cols();"></tr>
+              </table>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Default Table lines -->
+      <tr mat-header-row *matHeaderRowDef="group_header_column"></tr>
+      <tr mat-row *matRowDef="let rowData; columns: group_header_column;"
+        class="clickable" [class.example-expanded-row]="expanded_group === rowData"
+        (click)="expanded_group = expanded_group === rowData ? null : rowData"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['expand_group_drawer']" class="row-detail"></tr>
+    </table>
+  </mat-card-content>
+</mat-card>

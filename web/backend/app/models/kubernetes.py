@@ -23,108 +23,57 @@ class DockerImageModel(Model):
     def __init__(self):
         pass
 
-class HealthServiceTotalsModel(Model):
-    DTO = api.model('HealthServiceTotalsModel', {
-        'cpus_requested': fields.Integer(example="450", description="The number of millicores requested by containers."),
-        'mem_requested': fields.Integer(example="307200", description="The amount of memory requested by containers given in killobytes."),
-        'cpus_requested_str': fields.String(example="450m", description="How many millicores containers have requested."),
-        'mem_requested_str': fields.String(example="0.293Gi", description="How many gigabytes of memory containers have requested."),
-        'remaining_allocatable_cpu': fields.String(example="15550m", description="An estimate of how many millicores a node has available for scheduling.", required=False),
-        'remaining_allocatable_mem': fields.String(example="15.108Gi", description="An estimate of how much memory a node has available for scheduling.", required=False),
-        'name': fields.String(example="sensor1.lan", description="Name of the node."),
-        'node_type': fields.String(example="Sensor", description="Type of node.")
+class KubernetesNodeMetricsModel(Model):
+    storage_fields = api.model("KubernetesNodeMetricsStorage", {
+        "name": fields.Integer(),
+        "free": fields.Integer(),
+        "percent": fields.Float()
+    })
+    memory_fields = api.model("KubernetesNodeMetricsMemory", {
+        "available": fields.Integer(),
+        "percent": fields.Float()
+    })
+    capacity_fields = api.model("KubernetesNodeMetricsCapacity", {
+        "cpu": fields.String(),
+        "ephermeral-storage": fields.String(),
+        "memory": fields.String(),
+        "pods": fields.String()
+    })
+    allocatable_fields = api.model("KubernetesNodeMetricsAllocatable", {
+        "cpu": fields.String(),
+        "ephermeral-storage": fields.String(),
+        "memory": fields.String(),
+        "pods": fields.String()
+    })
+    remaining_fields = api.model("KubernetesNodeMetricsRemaining", {
+        "cpu": fields.String(),
+        "memory": fields.String()
+    })
+    DTO = api.model("KubernetesNodeMetrics", {
+        "name": fields.String(),
+        "address": fields.String(),
+        "ready": fields.Boolean(),
+        "type": fields.String(),
+        "storage": fields.List(fields.Nested(storage_fields)),
+        "memory": fields.Nested(memory_fields),
+        "cpu": fields.Float(),
+        "capacity": fields.Nested(capacity_fields),
+        "allocatable": fields.Nested(allocatable_fields),
+        "remaining": fields.Nested(remaining_fields),
+        "node_info": fields.Raw()
     })
 
-class HealthServiceTotalsWildcardModel(Model):
-    _totals_wildcard = fields.Wildcard(fields.Nested(HealthServiceTotalsModel.DTO))
-    DTO = api.model('HealthServiceTotalsWildcardModel', {
-        '*': _totals_wildcard
-    })
-
-class HealthServiceNodeInfoModel(Model):
-    DTO = api.schema_model('HealthServiceNodeInfoModel', {
-        "required": ["status", "node_type", "public_ip"],
-        "type": "object",
-        "properties": {
-            "status": {
-                "type": "object",
-                "required": ["allocatable", "capacity"],
-                "properties": {
-                    "allocatable": {
-                        "type": "object",
-                        "required": ["cpu", "ephemeral-storage", "memory"],
-                        "properties": {
-                            "cpu": {"type": "string"},
-                            "ephemeral-storage": {"type": "string"},
-                            "memory": {"type": "string"}
-                        }
-                    },
-                    "capacity": {
-                        "type": "object",
-                        "required": ["cpu", "ephemeral-storage", "memory"],
-                        "properties": {
-                            "cpu": {"type": "string"},
-                            "ephemeral-storage": {"type": "string"},
-                            "memory": {"type": "string"}
-                        }
-                    }
-                }
-            },
-            "node_type": {"type": "string"},
-            "public_ip": {"type": "string"}
-        }
-    })
-
-class HealthServiceNodeInfoWildcardModel(Model):
-    _node_info_wildcard = fields.Wildcard(fields.Nested(HealthServiceNodeInfoModel.DTO))
-    DTO = api.model('HealthServiceNodeInfoWildcardModel', {
-        '*': _node_info_wildcard
-    })
-
-class HealthServiceDiskUsageModel(Model):
-    DTO = api.model('HealthServiceDiskUsageModel', {
-        'total': fields.Integer(),
-        'used': fields.Integer(),
-        'free': fields.Integer(),
-        'percent': fields.Float()
-    })
-
-class HealthServiceVirtualMemoryModel(Model):
-    DTO = api.model('HealthServiceMemoryModel', {
-        'total': fields.Integer(),
-        'available': fields.Integer(),
-        'percent': fields.Float(),
-        'used': fields.Integer(),
-        'free': fields.Integer(),
-        'active': fields.Integer(),
-        'inactive': fields.Integer(),
-        'buffers': fields.Integer(),
-        'cached': fields.Integer(),
-        'shared': fields.Integer(),
-        'slab': fields.Integer()
-    })
-
-class HealthServiceUtilizationInfoModel(Model):
-    DTO = api.model('HealthServiceUtilizationInfoModel', {
-        'cpu_percent': fields.Float(),
-        'data_usage': fields.Nested(HealthServiceDiskUsageModel.DTO),
-        'root_usage': fields.Nested(HealthServiceDiskUsageModel.DTO),
-        'memory': fields.Nested(HealthServiceVirtualMemoryModel.DTO)
-    })
-
-class HealthServiceUtilizationInfoWildcardModel(Model):
-    _utilization_wildcard = fields.Wildcard(fields.Nested(HealthServiceUtilizationInfoModel.DTO))
-    DTO = api.model('HealthServiceUtilizationInfoWildcardModel', {
-        '*': _utilization_wildcard
-    })
-
-class HealthServiceModel(Model):
-    DTO = api.model('HealthService', {
-        "totals": fields.Nested(HealthServiceTotalsWildcardModel.DTO),
-        'nodes': fields.List(fields.Raw),
-        'pods': fields.List(fields.Raw),
-        'node_info': fields.Nested(HealthServiceNodeInfoWildcardModel.DTO),
-        'utilization_info': fields.Nested(HealthServiceUtilizationInfoWildcardModel.DTO)
+class KubernetesPodMetricsModel(Model):
+    DTO = api.model("KubernetesPodMetrics", {
+        "namespace": fields.String(),
+        "name": fields.String(),
+        "node_name": fields.String(),
+        "status_brief": fields.String(),
+        "restart_count": fields.Integer(),
+        "states": fields.List(fields.String()),
+        "resources": fields.Raw(),
+        "status": fields.Raw(),
+        "warnings": fields.Integer(required=False)
     })
 
 class ConfigMapDataModel(Model):
@@ -252,16 +201,26 @@ class AssociatedPodModel(Model):
         'namespace': fields.String(example='kube-system'),
     })
 
-
-class PipelineInfoModel(Model):
-    DTO = api.model('AssociatedPod', {
-        'sensor1.lan': fields.Nested(api.model('info', {
-            "last_pcap_log_event": fields.String(example="2021-01-11 17:26:00 +0000"),
-            "last_suricata_log_event": fields.String(example="2021-01-11 17:26:00 +0000"),
-            "last_zeek_log_event": fields.String(example="2021-01-11 17:26:00 +0000")
-        })),
+class ApplicationStatusListModel(Model):
+    DTO = api.schema_model('ApplicationStatusList', {
+        "type": "array",
+        'items': {
+            "type": "object",
+            "required": ["name", "metrics"],
+            "properties": {
+                "name": {"type": "string"},
+                "metrics": {
+                    "type": "object",
+                    "required": ["name", "value", "hostname"],
+                    "properties": {
+                        "name": {"type": "string"},
+                        "value": {"type": "string"},
+                        "hostname": {"type": "string"}
+                    }
+                }
+            }
+        }
     })
-
 
 class NodeOrPodStatusModel(Model):
     DTO = api.model('NodeOrPodStatus', {

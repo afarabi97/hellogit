@@ -27,6 +27,7 @@ GENERAL_SETTINGS_ID = "general_settings_form"
 ESXI_SETTINGS_ID = "esxi_settings_form"
 KIT_SETTINGS_ID = "kit_settings_form"
 MIP_SETTINGS_ID = "mip_settings_form"
+SNMP_SETTINGS_ID = "snmp_settings_form"
 WINDOWS_COLD_LOG_CONFIG_ID = "windows_cold_log_config"
 ELK_SNAPSHOT_STATE = "elk_snapshot"
 DATE_FORMAT_STR = '%Y-%m-%d %H:%M:%S'

@@ -1,6 +1,5 @@
 export * from './catalog-status.interface';
 export * from './error-message.interface';
-export * from './health-status.interface';
 export * from './host-info.interface';
 export * from './job.interface';
 export * from './rule-set.interface';

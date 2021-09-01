@@ -1,0 +1,10 @@
+<div>
+<h2 mat-dialog-title>{{ title }}</h2>
+<button mat-button (click)="copyText()" matTooltip="Copy Token"><span class="material-icons">content_copy</span></button>
+</div>
+<div mat-dialog-content>
+    <textarea readonly>{{ token }}</textarea>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Close</button>
+</div>

@@ -4,35 +4,19 @@
 @import '../app/top-navbar/top-navbar-theme';
 @import '../app/catalog/chart-list/chart-list-theme';
 @import '../app/catalog/page/catalog-page-theme';
-
-
+@import '../app/health-dashboard/dashboard/dashboard_theme';
 
 
 @mixin global-theme($theme) {
-
-  // Since this is already in a class this selector will override the .material-icons font-family.
-
-  .mat-error {
-    font-size: map-get($theme, primary-font-size) !important;
-  }
-
-  .mat-tooltip {
-    font-size: map-get($theme, primary-font-size) !important;
-  }
-
-  .mat-form-field{
-    font-size: map-get($theme, form-field-font-size) !important;
+  p {
+    color: map-get($theme, primary-text-color);
+    font-size: map-get($theme, primary-font-size);
   }
 
   snack-bar-container.mat-snack-bar-container {
     background-color: map-get($theme, first-elevation-dark-background);
     color: map-get($theme, primary-text-color);
     border: 1px solid + map-get($theme, primary-border-color);
-  }
-
-  p {
-    color: map-get($theme, primary-text-color);
-    font-size: map-get($theme, primary-font-size);
   }
 
   a {
@@ -278,6 +262,7 @@
 
 @mixin theming($theme-tfplenum, $theme-material, $typography-material: null) {
     @include angular-tfplenum-theme($theme-tfplenum);
+    @include dashboard-theme($theme-material);
 
     // Include theme styles for core and each component used in your app.
     // Alternatively, you can import and @include the theme mixins for each component

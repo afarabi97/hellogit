@@ -31,4 +31,3 @@ def get_zeek_pod_name(ip_address: str,
 def get_arkime_pod_name(ip_address: str,
                         mongo_conn: MongoConnectionManager=None) -> str:
     return _get_pod_name(ip_address, 'arkime', mongo_conn)
-

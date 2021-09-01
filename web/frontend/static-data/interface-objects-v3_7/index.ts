@@ -9,5 +9,8 @@ export * from './elasticsearch-node-data.interface';
 export * from './elasticsearch-node-return.interface';
 export * from './elasticsearch-node.interface';
 export * from './portal-link.interface';
+export * from './kit-token.interface';
 export * from './text-editor-configuration.interface';
 export * from './user-portal-link.interface';
+export * from './health-dashboard-status.interface';
+export * from './health.interface';

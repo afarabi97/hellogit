@@ -52,6 +52,15 @@ export class KitSettingsService {
     return this.http.post(url, settingsForm).pipe();
   }
 
+  getSNMPSettings(): Observable<Object> {
+    return this.http.get('/api/settings/snmp')
+  }
+
+  saveSNMPSettings(settingsForm): Observable<Object> {
+    return this.http.put('/api/settings/snmp', settingsForm).pipe(
+      catchError(this.snackbarWrapper.handleError())
+    );
+  }
 
   getKitSettings(): Observable<Object> {
     const url = `/api/settings/kit`;

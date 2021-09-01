@@ -1,5 +1,5 @@
-import { OverlayContainer } from '@angular/cdk/overlay';
-import { AfterContentInit, Component, HostBinding } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, Inject } from '@angular/core';
 
 import { ObjectUtilitiesClass } from './classes';
 
@@ -7,33 +7,21 @@ import { ObjectUtilitiesClass } from './classes';
   selector: 'app-root',
   templateUrl: './app.component.html'
 })
-export class AppComponent implements AfterContentInit {
-  // theme for application
-  theme = null;
-  // Css class reference hostbinding
-  @HostBinding('class') componentCssClass: string;
+export class AppComponent {
+  // Used for querying the document for theme
+  readonly query_selection: string = 'link[rel=stylesheet][href^=dark-theme]';
 
   /**
    * Creates an instance of AppComponent.
    *
-   * @param {OverlayContainer} overlayContainer_
+   * @param {Document} document_
    * @memberof AppComponent
    */
-  constructor(private overlayContainer_: OverlayContainer) {}
-
-  /**
-   * Used for seting the theme based on system name
-   *
-   * @memberof AppComponent
-   */
-  ngAfterContentInit(): void {
-    const newTheme: string = 'dip-theme';
-    const containerElement: HTMLElement = this.overlayContainer_.getContainerElement();
-
-    ObjectUtilitiesClass.notUndefNull(this.theme) ?
-      containerElement.classList.replace(this.theme, newTheme) :
-      containerElement.classList.add(newTheme);
-    this.theme = newTheme;
-    this.componentCssClass = newTheme;
+  constructor(@Inject(DOCUMENT) private document_: Document) {
+    const link: Element | null = document_.querySelector(this.query_selection);
+    /* istanbul ignore else */
+    if (ObjectUtilitiesClass.notUndefNull(link)) {
+      link.id = 'theme';
+    }
   }
 }

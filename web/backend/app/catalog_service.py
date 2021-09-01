@@ -23,13 +23,17 @@ HELM_BINARY_PATH = "/usr/local/bin/helm"
 WORKING_DIR = "/root"
 _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
-_PMO_SUPPORTED_CHARTS = ['cortex', 'hive', 'misp', 'logstash', 'arkime', 'arkime-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek']
+_PMO_SUPPORTED_CHARTS = ['cortex', 'hive', 'misp', 'logstash', 'arkime', 'arkime-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek', 'remote-health-agent']
 _SENSOR_APPLICATIONS = ['arkime', 'suricata', 'zeek']
 
 
 def _get_domain() -> str:
-    kickstart_configuration = GeneralSettingsForm.load_from_db() # type: Dict
-    return kickstart_configuration.domain
+    general_settings_configuration = GeneralSettingsForm.load_from_db() # type: Dict
+    return general_settings_configuration.domain
+
+def _get_controller_ip() -> str:
+    general_settings_configuration = GeneralSettingsForm.load_from_db() # type: Dict
+    return str(general_settings_configuration.controller_interface)
 
 def _get_elastic_nodes(node_type) -> list:
     """
@@ -333,6 +337,8 @@ def generate_values(application: str, namespace: str, configs: list=None) -> lis
             values['logstash_nodes'] = _get_logstash_nodes()
         if 'hard_disk_drive' in values:
             values['hard_disk_drive'] = _get_drive_type()
+        if 'controller_ipaddress' in values:
+            values['controller_ipaddress'] = _get_controller_ip()
     except Exception as exec:
         logger.exception(exec)
     if configs:

@@ -660,6 +660,8 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     switch (control.type) {
       case 'textinput':
         return new FormControl(valid_control ? value[control.name] : control.default_value, this.getValidators_(control));
+      case 'textbox':
+        return new FormControl(valid_control ? value[control.name] : control.default_value, this.getValidators_(control));
       case 'textinputlist':
         if (value === undefined || typeof value[control.name] === "string") {
           return new FormControl(valid_control ? value[control.name] : control.default_value, this.getValidators_(control));

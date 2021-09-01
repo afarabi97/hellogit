@@ -44,7 +44,7 @@ Jinja2==2.11.0
 jmespath==0.9.4
 jsonschema==3.2.0
 junit-xml==1.8
-kubernetes==9.0.0
+kubernetes==17.17.0
 ldap3==2.5.1
 ldapdomaindump==0.9.1
 lxml==4.5.2

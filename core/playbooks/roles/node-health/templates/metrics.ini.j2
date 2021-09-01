@@ -1,4 +1,6 @@
 [update-metrics]
 controller = {{ ansible_controller_hostname }}
-node_type = {{ node_type }}
-elasticsearch = {{ elastic_service_name }}
+elasticsearch = {{ elastic_service_name }}.{{ kit_domain }}
+{% if node_type is defined %}
+node_type = {{ node_type}}
+{% endif %}

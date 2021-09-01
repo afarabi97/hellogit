@@ -62,7 +62,7 @@ def replace_metrics():
     replaced = []
     for document in data:
         try:
-            conn_mng.mongo_metrics.find_one_and_replace({"node": document['node'], "name": document["name"], "type": document["type"]}, document, upsert=True)
+            conn_mng.mongo_metrics.find_one_and_replace({"hostname": document['hostname'], "name": document["name"], "type": document["type"]}, document, upsert=True)
             replaced.append(document)
         except Exception as e:
             logger.exception(e)

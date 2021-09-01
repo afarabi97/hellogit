@@ -1,0 +1,5 @@
+director_ipaddress: ''
+controller_ipaddress: ''
+director_token: ''
+director_webca: ''
+python_image: tfplenum/python:3.9.0

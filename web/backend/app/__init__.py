@@ -101,13 +101,22 @@ ALERTS_NS = Namespace("Alerts",
                        path="/api",
                        description="Alerts related operations that allow operators to display or Acknowledge or Escalate alert events that come in.")
 
+KIT_TOKEN_NS = Namespace("Kit Token",
+                    path="/api",
+                    description="<description>")
+
+HEALTH_NS = Namespace("Health",
+                    path="/api",
+                    description="Health page related operations.")
+
 api.add_namespace(ALERTS_NS)
 api.add_namespace(CATALOG_NS)
 api.add_namespace(KIT_SETUP_NS)
 api.add_namespace(KUBERNETES_NS)
 api.add_namespace(POLICY_NS)
 api.add_namespace(TOOLS_NS)
-
+api.add_namespace(KIT_TOKEN_NS)
+api.add_namespace(HEALTH_NS)
 
 # Load the REST API
 from app import (agent_builder_controller, catalog_controller, common_controller, configmap_controller,
@@ -116,7 +125,8 @@ from app import (agent_builder_controller, catalog_controller, common_controller
                  node_controller, notification_controller, pcap_controller,
                  portal_controller, registry_controller, ruleset_controller,
                  scale_controller, task_controller, tools_controller,
-                 version_controller, cold_log_controller, alerts_controller, settings_controller)
+                 version_controller, cold_log_controller, alerts_controller, settings_controller,
+                 kit_tokens_controller, health_dashboard_controller)
 
 #This is a hack needed to get coverage to work correctly within the python unittest framework.
 def receive_signal(signal_number, frame):

@@ -11,6 +11,8 @@
   "indices": [
     {
       "names": [
+        "snmp-data",
+        "snmp-data-*",
         "logstash-*",
         ".monitoring-*",
         "filebeat-*",

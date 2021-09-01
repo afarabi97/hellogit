@@ -27,9 +27,6 @@ describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
 
-  // Setup spy references
-  let spyNGAfterContentInit: jasmine.Spy<any>;
-
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -61,16 +58,9 @@ describe('AppComponent', () => {
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
 
-    // Add method spies
-    spyNGAfterContentInit = spyOn(component, 'ngAfterContentInit').and.callThrough();
-
     // Detect changes
     fixture.detectChanges();
   });
-
-  const reset = () => {
-    spyNGAfterContentInit.calls.reset();
-  };
 
   afterAll(() => cleanStylesFromDOM());
 
@@ -78,24 +68,4 @@ describe('AppComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('AppComponent methods', () => {
-    describe('ngAfterContentInit()', () => {
-      it('should call ngAfterContentInit()', () => {
-        reset();
-
-        component.ngAfterContentInit();
-
-        expect(component.ngAfterContentInit).toHaveBeenCalled();
-      });
-
-      it('should call ngAfterContentInit() twice', () => {
-        reset();
-
-        component.ngAfterContentInit();
-        component.ngAfterContentInit();
-
-        expect(component.ngAfterContentInit).toHaveBeenCalledTimes(2);
-      });
-    });
-  });
 });

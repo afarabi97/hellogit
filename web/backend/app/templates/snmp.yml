@@ -1,0 +1,34 @@
+---
+all:
+  vars:
+    snmp:
+      auth_pass: {{ template_ctx.auth_pass }}
+      priv_pass: {{ template_ctx.priv_pass }}
+      security_name: {{ template_ctx.security_name }}
+    brocade_list:
+      - "10.{{ template_ctx.x }}.2.73"
+      - "10.{{ template_ctx.x }}.2.74"
+    cisco_asa_list:
+      - "10.{{ template_ctx.x }}.2.254"
+    cisco_switch_list:
+      - "10.{{ template_ctx.x }}.2.1"
+    dell_m630_list:
+      - "10.{{ template_ctx.x }}.2.31"
+      - "10.{{ template_ctx.x }}.2.32"
+      - "10.{{ template_ctx.x }}.2.33"
+      - "10.{{ template_ctx.x }}.2.34"
+      - "10.{{ template_ctx.x }}.2.35"
+      - "10.{{ template_ctx.x }}.2.36"
+      - "10.{{ template_ctx.x }}.2.37"
+      - "10.{{ template_ctx.x }}.2.38"
+      - "10.{{ template_ctx.x }}.2.39"
+      - "10.{{ template_ctx.x }}.2.40"
+      - "10.{{ template_ctx.x }}.2.41"
+      - "10.{{ template_ctx.x }}.2.42"
+      - "10.{{ template_ctx.x }}.2.43"
+      - "10.{{ template_ctx.x }}.2.44"
+      - "10.{{ template_ctx.x }}.2.45"
+      - "10.{{ template_ctx.x }}.2.46"
+    dell_san_list:
+      - "10.{{ template_ctx.x }}.2.67"
+    dell_4112_list: []

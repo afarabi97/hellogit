@@ -1,0 +1,32 @@
+<mat-card>
+  <mat-card-header>
+      <mat-card-title>
+          <a id="token-settings-toggle" (click)="toggle_card()">
+              <span class="material-icons">{{ is_card_visible ? "expand_more" : "chevron_right" }}</span>
+              <span style="vertical-align: top;">Kit Token Settings</span>
+          </a>
+      </mat-card-title>
+  </mat-card-header>
+  <mat-card-content *ngIf="is_card_visible" fxLayout="column" fxLayoutAlign="space-around stretch">
+    <table mat-table [dataSource]="kit_tokens" #KitTokenTable>
+        <ng-container matColumnDef="ipaddress">
+            <th scope="col" mat-header-cell *matHeaderCellDef>IP Address</th>
+            <td mat-cell *matCellDef="let kit_token;">{{ kit_token.ipaddress }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th scope="col" mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let kit_token;">
+              <div class="btn-group">
+                  <button (click)="delete_token(kit_token.kit_token_id)" mat-button color="warn" matTooltip="Remove Kit"><span class="material-icons">delete</span></button>
+                  <button *ngIf="kit_token.token" (click)="display_token(kit_token)" mat-button color="primary" matTooltip="View Kit Token"><span class="material-icons">description</span></button>
+              </div>
+          </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="kit_token_table_columns"></tr>
+      <tr mat-row *matRowDef="let kit_token; columns: kit_token_table_columns;"></tr>
+    </table>
+</mat-card-content>
+  <mat-card-actions *ngIf="is_card_visible">
+    <button mat-raised-button color="primary" (click)=add_kit_token_dialog()>Add Kit</button>
+</mat-card-actions>
+</mat-card>

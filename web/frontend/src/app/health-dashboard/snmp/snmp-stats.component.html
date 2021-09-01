@@ -1,0 +1,59 @@
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>
+            <a (click)="toggle_snmp_card()">
+                <span class="material-icons">{{ is_snmp_visible ? "expand_more" : "chevron_right" }}</span>
+                <span style="vertical-align: top;">SNMP Data</span>
+            </a>
+        </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content *ngIf="is_snmp_visible" fxLayout="column">
+        <table mat-table [dataSource]="snmp_data" multiTemplateDataRows>
+            <!-- Name -->
+            <ng-container matColumnDef="name">
+                <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
+                <td mat-cell *matCellDef="let data">
+                    {{ (data.hostname ? data.hostname : data.host) | lowercase}}
+                </td>
+            </ng-container>
+
+            <!-- Device Type -->
+            <ng-container matColumnDef="device_type">
+                <th mat-header-cell *matHeaderCellDef>Device Type</th>
+                <td mat-cell *matCellDef="let data">{{ data.deviceType }}</td>
+            </ng-container>
+
+            <!-- Host -->
+            <ng-container matColumnDef="host">
+                <th mat-header-cell *matHeaderCellDef>Host</th>
+                <td mat-cell *matCellDef="let data">{{ data.host }}</td>
+            </ng-container>
+
+            <!-- Recieved -->
+            <ng-container matColumnDef="recieved">
+                <th mat-header-cell *matHeaderCellDef>Datagrams Recieved</th>
+                <td mat-cell *matCellDef="let data">{{ data.inReceives ? data.inReceives : '' }}</td>
+            </ng-container>
+
+            <!-- Delivered -->
+            <ng-container matColumnDef="delivered">
+                <th mat-header-cell *matHeaderCellDef>Datagrams Delivered</th>
+                <td mat-cell *matCellDef="let data">{{ data.inDelivers ? data.inDelivers : '' }}</td>
+            </ng-container>
+
+            <!-- Actions -->
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let data">
+                    <button mat-button matTooltip="Click to show snmp data." color="primary" (click)="show_data(data)">
+                    <span class="material-icons">info</span>
+                </button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columns_for_snmp_table"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns_for_snmp_table"></tr>
+        </table>
+    </mat-card-content>
+</mat-card>

@@ -1,0 +1,91 @@
+<mat-card *ngIf="datastores.length">
+    <mat-card-header>
+        <mat-card-title>
+            <a (click)="toggle_card()">
+                <span class="material-icons">{{ is_card_visible ? "expand_more" : "chevron_right" }}</span>
+                <span style="vertical-align: top;">Datastores</span>
+            </a>
+        </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content *ngIf="is_card_visible" fxLayout="column" fxLayoutAlign="space-around stretch">
+      <div fxLayout="row wrap">
+        <ng-container *ngFor="let datastore of datastores">
+          <div class="pies">
+            <canvas baseChart
+                    [data]="chart_data(datastore)"
+                    [options]="{responsive: true, title: { text: datastore.name, display: true, fontColor: titleFontColor },
+                      pieceLabel: { mode: 'percentage', precision: 2 }, tooltips: { enabled: true }}"
+                    [chartType]="pieChartType">
+            </canvas>
+          </div>
+        </ng-container>
+        <div class="legend-border">
+          <h5 style="margin-top: 0px;">Legend </h5>
+          <div><div class='box free'></div><div style="text-align: right;">Free</div></div>
+          <br>
+          <div><div class='box used'></div><div style="text-align: right;">Used</div></div>
+        </div>
+      </div>
+      <table mat-table [dataSource]="['Title']" multiTemplateDataRows>
+        <!-- DataStores Table Drawer -->
+        <ng-container matColumnDef="name">
+          <th scope="col" mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let datastore;">
+            <span class="material-icons" style="vertical-align:middle;">{{ expandedTable ? "expand_more" : "chevron_right" }}</span>
+            <strong style="vertical-align:middle;">Datastores Table</strong>
+          </td>
+        </ng-container>
+
+        <!-- DataStores Table Info -->
+        <ng-container matColumnDef="table_info">
+          <td mat-cell *matCellDef="let datastore; let i = index">
+            <div class="node-detail" [@detailExpand]="datastore === expandedTable ? 'expanded' : 'collapsed'">
+              <div *ngIf="expandedTable">
+                <table mat-table [dataSource]="datastores" class="inner-table">
+                  <!-- Name -->
+                  <ng-container matColumnDef="name">
+                    <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
+                    <td mat-cell *matCellDef="let datastore;">
+                      {{ datastore.name }}
+                    </td>
+                  </ng-container>
+                  <!-- Free -->
+                  <ng-container matColumnDef="free">
+                      <th scope="col" mat-header-cell *matHeaderCellDef>Free</th>
+                      <td mat-cell *matCellDef="let datastore;" matTooltip="{{ datastore.free_space }} bytes">
+                        {{ to_si(datastore.free_space) }}
+                      </td>
+                  </ng-container>
+                  <!-- Capacity -->
+                  <ng-container matColumnDef="capacity">
+                      <th scope="col" mat-header-cell *matHeaderCellDef>Capacity</th>
+                      <td mat-cell *matCellDef="let datastore;" matTooltip="{{ datastore.capacity }} bytes">
+                        {{ to_si(datastore.capacity) }}
+                      </td>
+                  </ng-container>
+                  <!-- Percent Full -->
+                  <ng-container matColumnDef="percent_full">
+                      <th scope="col" mat-header-cell *matHeaderCellDef>% Full</th>
+                      <td mat-cell *matCellDef="let datastore;">
+                        {{ (((datastore.capacity - datastore.free_space) / datastore.capacity) * 100) | number : '1.2-2' }}
+                      </td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="columns_for_datastores" class="col-header"
+                  (click)="expandedTable = null"></tr>
+                  <tr mat-row *matRowDef="let row; columns: columns_for_datastores;"
+                  (click)="expandedTable = null"></tr>
+                </table>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="['name']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['name'];"
+          class="clickable" [class.example-expanded-row]="expandedTable === rowData"
+          (click)="expandedTable = expandedTable === row ? null : row"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['table_info']" class="row-detail"></tr>
+      </table>
+    </mat-card-content>
+</mat-card>

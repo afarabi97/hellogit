@@ -27,24 +27,23 @@
                 "output": "./assets/monaco/"
               }
             ],
+            "extractCss": true,
             "styles": [
               "src/styles.scss",
               {
-                "input": "src/theming/dip-theme.scss",
-                "bundleName": "dip-theme"
+                "input": "src/theming/dark-theme.scss",
+                "bundleName": "dark-theme"
               },
               {
-                "input": "src/theming/mip-theme.scss",
-                "bundleName": "mip-theme"
-              },
-              {
-                "input": "src/theming/gip-theme.scss",
-                "bundleName": "gip-theme"
+                "input": "src/theming/example-theme.scss",
+                "bundleName": "example-theme",
+                "inject": false
               }
             ],
             "allowedCommonJsDependencies": [
               "socket.io-client",
-              "file-saver"
+              "file-saver",
+              "chart.js"
             ],
             "scripts": []
           },

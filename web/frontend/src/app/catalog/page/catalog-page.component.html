@@ -68,6 +68,13 @@
                                     id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-mat-error' }}">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
                         </mat-form-field>
                       </div>
+                       <!-- textbox -->
+                      <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'textbox'">
+                        <mat-form-field appearance="fill">
+                          <mat-label>{{ control.name }}</mat-label>
+                          <textarea matInput  matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required" type="text" rows="10"></textarea>
+                        </mat-form-field>
+                      </div>
                       <!-- checkbox -->
                       <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'checkbox'">
                         <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-checkbox' }}"

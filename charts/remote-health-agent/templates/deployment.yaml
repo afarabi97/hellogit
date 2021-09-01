@@ -1,0 +1,87 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    component: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        component: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: remote-agent
+        image: "{{ .Values.python_image }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "python3 /remote_agent.py"
+        securityContext:
+          runAsUser: 0
+        env:
+        - name: CONTROLLER_IPADDRESS
+          value: "{{ .Values.controller_ipaddress }}"
+        - name: DIRECTOR_IPADDRESS
+          value: "{{ .Values.director_ipaddress }}"
+        - name: DIRECTOR_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: director_token
+        - name: LOCAL_KIT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: metrics-api-key
+              key: api-key
+        volumeMounts:
+        - name: configs
+          mountPath: /remote_agent.py
+          subPath: remote_agent.py
+          readOnly: true
+        - name: webca
+          mountPath: /etc/ssl/certs/container/ca.crt
+          subPath: ca.crt
+          readOnly: true
+        - name: director-webca
+          mountPath: /etc/ssl/certs/container/director_ca.crt
+          subPath: director_ca.crt
+          readOnly: true
+      volumes:
+      - name: configs
+        configMap:
+          name: {{ .Release.Name }}-script
+          defaultMode: 0777
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: webca-certificate
+      - name: director-webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: {{ .Release.Name }}-secret
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            preference:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - service
+          - weight: 20
+            preference:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - server

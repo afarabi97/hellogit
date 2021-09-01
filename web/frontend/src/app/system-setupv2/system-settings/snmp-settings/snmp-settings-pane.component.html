@@ -1,0 +1,36 @@
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>
+            <a id="snmp-settings-toggle" (click)="toggle_card()">
+                <span class="material-icons">{{ is_card_visible ? "expand_more" : "chevron_right" }}</span>
+                <span style="vertical-align: top;">SNMP Settings</span>
+            </a>
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content *ngIf="is_card_visible" fxLayout="column" fxLayoutAlign="space-around stretch">
+        <p>For GIP builds only; enable the GIP Build option in Kit Settings.</p>
+        <form mat-dialog-content [formGroup]="snmp_settings" (ngSubmit)="submit()" id="snmp-settings-form" fxLayout="column" fxLayoutAlign="start stretch">
+            <!-- security_name -->
+            <mat-form-field appearance="standard">
+                <mat-label>SNMPv3 security name or user name</mat-label>
+                <input matInput type="text" formControlName="security_name" />
+                <mat-error>Required</mat-error>
+            </mat-form-field>
+            <!-- auth_pass -->
+            <mat-form-field appearance="standard">
+                <mat-label>SNMPv3 authentication passphrase or password</mat-label>
+                <input matInput type="password" formControlName="auth_pass" />
+                <mat-error>Required</mat-error>
+            </mat-form-field>
+            <!-- priv_pass -->
+            <mat-form-field appearance="standard">
+                <mat-label>SNMPv3 encryption password</mat-label>
+                <input matInput type="password" formControlName="priv_pass" />
+                <mat-error>Required</mat-error>
+            </mat-form-field>
+        </form>
+    </mat-card-content>
+    <mat-card-actions *ngIf="is_card_visible">
+        <button mat-raised-button color="primary" [disabled]="!gipBuild" type="submit" form="snmp-settings-form">Save</button>
+    </mat-card-actions>
+</mat-card>

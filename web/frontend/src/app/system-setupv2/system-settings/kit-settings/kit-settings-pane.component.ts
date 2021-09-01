@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { validateFromArray } from '../../../validators/generic-validators.validator';
@@ -18,6 +18,8 @@ import { PasswordMessageComponent } from '../../../components/password-message/p
 })
 
 export class KitSettingsPaneComponent implements OnInit {
+  @Output() public getSettings = new EventEmitter<any>();
+
   kitForm: FormGroup;
   dhcp_range_options: string[] = [];
   kubernetes_ip_options: string[];
@@ -190,6 +192,7 @@ export class KitSettingsPaneComponent implements OnInit {
       this.kitSettings.job_id = job_id;
       this.kitForm.disable();
       this.checkJob();
+      this.getSettings.emit(this.kitSettings);
     });
   }
 

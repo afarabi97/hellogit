@@ -29,7 +29,6 @@
   pip:
     name:
       - aniso8601
-      - elasticsearch
       - kubernetes
       - psutil
       - requests
@@ -42,7 +41,6 @@
   loop:
     - "updateMetrics.py"
     - "tfplenum.py"
-    - "elasticsearchMetrics.py"
     - "psutilMetrics.py"
 
 - name: Create a config file.

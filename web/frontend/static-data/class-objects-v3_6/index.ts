@@ -1,6 +1,5 @@
 export * from './catalog-status.class';
 export * from './error-message.class';
-export * from './health-status.class';
 export * from './host-info.class';
 export * from './job.class';
 export * from './rule-set.class';

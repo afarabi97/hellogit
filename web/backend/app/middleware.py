@@ -5,7 +5,7 @@ from app.utils.constants import OPERATOR_ROLE, CONTROLLER_ADMIN_ROLE, REALM_ADMI
 import jwt, os, glob, yaml
 
 JWT_DIR = "/opt/sso-idp/jwt/"
-MIME_TYPE = 'application/json'
+MIME_TYPE = 'text/plain'
 
 def get_public_keys():
     keys = {
@@ -128,13 +128,13 @@ class AuthMiddleware():
                 try:
                     user = create_user_data_from_bearer(request)
                 except jwt.ExpiredSignatureError:
-                    res = Response('Authorization failed. API key is expired.', mimetype=MIME_TYPE, status=401)
+                    res = Response("Authorization failed. API key is expired.", mimetype=MIME_TYPE, status=401)
                     return res(environ, start_response)
                 except KeyNotFound:
-                    res = Response('Authorization failed. No public key to validate API key', mimetype=MIME_TYPE, status=401)
+                    res = Response("Authorization failed. No public key to validate API key", mimetype=MIME_TYPE, status=401)
                     return res(environ, start_response)
                 except Exception:
-                    res = Response('Authorization failed. See logs', mimetype=MIME_TYPE, status=401)
+                    res = Response("Authorization failed. See logs", mimetype=MIME_TYPE, status=401)
                     return res(environ, start_response)
             else:
                 user = create_user_data(request)

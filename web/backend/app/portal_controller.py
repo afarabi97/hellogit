@@ -155,7 +155,6 @@ def get_portal_links() -> Response:
 
     return ERROR_RESPONSE
 
-
 @app.route('/api/get_user_links', methods=['GET'])
 def get_user_links() -> Response:
     """

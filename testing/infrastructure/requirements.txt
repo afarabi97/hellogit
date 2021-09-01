@@ -32,7 +32,8 @@ jsonschema==2.6.0
 junit-xml==1.8
 keyring==10.6.0
 keyrings.alt==3.0
-kubernetes==7.0.0
+kubernetes==17.17.0
+language-selector==0.1
 lxml==4.2.4
 MarkupSafe==1.0
 netifaces==0.10.4

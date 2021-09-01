@@ -1,0 +1,65 @@
+table {
+  width: 100%;
+}
+
+.clickable:hover {
+  cursor: pointer;
+  background-color: rgba(34, 200, 114, 0.349);
+}
+
+.clickable {
+  border-bottom-width: 0;
+  background-color: #313131;
+}
+
+.inner-table {
+  border: 3px double #313131;
+}
+
+.col-header {
+  background-color: #222;
+}
+
+.row-detail {
+  height: 0;
+}
+
+.node-detail {
+  overflow: hidden;
+}
+
+.pies {
+  width: 280px;
+  height: 140px;
+  margin-bottom: 25px;
+}
+
+.legend-border {
+  height: 90px;
+  width: 90px;
+  border: 3px double #313131;
+  padding: 15px;
+  margin: 15px;
+  margin-left: 80px;
+}
+
+.box {
+  float: left;
+  height: 20px;
+  width: 20px;
+  margin-bottom: 15px;
+  border: 1px solid black;
+  clear: both;
+}
+
+.free {
+  background-color: #2d6e9a;
+}
+
+.used {
+  background-color: #a6485c;
+}
+
+::ng-deep .mat-tooltip {
+  font-size: 14px;
+}

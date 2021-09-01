@@ -3,7 +3,11 @@
   <br>
   <app-general-settings-pane (getGeneralSettings)="updateGeneralSettings($event)" [generalSettings]="generalSettings" [kitStatus]="kitStatus" [controllerInfo]="controllerInfo"></app-general-settings-pane>
   <br>
-  <app-kit-settings-pane [generalSettings]="generalSettings" [kitStatus]="kitStatus" [kitSettings]="kitSettings" [controllerInfo]="controllerInfo"></app-kit-settings-pane>
+  <app-kit-settings-pane (getSettings)="updateKitSettings($event)" [generalSettings]="generalSettings" [kitStatus]="kitStatus" [kitSettings]="kitSettings" [controllerInfo]="controllerInfo"></app-kit-settings-pane>
   <br>
   <app-mip-settings-pane [generalSettings]="generalSettings" [kitStatus]="kitStatus"></app-mip-settings-pane>
+  <br>
+  <app-snmp-settings-pane [gipBuild]="kitSettings?.is_gip ? true : false"></app-snmp-settings-pane>
+  <br>
+  <app-kit-token-settings-pane></app-kit-token-settings-pane>
 </div>

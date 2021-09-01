@@ -10,6 +10,12 @@ from bson import ObjectId
 OK_RESPONSE = Response()
 OK_RESPONSE.status_code = 200
 
+CONFLICT_RESPONSE = Response()
+CONFLICT_RESPONSE.status_code = 409
+
+NO_CONTENT = Response()
+NO_CONTENT.status_code = 204
+
 NOTFOUND_RESPONSE = Response()
 NOTFOUND_RESPONSE.status_code = 404
 
@@ -18,6 +24,7 @@ ERROR_RESPONSE.status_code = 500
 
 FORBIDDEN_RESPONSE = Response()
 FORBIDDEN_RESPONSE.status_code = 403
+
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):

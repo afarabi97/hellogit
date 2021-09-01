@@ -1,0 +1,142 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>
+      <a (click)="toggle_nodes_card()">
+          <span class="material-icons">{{ is_nodes_visible ? "expand_more" : "chevron_right" }}</span>
+          <span style="vertical-align: top;">Nodes</span>
+      </a>
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content *ngIf="is_nodes_visible" fxLayout="column" fxLayoutAlign="space-around stretch">
+    <table mat-table [dataSource]="nodes" aria-describedby="Nodes" multiTemplateDataRows>
+      <!-- Name -->
+      <ng-container matColumnDef="name">
+          <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let node;">{{ node.name }}</td>
+      </ng-container>
+
+      <!-- IP Address -->
+      <ng-container matColumnDef="address">
+          <th scope="col" mat-header-cell *matHeaderCellDef>IP Address</th>
+          <td mat-cell *matCellDef="let node;">{{ node.address }}</td>
+      </ng-container>
+
+      <!-- Ready -->
+      <ng-container matColumnDef="ready">
+          <th scope="col" mat-header-cell *matHeaderCellDef>Ready</th>
+          <td mat-cell *matCellDef="let node;">
+              <span *ngIf="node.ready" class="material-icons" style="color: lightgreen;">check_circle</span>
+              <span *ngIf="!node.ready" class="material-icons" style="color: darkred;">cancel</span>
+          </td>
+      </ng-container>
+
+      <!-- Type -->
+      <ng-container matColumnDef="type">
+          <th scope="col" mat-header-cell *matHeaderCellDef>Type</th>
+          <td mat-cell *matCellDef="let node;">{{ node.type }}</td>
+      </ng-container>
+
+      <!-- Storage -->
+      <ng-container matColumnDef="storage">
+          <th scope="col" mat-header-cell *matHeaderCellDef>Storage</th>
+          <td mat-cell *matCellDef="let node;">
+              <ng-container *ngFor="let disk of node.storage;">
+                <div *ngIf="disk" matTooltip="{{ disk.free / BYTES_PER_GIB | number : '.2-2' }} GiB free">{{ disk.name }}: {{ disk.percent }}%</div>
+              </ng-container>
+          </td>
+      </ng-container>
+
+      <!-- Memory -->
+      <ng-container matColumnDef="memory">
+          <th scope="col" mat-header-cell *matHeaderCellDef>Memory</th>
+          <td mat-cell *matCellDef="let node;">
+              <span *ngIf="node.memory" matTooltip="{{ node.memory.available / BYTES_PER_GIB | number : '.2-2' }} GiB available">{{ node.memory.percent }}%</span>
+          </td>
+      </ng-container>
+
+      <!-- Cpu -->
+      <ng-container matColumnDef="cpu">
+          <th scope="col" mat-header-cell *matHeaderCellDef>Cpu</th>
+          <td mat-cell *matCellDef="let node;">
+              <span *ngIf="node.cpu">{{ node.cpu }}%</span>
+          </td>
+      </ng-container>
+
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <th scope="col" mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let node;" [hidden]="token">
+          <button mat-button matTooltip="Click to run describe node." color="primary"
+          (click)="describe_node(node.name)">
+          <em class="material-icons">info</em>
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Expand Column-->
+      <ng-container matColumnDef="expand_col">
+        <th scope="col" mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let node;">
+          <div *ngIf="node.type === 'server' || node.type === 'sensor'">
+            <mat-icon *ngIf="expandedElement !== node">expand_more</mat-icon>
+            <mat-icon *ngIf="node === expandedElement">expand_less</mat-icon>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Extended Node Info -->
+      <ng-container matColumnDef="expand_node_info">
+        <td mat-cell *matCellDef="let node; let i = index" [attr.colspan]="node_displayed_cols().length">
+          <div class="node-detail" [@detailExpand]="node === expandedElement ? 'expanded' : 'collapsed'">
+            <!-- Sensor -->
+            <div *ngIf="expandedElement && expandedElement.type === 'sensor'">
+              <table mat-table [dataSource]="node.app_data" class="inner-table">
+                <ng-container matColumnDef="app">
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Application</th>
+                  <td mat-cell *matCellDef="let app_data;">{{ app_data.app }}</td>
+                </ng-container>
+                <ng-container matColumnDef="total_packets_dropped">
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Total Packets Dropped</th>
+                  <td mat-cell *matCellDef="let app_data;"> {{ app_data.packets_dropped }}</td>
+                </ng-container>
+                <ng-container matColumnDef="total_packets">
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Total Packets</th>
+                  <td mat-cell *matCellDef="let app_data;">{{ app_data.packets_processed }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="columns_for_sensor_inner_table; sticky: true" class="col-header"></tr>
+                <tr mat-row *matRowDef="let row; columns: columns_for_sensor_inner_table;"></tr>
+              </table>
+            </div>
+            <!-- Server -->
+            <div *ngIf="expandedElement && expandedElement.type === 'server'">
+              <table mat-table [dataSource]="node.write_rejects" class="inner-table">
+                <ng-container matColumnDef="node_name">
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Node Name</th>
+                  <td mat-cell *matCellDef="let node;">{{ node.node_name }}</td>
+                </ng-container>
+                <ng-container matColumnDef="thread_pool_name">
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Thread Pool Name</th>
+                  <td mat-cell *matCellDef="let node;">{{ node.name }}</td>
+                </ng-container>
+                <ng-container matColumnDef="rejects">
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Rejects</th>
+                  <td mat-cell *matCellDef="let node;">{{ node.rejected }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="columns_for_server_inner_table; sticky: true" class="col-header"></tr>
+                <tr mat-row *matRowDef="let row; columns: columns_for_server_inner_table;"></tr>
+              </table>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Default Table lines -->
+      <tr mat-header-row *matHeaderRowDef="node_displayed_cols();"></tr>
+      <tr mat-row *matRowDef="let rowData; columns: node_displayed_cols();"
+        class="clickable" [class.example-expanded-row]="expandedElement === rowData"
+        (click)="expandedElement = expandedElement === rowData ? null : rowData"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['expand_node_info']" class="row-detail"></tr>
+    </table>
+  </mat-card-content>
+</mat-card>

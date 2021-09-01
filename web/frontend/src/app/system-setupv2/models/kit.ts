@@ -51,6 +51,7 @@ export interface Settings {
   dhcp_range: string;
   job_id: string;
   job_completed: boolean;
+  is_gip?: boolean;
 }
 
 export interface GeneralSettings {

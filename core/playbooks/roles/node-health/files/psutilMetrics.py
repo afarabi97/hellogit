@@ -1,50 +1,34 @@
 import psutil
 
 class PsutilMetrics():
-    _type = 'psutil'
+    def __init__(self, hostname):
+        self._hostname = hostname
 
-    def __init__(self, node):
-        self._node = node
-
-    def _createMetric(self, name, value):
+    def _create_metric(self, name, value, etype, hostname=None):
         data = {
-          "node": self._node,
           "name": name,
-          "type": self._type,
-          "value": value
+          "value": value,
+          "type": etype,
+          "hostname": hostname if hostname else self._hostname,
         }
-
         return data
 
-    def _virtualMemory(self):
-        name = "memory"
-        value = dict(psutil.virtual_memory()._asdict())
+    def _virtual_memory(self):
+        return self._create_metric("memory", dict(psutil.virtual_memory()._asdict()), "psutil")
 
-        return self._createMetric(name, value)
+    def _root_disk_usage(self):
+        return self._create_metric("root_usage", dict(psutil.disk_usage('/')._asdict()), "psutil")
 
-    def _rootDiskUsage(self):
-        name = "root_usage"
-        value = dict(psutil.disk_usage('/')._asdict())
+    def _data_disk_usage(self):
+        return self._create_metric("data_usage", dict(psutil.disk_usage('/data')._asdict()), "psutil")
 
-        return self._createMetric(name, value)
+    def _cpu_percent(self):
+        return self._create_metric("cpu_percent", psutil.cpu_percent(interval=3), "psutil")
 
-    def _dataDiskUsage(self):
-        name = "data_usage"
-        value = dict(psutil.disk_usage('/data')._asdict())
-
-        return self._createMetric(name, value)
-
-    def _cpuPercent(self):
-        name = "cpu_percent"
-        value = psutil.cpu_percent(interval=3)
-
-        return self._createMetric(name, value)
-
-    def getMetrics(self):
+    def get_metrics(self):
         data = []
-        data.append(self._virtualMemory())
-        data.append(self._rootDiskUsage())
-        data.append(self._dataDiskUsage())
-        data.append(self._cpuPercent())
-
+        data.append(self._virtual_memory())
+        data.append(self._root_disk_usage())
+        data.append(self._data_disk_usage())
+        data.append(self._cpu_percent())
         return data

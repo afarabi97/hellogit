@@ -310,6 +310,16 @@
   tags:
     - metrics
 
+- name: Deploy snmp-manager
+  hosts: localhost
+  any_errors_fatal: true
+  tasks:
+    - include_role:
+        name: snmp
+      when: is_gip
+  tags:
+    - snmp
+
 - name: Deploy Arkime
   hosts:
     - localhost
@@ -336,16 +346,22 @@
   tags:
     - logs
 
-- name: Schedule a cron job to gather health metrics.
-  hosts:
-    - servers
-    - sensors
-  gather_facts: no
-  any_errors_fatal: true
-  roles:
-    - node-health
-  tags:
-    - node-health
+- name: Update pip index url on controller.
+  hosts: localhost
+  tasks:
+    - name: Update index-url in pip.conf.
+      ini_file:
+        path: /root/.pip/pip.conf
+        section: global
+        option: index-url
+        value: "http://{{ ansible_controller_hostname }}/offlinerepo/pip/simple"
+
+    - name: Update trusted host in pip.conf.
+      ini_file:
+        path: /root/.pip/pip.conf
+        section: global
+        option: trusted-host
+        value: "{{ ansible_controller_hostname }}"
 
 - name: Run Filebeat Setup
   hosts: localhost
