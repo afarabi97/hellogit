@@ -11,6 +11,11 @@ export const environment = {
   CONFIG_MAP_SERVICE_BASE_URL: `/api/configmap`,
   CONFIG_MAP_SERVICE_GET_ASSOCIATED_PODS: `/api/associated/pods/`,
 
+  COLD_LOG_INGEST_SERVICE_POST_COLD_LOG_FILE: `/api/upload_cold_log_file`,
+  COLD_LOG_INGEST_SERVICE_GET_WINLOGBEAT_CONFIGURATION: `/api/get_winlogbeat_configuration`,
+  COLD_LOG_INGEST_SERVICE_POST_WINLOGBEAT: `/api/install_winlogbeat`,
+  COLD_LOG_INGEST_SERVICE_GET_MODULE_INFO: `/api/get_module_info`,
+
   INDEX_MANAGEMENT_SERVICE_INDEX_MANAGEMENT: `/api/index_management`,
   INDEX_MANAGEMENT_SERVICE_GET_CLOSED_INDICES: `/api/closed_indices`,
   INDEX_MANAGEMENT_SERVICE_GET_OPENED_INDICES: `/api/opened_indices`,

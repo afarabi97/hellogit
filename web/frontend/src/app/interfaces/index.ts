@@ -16,6 +16,7 @@ export * from './device-facts.interface';
 export * from './disks.interface';
 export * from './entity-config.interface';
 export * from './error-message.interface';
+export * from './generic-job-and-key.interface';
 export * from './host-info.interface';
 export * from './interfaces.interface';
 export * from './key-string-value-string-pair.interface';

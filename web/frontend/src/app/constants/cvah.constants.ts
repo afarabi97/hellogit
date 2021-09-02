@@ -20,6 +20,7 @@ export const DIALOG_WIDTH_500PX: string = '500px';
 export const DIALOG_WIDTH_800PX: string = '800px';
 export const DIALOG_MAX_HEIGHT_800PX: string = '800px';
 export const CONFIRM_DIALOG_OPTION: string = 'Confirm';
+export const SUBMIT_DIALOG_OPTION: string = 'Submit';
 export const CANCEL_DIALOG_OPTION: string = 'Cancel';
 export const MAT_SNACKBAR_ACTION_LABEL_CLOSE: string = 'Close';
 export const MAT_SNACKBAR_ACTION_LABEL_DISMISS: string = 'Dismiss';

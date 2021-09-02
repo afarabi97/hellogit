@@ -21,7 +21,7 @@ class ColdLogUploadModel(Model):
     def from_request(self,
                      payload: ImmutableMultiDict,
                      form: ImmutableMultiDict):
-        cold_log_form = json.loads(form['coldLogForm'], encoding="utf-8")
+        cold_log_form = json.loads(form['cold_log_form'], encoding="utf-8")
         self.module = cold_log_form["module"]
         self.fileset = cold_log_form["fileset"]
         self.index_suffix = cold_log_form["index_suffix"]

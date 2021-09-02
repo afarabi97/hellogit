@@ -4,6 +4,7 @@ export * from './default-ipv4-settings.class';
 export * from './device-facts.class';
 export * from './disks.class';
 export * from './error-message.class';
+export * from './generic-job-and-key.class';
 export * from './host-info.class';
 export * from './host-info-redac.class';
 export * from './interfaces.class';

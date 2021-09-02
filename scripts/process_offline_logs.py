@@ -37,7 +37,7 @@ class OfflineLogProcessor:
                 "send_to_logstash": send_to_logstash
             }
 
-            payload = { "coldLogForm":
+            payload = { "cold_log_form":
                 json.dumps(cold_log_form)
             }
 

@@ -1,0 +1,74 @@
+<div class="main-content2">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Upload Cold Log File</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <button mat-raised-button id="cvah-elasticsearch-cold-log-ingest-button-setup-winlogbeat"
+              color="primary" (click)="setup_winlogbeat()">Setup Winlogbeat
+      </button>
+
+      <mat-divider></mat-divider>
+
+      <form [formGroup]="cold_log_ingest_form_group">
+        <div fxlayout="row">
+          <!-- Select Log Type -->
+          <mat-form-field fxFlex="50%" appearance="fill">
+            <mat-label>Select Log Type</mat-label>
+            <mat-select disableRipple id="cvah-elasticsearch-cold-log-ingest-select-log-type"
+                        formControlName="module" (selectionChange)="module_change($event)">
+              <mat-option *ngFor="let module of modules"
+                          id="{{ 'cvah-elasticsearch-cold-log-ingest-log-type-option-' + i }}"
+                          [value]="module.value">{{ module.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- File set type -->
+          <mat-form-field *ngIf="!is_file_sets_empty()" fxFlex="50%" appearance="fill">
+            <mat-label>Select File Set</mat-label>
+            <mat-select disableRipple id="cvah-elasticsearch-cold-log-ingest-select-file-set-type"
+                        formControlName="fileset">
+                <mat-option *ngFor="let file_set of file_sets; let i = index;"
+                            id="{{ 'cvah-elasticsearch-cold-log-ingest-file-set-type-option-' + i }}"
+                            matTooltip="{{ file_set.tooltip }}"
+                            [value]="file_set.value">{{ file_set.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Elasticsearch Index Suffix -->
+        <mat-form-field class="custom-suffix">
+          <mat-label>Elasticsearch Index Suffix</mat-label>
+          <input matInput id="cvah-elasticsearch-cold-log-ingest-input-index-suffix"
+                 maxlength="256" placeholder="Any arbitrary name that has no special characters"
+                 formControlName="index_suffix">
+          <mat-error>The Index Suffix is invalid. Please make sure it only uses alphanumeric characters and can only use a dash and an underscore and is no more than 50 characters.</mat-error>
+        </mat-form-field>
+
+        <mat-checkbox id="cvah-elasticsearch-cold-log-ingest-checkbox-use-logstash"
+                      formControlName="send_to_logstash"
+                      matTooltip="NOTE: You should only select this if you want your data to be processed by custom logstash processors that you have setup before going to Elasticsearch.">
+          (Optional) Send data through logstash instead of sending it directly to elasticsearch.
+        </mat-checkbox>
+      </form>
+
+      <div class="file-select-wrapper">
+        <button mat-raised-button id="cvah-elasticsearch-cold-log-ingest-button-select-log-file"
+                color="accent" (click)="file_input.click()">Select Log File
+        </button>
+        <input hidden #file_input (change)="file_input_change($event.target.files)" type="file">
+        <mat-form-field class="file-name">
+          <mat-label>Cold Log File</mat-label>
+          <input matInput id="cvah-elasticsearch-cold-log-ingest-input-file-name"
+                 readonly="true" type="text" [formControl]="file_name_form_control">
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button id="cvah-elasticsearch-cold-log-ingest-button-upload"
+              color="primary" (click)="upload()"
+              [disabled]="!cold_log_file || cold_log_ingest_form_group.invalid">Upload
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

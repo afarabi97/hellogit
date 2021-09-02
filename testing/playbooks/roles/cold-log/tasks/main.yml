@@ -12,17 +12,17 @@
   command: /opt/tfplenum/.venv/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 4
   register: keycloak_bearer_token
 
-- name: Create Cold-Log Indicies
+- name: Create Cold-Log Indices
   command: >
     curl -f -k -X POST -H "Authorization: Bearer {{ keycloak_bearer_token.stdout }}"
     -F 'upload_file=@roles/cold-log/files/{{ item.module }}/{{ item.fileset }}.log'
-    -F 'coldLogForm={"module":"{{ item.module }}", "fileset":"{{ item.fileset }}", "index_suffix":"{{ item.fileset }}", "send_to_logstash":""}'
+    -F 'cold_log_form={"module":"{{ item.module }}", "fileset":"{{ item.fileset }}", "index_suffix":"{{ item.fileset }}", "send_to_logstash":""}'
     https://localhost/api/upload_cold_log_file
   loop: "{{ modules_and_filesets }}"
   register: post_result
   failed_when: "post_result.rc != 0"
 
-- name: Verify Cold-Log Indicies Exist
+- name: Verify Cold-Log Indices Exist
   uri:
     url: "{{ elastic_uri }}/filebeat-external-{{ item.fileset }}-{{ item.module }}/_count"
     validate_certs: no
@@ -36,7 +36,7 @@
   retries: 20
   delay: 1
 
-- name: Delete Cold-Log Indicies
+- name: Delete Cold-Log Indices
   uri:
     url: "{{ elastic_uri }}/filebeat-external-{{ item.fileset }}-{{ item.module }}"
     method: DELETE

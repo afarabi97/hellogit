@@ -341,7 +341,20 @@ APP_MODAL_DIALOG__APP_DATE_TIME_MAT_FORM_FIELD_TIMEZONE_MAT_SELECT = 'app-modal-
 # TODO app-modal-dialog-mat-app-date-time-div-mat-form-field-timezone-mat-select-mat-option-* # mat-option
 
 
-# These are for index-management.component.html
+# These are for elasticsearch-cold-log-ingest.component.html
+CVAH_ELASTICSEARCH_COLD_LOG_INGEST__BUTTON_SETUP_WINLOGBEAT = 'cvah-elasticsearch-cold-log-ingest-button-setup-winlogbeat' # button
+CVAH_ELASTICSEARCH_COLD_LOG_INGEST__SELECT_LOG_TYPE = 'cvah-elasticsearch-cold-log-ingest-select-log-type' # mat-select
+# TODO cvah-elasticsearch-cold-log-ingest-log-type-option-* # mat-option
+CVAH_ELASTICSEARCH_COLD_LOG_INGEST__SELECT_FILE_SET_TYPE = 'cvah-elasticsearch-cold-log-ingest-select-file-set-type' # mat-select
+# TODO cvah-elasticsearch-cold-log-ingest-file-set-type-option-* # mat-option
+CVAH_ELASTICSEARCH_COLD_LOG_INGEST__INPUT_INDEX_SUFFIX = 'cvah-elasticsearch-cold-log-ingest-input-index-suffix' # input
+CVAH_ELASTICSEARCH_COLD_LOG_INGEST__CHECKBOX_USE_LOGSTASH = 'cvah-elasticsearch-cold-log-ingest-checkbox-use-logstash' # mat-checkbox
+CVAH_ELASTICSEARCH_COLD_LOG_INGEST__BUTTON_SELECT_LOG_FILE = 'cvah-elasticsearch-cold-log-ingest-button-select-log-file' # button
+CVAH_ELASTICSEARCH_COLD_LOG_INGEST__INPUT_FILE_NAME = 'cvah-elasticsearch-cold-log-ingest-input-file-name' # input
+CVAH_ELASTICSEARCH_COLD_LOG_INGEST__BUTTON_UPLOAD = 'cvah-elasticsearch-cold-log-ingest-button-upload' # button
+
+
+# These are for elasticsearch-index-management.component.html
 CVAH_ELASTICSEARCH_INDEX_MANAGEMENT__MAT_SELECT_ACTION = 'cvah-elasticsearch-index-management-mat-select-action' # mat-select
 # TODO cvah-elasticsearch-index-management-action-mat-option-* # mat-option
 CVAH_ELASTICSEARCH_INDEX_MANAGEMENT__BUTTON_NEXT = 'cvah-elasticsearch-index-management-button-next' # button
@@ -550,25 +563,6 @@ APP_ADD_NODE__APP_KIT_NODE_FORM__SELECT_NODE_TYPE_MAT_OPTION_SENSOR = 'app-add-n
 # TODO app-kit-form-gip-*-app-kit-node-form-div-div-mat-form-field-select-node-type-mat-select-mat-option-server # mat-option
 # TODO app-kit-form-gip-*-app-kit-node-form-div-div-mat-form-field-select-node-type-mat-select-mat-option-sensor # mat-option
 # TODO app-kit-form-gip-*-app-kit-node-form-div-div-div-mat-checkbox-kubernetes-master-server # mat-checkbox
-
-
-# These are for log-ingest.component.html
-APP_LOG_INGEST__TILE_BUTTON_UPLOAD = 'app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-upload' # button
-APP_LOG_INGEST__TILE_BUTTON_SPAN_NAME = 'app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-upload-span-name' # span
-APP_LOG_INGEST__TILE_BUTTON_CHOOSE_LOG_FILE = 'app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-choose-log-file' # button
-APP_LOG_INGEST__TILE_INPUT_FILE = 'app-log-ingest-div-mat-card-mat-card-header-mat-card-title-input-hidden-file' # input
-APP_LOG_INGEST__TILE_BUTTON_SETUP_WINLOGBEAT = 'app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-setup-winlogbeat' # button
-APP_LOG_INGEST__MAT_FORM_FIELD_SELECT_LOG_TYPE = 'app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type' # mat-form-field
-APP_LOG_INGEST__SELECT_LOG_TYPE_MAT_SELECT = 'app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select' # mat-select
-APP_LOG_INGEST__SELECT_LOG_TYPE_MAT_SELECT_MAT_OPTION_APACHE = 'app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-apache' # mat-option
-APP_LOG_INGEST__SELECT_LOG_TYPE_MAT_SELECT_MAT_OPTION_AUDITD = 'app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-auditd' # mat-option
-APP_LOG_INGEST__SELECT_LOG_TYPE_MAT_SELECT_MAT_OPTION_SYSTEM = 'app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-system' # mat-option
-APP_LOG_INGEST__SELECT_LOG_TYPE_MAT_SELECT_MAT_OPTION_SURICATA = 'app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-suricata' # mat-option
-APP_LOG_INGEST__SELECT_LOG_TYPE_MAT_SELECT_MAT_OPTION_WINDOWS_EVENT_LOGS = 'app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-windows-event-logs' # mat-option
-APP_LOG_INGEST__MAT_FORM_FIELD_ELASTICSEARCH_INDEX_SUFFIX = 'app-log-ingest-div-mat-card-mat-card-content-mat-form-field-elasticsearch-index-suffix' # mat-form-field
-APP_LOG_INGEST__ELASTICSEARCH_INDEX_SUFFIX_INPUT = 'app-log-ingest-div-mat-card-mat-card-content-mat-form-field-elasticsearch-index-suffix-input' # input
-APP_LOG_INGEST__ELASTICSEARCH_INDEX_SUFFIX_MAT_ERROR = 'app-log-ingest-div-mat-card-mat-card-content-mat-form-field-elasticsearch-index-suffix-mat-error' # mat-error
-APP_LOG_INGEST__MAT_CHECKBOX_LOGSTASH_PROCESSORS = 'app-log-ingest-div-mat-card-mat-card-content-mat-checkbox-custom-logstash-processors' # mat-checkbox
 
 
 # These are for mip-config.component.html

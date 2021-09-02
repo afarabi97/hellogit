@@ -43,7 +43,6 @@ import { AddKitToken } from './system-setupv2/add-kit-token-dialog/add-kit-token
 //Kit Page
 
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
-import { LogIngestComponent } from './log-ingest/log-ingest.component';
 
 //Tools page
 import { ToolsFormComponent } from './tools-form/tools.component';
@@ -110,6 +109,7 @@ import { ConfigMapModule } from './modules/config-map/config-map.module';
 import { DateTimeModule } from './modules/date-time/date-time.module';
 
 import { DockerRegistryModule } from './modules/docker-registry/docker-registry.module';
+import { ElasticsearchColdLogIngestModule } from './modules/elasticsearch-cold-log-ingest/elasticsearch-cold-log-ingest.module';
 import { ElasticsearchIndexManagementModule } from './modules/elasticsearch-index-management/elasticsearch-index-management.module';
 import { ElasticsearchScaleModule } from './modules/elasticsearch-scale/elasticsearch-scale.module';
 import { PmoSupportModule } from './modules/pmo-support/pmo-support.module';
@@ -171,7 +171,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     PasswordMessageComponent,
     PodLogModalDialogComponent,
     RepositorySettingsComponent,
-    LogIngestComponent,
     VMWareSettingsComponent,
     GeneralSettingsPaneComponent,
     KitSettingsPaneComponent,
@@ -202,6 +201,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ConfigMapModule,
     DateTimeModule,
     DockerRegistryModule,
+    ElasticsearchColdLogIngestModule,
     ElasticsearchIndexManagementModule,
     ElasticsearchScaleModule,
     PmoSupportModule,
