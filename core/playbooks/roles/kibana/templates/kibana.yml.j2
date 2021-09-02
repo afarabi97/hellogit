@@ -55,6 +55,8 @@ spec:
           value: "false"
         - name: NODE_OPTIONS
           value: "--max-old-space-size={{ (kibana_memory * 1024 / 2) | int }}"
+        - name: SERVER_MAXPAYLOAD
+          value: "2097152"
         resources:
           requests:
             memory: {{ kibana_memory }}Gi
