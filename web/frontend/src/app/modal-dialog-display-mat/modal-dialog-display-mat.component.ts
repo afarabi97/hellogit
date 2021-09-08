@@ -13,7 +13,7 @@ export class ModalDialogDisplayMatComponent {
 
   constructor(public dialogRef: MatDialogRef<ModalDialogDisplayMatComponent>,
               @Inject(MAT_DIALOG_DATA)
-              public backingObject: { title: string, info: string}) {
+              public backingObject: { title: string; info: string}) {
     this.title = backingObject.title;
     this.info = backingObject.info;
   }

@@ -27,7 +27,7 @@
           <div><div class='box used'></div><div style="text-align: right;">Used</div></div>
         </div>
       </div>
-      <table mat-table [dataSource]="['Title']" multiTemplateDataRows>
+      <table mat-table [dataSource]="['Title']" multiTemplateDataRows aria-describedby="datastores-table">
         <!-- DataStores Table Drawer -->
         <ng-container matColumnDef="name">
           <th scope="col" mat-header-cell *matHeaderCellDef></th>
@@ -42,7 +42,7 @@
           <td mat-cell *matCellDef="let datastore; let i = index">
             <div class="node-detail" [@detailExpand]="datastore === expandedTable ? 'expanded' : 'collapsed'">
               <div *ngIf="expandedTable">
-                <table mat-table [dataSource]="datastores" class="inner-table">
+                <table mat-table [dataSource]="datastores" class="inner-table" aria-describedby="datastores-info-table">
                   <!-- Name -->
                   <ng-container matColumnDef="name">
                     <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>

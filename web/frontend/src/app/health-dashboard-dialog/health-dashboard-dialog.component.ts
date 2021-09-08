@@ -13,7 +13,7 @@ export class HealthDashboardModalDialogComponent {
 
   constructor(public dialogRef: MatDialogRef<HealthDashboardModalDialogComponent>,
               @Inject(MAT_DIALOG_DATA)
-              public backingObject: { title: string, info: Object }) {
+              public backingObject: { title: string; info: Object }) {
     this.title = backingObject.title;
     this.info = backingObject.info;
   }

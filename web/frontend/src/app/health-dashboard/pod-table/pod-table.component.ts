@@ -1,16 +1,16 @@
-import { Component, OnChanges, Input } from "@angular/core";
-import { KitTokenClass } from "../../system-setupv2/classes/kit-token.class";
-import { ModalDialogDisplayMatComponent } from "../../modal-dialog-display-mat/modal-dialog-display-mat.component";
-import { PodLogModalDialogComponent } from "../../pod-log-dialog/pod-log-dialog.component";
-import { HealthService } from "../services/health.service";
-import { MatDialog } from "@angular/material/dialog";
+import { Component, OnChanges, Input } from '@angular/core';
+import { KitTokenClass } from '../../system-setupv2/classes/kit-token.class';
+import { ModalDialogDisplayMatComponent } from '../../modal-dialog-display-mat/modal-dialog-display-mat.component';
+import { PodLogModalDialogComponent } from '../../pod-log-dialog/pod-log-dialog.component';
+import { HealthService } from '../services/health.service';
+import { MatDialog } from '@angular/material/dialog';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { ObjectUtilitiesClass } from "src/app/classes";
-import { SortingService } from "../../services/sorting.service"
+import { ObjectUtilitiesClass } from 'src/app/classes';
+import { SortingService } from '../../services/sorting.service';
 
 @Component({
-  selector: "app-health-dashboard-pod-table",
-  templateUrl: "pod-table.component.html",
+  selector: 'app-health-dashboard-pod-table',
+  templateUrl: 'pod-table.component.html',
   styleUrls: ['pod-table.component.css'],
   animations: [
     trigger('detailExpand', [
@@ -23,13 +23,13 @@ import { SortingService } from "../../services/sorting.service"
 export class HealthDashboardPodTableComponent implements OnChanges {
     @Input() token: KitTokenClass;
 
-    group_header_column = ["node_name", "group_status"];
+    group_header_column = ['node_name', 'group_status'];
     pod_header_column = [
-      { def: "namespace", remote_access: true },
-      { def: "name", remote_access: true },
-      { def: "status", remote_access: true },
-      { def: "restart_count", remote_access: true },
-      { def: "actions", remote_access: false },
+      { def: 'namespace', remote_access: true },
+      { def: 'name', remote_access: true },
+      { def: 'status', remote_access: true },
+      { def: 'restart_count', remote_access: true },
+      { def: 'actions', remote_access: false },
     ];
 
     is_pods_visible: Boolean = true;
@@ -40,7 +40,7 @@ export class HealthDashboardPodTableComponent implements OnChanges {
     constructor(
       private health_service: HealthService,
       private dialog: MatDialog,
-      private sort_service: SortingService) {}
+      private sorting_service_: SortingService) {}
 
     ngOnChanges() {
       this.reload();
@@ -54,7 +54,7 @@ export class HealthDashboardPodTableComponent implements OnChanges {
 
     describe_pod(pod_name: string, namespace: string) {
       this.health_service.describe_pod(pod_name, namespace).subscribe(data => {
-        this.open_dialog_screen(ModalDialogDisplayMatComponent, pod_name, data["stdout"]);
+        this.open_dialog_screen(ModalDialogDisplayMatComponent, pod_name, data['stdout']);
         });
     }
 
@@ -66,30 +66,38 @@ export class HealthDashboardPodTableComponent implements OnChanges {
 
     open_dialog_screen(modal, pod_name: string, data: Object) {
       this.dialog.open(modal, {
-        minWidth: "900px",
-        data: { "title": pod_name, "info": data }
+        minWidth: '900px',
+        data: { 'title': pod_name, 'info': data }
       });
     }
 
     is_pod_error_state(sb: string, warnings: number): boolean {
-      return ((sb === "Failed" || sb === "Error") || warnings > 0 &&
-        (sb !== "Pending" && sb !== "NotReady" && sb !== "Terminating" &&
-          sb !== "Unknown" && sb !== "ContainerCreating"));
+      return ((sb === 'Failed' || sb === 'Error') || warnings > 0 &&
+        (sb !== 'Pending' && sb !== 'NotReady' && sb !== 'Terminating' &&
+          sb !== 'Unknown' && sb !== 'ContainerCreating'));
     }
 
     get_pod_icon_status(sb: string, warnings?: number): string {
-      if (sb === "Running" || sb === "Succeeded" || sb === "Completed") return "check_circle";
-      else if (sb === "Pending" || sb === "ContainerCreating") return "warning";
-      else if (sb === "Terminating") return "circle";
-      else if (this.is_pod_error_state(sb, warnings)) return "error";
+      if (sb === 'Running' || sb === 'Succeeded' || sb === 'Completed') {
+        return 'check_circle';
+      } else if (sb === 'Pending' || sb === 'ContainerCreating') {
+        return 'warning';
+      } else if (sb === 'Terminating') {
+        return 'circle';
+      } else if (this.is_pod_error_state(sb, warnings)){
+        return 'error';
+      }
     }
 
     generate_group_status(index): string {
       return this.filtered_group_data[index].reduce((status, pod) => {
         const pod_status = this.get_pod_icon_status(pod.status_brief, pod.warnings);
         const status_values = ['check_circle', 'circle', 'warning', 'error'];
-        if (status_values.indexOf(pod_status) > status_values.indexOf(status)) return pod_status;
-        else return status;
+        if (status_values.indexOf(pod_status) > status_values.indexOf(status)) {
+          return pod_status;
+        } else {
+          return status;
+        }
       });
     }
 
@@ -105,8 +113,8 @@ export class HealthDashboardPodTableComponent implements OnChanges {
       }
 
       const group_reducer = (accumulator, current_value) => {
-        const current_group: string = ObjectUtilitiesClass.notUndefNull(current_value[column]) ? current_value[column] :
-         'Unassigned';
+        const current_group: string = ObjectUtilitiesClass.notUndefNull(current_value[column]) ?
+                                        current_value[column] : 'Unassigned';
         if (!accumulator[current_group]) {
           accumulator[current_group] = [{
             group_name: `${current_group}`,
@@ -116,10 +124,10 @@ export class HealthDashboardPodTableComponent implements OnChanges {
         accumulator[current_group].push(current_value);
 
         return accumulator;
-      }
+      };
 
       const groups = pods.reduce(group_reducer, {});
-      const group_names = Object.keys(groups).sort((a,b) => this.sort_service.alphanum(a,b));
+      const group_names = Object.keys(groups).sort(this.sorting_service_.alphanum);
 
       this.filtered_group_data = group_names.map((key) => groups[key].filter(pod => !pod['group_name']));
       this.group_header_data = [];

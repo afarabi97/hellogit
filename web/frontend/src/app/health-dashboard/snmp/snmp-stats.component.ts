@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HealthService } from "../services/health.service";
+import { HealthService } from '../services/health.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalDialogDisplayMatComponent } from '../../modal-dialog-display-mat/modal-dialog-display-mat.component';
 import { DIALOG_WIDTH_800PX } from '../../constants/cvah.constants';
@@ -14,7 +14,7 @@ export class HealthDashboardSNMPComponent implements OnInit {
     is_snmp_visible = true;
     snmp_data: Array<Object> = [];
     san_disk_data: Array<Object> = [];
-    columns_for_snmp_table: string[] = ["name", "device_type", "host", "recieved", "delivered", "actions"];
+    columns_for_snmp_table: string[] = ['name', 'device_type', 'host', 'recieved', 'delivered', 'actions'];
 
     constructor(
       private health_service: HealthService,
@@ -40,7 +40,7 @@ export class HealthDashboardSNMPComponent implements OnInit {
     show_data(data: Object) {
       this.dialog.open(ModalDialogDisplayMatComponent, {
         minWidth: DIALOG_WIDTH_800PX,
-        data: { "title": "Data", "info": JSON.stringify(data, null, 2) }
+        data: { 'title': 'Data', 'info': JSON.stringify(data, null, 2) }
       });
     }
 
