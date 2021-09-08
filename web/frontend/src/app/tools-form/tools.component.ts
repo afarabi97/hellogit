@@ -10,15 +10,14 @@ export const target_config_validators = {
   ],
   url: [
     { error_message: 'Required field', validatorFn: 'required' },
-    { error_message: "Link must start with either 'http://' or 'https://' without quotation marks.",
+    { error_message: `Link must start with either 'http://' or 'https://' without quotation marks.`,
       validatorFn: 'pattern', ops: { pattern: /^(http:[/][/])|(https:[/][/])/ } }
   ]
-}
+};
 
 @Component({
   selector: 'app-tools',
-  templateUrl: './tools.component.html',
-  styleUrls: ['./tools.component.css']
+  templateUrl: './tools.component.html'
 })
 export class ToolsFormComponent implements OnInit {
 
@@ -32,7 +31,7 @@ export class ToolsFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.title.setTitle("Tools");
+    this.title.setTitle('Tools');
     this.resetClock = this.formBuilder.group({
       date: new FormControl(),
       timezone: new FormControl('UTC')

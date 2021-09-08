@@ -58,5 +58,5 @@ describe('NotificationsModuleComponent', () => {
 });
 
 function createNotification (timestamp, role, message, action, application, status, exception) {
-  return {"timestamp": timestamp, "role": role, "message": message, "action": action, "application": application, "status": status, "exception": exception}
+  return {'timestamp': timestamp, 'role': role, 'message': message, 'action': action, 'application': application, 'status': status, 'exception': exception};
 }

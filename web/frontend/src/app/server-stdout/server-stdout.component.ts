@@ -14,13 +14,12 @@ import { ConfirmDialogMatDialogDataInterface } from '../interfaces';
 })
 export class ServerStdoutComponent implements OnInit {
 
-  @ViewChild('console')
-  private consoleDiv: ElementRef;
-  private jobName: string;
-  private jobId: string;
+  @ViewChild('console') private consoleDiv: ElementRef;
   public scrollStatus: Boolean = true;
   public allowRetry: boolean;
-  messages: Array<{msg: string, color: string}>;
+  messages: Array<{msg: string; color: string}>;
+  private jobName: string;
+  private jobId: string;
 
   constructor(private stdoutService: ServerStdoutService,
               private route: ActivatedRoute,
@@ -28,8 +27,8 @@ export class ServerStdoutComponent implements OnInit {
               private dialog: MatDialog,
               private snackBar: MatSnackBarService,
             ) {
-    this.title.setTitle("Console Output");
-    this.messages = new Array<{msg: string, color: string}>();
+    this.title.setTitle('Console Output');
+    this.messages = new Array<{msg: string; color: string}>();
     this.jobName = null;
   }
 
@@ -46,8 +45,10 @@ export class ServerStdoutComponent implements OnInit {
     this.route.params.subscribe(params => {
       this.jobId = params['id'];
       this.stdoutService.getConsoleOutput(this.jobId).subscribe(data => {
-        for (let item in data){
-          this.messages.push({msg: data[item]['log'], color: data[item]['color']});
+        for (const item in data){
+          if (item) {
+            this.messages.push({msg: data[item]['log'], color: data[item]['color']});
+          }
         }
 
         setTimeout(() => {
@@ -58,7 +59,7 @@ export class ServerStdoutComponent implements OnInit {
     });
 
     this.stdoutService.getMessage().subscribe(data => {
-      if ( data['jobid'] == this.jobId ) {
+      if ( data['jobid'] === this.jobId ) {
           this.messages.push({msg: data['log'], color: data['color']});
           this.scrollToBottom();
       }
@@ -71,25 +72,10 @@ export class ServerStdoutComponent implements OnInit {
     this.resizeConsole();
   }
 
-  public scrollToBottom(){
+  scrollToBottom(){
     if(this.scrollStatus) {
       this.consoleDiv.nativeElement.scrollTop = this.consoleDiv.nativeElement.scrollHeight;
     }
-  }
-
-  private resizeConsole(){
-    let height: string = "";
-    if (window.innerHeight > 400){
-      height = (window.innerHeight - 64) + "px";
-    } else {
-      height = "100px";
-    }
-    this.consoleDiv.nativeElement.style.maxHeight = height;
-    this.consoleDiv.nativeElement.style.height = height;
-  }
-
-  private message = {
-    message: 'this is a test message'
   }
 
   openKillModal(){
@@ -127,13 +113,15 @@ export class ServerStdoutComponent implements OnInit {
         this.snackBar.displaySnackBar(err.error['message']);
       } else {
         console.error(err);
-        this.snackBar.displaySnackBar("Failed for an unknown reason.");
+        this.snackBar.displaySnackBar('Failed for an unknown reason.');
       }
     });
   }
 
   validateAllowRetry() {
-    if (this.jobId == null || this.jobId === "undefined") return;
+    if (this.jobId == null || this.jobId === 'undefined') {
+      return;
+    }
 
     this.stdoutService.getJob(this.jobId).subscribe(data => {
 
@@ -145,7 +133,9 @@ export class ServerStdoutComponent implements OnInit {
         }, data['timeout'] || 7200);
       }
 
-      if (data['status'] === 'failed') this.allowRetry = true;
+      if (data['status'] === 'failed') {
+        this.allowRetry = true;
+      }
     });
   }
 
@@ -167,5 +157,16 @@ export class ServerStdoutComponent implements OnInit {
         this.validateAllowRetry();
       }
     });
+  }
+
+  private resizeConsole(){
+    let height: string = '';
+    if (window.innerHeight > 400){
+      height = (window.innerHeight - 64) + 'px';
+    } else {
+      height = '100px';
+    }
+    this.consoleDiv.nativeElement.style.maxHeight = height;
+    this.consoleDiv.nativeElement.style.height = height;
   }
 }

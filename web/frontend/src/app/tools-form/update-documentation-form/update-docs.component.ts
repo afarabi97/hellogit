@@ -45,17 +45,21 @@ export class UpdateDocsFormComponent implements OnInit {
     this.isCardVisible = !this.isCardVisible;
   }
 
-  private displaySnackBar(message: string, duration_seconds: number = 60) {
-    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000 });
-  }
-
   uploadFile() {
     console.log(this.spaceFormControl.value);
 
-    this.displaySnackBar("Loading " + this.zipToUpload.name + "...");
+    this.displaySnackBar('Loading ' + this.zipToUpload.name + '...');
     this.toolSrv.uploadDocumentation(this.zipToUpload, this.spaceFormControl.value).subscribe(data => {
       this.displayServiceResponse(data);
     });
+  }
+
+  handleFileInput(files: FileList) {
+    this.zipToUpload = files.item(0);
+  }
+
+  getErrorMessage(control: FormControl | AbstractControl): string {
+    return control.errors ? control.errors.error_message : '';
   }
 
   private displayServiceResponse(data: any) {
@@ -67,15 +71,11 @@ export class UpdateDocsFormComponent implements OnInit {
     } else if (data['error_message']) {
       this.displaySnackBar(data['error_message']);
     } else {
-      this.displaySnackBar("Failed for unknown reason");
+      this.displaySnackBar('Failed for unknown reason');
     }
   }
 
-  handleFileInput(files: FileList) {
-    this.zipToUpload = files.item(0);
-  }
-
-  public getErrorMessage(control: FormControl | AbstractControl): string {
-    return control.errors ? control.errors.error_message : '';
+  private displaySnackBar(message: string, duration_seconds: number = 60) {
+    this.snackBar.open(message, 'Close', { duration: duration_seconds * 1000 });
   }
 }

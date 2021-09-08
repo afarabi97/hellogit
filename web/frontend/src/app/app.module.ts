@@ -9,6 +9,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ChartsModule } from 'ng2-charts';
 
 import { AppLoadService } from './services/app-load.service';
 import { UserService } from './services/user.service';
@@ -23,7 +24,7 @@ import { PasswordMessageComponent } from './components/password-message/password
 
 // Security Alerts
 import { SecurityAlertsComponent } from './security-alerts/security-alerts.component';
-import { AlertDrillDownDialog } from './security-alerts/alert-drilldown-dialog/alert-drilldown-dialog.component';
+import { AlertDrillDownDialogComponent } from './security-alerts/alert-drilldown-dialog/alert-drilldown-dialog.component';
 
 //Setup pages
 
@@ -52,11 +53,9 @@ import { NodeMaintenanceFormComponent } from './tools-form/node-maintenance-form
 import { RepositorySettingsComponent } from './tools-form/repository-settings/repository-settings.component';
 import { UpdateEsLicenseComponent } from './tools-form/update-es-license-form/update-es-license-form.component';
 
-import { MaterialModule } from './modules/utilily-modules/material.module';
-
 //PCAP Test Page
 import { PcapFormComponent } from './pcap-form/pcap-form.component';
-import { ReplayPcapDialog } from './pcap-form/replay-pcap-dialog/replay-pcap-dialog.component';
+import { ReplayPcapDialogComponent } from './pcap-form/replay-pcap-dialog/replay-pcap-dialog.component';
 
 //Windows Agent Deployer
 import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
@@ -107,7 +106,6 @@ import { UserClass } from './classes';
 import { AppRoutingModule } from './modules/cvah-modules/app-routing.module';
 import { ConfigMapModule } from './modules/config-map/config-map.module';
 import { DateTimeModule } from './modules/date-time/date-time.module';
-
 import { DockerRegistryModule } from './modules/docker-registry/docker-registry.module';
 import { ElasticsearchColdLogIngestModule } from './modules/elasticsearch-cold-log-ingest/elasticsearch-cold-log-ingest.module';
 import { ElasticsearchIndexManagementModule } from './modules/elasticsearch-index-management/elasticsearch-index-management.module';
@@ -116,15 +114,14 @@ import { PmoSupportModule } from './modules/pmo-support/pmo-support.module';
 import { PolicyManagementModule } from './modules/policy-management/policy-management.module';
 import { PortalModule } from './modules/portal/portal.module';
 import { InjectorModule } from './modules/utilily-modules/injector.module';
+import { MaterialModule } from './modules/utilily-modules/material.module';
 
 // Health Dashboard
 import { HealthDashboardComponent } from './health-dashboard/dashboard/health-dashboard.component';
-
 import { HealthDashboardNodeTableComponent } from './health-dashboard/node-table/node-table.component';
 import { HealthDashboardPodTableComponent } from './health-dashboard/pod-table/pod-table.component';
 import { HealthDashboardSNMPComponent } from './health-dashboard/snmp/snmp-stats.component';
 import { HealthDashboardDatastoresComponent } from './health-dashboard/datastores/datastores.component';
-import { ChartsModule } from 'ng2-charts';
 
 export function initializeApp(appLoadService: AppLoadService): () => Promise<UserClass> {
   return (): Promise<UserClass> => appLoadService.getCurrentUser();
@@ -164,8 +161,8 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ConfirmDialogComponent,
     NodeBackgroundComponent,
     CatalogPageComponent,
-    ReplayPcapDialog,
-    AlertDrillDownDialog,
+    ReplayPcapDialogComponent,
+    AlertDrillDownDialogComponent,
     AddNodeDialogComponent,
     NodeInfoDialogComponent,
     PasswordMessageComponent,
@@ -237,8 +234,8 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ModalDialogDisplayMatComponent,
     HealthDashboardModalDialogComponent,
     CopyTokenModalDialogComponent,
-    ReplayPcapDialog,
-    AlertDrillDownDialog,
+    ReplayPcapDialogComponent,
+    AlertDrillDownDialogComponent,
     AddNodeDialogComponent,
     AddMipDialogComponent,
     NodeInfoDialogComponent,

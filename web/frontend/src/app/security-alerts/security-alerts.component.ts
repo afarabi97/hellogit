@@ -24,19 +24,19 @@ import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.co
 import { CookieService } from '../services/cookies.service';
 import { MatSnackBarService } from '../services/mat-snackbar.service';
 import { PortalService } from '../services/portal.service';
-import { AlertDrillDownDialog } from './alert-drilldown-dialog/alert-drilldown-dialog.component';
+import { AlertDrillDownDialogComponent } from './alert-drilldown-dialog/alert-drilldown-dialog.component';
 import { AlertService } from './alerts.service';
 import { ConfirmDialogMatDialogDataInterface } from '../interfaces';
 
-const DIALOG_WIDTH = "1000px";
+const DIALOG_WIDTH = '1000px';
 
 const MOLOCH_FIELD_LOOKUP = {
-  "source.address": "ip.src",
-  "source.ip": "ip.src",
-  "source.port": "port.src",
-  "destination.port": "port.dst",
-  "destination.address": "ip.dst",
-  "destination.ip": "ip.dst"
+  'source.address': 'ip.src',
+  'source.ip': 'ip.src',
+  'source.port': 'port.src',
+  'destination.port': 'port.dst',
+  'destination.address': 'ip.dst',
+  'destination.ip': 'ip.dst'
 };
 
 
@@ -95,7 +95,7 @@ export class SecurityAlertsComponent implements OnInit {
   }
 
   isDynamicColumn(column: string){
-    if (column === "actions" || column === "count"){
+    if (column === 'actions' || column === 'count'){
       return false;
     }
     return true;
@@ -103,13 +103,13 @@ export class SecurityAlertsComponent implements OnInit {
 
   getAggCount(alert: Object){
     if (alert){
-      return alert["count"];
+      return alert['count'];
     }
     return 0;
   }
 
   getColumnValue(alert: Object, columnName: string){
-    if (columnName === "@timestamp"){
+    if (columnName === '@timestamp'){
       const time = new Date(alert[columnName]);
       return time.toISOString();
     }
@@ -117,7 +117,7 @@ export class SecurityAlertsComponent implements OnInit {
     if (alert && columnName){
       return alert[columnName];
     }
-    return "";
+    return '';
   }
 
   refreshAlerts(){
@@ -125,7 +125,7 @@ export class SecurityAlertsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.title.setTitle("Security Alerts");
+    this.title.setTitle('Security Alerts');
     this.loadDynamicColumnsFromCooke();
     this.populateChipOptions();
     this.updateAlertsTable();
@@ -155,7 +155,7 @@ export class SecurityAlertsComponent implements OnInit {
   }
 
   acknowledgeEvent(alert: Object) {
-    const count = alert["count"];
+    const count = alert['count'];
     const paneString = `Are you sure you want to acknowledge ${count} alerts? \
                         \n\nDoing so will turn these alerts into a false positive \
                         which will not appear anymore on your alerts page.`;
@@ -164,10 +164,10 @@ export class SecurityAlertsComponent implements OnInit {
   }
 
   unSetacknowledgedEvent(alert: Object){
-    const count = alert["count"];
+    const count = alert['count'];
     const paneString = `Are you sure you want to undo ${count} acknowledged alerts? \
                         \n\nDoing so will return the selected events back to their original state.`;
-    const paneTitle = "Undo Acknowledged Alerts";
+    const paneTitle = 'Undo Acknowledged Alerts';
     this._ackorUnsetAck(alert, paneTitle, paneString);
   }
 
@@ -176,14 +176,14 @@ export class SecurityAlertsComponent implements OnInit {
     const kibanaLink = this.getKibanaLink(alert);
     delete alert['event.escalated'];
 
-    const molohPrefix = this.getLink("arkime");
-    let molochLink = "N/A";
-    if (molohPrefix === ""){
-      molochLink = "N/A - Failed to create because Moloch is not installed.";
+    const molohPrefix = this.getLink('arkime');
+    let molochLink = 'N/A';
+    if (molohPrefix === ''){
+      molochLink = 'N/A - Failed to create because Moloch is not installed.';
     }
 
     const molochExpression = this.buildMolochExpression(alert);
-    if (molochExpression === ""){
+    if (molochExpression === ''){
       const fields = this.getRequiredKibanaFields().join(', ');
       molochLink = `N/A - Failed to create Moloch link because you need one of the following Group By fields: ${fields}`;
     } else {
@@ -197,51 +197,51 @@ export class SecurityAlertsComponent implements OnInit {
       hive_settings: this.alertSrv.getHiveSettings(),
       alerts: this.alertSrv.getAlertList(alert, 1)
     }).subscribe(data => {
-      if (data.hive_settings["admin_api_key"] === "" || data.hive_settings["admin_api_key"] === "org_admin_api_key"){
+      if (data.hive_settings['admin_api_key'] === '' || data.hive_settings['admin_api_key'] === 'org_admin_api_key'){
         this.matSnackBarSrv.displaySnackBar(`Hive is not configured. Plase click on the Gear
           Icon in upper left hand corner of page and set your API key there.`);
         return;
       }
 
       if (!data.alerts){
-        this.matSnackBarSrv.displaySnackBar("Failed to get event details for the selected Alert group.");
+        this.matSnackBarSrv.displaySnackBar('Failed to get event details for the selected Alert group.');
         return;
       }
-      const alertDetails = data.alerts["hits"]["hits"][0];
+      const alertDetails = data.alerts['hits']['hits'][0];
 
-      let title = "";
-      let severity = "2";
-      if (alertDetails && alertDetails["_source"] && alertDetails["_source"]["event"]){
-        if (alertDetails["_source"]["event"]["kind"] === "signal"){
-          title = alertDetails["_source"]["signal"]["rule"]["name"];
+      let title = '';
+      let severity = '2';
+      if (alertDetails && alertDetails['_source'] && alertDetails['_source']['event']){
+        if (alertDetails['_source']['event']['kind'] === 'signal'){
+          title = alertDetails['_source']['signal']['rule']['name'];
         } else {
-          if (alertDetails["_source"]["rule"] && alertDetails["_source"]["rule"]["name"]){
-            title = alertDetails["_source"]["rule"]["name"];
+          if (alertDetails['_source']['rule'] && alertDetails['_source']['rule']['name']){
+            title = alertDetails['_source']['rule']['name'];
           }
         }
-        if (alertDetails["_source"]["event"]["severity"]){
-          severity = alertDetails["_source"]["event"]["severity"].toString();
+        if (alertDetails['_source']['event']['severity']){
+          severity = alertDetails['_source']['event']['severity'].toString();
         }
       }
 
-      const count = alert["count"];
+      const count = alert['count'];
       const paneString = `Are you sure you want to escalate ${count} alerts? \
                           \n\nDoing so will create hive ticket.`;
       const paneTitle = 'Escalate Alerts';
       const eventTitleConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
       eventTitleConfig.validatorOrOpts = [Validators.required];
-      eventTitleConfig.tooltip = "Title of the case";
+      eventTitleConfig.tooltip = 'Title of the case';
       eventTitleConfig.label = 'Title';
       eventTitleConfig.formState = title;
 
       const eventTagsConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
-      eventTagsConfig.tooltip = "Case tags";
+      eventTagsConfig.tooltip = 'Case tags';
       eventTagsConfig.label = 'Tags';
       eventTagsConfig.controlType = DialogControlTypes.chips;
 
       const eventDescriptionConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
       eventDescriptionConfig.validatorOrOpts = [Validators.required];
-      eventDescriptionConfig.tooltip = "Description of the case";
+      eventDescriptionConfig.tooltip = 'Description of the case';
       eventDescriptionConfig.label = 'Description';
       eventDescriptionConfig.controlType = DialogControlTypes.textarea;
       eventDescriptionConfig.formState = `[Kibana SIEM Link](${kibanaLink})\n\n[Arkime Link](${molochLink})`;
@@ -250,7 +250,7 @@ export class SecurityAlertsComponent implements OnInit {
       eventSeverityConfig.label = 'Severity';
       eventSeverityConfig.formState = severity;
       eventSeverityConfig.validatorOrOpts = [Validators.required];
-      eventSeverityConfig.tooltip = "Severity of the case (1: low; 2: medium; 3: high)";
+      eventSeverityConfig.tooltip = 'Severity of the case (1: low; 2: medium; 3: high)';
       eventSeverityConfig.controlType = DialogControlTypes.dropdown;
       eventSeverityConfig.options = ['1', '2', '3'];
 
@@ -266,7 +266,7 @@ export class SecurityAlertsComponent implements OnInit {
           title: paneTitle,
           instructions: paneString,
           dialogForm: escalateEventForm,
-          confirmBtnText: "Save"
+          confirmBtnText: 'Save'
         }
       });
       dialogRef.afterClosed().subscribe (
@@ -274,13 +274,13 @@ export class SecurityAlertsComponent implements OnInit {
           const form = result as FormGroup;
           if(form && form.valid) {
             this.alertSrv.modifyAlert(alert, this.controlForm, true, form).subscribe(new_data=>{
-              const new_count = new_data["total"];
+              const new_count = new_data['total'];
               const msg = `Successfully performed operation on ${new_count} Alerts.`;
               this.matSnackBarSrv.displaySnackBar(msg);
               this.updateAlertsTable();
             }, err => {
-              if (err && err["message"]){
-                this.matSnackBarSrv.displaySnackBar(err["message"]);
+              if (err && err['message']){
+                this.matSnackBarSrv.displaySnackBar(err['message']);
               } else {
                 this.matSnackBarSrv.displaySnackBar('Failed to acknowledge the Alert Aggregation for an unknown reason.');
               }
@@ -363,7 +363,7 @@ export class SecurityAlertsComponent implements OnInit {
   //CHIP End
 
   changeQueryTime(event: KeyboardEvent) {
-    if (event && event.target['value'] !== "") {
+    if (event && event.target['value'] !== '') {
       this.updateAlertsTable();
     }
   }
@@ -377,7 +377,7 @@ export class SecurityAlertsComponent implements OnInit {
   eventDrilldown(alert: Object) {
     alert['form'] = this.controlForm.value;
     alert['links'] = this.links;
-    this.dialog.open(AlertDrillDownDialog, {
+    this.dialog.open(AlertDrillDownDialogComponent, {
       width: DIALOG_WIDTH,
       data: alert
     });
@@ -393,8 +393,8 @@ export class SecurityAlertsComponent implements OnInit {
     alert['form'] = this.controlForm.value;
     alert['links'] = this.links;
     this.alertSrv.getAlertList(alert, 1).subscribe(data=> {
-      const hive_id = Math.abs(data["hits"]["hits"][0]["_source"]["event"]["hive_id"]);
-      const prefix = this.getLink("hive");
+      const hive_id = Math.abs(data['hits']['hits'][0]['_source']['event']['hive_id']);
+      const prefix = this.getLink('hive');
       const url = `${prefix}/index.html#!/case/~~${hive_id}/details`;
       const win = window.open(url, '_blank');
       win.focus();
@@ -402,15 +402,15 @@ export class SecurityAlertsComponent implements OnInit {
   }
 
   openMoloch(alert: Object){
-    const prefix = this.getLink("arkime");
+    const prefix = this.getLink('arkime');
 
-    if (prefix === ""){
-      this.matSnackBarSrv.displaySnackBar("Arkime is not installed.  Please go to the catalog page and install it if you want this capability to work.");
+    if (prefix === ''){
+      this.matSnackBarSrv.displaySnackBar('Arkime is not installed.  Please go to the catalog page and install it if you want this capability to work.');
       return;
     }
 
     const expression = this.buildMolochExpression(alert);
-    if (expression === ""){
+    if (expression === ''){
       const fields = this.getRequiredKibanaFields().join(', ');
       this.matSnackBarSrv.displaySnackBar(`Failed to pivot to Arkime because
 you need one of the following Group By fields: ${fields}`);
@@ -427,7 +427,7 @@ you need one of the following Group By fields: ${fields}`);
     this.alertSrv.getHiveSettings().subscribe(data => {
       const hiveKeyConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
       hiveKeyConfig.validatorOrOpts = [Validators.minLength(32), Validators.maxLength(32), Validators.required];
-      hiveKeyConfig.tooltip = "Must be a valid Hive token that is 32 characters in length.";
+      hiveKeyConfig.tooltip = 'Must be a valid Hive token that is 32 characters in length.';
       hiveKeyConfig.label = 'HIVE Admin API Key';
       if (data && data['admin_api_key']){
         hiveKeyConfig.formState = data['admin_api_key'];
@@ -437,7 +437,7 @@ you need one of the following Group By fields: ${fields}`);
 
       const hiveKeyConfig2: DialogFormControlConfigClass = new DialogFormControlConfigClass();
       hiveKeyConfig2.validatorOrOpts = [Validators.minLength(32), Validators.maxLength(32), Validators.required];
-      hiveKeyConfig2.tooltip = "Must be a valid Hive token that is 32 characters in length.";
+      hiveKeyConfig2.tooltip = 'Must be a valid Hive token that is 32 characters in length.';
       hiveKeyConfig2.label = 'HIVE Org Admin API Key';
       if (data && data['org_admin_api_key']){
         hiveKeyConfig2.formState = data['org_admin_api_key'];
@@ -452,11 +452,11 @@ you need one of the following Group By fields: ${fields}`);
       const dialogRef = this.dialog.open(ModalDialogMatComponent, {
         width: DIALOG_WIDTH,
         data: {
-          title: "HIVE Settings",
+          title: 'HIVE Settings',
           instructions: `In order to Hive event escalation to work, please
 copy and paste the admin and org_admin Hive API keys in the boxes below. The key can be found inside the Hive's applcation settings.`,
           dialogForm: hiveForm,
-          confirmBtnText: "Save"
+          confirmBtnText: 'Save'
         }
       });
       dialogRef.afterClosed().subscribe(
@@ -509,16 +509,16 @@ Please check the /var/log/tfplenum logs for more information`);
   }
 
   private setAutoRefreshFromCookie(){
-    const autoRefreshCookie = this.cookieService.get("autoRefresh");
+    const autoRefreshCookie = this.cookieService.get('autoRefresh');
     if (autoRefreshCookie.length > 0){
-      this.autoRefresh = (autoRefreshCookie === "true");
+      this.autoRefresh = (autoRefreshCookie === 'true');
     } else {
       this.autoRefresh = true;
     }
   }
 
   private setupControlFormGroupFromCookies(){
-    const savedControls = this.cookieService.get("controlForm");
+    const savedControls = this.cookieService.get('controlForm');
     if (savedControls.length > 0){
       const values = JSON.parse(savedControls);
       this.controlForm = this.fb.group({
@@ -553,7 +553,7 @@ Please check the /var/log/tfplenum logs for more information`);
 
 
   private loadDynamicColumnsFromCooke(){
-    const saved_columns = this.cookieService.get("dynamic-column");
+    const saved_columns = this.cookieService.get('dynamic-column');
     if (saved_columns.length > 0){
       this.dynamicColumns = JSON.parse(saved_columns);
     } else {
@@ -572,11 +572,11 @@ Please check the /var/log/tfplenum logs for more information`);
     const timeAmt = this.controlForm.get('timeAmount').value;
     const timeInterval = this.controlForm.get('timeInterval').value;
     const initalDate = new Date();
-    if (timeInterval === "days"){
+    if (timeInterval === 'days'){
       initalDate.setDate(initalDate.getDate() - timeAmt);
-    } else if (timeInterval === "hours"){
+    } else if (timeInterval === 'hours'){
       initalDate.setHours(initalDate.getHours() - timeAmt);
-    } else if (timeInterval === "minutes") {
+    } else if (timeInterval === 'minutes') {
       initalDate.setMinutes(initalDate.getMinutes() - timeAmt);
     }
 
@@ -594,7 +594,7 @@ Please check the /var/log/tfplenum logs for more information`);
 
   private validateDatetimes(){
     if (this.controlForm.get('startDatetime').value >= this.controlForm.get('endDatetime').value){
-      this.matSnackBarSrv.displaySnackBar("Zero results returned because start datetime cannot be larger than end datetime.");
+      this.matSnackBarSrv.displaySnackBar('Zero results returned because start datetime cannot be larger than end datetime.');
     }
   }
 
@@ -608,21 +608,21 @@ Please check the /var/log/tfplenum logs for more information`);
       const escalated = this.isEscalatedChecked();
       const showClosed = this.isShowClosedChecked();
       this.saveCookies();
-      this.alertSrv.getAlerts(this.dynamicColumns.join(","),
+      this.alertSrv.getAlerts(this.dynamicColumns.join(','),
                               this.getStartDatetime(),
                               this.getEndDatetime(),
                               acknowledge, escalated, showClosed).subscribe(data => {
         this.alerts.data = data as object[];
         if (displayMessage){
-          this.matSnackBarSrv.displaySnackBar("Successfully updated Alerts table!");
+          this.matSnackBarSrv.displaySnackBar('Successfully updated Alerts table!');
         }
       }, err => {
         if (err.status === 400){
-          this.matSnackBarSrv.displaySnackBar(err.error["message"]);
+          this.matSnackBarSrv.displaySnackBar(err.error['message']);
         } else if (err.message){
           this.matSnackBarSrv.displaySnackBar(err.message);
         } else {
-          this.matSnackBarSrv.displaySnackBar("Unknown failure. Check logs for more details.");
+          this.matSnackBarSrv.displaySnackBar('Unknown failure. Check logs for more details.');
         }
       });
     } else {
@@ -631,7 +631,7 @@ Please check the /var/log/tfplenum logs for more information`);
   }
 
   private saveCookies(){
-    this.cookieService.set("dynamic-column", JSON.stringify(this.dynamicColumns));
+    this.cookieService.set('dynamic-column', JSON.stringify(this.dynamicColumns));
     this.cookieService.set('controlForm', JSON.stringify(this.controlForm.value));
     this.cookieService.set('autoRefresh', this.autoRefresh.toString());
   }
@@ -651,7 +651,7 @@ Please check the /var/log/tfplenum logs for more information`);
     dialogRef.afterClosed().subscribe(response => {
       if (response === confirm_dialog.option2) {
         this.alertSrv.modifyAlert(alert, this.controlForm, false).subscribe(data=>{
-          const new_count = data["total"];
+          const new_count = data['total'];
           const msg = `Successfully performed operation on ${new_count} Alerts.`;
           this.matSnackBarSrv.displaySnackBar(msg);
           this.updateAlertsTable();
@@ -674,16 +674,16 @@ Please check the /var/log/tfplenum logs for more information`);
         return entry['dns'];
       }
     }
-    return "";
+    return '';
   }
 
   private getQueryPiece(alert: Object): string {
     let ret_val = '';
     for (const field in alert){
-      if (field === "count" || field === "form" || field === "links"){
+      if (field === 'count' || field === 'form' || field === 'links'){
         continue;
       }
-      if (alert['event.kind'] === "signal" && field === "rule.name"){
+      if (alert['event.kind'] === 'signal' && field === 'rule.name'){
         ret_val += 'signal.rule.name : "' + alert[field] + '" and ';
       } else {
         ret_val += field + ' : "' + alert[field] + '" and ';
@@ -694,29 +694,29 @@ Please check the /var/log/tfplenum logs for more information`);
   }
 
   private getKibanaLink(alert: Object){
-    const prefix = this.getLink("kibana");
+    const prefix = this.getLink('kibana');
     let query = this.getQueryPiece(alert);
     if (this.isEscalatedChecked()){
-      query += " and event.escalated : true";
+      query += ' and event.escalated : true';
     }
 
     const startDateTime = this.getStartDatetime();
     const endDateTime = this.getEndDatetime();
     let page = 'overview';
-    if (alert['event.kind'] && alert['event.kind'] === "signal"){
-      page = "detections";
-    } else if (alert['event.kind'] && alert['event.kind'] === "alert") {
+    if (alert['event.kind'] && alert['event.kind'] === 'signal'){
+      page = 'detections';
+    } else if (alert['event.kind'] && alert['event.kind'] === 'alert') {
       if (alert['event.module'] ) {
-        if (alert['event.module'] === "zeek" || alert['event.module'] === "suricata"){
-          page = "network/external-alerts";
-        } else if (alert['event.module'] === "endgame" || alert['event.module'] === "system" || alert['event.module'] === "sysmon"){
-          page = "hosts/alerts";
+        if (alert['event.module'] === 'zeek' || alert['event.module'] === 'suricata'){
+          page = 'network/external-alerts';
+        } else if (alert['event.module'] === 'endgame' || alert['event.module'] === 'system' || alert['event.module'] === 'sysmon'){
+          page = 'hosts/alerts';
         }
       }
     }
 
     const url = `${prefix}/app/security/${page}?query=(language:kuery,query:'${query}')&timerange=(global:(linkTo:!(timeline),timerange:(from:%27${startDateTime}%27,kind:absolute,to:%27${endDateTime}%27)),timeline:(linkTo:!(global),timerange:(from:%27${startDateTime}%27,kind:absolute,to:%27${endDateTime}%27)))`;
-    return url.replace(/'/g, "%27").replace(/ /g, "%20").replace(/\(/g, "%28").replace(/\)/g, "%29");
+    return url.replace(/'/g, '%27').replace(/ /g, '%20').replace(/\(/g, '%28').replace(/\)/g, '%29');
   }
 
   private getMolochLink(alert: Object, prefix: string, expression: string) {
@@ -728,7 +728,7 @@ Please check the /var/log/tfplenum logs for more information`);
 
   private buildMolochExpression(alert: Object): string {
     const fields = this.getFields(alert);
-    let url_part = "";
+    let url_part = '';
     for (const field of fields){
       const molochField = MOLOCH_FIELD_LOOKUP[field];
       if (molochField){
@@ -742,7 +742,9 @@ Please check the /var/log/tfplenum logs for more information`);
   private getRequiredKibanaFields(){
     const fields = [];
     for (const field in MOLOCH_FIELD_LOOKUP){
-      fields.push(field);
+      if (field) {
+        fields.push(field);
+      }
     }
     return fields;
   }

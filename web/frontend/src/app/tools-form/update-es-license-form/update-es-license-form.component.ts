@@ -43,21 +43,29 @@ export class UpdateEsLicenseComponent implements OnInit {
     this.isCardVisible = !this.isCardVisible;
   }
 
-  private displaySnackBar(message: string, duration_seconds: number = 60) {
-    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000 });
-  }
-
   uploadFile(event: any) {
     event.target.disabled = true;
-    this.displaySnackBar("Loading " + this.fileToUpload.name + "...");
-    let fileReader = new FileReader();
+    this.displaySnackBar('Loading ' + this.fileToUpload.name + '...');
+    const fileReader = new FileReader();
     fileReader.onload = (e) => {
-      let license = JSON.parse(fileReader.result as string);
+      const license = JSON.parse(fileReader.result as string);
       this.toolSrv.uploadEsLicense(license).subscribe(data => {
         this.displayServiceResponse(data);
       });
-    }
+    };
     fileReader.readAsText(this.fileToUpload);
+  }
+
+  handleFileInput(files: FileList) {
+    this.fileToUpload = files.item(0);
+  }
+
+  getErrorMessage(control: FormControl | AbstractControl): string {
+    return control.errors ? control.errors.error_message : '';
+  }
+
+  private displaySnackBar(message: string, duration_seconds: number = 60) {
+    this.snackBar.open(message, 'Close', { duration: duration_seconds * 1000 });
   }
 
   private displayServiceResponse(data: any) {
@@ -67,15 +75,7 @@ export class UpdateEsLicenseComponent implements OnInit {
     } else if (data['error_message']) {
       this.displaySnackBar(data['error_message']);
     } else {
-      this.displaySnackBar("Failed for unknown reason");
+      this.displaySnackBar('Failed for unknown reason');
     }
-  }
-
-  handleFileInput(files: FileList) {
-    this.fileToUpload = files.item(0);
-  }
-
-  public getErrorMessage(control: FormControl | AbstractControl): string {
-    return control.errors ? control.errors.error_message : '';
   }
 }

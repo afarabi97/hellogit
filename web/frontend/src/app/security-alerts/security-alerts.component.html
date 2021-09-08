@@ -114,7 +114,7 @@
 
         <!-- Actions -->
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>actions</th>
+          <th mat-header-cell *matHeaderCellDef scope="col">actions</th>
           <td mat-cell *matCellDef="let alert; let j = index;">
               <div class="btn-group" *ngIf="!isacknowledgedChecked() && !isEscalatedChecked()">
                 <button mat-icon-button [matMenuTriggerFor]="mainMenu" aria-label="Main Alerts Group Menu">
@@ -178,13 +178,13 @@
         </ng-container>
 
         <ng-container matColumnDef="count">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>count</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header scope="col">count</th>
           <td mat-cell *matCellDef="let alert;">{{ getAggCount(alert) }}</td>
         </ng-container>
 
         <ng-container *ngFor="let column of dynamicColumns">
           <ng-container *ngIf="isDynamicColumn(column)" matColumnDef="{{ column }}">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ column }}</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header scope="col">{{ column }}</th>
             <td mat-cell *matCellDef="let alert;">{{ getColumnValue(alert, column) }}</td>
           </ng-container>
         </ng-container>

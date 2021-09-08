@@ -20,7 +20,7 @@
           </mat-form-field>
         </div>
         <div class="table-wrapper">
-            <table mat-table multiTemplateDataRows [dataSource]="rule_sets_data_source" class="table">
+            <table mat-table multiTemplateDataRows [dataSource]="rule_sets_data_source" class="table" aria-describedby="rule-sets">
 
               <!-- Is Enabled -->
               <ng-container matColumnDef="Enabled">
@@ -134,7 +134,7 @@
                           matTooltip="Add Rules" class="button-add-rule" color="primary" (click)="add_rule(ruleSet)">
                     <em class="material-icons">add_circle_outline</em>Add Rule</button>
                   <div>
-                    <table *ngIf="does_rule_set_contain_rules()" mat-table multiTemplateDataRows [dataSource]="rules_data_source">
+                    <table *ngIf="does_rule_set_contain_rules()" mat-table multiTemplateDataRows [dataSource]="rules_data_source" aria-describedby="rules">
 
                       <!-- Is Enabled -->
                       <ng-container matColumnDef="Enabled">

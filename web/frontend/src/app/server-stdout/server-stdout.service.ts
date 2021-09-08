@@ -4,11 +4,6 @@ import { Observable } from 'rxjs';
 import { WebsocketService } from '../services/websocket.service';
 
 
-export interface Message {
-  message: string
-}
-
-
 @Injectable({
   providedIn: 'root'
 })
@@ -19,7 +14,7 @@ export class ServerStdoutService {
   }
 
   sendMessage(msg: string){
-    this.srvSocket.getSocket().emit("message", msg);
+    this.srvSocket.getSocket().emit('message', msg);
   }
 
   getMessage(){
@@ -46,7 +41,7 @@ export class ServerStdoutService {
   }
 
   retryJob(jobId: string){
-    const url = `/api/job/${jobId}/retry`
+    const url = `/api/job/${jobId}/retry`;
     return this.http.put(url, null);
   }
 }

@@ -10,7 +10,7 @@
             <div class="table-wrapper">
 
                 <!-- Config Map Table -->
-                <table mat-table [dataSource]="config_maps" multiTemplateDataRows>
+                <table mat-table [dataSource]="config_maps" aria-describedby="config-map-table" multiTemplateDataRows>
 
                     <!-- Namespace -->
                     <ng-container matColumnDef="namespace">
@@ -52,7 +52,8 @@
                                     matTooltip="Add Config Data" (click)="create_config_map_data(config)">Add Config Data</button>
 
                             <!-- Config Map Data Table -->
-                            <table *ngIf="is_config_map_data_defined(config)" mat-table [dataSource]="config_map_data_keys(config.data)">
+                            <table *ngIf="is_config_map_data_defined(config)" mat-table [dataSource]="config_map_data_keys(config.data)"
+                                   aria-describedby="config-map-data-table" >
 
                                 <!-- File Name -->
                                 <ng-container matColumnDef="filename">

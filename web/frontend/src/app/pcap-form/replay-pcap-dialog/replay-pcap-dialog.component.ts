@@ -20,12 +20,12 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
     SensorHostInfoService
   ]
 })
-export class ReplayPcapDialog implements OnInit {
+export class ReplayPcapDialogComponent implements OnInit {
   selectableSensors: HostInfoRedacClass[];
   pcapForm: FormGroup;
   selectableIfaces: Array<string>;
 
-  constructor( public dialogRef: MatDialogRef<ReplayPcapDialog>,
+  constructor( public dialogRef: MatDialogRef<ReplayPcapDialogComponent>,
                private formBuilder: FormBuilder,
                private sensor_host_info_service_: SensorHostInfoService,
                private pcapSrv: PcapService,
@@ -71,7 +71,7 @@ export class ReplayPcapDialog implements OnInit {
 
   onSubmit() {
     for (const sensor of this.selectableSensors){
-      if (sensor.management_ip == this.pcapForm.get('sensor_ip').value){
+      if (sensor.management_ip === this.pcapForm.get('sensor_ip').value){
         this.pcapForm.addControl('sensor_hostname', new FormControl(sensor.hostname));
         break;
       }
@@ -88,7 +88,7 @@ export class ReplayPcapDialog implements OnInit {
   }
 
   changeIfaceValues(event: MatSelectChange){
-    let hostname = "";
+    let hostname = '';
     for (const sensor of this.selectableSensors){
       if (sensor.management_ip === event.value){
         hostname = sensor.hostname;
@@ -99,8 +99,8 @@ export class ReplayPcapDialog implements OnInit {
     this.pcapSrv.getConfiguredIfaces(hostname).subscribe(data => {
       this.selectableIfaces = data as Array<string>;
       if (this.selectableIfaces === null || this.selectableIfaces.length === 0){
-        this.pcapSrv.displaySnackBar("You cannot replay traffic on the selected Sensor because Zeek and Suricata are not installed.  \
-                                      Please go to the catalog page and install one or both applications on the desired sensor.");
+        this.pcapSrv.displaySnackBar('You cannot replay traffic on the selected Sensor because Zeek and Suricata are not installed.  \
+                                      Please go to the catalog page and install one or both applications on the desired sensor.');
       }
     });
 

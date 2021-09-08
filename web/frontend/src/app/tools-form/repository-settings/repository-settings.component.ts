@@ -12,12 +12,12 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 @Component({
     selector: 'app-repository-settings',
     templateUrl: './repository-settings.component.html',
-    styleUrls: ['./repository-settings.component.scss'],
     host: {
         'class': 'app-repository-settings'
     }
 })
 export class RepositorySettingsComponent {
+    @Input() hasTitle: boolean;
     repositorySettings: FormGroup;
     ioConnection: any;
     allowUpdate: boolean;
@@ -25,43 +25,21 @@ export class RepositorySettingsComponent {
     isCardVisible: boolean;
     controllerMaintainer: boolean;
 
-    @Input()
-    hasTitle: boolean;
-
     constructor(private toolsSrv: ToolsService,
                 private userService: UserService,
                 private matSnackBarService_: MatSnackBarService,
                 private _WebsocketService: WebsocketService) {
-        let form = this.createFormControls();
-        this.repositorySettings = form;
+        this.repositorySettings = this.createFormControls();
         this.hasTitle = true;
         this.controllerMaintainer = this.userService.isControllerMaintainer();
-
         this.ioConnection = this._WebsocketService.onBroadcast()
         .subscribe((message: any) => {
-            if(message["status"] === "COMPLETED" || message["status"] === "ERROR") {
+            if(message['status'] === 'COMPLETED' || message['status'] === 'ERROR') {
                 this.allowUpdate = true;
             }
         });
 
         this.allowUpdate = true;
-    }
-
-    private createFormControls() {
-        let endpoint = new FormControl(null, Validators.required);
-        let protocol = new FormControl(null, Validators.required);
-        let bucket = new FormControl(null, Validators.required);
-        let access_key = new FormControl(null, Validators.required);
-        let secret_key = new FormControl(null, Validators.required);
-        let controls = {
-            'endpoint': endpoint,
-            'protocol': protocol,
-            'bucket': bucket,
-            'access_key': access_key,
-            'secret_key': secret_key
-        };
-        let form = new FormGroup(controls);
-        return form;
     }
 
     toggleCard(){
@@ -79,5 +57,22 @@ export class RepositorySettingsComponent {
             this.allowUpdate = true;
             this.matSnackBarService_.displaySnackBar(error, matSnackbarConfiguration);
         });
+    }
+
+    private createFormControls() {
+        const endpoint = new FormControl(null, Validators.required);
+        const protocol = new FormControl(null, Validators.required);
+        const bucket = new FormControl(null, Validators.required);
+        const access_key = new FormControl(null, Validators.required);
+        const secret_key = new FormControl(null, Validators.required);
+        const controls = {
+            'endpoint': endpoint,
+            'protocol': protocol,
+            'bucket': bucket,
+            'access_key': access_key,
+            'secret_key': secret_key
+        };
+        const form = new FormGroup(controls);
+        return form;
     }
 }

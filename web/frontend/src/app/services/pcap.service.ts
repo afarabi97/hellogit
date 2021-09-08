@@ -29,7 +29,7 @@ export class PcapService {
   }
 
   replayPcap(payload: Object): Observable<Object> {
-    const url = "/api/pcap/replay"
+    const url = '/api/pcap/replay';
     return this.http.post(url, payload);
   }
 
@@ -39,6 +39,6 @@ export class PcapService {
   }
 
   displaySnackBar(message: string, duration_seconds: number = 60){
-    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000});
+    this.snackBar.open(message, 'Close', { duration: duration_seconds * 1000});
   }
 }

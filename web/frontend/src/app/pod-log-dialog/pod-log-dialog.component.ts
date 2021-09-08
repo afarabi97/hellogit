@@ -17,8 +17,7 @@ export class PodLogModalDialogComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<PodLogModalDialogComponent>,
               @Inject(MAT_DIALOG_DATA)
-              public backingObject: { title: string, info: Array<Object>})
-  {
+              public backingObject: { title: string; info: Array<Object>}) {
       this.title = backingObject.title;
       this.info = backingObject.info;
   }

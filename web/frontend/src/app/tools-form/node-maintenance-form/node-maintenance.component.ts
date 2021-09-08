@@ -10,13 +10,11 @@ import { ToolsService } from '../services/tools.service';
   styleUrls: ['./node-maintenance.component.css']
 })
 export class NodeMaintenanceFormComponent implements OnInit {
+  @Input()hasTitle: boolean;
   displayedColumns: string[] = ['node', 'interfaces', 'actions'];
   nodes = [];
   isCardVisible: boolean;
   controllerMaintainer: boolean;
-
-  @Input()
-  hasTitle: boolean;
 
   constructor(private toolsSrv: ToolsService, private userService: UserService) {
     this.hasTitle = true;
@@ -31,18 +29,11 @@ export class NodeMaintenanceFormComponent implements OnInit {
     this.isCardVisible = !this.isCardVisible;
   }
 
-  private getNodeMaintenanceTableData(): void {
-    this.toolsSrv.getMonitoringInterfaces().subscribe(data => {
-      this.nodes = data as Array<Object>;
-    });
-  }
-
-
   set_interface_state(event: MatSlideToggleChange, node: Object): void {
-    let interfaces = node["interfaces"];
-    let hostname = node["node"];
-    let state = event['checked'] ? "up": "down";
-    for (let iface of interfaces) {
+    const interfaces = node['interfaces'];
+    const hostname = node['node'];
+    const state = event['checked'] ? 'up': 'down';
+    for (const iface of interfaces) {
       this.toolsSrv.changStateofRemoteNetworkDevice(hostname, iface['name'], state).subscribe(data => {
         this.getNodeMaintenanceTableData();
       });
@@ -51,7 +42,7 @@ export class NodeMaintenanceFormComponent implements OnInit {
 
   isSliderChecked(node: Object): boolean {
     if (node){
-      for (let iface of node['interfaces']){
+      for (const iface of node['interfaces']){
         if (iface['state'] === 'down') {
           return false;
         }
@@ -62,10 +53,15 @@ export class NodeMaintenanceFormComponent implements OnInit {
 
   getSliderLabel(node){
     if (this.isSliderChecked(node)){
-      return "Active";
+      return 'Active';
     } else {
-      return "Maintenance";
+      return 'Maintenance';
     }
   }
 
+  private getNodeMaintenanceTableData(): void {
+    this.toolsSrv.getMonitoringInterfaces().subscribe(data => {
+      this.nodes = data as Array<Object>;
+    });
+  }
 }

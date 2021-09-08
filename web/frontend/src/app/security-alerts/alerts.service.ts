@@ -2,16 +2,6 @@ import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 
-
-// export class AlertQuery {
-
-//   constructor(conrolForm: FormGroup){
-
-//   }
-
-// }
-
-
 @Injectable({
   providedIn: 'root'
 })
@@ -49,7 +39,7 @@ export class AlertService {
 
   getAlertList(alert: Object, size=0){
     const url = `/api/alerts/list/${size}`;
-    return this.http.post(url, alert)
+    return this.http.post(url, alert);
   }
 
   modifyAlert(alert: Object, controlForm: FormGroup, performEscalation=false, hiveForm: FormGroup = null){

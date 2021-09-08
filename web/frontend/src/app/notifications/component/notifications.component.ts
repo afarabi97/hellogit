@@ -4,6 +4,7 @@ import { WebsocketService } from '../../services/websocket.service';
 import { NotificationsModuleComponent } from './../notification-module/notifications-module.component';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationService } from '../services/notification.service';
+
 @Component({
   selector: 'app-notifications',
   templateUrl: './notifications.component.html',
@@ -12,11 +13,11 @@ import { NotificationService } from '../services/notification.service';
 export class NotificationsComponent implements OnInit {
   public newNotifications: any[] = [];
   public allNotification: any[] = [];
-  private timeNow: Date = new Date();
   public messages: any[] = [];
   public messageContent: string;
   public ioConnection: any;
   public dialogRef: any;
+  private timeNow: Date = new Date();
 
   /**
    * Creates an instance of NotificationsComponent.
@@ -95,14 +96,14 @@ export class NotificationsComponent implements OnInit {
    * @memberof NotificationsComponent
    */
   setTime(message): Notification {
-    let date = new Date();
-    this.timeNow = new Date(date.toUTCString())
+    const date = new Date();
+    this.timeNow = new Date(date.toUTCString());
 
-    let d1 = new Date(this.timeNow.toISOString());
-    let d2 = new Date(message.timestamp + "Z");
+    const d1 = new Date(this.timeNow.toISOString());
+    const d2 = new Date(message.timestamp + 'Z');
 
-    let timeDifference = d1.getTime() - d2.getTime();
-    let seconds = (timeDifference) / 1000;
+    const timeDifference = d1.getTime() - d2.getTime();
+    const seconds = (timeDifference) / 1000;
 
     if (seconds < 60 && seconds >=0 ) {
       message.displayTime = 'Now';
