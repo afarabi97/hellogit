@@ -50,11 +50,12 @@ Open Firefox
 Login Into DIP Controller
     [Arguments]  ${username}  ${password}
     [Documentation]     Log into the DIP Controller after initial SSO occurs
-    Wait Until Page Contains    Log In
+    Maximize Browser Window
+    Wait Until Page Contains Element  ${locUsernameInput}
     Input Text  ${locUsernameInput}  ${username}
     Input Text  ${locPasswordInput}  ${password}
     Click Element  ${locLogInButton}
-    Wait Until Page Does Not Contain  Log In
+    Wait Until Page Does Not Contain Element  ${locLogInButton}
 
 Accept DoD Banner
     [Documentation]  This function is made to accept the DoD Banner

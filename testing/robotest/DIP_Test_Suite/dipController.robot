@@ -42,7 +42,6 @@ Verify Correct System Name And Version Number
     Wait Until Element Contains  ${locSystemVersionNumber}  ${KIT_VERSION}
     Element Should Contain    ${locServiceNowURL}  https://afdco.servicenowservices.com/sp
 
-
 Run Elastic Integration Test
     [Tags]    THISISCVAH-10191
     [Documentation]    Grab the elastic password and run some tests
@@ -50,7 +49,7 @@ Run Elastic Integration Test
     Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
     Wait Until Page Contains    Portal
     ${portal_location} =    Get Location
-    Install Apps    &{THISISCVAH_10191_APPS}
+    Install Multiple Apps  Logstash  Zeek  Suricata  Arkime-viewer  Arkime
     Go To    ${portal_location}
 
     Wait Until Page Contains Element    ${locKibanaUserPassword}
@@ -101,4 +100,12 @@ Run Elastic Integration Test
     # Uninstall the applications
     Go To    ${portal_location}
     Wait Until Page Contains    Portal    timeout=8s    error=None
-    Uninstall Apps    &{THISISCVAH_10191_APPS}
+    Uninstall Multiple Apps  Logstash  Zeek  Suricata  Arkime  Arkime-viewer
+
+Install And Uninstall Apps From Catalog Page
+    [Tags]  THISISCVAH-10181
+    [Documentation]  Check functionality of the Catalog page by installing and uninstalling PMO supported apps.
+    Set DIP Kit Global Variables
+    Login Into DIP Controller  ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
+    Wait Until Page Contains  Portal
+    Install/Uninstall Every App
