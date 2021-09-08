@@ -42,6 +42,10 @@ const DIALOG_MAX_HEIGHT = "800px";
 })
 export class AgentBuilderChooserComponent implements OnInit {
 
+  @ViewChild('installerConfigPaginator') installerConfigPaginator: MatPaginator;
+  @ViewChild('targetConfigPaginator') targetConfigPaginator: MatPaginator;
+  @ViewChild('targetTable') targetTable: MatTable<MatTableDataSource<IpTargetList>>;
+  @ViewChildren('hostTable') hostTables: QueryList<MatTable<Host>>;
   // Columns for material tables.
   columnsForInstallerConfigs: string[] = ['select', 'config_name', 'install_custom', 'install_endgame', 'endgame_sensor_name', 'actions'];
   columnsForTargetConfigs: string[] = ['select', 'name', 'protocol', 'port', 'domain_name', 'actions'];
@@ -53,10 +57,6 @@ export class AgentBuilderChooserComponent implements OnInit {
   configs: MatTableDataSource<any>;
   targetConfigs: MatTableDataSource<any>;
   is_downloading: boolean;
-  @ViewChild('installerConfigPaginator') installerConfigPaginator: MatPaginator;
-  @ViewChild('targetConfigPaginator') targetConfigPaginator: MatPaginator;
-  @ViewChild('targetTable') targetTable: MatTable<MatTableDataSource<IpTargetList>>;
-  @ViewChildren('hostTable') hostTables: QueryList<MatTable<Host>>;
 
   constructor(private agentBuilderSvc: AgentBuilderService,
               private titleSvc: Title,
@@ -127,72 +127,6 @@ export class AgentBuilderChooserComponent implements OnInit {
       width: DIALOG_WIDTH,
       maxHeight: DIALOG_MAX_HEIGHT,
       data: { appConfigs: this.appConfigs, config: config }
-    });
-  }
-
-  private displaySnackBar(message: string, duration_seconds: number = 60){
-    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000});
-  }
-
-  private setSavedConfigs(configs: Array<AgentInstallerConfig>) {
-    this.configs = new MatTableDataSource<AgentInstallerConfig>(configs);
-    this.configs.paginator = this.installerConfigPaginator;
-    this.config_selection = null;
-    this.ref.detectChanges();
-  }
-
-
-  private setTargetConfigs(configs: Array<IpTargetList>){
-    const rows = [];
-    for (const config of configs) {
-      const targets = config['targets'];
-      const row = {};
-      row['state'] = {};
-      row['config'] = config;
-      row['state']['hostList'] = new MatTableDataSource(targets);
-      row['state']['expanded'] = false;
-
-      rows.push(row);
-    }
-    const targetConfigs = new MatTableDataSource<any>(rows);
-    targetConfigs.paginator = this.targetConfigPaginator;
-
-    this.targetConfigs = targetConfigs;
-    this.target_selection = null;
-    this.ref.detectChanges();
-  }
-
-  private socketRefresh(){
-    this.socketSrv.getSocket().on('refresh', (_data: any) => {
-      this.refreshStateChanges();
-    });
-  }
-
-  private _update_targets(target_config: IpTargetList, update_config: IpTargetList){
-    for (const target of target_config.targets){
-      for (const update of update_config.targets){
-        if (target.hostname === update.hostname){
-          target.state = update.state;
-          target.last_state_change = update.last_state_change;
-          break;
-        }
-      }
-    }
-  }
-
-  private refreshStateChanges(){
-    this.agentBuilderSvc.getIpTargetList().subscribe((data: IpTargetList[]) => {
-      Object.keys(this.targetConfigs.data).forEach((key: string) => {
-        const target_config = this.targetConfigs.data[key]['config'];
-        for (const updated_config of data) {
-          if (target_config._id === updated_config._id) {
-            this._update_targets(target_config, updated_config);
-            break;
-          }
-        }
-      });
-
-      this.hostTables.forEach(table => table.renderRows());
     });
   }
 
@@ -598,6 +532,72 @@ export class AgentBuilderChooserComponent implements OnInit {
           console.error("Delete config error:", error);
         });
       }
+    });
+  }
+
+  private displaySnackBar(message: string, duration_seconds: number = 60){
+    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000});
+  }
+
+  private setSavedConfigs(configs: Array<AgentInstallerConfig>) {
+    this.configs = new MatTableDataSource<AgentInstallerConfig>(configs);
+    this.configs.paginator = this.installerConfigPaginator;
+    this.config_selection = null;
+    this.ref.detectChanges();
+  }
+
+
+  private setTargetConfigs(configs: Array<IpTargetList>){
+    const rows = [];
+    for (const config of configs) {
+      const targets = config['targets'];
+      const row = {};
+      row['state'] = {};
+      row['config'] = config;
+      row['state']['hostList'] = new MatTableDataSource(targets);
+      row['state']['expanded'] = false;
+
+      rows.push(row);
+    }
+    const targetConfigs = new MatTableDataSource<any>(rows);
+    targetConfigs.paginator = this.targetConfigPaginator;
+
+    this.targetConfigs = targetConfigs;
+    this.target_selection = null;
+    this.ref.detectChanges();
+  }
+
+  private socketRefresh(){
+    this.socketSrv.getSocket().on('refresh', (_data: any) => {
+      this.refreshStateChanges();
+    });
+  }
+
+  private _update_targets(target_config: IpTargetList, update_config: IpTargetList){
+    for (const target of target_config.targets){
+      for (const update of update_config.targets){
+        if (target.hostname === update.hostname){
+          target.state = update.state;
+          target.last_state_change = update.last_state_change;
+          break;
+        }
+      }
+    }
+  }
+
+  private refreshStateChanges(){
+    this.agentBuilderSvc.getIpTargetList().subscribe((data: IpTargetList[]) => {
+      Object.keys(this.targetConfigs.data).forEach((key: string) => {
+        const target_config = this.targetConfigs.data[key]['config'];
+        for (const updated_config of data) {
+          if (target_config._id === updated_config._id) {
+            this._update_targets(target_config, updated_config);
+            break;
+          }
+        }
+      });
+
+      this.hostTables.forEach(table => table.renderRows());
     });
   }
 

@@ -151,7 +151,7 @@ export class AgentInstallerConfig {
   endgame_user_name: string;
 
   customPackages: Array<{
-    name: {[key: string]: any}
+    name: {[key: string]: any};
   }>;
 
   constructor(obj: AgentInstallerConfig){
@@ -193,44 +193,6 @@ export interface ElementSpec {
 export class AgentBuilderService {
 
   constructor(private http: HttpClient) { }
-
-  private mapIpTarget(config: Object): IpTargetList {
-    return new IpTargetList(config as IpTargetList);
-  }
-
-  private mapInstallConfig(config: Object): AgentInstallerConfig {
-    return new AgentInstallerConfig(config as AgentInstallerConfig);
-  }
-
-  private mapIPTargets(configs: Object): Array<IpTargetList> {
-    const ipTarget = new Array<IpTargetList>();
-    for (const config of configs as Array<Object>){
-      ipTarget.push(this.mapIpTarget(config));
-    }
-    return ipTarget;
-  }
-
-  private mapIPTargetOrError(config: Object): IpTargetList | ErrorMessage {
-    if (config["error_message"]){
-      return new ErrorMessage(config as ErrorMessage);
-    }
-    return this.mapIpTarget(config);
-  }
-
-  private mapInstallConfigs(configs: Object): Array<AgentInstallerConfig> {
-    const installConfigs = new Array<AgentInstallerConfig>();
-    for (const config of configs as Array<Object>){
-      installConfigs.push(this.mapInstallConfig(config));
-    }
-    return installConfigs;
-  }
-
-  private mapSuccessOrError(something: Object): SuccessMessage | ErrorMessage {
-    if (something["error_message"]){
-        return new ErrorMessage(something as ErrorMessage);
-    }
-    return new SuccessMessage(something as SuccessMessage);
-}
 
   getAgentInstaller(payload: Object) : Observable<any> {
     const url = '/api/generate_windows_installer';
@@ -294,32 +256,32 @@ export class AgentBuilderService {
     );
   }
 
-  installAgents(payload: {'installer_config': AgentInstallerConfig,
-                          'target_config': IpTargetList,
-                          'windows_domain_creds': WindowsCreds }): Observable<any> {
+  installAgents(payload: {'installer_config': AgentInstallerConfig;
+                          'target_config': IpTargetList;
+                          'windows_domain_creds': WindowsCreds; }): Observable<any> {
     const url = '/api/install_agents';
     return this.http.post(url, payload);
   }
 
-  uninstallAgents(payload: {'installer_config': AgentInstallerConfig,
-                            'target_config': IpTargetList,
-                            'windows_domain_creds': WindowsCreds }): Observable<any> {
+  uninstallAgents(payload: {'installer_config': AgentInstallerConfig;
+                            'target_config': IpTargetList;
+                            'windows_domain_creds': WindowsCreds; }): Observable<any> {
     const url = '/api/uninstall_agents';
     return this.http.post(url, payload);
   }
 
-  uninstallAgent(payload: {'installer_config': AgentInstallerConfig,
-                           'target_config': IpTargetList,
-                           'windows_domain_creds': WindowsCreds },
+  uninstallAgent(payload: {'installer_config': AgentInstallerConfig;
+                           'target_config': IpTargetList;
+                           'windows_domain_creds': WindowsCreds; },
                            target: Host): Observable<any> {
     const url = '/api/uninstall_agent';
     payload['target'] = target;
     return this.http.post(url, payload);
   }
 
-  reinstallAgent(payload: {'installer_config': AgentInstallerConfig,
-                           'target_config': IpTargetList,
-                           'windows_domain_creds': WindowsCreds },
+  reinstallAgent(payload: {'installer_config': AgentInstallerConfig;
+                           'target_config': IpTargetList;
+                           'windows_domain_creds': WindowsCreds; },
                            target: Host){
     const url = '/api/reinstall_agent';
     payload['target'] = target;
@@ -336,4 +298,41 @@ export class AgentBuilderService {
     return this.http.get<Array<AppConfig>>(url);
   }
 
+  private mapIpTarget(config: Object): IpTargetList {
+    return new IpTargetList(config as IpTargetList);
+  }
+
+  private mapInstallConfig(config: Object): AgentInstallerConfig {
+    return new AgentInstallerConfig(config as AgentInstallerConfig);
+  }
+
+  private mapIPTargets(configs: Object): Array<IpTargetList> {
+    const ipTarget = new Array<IpTargetList>();
+    for (const config of configs as Array<Object>){
+      ipTarget.push(this.mapIpTarget(config));
+    }
+    return ipTarget;
+  }
+
+  private mapIPTargetOrError(config: Object): IpTargetList | ErrorMessage {
+    if (config["error_message"]){
+      return new ErrorMessage(config as ErrorMessage);
+    }
+    return this.mapIpTarget(config);
+  }
+
+  private mapInstallConfigs(configs: Object): Array<AgentInstallerConfig> {
+    const installConfigs = new Array<AgentInstallerConfig>();
+    for (const config of configs as Array<Object>){
+      installConfigs.push(this.mapInstallConfig(config));
+    }
+    return installConfigs;
+  }
+
+  private mapSuccessOrError(something: Object): SuccessMessage | ErrorMessage {
+    if (something["error_message"]){
+        return new ErrorMessage(something as ErrorMessage);
+    }
+    return new SuccessMessage(something as SuccessMessage);
+  }
 }

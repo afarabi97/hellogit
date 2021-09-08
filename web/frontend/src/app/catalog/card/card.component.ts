@@ -88,7 +88,7 @@ export class CardComponent {
       "uninstalling": "yellow",
       "uninstalled": "red",
       "failed": "red",
-    }
+    };
     if(colors[status]) {
       return colors[status];
     }

@@ -17,11 +17,11 @@ export class DoubleConfirmDialogComponent {
    */
   constructor(public dialogRef: MatDialogRef<DoubleConfirmDialogComponent>,
               @Inject(MAT_DIALOG_DATA)
-              public data: {paneString: string,
-                            paneTitle: string,
-                            option1: string,
-                            option2: string,
-                            doubleConfirmText: string}) {
+              public data: {paneString: string;
+                            paneTitle: string;
+                            option1: string;
+                            option2: string;
+                            doubleConfirmText: string;}) {
   }
 
   /**
@@ -31,7 +31,11 @@ export class DoubleConfirmDialogComponent {
    * @memberof DoubleConfirmDialogComponent
    */
   close(selectedOption: string) {
-    selectedOption === 'option1' ? this.dialogRef.close(this.data.option1) : this.dialogRef.close(this.data.option2);
+    if (selectedOption === 'option1') {
+      this.dialogRef.close(this.data.option1);
+    } else {
+      this.dialogRef.close(this.data.option2);
+    }
   }
 
   isConfirmEnabled(){

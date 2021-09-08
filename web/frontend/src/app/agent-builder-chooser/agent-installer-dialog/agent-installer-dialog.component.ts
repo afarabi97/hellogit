@@ -20,7 +20,7 @@ export class AgentInstallerDialogComponent implements OnInit {
   newHostAgentForm: FormGroup;
   externalIPToolTip: string;
   endgame_server_reachable: boolean;
-  sensor_profiles: Array<{name: string, value: string}> = [];
+  sensor_profiles: Array<{name: string; value: string}> = [];
   // Custom packages
   appConfigs: AppConfig[];
   appNames: string[];
@@ -40,22 +40,6 @@ export class AgentInstallerDialogComponent implements OnInit {
 
   onNoClick(): void {
     this.dialogRef.close();
-  }
-
-  /**
-   * Ensures that at least one application is selected before form vailidates appropriatley.
-   */
-  private formLevelValidations(control: FormGroup): ValidationErrors | null {
-
-    if (control.get('install_endgame').value) {
-      return null;
-    }
-
-    if (control.get('customPackages')) {
-      return null;
-    }
-
-    return {"custom_error": "At least one application needs to be selected"};
   }
 
   ngOnInit() {
@@ -126,23 +110,6 @@ export class AgentInstallerDialogComponent implements OnInit {
     return this.newHostAgentForm.get('install_endgame').value;
   }
 
-  private showEndgameSnackBar(err: Object): void{
-    if (err['error'] && err['error']['message']){
-      this.snackBar.open(err['error']['message'], "Close", { duration: 5000});
-    } else {
-      this.snackBar.open("Could not reach Endgame server.", "Close", { duration: 5000});
-    }
-  }
-
-  private getSensorName(): string {
-    for (const profile of this.sensor_profiles){
-      if (profile.value === this.newHostAgentForm.get('endgame_sensor_id').value){
-        return profile.name;
-      }
-    }
-    return null;
-  }
-
   submitAndClose(){
     this.newHostAgentForm.get('endgame_sensor_name').setValue(this.getSensorName());
     this.dialogRef.close(this.newHostAgentForm);
@@ -187,9 +154,69 @@ export class AgentInstallerDialogComponent implements OnInit {
     }
   }
 
-  public getErrorMessage(control: FormControl | AbstractControl): string {
+  getErrorMessage(control: FormControl | AbstractControl): string {
     return ObjectUtilitiesClass.notUndefNull(control) &&
            ObjectUtilitiesClass.notUndefNull(control.errors) ? control.errors.error_message : '';
+  }
+
+  onApplicationChange(event: MatCheckboxChange, appConfig: AppConfig) {
+    const checked = event.checked;
+    const name = appConfig.name;
+
+    if (checked) {
+      const form = this.createFormGroup(appConfig);
+
+        if (form) {
+            if (this.options) {
+                this.options.addControl(name, form);
+            } else {
+                this.options = new FormGroup({[name]: form});
+                this.newHostAgentForm.addControl('customPackages', this.options);
+            }
+        }
+    } else {
+        if (this.options) {
+            this.options.removeControl(name);
+            if (Object.keys(this.options.controls).length === 0) {
+                this.options = null;
+                this.newHostAgentForm.removeControl('customPackages');
+            }
+        }
+    }
+    this.applicableConfigs = this.options ? Object.keys(this.options.controls).map((key: string) => this.configs[key]) : [];
+  }
+
+  /**
+   * Ensures that at least one application is selected before form vailidates appropriatley.
+   */
+  private formLevelValidations(control: FormGroup): ValidationErrors | null {
+
+    if (control.get('install_endgame').value) {
+      return null;
+    }
+
+    if (control.get('customPackages')) {
+      return null;
+    }
+
+    return {"custom_error": "At least one application needs to be selected"};
+  }
+
+  private showEndgameSnackBar(err: Object): void{
+    if (err['error'] && err['error']['message']){
+      this.snackBar.open(err['error']['message'], "Close", { duration: 5000});
+    } else {
+      this.snackBar.open("Could not reach Endgame server.", "Close", { duration: 5000});
+    }
+  }
+
+  private getSensorName(): string {
+    for (const profile of this.sensor_profiles){
+      if (profile.value === this.newHostAgentForm.get('endgame_sensor_id').value){
+        return profile.name;
+      }
+    }
+    return null;
   }
 
   // Custom packages
@@ -264,33 +291,5 @@ export class AgentInstallerDialogComponent implements OnInit {
       } else {
           return new FormGroup({});
       }
-  }
-
-  onApplicationChange(event: MatCheckboxChange, appConfig: AppConfig) {
-    const checked = event.checked;
-    const name = appConfig.name;
-
-    if (checked) {
-      const form = this.createFormGroup(appConfig);
-
-        if (form) {
-            if (this.options) {
-                this.options.addControl(name, form);
-            } else {
-                this.options = new FormGroup({[name]: form});
-                this.newHostAgentForm.addControl('customPackages', this.options);
-            }
-        }
-    } else {
-        if (this.options) {
-            this.options.removeControl(name);
-            if (Object.keys(this.options.controls).length === 0) {
-                this.options = null;
-                this.newHostAgentForm.removeControl('customPackages');
-            }
-        }
-    }
-    this.applicableConfigs = this.options ? Object.keys(this.options.controls).map((key: string) => this.configs[key]) : [];
-
   }
 }

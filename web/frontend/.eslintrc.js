@@ -100,7 +100,7 @@ module.exports = {
         "code": 200
       }
     ],
-    "no-bitwise": "warn",
+    "no-bitwise": "off",
     "no-caller": "error",
     "no-console": [
       "error",
@@ -137,12 +137,8 @@ module.exports = {
       "error",
       "rxjs/Rx"
     ],
-    "no-shadow": [
-      "error",
-      {
-        "hoist": "all"
-      }
-    ],
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": ["error"],
     "no-throw-literal": "error",
     "no-trailing-spaces": "off",
     "no-undef-init": "error",

@@ -7,15 +7,15 @@ export const CIDR_CONSTRAINT_MSG = 'You must enter a CIDR IP in the x.x.x.x/xx f
 export const IP_CONSTRAINT =
   "^((2[0-2][0-3])|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){2}\\.((25[0-4])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))$";
 export const HOST_CONSTRAINT =
-  "^[a-zA-Z]([a-zA-Z]|[0-9]|[-])*$"
+  "^[a-zA-Z]([a-zA-Z]|[0-9]|[-])*$";
 export const WINDOWS_HOST_CONSTRAINT =
-  "^[a-zA-Z]([a-zA-Z]|[0-9]|[-_.])*$"
+  "^[a-zA-Z]([a-zA-Z]|[0-9]|[-_.])*$";
 export const IP_CONSTRAINT_WITH_SUBNET =
   "((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$";
 export const URL_CONSTRAINT =
   "^(ftp:\\/\\/.|http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?\\.iso$";
 export const NON_ISO_URL_CONSTRAINT =
-  "^(http(s)?:\\/\\/)[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]+$"
+  "^(http(s)?:\\/\\/)[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]+$";
 export const CIDR_CONSTRAINT =
   "any|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[1-9])";
 export const KUBE_CIDR_CONSTRAINT =

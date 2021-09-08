@@ -17,15 +17,14 @@ import { Node } from '../../system-setupv2/models/kit';
   styleUrls: ['./catalog.component.scss']
 })
 export class CatalogComponent implements OnInit, OnDestroy {
+  @ViewChild('pmoElement')  public pmoElement: MatSlideToggle;
+  @ViewChild('commElement') public commElement: MatSlideToggle;
   charts: any;
   filteredCharts: Chart[];
   ioConnection: any;
   showCharts = { 'pmo': true, 'comm': false };
   hasSensors: boolean;
   nodes: Node[];
-
-  @ViewChild('pmoElement')  public pmoElement: MatSlideToggle;
-  @ViewChild('commElement') public commElement: MatSlideToggle;
 
   /**
    *Creates an instance of CatalogComponent.
@@ -79,7 +78,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.ioConnection = this._WebsocketService.onBroadcast()
     .subscribe((message: Notification) => {
       if(message.role === "catalog") {
-        if(message.data != {}) {
+        if(message.data !== {}) {
           this.charts.map( chart => {
             if( chart.application === message.application.toLowerCase()) {
               chart.nodes = message.data;
@@ -92,6 +91,25 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.ioConnection.unsubscribe();
+  }
+
+  pmoToggle(event: MatSlideToggle){
+    this.showCharts['pmo'] = event.checked;
+    this.filterCharts();
+  }
+
+  communityToggle(event: MatSlideToggle){
+    this.showCharts['comm'] = event.checked;
+    this.filterCharts();
+  }
+
+  filterCharts() {
+    this.filteredCharts = this.filterPMOApplications(this.showCharts['pmo'])
+      .concat(this.filterCommunityApplications(this.showCharts['comm'])
+    ).sort((a, b) => a.application.localeCompare(b.application));
+
+    this.filterSensorApplications();
+    this.updateCookie();
   }
 
   private filterPMOApplications(isChecked: boolean): Chart[] {
@@ -129,25 +147,6 @@ export class CatalogComponent implements OnInit, OnDestroy {
         return true;
       });
     }
-  }
-
-  pmoToggle(event: MatSlideToggle){
-    this.showCharts['pmo'] = event.checked;
-    this.filterCharts();
-  }
-
-  communityToggle(event: MatSlideToggle){
-    this.showCharts['comm'] = event.checked;
-    this.filterCharts();
-  }
-
-  filterCharts() {
-    this.filteredCharts = this.filterPMOApplications(this.showCharts['pmo'])
-      .concat(this.filterCommunityApplications(this.showCharts['comm'])
-    ).sort((a, b) => a.application.localeCompare(b.application));
-
-    this.filterSensorApplications();
-    this.updateCookie();
   }
 
   private updateCookie() {

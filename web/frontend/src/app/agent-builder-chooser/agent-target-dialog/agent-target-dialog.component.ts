@@ -26,7 +26,7 @@ export class AgentTargetDialogComponent implements OnInit {
   isNegOrNTLM: boolean;
   isKerberos: boolean;
   isSMB: boolean;
-  sensor_profiles: Array<{name: string, value: string}> = [];
+  sensor_profiles: Array<{name: string; value: string}> = [];
   dnsInstructions: string;
 
   constructor(private fb: FormBuilder,

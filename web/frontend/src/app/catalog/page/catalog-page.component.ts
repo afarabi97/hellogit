@@ -162,9 +162,11 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   AdvanceConfiguration(sensor) {
-    this.valueFormGroup.controls[sensor.deployment_name].disabled ?
-                                   this.valueFormGroup.controls[sensor.deployment_name].enable() :
-                                   this.valueFormGroup.controls[sensor.deployment_name].disable();
+    if (this.valueFormGroup.controls[sensor.deployment_name].disabled) {
+      this.valueFormGroup.controls[sensor.deployment_name].enable();
+    } else {
+      this.valueFormGroup.controls[sensor.deployment_name].disable();
+    }
   }
 
   /**
@@ -230,7 +232,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   serverAny() {
     if(this.chart.node_affinity === this.serverAnyValue) {
       this.nodes.map( node => {
-        if (node.node_type == 'Control-Plane') {
+        if (node.node_type === 'Control-Plane') {
           node.hostname = "server";
           this.processFormGroup.get("selectedNodes").setValue([]);
           const selectedNodes = this.processFormGroup.get("selectedNodes").value;
@@ -351,7 +353,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     const formControl = this.valueFormGroup.get(ob.deployment_name);
     if (!formControl) {
       this.valueFormGroup.addControl(ob.deployment_name, new FormControl(values));
-      this.valueFormGroup.controls[ob.deployment_name].disable()
+      this.valueFormGroup.controls[ob.deployment_name].disable();
     } else {
       formControl.setValue(values);
     }
@@ -575,6 +577,46 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     }
   }
 
+  selectionChange(event) {
+    if (event.selectedIndex === 1){ // Configuration Overview
+      this.serverAny();
+      if (this.configReady()) {
+        this.makeFormgroup();
+      }
+    } else if (event.selectedIndex === 2){ // Values File Overview
+      this.getValuesFile();
+    }
+  }
+
+  getInterfaceDetails(){
+    for (const node of this.processFormGroup.getRawValue().selectedNodes){
+      if(node["node_type"] === "Sensor"){
+        this.toolsSrv.getIfaceStates(node["hostname"]).subscribe((data: any[]) => {
+          const ifaces = {};
+          for (const iface of data){
+            ifaces[iface["name"]] = {"state": iface["state"], "link_up": iface["link_up"]};
+          }
+          this.sensorInterfaceStates[node['hostname']] = ifaces;
+        });
+      }
+    }
+  }
+
+  checkInterface(hostname, iface){
+    if (hostname in this.sensorInterfaceStates){
+      if (!this.sensorInterfaceStates[hostname][iface]['link_up']) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  createInputPlacehoder(control_name: string) {
+    const string = control_name.replace(/([a-z](?=[A-Z]))/g, '$1_').toLowerCase().split('_')
+                              .map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    return string;
+  }
+
   /**
    * Used for setting the install, reinstall, uninstall capability for an application
    *
@@ -724,43 +766,5 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       ObjectUtilitiesClass.notUndefNull(control.regexp) ? Validators.pattern(control.regexp) : Validators.nullValidator,
       control.required ? Validators.required : Validators.nullValidator
     ]);
-  }
-
-  selectionChange(event) {
-    if (event.selectedIndex == 1){ // Configuration Overview
-      this.serverAny();
-      if (this.configReady()) {
-        this.makeFormgroup();
-      }
-    } else if (event.selectedIndex == 2){ // Values File Overview
-      this.getValuesFile();
-    }
-  }
-
-  getInterfaceDetails(){
-    for (const node of this.processFormGroup.getRawValue().selectedNodes){
-      if(node["node_type"] === "Sensor"){
-        this.toolsSrv.getIfaceStates(node["hostname"]).subscribe((data: any[]) => {
-          let ifaces = {};
-          for (const iface of data){
-            ifaces[iface["name"]] = {"state": iface["state"], "link_up": iface["link_up"]}
-          }
-          this.sensorInterfaceStates[node['hostname']] = ifaces;
-        });
-      }
-    }
-  }
-
-  checkInterface(hostname, iface){
-    if (hostname in this.sensorInterfaceStates){
-      if (!this.sensorInterfaceStates[hostname][iface]['link_up']) return true
-    }
-    return false
-  }
-
-  createInputPlacehoder(control_name: string) {
-    const string = control_name.replace(/([a-z](?=[A-Z]))/g, '$1_').toLowerCase().split('_')
-                              .map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    return string;
   }
 }
