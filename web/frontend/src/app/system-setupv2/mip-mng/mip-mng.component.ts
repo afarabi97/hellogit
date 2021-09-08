@@ -9,17 +9,16 @@ import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { UserService } from '../../services/user.service';
 import { WebsocketService } from '../../services/websocket.service';
-import { AddMipDialog } from '../add-mip-dialog/add-mip-dialog.component';
+import { AddMipDialogComponent } from '../add-mip-dialog/add-mip-dialog.component';
 import { Job, MIP, MipSettings, Node } from '../models/kit';
-import { NodeInfoDialog } from '../node-info-dialog/node-info-dialog.component';
+import { NodeInfoDialogComponent } from '../node-info-dialog/node-info-dialog.component';
 import { KitSettingsService } from '../services/kit-settings.service';
 
-const DIALOG_WIDTH = "800px";
+const DIALOG_WIDTH = '800px';
 
 @Component({
   selector: 'app-mip-mng',
-  templateUrl: './mip-mng.component.html',
-  styleUrls: ['./mip-mng.component.css']
+  templateUrl: './mip-mng.component.html'
 })
 export class MipManagementComponent implements OnInit {
 
@@ -43,7 +42,7 @@ export class MipManagementComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.title.setTitle("MIP Management");
+    this.title.setTitle('MIP Management');
     this.socketRefresh();
     this.getMIPData();
 
@@ -53,26 +52,28 @@ export class MipManagementComponent implements OnInit {
   }
 
   addMip(){
-    const dialogRef = this.dialog.open(AddMipDialog, {
+    const dialogRef = this.dialog.open(AddMipDialogComponent, {
       width: DIALOG_WIDTH,
-      data: "Blank"
+      data: 'Blank'
     });
 
     dialogRef.afterClosed().subscribe(result => {
         const form = result as FormGroup;
         if (form && form.valid){
-          this.kitSettingsSvc.addMip(form.value).subscribe(data => {
-          });
+          this.kitSettingsSvc.addMip(form.value).subscribe(data => {},
+            err => {
+                console.error(err);
+            });
 
         }
+      },
       err => {
           console.error(err);
-        };
-    });
+      });
   }
 
   showMIPInfo(mip){
-    this.dialog.open(NodeInfoDialog, {
+    this.dialog.open(NodeInfoDialogComponent, {
       width: DIALOG_WIDTH,
       data: mip
     });
@@ -138,24 +139,24 @@ export class MipManagementComponent implements OnInit {
     });
   }
 
-  openConsole(job_id: string=""): void {
+  openConsole(job_id: string=''): void {
     this.router.navigate([`/stdout/${job_id}`]);
   }
 
   getCurrentStatus(job: Job): string {
     if (job.error) {
-      return "Error";
+      return 'Error';
     }
     if (job.complete) {
-      return "Complete";
+      return 'Complete';
     }
     if (job.inprogress) {
-      return "In Progress";
+      return 'In Progress';
     }
     if (job.pending) {
-      return "Pending";
+      return 'Pending';
     }
-    return "Unknown";
+    return 'Unknown';
   }
 
   disableAddMipButton(){
@@ -186,11 +187,11 @@ export class MipManagementComponent implements OnInit {
     const mipsArray = [];
     for (const node of data){
       for (const job of node.jobs){
-        if (job.name === "deploy") {
-          node.isDeployed = this.getCurrentStatus(job) === "Complete";
+        if (job.name === 'deploy') {
+          node.isDeployed = this.getCurrentStatus(job) === 'Complete';
         }
       }
-      if (node.node_type === "MIP"){
+      if (node.node_type === 'MIP'){
         mipsArray.push(node);
       }
     }

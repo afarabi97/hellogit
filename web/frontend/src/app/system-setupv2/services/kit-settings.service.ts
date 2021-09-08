@@ -31,7 +31,7 @@ export class KitSettingsService {
   }
 
   getControllerInfo(): Observable<Object> {
-    const url = "/api/controller/info";
+    const url = '/api/controller/info';
     return this.http.get(url).pipe();
   }
 
@@ -53,7 +53,7 @@ export class KitSettingsService {
   }
 
   getSNMPSettings(): Observable<Object> {
-    return this.http.get('/api/settings/snmp')
+    return this.http.get('/api/settings/snmp');
   }
 
   saveSNMPSettings(settingsForm): Observable<Object> {
@@ -124,10 +124,10 @@ export class KitSettingsService {
 
   addNode(payload): Observable<Object> {
     const url = `/api/node`;
-    payload["boot_drives"] = payload["boot_drives"].split(',')
-    payload["data_drives"] = payload["data_drives"].split(',')
-    if (!Array.isArray(payload["raid_drives"])) {
-      payload["raid_drives"] = payload["raid_drives"].split(',')
+    payload['boot_drives'] = payload['boot_drives'].split(',');
+    payload['data_drives'] = payload['data_drives'].split(',');
+    if (!Array.isArray(payload['raid_drives'])) {
+      payload['raid_drives'] = payload['raid_drives'].split(',');
     }
     return this.http.post(url, payload).pipe();
   }
@@ -181,11 +181,6 @@ export class KitSettingsService {
     const url = `/api/kit/status`;
     return this.http.get(url).pipe();
   }
-
-  // getKit(): Observable<Object> {
-  //   const url = '/api/kit';
-  //   return this.http.get(url).pipe();
-  // }
 
   getNodeVpnConfig(node: string){
     const url = `/api/node/${node}/generate-vpn`;

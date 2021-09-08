@@ -1,28 +1,25 @@
-import { Injectable, Renderer2, Component, OnInit, Input, ViewChild, ElementRef } from "@angular/core";
-import { Node, Job, RetryJob } from "../models/kit";
-import { NodeManagementComponent } from "../node-mng/node-mng.component";
-import { MatSnackBarService } from "../../services/mat-snackbar.service";
-import { ServerStdoutService } from "../../server-stdout/server-stdout.service";
+import { Injectable, Renderer2, Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { Node, Job, RetryJob } from '../models/kit';
+import { NodeManagementComponent } from '../node-mng/node-mng.component';
+import { MatSnackBarService } from '../../services/mat-snackbar.service';
+import { ServerStdoutService } from '../../server-stdout/server-stdout.service';
 
 
 @Component({
-  selector: "app-node-state-progress-bar",
-  templateUrl: "./node-state-progress-bar.component.html",
-  styleUrls: ["./node-state-progress-bar.component.css"],
+  selector: 'app-node-state-progress-bar',
+  templateUrl: './node-state-progress-bar.component.html',
+  styleUrls: ['./node-state-progress-bar.component.css'],
 })
 export class NodeStateProgressBarComponent implements OnInit {
-  @ViewChild("console")
-  private consoleDiv: ElementRef;
-  private jobName: string;
+  @Input() jobs: Job[];
   public jobId: string;
   public scrollStatus: Boolean = true;
   public mouseOverRetryFailedNode: boolean;
+
+  stepClasses = ['step', 'tooltip'];
+  messages: Array<{ msg: string; color: string }>;
   private toggleDropDown: boolean;
   private currentToggleJob: string;
-
-  @Input() jobs: Job[];
-  stepClasses = ["step", "tooltip"];
-  messages: Array<{ msg: string; color: string }>;
 
   constructor(
     private nodeMng: NodeManagementComponent,
@@ -32,7 +29,7 @@ export class NodeStateProgressBarComponent implements OnInit {
   ) {
     this.toggleDropDown = false;
     this.renderer.listen('window', 'click', (e:Event) => {
-      if (this.toggleDropDown && (<HTMLInputElement>e.target).localName != 'mat-icon') {
+      if (this.toggleDropDown && (<HTMLInputElement>e.target).localName !== 'mat-icon') {
         this.toggleDropDown = false;
         this.currentToggleJob = '';
       }
@@ -42,37 +39,55 @@ export class NodeStateProgressBarComponent implements OnInit {
   ngOnInit(): void {}
 
   getCurrentStatus(job: Job): string {
-    if (job.error) return "Error";
-    if (job.complete) return "Complete";
-    if (job.inprogress) return "In Progress";
-    if (job.pending) return "Pending";
-    return "Unknown";
+    if (job.error) {
+      return 'Error';
+    }
+    if (job.complete) {
+      return 'Complete';
+    }
+    if (job.inprogress) {
+      return 'In Progress';
+    }
+    if (job.pending) {
+      return 'Pending';
+    }
+    return 'Unknown';
   }
 
   getStepClasses(job: Job) {
-    status = this.getCurrentStatus(job).replace(" ", "").toLowerCase();
+    const status = this.getCurrentStatus(job).replace(' ', '').toLowerCase();
     return this.stepClasses.concat(status);
   }
 
   getStateIcon(job: Job) {
-    if (job.error) return "cancel";
-    if (job.complete) return "check_circle";
-    if (job.inprogress) return "timelapse";
-    if (job.pending) return "radio_button_checked";
+    if (job.error) {
+      return 'cancel';
+    }
+    if (job.complete) {
+      return 'check_circle';
+    }
+    if (job.inprogress) {
+      return 'timelapse';
+    }
+    if (job.pending) {
+      return 'radio_button_checked';
+    }
   }
 
   retryJob(job: Job) {
     this.stdoutService.retryJob(job.job_id).subscribe(
       (data: RetryJob) => {
-        if (data) this.matSnackBarService.displaySnackBar(`Retry job started ${data.job_id}`);
+        if (data) {
+          this.matSnackBarService.displaySnackBar(`Retry job started ${data.job_id}`);
+        }
       },
       (err) => {
-        if (err && err.error && err.error["message"]) {
-          this.matSnackBarService.displaySnackBar(err.error["message"]);
+        if (err && err.error && err.error['message']) {
+          this.matSnackBarService.displaySnackBar(err.error['message']);
         } else {
           console.error(err);
           this.matSnackBarService.displaySnackBar(
-            "Failed for an unknown reason."
+            'Failed for an unknown reason.'
           );
         }
       }
@@ -88,18 +103,22 @@ export class NodeStateProgressBarComponent implements OnInit {
   }
 
   dropDownHandler(job: Job) {
-    if (!this.currentToggleJob || this.validateDropDownJob(job))
+    if (!this.currentToggleJob || this.validateDropDownJob(job)) {
       this.toggleDropDown = !this.toggleDropDown;
+    }
 
-    if (this.toggleDropDown) this.currentToggleJob = job._id;
-    else this.currentToggleJob = '';
+    if (this.toggleDropDown) {
+      this.currentToggleJob = job._id;
+    } else {
+      this.currentToggleJob = '';
+    }
   }
 
   validateDropDownJob(job: Job) {
-    return job._id == this.currentToggleJob;
+    return job._id === this.currentToggleJob;
   }
 
   displayButtonStatus(job: Job) {
-    return this.getCurrentStatus(job) != "Error" ? "Retry Disabled" : "Retry";
+    return this.getCurrentStatus(job) !== 'Error' ? 'Retry Disabled' : 'Retry';
   }
 }

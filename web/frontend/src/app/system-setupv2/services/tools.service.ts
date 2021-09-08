@@ -51,7 +51,7 @@ export class ToolsService extends ApiService<any> {
    * @memberof ToolsService
    */
   changeKitPassword(passwordForm: Object) {
-    delete passwordForm["re_password"];
+    delete passwordForm['re_password'];
     return this.httpClient_.post(environment.TOOLS_SERVICE_CHANGE_KIT_PASSWORD, passwordForm)
                            .pipe(catchError((err: any) => this.handleError('change-kit-password', err)));
   }

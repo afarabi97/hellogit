@@ -25,9 +25,9 @@ export class SNMPSettingsPaneComponent implements OnInit, OnChanges {
       .subscribe(
         settings => {
           if (settings) {
-            this.create_form_group(settings)
+            this.create_form_group(settings);
           } else {
-            this.create_form_group()
+            this.create_form_group();
           }
         },
         error => {
@@ -48,17 +48,6 @@ export class SNMPSettingsPaneComponent implements OnInit, OnChanges {
     }
   }
 
-  private create_form_group(settings?) {
-    this.snmp_settings = this.fb.group({
-      security_name: [settings ? settings["security_name"] : null, Validators.required],
-      auth_pass: [settings ? settings["auth_pass"] : null, Validators.required],
-      priv_pass: [settings ? settings["priv_pass"] : null, Validators.required]
-    });
-    if (!this.gipBuild) {
-      this.snmp_settings.disable();
-    }
-  }
-
   toggle_card() {
     this.is_card_visible = !this.is_card_visible;
   }
@@ -66,13 +55,23 @@ export class SNMPSettingsPaneComponent implements OnInit, OnChanges {
   submit() {
     if (this.snmp_settings.valid) {
       this.kit_settings_service.saveSNMPSettings({
-        "security_name": this.snmp_settings.value["security_name"],
-        "auth_pass": btoa(this.snmp_settings.value["auth_pass"]),
-        "priv_pass": btoa(this.snmp_settings.value["priv_pass"])
+        'security_name': this.snmp_settings.value['security_name'],
+        'auth_pass': btoa(this.snmp_settings.value['auth_pass']),
+        'priv_pass': btoa(this.snmp_settings.value['priv_pass'])
       }).subscribe(data => {
-        this.snackbar_wrapper.showSnackBar("SNMP Settings Successfully Saved", -1, 'Dismiss')
+        this.snackbar_wrapper.showSnackBar('SNMP Settings Successfully Saved', -1, 'Dismiss');
       });
     }
   }
 
+  private create_form_group(settings?) {
+    this.snmp_settings = this.fb.group({
+      security_name: [settings ? settings['security_name'] : null, Validators.required],
+      auth_pass: [settings ? settings['auth_pass'] : null, Validators.required],
+      priv_pass: [settings ? settings['priv_pass'] : null, Validators.required]
+    });
+    if (!this.gipBuild) {
+      this.snmp_settings.disable();
+    }
+  }
 }

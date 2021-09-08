@@ -3,7 +3,7 @@
   <mat-icon class="material-icons-outlined" [inline]="true" mat-list-icon>{{ getStateIcon(job) }}</mat-icon>
    <div class="top" *ngIf="!toggleDropDown">
       {{ job.name }}: {{ getCurrentStatus(job) }}
-      <i></i>
+      <em></em>
    </div>
    <div class="dropDown" *ngIf="toggleDropDown && validateDropDownJob(job)" style="position: absolute;"
    (click)="openJobConsole(job)">

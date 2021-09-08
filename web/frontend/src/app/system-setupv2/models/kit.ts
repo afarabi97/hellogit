@@ -41,7 +41,7 @@ export interface MIP {
 export interface Settings {
   _id: string;
   controller_interface: string;
-  kubernetes_services_cidr
+  kubernetes_services_cidr;
   password: string;
   netmask: string;
   gateway: string;

@@ -269,11 +269,11 @@ export class KitTokenSettingsServiceSpy implements KitTokenSettingsServiceInterf
   }
 
   call_fake_delete_kit_token(kit_token_id: string): Observable<null> {
-    return observableOf(null)
+    return observableOf(null);
   }
 
   call_fake_replace_kit_token(agent_id: string, kit_token: KitTokenInterface): Observable<null> {
-    return observableOf(null)
+    return observableOf(null);
   }
 
   call_fake_generate_token(): Observable<string> {

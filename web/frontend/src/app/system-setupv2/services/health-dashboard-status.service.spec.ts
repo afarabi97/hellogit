@@ -70,7 +70,7 @@ describe('HealthDashboardStatusService', () => {
 
     spy_get_health_dashboard_status.calls.reset();
     spy_get_remote_health_dashboard_status.calls.reset();
-    spy_get_health_dashboard_kibana_info.calls.reset()
+    spy_get_health_dashboard_kibana_info.calls.reset();
   };
 
   const after = () => {
@@ -229,7 +229,7 @@ export class HealthDashboardStatusServiceSpy implements HealthDashboardStatusSer
   }
 
   call_fake_get_health_dashboard_kibana_info(ipaddress: string): Observable<Object> {
-    return observableOf({})
+    return observableOf({});
   }
 
 }

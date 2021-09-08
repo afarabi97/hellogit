@@ -13,22 +13,17 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 @Component({
     selector: 'app-vmware-settings',
-    templateUrl: './vmware-settings.component.html',
-    styleUrls: ['./vmware-settings.component.scss']
+    templateUrl: './vmware-settings.component.html'
 })
 export class VMWareSettingsComponent implements OnInit {
+  @Input() hasTitle: boolean;
     vmwareSettings: FormGroup;
     showForm: boolean = false;
     isCardVisible: boolean;
     controllerMaintainer: boolean;
-
     isTestVmwareSettingsBtnEnabled: boolean;
     isSaveVmwareSettingsBtnEnabled: boolean;
-
-    @Input()
-    hasTitle: boolean;
-
-    public vmwareData: Partial<VmwareData> = {};
+    vmwareData: Partial<VmwareData> = {};
 
     constructor(private matSnackBarSrv: MatSnackBarService,
                 private toolsSrv: ToolsService,
@@ -40,58 +35,30 @@ export class VMWareSettingsComponent implements OnInit {
                   this.controllerMaintainer = this.userService.isControllerMaintainer();
     }
 
-    private createFormGroup(vmwareSettingsForm?){
-      const password = new FormControl(vmwareSettingsForm ? vmwareSettingsForm.password : '');
-      const re_password = new FormControl(vmwareSettingsForm ? vmwareSettingsForm.password : '');
-
-      this.vmwareSettings = new FormGroup({
-        'ip_address': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.ip_address : '',
-                                      Validators.compose([validateFromArray(vmwareSettingsValidators.ip_address)])),
-        'username': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.username : '',
-                                    Validators.compose([validateFromArray(vmwareSettingsValidators.username)])),
-        'password': password,
-        're_password': re_password,
-        'datastore': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.datastore : ''),
-        'vcenter': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.vcenter : false),
-        'folder': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.folder : ''),
-        'portgroup': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.portgroup : ''),
-        'datacenter': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.datacenter : ''),
-        'cluster': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.cluster : '')
-      });
-
-      // Since re_password is dependent on root_password, the formcontrol for root_password must exist first. Then we can add the dependency for validation
-      const root_verify = Validators.compose([validateFromArray(vmwareSettingsValidators.password, { parentControl: this.vmwareSettings.get('re_password') })])
-      const re_verify = Validators.compose([validateFromArray(vmwareSettingsValidators.re_password, { parentControl: this.vmwareSettings.get('password') })])
-      password.setValidators(root_verify);
-      re_password.setValidators(re_verify);
-
-    }
-
-
-    reEvaluate(event: KeyboardEvent){
-      if (this.vmwareSettings){
-        this.vmwareSettings.get('password').updateValueAndValidity();
-        this.vmwareSettings.get('re_password').updateValueAndValidity();
-      }
-    }
-
     ngOnInit() {
       this.createFormGroup();
       this.inputControl(true);
       this.kitSettingsSvc.getESXiSettings().subscribe((data) => {
         if (data){
           this.createFormGroup(data);
-          if (data["ip_address"] && data["username"] && data["password"]){
+          if (data['ip_address'] && data['username'] && data['password']){
             this.kitSettingsSvc.testESXiSettings(this.vmwareSettings.value).subscribe(vmwareTestResults => {
               this.isTestVmwareSettingsBtnEnabled = true;
               if (vmwareTestResults){
                 this.vmwareData = vmwareTestResults;
                 this.inputControl(false);
               }
-            })
+            });
           }
         }
-      })
+      });
+    }
+
+    reEvaluate(event: KeyboardEvent){
+      if (this.vmwareSettings){
+        this.vmwareSettings.get('password').updateValueAndValidity();
+        this.vmwareSettings.get('re_password').updateValueAndValidity();
+      }
     }
 
     toggleCard(){
@@ -114,13 +81,13 @@ export class VMWareSettingsComponent implements OnInit {
       this.vmwareSettings.get('datacenter').reset();
       this.vmwareSettings.get('cluster').reset();
       this.isTestVmwareSettingsBtnEnabled = false;
-      this.matSnackBarSrv.displaySnackBar("Testing VMWare settings please wait.");
+      this.matSnackBarSrv.displaySnackBar('Testing VMWare settings please wait.');
       this.kitSettingsSvc.testESXiSettings(this.vmwareSettings.value).subscribe(data => {
         this.isTestVmwareSettingsBtnEnabled = true;
         if (data){
           this.vmwareData = data;
           this.inputControl(false);
-          this.matSnackBarSrv.displaySnackBar("VMWare settings tested successfully.");
+          this.matSnackBarSrv.displaySnackBar('VMWare settings tested successfully.');
         }
       }, err => {
         this.isTestVmwareSettingsBtnEnabled = true;
@@ -130,16 +97,16 @@ export class VMWareSettingsComponent implements OnInit {
 
     saveVMWareConfiguration(){
       this.isSaveVmwareSettingsBtnEnabled = false;
-      this.matSnackBarSrv.displaySnackBar("Saving VMWare settings please wait.");
+      this.matSnackBarSrv.displaySnackBar('Saving VMWare settings please wait.');
       this.kitSettingsSvc.saveESXiSettings(this.vmwareSettings.value).subscribe(data => {
         this.isSaveVmwareSettingsBtnEnabled = true;
         if (data){
-          this.matSnackBarSrv.displaySnackBar("VMWare settings saved successfully.")
+          this.matSnackBarSrv.displaySnackBar('VMWare settings saved successfully.');
         }
       }, err => {
         this.isSaveVmwareSettingsBtnEnabled = true;
         console.error(err);
-        this.matSnackBarSrv.displaySnackBar("VMWare settings failed to save.");
+        this.matSnackBarSrv.displaySnackBar('VMWare settings failed to save.');
       });
     }
 
@@ -155,8 +122,7 @@ export class VMWareSettingsComponent implements OnInit {
         cluster.disable();
         portgroup.disable();
         datastore.disable();
-      }
-      else{
+      } else{
         folder.enable();
         datacenter.enable();
         cluster.enable();
@@ -169,4 +135,30 @@ export class VMWareSettingsComponent implements OnInit {
       this.showForm = !this.showForm;
     }
 
+    private createFormGroup(vmwareSettingsForm?){
+      const password = new FormControl(vmwareSettingsForm ? vmwareSettingsForm.password : '');
+      const re_password = new FormControl(vmwareSettingsForm ? vmwareSettingsForm.password : '');
+
+      this.vmwareSettings = new FormGroup({
+        'ip_address': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.ip_address : '',
+                                      Validators.compose([validateFromArray(vmwareSettingsValidators.ip_address)])),
+        'username': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.username : '',
+                                    Validators.compose([validateFromArray(vmwareSettingsValidators.username)])),
+        'password': password,
+        're_password': re_password,
+        'datastore': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.datastore : ''),
+        'vcenter': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.vcenter : false),
+        'folder': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.folder : ''),
+        'portgroup': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.portgroup : ''),
+        'datacenter': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.datacenter : ''),
+        'cluster': new FormControl(vmwareSettingsForm ? vmwareSettingsForm.cluster : '')
+      });
+
+      // Since re_password is dependent on root_password, the formcontrol for root_password must exist first. Then we can add the dependency for validation
+      const root_verify = Validators.compose([validateFromArray(vmwareSettingsValidators.password, { parentControl: this.vmwareSettings.get('re_password') })]);
+      const re_verify = Validators.compose([validateFromArray(vmwareSettingsValidators.re_password, { parentControl: this.vmwareSettings.get('password') })]);
+      password.setValidators(root_verify);
+      re_password.setValidators(re_verify);
+
+    }
 }

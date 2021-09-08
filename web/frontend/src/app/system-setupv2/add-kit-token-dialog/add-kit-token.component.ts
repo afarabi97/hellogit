@@ -2,16 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
-const IP_ADDRESS_PATTERN = "^(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])$";
+const IP_ADDRESS_PATTERN = '^(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])$';
 
 @Component({
   templateUrl: 'add-kit-token.component.html',
   styleUrls: ['./add-kit-token.component.css']
 })
-export class AddKitToken implements OnInit {
+export class AddKitTokenComponent implements OnInit {
   kit_token_settings: FormGroup;
 
-    constructor(public dialogRef: MatDialogRef<AddKitToken>,
+    constructor(public dialogRef: MatDialogRef<AddKitTokenComponent>,
       private fb: FormBuilder) {
         dialogRef.disableClose = true;
     }

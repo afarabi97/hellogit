@@ -3,11 +3,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTable } from '@angular/material/table';
 import { KitTokenInterface } from '../../interfaces/kit-token.interface';
 import { KitTokenClass } from '../../classes/kit-token.class';
-import { AddKitToken} from '../../add-kit-token-dialog/add-kit-token.component'
+import { AddKitTokenComponent} from '../../add-kit-token-dialog/add-kit-token.component';
 import { KitTokenSettingsService} from '../../services/kit-token-settings.service';
 import { DIALOG_WIDTH_800PX } from '../../../constants/cvah.constants';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {CopyTokenModalDialogComponent} from "../../copy-token-dialog/copy-token-dialog.component"
+import {CopyTokenModalDialogComponent} from '../../copy-token-dialog/copy-token-dialog.component';
 
 @Component({
   selector: 'app-kit-token-settings-pane',
@@ -15,10 +15,9 @@ import {CopyTokenModalDialogComponent} from "../../copy-token-dialog/copy-token-
 })
 
 export class KitTokenSettingsPaneComponent implements OnInit {
+  @ViewChild('KitTokenTable') kit_token_table: MatTable<KitTokenClass>;
   is_card_visible: boolean = false;
-
-  @ViewChild("KitTokenTable") kit_token_table: MatTable<KitTokenClass>;
-  kit_token_table_columns = ["ipaddress", "actions"];
+  kit_token_table_columns = ['ipaddress', 'actions'];
   kit_tokens: Array<KitTokenClass> = [];
 
   constructor(private kit_token_settings_service: KitTokenSettingsService,
@@ -27,7 +26,7 @@ export class KitTokenSettingsPaneComponent implements OnInit {
 
   ngOnInit() {
     this.kit_token_settings_service.get_kit_tokens().subscribe(kit_tokens => {
-        this.kit_tokens = kit_tokens
+        this.kit_tokens = kit_tokens;
     });
   }
 
@@ -46,12 +45,12 @@ export class KitTokenSettingsPaneComponent implements OnInit {
 
   delete_token(kit_token_id) {
     this.kit_token_settings_service.delete_kit_token(kit_token_id).subscribe(_ => {
-      this.kit_tokens = this.kit_tokens.filter(kit_token => kit_token.kit_token_id != kit_token_id);
+      this.kit_tokens = this.kit_tokens.filter(kit_token => kit_token.kit_token_id !== kit_token_id);
     });
   }
 
   add_kit_token_dialog() {
-    const dialogRef = this.dialog.open(AddKitToken, {width: DIALOG_WIDTH_800PX});
+    const dialogRef = this.dialog.open(AddKitTokenComponent, {width: DIALOG_WIDTH_800PX});
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.create_token(result);
@@ -61,8 +60,8 @@ export class KitTokenSettingsPaneComponent implements OnInit {
 
   display_token(kit_token: KitTokenInterface): void {
       this.dialog.open(CopyTokenModalDialogComponent,{
-        minWidth: "400px",
-        data: { "title": `Kit Token: ${kit_token.ipaddress}`, "token": kit_token.token }
+        minWidth: '400px',
+        data: { 'title': `Kit Token: ${kit_token.ipaddress}`, 'token': kit_token.token }
       });
   }
 }

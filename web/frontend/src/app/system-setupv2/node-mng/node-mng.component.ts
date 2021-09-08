@@ -12,12 +12,12 @@ import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { UserService } from '../../services/user.service';
 import { WebsocketService } from '../../services/websocket.service';
-import { AddNodeDialog } from '../add-node-dialog/add-node-dialog.component';
+import { AddNodeDialogComponent } from '../add-node-dialog/add-node-dialog.component';
 import { Job, KitStatus, Node, Settings, GeneralSettings } from '../models/kit';
-import { NodeInfoDialog } from '../node-info-dialog/node-info-dialog.component';
+import { NodeInfoDialogComponent } from '../node-info-dialog/node-info-dialog.component';
 import { KitSettingsService } from '../services/kit-settings.service';
 
-const DIALOG_WIDTH = "800px";
+const DIALOG_WIDTH = '800px';
 
 @Component({
   selector: 'app-node-mng',
@@ -81,7 +81,7 @@ export class NodeManagementComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.title.setTitle("Node Management");
+    this.title.setTitle('Node Management');
     this.socketRefresh();
     this.getKitStatus();
     this.getNodeData();
@@ -110,17 +110,17 @@ export class NodeManagementComponent implements OnInit {
   }
 
   isISOButtonGroup(node: Node){
-    if (node.node_type === "Sensor" && node.deployment_type === "Iso") {
+    if (node.node_type === 'Sensor' && node.deployment_type === 'Iso') {
       return true;
     }
     return false;
   }
 
   canDeleteNode(node: Node){
-    if (node.node_type === "Sensor" || node.node_type === "Service") {
+    if (node.node_type === 'Sensor' || node.node_type === 'Service') {
       return true;
     }
-    if (node.node_type === "Server" && !node.isDeployed) {
+    if (node.node_type === 'Server' && !node.isDeployed) {
       return true;
     }
     return false;
@@ -131,26 +131,28 @@ export class NodeManagementComponent implements OnInit {
   }
 
   addNode(){
-    const dialogRef = this.dialog.open(AddNodeDialog, {
+    const dialogRef = this.dialog.open(AddNodeDialogComponent, {
       width: DIALOG_WIDTH,
-      data: "Blank"
+      data: 'Blank'
     });
 
     dialogRef.afterClosed().subscribe(result => {
         const form = result as FormGroup;
         if (form && form.valid){
-          this.kitSettingsSvc.addNode(form.value).subscribe(data => {
+          this.kitSettingsSvc.addNode(form.value).subscribe(data => {},
+          err => {
+              console.error(err);
           });
 
         }
+      },
       err => {
           console.error(err);
-        };
-    });
+      });
   }
 
   showNodeInfo(node) {
-    this.dialog.open(NodeInfoDialog, {
+    this.dialog.open(NodeInfoDialogComponent, {
       width: DIALOG_WIDTH,
       data: node
     });
@@ -215,7 +217,7 @@ export class NodeManagementComponent implements OnInit {
   }
 
   getVpnStatus(node: Node){
-    if (node.node_type === "Sensor" && node.deployment_type === "Iso"){
+    if (node.node_type === 'Sensor' && node.deployment_type === 'Iso'){
       if (node.vpn_status) {
         return true;
       } else {
@@ -227,12 +229,12 @@ export class NodeManagementComponent implements OnInit {
     }
   }
 
-  openConsole(job_id: string=""): void {
+  openConsole(job_id: string=''): void {
     this.router.navigate([`/stdout/${job_id}`]);
   }
 
   redeployKit(){
-    const option2 = "Confirm";
+    const option2 = 'Confirm';
     const dialogRef = this.dialog.open(DoubleConfirmDialogComponent, {
       width: DIALOG_WIDTH,
       data: {
@@ -240,9 +242,9 @@ export class NodeManagementComponent implements OnInit {
                      The cluster will start fresh after this operation is completed. \n\n \
                      Are you sure you want to do this? It so, please type REDEPLOY and then click Confirm to perform this operation',
         paneTitle: 'Redeploy Kit Operation',
-        option1: "Cancel",
+        option1: 'Cancel',
         option2: option2,
-        doubleConfirmText: "REDEPLOY"
+        doubleConfirmText: 'REDEPLOY'
       },
     });
 
@@ -269,22 +271,22 @@ export class NodeManagementComponent implements OnInit {
 
   getCurrentStatus(job: Job): string {
     if (job.error) {
-      return "Error";
+      return 'Error';
     }
     if (job.complete) {
-      return "Complete";
+      return 'Complete';
     }
     if (job.inprogress) {
-      return "In Progress";
+      return 'In Progress';
     }
     if (job.pending) {
-      return "Pending";
+      return 'Pending';
     }
-    return "Unknown";
+    return 'Unknown';
   }
 
   refreshKit(){
-    const option2 = "Confirm";
+    const option2 = 'Confirm';
     const dialogRef = this.dialog.open(DoubleConfirmDialogComponent, {
       width: DIALOG_WIDTH,
       data: {
@@ -293,9 +295,9 @@ export class NodeManagementComponent implements OnInit {
                      **All sensors will be removed during this process.** \n\n \
                      Are you sure you want to do this? It so, please type REFRESH and then click Confirm to perform this operation',
         paneTitle: 'Refresh Kit Operation',
-        option1: "Cancel",
+        option1: 'Cancel',
         option2: option2,
-        doubleConfirmText: "REFRESH"
+        doubleConfirmText: 'REFRESH'
       },
     });
 
@@ -367,7 +369,7 @@ export class NodeManagementComponent implements OnInit {
       const result_casted = result as [];
       if( result_casted !== null && result_casted.length > 0 ) {
         for (const app of result_casted){
-          installed_apps.push(app["application"]);
+          installed_apps.push(app['application']);
         }
       }
       this.removeNodeDialog(node, installed_apps);
@@ -401,19 +403,19 @@ export class NodeManagementComponent implements OnInit {
     const cpArray = [];
     for (const node of data){
       for (const job of node.jobs){
-        if (job.name === "deploy") {
-          node.isDeployed = this.getCurrentStatus(job) === "Complete";
+        if (job.name === 'deploy') {
+          node.isDeployed = this.getCurrentStatus(job) === 'Complete';
         }
-        if (job.name === "remove") {
+        if (job.name === 'remove') {
           node.isRemoving = true;
         }
       }
-      if (node.deployment_type === "Iso") {
+      if (node.deployment_type === 'Iso') {
         this.isoSensorExists = true;
       }
-      if (node.node_type === "Control-Plane" || node.node_type === "Minio"){
+      if (node.node_type === 'Control-Plane' || node.node_type === 'Minio'){
         cpArray.push(node);
-      } else if (node.node_type !== "MIP") {
+      } else if (node.node_type !== 'MIP') {
         nodesArray.push(node);
       }
     }

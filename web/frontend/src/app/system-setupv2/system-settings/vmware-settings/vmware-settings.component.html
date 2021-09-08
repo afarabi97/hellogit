@@ -109,9 +109,6 @@
       </form>
   </mat-card-content>
   <mat-card-actions *ngIf="isCardVisible">
-    <!--<button mat-raised-button color="primary"
-            [disabled]="!vmwareSettings.valid || !isTestVmwareSettingsBtnEnabled"
-            (click)="testVMWareConfiguration()">Test Connection</button>-->
     <button mat-raised-button color="primary"
             [disabled]="!vmwareSettings.valid || !isSaveVmwareSettingsBtnEnabled"
             (click)="saveVMWareConfiguration()">Save</button>

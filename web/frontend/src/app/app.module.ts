@@ -36,9 +36,9 @@ import { KitSettingsPaneComponent } from './system-setupv2/system-settings/kit-s
 import { MIPSettingsPaneComponent } from './system-setupv2/system-settings/mip-settings/mip-settings-pane.component';
 import { SNMPSettingsPaneComponent } from './system-setupv2/system-settings/snmp-settings/snmp-settings-pane.component';
 import { KitTokenSettingsPaneComponent } from './system-setupv2/system-settings/kit-token-settings/kit-token-settings-pane.component';
-import { AddNodeDialog } from './system-setupv2/add-node-dialog/add-node-dialog.component';
-import { NodeInfoDialog } from './system-setupv2/node-info-dialog/node-info-dialog.component';
-import { AddKitToken } from './system-setupv2/add-kit-token-dialog/add-kit-token.component';
+import { AddNodeDialogComponent } from './system-setupv2/add-node-dialog/add-node-dialog.component';
+import { NodeInfoDialogComponent } from './system-setupv2/node-info-dialog/node-info-dialog.component';
+import { AddKitTokenComponent } from './system-setupv2/add-kit-token-dialog/add-kit-token.component';
 
 //Kit Page
 
@@ -99,7 +99,7 @@ import { CopyTokenModalDialogComponent } from './system-setupv2/copy-token-dialo
 import { PodLogModalDialogComponent } from './pod-log-dialog/pod-log-dialog.component';
 
 // Index Management
-import { AddMipDialog } from './system-setupv2/add-mip-dialog/add-mip-dialog.component';
+import { AddMipDialogComponent } from './system-setupv2/add-mip-dialog/add-mip-dialog.component';
 import { MipManagementComponent } from './system-setupv2/mip-mng/mip-mng.component';
 
 import { UserClass } from './classes';
@@ -166,8 +166,8 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     CatalogPageComponent,
     ReplayPcapDialog,
     AlertDrillDownDialog,
-    AddNodeDialog,
-    NodeInfoDialog,
+    AddNodeDialogComponent,
+    NodeInfoDialogComponent,
     PasswordMessageComponent,
     PodLogModalDialogComponent,
     RepositorySettingsComponent,
@@ -177,8 +177,8 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     MIPSettingsPaneComponent,
     SNMPSettingsPaneComponent,
     KitTokenSettingsPaneComponent,
-    AddKitToken,
-    AddMipDialog,
+    AddKitTokenComponent,
+    AddMipDialogComponent,
     MipManagementComponent,
     HealthDashboardComponent,
     HealthDashboardNodeTableComponent,
@@ -239,9 +239,9 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     CopyTokenModalDialogComponent,
     ReplayPcapDialog,
     AlertDrillDownDialog,
-    AddNodeDialog,
-    AddMipDialog,
-    NodeInfoDialog,
+    AddNodeDialogComponent,
+    AddMipDialogComponent,
+    NodeInfoDialogComponent,
     PodLogModalDialogComponent,
   ]
 })

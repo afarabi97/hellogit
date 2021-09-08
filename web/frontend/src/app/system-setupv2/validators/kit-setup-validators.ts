@@ -79,17 +79,17 @@ export const vmwareSettingsValidators = {
     { error_message: 'Password is a required.', validatorFn: 'required' },
   ],
   re_password: [
-    { error_message: "The passwords you entered do not match.  Please retype them carefully.", validatorFn: 'fieldMatch' }
+    { error_message: 'The passwords you entered do not match.  Please retype them carefully.', validatorFn: 'fieldMatch' }
   ]
-}
+};
 
 export const kitSettingsValidators = {
   password: [
     { error_message: 'Password is a required.', validatorFn: 'required' },
-    { error_message: "Root password did not meet the password requirements.", validatorFn: 'password' }
+    { error_message: 'Root password did not meet the password requirements.', validatorFn: 'password' }
   ],
   re_password: [
-    { error_message: "The passwords you entered do not match.  Please retype them carefully.", validatorFn: 'fieldMatch' }
+    { error_message: 'The passwords you entered do not match.  Please retype them carefully.', validatorFn: 'fieldMatch' }
   ],
   gateway: [
     { error_message: 'Gateway is required', validatorFn: 'required' },
@@ -110,7 +110,7 @@ export const kitSettingsValidators = {
   kubernetes_services_cidr: [
     { error_message: 'Kubernetetes Service IP is required', validatorFn: 'required' }
   ]
-}
+};
 
 export const addNodeValidators = {
   hostname: [
@@ -143,7 +143,7 @@ export const addNodeValidators = {
     { ops: { pattern: /^([a-z|0-9]{3,7})(,[a-z|0-9]{3,7})+$/}, error_message: 'Raid Drives must be a comma separated list with at least 2 drives for example sda,sdb', validatorFn: 'pattern' },
   ],
   os_raid_root_size: [{ error_message: 'Root Data parition size is required', validatorFn: 'required' }],
-}
+};
 
 export const kickstart_validators = {
   hostname: [
@@ -201,12 +201,12 @@ export const kickstart_validators = {
     { error_message: 'LUKS password did not meet the password requirements.', validatorFn: 'password' }
   ],
   confirm_luks_password: [
-    { error_message: "The LUKS passwords you entered do not match. Please retype them carefully.", validatorFn: 'fieldMatch' }
+    { error_message: 'The LUKS passwords you entered do not match. Please retype them carefully.', validatorFn: 'fieldMatch' }
   ],
   timezone: [{ error_message: 'Timezone is required.', validatorFn: 'required' }],
   upstream_dns: [{ ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' }],
   upstream_ntp: [{ ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' }]
-}
+};
 
 export const kickStartTooltips = {
   gateway: 'The gateway address or default gateway is usually a routable address to the local network.  \
@@ -238,7 +238,7 @@ export const kickStartTooltips = {
   data_drives: 'The data drive is the disk name that will have the data partition configured during the kickstart process. \
   If there are multiple drives (comma seperated), they will be combined into a RAID 0 pool',
   dns: 'The DNS Server that MIPs use to resolve queries.',
-  mip_pxe_type: "The hard drive type determines the hard drive name used for booting. Match this with the MIP being Kickstarted.",
+  mip_pxe_type: 'The hard drive type determines the hard drive name used for booting. Match this with the MIP being Kickstarted.',
   luks_password: 'This is the password you will use to decrypt the disk.',
   confirm_luks_password: 'This is the password you will use to decrypt the disk.',
   timezone: 'The timezone set during Kickstart.',
@@ -253,4 +253,4 @@ export const kickStartTooltips = {
     This means it will take whatever IP address you enter and create a range addresses from that IP + 16.
     For example, 192.168.1.16 would become a range from 192.168.1.16-31`,
   duplicate_node: `Duplicate a node using incremented hostname and ip address fields.`,
-}
+};

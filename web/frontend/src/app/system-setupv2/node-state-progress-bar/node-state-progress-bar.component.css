@@ -43,11 +43,8 @@
   border-color: black;
   box-sizing: border-box;
   box-shadow: none;
-  font-weight: 400;
   position: relative;
   padding: 8px 12px;
-  line-height: 16px;
-  white-space: normal;
   overflow: hidden;
   text-align: left;
   z-index: 999;
@@ -64,7 +61,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   padding-left: 0.5rem;
-
   color:#ffffff;
   font-size: 14px;
 }

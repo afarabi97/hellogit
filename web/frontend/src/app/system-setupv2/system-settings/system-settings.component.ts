@@ -3,8 +3,7 @@ import { Title } from '@angular/platform-browser';
 import { KitSettingsService } from '../services/kit-settings.service';
 import { Settings, GeneralSettings, KitStatus } from '../models/kit';
 
-const DIALOG_WIDTH = "800px";
-
+const DIALOG_WIDTH = '800px';
 
 @Component({
   selector: 'app-system-settings',
@@ -12,19 +11,16 @@ const DIALOG_WIDTH = "800px";
   styleUrls: ['./system-settings.component.css']
 })
 export class SystemSettingsComponent implements OnInit {
-  // controllerMaintainer: boolean;
   generalSettings: Partial<GeneralSettings> = {};
   kitSettings: Partial<Settings> = {};
   kitStatus: Partial<KitStatus> = {};
   controllerInfo: any = {};
 
   constructor(private title: Title,
-          private kitSettingsSrv: KitSettingsService) {
-    // this.controllerMaintainer = this.userService.isControllerMaintainer();
-  }
+          private kitSettingsSrv: KitSettingsService) { }
 
   ngOnInit() {
-    this.title.setTitle("System Settings");
+    this.title.setTitle('System Settings');
     this.kitSettingsSrv.getGeneralSettings().subscribe((data: GeneralSettings) => {
       this.generalSettings = data;
     });

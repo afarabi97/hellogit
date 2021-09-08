@@ -39,8 +39,6 @@
     <mat-card-actions>
       <button mat-raised-button color="warn"
               (click)="refreshKit()" [disabled]="disabledRKbutton()">Refresh Kit</button>
-      <!--<button mat-raised-button color="primary"
-              (click)="setupMinIO()">Setup MinIO</button>-->
       <button mat-raised-button color="primary"
               (click)="setupCtrlPlane()" [disabled]="disableSCPbutton()">Setup Control Plane</button>
     </mat-card-actions>
@@ -103,14 +101,7 @@
                 <em class="material-icons">refresh</em>
               </button>
 
-              <!--BUTTONS WILL BE REPLACED WITH JOB PROGRESS BAR
-              <div class="btn-group" *ngIf="isJobRunningButtonGroup(node)">
-                <button mat-button matTooltip="Cancel Job" color="warn"
-                        (click)="stopNodeJob(node)">
-                  <em class="material-icons">stop</em>
-                </button>
-              </div>
-              -->
+              <!--BUTTONS WILL BE REPLACED WITH JOB PROGRESS BAR-->
 
                 <button *ngIf="isISOButtonGroup(node)" mat-button
                         matTooltip="Download OpenVPN Certificates" color="primary"
@@ -119,15 +110,7 @@
                 </button>
 
               </div>
-              <!--BUTTONS WILL BE REPLACED WITH JOB PROGRESS BAR
-              <div class="btn-group" *ngIf="isErrorButtonGroup(node)">
-                <button mat-button
-                        matTooltip="Retry Job" color="primary"
-                        (click)="retryNodeJob(node)">
-                    <em class="material-icons">refresh</em>
-                </button>
-              </div>
-              -->
+              <!--BUTTONS WILL BE REPLACED WITH JOB PROGRESS BAR-->
           </td>
       </ng-container>
 

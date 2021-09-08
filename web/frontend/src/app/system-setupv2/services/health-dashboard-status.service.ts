@@ -32,7 +32,7 @@ export class HealthDashboardStatusService extends ApiService<any> implements Hea
   }
 
   get_health_dashboard_kibana_info(ipaddress: string) {
-    let url = `${environment.REMOTE_HEALTH_DASHBOARD_KIBANA_INFO}/${ipaddress}`
+    const url = `${environment.REMOTE_HEALTH_DASHBOARD_KIBANA_INFO}/${ipaddress}`;
     return this.httpClient_.get(url).pipe(
       catchError((error: HttpErrorResponse) => this.handleError('get kibana info', error)),
     );

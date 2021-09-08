@@ -27,7 +27,7 @@ export class KitTokenSettingsService extends ApiService<any> implements KitToken
         for (const kit_token of kit_tokens) {
           kit_token_list.push(new KitTokenClass(kit_token));
         }
-        return kit_token_list
+        return kit_token_list;
       }),
       catchError((error: HttpErrorResponse) => this.handleError('get kit tokens', error))
     );
@@ -35,18 +35,18 @@ export class KitTokenSettingsService extends ApiService<any> implements KitToken
 
   create_kit_token(kit_token: KitTokenInterface): Observable<KitTokenClass> {
     return this.httpClient_.post(environment.KIT_TOKENS_SETTINGS_SERVICE, kit_token).pipe(
-      map((kit_token: KitTokenInterface) => new KitTokenClass(kit_token)),
+      map((kt: KitTokenInterface) => new KitTokenClass(kt)),
       catchError((error: HttpErrorResponse) => this.handleError('create kit_token', error)),
     );
   }
 
   delete_kit_token(kit_token_id: string): Observable<null> {
-    const url = `${environment.KIT_TOKENS_SETTINGS_SERVICE}/${kit_token_id}`
+    const url = `${environment.KIT_TOKENS_SETTINGS_SERVICE}/${kit_token_id}`;
     return this.httpClient_.delete(url).pipe(catchError((error: HttpErrorResponse) => this.handleError('delete kit_token', error)));
   }
 
   replace_kit_token(kit_token_id: string, kit_token: KitTokenInterface): Observable<null> {
-    const url = `${environment.KIT_TOKENS_SETTINGS_SERVICE}/${kit_token_id}`
+    const url = `${environment.KIT_TOKENS_SETTINGS_SERVICE}/${kit_token_id}`;
     return this.httpClient_.put(url, kit_token).pipe(catchError((error: HttpErrorResponse) => this.handleError('update kit_token', error)));
   }
 

@@ -1,6 +1,6 @@
 import {
   KitTokenInterface
-} from '../interfaces/kit-token.interface'
+} from '../interfaces/kit-token.interface';
 
 export class KitTokenClass implements KitTokenInterface {
   kit_token_id?: string;

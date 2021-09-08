@@ -1,14 +1,14 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { validateFromArray } from '../../../validators/generic-validators.validator';
 import { kitSettingsValidators } from '../../validators/kit-setup-validators';
 import { KitSettingsService } from '../../services/kit-settings.service';
-import { MatSnackBarService } from "../../../services/mat-snackbar.service"
+import { MatSnackBarService } from '../../../services/mat-snackbar.service';
 import { GeneralSettings, MipSettings, KitStatus } from '../../models/kit';
 import { UserService } from '../../../services/user.service';
 import { WebsocketService } from '../../../services/websocket.service';
-import { MatDialog } from "@angular/material/dialog";
-import { PasswordMessageComponent } from '../../../components/password-message/password-message.component'
+import { MatDialog } from '@angular/material/dialog';
+import { PasswordMessageComponent } from '../../../components/password-message/password-message.component';
 
 @Component({
   selector: 'app-mip-settings-pane',
@@ -16,17 +16,14 @@ import { PasswordMessageComponent } from '../../../components/password-message/p
   styleUrls: ['./mip-settings-pane.component.scss']
 })
 
-export class MIPSettingsPaneComponent implements OnInit {
+export class MIPSettingsPaneComponent implements OnInit, OnChanges {
+  @Input() hasTitle: boolean;
+  @Input() generalSettings: Partial<GeneralSettings>;
+  @Input() kitStatus: Partial<KitStatus>;
   mipForm: FormGroup;
   isCardVisible: boolean;
   controllerMaintainer: boolean;
-  default_operator_type = "cpt";
-
-  @Input()
-  hasTitle: boolean;
-
-  @Input() generalSettings: Partial<GeneralSettings>;
-  @Input() kitStatus: Partial<KitStatus>;
+  default_operator_type = 'cpt';
 
   constructor(public _WebsocketService:WebsocketService,
               private kitSettingsSrv: KitSettingsService,
@@ -35,6 +32,61 @@ export class MIPSettingsPaneComponent implements OnInit {
               private dialog: MatDialog) {
     this.hasTitle = true;
     this.controllerMaintainer = this.userService.isControllerMaintainer();
+  }
+
+  ngOnInit() {
+    this.socketRefresh();
+    this.createFormGroup();
+    this.kitSettingsSrv.getMipSettings().subscribe((data: MipSettings) => {
+      if (data){
+        this.createFormGroup(data);
+      }
+    });
+  }
+
+  ngOnChanges(){
+    if (this.mipForm){
+      this.checkJob();
+    }
+  }
+
+  reEvaluate(event: KeyboardEvent){
+    if (this.mipForm){
+      this.mipForm.get('password').updateValueAndValidity();
+      this.mipForm.get('re_password').updateValueAndValidity();
+      this.mipForm.get('luks_password').updateValueAndValidity();
+      this.mipForm.get('luks_re_password').updateValueAndValidity();
+    }
+  }
+
+  checkJob(){
+    if(!this.kitStatus.general_settings_configured){
+      this.mipForm.disable();
+    } else{
+      this.mipForm.enable();
+    }
+  }
+
+  toggleCard(){
+    this.isCardVisible = !this.isCardVisible;
+  }
+
+  getErrorMessage(control: FormControl | AbstractControl): string {
+    return control.errors ? control.errors.error_message : '';
+  }
+
+  saveMipSettings() {
+    this.kitSettingsSrv.updateMipSettings(this.mipForm.getRawValue()).subscribe((data) => {
+
+        this.matSnackBarService.displaySnackBar('MIP Settings Successfully Saved');
+    });
+
+  }
+
+  passwordDialog() {
+    this.dialog.open(PasswordMessageComponent,{
+      minWidth: '400px'
+    });
   }
 
   private createFormGroup(mipForm?) {
@@ -59,27 +111,27 @@ export class MIPSettingsPaneComponent implements OnInit {
     const root_verify = Validators.compose([
       validateFromArray(kitSettingsValidators.password,
         { parentControl: this.mipForm.get('re_password') })
-    ])
+    ]);
     const re_verify = Validators.compose([
       validateFromArray(kitSettingsValidators.re_password,
         { parentControl: this.mipForm.get('password') })
-    ])
+    ]);
     const user_verify = Validators.compose([
       validateFromArray(kitSettingsValidators.password,
         { parentControl: this.mipForm.get('user_password') })
-    ])
+    ]);
     const user_re_verify = Validators.compose([
       validateFromArray(kitSettingsValidators.re_password,
         { parentControl: this.mipForm.get('user_re_password') })
-    ])
+    ]);
     const luks_verify = Validators.compose([
       validateFromArray(kitSettingsValidators.password,
         { parentControl: this.mipForm.get('luks_re_password') })
-    ])
+    ]);
     const luks_re_verify = Validators.compose([
       validateFromArray(kitSettingsValidators.re_password,
         { parentControl: this.mipForm.get('luks_password') })
-    ])
+    ]);
     password.setValidators(root_verify);
     re_password.setValidators(re_verify);
     user_password.setValidators(user_verify);
@@ -88,66 +140,10 @@ export class MIPSettingsPaneComponent implements OnInit {
     luks_re_password.setValidators(luks_re_verify);
   }
 
-  reEvaluate(event: KeyboardEvent){
-    if (this.mipForm){
-      this.mipForm.get('password').updateValueAndValidity();
-      this.mipForm.get('re_password').updateValueAndValidity();
-      this.mipForm.get('luks_password').updateValueAndValidity();
-      this.mipForm.get('luks_re_password').updateValueAndValidity();
-    }
-  }
-
   private socketRefresh(){
     this._WebsocketService.getSocket().on('kit-status-change', (data: KitStatus) => {
       this.kitStatus = data;
       this.checkJob();
-    });
-  }
-
-  checkJob(){
-    if(!this.kitStatus.general_settings_configured){
-      this.mipForm.disable();
-    }
-    else{
-      this.mipForm.enable();
-    }
-  }
-
-  ngOnInit() {
-    this.socketRefresh();
-    this.createFormGroup();
-    this.kitSettingsSrv.getMipSettings().subscribe((data: MipSettings) => {
-      if (data){
-        this.createFormGroup(data);
-      }
-    });
-  }
-
-  ngOnChanges(){
-    if (this.mipForm){
-      this.checkJob();
-    }
-  }
-
-  toggleCard(){
-    this.isCardVisible = !this.isCardVisible;
-  }
-
-  getErrorMessage(control: FormControl | AbstractControl): string {
-    return control.errors ? control.errors.error_message : '';
-  }
-
-  public saveMipSettings() {
-    this.kitSettingsSrv.updateMipSettings(this.mipForm.getRawValue()).subscribe((data) => {
-
-        this.matSnackBarService.displaySnackBar("MIP Settings Successfully Saved");
-    });
-
-  }
-
-  passwordDialog() {
-    this.dialog.open(PasswordMessageComponent,{
-      minWidth: "400px"
     });
   }
 }

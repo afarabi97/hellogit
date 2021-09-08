@@ -14,7 +14,7 @@ export class CopyTokenModalDialogComponent {
 
   constructor(public dialogRef: MatDialogRef<CopyTokenModalDialogComponent>,
               @Inject(MAT_DIALOG_DATA)
-              public backingObject: { title: string, token: string },
+              public backingObject: { title: string; token: string },
               private clipboardApi: ClipboardService
               ) {
     this.title = backingObject.title;
