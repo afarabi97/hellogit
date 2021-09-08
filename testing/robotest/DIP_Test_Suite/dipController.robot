@@ -9,13 +9,15 @@ Resource    ../lib/dipCommonKeywords.resource
 Resource    ../lib/dipCatalogKeywords.resource
 Resource    ../include/dipCatalogVariables.resource
 
-Library     SeleniumLibrary     30s    run_on_failure=NONE
+Library     SeleniumLibrary     15s    run_on_failure=NONE
 Library     SSHLibrary          15s
 Library     String
 
 
 Suite Setup         Open SSH Connection  ${HOST}  ${HOST_USERNAME}  ${HOST_PASSWORD}
-Test Setup          Runner Open Browser  ${HOST}  ${BROWSER}
+Test Setup          Run Keywords  Runner Open Browser  ${HOST}  ${BROWSER}
+                    ...  AND  Set DIP Kit Global Variables
+# Test Setup          Runner Open Browser  ${HOST}  ${BROWSER}
 Test Teardown       Close Browser
 Suite Teardown      Close All Connections
 
@@ -40,49 +42,63 @@ Verify Correct System Name And Version Number
     Wait Until Element Contains  ${locSystemVersionNumber}  ${KIT_VERSION}
     Element Should Contain    ${locServiceNowURL}  https://afdco.servicenowservices.com/sp
 
-Install And Uninstall Apps From Catalog Page
-    [Tags]    THISISCVAH-8137
-    [Documentation]    Download apps from Catalog page and verify successful download within Notifications & Health pages
+
+Run Elastic Integration Test
+    [Tags]    THISISCVAH-10191
+    [Documentation]    Grab the elastic password and run some tests
+    Set Selenium Speed  0.5s
     Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
     Wait Until Page Contains    Portal
-    Set Selenium Speed  0.5s
-    Set DIP Kit Global Variables
+    ${portal_location} =    Get Location
+    Install Apps    &{THISISCVAH_10191_APPS}
+    Go To    ${portal_location}
 
-    Download App From Catalog    Arkime-viewer  ${locArkimeViewerConfigAppBtn}
-    Verify App Has Been Installed    Arkime-viewer  ${locArkimeViewerAppCard}  ${locArkimeViewerAppCardCircle}
-    Download App From Catalog    Arkime  ${locArkimeConfigAppBtn}
-    Verify App Has Been Installed    Arkime  ${locArkimeAppCard}  ${locArkimeAppCardCircle}
-    Uninstall App    Arkime  ${locArkimeAppCard}  ${locArkimeConfigAppBtn}
-    Uninstall App    Arkime-viewer  ${locArkimeViewerAppCard}  ${locArkimeViewerConfigAppBtn}
+    Wait Until Page Contains Element    ${locKibanaUserPassword}
+    ${kibana_user_password_full_text} =  Get Text    ${locKibanaUserPassword}
+    ${kibana_ip} =  Get Text    ${locKibanaKitIP}
+    ${kibana_password} =    Get Substring    ${kibana_user_password_full_text}    23    end=None
+    Go To    ${kibana_ip}
 
-    Download App From Catalog    Cortex  ${locCortexConfigAppBtn}
-    Verify App Has Been Installed    Cortex  ${locCortexAppCard}  ${locCortexAppCardCircle}
-    Uninstall App    Cortex  ${locCortexAppCard}  ${locCortexConfigAppBtn}
+    # TODO: Make this section only run if we are not logged-in
+    Wait Until Page Contains    Welcome to Elastic    timeout=15s    error=None
+    Click Element    ${locElasticLoginButton}
+    Wait Until Page Contains    Username    timeout=6s    error=None
+    Input Text    //input[@name="username"]    ${KIBANA_USERNAME}
+    Input Text    //input[@name="password"]    ${kibana_password}
+    Click Element    //span[@class="euiButton__text"]
 
-    Download App From Catalog    Hive  ${locHiveConfigAppBtn}
-    Verify App Has Been Installed    Hive  ${locHiveAppCard}  ${locHiveAppCardCircle}
-    Uninstall App    Hive  ${locHiveAppCard}  ${locHiveConfigAppBtn}
+    Wait Until Page Contains    Hunt    timeout=6s    error=None
+    Click Element    //a[normalize-space()='Hunt']
+    Wait Until Page Contains    Home    timeout=6s    error=None
+    ${hunt_location} =    Get Location
+    Click Element    xpath=(//button[@class="euiButtonEmpty euiButtonEmpty--text euiHeaderSectionItemButton"])[3]
+    Click Element    //span[@title="Stack Management"]
+    Wait Until Page Contains    Welcome to Stack Management    timeout=6s    error=None
+    SeleniumLibrary.Capture Page Screenshot    filename=StackManagement-screenshot-{index}.png
 
-    Download App From Catalog    Logstash  ${locLogstashConfigAppBtn}
-    Verify App Has Been Installed    Logstash  ${locLogstashAppCard}  ${locLogstashAppCardCircle}
-    Uninstall App    Logstash  ${locLogstashAppCard}  ${locLogstashConfigAppBtn}
+    # Go back to portal page AND Play the pcap
+    Go To    ${portal_location}
+    Wait Until Page Contains    Portal    timeout=8s    error=None
+    Click Element    //mat-icon[@id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-3-mat-list-item-1-mat-icon"]
+    Wait Until Page Contains    Test Files
+    Click Element    //em[@id="app-pcap-form-div-mat-card-mat-card-content-table-td-7-action-button-play-arow-em"]
+    Wait Until Page Contains    Replay PCAP on target Sensor    timeout=2s    error=None
+    Click Element    id=replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select
+    Click Element    //span[@class="mat-option-text"]
+    Click Element    xpath=(//span[@class="mat-button-wrapper"])[24]
+    SeleniumLibrary.Capture Page Screenshot    filename=Wannacry-screenshot-{index}.png
 
-    Download App From Catalog    Misp  ${locMispConfigAppBtn}
-    Verify App Has Been Installed    Misp  ${locMispAppCard}  ${locMispAppCardCircle}
-    Uninstall App    Misp  ${locMispAppCard}  ${locMispConfigAppBtn}
+    # after about 2 minutes
+    # go back to kibana and click on discover
+    # should see green bar depicting file beat traffic when pcap was played
+    # TODO: Figure out a better way of seeing if it was a hit. Right now we have to confirm via screenshot
+    Sleep     180s
+    Go To    ${kibana_ip}/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))&_a=(columns:!(),filters:!(),index:'filebeat-*',interval:auto,query:(language:kuery,query:''),sort:!(!('@timestamp',desc)))
+    Wait Until Page Contains    Discover    timeout=15s    error=None
+    Wait Until Page Does Not Contain    Searching    timeout=15s    error=None
+    SeleniumLibrary.Capture Page Screenshot    filename=KibanaHits-screenshot-{index}.png
 
-    Download App From Catalog    Rocketchat  ${locRocketchatConfigAppBtn}
-    Verify App Has Been Installed    Rocketchat  ${locRocketchatAppCard}  ${locRocketchatAppCardCircle}
-    Uninstall App    Rocketchat  ${locRocketchatAppCard}  ${locRocketchatConfigAppBtn}
-
-    Download App From Catalog    Suricata  ${locSuricataConfigAppBtn}
-    Verify App Has Been Installed    Suricata  ${locSuricataAppCard}  ${locSuricataAppCardCircle}
-    Uninstall App    Suricata  ${locSuricataAppCard}  ${locSuricataConfigAppBtn}
-
-    Download App From Catalog    Wikijs  ${locWikijsConfigAppBtn}
-    Verify App Has Been Installed    Wikijs  ${locWikijsAppCard}  ${locWikijsAppCardCircle}
-    Uninstall App    Wikijs  ${locWikijsAppCard}  ${locWikijsConfigAppBtn}
-
-    Download App From Catalog    Zeek  ${locZeekConfigAppBtn}
-    Verify App Has Been Installed    Zeek  ${locZeekAppCard}  ${locZeekAppCardCircle}
-    Uninstall App    Zeek  ${locZeekAppCard}  ${locZeekConfigAppBtn}
+    # Uninstall the applications
+    Go To    ${portal_location}
+    Wait Until Page Contains    Portal    timeout=8s    error=None
+    Uninstall Apps    &{THISISCVAH_10191_APPS}
