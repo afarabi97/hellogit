@@ -78,7 +78,8 @@
       <ng-container matColumnDef="expand_col">
         <th scope="col" mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let node;">
-          <div *ngIf="node.type === 'server' || node.type === 'sensor'">
+          <div *ngIf="(node.type === 'server' && node.write_rejects &&  node.write_rejects.length > 0) ||
+             (node.type === 'sensor' && node.app_data && node.app_data.length > 0)">
             <mat-icon *ngIf="expandedElement !== node">expand_more</mat-icon>
             <mat-icon *ngIf="node === expandedElement">expand_less</mat-icon>
           </div>
@@ -90,7 +91,7 @@
         <td mat-cell *matCellDef="let node; let i = index" [attr.colspan]="node_displayed_cols().length">
           <div class="node-detail" [@detailExpand]="node === expandedElement ? 'expanded' : 'collapsed'">
             <!-- Sensor -->
-            <div *ngIf="expandedElement && expandedElement.type === 'sensor'">
+            <div *ngIf="expandedElement && expandedElement.type === 'sensor' && node.app_data && node.app_data.length > 0">
               <table mat-table [dataSource]="node.app_data" class="inner-table">
                 <ng-container matColumnDef="app">
                   <th scope="col" mat-header-cell *matHeaderCellDef>Application</th>
@@ -109,7 +110,7 @@
               </table>
             </div>
             <!-- Server -->
-            <div *ngIf="expandedElement && expandedElement.type === 'server'">
+            <div *ngIf="expandedElement && expandedElement.type === 'server' && node.write_rejects && node.write_rejects.length > 0">
               <table mat-table [dataSource]="node.write_rejects" class="inner-table">
                 <ng-container matColumnDef="node_name">
                   <th scope="col" mat-header-cell *matHeaderCellDef>Node Name</th>
