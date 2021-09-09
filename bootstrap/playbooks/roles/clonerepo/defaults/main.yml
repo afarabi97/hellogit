@@ -6,8 +6,4 @@ bootstrap_package_names:
   - createrepo
   - rsync
 
-gpg_keys:
-  - "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
-  - "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
-
 download_archives: true

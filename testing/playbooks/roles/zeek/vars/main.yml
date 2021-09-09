@@ -1,6 +1,6 @@
-# Lab Repo URL's
-labrepo_url: labrepo.sil.lab
-misc_server: http://misc.{{ labrepo_url }}
+# Repo URL's
+nexus_url: nexus.sil.lab
+misc_server: https://{{ nexus_url }}/tfplenum-repo
 
 
 # The name of the aliased index

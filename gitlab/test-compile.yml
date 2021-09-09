@@ -4,7 +4,7 @@ compile front-end:
     paths:
       - web/frontend/node_modules
       - web/frontend/src/assets/fonts
-  image: nexus.sil.lab/tfplenum/code-checker:1.1
+  image: docker.nexus.sil.lab/tfplenum/code-checker:1.1
   tags:
     - docker-runner
   stage: test-compile

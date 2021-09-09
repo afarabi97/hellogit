@@ -3,10 +3,8 @@ set -x
 export CVAH_VERSION=3.7.0
 bootstrap_version=1.5.0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-EPEL_RPM_PUBLIC_URL="https://download.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
 RHEL_VERSION="8.2"
 RHEL_ISO="rhel-$RHEL_VERSION-x86_64-dvd.iso"
-export TFPLENUM_LABREPO=false
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
 
 # Create tfplenum log dir
@@ -32,17 +30,6 @@ function run_cmd {
     fi
 }
 
-function labrepo_available() {
-    echo "-------"
-    echo "Checking if labrepo is available..."
-    labrepo_check=`curl -m 120 -s http://labrepo.sil.lab/check.html`
-    if [ "$labrepo_check" != true ]; then
-      echo "Warning: Labrepo not found. Defaulting to public repos."
-      echo "Using public repos this might not always work as external dependencies change frequently."
-      labrepo_check=false
-    fi
-}
-
 function prompt_runtype() {
     echo "Select a run type:"
     echo "Full: Fresh Builds, Home Builds, A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs bootstrap ansible role."
@@ -56,140 +43,6 @@ function prompt_runtype() {
                 "Docker Images" ) export RUN_TYPE=dockerimages; break;;
             esac
         done
-    fi
-}
-
-function check_rhel_iso(){
-    echo "Checking for RHEL ISO..."
-    rhel_iso_exists=false
-    if [ -f /root/$RHEL_ISO ]; then
-        rhel_iso_exists=true
-        echo "RHEL ISO found! Moving on..."
-    fi
-}
-
-function prompt_rhel_iso_download() {
-    check_rhel_iso
-    if [ "$rhel_iso_exists" == false ]; then
-        echo "-------"
-
-        echo "RHEL ISO is required to setup the kit."
-        echo "Download the RHEL ISO following these instructions:"
-        echo "***If you already have the $RHEL_ISO skip to step 6.***"
-        echo ""
-        echo "1. In a browser navgiate to https://access.redhat.com/downloads"
-        echo "2. Select Red Hat Enterprise Linux."
-        echo "3. Login using your Red Hat user/pass."
-        echo "4. Select $RHEL_VERSION from the Versions dropdown."
-        echo "5. Select Download for Red Hat Enterprise Linux $RHEL_VERSION Binary DVD."
-        echo "6. SCP $RHEL_ISO to /root on your controller."
-
-        while true; do
-        read -p "Have you completed the above steps? (Y/N): " rhel_iso_prompted
-
-        if [[ $rhel_iso_prompted =~ ^[Yy]$ ]]; then
-            check_rhel_iso
-            echo "rhel_iso_exists: $rhel_iso_exists"
-            if [ "$rhel_iso_exists" == true ]; then
-                break
-            fi
-        fi
-        echo "Unable to find rhel iso please try again."
-        done
-    fi
-}
-
-function choose_rhel_yum_repo() {
-    labrepo_available
-    if [ "$labrepo_check" == true ] ; then
-        if [ -z "$RHEL_SOURCE_REPO" ]; then
-            echo "-------"
-            echo "Select the source rhel yum server to use:"
-            echo "Labrepo: Requires dev network"
-            echo "Public: Requires internet access"
-            select cr in "Labrepo" "Public"; do
-                case $cr in
-                    Labrepo )
-                    export RHEL_SOURCE_REPO="labrepo";
-                    break
-                    ;;
-                    Public )
-                    export RHEL_SOURCE_REPO="public";
-                    break
-                    ;;
-                esac
-            done
-        fi
-    else
-        export RHEL_SOURCE_REPO="public";
-    fi
-}
-
-function subscription_prompts(){
-    echo "Verifying RedHat Subscription..."
-    subscription_status=`subscription-manager status | grep 'Overall Status:' | awk '{ print $3 }'`
-
-    if [ "$subscription_status" != "Current" ]; then
-        echo "-------"
-        echo "Since you are running a RHEL controller outside the Dev Network and/or not using Labrepo, "
-        echo "You will need to subscribe to RHEL repositories."
-        echo "-------"
-        echo "Select RedHat subscription method:"
-        echo "Standard: Requires Org + Activation Key"
-        echo "RedHat Developer Login: A RedHat Developer account is free signup here https://developers.redhat.com/"
-        echo "RedHat Developer License cannot be used in production environments"
-        select cr in "Standard" "RedHat Developer" ; do
-                case $cr in
-                    Standard )
-                    export RHEL_SUB_METHOD="standard";
-                    break
-                    ;;
-                    "RedHat Developer" )
-                    export RHEL_SUB_METHOD="developer";
-                    break
-                    ;;
-                esac
-            done
-        while true; do
-            subscription-manager remove --all
-            subscription-manager unregister
-            subscription-manager clean
-
-            if [ "$RHEL_SUB_METHOD" == "standard" ]; then
-                if [ -z "$RHEL_ORGANIZATION" ]; then
-                    read -p 'Please enter your RHEL org number (EX: Its the --org flag for the subscription-manager command): ' orgnumber
-                    export RHEL_ORGANIZATION=$orgnumber
-                fi
-
-                if [ -z "$RHEL_ACTIVATIONKEY" ]; then
-                    read -p 'Please enter your RHEL activation key (EX: Its the --activationkey flag for the subscription-manager command): ' activationkey
-                    export RHEL_ACTIVATIONKEY=$activationkey
-                fi
-                subscription-manager register --activationkey=$RHEL_ACTIVATIONKEY --org=$RHEL_ORGANIZATION --force
-            elif [ "$RHEL_SUB_METHOD" == "developer" ]; then
-                subscription-manager register
-            fi
-
-            subscription-manager refresh
-            subscription-manager attach --auto
-            echo "Checking subscription status..."
-            subscription_status=`subscription-manager status | grep 'Overall Status:' | awk '{ print $3 }'`
-
-            if [ "$subscription_status" == "Current" ]; then
-                break;
-            else
-                echo "Error subscription appears to be invalid please try again..."
-            fi
-        done;
-
-    fi
-
-    if [ "$subscription_status" == "Current" ]; then
-        run_cmd subscription-manager repos --enable rhel-8-for-x86_64-baseos-rpms
-        run_cmd subscription-manager repos --enable rhel-8-for-x86_64-appstream-rpms
-        run_cmd subscription-manager repos --enable rhel-8-for-x86_64-supplementary-rpms
-        run_cmd subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
-        prompt_rhel_iso_download
     fi
 }
 
@@ -222,27 +75,28 @@ function setup_ansible(){
 }
 
 function add_nexus_laprepo() {
-    if [ "$RHEL_SOURCE_REPO" == "labrepo" ]; then
-        mkdir -p /root/.pip
-        cat <<EOF > /root/.pip/pip.conf
+    mkdir -p /root/.pip
+    cat <<EOF > /root/.pip/pip.conf
 [global]
 index-url = https://nexus.sil.lab/repository/pypi/simple
 trusted-host = nexus.sil.lab
 EOF
-    fi
 }
 
 function generate_repo_file() {
     rm -rf /etc/yum.repos.d/*.repo > /dev/null
-
-    if [ "$RHEL_SOURCE_REPO" == "labrepo" ] && [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then
-        curl -o /etc/yum.repos.d/labrepo-server-rhel.repo http://yum.labrepo.sil.lab/rhel8/labrepo-server-rhel8.repo
-    elif [ "$RHEL_SOURCE_REPO" == "public" ] && [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then
-        subscription_prompts
-    fi
-
+    curl -o /etc/yum.repos.d/nexus-rhel8.repo https://nexus.sil.lab/repository/tfplenum-repo/nexus-rhel8.repo
+    cat <<EOF > /etc/yum.repos.d/nexus-yum-proxy.repo
+[nexus-yum-proxy]
+name=nexus-yum-proxy
+baseurl=https://nexus.sil.lab/repository/yum-proxy/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+EOF
     dnf clean all > /dev/null
     rm -rf /var/cache/yum/ > /dev/null
+    dnf makecache
 }
 
 function get_controller_ip() {
@@ -261,10 +115,6 @@ function get_controller_ip() {
 
 function prompt_git_creds() {
     export REMOTE_GIT_NAME="GITLAB"
-    if [ "$labrepo_check" != true ]; then
-        export REMOTE_GIT_NAME="DI2E"
-        echo "*****Unable to find gitlab switching to DI2E*****"
-    fi
     if [ -z "$GIT_USERNAME" ]; then
         echo "-------"
         echo "Bootstrapping a controller requires ${REMOTE_GIT_NAME} credentials."
@@ -327,11 +177,6 @@ function clone_repos(){
     if [ -z "$REPO_URL" ]; then
         export REPO_URL="https://gitlab.sil.lab/tfplenum/tfplenum.git"
     fi
-    git config --global http.sslVerify false
-    if [ "$labrepo_check" != true ]; then
-        export REPO_URL="https://bitbucket.di2e.net/scm/thisiscvah/tfplenum.git"
-    fi
-
     local directory="/opt/tfplenum"
     if [ -d "$directory" ]; then
         rm -rf $directory
@@ -342,14 +187,6 @@ function clone_repos(){
         run_cmd git checkout $TFPLENUM_BRANCH_NAME
         popd > /dev/null
     fi
-}
-
-function execute_pre(){
-    rpm -e epel-release-latest-8.noarch.rpm
-    dnf remove epel-release -y
-    rm -rf /etc/yum.repos.d/epel*.repo
-    dnf install --allowerasing $EPEL_RPM_PUBLIC_URL -y
-    rm -rf epel-release-latest-8.noarch.rpm
 }
 
 function setup_git(){
@@ -390,16 +227,10 @@ function prompts(){
     echo "TFPLENUM DEPLOYER BOOTSTRAP ${bootstrap_version}"
     echo "---------------------------------"
 
-    export TFPLENUM_OS_TYPE=rhel
     prompt_runtype
     get_controller_ip
 
     if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
-        if [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then
-            choose_rhel_yum_repo
-        else
-            export RHEL_SOURCE_REPO="public";
-        fi
         generate_repo_file
     fi
 
@@ -427,7 +258,6 @@ if [ "$RUN_TYPE" == "full" ]; then
 fi
 
 if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
-    execute_pre
     add_nexus_laprepo
     setup_ansible
     execute_bootstrap_playbook

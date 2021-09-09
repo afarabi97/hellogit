@@ -1,3 +1,0 @@
----
-#RHEL_SOURCE_REPO: "{{ lookup('env','RHEL_SOURCE_REPO') | default('') }}"
-...

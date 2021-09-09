@@ -1,29 +1,16 @@
 ---
-- name: redis | Add yum repo
-  yum_repository:
-    name: remi
-    description: remi
-    enabled: false
-    gpgcheck: true
-    gpgkey: https://rpms.remirepo.net/RPM-GPG-KEY-remi
-    mirrorlist: http://cdn.remirepo.net/enterprise/7/remi/mirror
-
 
 - name: redis | Install
   dnf:
     name: redis
     state: present
-    enablerepo: remi
+    enablerepo: nexus-yum-proxy
+    disablerepo: rhel-8-for-x86_64-appstream-rpms
 
 - name: redis | Enable Service
   systemd:
     name: redis
     enabled: yes
-
-- name: redis | Remove yum repo
-  yum_repository:
-    name: remi
-    state: absent
 
 # - name: redis | Disable Persistence
 #   lineinfile:

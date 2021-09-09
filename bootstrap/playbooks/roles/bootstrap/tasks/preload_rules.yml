@@ -1,24 +1,13 @@
 ---
 
-- name: Set Emerging Rules Tar Url
-  set_fact:
-    emerging_rules_url: "{{ misc_server }}/emerging.rules.tar.gz"
-  when: labrepo_check
-
 - name: rules | Create Directory
   file:
     path: "{{ web_install_dir }}/backend/rules"
     state: directory
 
-- name: rules | Download Tar (just for backup)
-  get_url:
-    url: "{{ emerging_rules_url }}"
-    dest: "{{ web_install_dir }}/backend/rules"
-
 - name: rules | Download
   unarchive:
-    remote_src: yes
-    src: "{{ emerging_rules_url }}"
+    src: "{{ tfplenumoffline_dir }}/emerging.rules.tar.gz"
     dest: "{{ web_install_dir }}/backend/rules"
 
 - name: rules | Upload

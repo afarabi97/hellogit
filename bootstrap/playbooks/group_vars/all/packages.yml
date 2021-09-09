@@ -1,27 +1,94 @@
 ---
 
 direct_download_package_names:
-  - { url: "https://download.sysinternals.com/files/Sysmon.zip", dest: "/opt/tfplenum/agent_pkgs/sysmon", mode: "644" }
-  - { url: "https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-{{ elastic_7_version }}-windows-x86_64.zip", dest: "/opt/tfplenum/agent_pkgs/winlogbeat", mode: "644" }
-  - { url: "https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-{{ elastic_7_version }}-windows-x86.zip", dest: "/opt/tfplenum/agent_pkgs/winlogbeat", mode: "644" }
-  - { url: "https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-{{ elastic_7_version }}-windows-x86.zip", dest: "/opt/tfplenum/agent_pkgs/filebeat", mode: "644" }
-  - { url: "https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-{{ elastic_7_version }}-windows-x86_64.zip", dest: "/opt/tfplenum/agent_pkgs/filebeat", mode: "644" }
-  - { url: "https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-{{ elastic_7_version }}-windows-x86_64.zip", dest: "/opt/tfplenum/agent_pkgs/auditbeat", mode: "644" }
-  - { url: "https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-{{ elastic_7_version }}-windows-x86.zip", dest: "/opt/tfplenum/agent_pkgs/auditbeat", mode: "644" }
-  - { url: "https://get.helm.sh/helm-{{ helm_version }}-linux-amd64.tar.gz", dest: "{{ tfplenumoffline_dir }}", mode: "644" }
-  - { url: "https://storage.googleapis.com/k8s-conform-cri-o/artifacts/crio-{{crio_version}}.tar.gz", dest: "{{ tfplenumoffline_dir }}", mode: "644" }
-  - { url: "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-s3/repository-s3-{{ elastic_7_version }}.zip", dest: "{{ tfplenumoffline_dir }}/elasticsearch-plugins", mode: "644" }
-  - { url: "https://github.com/elastic/support-diagnostics/releases/download/8.1.1/support-diagnostics-8.1.1-dist.zip", dest: "{{ tfplenumoffline_dir }}", mode: "644" }
-  - { url: "https://raw.githubusercontent.com/johanhaleby/kubetail/1.6.12/kubetail", dest: "/usr/local/bin", mode: "755" }
-  - { url: "https://github.com/projectcalico/calicoctl/releases/download/{{ calico_version }}/calicoctl", dest: "{{ tfplenumoffline_dir }}", mode: "755" }
-  - { url: "https://galaxy.ansible.com/download/community-vmware-{{ community_vmware_module_version }}.tar.gz",  dest: "{{ tfplenumoffline_dir }}", mode: "644" }
-  - { url: "https://galaxy.ansible.com/download/ansible-utils-{{ community_utils_module_version }}.tar.gz",  dest: "{{ tfplenumoffline_dir }}", mode: "644" }
-
-direct_download_rpms:
-  - { url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm", dest: "{{ extras_dir }}/Packages" }
-  - { url: "https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-{{elastic_7_version}}-x86_64.rpm", dest: "{{ extras_dir }}/Packages" }
-  - { url: "http://mirror.centos.org/centos/7/extras/x86_64/Packages/docker-distribution-2.6.2-2.git48294d9.el7.x86_64.rpm", dest: "{{ extras_dir }}/Packages" }
-
+  - name: "Sysmon.zip"
+    url: "{{ tfplenum_raw_group_repo }}"
+    dest: "/opt/tfplenum/agent_pkgs/sysmon"
+    mode: "644"
+  - name: "winlogbeat-{{ elastic_7_version }}-windows-x86_64.zip"
+    url: "{{ tfplenum_raw_group_repo }}/beats/winlogbeat"
+    dest: "/opt/tfplenum/agent_pkgs/winlogbeat"
+    mode: "644"
+  - name: "winlogbeat-{{ elastic_7_version }}-windows-x86.zip"
+    url: "{{ tfplenum_raw_group_repo }}/beats/winlogbeat"
+    dest: "/opt/tfplenum/agent_pkgs/winlogbeat"
+    mode: "644"
+  - name: "filebeat-{{ elastic_7_version }}-windows-x86.zip"
+    url: "{{ tfplenum_raw_group_repo }}/beats/filebeat"
+    dest: "/opt/tfplenum/agent_pkgs/filebeat"
+    mode: "644"
+  - name: "filebeat-{{ elastic_7_version }}-windows-x86_64.zip"
+    url: "{{ tfplenum_raw_group_repo }}/beats/filebeat"
+    dest: "/opt/tfplenum/agent_pkgs/filebeat"
+    mode: "644"
+  - name: "auditbeat-{{ elastic_7_version }}-windows-x86_64.zip"
+    url: "{{ tfplenum_raw_group_repo }}/beats/auditbeat"
+    dest: "/opt/tfplenum/agent_pkgs/auditbeat"
+    mode: "644"
+  - name: "auditbeat-{{ elastic_7_version }}-windows-x86.zip"
+    url: "{{ tfplenum_raw_group_repo }}/beats/auditbeat"
+    dest: "/opt/tfplenum/agent_pkgs/auditbeat"
+    mode: "644"
+  - name: "helm-{{ helm_version }}-linux-amd64.tar.gz"
+    url: "{{ tfplenum_raw_group_repo }}"
+    dest: "{{ tfplenumoffline_dir }}"
+    mode: "644"
+  - name: "crio-{{crio_version}}.tar.gz"
+    url: "{{ tfplenum_raw_group_repo }}/k8s-conform-cri-o/artifacts"
+    dest: "{{ tfplenumoffline_dir }}"
+    mode: "644"
+  - name: "repository-s3-{{ elastic_7_version }}.zip"
+    url: "{{ tfplenum_raw_group_repo }}/elasticsearch-plugins/repository-s3"
+    dest: "{{ tfplenumoffline_dir }}/elasticsearch-plugins"
+    mode: "644"
+  - name: "support-diagnostics-8.1.1-dist.zip"
+    url: "{{ tfplenum_raw_group_repo }}/support-diagnostics/releases/download/8.1.1"
+    dest: "{{ tfplenumoffline_dir }}"
+    mode: "644"
+  - name: "kubetail"
+    url: "{{ tfplenum_raw_group_repo }}/kubetail/1.6.12"
+    dest: "/usr/local/bin"
+    mode: "755"
+  - name: "calicoctl"
+    url: "{{ tfplenum_raw_group_repo }}/calicoctl/releases/download/{{ calico_version }}"
+    dest: "{{ tfplenumoffline_dir }}"
+    mode: "755"
+  - name: "community-vmware-{{ community_vmware_module_version }}.tar.gz"
+    url: "{{ tfplenum_raw_group_repo }}"
+    dest: "{{ tfplenumoffline_dir }}"
+    mode: "644"
+  - name: "ansible-utils-{{ community_utils_module_version }}.tar.gz"
+    url: "{{ tfplenum_raw_group_repo }}"
+    dest: "{{ tfplenumoffline_dir }}"
+    mode: "644"
+  - name: "auditbeat-{{elastic_7_version}}-x86_64.rpm"
+    url: "{{ tfplenum_raw_group_repo }}/beats/auditbeat/"
+    dest: "{{ extras_dir }}/Packages"
+    mode: "644"
+  - name: "docker-distribution-2.6.2-2.git48294d9.el7.x86_64.rpm"
+    url: "{{ tfplenum_raw_group_repo }}"
+    dest: "{{ extras_dir }}/Packages"
+    mode: "644"
+  - name: "all-in-one.yaml"
+    url: "{{ tfplenum_raw_group_repo }}/eck/{{ elastic_operator }}"
+    dest: "{{ tfplenumoffline_dir }}/eck-all-in-one-{{ elastic_operator }}.yaml"
+    mode: "644"
+  - name: "cert-manager.yaml"
+    url: "{{ tfplenum_raw_group_repo }}/cert-manager/releases/download/{{ cert_manager_version }}"
+    dest: "{{ tfplenumoffline_dir }}/certmanager-all-in-one-{{ cert_manager_version }}.yaml"
+    mode: "644"
+  - name: "keycloak-{{ keycloak_version }}.tar.gz"
+    url: "{{ tfplenum_raw_group_repo }}/keycloak/{{ keycloak_version }}"
+    dest: "/opt/keycloak-{{ keycloak_version }}.tar.gz"
+    mode: "644"
+  - name: "node-{{ node_version }}-linux-x64.tar.xz"
+    url: "{{ tfplenum_raw_group_repo }}/{{ node_version }}"
+    dest: "{{ web_install_dir }}"
+    mode: "644"
+  - name: emerging.rules.tar.gz
+    url: "{{ tfplenum_raw_group_repo }}/{{ emerging_threat_rules_version }}"
+    dest: "{{ tfplenumoffline_dir }}"
+    mode: "644"
 
 extra_packages:
   - "kubelet-{{ k8s_version }}"

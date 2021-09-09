@@ -1,13 +1,14 @@
 ---
-- name: Set Node Tar Url
-  set_fact:
-    node_install_url: "{{ misc_server }}/node-{{ node_version }}-linux-x64.tar.xz"
-  when: labrepo_check
+- name: Check if node TAR exists
+  stat:
+    path: "{{ web_install_dir }}/node-{{ node_version }}-linux-x64.tar.xz"
+  register: node_tar
 
 - name: node | Download
   get_url:
-    url: "{{ node_install_url }}"
+    url: "{{ tfplenum_raw_group_repo }}/{{ node_version }}/node-{{ node_version }}-linux-x64.tar.xz"
     dest: "{{ web_install_dir }}"
+  when: not node_tar.stat.exists
 
 - name: node | Extract
   unarchive:

@@ -137,7 +137,7 @@ function install_docker(){
     systemctl enable docker
     run_cmd cat <<EOF > /etc/docker/daemon.json
 {
-    "insecure-registries" : ["nexus.sil.lab:443"]
+    "insecure-registries" : ["docker.nexus.sil.lab:443","ext-docker.nexus.sil.lab:443"]
 }
 EOF
     systemctl restart docker

@@ -18,7 +18,7 @@ if [ ! -f "$IS_CHROM_SETUP" ]; then
 
     mkdir ~/repos_backup
     mv /etc/yum.repos.d/* ~/repos_backup
-    curl -o /etc/yum.repos.d/labrepo-server-rhel.repo http://yum.labrepo.sil.lab/rhel8/labrepo-server-rhel8.repo
+    curl -o /etc/yum.repos.d/nexus-rhel8.repo https://nexus.sil.lab/repository/tfplenum-repo/nexus-rhel8.repo
 
     cat <<EOF > /etc/yum.repos.d/google-chrome.repo
 [google-chrome]

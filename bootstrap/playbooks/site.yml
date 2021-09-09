@@ -18,22 +18,6 @@
       - name: Import DIP/GIP variables
         include_vars:
           file: "{{ dip_core_vars }}"
-
-    - name: Check for labrepo
-      uri:
-        url: http://labrepo.sil.lab/check.html
-        return_content: yes
-        status_code: 201, 200
-      register: labrepo_results
-      ignore_errors: yes
-
-    - name: Set labrepo variable
-      set_fact:
-        labrepo_check: >-
-          {% if labrepo_results.status == 200 %}true{% else %}false{% endif %}
-        cacheable: yes
-      when: labrepo_results is defined
-      ignore_errors: yes
   tags: always
 
 - name: Execute Pre

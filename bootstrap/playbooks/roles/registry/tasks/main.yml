@@ -53,19 +53,11 @@
 
 - name: Create Docker Certs Dir
   file:
-    path: "/etc/docker/certs.d/{{ nexus_url }}"
+    path: "/etc/docker/certs.d/sil.lab"
     state: directory
     owner: root
     group: root
     mode: 0755
-  when: labrepo_check
-  tags: pull-docker-images
-
-- name: Get Nexus Cert
-  get_url:
-    url: "{{ misc_server }}/nexus.sil.lab.crt"
-    dest: "/etc/docker/certs.d/{{ nexus_url }}.crt"
-  when: labrepo_check
   tags: pull-docker-images
 
 - name: docker daemon conf
@@ -102,30 +94,12 @@
     state: restarted
   tags: pull-docker-images
 
-- name: Initialize Image Lists Facts
-  set_fact:
-    image_list: []
-    local_image_list: []
-  tags: pull-docker-images
-
-- name: Set local image List
-  set_fact:
-    local_image_list: "{{ local_image_list }} + ['{{ nexus_url }}/{{ item[item.find('/')+1:] }}']"
-  with_items: "{{ kube_images }}"
-  tags: pull-docker-images
-
-- name: Overwrite Image List
-  set_fact:
-    image_list: "{{ local_image_list }}"
-  when: labrepo_check
-  tags: pull-docker-images
-
 - name: Download docker containers from nexus 10 at a time.
   vars:
     durations: "{{ item }}"
   include: pull_docker_batch.yml
   with_items:
-    - "{{ image_list | batch(10) | list }}"
+    - "{{ kube_images | batch(10) | list }}"
   tags: pull-docker-images
 
 - name: Tag local images for upload to registry
@@ -133,7 +107,7 @@
   register: docker_tag_results
   changed_when: docker_tag_results.rc == 0
   with_items:
-    - "{{ image_list }}"
+    - "{{ kube_images }}"
   tags: pull-docker-images
 
 - name: Push docker containers to docker registry in batch of ten items
@@ -141,7 +115,7 @@
     durations: "{{ item }}"
   include: push_docker_batch.yml
   with_items:
-    - "{{ image_list | batch(10) | list }}"
+    - "{{ kube_images | batch(10) | list }}"
   tags: pull-docker-images
 
 ...

@@ -4,13 +4,13 @@
   shell:  |
     dnf download --repoid="{{ item.repoid }}" --destdir="{{ item.destdir }}" {{ item.packages }}
   with_items:
-    - { repoid: "epel,kubernetes,mongodb-org-4.0,docker-ce,shibboleth", destdir: "{{ extras_dir }}/Packages/", packages: "{{ extra_packages | join(' ') }}" }
+    - { repoid: "nexus-yum-proxy", destdir: "{{ extras_dir }}/Packages/", packages: "{{ extra_packages | join(' ') }}" }
   args:
     warn: false
 
 - name: Download DIP/GIP Packages without Deps
   shell: |
-    dnf download --repoid="epel,kubernetes,mongodb-org-4.0,docker-ce" --destdir="{{ extras_dir }}/Packages/" {{ dip_packages_without_deps | join(' ')  }}
+    dnf download --repoid="nexus-yum-proxy" --destdir="{{ extras_dir }}/Packages/" {{ dip_packages_without_deps | join(' ')  }}
   args:
     warn: false
 

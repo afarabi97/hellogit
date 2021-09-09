@@ -1,10 +1,4 @@
 ---
-- name: Remove the epel-release package.
-  dnf:
-    name: epel-release
-    state: absent
-  ignore_errors: true
-
 - name: Find repositories in /etc/yum.repos.d.
   find:
     paths: /etc/yum.repos.d
@@ -23,8 +17,6 @@
     path: "{{ item }}"
     state: absent
   with_items:
-    - "/etc/docker/certs.d/{{ nexus_url }}.crt"
-    - "/root/{{ nexus_url }}.crt"
     - /root/.pip
     - /root/.npmrc
     - /var/cache/yum

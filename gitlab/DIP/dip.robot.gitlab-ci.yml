@@ -26,7 +26,7 @@ DIP Robot Tests:
     CONFLUENCE_PASSWORD_DECRYPTED=$(echo "$CONFLUENCE_PASSWORD" | base64 -d)
     mkdir -p $PATHPWD/tests/dip_test_suite/
     python3 testing/pipeline/pipeline.py run-robot \
-    --tfplenum-robot-container "nexus.sil.lab/tfplenum/robot-automator:1.5.1" \
+    --tfplenum-robot-container "docker.nexus.sil.lab/tfplenum/robot-automator:1.5.1" \
     --jira-username "$CONFLUENCE_USERNAME" \
     --jira-password "$CONFLUENCE_PASSWORD_DECRYPTED" \
     --jira-report $ROBOT_REGRESSION_ZEPHYR_CYCLE \

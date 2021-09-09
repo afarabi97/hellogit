@@ -5,7 +5,6 @@
 
 - name: Set_fact bootstrap and git
   set_fact:
-    BOOTSTRAP: "{{ lookup('env','BOOTSTRAP') }}"
     GIT_USERNAME: "{{ lookup('env','GIT_USERNAME') }}"
     GIT_PASSWORD: "{{ lookup('env','GIT_PASSWORD') }}"
 
@@ -67,7 +66,6 @@
     name: cleanup
 
 - import_tasks: offline_repos.yml
-- import_tasks: download_operators.yml
 
 - name: Run tasks
   block:

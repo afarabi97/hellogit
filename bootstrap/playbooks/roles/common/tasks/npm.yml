@@ -5,24 +5,19 @@
     path: /usr/local/bin/npm
   register: npm_stat_result
 
-- name: Set npm registry
-  set_fact:
-    npm_registry: https://registry.npmjs.org/
-
 - block:
-  - name: Set npm to labrepo
+  - name: Set npm to nexus
     set_fact:
-      npm_registry: "https://{{ nexus_url }}/repository/npm/"
-
+      npm_registry: "https://{{ repo_uri }}/repository/npm/"
   - name: Get Nexus Cert
     get_url:
-      url: "{{ misc_server }}/{{ nexus_url }}.crt"
-      dest: "/root/{{ nexus_url }}.crt"
-  - name: Use labrepo nexus npm proxy
-    command: "npm config set cafile /root/{{ nexus_url }}.crt"
+      url: "{{ sil_cert_url }}"
+      dest: "/root/sil.lab.crt"
+      validate_certs: no
+  - name: Use nexus npm proxy
+    command: "npm config set cafile /root/sil.lab.crt"
     when: npm_stat_result.stat.exists
-  when: labrepo_check
 
-- name: Use labrepo nexus npm proxy
+- name: Use nexus npm proxy
   command: "npm config set registry {{ npm_registry }}"
   when: npm_stat_result.stat.exists

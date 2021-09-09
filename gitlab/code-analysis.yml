@@ -75,9 +75,9 @@ sonarqube front-end code base:
     echo "Current working directory is $(pwd)"
     PATH_PWD=$(pwd)
     echo "TASK [setup: front-end] ********************************************************"
-    docker run --rm -v $(pwd):/opt/tfplenum nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/setup_frontend.sh
+    docker run --rm -v $(pwd):/opt/tfplenum docker.nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/setup_frontend.sh
     echo "TASK [unit-test / coverage: front-end] *****************************************"
-    docker run --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD nexus.sil.lab/tfplenum/code-checker:1.1 $PATH_PWD/web/setup/eslint_test_coverage_frontend.sh
+    docker run --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD docker.nexus.sil.lab/tfplenum/code-checker:1.1 $PATH_PWD/web/setup/eslint_test_coverage_frontend.sh
     echo "TASK [sonar-scanner: code-base ingestion] **************************************"
     sonar-scanner\
       -Dsonar.qualitygate.wait=true\
@@ -110,7 +110,7 @@ sonarqube back-end code base:
     echo "Current working directory is $(pwd)"
     PATH_PWD=$(pwd)
     echo "TASK [pylint / pytest-cov: back-end] *******************************************"
-    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD nexus.sil.lab/tfplenum/code-checker:1.1 $PATH_PWD/web/setup/pylint_pytest_backend.sh
+    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD docker.nexus.sil.lab/tfplenum/code-checker:1.1 $PATH_PWD/web/setup/pylint_pytest_backend.sh
     echo "TASK [sonar-scanner: code-base ingestion] **************************************"
     sonar-scanner\
       -Dsonar.qualitygate.wait=true\
@@ -141,7 +141,7 @@ sonarqube testing pipeline:
     echo "Current working directory is $(pwd)"
     PATH_PWD=$(pwd)
     echo "TASK [pylint: pipeline] ********************************************************"
-    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD nexus.sil.lab/tfplenum/code-checker:1.1 $PATH_PWD/testing/pipeline/pylint_pipeline.sh
+    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD docker.nexus.sil.lab/tfplenum/code-checker:1.1 $PATH_PWD/testing/pipeline/pylint_pipeline.sh
     echo "TASK [sonar-scanner: pipeline ingestion] ***************************************"
     sonar-scanner\
       -Dsonar.qualitygate.wait=true\

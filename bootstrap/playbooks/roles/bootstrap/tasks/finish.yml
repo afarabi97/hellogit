@@ -5,8 +5,3 @@
     path: "/root/.bashrc"
     regexp: '^source .*aliases$'
     line: 'source /opt/tfplenum/aliases'
-
-- name: write out bootstrap vars
-  template:
-    src: templates/bootstrap_vars.yml
-    dest: "{{ BOOTSTRAP_VARS }}"

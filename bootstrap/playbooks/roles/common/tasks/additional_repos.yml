@@ -1,34 +1,12 @@
 ---
 
-- name: setup additional repos
+- name: Add Nexus Group Repo
   yum_repository:
-    baseurl: "{{ item.value.baseurl }}"
-    description: "{{ item.value.description }}"
-    gpgcheck: "{{ item.value.gpgcheck }}"
-    gpgkey: "{{ item.value.gpgkeyurl }}"
+    baseurl: "https://{{ repo_uri }}/repository/yum-proxy/"
+    description: "TFplenum Nexus Repo"
+    gpgcheck: 0
+    repo_gpgcheck: 0
     enabled: true
-    name: "{{ item.value.name }}"
-  loop: "{{ lookup('dict', additional_repo_info) }}"
-
-- name: Add Shibboleth yum repo
-  yum_repository:
-    name: shibboleth
-    description: Shibboleth (CentOS_7)
-    enabled: true
-    gpgcheck: true
-    gpgkey:
-      - https://shibboleth.net/downloads/service-provider/RPMS/repomd.xml.key
-      - https://shibboleth.net/downloads/service-provider/RPMS/cantor.repomd.xml.key
-    mirrorlist : https://shibboleth.net/cgi-bin/mirrorlist.cgi/CentOS_7
-
-- name: "Configure epel repo"
-  yum_repository:
-    name: "{{ epel_repo.name }}"
-    description: "{{ epel_repo.name }} repo"
-    failovermethod: "{{ epel_repo.failovermethod }}"
-    metalink: "{{ epel_repo.metalink }}"
-    enabled: true
-    gpgcheck: "{{ epel_repo.gpgcheck }}"
-    gpgkey: "{{ epel_repo.gpgkeyurl }}"
+    name: "nexus-yum-proxy"
 
 ...
