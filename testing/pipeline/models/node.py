@@ -285,7 +285,11 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
 
     def set_ipaddress(self):
         ip_base = '.'.join(self.kit_settings.settings.gateway.split('.')[:-1]) + '.'
-        last_octet = str(39 + self.index)
+        if self.node_type == "Sensor":
+            last_octet = str(49 + self.index)
+        else:
+            last_octet = str(39 + self.index)
+
         self.ip_address = ip_base + last_octet
 
     @classmethod

@@ -138,7 +138,7 @@ Hardware Sensor Setup:
     --deployment-type "Baremetal" \
     --redfish-password "$REDFISH_PASSWORD" \
     --redfish-user "$REDFISH_USER" \
-    --start-index 3 \
+    --start-index 1 \
     --pxe-type "$PXE_TYPE" \
     --idrac-ip-addresses $SENSOR_OOB \
     --monitoring-interface $MONITORING_INTERFACE
