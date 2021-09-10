@@ -14,6 +14,7 @@ Test Reposync Server VM:
     --vcenter-datacenter "$VCENTER_DATACENTER" \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
+    --export-password "$OVA_EXPORT_PASSWORD" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
     --gateway "$VM_GATEWAY" \
@@ -45,6 +46,7 @@ Build Server Reposync VM for Export:
     --vcenter-datacenter "$VCENTER_DATACENTER" \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
+    --export-password "$OVA_EXPORT_PASSWORD" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
     --gateway "$VM_GATEWAY" \

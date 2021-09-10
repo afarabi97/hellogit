@@ -191,15 +191,6 @@ class BaremetalControllerSetup(ControllerSetupJob):
         execute_playbook([PIPELINE_DIR + 'playbooks/ctrl_config.yml'],
                          self.baremetal_ctrl_settings.to_dict())
 
-    def reset_controller(self) -> None:
-        with FabricConnectionWrapper(self.baremetal_ctrl_settings.node.username,
-                                    self.baremetal_ctrl_settings.node.password,
-                                    self.baremetal_ctrl_settings.node.ipaddress) as remote_shell:
-            remote_shell.put(PIPELINE_DIR + "scripts/reset_system.sh", "/tmp/reset_system.sh")
-            remote_shell.sudo('chmod 755 /tmp/reset_system.sh')
-            remote_shell.sudo('/tmp/reset_system.sh --reset-controller --reset-temp-ctrl=yes --hostname={}'.format("controller.lan"))
-
-
     # TODO consider removal
     # def _at_controller_limit(self):
     #     vm_list = self.get_vm_list(active_only=True)
@@ -229,6 +220,3 @@ class BaremetalControllerSetup(ControllerSetupJob):
             execute_playbook([PIPELINE_DIR + 'playbooks/rename_ctrl.yml'],
                             self.baremetal_ctrl_settings.to_dict())
             hwsettings._run_bootstrap(False)
-
-        if self.baremetal_ctrl_settings.node.build_from_release and self.baremetal_ctrl_settings.node.reset_controller:
-            self.reset_controller()

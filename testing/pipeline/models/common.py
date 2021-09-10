@@ -24,6 +24,7 @@ class NodeSettings(Model):
         self.gateway = ''
         self.folder = ''
         self.password = ''
+        self.export_password = ''
         self.template = ''
         self.datastore = ''
         self.username = 'root'
@@ -84,6 +85,7 @@ class NodeSettings(Model):
         self.portgroup = namespace.portgroup
         self.folder = namespace.folder
         self.password = self.b64decode_string(namespace.password)
+        self.export_password = namespace.export_password
         self.gateway = namespace.gateway
 
         self.datastore = namespace.datastore
@@ -120,6 +122,7 @@ class NodeSettings(Model):
         parser.add_argument("--commit-hash", dest="commit_hash", required=True)
         parser.add_argument("--vm-folder", dest="folder", required=True, help="The folder where all your VM(s) will be created within vsphere.")
         parser.add_argument("--vm-password", dest="password", help="The root password of the VM after it is cloned.", required=True)
+        parser.add_argument("--export-password", dest="export_password", help="The root password set during export.", required=True)
         parser.add_argument("--portgroup", dest="portgroup", help="The managment network or portgroup name on the vsphere or esxi server.", required=True)
         parser.add_argument("--gateway", dest="gateway", help="The gateway ipaddress for the VM.", required=True)
         parser.add_argument("--netmask", dest="netmask", help="The network netmask needed for setting the management interface.", default="255.255.255.0")
@@ -188,7 +191,6 @@ class HwNodeSettings(Model):
         self.network_block_index = 0
         self.ctrl_owner = ""
         self.build_from_release = ''
-        self.reset_controller = ''
 
     def set_hostname(self, node_type: str="ctrl", index: int=0):
         self.hostname = "{}{}.{}".format(node_type, index + 1, self.domain)
@@ -218,7 +220,6 @@ class HwNodeSettings(Model):
         self.redfish_user = namespace.redfish_user
         self.monitoring_interface = namespace.monitoring_interface
         self.build_from_release = namespace.build_from_release == "yes"
-        self.reset_controller = namespace.reset_controller == "yes"
         if self.node_type == 'mip':
             self.network_id = namespace.network_id
             self.network_block_index = namespace.network_block_index
@@ -249,7 +250,6 @@ class HwNodeSettings(Model):
                             default=0, choices=range(0, 3), type=int)
         parser.add_argument('--ctrl-owner', dest='ctrl_owner', default="default", help="The name of the person who created the controller.")
         parser.add_argument('--build-from-release', dest='build_from_release', default="no", help="Build kit from pre-existing controller")
-        parser.add_argument('--reset-controller', dest='reset_controller', default="no", help="Resets configurations on controller")
 
     def set_from_defaults(self, other):
         for key in self.__dict__:

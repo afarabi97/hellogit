@@ -60,19 +60,6 @@ def clear_based_on_pattern(some_path: Union[str, Path], pattern: str):
         file_to_delete.unlink()
 
 
-def prepare_for_export(username: str,
-                       password: str,
-                       ctrl_ip: str,
-                       is_controller: bool=True):
-    with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
-        remote_shell.put(PIPELINE_DIR + "scripts/reset_system.sh", "/tmp/reset_system.sh")
-        remote_shell.sudo('chmod 755 /tmp/reset_system.sh')
-        if is_controller:
-            remote_shell.sudo('/tmp/reset_system.sh --reset-controller --iface=ens192 --hostname={}'.format("controller.lan"))
-        else:
-            remote_shell.sudo('/tmp/reset_system.sh --reset-node --iface=ens192')
-
-
 def get_commit_hash(username: str,
                     password: str,
                     ctrl_ip: str):
@@ -145,7 +132,7 @@ class MinIOExport:
                 "commands": [
                     {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete ens192'},
                     {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete "Wired connection 1"'},
-                    {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": '--password Q9sIxtbggUGaw root'}
+                    {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password {self.minio_settings.export_password} root"}
                 ],
                 **self.minio_settings.to_dict()
             })
@@ -188,12 +175,11 @@ class ControllerExport:
                                       self.ctrl_settings.node.password,
                                       self.ctrl_settings.node.ipaddress)
         self._set_private(commit_hash)
-        prepare_for_export(self.ctrl_settings.node.username,
-                           self.ctrl_settings.node.password,
-                           self.ctrl_settings.node.ipaddress)
-
         payload = self.ctrl_settings.to_dict()
-
+        payload["commands"] = [
+            {"vm_shell": '/bin/nmcli', "vm_shell_args": "connection modify 'Bridge br0' ipv4.method auto ipv4.addresses '' ipv4.gateway '' ipv4.dns ''"},
+            {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password {self.ctrl_settings.node.export_password} root"}
+        ]
         payload["release_template_name"] = self._release_vm_name
         execute_playbook([CTRL_EXPORT_PREP], payload)
 
@@ -220,15 +206,15 @@ class GIPServiceExport(ControllerExport):
         logging.info("Exporting the service vm to OVA.")
         power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
-        prepare_for_export(self.ctrl_settings.node.username,
-                           self.ctrl_settings.node.password,
-                           self.ctrl_settings.node.ipaddress,
-                           False)
-
         payload = self.ctrl_settings.to_dict()
         export_prefix = "GIP_Services"
         export_name = self.export_loc.render_export_name(export_prefix, self.ctrl_settings.node.commit_hash)
         release_vm_name = export_name[0:len(export_name)-4]
+        payload["commands"] [
+            {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete ens192'},
+            {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete "Wired connection 1"'},
+            {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password {self.ctrl_settings.node.export_password} root"}
+        ]
         payload["release_template_name"] = release_vm_name
         execute_playbook([CTRL_EXPORT_PREP], payload)
         export(self.vcenter_settings,
@@ -247,13 +233,13 @@ class ReposyncServerExport(ControllerExport):
         logging.info("Creating release template for RepoSync Server.")
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
-
-        prepare_for_export(self.ctrl_settings.node.username,
-                           self.ctrl_settings.node.password,
-                           self.ctrl_settings.node.ipaddress,
-                           False)
         payload = self.ctrl_settings.to_dict()
         payload["release_template_name"] = self._release_vm_name
+        payload["commands"] = [
+            {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete ens192'},
+            {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete "Wired connection 1"'},
+            {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password {self.ctrl_settings.node.export_password} root"}
+        ]
         execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
 
     def export_reposync_server(self):

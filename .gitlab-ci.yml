@@ -58,7 +58,6 @@ variables:
 
   # Yes no flag variables
   VM_RAID: "no"
-  RESET_CONTROLLER: "no"
   BUILD_FROM_RELEASE: "no"
   RUN_REMOTE_NODE: "no"
   RUN_INTEGRATION: "no"

@@ -37,8 +37,7 @@ Setup Hardware Controller:
     --switch-ip "$SWITCH_IP" \
     --monitoring-interface "$MONITORING_INTERFACE" \
     --run-remote-node "$RUN_REMOTE_NODE" \
-    --build-from-release "$BUILD_FROM_RELEASE" \
-    --reset-controller "$RESET_CONTROLLER"
+    --build-from-release "$BUILD_FROM_RELEASE"
   artifacts:
     untracked: true
   only:

@@ -6,6 +6,34 @@
   vars:
     ansible_python_interpreter: "{{ python_executable }}"
   tasks:
+    - name: Wait for VMWare tools to be ready
+      vmware_guest_tools_wait:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        folder: "{{ node.folder }}"
+        name: "{{ node.hostname }}"
+        validate_certs: no
+      when: commands is defined
+
+    - name: Run commands in the guest
+      vmware_vm_shell:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        folder: "{{ node.folder }}"
+        vm_id: "{{ node.hostname }}"
+        vm_username: root
+        vm_password: "{{ node.password }}"
+        vm_shell: "{{ item.vm_shell }}"
+        vm_shell_args: "{{ item.vm_shell_args }}"
+        validate_certs: no
+      loop: "{{ commands }}"
+      when: commands is defined
+      delegate_to: localhost
+
     - name: Wait for the virtual machine to shutdown
       vmware_guest_powerstate:
         hostname: "{{ vcenter.ipaddress }}"
@@ -107,18 +135,18 @@
           state: absent
       delegate_to: localhost
 
-    - name: "Removing VM {{ node.hostname }}"
-      ignore_errors: yes
-      vmware_guest:
-        datacenter: "{{ vcenter.datacenter }}"
-        cluster: "{{ vcenter.cluster }}"
-        hostname: "{{ vcenter.ipaddress }}"
-        username: "{{ vcenter.username }}"
-        password: "{{ vcenter.password }}"
-        name: "{{ node.hostname }}"
-        state: absent
-        validate_certs: False
-      delegate_to: localhost
+    # - name: "Removing VM {{ node.hostname }}"
+    #   ignore_errors: yes
+    #   vmware_guest:
+    #     datacenter: "{{ vcenter.datacenter }}"
+    #     cluster: "{{ vcenter.cluster }}"
+    #     hostname: "{{ vcenter.ipaddress }}"
+    #     username: "{{ vcenter.username }}"
+    #     password: "{{ vcenter.password }}"
+    #     name: "{{ node.hostname }}"
+    #     state: absent
+    #     validate_certs: False
+    #   delegate_to: localhost
 
     - name: Create a VM snapshot
       vmware_guest_snapshot:

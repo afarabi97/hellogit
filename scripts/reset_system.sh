@@ -20,7 +20,6 @@ function run_cmd {
 function help_info {
     echo "
 usage: reset_system.sh - Script is used to reset systems before an OVA export is performed.
-                         This logic was converted so that we can reset things outside of pipeline and export them manually if needed.
 
 arguments:
   -h, --help            show this help message and exit

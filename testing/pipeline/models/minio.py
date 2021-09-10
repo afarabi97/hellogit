@@ -12,6 +12,7 @@ class MinIOSettings(Model):
         self.template = namespace.template
         self.folder = namespace.folder
         self.password = self.b64decode_string(namespace.password)
+        self.export_password = namespace.export_password
         self.datastore = namespace.datastore
         self.vmname = namespace.vmname
         self.hostname = namespace.hostname
@@ -34,6 +35,7 @@ class MinIOSettings(Model):
         parser.add_argument('--vm-template', dest='template', required=True, help="The name of the VM or Template to clone from.")
         parser.add_argument("--vm-folder", dest="folder", required=True, help="The folder where all your VM(s) will be created within vsphere.")
         parser.add_argument("--vm-password", dest="password", help="The root password of the VM after it is cloned.", required=True)
+        parser.add_argument("--export-password", dest="export_password", help="The root password set during export.", required=True)
         parser.add_argument('--vm-datastore', dest='datastore', required=True, help="The name of vsphere's datastore where it will be storing its VMs.")
         parser.add_argument('--vm-name', dest='vmname', required=True, help="The name given to the VM.")
         parser.add_argument('--hostname', dest='hostname', required=True, help="The hostname for the VM.")
