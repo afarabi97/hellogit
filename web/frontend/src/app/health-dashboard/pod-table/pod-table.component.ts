@@ -5,6 +5,8 @@ import { PodLogModalDialogComponent } from "../../pod-log-dialog/pod-log-dialog.
 import { HealthService } from "../services/health.service";
 import { MatDialog } from "@angular/material/dialog";
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { ObjectUtilitiesClass } from "src/app/classes";
+import { SortingService } from "../../services/sorting.service"
 
 @Component({
   selector: "app-health-dashboard-pod-table",
@@ -37,7 +39,8 @@ export class HealthDashboardPodTableComponent implements OnChanges {
 
     constructor(
       private health_service: HealthService,
-      private dialog: MatDialog) {}
+      private dialog: MatDialog,
+      private sort_service: SortingService) {}
 
     ngOnChanges() {
       this.reload();
@@ -103,11 +106,13 @@ export class HealthDashboardPodTableComponent implements OnChanges {
       }
 
       const group_reducer = (accumulator, current_value) => {
-        let current_group = current_value[column];
-        if (!accumulator[current_group])
-        accumulator[current_group] = [{
-          group_name: `${current_value[column] ? current_value[column] : 'charts'}`,
-        }];
+        const current_group: string = ObjectUtilitiesClass.notUndefNull(current_value[column]) ? current_value[column] :
+         'Unassigned';
+        if (!accumulator[current_group]) {
+          accumulator[current_group] = [{
+            group_name: `${current_group}`,
+          }];
+        }
 
         accumulator[current_group].push(current_value);
 
@@ -115,7 +120,7 @@ export class HealthDashboardPodTableComponent implements OnChanges {
       }
 
       const groups = pods.reduce(group_reducer, {});
-      const group_names = Object.keys(groups);
+      const group_names = Object.keys(groups).sort((a,b) => this.sort_service.alphanum(a,b));
 
       this.filtered_group_data = group_names.map((key) => groups[key].filter(pod => !pod['group_name']));
       this.group_header_data = [];
@@ -125,6 +130,7 @@ export class HealthDashboardPodTableComponent implements OnChanges {
     }
 
     reload() {
+
       if (this.token && this.token.token == null) {
         this.generate_groups('node_name', []);
         return;
