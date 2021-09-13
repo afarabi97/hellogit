@@ -10,7 +10,7 @@ formControls:
   falseValue: false
   name: serviceNode
 - type: textinput
-  default_value: admin@dip.local
+  default_value: rocketchat-admin@dip.local
   description: Enter RocketChat Admin email.
   required: true
   regexp: ^[A-Za-z][A-Za-z0-9._+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$
@@ -27,11 +27,11 @@ formControls:
     at least one uppercase letter, one lowercase letter, one number and one special
     character.  Valid special characters !@#$%^&*()<>.?).
 - type: textinput
-  default_value: admin
+  default_value: rocketchat-admin
   description: Enter RocketChat Admin username
   required: true
-  regexp: ''
+  regexp: ^(?!admin.*)[A-Za-z0-9._+-]+
   name: admin_user
-  error_message: Enter a value
+  error_message: Enter a value. User cannot begin with admin.
 - type: invisible
   name: node_hostname
