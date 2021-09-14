@@ -87,10 +87,9 @@ export class HealthDashboardPodTableComponent implements OnChanges {
     generate_group_status(index): string {
       return this.filtered_group_data[index].reduce((status, pod) => {
         const pod_status = this.get_pod_icon_status(pod.status_brief, pod.warnings);
-        if ((!status || status === 'check_circle') && pod_status === 'check_circle') return 'check_circle'
-        if (status === 'check_circle' && pod_status !== 'check_circle') return pod_status;
-        if (status === 'warning' && pod_status !== 'check_circle' && pod_status !== 'warning') return pod_status;
-        if (status === 'circle' && pod_status === 'error') return pod_status;
+        const status_values = ['check_circle', 'circle', 'warning', 'error'];
+        if (status_values.indexOf(pod_status) > status_values.indexOf(status)) return pod_status;
+        else return status;
       });
     }
 
