@@ -43,5 +43,6 @@ TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
 
 #Path where iso is to be mounted ex: /mnt
 mnt_pth: /mnt
+rpm_build: false
 
 ...

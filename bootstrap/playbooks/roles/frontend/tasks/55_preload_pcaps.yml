@@ -1,13 +1,13 @@
 ---
 - name: pcaps | Create Directory
   file:
-    path: /var/www/html/pcaps
+    path: "{{ web_root }}/pcaps"
     state: directory
 
 - name: pcaps | Download
   get_url:
     url: "{{ item }}"
-    dest: "/var/www/html/pcaps"
+    dest: "{{ web_root }}/pcaps"
   with_items:
     - "{{ tfplenum_repo }}/malware-pcaps/2018-09-06-infection-traffic-from-password-protected-Word-doc.pcap"
     - "{{ tfplenum_repo }}/malware-pcaps/2019-03-06-Flawed-Ammyy-traffic.pcap"

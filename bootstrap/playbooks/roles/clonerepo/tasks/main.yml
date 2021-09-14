@@ -10,6 +10,7 @@
   with_items:
     - "{{ extras_dir }}"
     - "/tmp/var/"
+  when: not rpm_build
 
 - name: "Create tfplenum repo directory"
   file:
@@ -27,6 +28,7 @@
     state: directory
 
 - import_tasks: 00_httpd.yml
+  when: not rpm_build
 - import_tasks: 02_isos.yml
 - import_tasks: 05_setup.yml
 

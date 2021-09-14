@@ -8,3 +8,19 @@
   with_items:
     - "{{ direct_download_package_names }}"
 
+- name: Get all beats packages
+  find:
+    paths: "{{ tfplenumoffline_dir }}/beats"
+    recurse: yes
+  register: beats_list
+  when: not rpm_build
+
+- name: Copy Beats to Agent Packages
+  copy:
+    src: "{{ item.path }}"
+    dest: "{{ tfplenum_root_dir }}/agent_pkgs/{{ item.path | regex_replace(tfplenumoffline_dir + '/beats/','') }}"
+    owner: root
+    group: root
+    mode: 0755
+  with_items: "{{ beats_list.files }}"
+  when: not rpm_build

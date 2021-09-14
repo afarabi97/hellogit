@@ -5,5 +5,8 @@ bootstrap_package_names:
   - yum-utils
   - createrepo
   - rsync
+  - p7zip
+  - p7zip-plugins
 
 download_archives: true
+rpm_build: false

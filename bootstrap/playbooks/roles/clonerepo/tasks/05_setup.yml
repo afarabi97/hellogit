@@ -14,21 +14,26 @@
     state: directory
   with_items:
     - "{{ TFPLENUM_REPO_DIR }}"
+    - "{{ tfplenumoffline_dir }}/beats/winlogbeat"
+    - "{{ tfplenumoffline_dir }}/beats/filebeat"
+    - "{{ tfplenumoffline_dir }}/beats/auditbeat"
+    - "{{ tfplenumoffline_dir }}/beats/sysmon"
 
 - name: "Install bootstrap packages"
   dnf:
     name: "{{ bootstrap_package_names }}"
     state: present
+  when: not rpm_build
 
 - name: Enable Firewalld Service
   service:
     name: "firewalld"
     state: started
     enabled: true
+  when: not rpm_build
 
 - name: Copy dirs from rhel iso
-  delegate_to: "{{ inventory_hostname }}"
-  synchronize:
-    dest: "{{ TFPLENUM_REPO_DIR }}"
-    src:  "{{ mnt_pth }}/"
-    recursive: yes
+  shell: |
+    7z x -aos -o{{ TFPLENUM_REPO_DIR }} {{ iso_rhel_path }}
+  register: results
+  changed_when: results.rc == 0

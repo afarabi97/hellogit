@@ -72,8 +72,8 @@
     state: touch
 
 - name: Copy MIP Background
-  copy:
-    src: "/root/MIP_Images/usr/local/scripts/mip2-background.jpg"
+  get_url:
+    url: "http://controller.{{ kit_domain }}/MIP/MIP_Images/usr/local/scripts/mip2-background.jpg"
     dest: '{{ uefi_grub_path }}'
     owner: root
     group: root

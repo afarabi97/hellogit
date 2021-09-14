@@ -20,8 +20,8 @@
     group: "{{ item['group'] }}"
     mode: '0755'
   with_items:
-    - { src: '/root/MIP_Images/usr/local/scripts', dest: '/usr/local' , owner: 'assessor', group: 'operators'}
-    - { src: '/root/MIP_Images/usr/local/share', dest: '/usr/local' , owner: 'assessor', group: 'operators'}
+    - { src: '/var/www/html/MIP/MIP_Images/usr/local/scripts', dest: '/usr/local' , owner: 'assessor', group: 'operators'}
+    - { src: '/var/www/html/MIP/MIP_Images/usr/local/share', dest: '/usr/local' , owner: 'assessor', group: 'operators'}
 
 - name: Create a symbolic link
   file:

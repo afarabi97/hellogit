@@ -1,33 +1,17 @@
 ---
-- name: Fetch the mip tar files
-  get_url:
-    url: "{{ item }}"
-    dest: /root
-  with_items:
-   - "{{ mip_repo }}/mip_images/{{ mip_images_tar }}"
-   - "{{ mip_repo }}/2fa/{{ twofa_tar }}"
-
-- name: Unarchive the files.
-  unarchive:
-    src: "{{ item }}"
-    dest: /root
-    remote_src: yes
-  with_items:
-    - "/root/{{ mip_images_tar }}"
-    - "/root/{{ twofa_tar }}"
-
-- name: Remove the archive.
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-   - "/root/{{ mip_images_tar }}"
-   - "/root/{{ twofa_tar }}"
-
 - name: Create a directory in {{ web_root }}.
   file:
     path: "{{ web_root }}/MIP"
     state: directory
+
+- name: Unarchive the files.
+  unarchive:
+    src: "{{ item }}"
+    dest: "{{ web_root }}/MIP/"
+    remote_src: yes
+  with_items:
+   - "{{ mip_repo }}/mip_images/{{ mip_images_tar }}"
+   - "{{ mip_repo }}/2fa/{{ twofa_tar }}"
 
 - name: Fetch MIP resources.
   get_url:

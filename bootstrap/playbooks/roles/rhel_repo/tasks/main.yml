@@ -3,7 +3,7 @@
   block:
     - name: Labrepo rhel repos
       get_url:
-        url: "https://nexus.sil.lab/repository/tfplenum-repo/nexus-rhel8.repo"
+        url: "{{ tfplenum_repo }}/nexus-rhel8.repo"
         dest: "/etc/yum.repos.d/nexus-rhel8.repo"
     - name: Disable RHEL License
       replace:
