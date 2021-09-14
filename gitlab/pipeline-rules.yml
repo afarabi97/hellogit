@@ -25,6 +25,7 @@
   rules:
       - if: $PIPELINE == "controller-only"
       - if: $PIPELINE == "export-all"
+      - if: $PIPELINE == "export-gip"
       - if: $PIPELINE == "developer-all"
       - if: $PIPELINE == "developer-mip"
       - if: $EXPORT_DIP == "yes" && $PIPELINE == "minor-release"

@@ -24,7 +24,7 @@
 
 DIP Setup Documents:
   stage: docs
-  needs: ["Clear Staging Environment"]
+  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -48,7 +48,7 @@ DIP Setup Documents:
 
 DIP User Documents:
   stage: docs
-  needs: ["Clear Staging Environment"]
+  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -72,7 +72,7 @@ DIP User Documents:
 
 DIP Maintenance Documents:
   stage: docs
-  needs: ["Clear Staging Environment"]
+  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -96,7 +96,7 @@ DIP Maintenance Documents:
 
 DIP TroubleShooting Documents:
   stage: docs
-  needs: ["Clear Staging Environment"]
+  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -119,7 +119,7 @@ DIP TroubleShooting Documents:
 
 CPT VDD Documents:
   stage: docs
-  needs: ["Clear Staging Environment"]
+  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -141,7 +141,7 @@ CPT VDD Documents:
 
 MDT VDD Documents:
   stage: docs
-  needs: ["Clear Staging Environment"]
+  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -164,7 +164,7 @@ MDT VDD Documents:
 
 Minor Release VDD Documents:
   stage: docs
-  needs: ["Clear Staging Environment"]
+  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -187,7 +187,7 @@ Minor Release VDD Documents:
 
 Supplemental Documents:
   stage: docs
-  needs: ["Clear Staging Environment"]
+  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |

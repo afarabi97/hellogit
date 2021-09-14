@@ -10,6 +10,8 @@ class SubCmd:
     add_node = 'add-node'
     deploy_kit = 'deploy-kit'
     pull_internal_vdd = "pull-internal-vdd"
+    verify_manifest = 'verify-manifest'
+    build_manifest = 'build-manifest'
 
     run_catalog = 'run-catalog'
     run_bp = 'run-bp'
@@ -70,9 +72,6 @@ class SubCmd:
     create_gip_service_vm = 'create-gip-service-vm'
     run_gip_kickstart = 'run-gip-kickstart'
     run_gip_kit = 'run-gip-kit'
-
-    # verify manifest subcommands
-    verify_manifest = 'verify-manifest'
 
 class StigSubCmd:
     # Ran when system_name is GIP but we want

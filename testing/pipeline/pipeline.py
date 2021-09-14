@@ -16,7 +16,7 @@ from jobs.gip_creation import GipCreationJob
 from jobs.minio import StandAloneMinIO
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
 from jobs.robot import RobotJob
-from jobs.manifest import VerifyManifestJob
+from jobs.manifest import VerifyManifestJob, BuildManifestJob
 from models.ctrl_setup import ControllerSetupSettings
 from models.internal_vdd import InternalVDDSettings
 from models.kit import KitSettingsV2
@@ -118,9 +118,14 @@ class Runner:
         catalog_parser.set_defaults(which=SubCmd.run_catalog)
 
         verify_manifest_parser = subparsers.add_parser(
-            SubCmd.verify_manifest, help="This command is used generate a manifest of deliverables to the release candidate.")
+            SubCmd.verify_manifest, help="This command is used to verify all the files within the manifest exist.")
         ManifestSettings.add_args(verify_manifest_parser)
         verify_manifest_parser.set_defaults(which=SubCmd.verify_manifest)
+
+        build_manifest_parser = subparsers.add_parser(
+            SubCmd.build_manifest, help="This command is used build the release candidate from the release manifest.")
+        ManifestSettings.add_args(build_manifest_parser)
+        build_manifest_parser.set_defaults(which=SubCmd.build_manifest)
 
         cleanup_parser = subparsers.add_parser(
             SubCmd.run_cleanup, help="This subcommand powers off and deletes all VMs.")
@@ -301,26 +306,22 @@ class Runner:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-
                 executor = ConfluenceExport(export_settings)
                 executor.add_docs_to_controller(ctrl_settings)
             elif args.which == SubCmd.unset_perms:
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-
                 executor = ConfluenceExport(export_settings)
                 executor.set_perms_unrestricted_on_page()
             elif args.which == SubCmd.set_perms:
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-
                 executor = ConfluenceExport(export_settings)
                 executor.set_perms_restricted_on_page()
             elif args.which == SubCmd.export_ctrl:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-
                 executor = ControllerExport(
                     ctrl_settings, export_settings.export_loc)
                 executor.export_controller()
@@ -341,9 +342,14 @@ class Runner:
                 executor = DriveCreationJob(drive_settings)
                 executor.execute()
             elif args.which == SubCmd.verify_manifest:
-                generate_settings = ManifestSettings()
-                generate_settings.from_namespace(args)
-                executor = VerifyManifestJob(generate_settings)
+                manifest_settings = ManifestSettings()
+                manifest_settings.from_namespace(args)
+                executor = VerifyManifestJob(manifest_settings)
+                executor.execute()
+            elif args.which == SubCmd.build_manifest:
+                manifest_settings = ManifestSettings()
+                manifest_settings.from_namespace(args)
+                executor = BuildManifestJob(manifest_settings)
                 executor.execute()
             elif args.which == SubCmd.run_cleanup:
                 pass

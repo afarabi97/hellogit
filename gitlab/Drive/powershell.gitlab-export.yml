@@ -1,6 +1,6 @@
 Export Powershell Modules to App Store:
   stage: export
-  needs: ["Clear Staging Environment"]
+  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -25,7 +25,12 @@ Export Powershell Modules to App Store:
     echo "Copy saved modules to $POWERSHELL_MODULES_MDT_EXPORT_DIR"
     mkdir -p "$POWERSHELL_MODULES_MDT_EXPORT_DIR"
     cp -R "$DRIVE_STAGING_FOLDER/PowerShell/Modules" "$POWERSHELL_MODULES_MDT_EXPORT_DIR"
+
+    echo "Copying Powershell modules to $POWERSHELL_MODULES_REPO_DIR"
+    rm -rf "$POWERSHELL_MODULES_REPO_DIR"
+    mkdir -p "$POWERSHELL_MODULES_REPO_DIR"
+    cp -R "$DRIVE_STAGING_FOLDER/PowerShell/Modules" "$POWERSHELL_MODULES_REPO_DIR"
+
   only:
     variables:
-      - $PIPELINE == "export-powershell-modules"
       - $PIPELINE == "export-all"

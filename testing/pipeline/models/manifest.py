@@ -18,7 +18,7 @@ class ManifestSettings(Model):
 
     @staticmethod
     def add_args(parser: ArgumentParser):
-        parser.add_argument('--version', dest='version', required=True,
+        parser.add_argument('--version', dest='version',
                             help="Drive creation folder version")
         parser.add_argument('--type', dest='type', required=True,
                             help="Operator type", choices=['MDT','CPT','GIP','MULTIBOOT'])

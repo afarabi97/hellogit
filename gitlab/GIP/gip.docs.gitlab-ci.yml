@@ -1,6 +1,6 @@
 Download GIP Documents:
   stage: docs
-  needs: ["Clear GIP Staging Environment"]
+  needs: ["Clear GIP Staging Environment", "Build GIP Manifest"]
   tags:
     - tfplenum-buildv2
   script: |

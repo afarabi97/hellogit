@@ -14,34 +14,47 @@ from typing import List, Union
 from io import StringIO
 from uuid import uuid4
 
-
 ROOT_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../../../"
 PIPELINE_DIR = ROOT_DIR + "/testing/pipeline/"
 TEMPLATES_DIR = PIPELINE_DIR + "/templates"
 
-
 class DriveCreationJob:
     def __init__(self, drive_settings: DriveCreationSettings):
         self._drive_settings = drive_settings
-        self.drive_creation_path="/mnt/drive_creation/{}".format(self._drive_settings.drive_creation_version)
-        self.multiboot_path="{}/MULTIBOOT".format(self.drive_creation_path)
 
-        # TODO we may need to put this in a different place.  It was placed directly onto the
-        # drive creation server so that it would dd the 31GB image onto the drive faster.
-        self.multiboot_img="/home/drive_creator/MULTIBOOT.img"
+        if self._drive_settings.is_GIP():
+            self.drive_creation_path = "/mnt/drive_creation/staging_gip/v{}".format(self._drive_settings.drive_creation_version)
+        else:
+            self.drive_creation_path = "/mnt/drive_creation/staging/v{}".format(self._drive_settings.drive_creation_version)
 
+        self.multiboot_path = "{}/MULTIBOOT".format(self.drive_creation_path)
+        self.multiboot_img = "MULTIBOOT.img"
+        self.multiboot_img_staging = "/mnt/drive_creation/staging/v{}/MULTIBOOT/{}".format(self._drive_settings.drive_creation_version, self.multiboot_img)
+        self.multiboot_img_path = "/home/drive_creator"
         self.multi1_path = "/mnt/{}/MULTI1".format(self._drive_settings.drive_type)
         self.multi2_path = "/mnt/{}/MULTI2".format(self._drive_settings.drive_type)
         self.fat32_data_path = "/mnt/{}/FAT32data".format(self._drive_settings.drive_type)
         self.xfs_data_path = "/mnt/{}/Data".format(self._drive_settings.drive_type)
         self.has_multi_boot = self._drive_settings.burn_multiboot == "yes"
 
-        #EX: /mnt/drive_creation/v3.7/CPT/Data/
+        #EX: /mnt/drive_creation/v3.x/CPT/Data/
         self.rsync_source="{}/{}/Data/*".format(self.drive_creation_path, self._drive_settings.drive_type)
 
     def _remote_sudo_cmd(self, shell: Connection, command: str, warn=False):
         print(command)
         shell.sudo(command, warn=warn)
+
+    def _wipe_data_partition(self, shell: Connection):
+        print("Wiping Data data partition...")
+
+        if self.has_multi_boot:
+            data_partition = self._drive_settings.external_drive + "6"
+        else:
+            data_partition = self._drive_settings.external_drive
+
+        self._remote_sudo_cmd(shell, "mount {} /mnt/{}/Data".format(data_partition, self._drive_settings.drive_type), warn=True)
+        self._remote_sudo_cmd(shell, "rm -rf  /mnt/{}/Data/*".format(self._drive_settings.drive_type), warn=True)
+        self._remote_sudo_cmd(shell, "umount {}".format(data_partition), warn=True)
 
     def _unmount(self, shell: Connection):
         print("Making sure external drive is not mounted before proceeding...")
@@ -59,13 +72,19 @@ class DriveCreationJob:
         sleep(3)
 
     def _burn_image_to_disk(self, shell: Connection):
+        print("Moving MULTIBOOT img from staging folder")
+        img_path = os.path.join(self.multiboot_img_path, self.multiboot_img)
+        if os.path.isfile(img_path):
+            self._remote_sudo_cmd(shell, "rm {}".format(img_path))
+
+        self._remote_sudo_cmd(shell, "cp -v {} {}".format(self.multiboot_img_staging, self.multiboot_img_path))
         print("Burning the MULTIBOOT partition to drive.  This may take a while...")
         self._remote_sudo_cmd(shell, "dd if=/dev/zero of={} bs=500M count=100 status=progress".
                               format(self._drive_settings.external_drive))
         self._remote_sudo_cmd(shell, "sync")
         self._remote_sudo_cmd(shell,
                               "dd bs=262144 if={} of={} status=progress".
-                              format(self.multiboot_img,
+                              format(img_path,
                                      self._drive_settings.external_drive))
         self._remote_sudo_cmd(shell, "sync")
         print("Finished burning the MULTIBOOT partition to drive.")
@@ -176,7 +195,6 @@ class DriveCreationJob:
             menu_entries.append('make_entry vmware {}\n'.format(letter))
             menu_entries.append("# End {} menu entry\n".format(name_without_ext))
 
-
             inmemory_file = StringIO()
             inmemory_file.write("title ^Alt+{letter} {title} [Alt+{letter}]".format(title=name_without_ext, letter=letter.upper()))
             dest_path = self.multi1_path + "/_ISO/MAINMENU/{}".format(name_without_ext + ".txt")
@@ -190,7 +208,7 @@ class DriveCreationJob:
 
         # The actual resultant menu path.  This is the actual file that gets copied
         # into the multiboot partition2 in boot/grubfm/startup_menu.txt
-        # /mnt/drive_creation/v3.7/MULTIBOOT
+        # /mnt/drive_creation/v3.x/MULTIBOOT
         startup_menu_path = self.multiboot_path + "/" + startup_menu_template
 
         with open(startup_menu_template_path, "r") as f:
@@ -215,6 +233,7 @@ class DriveCreationJob:
                                      self._drive_settings.password,
                                      self._drive_settings.ipaddress) as shell:
             self._unmount(shell)
+            self._wipe_data_partition(shell)
             if self.has_multi_boot:
                 self._burn_image_to_disk(shell)
                 self._fix_partition_five_and_six(shell)
@@ -236,9 +255,13 @@ class DriveCreationJob:
 class DriveHashCreationJob:
     def __init__(self, drive_hash_settings: DriveCreationHashSettings):
         self._drive_hash_settings = drive_hash_settings
-        self.drive_creation_path="/mnt/drive_creation/{}".format(self._drive_hash_settings.drive_creation_version)
 
-        #EX: /mnt/drive_creation/v3.7/CPT/Data/
+        if self._drive_hash_settings.is_GIP():
+            self.drive_creation_path = "/mnt/drive_creation/staging_gip/v{}".format(self._drive_hash_settings.drive_creation_version)
+        else:
+            self.drive_creation_path = "/mnt/drive_creation/staging/v{}".format(self._drive_hash_settings.drive_creation_version)
+
+        #EX: /mnt/drive_creation/v3.x/CPT/Data/
         self.xfs_data_path = "/mnt/{}/Data".format(self._drive_hash_settings.drive_type)
         self.rsync_source="{}/{}/Data".format(self.drive_creation_path, self._drive_hash_settings.drive_type)
 
@@ -253,12 +276,12 @@ class DriveHashCreationJob:
 
     def _create_text_description_file(self):
         path = self.rsync_source + "/"
-        readme_txt = ("Please see CVAH 3.7/Documentation/ folder for additional details on how to setup or operate "
-                      "the Deployable Interceptor Platform (DIP) or the Mobile Interceptor Platform (MIP).")
+        readme_txt = ("Please see CVAH {}/Documentation/ folder for additional details on how to setup or operate "
+                      "the Deployable Interceptor Platform (DIP) or the Mobile Interceptor Platform (MIP).".format(self._drive_hash_settings.drive_creation_version))
 
         if self._drive_hash_settings.is_GIP():
-            readme_txt_gip = ("Please see CVAH 3.7/Documentation/ folder for additional details on how to setup or operate "
-                              "the Garrison Interceptor Platform (GIP)")
+            readme_txt_gip = ("Please see CVAH {}/Documentation/ folder for additional details on how to setup or operate "
+                              "the Garrison Interceptor Platform (GIP)".format(self._drive_hash_settings.drive_creation_version))
             with open(path + "GIP_Drive_Readme.txt", 'w') as script:
                 script.write(readme_txt_gip)
         elif self._drive_hash_settings.is_CPT():
@@ -279,7 +302,9 @@ class DriveHashCreationJob:
         with FabricConnectionWrapper(self._drive_hash_settings.username,
                                      self._drive_hash_settings.password,
                                      self._drive_hash_settings.ipaddress) as shell:
+            shell.run("sudo mount {}6 {}".format(self._drive_hash_settings.external_drive, self.xfs_data_path))
             shell.run(self.xfs_data_path + "/validate_drive.sh")
+            shell.run("sudo umount {}6".format(self._drive_hash_settings.external_drive))
 
     def _create_verification_script(self):
         path = self.rsync_source + "/"

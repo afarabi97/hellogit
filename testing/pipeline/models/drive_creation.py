@@ -5,8 +5,9 @@ from util.connection_mngs import FabricConnectionWrapper
 
 class DriveCreationHashSettings(Model):
     def __init__(self):
-        self.drive_type="CPT"
-        self.drive_creation_version="3.7"
+        self.drive_type = ""
+        self.drive_creation_version = ""
+        self.external_drive = ""
 
         #These are the credentials of the box that will have a portal USB hard drive plugged into it.
         self.username = ""
@@ -23,11 +24,9 @@ class DriveCreationHashSettings(Model):
         super().from_namespace(namespace)
         self.password = self.b64decode_string(namespace.password)
 
-
 class DriveCreationSettings(DriveCreationHashSettings):
     def __init__(self):
         super().__init__()
-        self.external_drive="/dev/sdb"
         self.burn_multiboot = "yes"
 
     def _check_external_drive(self):

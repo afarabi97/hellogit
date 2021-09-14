@@ -1,0 +1,139 @@
+Verify CPT Manifest:
+  stage: verify-manifest
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py verify-manifest \
+    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --type CPT
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "verify-manifest"
+      - $PIPELINE == "export-all"
+
+Verify MDT Manifest:
+  stage: verify-manifest
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py verify-manifest \
+    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --type MDT
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "verify-manifest"
+      - $PIPELINE == "export-all"
+
+Verify GIP Manifest:
+  stage: verify-manifest
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py verify-manifest \
+    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --type GIP
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "verify-manifest"
+      - $PIPELINE == "export-gip"
+
+Verify MULTIBOOT Manifest:
+  stage: verify-manifest
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py verify-manifest \
+    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --type MULTIBOOT
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "verify-manifest"
+      - $PIPELINE == "export-all"
+
+Build CPT Manifest:
+  stage: build-manifest
+  needs: ["Verify CPT Manifest"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py build-manifest \
+    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --version $TFPLENUM_EXPORT_VERSION \
+    --type CPT
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "export-all"
+
+Build MDT Manifest:
+  stage: build-manifest
+  needs: ["Verify MDT Manifest"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py build-manifest \
+    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --version $TFPLENUM_EXPORT_VERSION \
+    --type MDT
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "export-all"
+
+Build GIP Manifest:
+  stage: build-manifest
+  needs: ["Verify GIP Manifest"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py build-manifest \
+    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --version $TFPLENUM_EXPORT_VERSION \
+    --type GIP
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "export-gip"
+
+Build MULTIBOOT Manifest:
+  stage: build-manifest
+  needs: ["Verify MULTIBOOT Manifest"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py build-manifest \
+    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --version $TFPLENUM_EXPORT_VERSION \
+    --type MULTIBOOT
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "export-all"
