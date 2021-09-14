@@ -6,6 +6,9 @@ import os
 from anytree.importer import DictImporter
 from anytree import Node, RenderTree, ContStyle
 import requests
+import sys
+
+TERMINAL = sys.stdout.isatty()
 
 def session(username:str, password:str) -> object:
         with requests.Session() as session:
@@ -14,12 +17,23 @@ def session(username:str, password:str) -> object:
         return session
 
 def tree_to_string(data: dict) -> str:
+    if not TERMINAL:
+        return tree_to_string_notty(data)
     return_text = ""
     importer = DictImporter()
     top_level = importer.import_(data)
     for pre, _, node in RenderTree(top_level, style=ContStyle()):
         return_text = return_text + "  {}{}\n".format(pre, node.name)
     return return_text
+
+def tree_to_string_notty(data: dict) -> str:
+    return_text = []
+    importer = DictImporter()
+    top_level = importer.import_(data)
+    for row in RenderTree(top_level, style=ContStyle()):
+        return_text.append("{}{}".format(row.pre, row.node.name))
+    return_text[0] = ""
+    return "\n".join(return_text)
 
 def remove_file(log_path:str):
     if os.path.exists(log_path):
@@ -162,7 +176,7 @@ def add_spinner(_func=None, name='dots'):
             human_func_result = humanize(func.__name__, isResult=True)
             flag_skip = False
 
-            with Halo(text=human_func_name, spinner=name) as spinner:
+            with Halo(text=human_func_name, spinner=name, enabled=TERMINAL) as spinner:
                 result = func(*args, **kwargs)
                 if isinstance(result, tuple):
                     status, output = result
@@ -175,7 +189,10 @@ def add_spinner(_func=None, name='dots'):
                 else:
                     status = False
                     flag_skip = True
-                    spinner.fail('{} -  Function return unexpected result: {}'.format(human_func_name, str(result)))
+                    if spinner.enabled:
+                        spinner.fail('{} -  Function return unexpected result: {}'.format(human_func_name, str(result)))
+                    else:
+                        print('x {} -  Function return unexpected result: {}'.format(human_func_name, str(result)))
 
                 if not flag_skip:
                     text = human_func_result
@@ -183,14 +200,26 @@ def add_spinner(_func=None, name='dots'):
                         text += ': {}'.format(output)
 
                     if isinstance(status, bool) and status:
-                        spinner.succeed(text)
+                        if spinner.enabled:
+                            spinner.succeed(text)
+                        else:
+                            print("v {}".format(text))
                     elif isinstance(status, bool) and not status:
-                        spinner.fail(text)
+                        if spinner.enabled:
+                            spinner.fail(text)
+                        else:
+                            print("x {}".format(text))
                     else:
                         if status == 'info':
-                            spinner.info(text)
+                            if spinner.enabled:
+                                spinner.info(text)
+                            else:
+                                print("i {}".format(text))
                         else:
-                            spinner.warn(text)
+                            if spinner.enabled:
+                                spinner.warn(text)
+                            else:
+                                print("!! {}".format(text))
                 return status
         return wrapper_add_spinner
 
@@ -198,3 +227,4 @@ def add_spinner(_func=None, name='dots'):
         return decorator_add_spinner
     else:
         return decorator_add_spinner(_func)
+

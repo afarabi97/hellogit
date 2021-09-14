@@ -109,6 +109,8 @@ HEALTH_NS = Namespace("Health",
                     path="/api",
                     description="Health page related operations.")
 
+DIAGNOSTICS_NS = Namespace("Diagnostics", path="/api", description="Run diagnostics to help service desk troubleshoot tickets.")
+
 api.add_namespace(ALERTS_NS)
 api.add_namespace(CATALOG_NS)
 api.add_namespace(KIT_SETUP_NS)
@@ -117,6 +119,7 @@ api.add_namespace(POLICY_NS)
 api.add_namespace(TOOLS_NS)
 api.add_namespace(KIT_TOKEN_NS)
 api.add_namespace(HEALTH_NS)
+api.add_namespace(DIAGNOSTICS_NS)
 
 # Load the REST API
 from app import (agent_builder_controller, catalog_controller, common_controller, configmap_controller,
@@ -126,7 +129,8 @@ from app import (agent_builder_controller, catalog_controller, common_controller
                  portal_controller, registry_controller, ruleset_controller,
                  scale_controller, task_controller, tools_controller,
                  version_controller, cold_log_controller, alerts_controller, settings_controller,
-                 kit_tokens_controller, health_dashboard_controller)
+                 kit_tokens_controller, health_dashboard_controller, diagnostics_controller)
+                 
 
 #This is a hack needed to get coverage to work correctly within the python unittest framework.
 def receive_signal(signal_number, frame):

@@ -7,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { PmoSupportComponent } from './pmo-support.component';
 import { SystemVersionService } from './services/system-version.service';
+import { DiagnosticsService } from './services/diagnostics.service';
 
 @NgModule({
   imports: [
@@ -24,7 +25,8 @@ import { SystemVersionService } from './services/system-version.service';
     PmoSupportComponent
   ],
   providers: [
-    SystemVersionService
+    SystemVersionService,
+    DiagnosticsService
   ]
 })
 export class PmoSupportModule { }

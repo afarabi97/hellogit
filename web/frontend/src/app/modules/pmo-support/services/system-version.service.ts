@@ -40,6 +40,6 @@ export class SystemVersionService extends ApiService<any> implements SystemVersi
   get_system_version(): Observable<SystemVersionClass> {
     return this.httpClient_.get<SystemVersionInterface>(environment.SYSTEM_VERSION_SERVICE_SYSTEM_VERSION)
                            .pipe(map((response: SystemVersionInterface) => new SystemVersionClass(response)),
-                                 catchError((err: any) => this.handleError('version', err)));
+                                 catchError((error: any) => this.handleError('version', error)));
   }
 }

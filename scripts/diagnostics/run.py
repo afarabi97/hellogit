@@ -4,6 +4,7 @@ from components.elastic import check_elastic
 from components.metrics import check_node_metrics
 from datetime import date
 import os
+import time
 from git import Repo
 
 def get_commit_hash() -> str:
@@ -14,12 +15,10 @@ def get_commit_hash() -> str:
     return short_sha
 
 def collect_logs():
-    commit_hash = get_commit_hash()
-    path = "/var/log"
-    tar_name = "tfplenum-logs-{}-{}.tar".format(date.today(), commit_hash)
-    command = "tar -cf  {}/{} {} > /dev/null 2>&1".format(path, tar_name, path)
-    os.system(command)
-    print("=====> {} created in /var/log".format(tar_name))
+    tar_name = "tfplenum-logs-{}-{}.tar".format(date.today(), get_commit_hash())
+    os.system("mkdir -p /var/www/html/downloads > /dev/null 2>&1")
+    os.system(f"tar -cf /var/www/html/downloads/{tar_name} -C /var/log . > /dev/null 2>&1")
+    print("=====> {} created in /var/www/html/downloads".format(tar_name))
 
 def start_diagnostic():
     check_controller_services()
