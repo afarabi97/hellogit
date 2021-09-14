@@ -9,7 +9,7 @@ Resource    ../lib/dipCommonKeywords.resource
 Resource    ../lib/dipCatalogKeywords.resource
 Resource    ../include/dipCatalogVariables.resource
 
-Library     SeleniumLibrary     15s    run_on_failure=NONE
+Library     SeleniumLibrary     15s
 Library     SSHLibrary          15s
 Library     String
 
@@ -17,6 +17,8 @@ Library     String
 Suite Setup         Open SSH Connection  ${HOST}  ${HOST_USERNAME}  ${HOST_PASSWORD}
 Test Setup          Run Keywords  Runner Open Browser  ${HOST}  ${BROWSER}
                     ...  AND  Set DIP Kit Global Variables
+                    ...  AND  Set Log Level   Trace
+                    ...  AND  SeleniumLibrary.Register Keyword To Run On Failure     handle selenium failure
 # Test Setup          Runner Open Browser  ${HOST}  ${BROWSER}
 Test Teardown       Close Browser
 Suite Teardown      Close All Connections
@@ -102,6 +104,7 @@ Run Elastic Integration Test
     Wait Until Page Contains    Portal    timeout=8s    error=None
     Uninstall Multiple Apps  Logstash  Zeek  Suricata  Arkime  Arkime-viewer
 
+# TODO: Move this to regression testing
 Install And Uninstall Apps From Catalog Page
     [Tags]  THISISCVAH-10181
     [Documentation]  Check functionality of the Catalog page by installing and uninstalling PMO supported apps.

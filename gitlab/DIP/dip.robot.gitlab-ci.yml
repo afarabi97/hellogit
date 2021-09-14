@@ -1,5 +1,5 @@
 Pull Internal VDD:
-  stage: pull-internal-vdd
+  stage: robot-test
   tags:
     - tfplenum-buildv2
   script: |
@@ -26,14 +26,14 @@ DIP Robot Tests:
     CONFLUENCE_PASSWORD_DECRYPTED=$(echo "$CONFLUENCE_PASSWORD" | base64 -d)
     mkdir -p $PATHPWD/tests/dip_test_suite/
     python3 testing/pipeline/pipeline.py run-robot \
-    --tfplenum-robot-container "docker.nexus.sil.lab/tfplenum/robot-automator:1.5.1" \
+    --tfplenum-robot-container "docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4" \
     --jira-username "$CONFLUENCE_USERNAME" \
     --jira-password "$CONFLUENCE_PASSWORD_DECRYPTED" \
     --jira-report $ROBOT_REGRESSION_ZEPHYR_CYCLE \
     --jira-project-version $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
     --jira-project-key "$JIRA_PROJECT_KEY" \
     --robot-browser $ROBOT_BROWSER \
-    --robot-category $ROBOT_REGRESSION_CATEGORY \
+    --robot-category "dip_test_suite" \
     --domain "$KIT_DOMAIN" \
     --kit-version "$TFPLENUM_EXPORT_VERSION" \
     --pipeline "$PIPELINE"

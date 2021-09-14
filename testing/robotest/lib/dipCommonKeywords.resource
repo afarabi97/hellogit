@@ -1,7 +1,7 @@
 *** Settings ***
 Resource    ../include/dipCommonVariables.resource
 
-Library     SeleniumLibrary     30s    run_on_failure=NONE
+Library     SeleniumLibrary     5s    run_on_failure=NONE
 Library     SSHLibrary          15s
 
 
@@ -42,6 +42,13 @@ Open Chrome
     Call Method                ${chrome_options}             add_argument                                         ignore-certificate-errors
     Create WebDriver  Chrome    chrome_options=${chrome_options}
     Go To    https://${host}
+
+handle selenium failure
+    SeleniumLibrary.Capture Page Screenshot    filename=failed-screenshot-{index}.png
+    SeleniumLibrary.Log Location
+    SeleniumLibrary.Log Source      loglevel=DEBUG
+    Log variables   level=DEBUG
+
 
 Open Firefox
     [Arguments]                ${host}  ${browser}

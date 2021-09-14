@@ -81,3 +81,4 @@ umls/
 *-internal_vdd.csv
 tests/
 .pyreverserc
+.cz.toml
