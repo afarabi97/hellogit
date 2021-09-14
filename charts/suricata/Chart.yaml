@@ -1,7 +1,0 @@
-apiVersion: v1
-name: suricata
-home: https://suricata-ids.org/
-version: 1.0.0
-appVersion: 6.0.0
-description: Suricata is a free and open source, mature, fast and robust network threat detection engine.
-icon: https://idsips.files.wordpress.com/2015/10/suri-400x400.png?w=300

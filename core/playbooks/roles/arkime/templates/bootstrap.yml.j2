@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: "arkime"
-        image: "{{ arkime_image }}:{{ arkime_version }}"
+        image: "{{ arkime_image }}:{{ docker_versions.arkime_version }}"
         imagePullPolicy: IfNotPresent
         env:
         - name: CONTAINER_TYPE

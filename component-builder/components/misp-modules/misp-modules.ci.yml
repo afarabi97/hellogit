@@ -1,0 +1,17 @@
+.misp-modules-variables:
+  variables:
+    NAME: misp-modules
+
+.misp-modules-docker-rules:
+  only:
+    changes:
+      - component-builder/components/misp-modules/templates/Dockerfile.j2
+  except:
+    - tags
+    - schedules
+
+docker build misp-modules:
+  extends:
+    - .misp-modules-variables
+    - .docker-build-super
+    - .misp-modules-docker-rules

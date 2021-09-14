@@ -13,6 +13,9 @@ from util.vmware_util import get_vms_in_folder
 from pyVim.connect import SmartConnectNoSSL,Disconnect,vim
 
 
+TEMPLATES_DIR = os.path.dirname(os.path.realpath(__file__)) + '/../templates'
+
+
 def checkout_latest_code(repo_settings: RepoSettings):
     cred_file_cmd = """
 cat <<EOF > ~/credential-helper.sh
@@ -102,6 +105,17 @@ class ControllerSetupJob:
                 print("Failed to execute bootstrap.")
                 exit(ret_val.return_code)
 
+    def _setup_controller_with_rpms(self):
+        with FabricConnectionWrapper(self.ctrl_settings.node.username,
+                                     self.ctrl_settings.node.password,
+                                     self.ctrl_settings.node.ipaddress) as client:
+            source = "{}/rpm-{}.repo".format(TEMPLATES_DIR, self.ctrl_settings.rpm_build)
+            dest = "/etc/yum.repos.d/rpm-{}.repo".format(self.ctrl_settings.rpm_build)
+            client.put(source, dest)
+            client.run("yum clean all")
+            client.run("yum install -y tfplenum-cli")
+            client.run("tfplenum-cli setup controller")
+
     def _is_built_already(self) -> bool:
         commit_hash = self.ctrl_settings.node.commit_hash
         vms = get_vms_in_folder("Releases", self.ctrl_settings.vcenter)
@@ -116,6 +130,11 @@ class ControllerSetupJob:
             # This file is created and saved in pipeline artifacts so that export stage can check to see if we need to recreate the template or not.
             with open(SKIP_CTRL_BUILD_AND_TEMPLATE, 'w') as f:
                 pass
+        elif self.ctrl_settings.rpm_build == "dev" or self.ctrl_settings.rpm_build == "stable":
+            execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.ctrl_settings.to_dict())
+            test_nodes_up_and_alive([self.ctrl_settings.node], 30)
+            self._setup_controller_with_rpms()
+            take_snapshot(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         else:
             execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.ctrl_settings.to_dict())
             test_nodes_up_and_alive([self.ctrl_settings.node], 30)
@@ -126,15 +145,15 @@ class ControllerSetupJob:
 class BaremetalControllerSetup(ControllerSetupJob):
 
     def __init__(self, baremetal_ctrl_settings: HwControllerSetupSettings):
-        self.baremetal_ctrl_settings = baremetal_ctrl_settings
-        self.ctrl_owner = self.baremetal_ctrl_settings.node.ctrl_owner
+        super().__init__(baremetal_ctrl_settings)
+        self.ctrl_owner = self.ctrl_settings.node.ctrl_owner
 
     def create_smart_connect_client(self) -> vim.ServiceInstance:
     # This will connect us to vCenter
-        return SmartConnectNoSSL(host=self.baremetal_ctrl_settings.esxi.ipaddress,
-                                user=self.baremetal_ctrl_settings.esxi.username,
-                                pwd=self.baremetal_ctrl_settings.esxi.password,
-                                port=443)
+        return SmartConnectNoSSL(host=self.ctrl_settings.esxi.ipaddress,
+                                 user=self.ctrl_settings.esxi.username,
+                                 pwd=self.ctrl_settings.esxi.password,
+                                 port=443)
 
     def get_vm_list(self, active_only=False) -> list:
         # make connection
@@ -156,7 +175,6 @@ class BaremetalControllerSetup(ControllerSetupJob):
         Disconnect(service_instance)
         return vm_list
 
-
     def get_controller_name(self) -> str:
         for name in self.get_vm_list():
             if f"Pipeline-" in name:
@@ -170,26 +188,26 @@ class BaremetalControllerSetup(ControllerSetupJob):
         return unemployed_controllers
 
     def copy_controller(self) -> None:
-        if self.baremetal_ctrl_settings.node.build_from_release:
-            path_type = self.baremetal_ctrl_settings.node.release_path + "/" + self.baremetal_ctrl_settings.node.release_ova
+        if self.ctrl_settings.node.build_from_release:
+            path_type = self.ctrl_settings.node.release_path + "/" + self.ctrl_settings.node.release_ova
         else:
-            path_type = self.baremetal_ctrl_settings.node.template_path + "/" + self.baremetal_ctrl_settings.node.template
+            path_type = self.ctrl_settings.node.template_path + "/" + self.ctrl_settings.node.template
 
         cmd = ("ovftool --noSSLVerify --network=Internal --overwrite \
                 --datastore='{datastore}' --diskMode=thin '{path}' \
                 vi://'{username}':'{password}'@'{ipaddress}'"
-                .format(datastore=self.baremetal_ctrl_settings.node.datastore,
+                .format(datastore=self.ctrl_settings.node.datastore,
                 path=path_type,
-                username=self.baremetal_ctrl_settings.esxi.username,
-                password=self.baremetal_ctrl_settings.esxi.password,
-                ipaddress=self.baremetal_ctrl_settings.esxi.ipaddress))
+                username=self.ctrl_settings.esxi.username,
+                password=self.ctrl_settings.esxi.password,
+                ipaddress=self.ctrl_settings.esxi.ipaddress))
 
         result = os.system(cmd)
         if result != 0:
             sys.exit(1)
 
         execute_playbook([PIPELINE_DIR + 'playbooks/ctrl_config.yml'],
-                         self.baremetal_ctrl_settings.to_dict())
+                         self.ctrl_settings.to_dict())
 
     # TODO consider removal
     # def _at_controller_limit(self):
@@ -202,21 +220,18 @@ class BaremetalControllerSetup(ControllerSetupJob):
     #     return ctrl_count >= 3
 
     def setup_controller(self):
-        hwsettings = ControllerSetupJob(self.baremetal_ctrl_settings)
-        # TODO consider removal
-        # if self.system_name == "MIP":
-        #     if self._at_controller_limit():
-        #         print("Host already has 3 MIP controllers! Network block indexes full [64,128,192]")
-        #         sys.exit(1)
-        #Sets controller name found on esxi server
-        self.baremetal_ctrl_settings.esxi_ctrl_name = self.get_controller_name()
+        hwsettings = ControllerSetupJob(self.ctrl_settings)
+        self.ctrl_settings.esxi_ctrl_name = self.get_controller_name()
         #Sets list of unemployed controllers to be powered off
-        self.baremetal_ctrl_settings.esxi_unemployed_ctrls = self.unemployed_ctrls()
+        self.ctrl_settings.esxi_unemployed_ctrls = self.unemployed_ctrls()
         execute_playbook([PIPELINE_DIR + 'playbooks/power_control_esxi.yml'],
-                            self.baremetal_ctrl_settings.to_dict())
+                            self.ctrl_settings.to_dict())
         self.copy_controller()
-
-        if not self.baremetal_ctrl_settings.node.build_from_release:
+        if self.ctrl_settings.rpm_build == "dev" or self.ctrl_settings.rpm_build == "stable":
             execute_playbook([PIPELINE_DIR + 'playbooks/rename_ctrl.yml'],
-                            self.baremetal_ctrl_settings.to_dict())
+                            self.ctrl_settings.to_dict())
+            self._setup_controller_with_rpms()
+        elif not self.ctrl_settings.node.build_from_release:
+            execute_playbook([PIPELINE_DIR + 'playbooks/rename_ctrl.yml'],
+                            self.ctrl_settings.to_dict())
             hwsettings._run_bootstrap(False)

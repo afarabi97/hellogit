@@ -1,0 +1,13 @@
+.kubernetes-variables:
+  variables:
+    NAME: kubernetes
+
+rpm build kubernetes:
+  extends:
+    - .rpm-build-super
+    - .kubernetes-variables
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /.*-kubernetes$/'
+      when: always

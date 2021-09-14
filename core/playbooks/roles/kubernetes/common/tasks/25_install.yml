@@ -28,9 +28,9 @@
 - name: 'Install Kubernetes packages'
   dnf:
     name:
-      - "kubeadm-{{ k8s_version }}"
-      - "kubelet-{{ k8s_version }}"
-      - "kubectl-{{ k8s_version }}"
+      - "kubeadm-{{ docker_versions.k8s_version }}"
+      - "kubelet-{{ docker_versions.k8s_version }}"
+      - "kubectl-{{ docker_versions.k8s_version }}"
       - "device-mapper-persistent-data"
       - "lvm2"
       - "ebtables"

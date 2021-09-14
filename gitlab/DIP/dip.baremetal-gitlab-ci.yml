@@ -7,37 +7,40 @@ Setup Hardware Controller:
     echo "Setup Baremetal Controller"
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/baremetal_pipeline.py \
-    setup-baremetal-controller \
-    --esxi-ipaddress "$ESXI_IPADDRESS" \
-    --esxi-username "$ESXI_USERNAME" \
-    --esxi-password "$ESXI_PASSWORD" \
-    --access-token  "$ACCESS_TOKEN" \
-    --project-id    "$CI_PROJECT_ID" \
-    --node-password "$DEFAULT_TEMPLATE_PASSWORD" \
-    --vm-datastore "$ESXI_DATASTORE" \
-    --release-path "$RELEASE_PATH" \
-    --release-ova "$RELEASE_OVA" \
-    --template-path "$TEMPLATE_PATH" \
-    --template "$TEMPLATE_OVA" \
-    --gateway "$CONTROLLER_GATEWAY" \
-    --ipaddress "$CONTROLLER_IPADDRESS" \
-    --dns-servers $DNS_SERVERS \
-    --repo-username "$REPO_USERNAME" \
-    --repo-password "$REPO_PASSWORD" \
-    --repo-url "$REPO_URL" \
-    --branch-name "$CI_COMMIT_REF_NAME" \
-    --domain "$KIT_DOMAIN" \
-    --redfish-user "$REDFISH_USER" \
-    --redfish-password "$REDFISH_PASSWORD" \
-    --monitoring-interface "$MONITORING_INTERFACE" \
-    --management-password "$MANAGEMENT_PASSWORD" \
-    --mp-external-ip "$MP_EXTERNAL_IP" \
-    --pfsense-ip "$PFSENSE_IP" \
-    --switch-ip "$SWITCH_IP" \
-    --monitoring-interface "$MONITORING_INTERFACE" \
-    --run-remote-node "$RUN_REMOTE_NODE" \
-    --build-from-release "$BUILD_FROM_RELEASE"
+    cmd="python3 testing/pipeline/baremetal_pipeline.py
+    setup-baremetal-controller
+    --esxi-ipaddress \"$ESXI_IPADDRESS\"
+    --esxi-username \"$ESXI_USERNAME\"
+    --esxi-password \"$ESXI_PASSWORD\"
+    --access-token  \"$ACCESS_TOKEN\"
+    --project-id    \"$CI_PROJECT_ID\"
+    --node-password \"$DEFAULT_TEMPLATE_PASSWORD\"
+    --vm-datastore \"$ESXI_DATASTORE\"
+    --release-path \"$RELEASE_PATH\"
+    --release-ova \"$RELEASE_OVA\"
+    --template-path \"$TEMPLATE_PATH\"
+    --template \"$TEMPLATE_OVA\"
+    --gateway \"$CONTROLLER_GATEWAY\"
+    --ipaddress \"$CONTROLLER_IPADDRESS\"
+    --dns-servers $DNS_SERVERS
+    --repo-username \"$REPO_USERNAME\"
+    --repo-password \"$REPO_PASSWORD\"
+    --repo-url \"$REPO_URL\"
+    --branch-name \"$CI_COMMIT_REF_NAME\"
+    --domain \"$KIT_DOMAIN\"
+    --redfish-user \"$REDFISH_USER\"
+    --redfish-password \"$REDFISH_PASSWORD\"
+    --monitoring-interface \"$MONITORING_INTERFACE\"
+    --management-password \"$MANAGEMENT_PASSWORD\"
+    --mp-external-ip \"$MP_EXTERNAL_IP\"
+    --pfsense-ip \"$PFSENSE_IP\"
+    --switch-ip \"$SWITCH_IP\"
+    --monitoring-interface \"$MONITORING_INTERFACE\"
+    --run-remote-node \"$RUN_REMOTE_NODE\"
+    --build-from-release \"$BUILD_FROM_RELEASE\"
+    --rpm-build \"$RPM_BUILD\""
+    echo "$cmd"
+    eval $cmd
   artifacts:
     untracked: true
   only:

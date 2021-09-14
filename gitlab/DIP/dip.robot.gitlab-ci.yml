@@ -22,6 +22,9 @@ DIP Robot Tests:
   artifacts:
     untracked: true
     when: always
+  allow_failure: true
+  timeout: 2h
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"

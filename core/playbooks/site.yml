@@ -15,6 +15,9 @@
   pre_tasks:
     - name: Run gather facts
       setup:
+    - name: Import Variables
+      include_vars:
+        file: "{{ dip_core_vars }}"
   roles:
     - system_info
   tags:

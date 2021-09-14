@@ -75,7 +75,7 @@
     path: /etc/hosts
     marker: "# {mark} Controller Block"
     block: |
-      {{ server_ip }} {{ ansible_controller_hostname }}
+      {{ server_ip }} {{ ansible_controller_hostname }} controller
   notify:
     - "Restart Dnsmasq"
     - "Restart NetworkManager"

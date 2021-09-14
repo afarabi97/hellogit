@@ -1,0 +1,18 @@
+#### Nifi configuration variables ####
+nifi_image: 'apache/nifi'
+nifi_version: {{ component["app_version"] }}
+nifi_port: "8080"
+nifi_replicas: 1
+nifi_base_dir: /opt/nifi/nifi-current
+path: '/data/nifi'
+domain: lan
+auth_base: https://controller.lan/auth/realms/CVAH-SSO
+busyboxImage: busybox:{{ context["docker_versions"]["busybox_version"] }}
+
+### proxy info
+proxy:
+  image: tfplenum/shibboleth_proxy
+  version: {{ context["docker_versions"]["shibboleth_proxy_version"] }}
+
+serviceNode: false
+

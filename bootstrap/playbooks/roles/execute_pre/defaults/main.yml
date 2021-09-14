@@ -7,8 +7,7 @@ package_list:
   - net-tools
   - nmap
   - python36-devel
-  - unzip
-  - vim
-  - wget
   - rsync
   - scap-security-guide
+  - unzip
+  - vim

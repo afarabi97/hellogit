@@ -1,0 +1,29 @@
+kibana_fqdn: kibana.default.svc.cluster.local
+kibana_port: 443
+elastic_ingest_nodes: []
+logstash_nodes: []
+suricata_directory: /opt/tfplenum/suricata
+suricata_threads: 8
+home_net: ["192.168.0.0/16"]
+external_net: null
+interfaces: ["eth0"]
+image_name: tfplenum/suricata
+image_tag: {{ component["app_version"] }}
+cpu_request: 1000
+affinity_hostname: {}
+suricata_log_path: /data/suricata
+filebeat_image_name: beats/filebeat
+filebeat_image_tag: {{ context["docker_versions"]["elastic_7_version"] }}
+pcapEnabled: false
+fpc_path: "/data/pcap"
+flow: false
+shards: {}
+hard_disk_drive: false
+use_logstash: false
+log_types:
+  - alert
+  - http
+  - dns
+  - tls
+  - flow
+  - other

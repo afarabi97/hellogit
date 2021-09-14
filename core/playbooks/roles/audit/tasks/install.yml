@@ -37,7 +37,7 @@
 
 - name: install auditbeat
   dnf:
-    name: auditbeat-{{ elastic_7_version }}
+    name: auditbeat-{{ docker_versions.elastic_7_version }}
     state: installed
 
 - import_tasks: setup.yml

@@ -1,0 +1,44 @@
+.arkime-variables:
+  variables:
+    NAME: arkime
+
+.arkime-helm-rules:
+  only:
+    changes:
+      - component-builder/components/arkime/helm/*
+      - component-builder/components/arkime/helm/**/*
+      - component-builder/components/arkime/templates/Chart.yaml.j2
+      - component-builder/components/arkime/templates/values.yaml.j2
+  except:
+    - tags
+    - schedules
+
+.arkime-docker-rules:
+  only:
+    changes:
+      - component-builder/components/arkime/templates/Dockerfile.j2
+  except:
+    - tags
+    - schedules
+
+docker build arkime:
+  extends:
+    - .arkime-variables
+    - .docker-build-super
+    - .arkime-docker-rules
+
+helm build arkime:
+  extends:
+    - .helm-build-super
+    - .arkime-helm-rules
+    - .arkime-variables
+
+rpm build arkime:
+  extends:
+    - .rpm-build-super
+    - .arkime-variables
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /.*-arkime$/'
+      when: always

@@ -62,6 +62,7 @@ class IntegrationTestsJob:
         self._set_api_keys_to_environment()
         control_node = get_control_plane_node(self.nodes)
         wait_for_pods_to_be_alive(control_node, 30)
+
         self._replay_pcaps()
         _clean_up(wait = 0)
         current_path=os.getcwd()

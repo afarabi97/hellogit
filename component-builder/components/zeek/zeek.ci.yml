@@ -1,0 +1,45 @@
+.zeek-variables:
+  variables:
+    NAME: zeek
+
+.zeek-helm-rules:
+  only:
+    changes:
+      - component-builder/components/zeek/helm/*
+      - component-builder/components/zeek/helm/**/*
+      - component-builder/components/zeek/templates/Chart.yaml.j2
+      - component-builder/components/zeek/templates/values.yaml.j2
+  except:
+    - tags
+    - schedules
+
+.zeek-docker-rules:
+  only:
+    changes:
+      - component-builder/components/zeek/templates/Dockerfile.j2
+  except:
+    - tags
+    - schedules
+
+docker build zeek:
+  extends:
+    - .zeek-variables
+    - .docker-build-super
+    - .zeek-docker-rules
+
+helm build zeek:
+  extends:
+    - .helm-build-super
+    - .zeek-helm-rules
+    - .zeek-variables
+
+rpm build zeek:
+  extends:
+    - .rpm-build-super
+    - .zeek-variables
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /.*-zeek$/'
+      when: always
+

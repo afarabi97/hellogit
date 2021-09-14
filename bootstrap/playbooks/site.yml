@@ -22,7 +22,19 @@
       set_fact:
         server_ip: "{{ hostvars['localhost']['ansible_default_ipv4']['address'] }}"
       when: hostvars['localhost']['ansible_default_ipv4'] is defined and server_ip is not defined or (server_ip is defined and server_ip == '')
-  tags: always
+  tags:
+    - always
+
+- name: Set rpm_build variable
+  hosts: localhost
+  any_errors_fatal: true
+  tasks:
+    - name: Set rpm_build Variable
+      set_fact:
+        rpm_install: true
+  tags:
+    - never
+    - rpm_setup
 
 - name: Clean Up
   hosts: localhost
@@ -67,7 +79,9 @@
   any_errors_fatal: true
   roles:
     - sso
-  tags: sso
+  tags:
+    - sso
+    - rpm_setup
 
 - name: Rerun docker pull
   hosts: localhost
@@ -92,6 +106,37 @@
     - chartmuseum
   tags:
     - chartmuseum
+    - rpm_setup
+
+- name: Load Helm Charts
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - load_charts
+  tags:
+    - load_charts
+
+- name: Install tfplenum RPM components.
+  hosts: localhost
+  any_errors_fatal: true
+  tasks:
+    - name: "Install tfplenum packages. This can take up to 40 mintutes to complete."
+      dnf:
+        name: "tfplenum*"
+        state: present
+  tags:
+    - never
+    - rpm_setup
+
+- name: Preload suricata and zeek rules.
+  hosts: localhost
+  any_errors_fatal: true
+  tasks:
+    - import_role:
+        name: frontend
+        tasks_from: 60_preload_rules
+  tags:
+    - rpm_setup
 
 - name: Clean Up
   hosts: localhost
@@ -107,7 +152,9 @@
   any_errors_fatal: true
   roles:
     - setup
-  tags: setup
+  tags:
+    - setup
+    - rpm_setup
 
 - name: Run Stigs
   hosts: localhost
@@ -118,3 +165,4 @@
       include_tasks: "{{ tfplenum_root_dir }}/rhel8-stigs/rhel8-playbook-stig.yml"
   tags:
     - stigs
+    - rpm_setup

@@ -1,0 +1,20 @@
+.logstash-variables:
+  variables:
+    NAME: elasticsearch/logstash
+
+.logstash-helm-rules:
+  only:
+    changes:
+      - component-builder/components/elasticsearch/logstash/helm/*
+      - component-builder/components/elasticsearch/logstash/helm/**/*
+      - component-builder/components/elasticsearch/logstash/templates/Chart.yaml.j2
+      - component-builder/components/elasticsearch/logstash/templates/values.yaml.j2
+  except:
+    - tags
+    - schedules
+
+helm build logstash:
+  extends:
+    - .helm-build-super
+    - .logstash-helm-rules
+    - .logstash-variables

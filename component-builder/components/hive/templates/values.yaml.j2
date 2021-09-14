@@ -1,0 +1,18 @@
+cassandra_image: cassandra:{{ context["docker_versions"]["cassandra_version"] }}
+hive_image: thehiveproject/thehive4:{{ component["app_version"] }}
+python_image: tfplenum/python:{{ context["docker_versions"]["python_version"] }}
+nginx_image: nginx:{{ context["docker_versions"]["nginx_version"] }}
+hive_port: 9000
+cortexIntegration: false
+mispIntegration: false
+superadmin_username: admin@thehive.local
+superadmin_password: Password!123456
+read_write_user_username: user@thehive.local
+read_write_user_password: Password!123456
+org_admin_username: org_admin@thehive.local
+org_admin_password: Password!123456
+org_name: thehive_org
+case_template: MISP
+domain: lan
+auth_base: https://controller.lan/auth/realms/CVAH-SSO
+serviceNode: false

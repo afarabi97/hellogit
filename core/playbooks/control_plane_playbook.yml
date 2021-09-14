@@ -6,17 +6,23 @@
 
 ---
 
-- name: Set System info for control plane
+- name: Set System Name and Node Groups
   hosts:
     - localhost
     - control_plane
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - name: Run gather facts
       setup:
+    - name: Import Variables
+      include_vars:
+        file: "{{ dip_core_vars }}"
   roles:
     - system_info
   tags:
+    - always
+    - system-info
     - common
     - deploy-control-plane
 

@@ -1,7 +1,9 @@
 ---
+
 - import_role:
     name: rhel_repo
     tasks_from: add_repo
+  when: not rpm_install
 
 - name: Install Httpd
   dnf:
@@ -14,6 +16,7 @@
 - import_role:
     name: rhel_repo
     tasks_from: remove_nexus_repos
+  when: not rpm_install
 
 - name: Allow Httpd Selinux connection
   seboolean:
@@ -86,3 +89,4 @@
   systemd:
     name: httpd
     state: restarted
+    enabled: yes

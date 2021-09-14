@@ -1,6 +1,0 @@
-apiVersion: v1
-name: arkime-viewer
-home: https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum/browse/charts/moloch
-version: 1.0.0
-appVersion: 2.7.1
-description: Large scale, open source, indexed packet capture and search.

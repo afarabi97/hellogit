@@ -49,7 +49,7 @@
   set_fact:
     client_id: "{{ item.id }}"
   with_items: "{{ keycloak_clients }}"
-  when: "'controller.' in item.clientId"
+  when: "'controller' in item.clientId"
 
 - name: Update Controller Keycloak Client
   command: >

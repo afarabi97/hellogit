@@ -6,12 +6,18 @@
 
 ---
 
-- name: Set System Name
-  hosts: localhost
+- name: Set System Name and Node Groups
+  hosts:
+    - localhost
+    - all
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - name: Run gather facts
       setup:
+    - name: Import Variables
+      include_vars:
+        file: "{{ dip_core_vars }}"
   roles:
     - system_info
   tags:
@@ -67,13 +73,6 @@
         name: openvpn/server
   tags:
     - openvpn
-
-- name: helm
-  any_errors_fatal: true
-  hosts: localhost
-  roles:
-    - helm
-  tags: helm
 
 - name: Generate ISO
   hosts:

@@ -1,11 +1,3 @@
-# include:
-# - template: Container-Scanning.gitlab-ci.yml
-workflow:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-      when: never  # Prevent pipeline run for push event
-    - when: always # Run pipeline for all other cases
-
 variables:
 
   #Version variables
@@ -13,7 +5,7 @@ variables:
   TFPLENUM_EXPORT_HASH: "$CI_COMMIT_SHORT_SHA"
 
   #Pipeline specific variables
-  PIPELINE: "developer-all"
+  PIPELINE: ""
   VMWARE_FOLDER: "Testing"
   NETWORK_ID: "10.40.12.0"
   NETWORK_BLOCK_INDEX: 0
@@ -73,6 +65,7 @@ variables:
   CREATE_MULTIBOOT: "yes"
   RUN_CREATE_MASTER_DRIVE: "no"
   RUN_CREATE_GIP_DRIVE: "no"
+  RPM_BUILD: "no"
 
   # Breaking point variables
   BREAKINGPOINT_IP: "10.10.103.29"
@@ -192,6 +185,17 @@ variables:
   NUM_OF_ACTIONS: 50
   ACTION_SAMPLE: "no"
 
+  #Nexus URLs
+  DEV_REGISTRY_URL: "https://nexus.sil.lab/repository/tfplenum-dev"
+  RELEASE_REGISTRY_URL: "https://nexus.sil.lab/repository/tfplenum-stable"
+  REGISTRY_URL: "$DEV_REGISTRY_URL"
+
+  # ROBOT flags
+  ROBOT_BROWSER: Firefox
+  ROBOT_REGRESSION_CATEGORY: integration
+  ROBOT_REGRESSION_ZEPHYR_CYCLE: INTEGRATION
+  ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION: Unscheduled
+
 stages:
   - test-compile
   - code-analysis
@@ -200,6 +204,10 @@ stages:
   - verify-manifest
   - build-manifest
   - build
+  - build-helm
+  - build-docker
+  - build-frontend
+  - build-rpm
   - docs
   - unit-test
   - kit-settings
@@ -217,6 +225,7 @@ stages:
   - cleanup
   - hashfiles
   - publish
+  - release
   - checkhash
   - breakingpoint-test
   - verodin-test
@@ -224,6 +233,39 @@ stages:
   - range-mip-controller
   - range-mip-kickstart
   - range-mip-kit
+
+.before-script-super:
+  before_script:
+    - |
+      if [ ! -z "$CI_COMMIT_TAG" ]; then
+        set +e # Disable exit on error
+        if echo "$CI_COMMIT_TAG" | grep -Eq '^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+-[A-Za-z-]*$'; then
+          echo "$CI_COMMIT_TAG has correct format"
+        elif echo "$CI_COMMIT_TAG" | grep -Eq '^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$'; then
+          echo "$CI_COMMIT_TAG has correct format"
+        else
+          echo "$CI_COMMIT_TAG invalid format.  It must be in vX.X.Xdev-X, vX.X.X-X, vX.X.Xdev-X-<helm name> or vX.X.Xd-X-<helm name>."
+          exit 1
+        fi
+
+        echo "$CI_COMMIT_TAG" | grep -Eq '.*dev.*'
+        if [ $? = 0 ]; then
+            REGISTRY_URL="$DEV_REGISTRY_URL"
+        else
+            REGISTRY_URL="$RELEASE_REGISTRY_URL"
+        fi
+
+        RPM_VERSION=$(echo "$CI_COMMIT_TAG" | cut -d"-" -f1)
+        RPM_VERSION="${RPM_VERSION:1}"
+        RPM_RELEASE_NUM=$(echo "$CI_COMMIT_TAG" | cut -d"-" -f2)
+        SINGLE_MODULE=$(echo "$CI_COMMIT_TAG" | cut -d"-" -f3-)
+
+        echo "RPM_VERSION: $RPM_VERSION"
+        echo "RPM_RELEASE_NUM: $RPM_RELEASE_NUM"
+        echo "SINGLE_MODULE: $SINGLE_MODULE"
+        echo "REGISTRY_URL: $REGISTRY_URL"
+        set -e # Enable exit on error
+      fi
 
 include:
   - local: gitlab/pipeline-rules.yml
@@ -243,3 +285,5 @@ include:
   - local: gitlab/Drive/repo.export.gitlab-ci.yml
   - local: gitlab/Drive/powershell.gitlab-export.yml
   - local: gitlab/Drive/drive.create.gitlab-ci.yml
+  - local: gitlab/RPM/tfplenum.rpm.gitlab-ci.yml
+  - local: component-builder/builder.gitlab-ci.yml

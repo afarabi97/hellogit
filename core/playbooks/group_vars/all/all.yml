@@ -1,8 +1,9 @@
 ---
 # TFPlenum
-version: 3.7.0
+tfplenum_root_dir: "/opt/tfplenum"
 tfplenum_config_dir: /etc/tfplenum
-tfplenum_opt_dir: /opt/tfplenum
+tfplenum_opt_dir: "{{ playbook_dir }}/../.."
+dip_core_vars: "{{ tfplenum_root_dir }}/versions.yml"
 tfplenum_log_path: /var/log/tfplenum
 log_dir: /var/log/ansible/hosts/
 cluster_domain: cluster.local

@@ -250,7 +250,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   getValues(stepper: MatStepper) {
-    this.getValuesFile();
     const callBackFunction: () => void = function(): void {
                                           stepper.next();
                                         };

@@ -29,7 +29,7 @@
   failed_when: result.rc != 0
   ignore_errors: yes
 
-- name: "Install Cert Manager Operator ({{ cert_manager_version }})"
+- name: "Install Cert Manager Operator ({{ docker_versions.cert_manager_version }})"
   shell: |
     kubectl apply -f {{ cert_manager_dir }}/operator.yml
   register: result

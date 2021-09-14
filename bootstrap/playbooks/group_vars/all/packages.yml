@@ -5,92 +5,92 @@ direct_download_package_names:
     url: "{{ tfplenum_raw_group_repo }}"
     dest: "{{ tfplenumoffline_dir }}/beats/sysmon"
     mode: "644"
-  - name: "winlogbeat-{{ elastic_7_version }}-windows-x86_64.zip"
+  - name: "winlogbeat-{{ docker_versions.elastic_7_version }}-windows-x86_64.zip"
     url: "{{ tfplenum_raw_group_repo }}/beats/winlogbeat"
     dest: "{{ tfplenumoffline_dir }}/beats/winlogbeat"
     mode: "644"
-  - name: "winlogbeat-{{ elastic_7_version }}-windows-x86.zip"
+  - name: "winlogbeat-{{ docker_versions.elastic_7_version }}-windows-x86.zip"
     url: "{{ tfplenum_raw_group_repo }}/beats/winlogbeat"
     dest: "{{ tfplenumoffline_dir }}/beats/winlogbeat"
     mode: "644"
-  - name: "filebeat-{{ elastic_7_version }}-windows-x86.zip"
+  - name: "filebeat-{{ docker_versions.elastic_7_version }}-windows-x86.zip"
     url: "{{ tfplenum_raw_group_repo }}/beats/filebeat"
     dest: "{{ tfplenumoffline_dir }}/beats/filebeat"
     mode: "644"
-  - name: "filebeat-{{ elastic_7_version }}-windows-x86_64.zip"
+  - name: "filebeat-{{ docker_versions.elastic_7_version }}-windows-x86_64.zip"
     url: "{{ tfplenum_raw_group_repo }}/beats/filebeat"
     dest: "{{ tfplenumoffline_dir }}/beats/filebeat"
     mode: "644"
-  - name: "auditbeat-{{ elastic_7_version }}-windows-x86_64.zip"
+  - name: "auditbeat-{{ docker_versions.elastic_7_version }}-windows-x86_64.zip"
     url: "{{ tfplenum_raw_group_repo }}/beats/auditbeat"
     dest: "{{ tfplenumoffline_dir }}/beats/auditbeat"
     mode: "644"
-  - name: "auditbeat-{{ elastic_7_version }}-windows-x86.zip"
+  - name: "auditbeat-{{ docker_versions.elastic_7_version }}-windows-x86.zip"
     url: "{{ tfplenum_raw_group_repo }}/beats/auditbeat"
     dest: "{{ tfplenumoffline_dir }}/beats/auditbeat"
     mode: "644"
-  - name: "helm-{{ helm_version }}-linux-amd64.tar.gz"
+  - name: "helm-{{ misc_versions.helm_version }}-linux-amd64.tar.gz"
     url: "{{ tfplenum_raw_group_repo }}"
     dest: "{{ tfplenumoffline_dir }}"
     mode: "644"
-  - name: "chartmuseum-{{ chartmuseum_version }}-linux-amd64.tar.gz"
+  - name: "chartmuseum-{{ misc_versions.chartmuseum_version }}-linux-amd64.tar.gz"
     url: "{{ tfplenum_raw_group_repo }}"
     dest: "{{ tfplenumoffline_dir }}"
     mode: "644"
-  - name: "crio-{{crio_version}}.tar.gz"
+  - name: "crio-{{misc_versions.crio_version}}.tar.gz"
     url: "{{ tfplenum_raw_group_repo }}/k8s-conform-cri-o/artifacts"
     dest: "{{ tfplenumoffline_dir }}"
     mode: "644"
-  - name: "repository-s3-{{ elastic_7_version }}.zip"
+  - name: "repository-s3-{{ docker_versions.elastic_7_version }}.zip"
     url: "{{ tfplenum_raw_group_repo }}/elasticsearch-plugins/repository-s3"
     dest: "{{ tfplenumoffline_dir }}/elasticsearch-plugins"
     mode: "644"
-  - name: "support-diagnostics-8.1.1-dist.zip"
-    url: "{{ tfplenum_raw_group_repo }}/support-diagnostics/releases/download/8.1.1"
+  - name: "support-diagnostics-{{ misc_versions.support_diagnostics }}-dist.zip"
+    url: "{{ tfplenum_raw_group_repo }}/support-diagnostics/releases/download/{{ misc_versions.support_diagnostics }}"
     dest: "{{ tfplenumoffline_dir }}"
     mode: "644"
   - name: "kubetail"
-    url: "{{ tfplenum_raw_group_repo }}/kubetail/1.6.12"
+    url: "{{ tfplenum_raw_group_repo }}/kubetail/{{ misc_versions.kubetail }}"
     dest: "{{ tfplenumoffline_dir }}"
     mode: "755"
   - name: "calicoctl"
-    url: "{{ tfplenum_raw_group_repo }}/calicoctl/releases/download/{{ calico_version }}"
+    url: "{{ tfplenum_raw_group_repo }}/calicoctl/releases/download/{{ docker_versions.calico_version }}"
     dest: "{{ tfplenumoffline_dir }}"
     mode: "755"
-  - name: "community-vmware-{{ community_vmware_module_version }}.tar.gz"
+  - name: "community-vmware-{{ misc_versions.community_vmware_module_version }}.tar.gz"
     url: "{{ tfplenum_raw_group_repo }}"
     dest: "{{ tfplenumoffline_dir }}"
     mode: "644"
-  - name: "ansible-utils-{{ community_utils_module_version }}.tar.gz"
+  - name: "ansible-utils-{{ misc_versions.community_utils_module_version }}.tar.gz"
     url: "{{ tfplenum_raw_group_repo }}"
     dest: "{{ tfplenumoffline_dir }}"
     mode: "644"
-  - name: "auditbeat-{{elastic_7_version}}-x86_64.rpm"
+  - name: "auditbeat-{{ docker_versions.elastic_7_version }}-x86_64.rpm"
     url: "{{ tfplenum_raw_group_repo }}/beats/auditbeat/"
     dest: "{{ extras_dir }}/Packages"
     mode: "644"
-  - name: "docker-distribution-2.6.2-2.git48294d9.el7.x86_64.rpm"
+  - name: "docker-distribution-{{ misc_versions.docker_distribution }}.git48294d9.el7.x86_64.rpm"
     url: "{{ tfplenum_raw_group_repo }}"
     dest: "{{ extras_dir }}/Packages"
     mode: "644"
   - name: "all-in-one.yaml"
-    url: "{{ tfplenum_raw_group_repo }}/eck/{{ elastic_operator }}"
-    dest: "{{ tfplenumoffline_dir }}/eck-all-in-one-{{ elastic_operator }}.yaml"
+    url: "{{ tfplenum_raw_group_repo }}/eck/{{ docker_versions.elastic_operator }}"
+    dest: "{{ tfplenumoffline_dir }}/eck-all-in-one-{{ docker_versions.elastic_operator }}.yaml"
     mode: "644"
   - name: "cert-manager.yaml"
-    url: "{{ tfplenum_raw_group_repo }}/cert-manager/releases/download/{{ cert_manager_version }}"
-    dest: "{{ tfplenumoffline_dir }}/certmanager-all-in-one-{{ cert_manager_version }}.yaml"
+    url: "{{ tfplenum_raw_group_repo }}/cert-manager/releases/download/{{ docker_versions.cert_manager_version }}"
+    dest: "{{ tfplenumoffline_dir }}/certmanager-all-in-one-{{ docker_versions.cert_manager_version }}.yaml"
     mode: "644"
-  - name: "keycloak-{{ keycloak_version }}.tar.gz"
-    url: "{{ tfplenum_raw_group_repo }}/keycloak/{{ keycloak_version }}"
-    dest: "{{ tfplenumoffline_dir }}/keycloak-{{ keycloak_version }}.tar.gz"
+  - name: "keycloak-{{ misc_versions.keycloak_version }}.tar.gz"
+    url: "{{ tfplenum_raw_group_repo }}/keycloak/{{ misc_versions.keycloak_version }}"
+    dest: "{{ tfplenumoffline_dir }}/keycloak-{{ misc_versions.keycloak_version }}.tar.gz"
     mode: "644"
-  - name: "node-{{ node_version }}-linux-x64.tar.xz"
-    url: "{{ tfplenum_raw_group_repo }}/{{ node_version }}"
+  - name: "node-{{ misc_versions.node_version }}-linux-x64.tar.xz"
+    url: "{{ tfplenum_raw_group_repo }}/{{ misc_versions.node_version }}"
     dest: "{{ tfplenumoffline_dir }}"
     mode: "644"
   - name: emerging.rules.tar.gz
-    url: "{{ tfplenum_raw_group_repo }}/{{ emerging_threat_rules_version }}"
+    url: "{{ tfplenum_raw_group_repo }}/{{ misc_versions.emerging_threat_rules_version }}"
     dest: "{{ tfplenumoffline_dir }}"
     mode: "644"
   - name: "{{ dod_smil_file }}"
@@ -101,48 +101,5 @@ direct_download_package_names:
     url: "{{ tfplenum_repo }}/dod_certs"
     dest: "{{ offline_cert_dir }}"
     mode: "644"
-
-extra_packages:
-  - "kubelet-{{ k8s_version }}"
-  - cri-tools
-  - easy-rsa
-  - htop
-  - inotify-tools
-  - mongodb-org
-  - mongodb-database-tools
-  - mongodb-org-database-tools-extra
-  - mongodb-org-mongos
-  - mongodb-org-server
-  - mongodb-org-shell
-  - mongodb-org-tools
-  - nload
-  - openvpn-2.4.11-1.el8
-  - screen
-  - sshpass
-  - pkcs11-helper
-  - tcpreplay
-  - libcurl-openssl-7.77.0-1.1
-  - libxerces-c-3_2-3.2.3-3.1
-  - opensaml-schemas-3.2.0-1.1
-  - liblog4shib2-2.0.0-3.1
-  - libxml-security-c20-2.0.2-3.1
-  - shibboleth-3.2.2-3.1
-  - libsaml12-3.2.0-1.1
-  - libxmltooling10-3.2.0-1.1
-  - xmltooling-schemas-3.2.0-1.1
-  - docker-ce-18.09.1
-  - containerd.io-1.2.0
-  - docker-ce-cli-20.10.7
-  - docker-scan-plugin-0.8.0
-  - putty
-  - pwgen
-
-dip_packages_without_deps:
-  - "kubeadm-{{ k8s_version }}"
-  - "kubectl-{{ k8s_version }}"
-  - kubernetes-cni-0.8.7
-
-dip_packages_to_remove:
-  - containerd.io
 
 ...

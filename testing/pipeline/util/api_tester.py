@@ -560,6 +560,5 @@ class APITesterV2:
                         "sensors": sensors
                     }
 
-
         put_request(self._url.format("/api/policy/ruleset"), payload)
         self._sync_rules()

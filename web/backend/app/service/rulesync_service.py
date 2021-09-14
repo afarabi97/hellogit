@@ -188,6 +188,7 @@ class RuleSynchronization():
 
             if self._is_sensor_in_ruleset(ip_address, rule_set) and rule_set["isEnabled"]:
                 state_obj = {"hostname": hostname, "state": statestr}
+                # self.mongo.mongo_ruleset.update_one({"_id": rule_set["_id"]}, {"state": []}) # type: UpdateResult
                 ret_val = self.mongo.mongo_ruleset.update_one({"_id": rule_set["_id"]}, {"$push": {"state": state_obj}}) # type: UpdateResult
                 if ret_val.modified_count == 0:
                     self._send_notification("Failed to update rule set ID {} with {}".format(rule_set["_id"], str(state_obj)))

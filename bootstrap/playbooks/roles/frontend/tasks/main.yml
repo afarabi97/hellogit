@@ -2,6 +2,7 @@
 - import_role:
     name: rhel_repo
     tasks_from: add_repo
+  when: not rpm_install
 
 - name: Get Icons
   get_url:
@@ -29,22 +30,39 @@
     immediate: true
     state: enabled
   loop:
-  - "443/tcp"
-  - "4200/tcp"
+    - "443/tcp"
+    - "4200/tcp"
+  tags:
+    - rpm_setup
 
 - import_tasks: 20_setup_httpd.yml
-  tags: setup_httpd
+  tags:
+    - setup_httpd
+    - rpm_setup
 
 - import_tasks: 25_build_frontend.yml
   tags: build_frontend
 
 - import_tasks: 30_install_mongo.yml
+  tags:
+    - setup_mongo
+    - rpm_setup
+
 - import_tasks: 35_install_redis.yml
-  tags: setup_redis
+  tags:
+    - setup_redis
+    - rpm_setup
+
 - import_tasks: 40_install_rq.yml
-  tags: setup_rq
+  tags:
+    - setup_rq
+    - rpm_setup
+
 - import_tasks: 45_restart_services.yml
-  tags: restart_frontend_services
+  tags:
+    - restart_frontend_services
+    - rpm_setup
+
 - import_tasks: 55_preload_pcaps.yml
 
 # Set ip forwarding on in /proc and in the sysctl file and reload if necessary
@@ -55,10 +73,13 @@
     sysctl_set: yes
     state: present
     reload: yes
-  tags: enable_ip_forward
+  tags:
+    - enable_ip_forward
+    - rpm_setup
 
 - import_role:
     name: rhel_repo
     tasks_from: remove_nexus_repos
+  when: not rpm_install
 
 ...

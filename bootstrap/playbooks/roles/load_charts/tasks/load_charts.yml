@@ -1,0 +1,37 @@
+---
+
+- name: "Create chart directory"
+  file:
+    path: "{{ chart_dir }}"
+    state: directory
+  tags: load_charts
+
+- name: Download charts to offline repo
+  uri:
+    url: "https://{{ repo_uri }}/repository/tfplenum-helm/{{ item }}"
+    dest: "{{ chart_dir }}/{{ item }}"
+    method: GET
+    status_code: 200
+    return_content: yes
+    validate_certs: no
+  with_items: "{{ helm_packages }}"
+  register: results
+  until: results.status == 200
+  retries: 10
+  delay: 5
+  tags: load_charts
+
+- name: Upload charts into Chartmuseum
+  uri:
+    url: "https://controller/chartmuseum/api/charts"
+    src: "{{ chart_dir }}/{{ item }}"
+    method: POST
+    status_code: 201, 200
+    return_content: yes
+    validate_certs: no
+  with_items: "{{ helm_packages }}"
+  register: results
+  until: results.status == 201 and results.json.saved
+  retries: 10
+  delay: 5
+  tags: load_charts

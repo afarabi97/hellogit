@@ -1,0 +1,8 @@
+- import_tasks: load_charts.yml
+
+- name: update helm repo
+  shell: |
+    helm repo update
+  register: results
+  changed_when: results.rc == 0
+  tags: load_charts

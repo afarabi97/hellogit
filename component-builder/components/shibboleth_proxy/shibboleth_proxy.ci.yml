@@ -1,0 +1,27 @@
+.shibboleth-variables:
+  variables:
+    NAME: "shibboleth_proxy"
+
+rpm build shibboleth:
+  extends:
+    - .rpm-build-super
+    - .shibboleth-variables
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /.*-shibboleth_proxy$/'
+      when: always
+
+.shibboleth-docker-rules:
+  only:
+    changes:
+      - component-builder/components/shibboleth_proxy/templates/Dockerfile.j2
+  except:
+    - tags
+    - schedules
+
+docker build shibboleth:
+  extends:
+    - .shibboleth-variables
+    - .docker-build-super
+    - .shibboleth-docker-rules

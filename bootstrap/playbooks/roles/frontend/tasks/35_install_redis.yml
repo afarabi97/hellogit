@@ -2,6 +2,7 @@
 - import_role:
     name: rhel_repo
     tasks_from: add_repo
+  when: not rpm_install
 
 - name: redis | Install
   dnf:
@@ -13,6 +14,21 @@
 - import_role:
     name: rhel_repo
     tasks_from: remove_nexus_repos
+  when: not rpm_install
+
+- name: Change permissions of redis config file
+  file:
+    path: /etc/redis.conf
+    state: file
+    mode: '0644'
+
+- name: Change Owner and group of the log folder
+  file:
+    path: /var/log/redis
+    state: directory
+    owner: redis
+    group: redis
+    recurse: yes
 
 - name: redis | Enable Service
   systemd:

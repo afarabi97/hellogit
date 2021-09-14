@@ -60,7 +60,7 @@
           dns_servers: "{{ node.dns_servers }}"
           domain: lan
           password: "{{ node.password }}"
-          hostname: "{{ node.hostname }}"
+          hostname: "controller"
         hardware:
           memory_mb: "{{ node.memory }}"
           num_cpus: "{{ node.cpu }}"

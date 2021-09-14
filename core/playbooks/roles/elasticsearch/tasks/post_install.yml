@@ -44,6 +44,8 @@
   until: results.status == 200 and results.json.license.status == 'active'
   retries: 60
   delay: 5
+  tags:
+    - load-ml
 
 - name: Create roles
   uri:

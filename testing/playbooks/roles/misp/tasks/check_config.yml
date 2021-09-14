@@ -27,8 +27,8 @@
 - name: Check MISP version
   assert:
     that: >
-      misp_server.json.version is version(misp_version, 'eq')
-    msg: "Failed it appears MISP version doesn't match {{ misp_version }}"
+      misp_server.json.version is version(docker_versions.misp_version, 'eq')
+    msg: "Failed it appears MISP version doesn't match {{ docker_versions.misp_version }}"
 
 - name: Get MISP users
   uri:

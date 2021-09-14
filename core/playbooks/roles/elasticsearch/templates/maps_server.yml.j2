@@ -41,7 +41,7 @@ spec:
     spec:
       containers:
       - name: maps-server
-        image: elastic-maps-service/elastic-maps-server-ubi8:{{ elastic_7_version }}
+        image: elastic-maps-service/elastic-maps-server-ubi8:{{ docker_versions.elastic_7_version }}
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 4343

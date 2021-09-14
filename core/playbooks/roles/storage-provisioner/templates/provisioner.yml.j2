@@ -61,7 +61,7 @@ spec:
                 - server
                 - service
       containers:
-        - image: "external_storage/local-volume-provisioner:v{{storage_provisioner_version}}"
+        - image: "external_storage/local-volume-provisioner:v{{docker_versions.storage_provisioner_version}}"
           name: provisioner
           securityContext:
             privileged: true
@@ -75,7 +75,7 @@ spec:
               fieldRef:
                 fieldPath: metadata.namespace
           - name: JOB_CONTAINER_IMAGE
-            value: "external_storage/local-volume-provisioner:v{{storage_provisioner_version}}"
+            value: "external_storage/local-volume-provisioner:v{{docker_versions.storage_provisioner_version}}"
           volumeMounts:
             - mountPath: /etc/provisioner/config
               name: provisioner-config

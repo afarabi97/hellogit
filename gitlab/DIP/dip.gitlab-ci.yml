@@ -7,34 +7,37 @@ Setup Controller:
     echo "Current working directory is $(pwd)"
     echo "VM_PREFIX is $VM_PREFIX"
     echo "TEMPLATE TO CLONE IS $TEMPLATE_TO_CLONE"
-    python3 testing/pipeline/pipeline.py           \
-    setup-controller                               \
-    --vcenter-ipaddress   "$VCENTER_IPADDRESS"     \
-    --vcenter-username    "$VCENTER_USERNAME"      \
-    --vcenter-password    "$VCENTER_PASSWORD"      \
-    --vcenter-datacenter  "$VCENTER_DATACENTER"    \
-    --repo-username       "$REPO_USERNAME"         \
-    --repo-password       "$REPO_PASSWORD"         \
-    --repo-url            "$REPO_URL"              \
-    --portgroup           "$VCENTER_PORTGROUP"     \
-    --network-id          "$NETWORK_ID"            \
-    --network-block-index $NETWORK_BLOCK_INDEX \
-    --dns-servers         $DNS_SERVERS             \
-    --vm-folder           "$VMWARE_FOLDER"         \
-    --vm-password         "$DEFAULT_TEMPLATE_PASSWORD"   \
-    --export-password     "$OVA_EXPORT_PASSWORD"   \
-    --vm-template         "$TEMPLATE_TO_CLONE" \
-    --gateway             "$VM_GATEWAY"            \
-    --vm-prefix           "$VM_PREFIX"         \
-    --domain              "$KIT_DOMAIN"            \
-    --branch-name         "$CI_COMMIT_REF_NAME"    \
-    --vm-datastore        "$VCENTER_DATASTORE"     \
-    --ctrl-cpu            "$CTRL_CPU"              \
-    --ctrl-memory         "$CTRL_MEMORY"           \
-    --pipeline            "$PIPELINE"              \
-    --commit-hash         "$CI_COMMIT_SHORT_SHA"   \
-    --project-id          "$CI_PROJECT_ID"         \
-    --access-token        "$ACCESS_TOKEN"
+    cmd="python3 testing/pipeline/pipeline.py
+    setup-controller
+    --vcenter-ipaddress   \"$VCENTER_IPADDRESS\"
+    --vcenter-username    \"$VCENTER_USERNAME\"
+    --vcenter-password    \"$VCENTER_PASSWORD\"
+    --vcenter-datacenter  \"$VCENTER_DATACENTER\"
+    --repo-username       \"$REPO_USERNAME\"
+    --repo-password       \"$REPO_PASSWORD\"
+    --repo-url            \"$REPO_URL\"
+    --portgroup           \"$VCENTER_PORTGROUP\"
+    --network-id          \"$NETWORK_ID\"
+    --network-block-index $NETWORK_BLOCK_INDEX
+    --dns-servers         $DNS_SERVERS
+    --vm-folder           \"$VMWARE_FOLDER\"
+    --vm-password         \"$DEFAULT_TEMPLATE_PASSWORD\"
+    --export-password     \"$OVA_EXPORT_PASSWORD\"
+    --vm-template         \"$TEMPLATE_TO_CLONE\"
+    --gateway             \"$VM_GATEWAY\"
+    --vm-prefix           \"$VM_PREFIX\"
+    --domain              \"$KIT_DOMAIN\"
+    --branch-name         \"$CI_COMMIT_REF_NAME\"
+    --vm-datastore        \"$VCENTER_DATASTORE\"
+    --ctrl-cpu            \"$CTRL_CPU\"
+    --ctrl-memory         \"$CTRL_MEMORY\"
+    --pipeline            \"$PIPELINE\"
+    --commit-hash         \"$CI_COMMIT_SHORT_SHA\"
+    --project-id          \"$CI_PROJECT_ID\"
+    --access-token        \"$ACCESS_TOKEN\"
+    --rpm-build           \"$RPM_BUILD\""
+    echo "$cmd"
+    eval $cmd
   artifacts:
     untracked: true
   extends: .controller

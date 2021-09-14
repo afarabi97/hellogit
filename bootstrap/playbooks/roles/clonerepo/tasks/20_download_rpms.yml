@@ -2,18 +2,11 @@
 - import_role:
     name: rhel_repo
     tasks_from: nexus_yum_repos
+  when: not rpm_install
 
 - name: Download Packages
   shell:  |
-    dnf download --repoid="{{ item.repoid }}" --destdir="{{ item.destdir }}" {{ item.packages }}
-  with_items:
-    - { repoid: "nexus-yum-proxy", destdir: "{{ extras_dir }}/Packages/", packages: "{{ extra_packages | join(' ') }}" }
-  args:
-    warn: false
-
-- name: Download DIP/GIP Packages without Deps
-  shell: |
-    dnf download --repoid="nexus-yum-proxy" --destdir="{{ extras_dir }}/Packages/" {{ dip_packages_without_deps | join(' ')  }}
+    dnf download --repoid="nexus-yum-proxy" --destdir="{{ extras_dir }}/Packages/" {{ extra_packages | join(' ') }}
   args:
     warn: false
 
@@ -30,3 +23,4 @@
 - import_role:
     name: rhel_repo
     tasks_from: remove_nexus_repos
+  when: not rpm_install

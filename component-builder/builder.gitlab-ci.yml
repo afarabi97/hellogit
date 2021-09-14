@@ -1,0 +1,93 @@
+image: docker.nexus.sil.lab/tfplenum/pipeline-builder:1.3
+
+###########################################
+# TEMPLATE
+
+.helm-build-super:
+  extends: .before-script-super
+  stage: build-helm
+  script: |
+    cmd="python3 component-builder/build.py helm-build -n ${NAME} --nexus-user \"$NEXUS_USER\" --nexus-password \"$NEXUS_PASSWORD\""
+    echo "$cmd"
+    eval $cmd
+  artifacts:
+    when: always
+    paths:
+      - ./*.tgz
+    expire_in: 30 minutes
+
+.docker-build-super:
+  stage: build-docker
+  script: |
+    cmd="python3 component-builder/build.py docker-build -n ${NAME}"
+    echo "$cmd"
+    eval $cmd
+
+.rpm-build-super:
+  extends: .before-script-super
+  stage: build-rpm
+  script: |
+    cmd="python3 component-builder/build.py rpm-build -n ${NAME} -v \"${RPM_VERSION}\" -r \"${RPM_RELEASE_NUM}\" -u \"${REGISTRY_URL}\" --nexus-user \"$NEXUS_USER\" --nexus-password \"$NEXUS_PASSWORD\""
+    echo "$cmd"
+    eval $cmd
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+      when: always
+
+############################################
+
+include:
+  - local: component-builder/components/arkime/arkime.ci.yml
+  - local: component-builder/components/arkime-viewer/arkime-viewer.ci.yml
+  - local: component-builder/components/cortex/cortex.ci.yml
+  - local: component-builder/components/hive/hive.ci.yml
+  - local: component-builder/components/jcat-nifi/jcat-nifi.ci.yml
+  - local: component-builder/components/mattermost/mattermost.ci.yml
+  - local: component-builder/components/misp/misp.ci.yml
+  - local: component-builder/components/misp-modules/misp-modules.ci.yml
+  - local: component-builder/components/netflow-filebeat/netflow-filebeat.ci.yml
+  - local: component-builder/components/nifi/nifi.ci.yml
+  - local: component-builder/components/redmine/redmine.ci.yml
+  - local: component-builder/components/rocketchat/rocketchat.ci.yml
+  - local: component-builder/components/suricata/suricata.ci.yml
+  - local: component-builder/components/wikijs/wikijs.ci.yml
+  - local: component-builder/components/zeek/zeek.ci.yml
+  - local: component-builder/components/python/python.ci.yml
+  - local: component-builder/components/remote-health-agent/remote-health-agent.ci.yml
+  - local: component-builder/components/kubernetes/kubernetes.ci.yml
+  - local: component-builder/components/kubernetes/chartmuseum/chartmuseum.ci.yml
+  - local: component-builder/components/elasticsearch/elasticsearch.ci.yml
+  - local: component-builder/components/elasticsearch/logstash/logstash.ci.yml
+  - local: component-builder/components/mariadb/mariadb.ci.yml
+  - local: component-builder/components/nginx/nginx.ci.yml
+  - local: component-builder/components/busybox/busybox.ci.yml
+  - local: component-builder/components/shibboleth_proxy/shibboleth_proxy.ci.yml
+  - local: component-builder/components/winlogbeat-setup/winlogbeat.ci.yml
+
+release:
+  extends: .before-script-super
+  variables:
+    GITLAB_PRIVATE_TOKEN: $RELEASE_PRIVATE_TOKEN
+    ADDITIONAL_CA_CERT_BUNDLE: $SIL_CA_BUNDLE
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+  script: |
+    cmd="release-cli --project-id $CI_PROJECT_ID --server-url \"$CI_SERVER_URL\" --private-token \"$RELEASE_PRIVATE_TOKEN\" create --name \"Release $CI_COMMIT_TAG\" --tag-name \"$CI_COMMIT_TAG\""
+
+    # Add the primary tfplenum and tfplenum-repo RPM to the command before we add all the other components
+    binary_name=tfplenum-$RPM_VERSION-$RPM_RELEASE_NUM.el8.x86_64.rpm
+    cmd="$cmd --assets-link \"{\\\"name\\\":\\\"${binary_name}\\\",\\\"url\\\":\\\"${REGISTRY_URL}/${binary_name}\\\"}\""
+    binary_name=tfplenum-repo-$RPM_VERSION-$RPM_RELEASE_NUM.el8.x86_64.rpm
+    cmd="$cmd --assets-link \"{\\\"name\\\":\\\"${binary_name}\\\",\\\"url\\\":\\\"${REGISTRY_URL}/${binary_name}\\\"}\""
+
+    ALL_COMPONENTS=$(ls component-builder/components)
+    echo "$ALL_COMPONENTS"
+    for component in $ALL_COMPONENTS
+    do
+      binary_name=tfplenum-$component-$RPM_VERSION-$RPM_RELEASE_NUM.el8.x86_64.rpm
+      cmd="$cmd --assets-link \"{\\\"name\\\":\\\"${binary_name}\\\",\\\"url\\\":\\\"${REGISTRY_URL}/${binary_name}\\\"}\""
+    done
+    echo "$cmd"
+    eval $cmd

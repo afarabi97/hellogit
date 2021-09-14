@@ -1,0 +1,13 @@
+.busybox-variables:
+  variables:
+    NAME: busybox
+
+rpm build busybox:
+  extends:
+    - .rpm-build-super
+    - .busybox-variables
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /.*-busybox$/'
+      when: always

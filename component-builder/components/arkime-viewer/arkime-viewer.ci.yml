@@ -1,0 +1,30 @@
+.arkime-viewer-variables:
+  variables:
+    NAME: arkime-viewer
+
+.arkime-viewer-helm-rules:
+  only:
+    changes:
+      - component-builder/components/arkime-viewer/helm/*
+      - component-builder/components/arkime-viewer/helm/**/*
+      - component-builder/components/arkime-viewer/templates/Chart.yaml.j2
+      - component-builder/components/arkime-viewer/templates/values.yaml.j2
+  except:
+    - tags
+    - schedules
+
+helm build arkime-viewer:
+  extends:
+    - .helm-build-super
+    - .arkime-viewer-helm-rules
+    - .arkime-viewer-variables
+
+rpm build arkime-viewer:
+  extends:
+    - .rpm-build-super
+    - .arkime-viewer-variables
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /.*-arkime-viewer$/'
+      when: always

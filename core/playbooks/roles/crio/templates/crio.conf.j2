@@ -324,7 +324,7 @@ global_auth_file = ""
 
 # The image used to instantiate infra containers.
 # This option supports live configuration reload.
-pause_image = "{{ docker_registry_repo }}/pause:{{ k8s_pause_version }}"
+pause_image = "{{ docker_registry_repo }}/pause:{{ docker_versions.k8s_pause_version }}"
 
 # The path to a file containing credentials specific for pulling the pause_image from
 # above. The file is similar to that of /var/lib/kubelet/config.json

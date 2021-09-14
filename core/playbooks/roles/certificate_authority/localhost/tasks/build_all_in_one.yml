@@ -1,26 +1,26 @@
 ---
 - name: set Cert Manger All in One File
   set_fact:
-    cm_file: "{{ tfplenumoffline_dir }}/certmanager-all-in-one-{{ cert_manager_version }}.yaml"
+    cm_file: "{{ tfplenumoffline_dir }}/certmanager-all-in-one-{{ docker_versions.cert_manager_version }}.yaml"
 
 - name: Read all in one
-  set_fact: 
+  set_fact:
     cm_operator: "{{ lookup('file', cm_file) | from_yaml_all }}"
 
 - name: get index
-  set_fact: 
+  set_fact:
     cm_operator_pod_1: "{{ item.0 }}"
   with_indexed_items: '{{ cm_operator | list }}'
   when: item.1.kind == 'Deployment' and item.1.metadata.name == 'cert-manager-cainjector'
 
 - name: get index
-  set_fact: 
+  set_fact:
     cm_operator_pod_2: "{{ item.0 }}"
   with_indexed_items: '{{ cm_operator | list }}'
   when: item.1.kind == 'Deployment' and item.1.metadata.name == 'cert-manager'
-  
+
 - name: get index
-  set_fact: 
+  set_fact:
     cm_operator_pod_3: "{{ item.0 }}"
   with_indexed_items: '{{ cm_operator | list }}'
   when: item.1.kind == 'Deployment' and item.1.metadata.name == 'cert-manager-webhook'
@@ -31,15 +31,15 @@
     - path: "cm_operator[{{ cm_operator_pod_1 }}].spec.template.spec.affinity"
       value: "{{ operator_node_affinity }}"
     - path: "cm_operator[{{ cm_operator_pod_1 }}].spec.template.spec.containers[0].image"
-      value: "jetstack/cert-manager-cainjector:{{ cert_manager_version }}"
+      value: "jetstack/cert-manager-cainjector:{{ docker_versions.cert_manager_version }}"
     - path: "cm_operator[{{ cm_operator_pod_2 }}].spec.template.spec.affinity"
       value: "{{ operator_node_affinity }}"
     - path: "cm_operator[{{ cm_operator_pod_2 }}].spec.template.spec.containers[0].image"
-      value: "jetstack/cert-manager-controller:{{ cert_manager_version }}"
+      value: "jetstack/cert-manager-controller:{{ docker_versions.cert_manager_version }}"
     - path: "cm_operator[{{ cm_operator_pod_3 }}].spec.template.spec.affinity"
       value: "{{ operator_node_affinity }}"
     - path: "cm_operator[{{ cm_operator_pod_3 }}].spec.template.spec.containers[0].image"
-      value: "jetstack/cert-manager-webhook:{{ cert_manager_version }}"
+      value: "jetstack/cert-manager-webhook:{{ docker_versions.cert_manager_version }}"
   register: cm_operator
   tags:
     # Avoid "no action detected in task" linter error

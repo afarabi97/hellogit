@@ -4,8 +4,8 @@ kind: Elasticsearch
 metadata:
   name: tfplenum
 spec:
-  version: {{ elastic_7_version }}
-  image: elasticsearch/elasticsearch:{{elastic_7_version}}
+  version: {{ docker_versions.elastic_7_version }}
+  image: elasticsearch/elasticsearch:{{docker_versions.elastic_7_version}}
   http:
     tls:
       certificate:
@@ -99,7 +99,7 @@ spec:
           - name: elastic-plugins
             mountPath: /tmp/plugins
         containers:
-        - name: elasticsearch        
+        - name: elasticsearch
           env:
           - name: NODE_NAME
             valueFrom:

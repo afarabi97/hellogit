@@ -1,6 +1,0 @@
----
-
-- name: Checking if Helm is Installed
-  stat:
-    path: /usr/local/bin/helm
-  register: helm_installed

@@ -1,7 +1,0 @@
-apiVersion: v1
-name: wikijs
-home: https://hub.docker.com/r/requarks/wiki
-version: 1.0.0
-appVersion: 2.5.201
-description: Modern Wiki based on NodeJS
-details: Modern Wiki based on NodeJS

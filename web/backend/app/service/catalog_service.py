@@ -337,6 +337,8 @@ def generate_values(application: str, namespace: str, configs: list=None) -> lis
             values['auth_base'] = get_auth_base()
         if 'elastic_ingest_nodes' in values:
             values['elastic_ingest_nodes'] = _get_elastic_nodes(node_type="ingest")
+            if values['elastic_ingest_nodes'] is None or len(values['elastic_ingest_nodes']) == 0:
+                raise ValueError("Elastic ingest cannot be null")
         if 'elastic_data_nodes' in values:
             values['elastic_data_nodes'] = _get_elastic_nodes(node_type="data")
         if 'shards' in values:
@@ -463,11 +465,9 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
 def install_helm_command (deployment_name: str, application: str, node: str, namespace: str, value_items: dict):
     response = []
     tpath = _write_values(deployment_name, value_items)
-    stdout, ret_code = run_command2(command="helm install " + deployment_name +
-                                    " chartmuseum/" + application +
-                                    " --namespace " + namespace +
-                                    " --values " + tpath +
-                                    " --wait --wait-for-jobs",
+    cmd = "helm install " + deployment_name + " chartmuseum/" + application + " --namespace " + namespace + " --values " + tpath + " --wait --wait-for-jobs"
+    rq_logger.info(cmd)
+    stdout, ret_code = run_command2(command=cmd,
         working_dir=WORKING_DIR, use_shell=True)
 
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.INSTALLING.name.capitalize(), application=application.capitalize())

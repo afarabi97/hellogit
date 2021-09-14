@@ -1,0 +1,30 @@
+.redmine-variables:
+  variables:
+    NAME: redmine
+
+.redmine-helm-rules:
+  only:
+    changes:
+      - component-builder/components/redmine/helm/*
+      - component-builder/components/redmine/helm/**/*
+      - component-builder/components/redmine/templates/Chart.yaml.j2
+      - component-builder/components/redmine/templates/values.yaml.j2
+  except:
+    - tags
+    - schedules
+
+helm build redmine:
+  extends:
+    - .helm-build-super
+    - .redmine-helm-rules
+    - .redmine-variables
+
+rpm build redmine:
+  extends:
+    - .rpm-build-super
+    - .redmine-variables
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /.*-redmine$/'
+      when: always

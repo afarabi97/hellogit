@@ -1,0 +1,5 @@
+[tfplenum-rpm]
+name=rhel-8-local-baseos
+baseurl=https://nexus.sil.lab/repository/tfplenum-dev/
+enabled=1
+gpgcheck=0

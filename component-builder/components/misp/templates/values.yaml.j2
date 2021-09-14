@@ -1,0 +1,32 @@
+# Default values for misp
+hard_disk_drive: false
+mispImage: tfplenum/misp:{{ component["app_version"] }}
+mispModulesImage: tfplenum/misp-modules:{{ component["app_version"] }}
+python_image: tfplenum/python:{{ context["docker_versions"]["python_version"] }}
+busyboxImage: busybox:{{ context["docker_versions"]["busybox_version"] }}
+domain: lan
+auth_base: https://controller.lan/auth/realms/CVAH-SSO
+elastic_ingest_nodes: []
+cortex_url: https://cortex.default.svc.cluster.local
+modules_url: misp-modules.default.svc.cluster.local
+
+# Database values
+mariadbImage: mariadb:{{ context["docker_versions"]["mariadb_version"] }}
+sqlDatabase: misp-db
+sqlUsername: misp
+sqlRootPassword: A0@QlrLZPEDB3*aLcgPsMm805
+sqlUserPassword: SKhLFlu@SxyWUaQrpHZlJlxZ4
+hive_user_email: hive@dip.local
+cortex_user_email: cortex@dip.local
+filebeat_user_email: filebeat@dip.local
+admin_user: admin@admin.test
+admin_pass: 1qaz@WSX1qaz@WSX
+org_name: CPT HUNT
+cortexIntegration: false
+redisImage: redis:{{ context["docker_versions"]["redis_version"] }}
+
+# Filebeat values
+filebeat_image_name: beats/filebeat
+filebeat_image_tag: {{ context["docker_versions"]["elastic_7_version"] }}
+shards: {}
+serviceNode: false

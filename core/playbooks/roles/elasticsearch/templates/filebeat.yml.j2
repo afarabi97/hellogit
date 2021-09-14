@@ -105,7 +105,7 @@ spec:
     spec:
       containers:
       - name: "filebeat-default-setup"
-        image: "beats/filebeat:{{elastic_7_version}}"
+        image: "beats/filebeat:{{docker_versions.elastic_7_version}}"
         imagePullPolicy: IfNotPresent
         env:
         - name: ELASTICSEARCH_USERNAME
@@ -128,7 +128,7 @@ spec:
           readOnly: true
         args: ['-e', 'setup', '--index-management', '--pipelines', '--dashboards']
       - name: "filebeat-setup"
-        image: "beats/filebeat:{{elastic_7_version}}"
+        image: "beats/filebeat:{{docker_versions.elastic_7_version}}"
         imagePullPolicy: IfNotPresent
         env:
         - name: ELASTICSEARCH_USERNAME

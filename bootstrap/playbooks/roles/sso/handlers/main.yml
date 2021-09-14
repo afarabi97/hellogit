@@ -1,4 +1,5 @@
 ---
+
 - name: Enable Shibboleth
   service:
     name: shibd

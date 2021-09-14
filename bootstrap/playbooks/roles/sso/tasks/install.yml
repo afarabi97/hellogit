@@ -78,6 +78,7 @@
 - import_role:
     name: rhel_repo
     tasks_from: add_repo
+  when: not rpm_install
 
 - name: Install Keycloak Dependencies
   dnf:
@@ -89,6 +90,7 @@
 - import_role:
     name: rhel_repo
     tasks_from: remove_nexus_repos
+  when: not rpm_install
 
 - name: Gen Password # noqa 306
   shell: |
@@ -139,7 +141,7 @@
 
 - name: Unpacking Keycloak
   unarchive:
-    src: "{{ tfplenumoffline_dir }}/keycloak-{{ keycloak_version }}.tar.gz"
+    src: "{{ tfplenumoffline_dir }}/keycloak-{{ misc_versions.keycloak_version }}.tar.gz"
     dest: "{{ keycloak_dir }}"
     extra_opts: [--strip-components=1]
     group: "{{ keycloak_group }}"

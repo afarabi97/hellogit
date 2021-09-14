@@ -73,7 +73,7 @@ class YamlManager:
     @classmethod
     def save_to_yaml_by_index(cls, node: Union[NodeSettingsV2, HardwareNodeSettingsV2]):
         cls._initalize()
-        file_name = node.__class__.__name__.lower() + "_" + str(node.index)
+        file_name = node.__class__.__name__.lower() + "_" + node.node_type + str(node.index)
         yaml_name = YAML_FILE.format(file_name)
         with open(yaml_name, 'w') as outfile:
             cls.yaml.dump(node, outfile)

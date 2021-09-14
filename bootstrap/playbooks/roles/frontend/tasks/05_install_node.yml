@@ -1,18 +1,18 @@
 ---
 - name: Check if node TAR exists
   stat:
-    path: "{{ web_install_dir }}/node-{{ node_version }}-linux-x64.tar.xz"
+    path: "{{ web_install_dir }}/node-{{ misc_versions.node_version }}-linux-x64.tar.xz"
   register: node_tar
 
 - name: node | Download
   get_url:
-    url: "{{ tfplenum_raw_group_repo }}/{{ node_version }}/node-{{ node_version }}-linux-x64.tar.xz"
+    url: "{{ tfplenum_raw_group_repo }}/{{ misc_versions.node_version }}/node-{{ misc_versions.node_version }}-linux-x64.tar.xz"
     dest: "{{ web_install_dir }}"
   when: not node_tar.stat.exists
 
 - name: node | Extract
   unarchive:
-    src: "{{ web_install_dir }}/node-{{ node_version }}-linux-x64.tar.xz"
+    src: "{{ web_install_dir }}/node-{{ misc_versions.node_version }}-linux-x64.tar.xz"
     dest: /usr/local
     owner: root
     group: root

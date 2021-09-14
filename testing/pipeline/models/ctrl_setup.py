@@ -11,9 +11,11 @@ class ControllerSetupSettings(Model):
         self.node = None # type: NodeSettings
         self.vcenter = None # type: VCenterSettings
         self.repo = None # type: RepoSettings
+        self.rpm_build = "no"
 
     def from_namespace(self, namespace: Namespace):
         self.rhel_source_repo = namespace.rhel_source_repo
+        self.rpm_build = namespace.rpm_build
 
         self.vcenter = VCenterSettings()
         self.vcenter.from_namespace(namespace)
@@ -28,6 +30,8 @@ class ControllerSetupSettings(Model):
     def add_args(parser: ArgumentParser):
         parser.add_argument('--rhel-source-repo', dest='rhel_source_repo', default="labrepo",
                             help="Use labrepo for SIL network otherwise pass in public.")
+        parser.add_argument('--rpm-build', dest='rpm_build', default="no",
+                            help="Build the controller with RPMs.")
         VCenterSettings.add_args(parser)
         RepoSettings.add_args(parser)
         NodeSettings.add_args(parser, True)
@@ -44,6 +48,7 @@ class HwControllerSetupSettings(ControllerSetupSettings):
 
     def from_namespace(self, namespace: Namespace):
         self.rhel_source_repo = namespace.rhel_source_repo
+        self.rpm_build = namespace.rpm_build
 
         self.esxi = ESXiSettings()
         self.esxi.from_namespace(namespace)
@@ -61,6 +66,8 @@ class HwControllerSetupSettings(ControllerSetupSettings):
     def add_args(parser: ArgumentParser):
         parser.add_argument('--rhel-source-repo', dest='rhel_source_repo', default="labrepo",
                             help="Use labrepo for SIL network otherwise pass in public.")
+        parser.add_argument('--rpm-build', dest='rpm_build', default="no",
+                            help="Build the controller with RPMs.")
         ESXiSettings.add_args(parser)
         RepoSettings.add_args(parser)
         HwNodeSettings.add_args(parser, True)

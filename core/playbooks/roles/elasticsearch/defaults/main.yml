@@ -2,7 +2,7 @@
 #### Main Role Configuration ####
 
 es_dir: "{{ tfplenum_config_dir  }}/elastic"
-es_upgrade_ver: "{{ elastic_7_version }}"
+es_upgrade_ver: "{{ docker_versions.elastic_7_version }}"
 elastic_dir: "{{ tfplenum_config_dir  }}/elasticsearch"
 elastic_user: "1000"
 elastic_group: "1000"
@@ -53,7 +53,7 @@ filebeat_modules:
           - private
 
 elasticsearch_plugins:
-  - repository-s3-{{ elastic_7_version }}.zip
+  - repository-s3-{{ docker_versions.elastic_7_version }}.zip
 
 elastic_url: "https://elasticsearch.{{ kit_domain }}:{{ elastic_port }}"
 

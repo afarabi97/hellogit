@@ -1,0 +1,17 @@
+.winlogbeat-setup-variables:
+  variables:
+    NAME: winlogbeat-setup
+
+.winlogbeat-setup-docker-rules:
+  only:
+    changes:
+      - component-builder/components/winlogbeat-setup/templates/Dockerfile.j2
+  except:
+    - tags
+    - schedules
+
+docker build winlogbeat-setup:
+  extends:
+    - .winlogbeat-setup-variables
+    - .docker-build-super
+    - .winlogbeat-setup-docker-rules

@@ -2,31 +2,11 @@
 ---
 - name: Downloading and Unpacking Helm
   unarchive:
-    src: "{{ tfplenumoffline_dir }}/helm-{{ helm_version }}-linux-amd64.tar.gz"
+    src: "{{ tfplenumoffline_dir }}/helm-{{ misc_versions.helm_version }}-linux-amd64.tar.gz"
     dest: /usr/local/bin/
     creates: /usr/local/bin/helm
     remote_src: no
     extra_opts: [--strip-components=1]
-
-- name: "Create chart directory"
-  file:
-    path: "{{ chart_dir }}"
-    state: directory
-
-- name: Get list of custom helm charts
-  find:
-    paths: /opt/tfplenum/charts/
-    file_type: directory
-    recurse: no
-  register: charts
-  tags: pull-helm-images
-
-- name: Create charts
-  command: "helm package {{ item.path }} -d {{ chart_dir }}"
-  with_items: "{{ charts.files }}"
-  register: result
-  changed_when: result.rc == 0
-  tags: pull-helm-images
 
 - name: Remove public repos
   command: "helm repo remove {{ item }}"

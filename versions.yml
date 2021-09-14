@@ -1,0 +1,302 @@
+---
+# Dependency Versions file between all tfplenum projects.
+# Use include_vars function to utilize this file.
+
+# VERSIONS
+misc_versions:
+  rpm_version: "3.7.0"
+  community_vmware_module_version: "1.10.0"
+  community_utils_module_version: "2.2.0"
+  emerging_threat_rules_version: "suricata-5.0" # suricata-6.0 rules havent been released yet. (https://rules.emergingthreats.net/open/)
+  helm_version: "v3.7.1"
+  crio_version: "v1.20.0"
+  chartmuseum_version: "v0.13.1"
+  keycloak_version: "11.0.3"
+  node_version: v14.5.0
+  iso_rhel_version: "8.2"
+  support_diagnostics: "8.1.1"
+  kubetail: "1.6.12"
+  npm: "6.14.5"
+  angular_cli: "10.2.0"
+  docker_distribution: "2.6.2-2"
+
+docker_versions:
+  rocketchat_version: 3.17.0
+  mongodb_version: 4.4.3
+  busybox_version: "1.33.1"
+  zeek_version: "4.0.3"
+  k8s_coredns_version: "v1.8.0"
+  k8s_etcd_version: "3.4.13-0"
+  k8s_pause_version: "3.4.1"
+  k8s_resizer_version: "1.8.4"  # up to 1.8.11 works
+  k8s_version: "1.21.1"
+  metallb_version: "v0.10.2"
+  arkime_version: "2.7.1"
+  suricata_version: "6.0.0"
+  elastic_7_version: "7.13.1"
+  hive_cortex_version: 3.1.1-1
+  hive_version: 4.1.9-1
+  cassandra_version: 3.11.9
+  elastic_operator: 1.6.0
+  redmine_version: "4.2.1"
+  nifi_version: 1.12.1
+  mariadb_version: 10.6.3
+  mattermost_version: 5.38.0
+  wikijs_version: 2.5.201
+  misp_version: 2.4.148
+  misp_modules_version: 2.4.148
+  redis_version: 6.2.5-alpine
+  calico_version: "v3.16.4"
+  nginx_version: 1.19.6
+  cert_manager_version: v1.4.0
+  storage_provisioner_version: 2.3.4
+  shibboleth_proxy_version: 3.0.4
+  python_version: 3.9.0
+  jcat_nifi_version: "AF-1.0"
+
+extra_packages:
+  - "kubelet-{{ docker_versions.k8s_version }}"
+  - "kubeadm-{{ docker_versions.k8s_version }}"
+  - "kubectl-{{ docker_versions.k8s_version }}"
+  - kubernetes-cni-0.8.7
+  - containerd.io-1.2.0-3.el7
+  - cri-tools-1.13.0-0
+  - docker-ce-18.09.1-3.el7
+  - docker-ce-cli-20.10.7-3.el7
+  - docker-scan-plugin-0.8.0-3.el7
+  - easy-rsa-3.0.8-1.el8
+  - htop-3.0.5-1.el8
+  - inotify-tools-3.14-19.el8
+  - libcurl-openssl-7.77.0-1.1
+  - liblog4shib2-2.0.0-3.1
+  - libsaml12-3.2.0-1.1
+  - libxerces-c-3_2-3.2.3-3.1
+  - libxml-security-c20-2.0.2-3.1
+  - libxmltooling10-3.2.0-1.1
+  - mongodb-database-tools-100.5.0-1
+  - mongodb-org-4.4.10-1.el8
+  - mongodb-org-database-tools-extra-4.4.10-1.el8
+  - mongodb-org-mongos-4.4.10-1.el8
+  - mongodb-org-server-4.4.10-1.el8
+  - mongodb-org-shell-4.4.10-1.el8
+  - mongodb-org-tools-4.4.10-1.el8
+  - nload-0.7.4-16.el8
+  - opensaml-schemas-3.2.0-1.1
+  - openvpn-2.4.11-1.el8
+  - pkcs11-helper-1.22-7.el8
+  - putty-0.76-1.el8
+  - pwgen-2.08-3.el8
+  - redis-6.2.5-1.el7.remi
+  - screen-4.6.2-12.el8
+  - shibboleth-3.2.2-3.1
+  - sshpass-1.06-9.el8
+  - pkcs11-helper-1.22-7.el8
+  - tcpreplay-4.3.4-1.el8
+  - xmltooling-schemas-3.2.0-1.1
+
+setup_package_list:
+  - "kubectl-{{ docker_versions.k8s_version }}"
+  - git-2.18.2-1.el8_1
+  - glib2-devel-2.56.4-8.el8
+  - python3-dnf-plugin-versionlock-4.0.12-3.el8
+  - rsync-3.1.3-7.el8
+  - scap-security-guide-0.1.48-7.el8
+  - tcpdump-4.9.2-6.el8
+  - tcpreplay-4.3.4-1.el8
+
+helm_versions:
+  arkime: 1.0.0
+  arkime_viewer: 1.0.1
+  cortex: 1.0.0
+  logstash: 1.0.0
+  hive: 1.0.0
+  jcat_nifi: 1.0.0
+  chartmuseum: 2.12.0
+  mattermost: 1.0.0
+  misp: 1.0.0
+  netflow_filebeat: 1.0.0
+  nifi: 1.0.0
+  redmine: 1.0.0
+  remote_health_agent: 1.0.0
+  rocketchat: 1.1.14
+  suricata: 1.0.0
+  wikijs: 1.0.0
+  zeek: 1.1.1
+
+other:
+  rpm_common_requirements: "docker-ce, docker-distribution, tfplenum"
+
+helm_packages:
+  - arkime-{{ helm_versions.arkime }}.tgz
+  - arkime-viewer-{{ helm_versions.arkime_viewer }}.tgz
+  - cortex-{{ helm_versions.cortex }}.tgz
+  - logstash-{{ helm_versions.logstash }}.tgz
+  - hive-{{ helm_versions.hive }}.tgz
+  - jcat-nifi-{{ helm_versions.jcat_nifi }}.tgz
+  - chartmuseum-{{ helm_versions.chartmuseum }}.tgz
+  - mattermost-{{ helm_versions.mattermost }}.tgz
+  - misp-{{ helm_versions.misp }}.tgz
+  - netflow-filebeat-{{ helm_versions.netflow_filebeat }}.tgz
+  - nifi-{{ helm_versions.nifi }}.tgz
+  - redmine-{{ helm_versions.redmine }}.tgz
+  - remote-health-agent-{{ helm_versions.remote_health_agent }}.tgz
+  - rocketchat-{{ helm_versions.rocketchat }}.tgz
+  - suricata-{{ helm_versions.suricata }}.tgz
+  - wikijs-{{ helm_versions.wikijs }}.tgz
+  - zeek-{{ helm_versions.zeek }}.tgz
+
+
+custom_rpm_packages:
+  - name: "arkime"
+    helm_version: "{{ helm_versions.arkime }}"
+    app_version: "{{ docker_versions.arkime_version }}"
+    containers:
+      - "docker.nexus.sil.lab/tfplenum/arkime:{{ docker_versions.arkime_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}"
+  - name: "arkime-viewer"
+    helm_version: "{{ helm_versions.arkime_viewer }}"
+    app_version: "{{ docker_versions.arkime_version }}"
+    containers:
+      - "docker.nexus.sil.lab/tfplenum/arkime:{{ docker_versions.arkime_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}"
+  - name: "cortex"
+    helm_version: "{{ helm_versions.cortex }}"
+    app_version: "{{ docker_versions.hive_cortex_version }}"
+    containers:
+      - "docker.nexus.sil.lab/tfplenum/cortex:{{ docker_versions.hive_cortex_version }}"
+      - "ext-docker.nexus.sil.lab/elasticsearch/elasticsearch:{{ docker_versions.elastic_7_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-python, tfplenum-nginx"
+  - name: "elasticsearch"
+    containers:
+      - "ext-docker.nexus.sil.lab/elasticsearch/elasticsearch:{{ docker_versions.elastic_7_version }}"
+      - "ext-docker.nexus.sil.lab/logstash/logstash:{{ docker_versions.elastic_7_version }}"
+      - "ext-docker.nexus.sil.lab/kibana/kibana:{{ docker_versions.elastic_7_version }}"
+      - "ext-docker.nexus.sil.lab/eck/eck-operator:{{ docker_versions.elastic_operator }}"
+      - "ext-docker.nexus.sil.lab/elastic-maps-service/elastic-maps-server-ubi8:{{ docker_versions.elastic_7_version }}"
+      - "ext-docker.nexus.sil.lab/beats/metricbeat:{{ docker_versions.elastic_7_version }}"
+      - "docker.nexus.sil.lab/tfplenum/winlogbeat-setup:{{ docker_versions.elastic_7_version }}"
+      - "ext-docker.nexus.sil.lab/beats/filebeat:{{ docker_versions.elastic_7_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}"
+    logstash:
+      helm_version: "{{ helm_versions.logstash }}"
+      app_version: "{{ docker_versions.elastic_7_version }}"
+  - name: "hive"
+    helm_version: "{{ helm_versions.hive }}"
+    app_version: "{{ docker_versions.hive_version }}"
+    containers:
+      - "ext-docker.nexus.sil.lab/thehiveproject/thehive4:{{ docker_versions.hive_version }}"
+      - "ext-docker.nexus.sil.lab/cassandra:{{ docker_versions.cassandra_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-python, tfplenum-nginx"
+  - name: "jcat-nifi"
+    helm_version: "{{ helm_versions.jcat_nifi }}"
+    app_version: "{{ docker_versions.jcat_nifi_version }}"
+    containers:
+      - "docker.nexus.sil.lab/tfplenum/jcat-nifi:{{ docker_versions.jcat_nifi_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}"
+  - name: "kubernetes"
+    containers:
+      - "ext-docker.nexus.sil.lab/addon-resizer:{{ docker_versions.k8s_resizer_version }}"
+      - "ext-docker.nexus.sil.lab/coredns/coredns:{{ docker_versions.k8s_coredns_version }}"
+      - "ext-docker.nexus.sil.lab/calico/cni:{{ docker_versions.calico_version }}"
+      - "ext-docker.nexus.sil.lab/calico/kube-controllers:{{ docker_versions.calico_version }}"
+      - "ext-docker.nexus.sil.lab/calico/node:{{ docker_versions.calico_version }}"
+      - "ext-docker.nexus.sil.lab/calico/pod2daemon-flexvol:{{ docker_versions.calico_version }}"
+      - "ext-docker.nexus.sil.lab/jetstack/cert-manager-webhook:{{ docker_versions.cert_manager_version }}"
+      - "ext-docker.nexus.sil.lab/jetstack/cert-manager-cainjector:{{ docker_versions.cert_manager_version }}"
+      - "ext-docker.nexus.sil.lab/jetstack/cert-manager-controller:{{ docker_versions.cert_manager_version }}"
+      - "ext-docker.nexus.sil.lab/kube-apiserver:v{{ docker_versions.k8s_version }}"
+      - "ext-docker.nexus.sil.lab/kube-proxy:v{{ docker_versions.k8s_version }}"
+      - "ext-docker.nexus.sil.lab/kube-scheduler:v{{ docker_versions.k8s_version }}"
+      - "ext-docker.nexus.sil.lab/kube-controller-manager:v{{ docker_versions.k8s_version }}"
+      - "ext-docker.nexus.sil.lab/pause:{{ docker_versions.k8s_pause_version }}"
+      - "ext-docker.nexus.sil.lab/metallb/controller:{{ docker_versions.metallb_version }}"
+      - "ext-docker.nexus.sil.lab/metallb/speaker:{{ docker_versions.metallb_version }}"
+      - "ext-docker.nexus.sil.lab/etcd:{{ docker_versions.k8s_etcd_version }}"
+      - "ext-docker.nexus.sil.lab/external_storage/local-volume-provisioner:v{{ docker_versions.storage_provisioner_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}"
+  - name: "mattermost"
+    helm_version: "{{ helm_versions.mattermost }}"
+    app_version: "{{ docker_versions.mattermost_version }}"
+    containers:
+      - "ext-docker.nexus.sil.lab/mattermost/mattermost-enterprise-edition:{{ docker_versions.mattermost_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-busybox, tfplenum-python, tfplenum-mariadb"
+  - name: "misp"
+    helm_version: "{{ helm_versions.misp }}"
+    app_version: "{{ docker_versions.misp_version }}"
+    containers:
+      - "docker.nexus.sil.lab/tfplenum/misp:{{ docker_versions.misp_version }}"
+      - "docker.nexus.sil.lab/tfplenum/misp-modules:{{ docker_versions.misp_modules_version }}"
+      - "ext-docker.nexus.sil.lab/redis:{{ docker_versions.redis_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-python, tfplenum-busybox"
+  - name: "netflow-filebeat"
+    helm_version: "{{ helm_versions.netflow_filebeat }}"
+    app_version: "{{ docker_versions.elastic_7_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-elasticsearch"
+    containers: []
+  - name: "nifi"
+    helm_version: "{{ helm_versions.nifi }}"
+    app_version: "{{ docker_versions.nifi_version }}"
+    containers:
+      - "ext-docker.nexus.sil.lab/apache/nifi:{{ docker_versions.nifi_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-busybox, tfplenum-shibboleth_proxy"
+  - name: "redmine"
+    helm_version: "{{ helm_versions.redmine }}"
+    app_version: "{{ docker_versions.redmine_version }}"
+    containers:
+      - "ext-docker.nexus.sil.lab/redmine:{{ docker_versions.redmine_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-mariadb, tfplenum-nginx"
+  - name: "remote-health-agent"
+    helm_version: "{{ helm_versions.remote_health_agent }}"
+    app_version: "{{ docker_versions.python_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-python"
+    containers: []
+  - name: "rocketchat"
+    helm_version: "{{ helm_versions.rocketchat }}"
+    app_version: "{{ docker_versions.rocketchat_version }}"
+    containers:
+      - "ext-docker.nexus.sil.lab/rocketchat/rocket.chat:{{ docker_versions.rocketchat_version }}"
+      - "ext-docker.nexus.sil.lab/bitnami/mongodb:{{ docker_versions.mongodb_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-mariadb, tfplenum-nginx"
+  - name: "suricata"
+    helm_version: "{{ helm_versions.suricata }}"
+    app_version: "{{ docker_versions.suricata_version }}"
+    containers:
+      - "docker.nexus.sil.lab/tfplenum/suricata:{{ docker_versions.suricata_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-elasticsearch"
+  - name: "wikijs"
+    helm_version: "{{ helm_versions.wikijs }}"
+    app_version: "{{ docker_versions.wikijs_version }}"
+    containers:
+      - "ext-docker.nexus.sil.lab/requarks/wiki:{{ docker_versions.wikijs_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-mariadb, tfplenum-python"
+  - name: "zeek"
+    helm_version: "{{ helm_versions.zeek }}"
+    app_version: "{{ docker_versions.zeek_version }}"
+    containers:
+      - "docker.nexus.sil.lab/tfplenum/zeek:{{ docker_versions.zeek_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-elasticsearch"
+  - name: "busybox"
+    app_version: "{{ docker_versions.busybox_version }}"
+    containers:
+      - "ext-docker.nexus.sil.lab/busybox:{{ docker_versions.busybox_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}"
+  - name: "nginx"
+    app_version: "{{ docker_versions.nginx_version }}"
+    containers:
+      - "ext-docker.nexus.sil.lab/nginx:{{ docker_versions.nginx_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}"
+  - name: "mariadb"
+    app_version: "{{ docker_versions.mariadb_version }}"
+    containers:
+      - "ext-docker.nexus.sil.lab/mariadb:{{ docker_versions.mariadb_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}"
+  - name: "shibboleth_proxy"
+    app_version: "{{ docker_versions.shibboleth_proxy_version }}"
+    containers:
+      - "docker.nexus.sil.lab/tfplenum/shibboleth_proxy:{{ docker_versions.shibboleth_proxy_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}"
+  - name: "python"
+    app_version: "{{ docker_versions.python_version }}"
+    containers:
+      - "docker.nexus.sil.lab/tfplenum/python:{{ docker_versions.python_version }}"
+    rpm_requirements: "{{ other.rpm_common_requirements }}"

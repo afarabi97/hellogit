@@ -1,0 +1,50 @@
+---
+
+- name: Set Variables
+  hosts: localhost
+  vars:
+    rpm_build: true
+  any_errors_fatal: true
+  tasks:
+    - name: Set Resolv Conf
+      shell: |
+        echo "nameserver {{ sil_nameserver }}" > /etc/resolv.conf
+      when: rpm_build
+    - block:
+      - name: Set RHEL ISO To server for Bootstrap
+        set_fact:
+          iso_rhel_checksum: "{{ iso_rhel_server_checksum }}"
+          iso_rhel_url_labrepo: "{{ iso_rhel_server_url_labrepo }}"
+          iso_rhel_path: "{{ playbook_dir }}/../../.cache/{{ iso_rhel_server_name }}"
+      - name: Import DIP/GIP variables
+        include_vars:
+          file: "{{ dip_core_vars }}"
+
+    - name: Get Nexus Cert
+      get_url:
+        url: "{{ tfplenum_repo }}/certs/sil.lab.crt"
+        dest: "/etc/pki/ca-trust/source/anchors/"
+
+    - name: Update CA Trust
+      command: "/usr/bin/update-ca-trust"
+      register: results
+      changed_when: results.rc == 0
+
+    - import_role:
+        name: rhel_repo
+        tasks_from: nexus_yum_repos
+  tags: always
+
+- name: Build Offline Repo
+  hosts: localhost
+  vars:
+    rpm_build: true
+    web_root: "{{ playbook_dir }}/../../.cache"
+  any_errors_fatal: true
+  roles:
+    - clonerepo
+  tasks:
+    - name: Download pcaps
+      include_role:
+        name: frontend
+        tasks_from: 55_preload_pcaps.yml

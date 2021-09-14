@@ -1,0 +1,44 @@
+.suricata-variables:
+  variables:
+    NAME: suricata
+
+.suricata-helm-rules:
+  only:
+    changes:
+      - component-builder/components/suricata/helm/*
+      - component-builder/components/suricata/helm/**/*
+      - component-builder/components/suricata/templates/Chart.yaml.j2
+      - component-builder/components/suricata/templates/values.yaml.j2
+  except:
+    - tags
+    - schedules
+
+.suricata-docker-rules:
+  only:
+    changes:
+      - component-builder/components/suricata/templates/Dockerfile.j2
+  except:
+    - tags
+    - schedules
+
+docker build suricata:
+  extends:
+    - .suricata-variables
+    - .docker-build-super
+    - .suricata-docker-rules
+
+helm build suricata:
+  extends:
+    - .helm-build-super
+    - .suricata-helm-rules
+    - .suricata-variables
+
+rpm build suricata:
+  extends:
+    - .rpm-build-super
+    - .suricata-variables
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /.*-suricata$/'
+      when: always

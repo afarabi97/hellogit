@@ -423,7 +423,7 @@ spec:
     spec:
       containers:
       - name: logstash
-        image: "logstash/logstash:{{ elastic_7_version }}"
+        image: "logstash/logstash:{{ docker_versions.elastic_7_version }}"
         imagePullPolicy: Always
         env:
         - name: LS_JAVA_OPTS

@@ -15,13 +15,6 @@
   ignore_unreachable: yes
   tags: always
   tasks:
-    # - name: Set Vars
-    #   set_fact:
-    #     host_list: "{{ groups['servers'] + groups['sensors'] }}"
-    #     ansible_controller_hostname: "{{ hostvars.localhost.ansible_controller_hostname }}"
-    #     ansible_controller_ip: "{{ hostvars.localhost.ansible_controller_ip }}"
-    #   ignore_errors: yes
-
     - name: Create nodes to remove group
       add_host:
         hostname: "{{ node }}"
@@ -44,7 +37,7 @@
 
       - name: Remove auditbeat
         dnf:
-          name: auditbeat-{{ elastic_7_version }}
+          name: auditbeat-{{ docker_versions.elastic_7_version }}
           state: absent
 
       - name: Removes a cron file from under /etc/cron.d

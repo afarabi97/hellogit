@@ -1,8 +1,0 @@
-apiVersion: v1
-appVersion: 3.1.1
-name: cortex
-home: https://github.com/TheHive-Project/Cortex
-description: Cortex is a Powerful Observable Analysis and Active Response Engine.
-details: This chart will install Cortex POAARE
-version: 1.0.0
-icons: https://github.com/TheHive-Project/Cortex/blob/master/images/cortex-logo.png

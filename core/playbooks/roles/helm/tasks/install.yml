@@ -1,9 +1,0 @@
----
-
-- name: Downloading and Unpacking Helm
-  unarchive:
-    src: "{{ offline_repo_base }}/helm-{{ helm_version }}-linux-amd64.tar.gz"
-    dest: /usr/local/bin/
-    creates: /usr/local/bin/helm
-    remote_src: yes
-    extra_opts: [--strip-components=1]

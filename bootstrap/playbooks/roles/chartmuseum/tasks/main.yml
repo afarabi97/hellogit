@@ -13,7 +13,7 @@
 
 - name: Unarchive a file that is already on the remote machine
   unarchive:
-    src: "{{ tfplenumoffline_dir }}/chartmuseum-{{ chartmuseum_version }}-linux-amd64.tar.gz"
+    src: "{{ tfplenumoffline_dir }}/chartmuseum-{{ misc_versions.chartmuseum_version }}-linux-amd64.tar.gz"
     dest: /opt/chartmuseum
     remote_src: yes
 
@@ -50,15 +50,16 @@
     delay: 3
     timeout: 300
 
+- name: Add Controller to Host file
+  blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} Controller Block"
+    block: |
+      {{ server_ip }} {{ ansible_controller_hostname }} controller
+  tags:
+    - hosts_file
+
 - name: Add helm repo if it does not exist
   command: helm repo add chartmuseum https://controller/chartmuseum --cert-file /etc/ssl/certs/apache-selfsigned.crt
   register: helmret
   failed_when: "helmret.rc != 0"
-
-- import_tasks: load_charts.yml
-
-- name: update helm repo
-  shell: |
-    helm repo update
-  register: results
-  changed_when: results.rc == 0

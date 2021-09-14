@@ -7,7 +7,7 @@
 - name: Get Default Filebeat Template
   uri:
     method: GET
-    url: "{{ elastic_url }}/_template/filebeat-{{ elastic_7_version }}"
+    url: "{{ elastic_url }}/_template/filebeat-{{ docker_versions.elastic_7_version }}"
     validate_certs: no
     user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
@@ -20,12 +20,12 @@
 
 - name: Update Index Template
   set_fact:
-    external_template: "{{ default_template.json['filebeat-'+elastic_7_version]|combine(external_template_defaults, recursive=True) }}"
+    external_template: "{{ default_template.json['filebeat-'+docker_versions.elastic_7_version]|combine(external_template_defaults, recursive=True) }}"
 
 - name: Get Default Filebeat Ingest Pipelines
   uri:
     method: GET
-    url: "{{ elastic_url }}/_ingest/pipeline/filebeat-{{ elastic_7_version }}*?filter_path=*.description"
+    url: "{{ elastic_url }}/_ingest/pipeline/filebeat-{{ docker_versions.elastic_7_version }}*?filter_path=*.description"
     validate_certs: no
     user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"

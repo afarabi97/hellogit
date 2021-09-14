@@ -1,0 +1,16 @@
+# Default values for redmine and postgres
+replicas: 1
+redmineImage: redmine:{{ component["app_version"] }}
+mariadbImage: mariadb:{{ context["docker_versions"]["mariadb_version"] }}
+redmineInternalPort: 3000
+### Nginx Config
+nginx_image: nginx:{{ context["docker_versions"]["nginx_version"] }}
+
+# database variables
+sqlDatabase: redmine
+sqlUsername: redmine
+sqlPassword: P@ssw0rdP@ssw0rd!
+sqlRootPassword: P@ssw0rdP@ssw0rd!
+domain: lan
+serviceNode: false
+

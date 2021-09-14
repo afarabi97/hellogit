@@ -28,7 +28,7 @@
 
 - name: Test | Check MISP Helm Deployed
   assert:
-    that: "'deployed' in item.status and item.app_version is version(misp_version, 'eq')"
+    that: "'deployed' in item.status and item.app_version is version(docker_versions.misp_version, 'eq')"
     msg: "Failed to determine if MISP is installed"
   when: releases is defined and releases
   with_items:

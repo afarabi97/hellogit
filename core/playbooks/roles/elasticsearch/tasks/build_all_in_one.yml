@@ -1,14 +1,14 @@
 ---
 - name: set ECK All in One File
   set_fact:
-    eck_file: "{{ tfplenumoffline_dir }}/eck-all-in-one-{{ elastic_operator }}.yaml"
-    
+    eck_file: "{{ tfplenumoffline_dir }}/eck-all-in-one-{{ docker_versions.elastic_operator }}.yaml"
+
 - name: Read all in one
-  set_fact: 
+  set_fact:
     eck_operator: "{{ lookup('file', eck_file) | from_yaml_all }}"
 
 - name: get index
-  set_fact: 
+  set_fact:
     eck_operator_pod_index: "{{ item.0 }}"
   with_indexed_items: '{{ eck_operator | list }}'
   when: item.1.kind == 'StatefulSet' and item.1.metadata.name == 'elastic-operator'
@@ -19,7 +19,7 @@
     - path: "eck_operator[{{ eck_operator_pod_index }}].spec.template.spec.affinity"
       value: "{{ operator_node_affinity }}"
     - path: "eck_operator[{{ eck_operator_pod_index }}].spec.template.spec.containers[0].image"
-      value: "eck/eck-operator:{{ elastic_operator }}"
+      value: "eck/eck-operator:{{ docker_versions.elastic_operator }}"
     - path: "eck_operator[{{ eck_operator_pod_index }}].spec.template.spec.containers[0].args"
       value: "{{ eck_operator[eck_operator_pod_index].spec.template.spec.containers[0].args + [ '--disable-telemetry=true' ] }}"
   register: eck_operator

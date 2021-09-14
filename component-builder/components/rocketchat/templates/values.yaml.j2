@@ -1,0 +1,22 @@
+## Rocket Chat image version
+## ref: https://hub.docker.com/r/rocketchat/rocket.chat/tags
+##
+domain: lan
+auth_base: https://controller.lan/auth/realms/CVAH-SSO
+image:
+  repository: rocketchat/rocket.chat
+  tag: {{ component["app_version"] }}
+
+nginxImage:
+  repository: nginx
+  tag: {{ context["docker_versions"]["nginx_version"] }}
+
+mongoImage:
+  repository: bitnami/mongodb
+  tag: {{ context["docker_versions"]["mongodb_version"] }}
+
+admin_user: rocketchat-admin
+admin_pass: Password!123456
+admin_email: rocketchat-admin@dip.local
+
+serviceNode: false

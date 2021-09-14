@@ -1,0 +1,16 @@
+# Default values for mattermost
+wikijsImage: requarks/wiki:{{ component["app_version"] }}
+python_image: tfplenum/python:{{ context["docker_versions"]["python_version"] }}
+busyboxImage: busybox:{{ context["docker_versions"]["busybox_version"] }}
+domain: lan
+auth_base: https://controller.lan/auth/realms/CVAH-SSO
+
+# database variables
+mariadbImage: mariadb:{{ context["docker_versions"]["mariadb_version"] }}
+sqlDatabase: wikijs-db
+sqlUsername: wikijs
+sqlRootPassword: AIz#8-QlVpUHHckzuxnfv7cn0
+sqlUserPassword: -sMoJDGYkTm-f8kKD9(w%HbKf
+admin_email: admin@dip.local
+admin_pass: Password!123456
+serviceNode: false

@@ -1,0 +1,12 @@
+kibana_fqdn: kibana.default.svc.cluster.local
+kibana_port: 443
+elastic_ingest_nodes: []
+home_net: ["192.168.0.0/16"]
+interfaces: ["eth0"]
+image_name: beats/filebeat
+image_tag: {{ component["app_version"] }}
+affinity_hostname: {}
+netflow_port: 2055
+shards: {}
+serviceNode: false
+hard_disk_drive: false

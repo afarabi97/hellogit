@@ -1,0 +1,44 @@
+.misp-variables:
+  variables:
+    NAME: misp
+
+.misp-helm-rules:
+  only:
+    changes:
+      - component-builder/components/misp/helm/*
+      - component-builder/components/misp/helm/**/*
+      - component-builder/components/misp/templates/Chart.yaml.j2
+      - component-builder/components/misp/templates/values.yaml.j2
+  except:
+    - tags
+    - schedules
+
+.misp-docker-rules:
+  only:
+    changes:
+      - component-builder/components/misp/templates/Dockerfile.j2
+  except:
+    - tags
+    - schedules
+
+docker build misp:
+  extends:
+    - .misp-variables
+    - .docker-build-super
+    - .misp-docker-rules
+
+helm build misp:
+  extends:
+    - .helm-build-super
+    - .misp-helm-rules
+    - .misp-variables
+
+rpm build misp:
+  extends:
+    - .rpm-build-super
+    - .misp-variables
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /.*-misp$/'
+      when: always

@@ -1,7 +1,0 @@
-apiVersion: v1
-name: netflow-filebeat
-home:
-version: 1.0.0
-appVersion: 7.13.1
-description: Using the Netflow module, Filebeat can ingest Netflow data from Routers/Firewalls and export it to Elasticearch in ECS format.  This Data is compatable with the Elastic SIEM.
-icon:

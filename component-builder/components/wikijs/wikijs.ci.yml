@@ -1,0 +1,30 @@
+.wikijs-variables:
+  variables:
+    NAME: wikijs
+
+.wikijs-helm-rules:
+  only:
+    changes:
+      - component-builder/components/wikijs/helm/*
+      - component-builder/components/wikijs/helm/**/*
+      - component-builder/components/wikijs/templates/values.yaml.j2
+      - component-builder/components/wikijs/templates/Chart.yaml.j2
+  except:
+    - tags
+    - schedules
+
+helm build wikijs:
+  extends:
+    - .helm-build-super
+    - .wikijs-helm-rules
+    - .wikijs-variables
+
+rpm build wikijs:
+  extends:
+    - .rpm-build-super
+    - .wikijs-variables
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /.*-wikijs$/'
+      when: always

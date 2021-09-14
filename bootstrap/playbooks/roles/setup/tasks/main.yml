@@ -3,7 +3,7 @@
 
 - name: "Install required packages"
   dnf:
-    name: "{{ package_list }}"
+    name: "{{ setup_package_list }}"
     state: present
 
 - import_tasks: max_log_size.yml

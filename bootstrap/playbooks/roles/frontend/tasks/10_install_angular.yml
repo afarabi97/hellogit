@@ -15,14 +15,14 @@
 - name: npm | Install specific npm version
   npm:
     name: npm
-    version: 6.14.5
+    version: "{{ misc_versions.npm }}"
     path: "{{ web_install_dir }}/frontend"
     global: yes
 
 - name: npm | Install Angular Cli
   npm:
     name: "@angular/cli"
-    version: 10.2.0
+    version: "{{ misc_versions.angular_cli }}"
     path: "{{ web_install_dir }}/frontend"
     global: yes
 

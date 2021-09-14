@@ -6,7 +6,7 @@ tfplenum_root_dir: "{{ playbook_dir }}/../.."
 core_install_dir: "{{ tfplenum_root_dir }}/core"
 web_install_dir: "{{ tfplenum_root_dir }}/web"
 zeek_sample_dir: "{{ tfplenum_root_dir }}/scripts/zeek_samples"
-dip_core_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
+dip_core_vars: "{{ tfplenum_root_dir }}/versions.yml"
 chart_dir: "{{ tfplenumoffline_dir }}/charts"
 
 mip_core_vars: "{{ tfplenum_root_dir }}/mip/group_vars/all/packages.yml"
@@ -22,9 +22,6 @@ TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
 baseos_dir: "{{ TFPLENUM_REPO_DIR }}/BaseOS"
 appstream_dir: "{{ TFPLENUM_REPO_DIR }}/AppStream"
 extras_dir: "{{ TFPLENUM_REPO_DIR }}/Extras"
-
-keycloak_version: 11.0.3
-node_version: v14.5.0
 
 dod_nmil_file: "Certificates_PKCS7_v5.7_DoD.pem"
 dod_smil_file: "Certificates_PKCS7_v5.5_SIPR.pem"
@@ -43,5 +40,8 @@ ansible_controller_hostname: "{{ ansible_nodename }}"
 #Path where iso is to be mounted ex: /mnt
 mnt_pth: /mnt
 rpm_build: false
+rpm_install: false
+
+kube_images: []
 
 ...

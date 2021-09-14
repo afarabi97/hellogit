@@ -1,0 +1,16 @@
+elastic_image: elasticsearch/elasticsearch:{{ context["docker_versions"]["elastic_7_version"] }}
+cortex_image: tfplenum/cortex:{{ context["docker_versions"]["hive_cortex_version"] }}
+python_image: tfplenum/python:{{ context["docker_versions"]["python_version"] }}
+cortex_port: 9001
+nginx_image: nginx:{{ context["docker_versions"]["nginx_version"] }}
+elastic_port: 9200
+superadmin_username: cortex_admin
+superadmin_password: Password!123456
+org_name: thehive
+org_admin_username: admin_thehive
+org_admin_password: Password!123456
+org_user_username: user_thehive
+misp_user: user_misp
+domain: lan
+auth_base: https://controller.lan/auth/realms/CVAH-SSO
+serviceNode: false
