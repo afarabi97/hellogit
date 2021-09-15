@@ -882,12 +882,6 @@
     name: rsyslog-gnutls
     state: installed
 
-- name: "RHEL-08-030741 | LOW | RHEL 8 must disable the chrony daemon from acting as a server."
-  lineinfile:
-    path: /etc/chrony.conf
-    line: "port 0"
-    create: yes
-
 - name: "RHEL-08-030742 | LOW | RHEL 8 must disable network management of the chrony daemon."
   lineinfile:
     path: /etc/chrony.conf

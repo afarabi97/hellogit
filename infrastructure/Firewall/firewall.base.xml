@@ -1118,7 +1118,40 @@
 			</created>
 			<updated>
 				<time>1600878192</time>
-				<username>assessor@10.107.32.50</username>
+				<username><![CDATA[assessor@10.107.32.50]]></username>
+			</updated>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1631707449</tracker>
+			<type>pass</type>
+			<interface>lan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>udp</protocol>
+			<source>
+				<any></any>
+			</source>
+			<destination>
+				<any></any>
+				<port>123</port>
+			</destination>
+			<descr><![CDATA[Allow all NTP traffic on managment]]></descr>
+			<created>
+				<time>1631707449</time>
+				<username><![CDATA[Easy Rule]]></username>
+			</created>
+			<updated>
+				<time>1631741426</time>
+				<username><![CDATA[assessor@10.10.102.167 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
