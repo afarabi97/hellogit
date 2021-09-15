@@ -50,6 +50,14 @@ Install App
     Click Element  ${locCatalogPageNavIcon}
     Wait Until Page Contains  ${application_name}
     ${index} =  Find App index  ${application_name}
+
+    ${app_card_status} =  Set Variable  xpath=//*[@id="app-chart-list-div-app-card-${index}"]/div/div[2]/div[1]/div[2]
+    Wait Until Page Contains Element  ${app_card_status}
+    ${app_status_text} =  Get Text  ${app_card_status}
+    ${app_status_text} =  Fetch From Right  ${app_status_text}  :
+    ${app_status_text} =  Strip String  ${app_status_text}
+    Return From Keyword If  '${app_status_text}' == 'DEPLOYED'  # App is already installed
+
     ${config_app_button} =  Set Variable  id=app-chart-list-${index}-app-card-div-div-div-button-configure-application
     Wait Until Page Contains Element  ${config_app_button}
     Click Button  ${config_app_button}
@@ -57,6 +65,7 @@ Install App
     Click Element  ${locSelectProcessDropdown}
     Wait Until Element Is Visible  ${locInstallButton}
     Click Element  ${locInstallButton}
+    Wait Until Element Contains  ${locSelectProcessDropdown}  Install
     ${next_btn_list} =   Get WebElements  id=app-catalog-page-div-mat-card-div-button-next-get-config
     Run Keyword if  '${application_name}' == 'Arkime' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
     ...  Run Keywords  Click Element  ${locNodeSelection}
@@ -90,7 +99,7 @@ Install App
 Verify App Has Been Installed
     [Arguments]  ${application_name}  ${index}
     [Documentation]  Checks if specified app was sucessfully installed on kit
-    Check App Card Status  ${index}
+    Wait Until Keyword Succeeds  3x  5s  Check App Card Status  ${index}
     Check Notifications For App  ${application_name}
     Check Health Page For App  ${application_name}
 
@@ -100,9 +109,10 @@ Check App Card Status
     Wait Until Element Is Visible  ${locCatalogPageNavIcon}
     Click Element  ${locCatalogPageNavIcon}
     Wait Until Page Contains  CVAH CATALOG
+    Reload Page
     ${application_card} =  Set Variable  id=app-chart-list-div-app-card-${index}
     Wait Until Page Contains Element  ${application_card}
-    Wait Until Element Contains  ${application_card}  DEPLOYED  10m
+    Wait Until Element Contains  ${application_card}  DEPLOYED  2m
     ${app_card_circle} =  Set Variable  id=app-chart-list-${index}-app-card-div-div-div-button
     Element Attribute Value Should Be  ${app_card_circle}  style  background-color: green;
 
@@ -151,6 +161,14 @@ Uninstall App
     Click Element  ${locCatalogPageNavIcon}
     Wait Until Page Contains  ${application_name}
     ${index} =  Find App index  ${application_name}
+
+    ${app_card_status} =  Set Variable  xpath=//*[@id="app-chart-list-div-app-card-${index}"]/div/div[2]/div[1]/div[2]
+    Wait Until Page Contains Element  ${app_card_status}
+    ${app_status_text} =  Get Text  ${app_card_status}
+    ${app_status_text} =  Fetch From Right  ${app_status_text}  :
+    ${app_status_text} =  Strip String  ${app_status_text}
+    Return From Keyword If  '${app_status_text}' == 'Not Installed'  # App does not need to be uninstalled
+
     ${config_app_button} =  Set Variable  id=app-chart-list-${index}-app-card-div-div-div-button-configure-application
     Wait Until Page Contains Element  ${config_app_button}
     Click Button  ${config_app_button}
@@ -168,11 +186,29 @@ Uninstall App
     ...  AND  Press Keys  None  TAB
     Click Button  ${locCatalogRunBtn}
     ${application_card} =  Set Variable  id=app-chart-list-div-app-card-${index}
-    Wait Until Element Does Not Contain  ${application_card}  DEPLOYED  10m
+    Wait Until Element Contains  ${application_card}  Not Installed  2m
     Click Element  ${locNotificationsNavIcon}
     Wait Until Element Contains  ${locTopNotification}  COMPLETED Deleting ${application_name}  10m
     Press Keys  None  ESCAPE
     Sleep  10s
+
+Clean Up Catalog Page
+    [Documentation]  Uninstalls all apps that have been installed on the Catalog page.
+    Runner Open Browser  ${HOST}  ${BROWSER}
+    Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
+    Wait Until Page Contains    Portal
+    Wait Until Element Is Visible  ${locCatalogPageNavIcon}
+    Click Element  ${locCatalogPageNavIcon}
+    Wait Until Page Contains  CVAH CATALOG
+    Set Selenium Speed  0.5s
+
+    Wait Until Element Is Visible  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
+    ${app_name_count} =  Get Element Count  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
+    FOR  ${index}  IN RANGE  ${app_name_count}
+        ${app_name} =  Get Text  id=app-chart-list-${index}-app-card-div-div-div-h3-chart-application
+        Uninstall App  ${app_name}
+    END
+    Close Browser
 
 Find App index
     [Arguments]  ${application_name}

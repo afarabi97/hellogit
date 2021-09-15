@@ -17,11 +17,9 @@ Library     String
 Suite Setup         Open SSH Connection  ${HOST}  ${HOST_USERNAME}  ${HOST_PASSWORD}
 Test Setup          Run Keywords  Runner Open Browser  ${HOST}  ${BROWSER}
                     ...  AND  Set DIP Kit Global Variables
-                    ...  AND  Set Log Level   Trace
-                    ...  AND  SeleniumLibrary.Register Keyword To Run On Failure     handle selenium failure
-# Test Setup          Runner Open Browser  ${HOST}  ${BROWSER}
 Test Teardown       Close Browser
-Suite Teardown      Close All Connections
+Suite Teardown      Run Keywords  Clean Up Catalog Page
+                    ...  AND  Close All Connections
 
 
 *** Test Cases ***
@@ -33,16 +31,6 @@ Perform Initial SSO for DIP Controller
     Login Into DIP Controller  ${SSO_ADMIN_USERNAME}  ${sso_pword}
     Accept DoD Banner
     Update Password
-
-Verify Correct System Name And Version Number
-    [Tags]    THISISCVAH-8225
-    [Documentation]    Test to check that controller has correct system name and version number.
-    ...                Also checks that the Service Now web address is correct.
-    Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
-    Wait Until Page Contains    Portal
-    Click Element    ${locSupportPageNavIcon}
-    Wait Until Element Contains  ${locSystemVersionNumber}  ${KIT_VERSION}
-    Element Should Contain    ${locServiceNowURL}  https://afdco.servicenowservices.com/sp
 
 Run Elastic Integration Test
     [Tags]    THISISCVAH-10191
@@ -102,13 +90,3 @@ Run Elastic Integration Test
     # Uninstall the applications
     Go To    ${portal_location}
     Wait Until Page Contains    Portal    timeout=8s    error=None
-    Uninstall Multiple Apps  Logstash  Zeek  Suricata  Arkime  Arkime-viewer
-
-# TODO: Move this to regression testing
-Install And Uninstall Apps From Catalog Page
-    [Tags]  THISISCVAH-10181
-    [Documentation]  Check functionality of the Catalog page by installing and uninstalling PMO supported apps.
-    Set DIP Kit Global Variables
-    Login Into DIP Controller  ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
-    Wait Until Page Contains  Portal
-    Install/Uninstall Every App
