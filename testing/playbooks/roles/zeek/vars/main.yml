@@ -1,8 +1,3 @@
-# Repo URL's
-nexus_url: nexus.sil.lab
-misc_server: https://{{ nexus_url }}/tfplenum-repo
-
-
 # The name of the aliased index
 zeek_index_alias: "filebeat-zeek"
 zeek_test_pcap_dir: "/tmp/pcap"

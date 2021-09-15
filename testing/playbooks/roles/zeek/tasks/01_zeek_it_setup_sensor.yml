@@ -47,7 +47,7 @@
     mode: '0755'
     force: yes
   with_items:
-    - "{{ misc_server }}/pcaps/zeek_it_intel.pcap"
-    - "{{ misc_server }}/malware-pcaps/dns-dnskey.trace"
-    - "{{ misc_server }}/malware-pcaps/get.trace"
-    - "{{ misc_server }}/malware-pcaps/smb1_transaction_request.pcap"
+    - "http://controller.{{ kit_domain }}/pcaps/zeek_it_intel.pcap"
+    - "http://controller.{{ kit_domain }}/pcaps/dns-dnskey.trace"
+    - "http://controller.{{ kit_domain }}/pcaps/get.trace"
+    - "http://controller.{{ kit_domain }}/pcaps/smb1_transaction_request.pcap"

@@ -19,3 +19,4 @@
     - "{{ tfplenum_repo }}/malware-pcaps/dns-dnskey.trace"
     - "{{ tfplenum_repo }}/malware-pcaps/get.trace"
     - "{{ tfplenum_repo }}/malware-pcaps/smb1_transaction_request.pcap"
+    - "{{ tfplenum_repo }}/pcaps/zeek_it_intel.pcap"
