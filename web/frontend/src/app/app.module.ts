@@ -12,6 +12,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChartsModule } from 'ng2-charts';
 
 import { AppLoadService } from './services/app-load.service';
+import { CookieService } from './services/cookies.service';
 import { UserService } from './services/user.service';
 import { UnauthorizedInterceptor } from './interceptors';
 import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from './guards';
@@ -19,15 +20,18 @@ import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, Operat
 import { AppComponent } from './app.component';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
 
-//Common components
+// Common components
 import { PasswordMessageComponent } from './components/password-message/password-message.component';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.component';
+import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal-dialog-display-mat.component';
+import { PodLogModalDialogComponent } from './pod-log-dialog/pod-log-dialog.component';
 
 // Security Alerts
 import { SecurityAlertsComponent } from './security-alerts/security-alerts.component';
 import { AlertDrillDownDialogComponent } from './security-alerts/alert-drilldown-dialog/alert-drilldown-dialog.component';
 
-//Setup pages
-
+// System Setup
 import { SystemSettingsComponent } from './system-setupv2/system-settings/system-settings.component';
 import { NodeManagementComponent } from './system-setupv2/node-mng/node-mng.component';
 import { NodeStateProgressBarComponent } from './system-setupv2/node-state-progress-bar/node-state-progress-bar.component';
@@ -40,12 +44,16 @@ import { KitTokenSettingsPaneComponent } from './system-setupv2/system-settings/
 import { AddNodeDialogComponent } from './system-setupv2/add-node-dialog/add-node-dialog.component';
 import { NodeInfoDialogComponent } from './system-setupv2/node-info-dialog/node-info-dialog.component';
 import { AddKitTokenComponent } from './system-setupv2/add-kit-token-dialog/add-kit-token.component';
+import { AddMipDialogComponent } from './system-setupv2/add-mip-dialog/add-mip-dialog.component';
+import { MipManagementComponent } from './system-setupv2/mip-mng/mip-mng.component';
+import { UnusedIpAddressAutoCompleteComponent } from './system-setupv2/components/unused-ipaddress-autocomplete-ctrl.component';
+import { CopyTokenModalDialogComponent } from './system-setupv2/copy-token-dialog/copy-token-dialog.component';
 
-//Kit Page
+// Kit Page
 
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
 
-//Tools page
+// Tools page
 import { ToolsFormComponent } from './tools-form/tools.component';
 import { ChangePasswordFormComponent } from './tools-form/change-password-form/change-password.component';
 import { UpdateDocsFormComponent } from './tools-form/update-documentation-form/update-docs.component';
@@ -53,11 +61,11 @@ import { NodeMaintenanceFormComponent } from './tools-form/node-maintenance-form
 import { RepositorySettingsComponent } from './tools-form/repository-settings/repository-settings.component';
 import { UpdateEsLicenseComponent } from './tools-form/update-es-license-form/update-es-license-form.component';
 
-//PCAP Test Page
+// PCAP Test Page
 import { PcapFormComponent } from './pcap-form/pcap-form.component';
 import { ReplayPcapDialogComponent } from './pcap-form/replay-pcap-dialog/replay-pcap-dialog.component';
 
-//Windows Agent Deployer
+// Windows Agent Deployer
 import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
 import { AgentInstallerDialogComponent } from './agent-builder-chooser/agent-installer-dialog/agent-installer-dialog.component';
 import { AgentDetailsDialogComponent } from './agent-builder-chooser/agent-details-dialog/agent-details-dialog.component';
@@ -70,41 +78,21 @@ import { ChartListComponent } from './catalog/chart-list/chart-list.component';
 import { NodeBackgroundComponent } from './catalog/node-background/node-background.component';
 import { CatalogPageComponent } from './catalog/page/catalog-page.component';
 
-// notifcations
+// notifications
 import { NotificationsComponent } from './notifications/component/notifications.component';
 import { NotificationsModuleComponent } from './notifications/notification-module/notifications-module.component';
-
-// ConfirmDialog
-import { DoubleConfirmDialogComponent } from './double-confirm-dialog/double-confirm-dialog.component';
-import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
-
-import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.component';
 
 // classes
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { ConfirmActionPopup } from './classes/ConfirmActionPopup';
-
-// modules
-import { CookieService } from './services/cookies.service';
-
-// Kickstart Form
-import { UnusedIpAddressAutoCompleteComponent } from './system-setupv2/components/unused-ipaddress-autocomplete-ctrl.component';
-
-//Pipes
-import { CapitalizeFirstPipe } from './pipes/capitalize-first.pipe';
-import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal-dialog-display-mat.component';
-import { HealthDashboardModalDialogComponent } from './health-dashboard-dialog/health-dashboard-dialog.component';
-import { CopyTokenModalDialogComponent } from './system-setupv2/copy-token-dialog/copy-token-dialog.component';
-import { PodLogModalDialogComponent } from './pod-log-dialog/pod-log-dialog.component';
-
-// Index Management
-import { AddMipDialogComponent } from './system-setupv2/add-mip-dialog/add-mip-dialog.component';
-import { MipManagementComponent } from './system-setupv2/mip-mng/mip-mng.component';
-
 import { UserClass } from './classes';
 
-import { AppRoutingModule } from './modules/cvah-modules/app-routing.module';
+// Pipes
+import { CapitalizeFirstPipe } from './pipes/capitalize-first.pipe';
+
+// modules
 import { ConfigMapModule } from './modules/config-map/config-map.module';
+import { AppRoutingModule } from './modules/cvah-modules/app-routing.module';
 import { DateTimeModule } from './modules/date-time/date-time.module';
 import { DockerRegistryModule } from './modules/docker-registry/docker-registry.module';
 import { ElasticsearchColdLogIngestModule } from './modules/elasticsearch-cold-log-ingest/elasticsearch-cold-log-ingest.module';
@@ -122,6 +110,7 @@ import { HealthDashboardNodeTableComponent } from './health-dashboard/node-table
 import { HealthDashboardPodTableComponent } from './health-dashboard/pod-table/pod-table.component';
 import { HealthDashboardSNMPComponent } from './health-dashboard/snmp/snmp-stats.component';
 import { HealthDashboardDatastoresComponent } from './health-dashboard/datastores/datastores.component';
+import { HealthDashboardModalDialogComponent } from './health-dashboard-dialog/health-dashboard-dialog.component';
 
 export function initializeApp(appLoadService: AppLoadService): () => Promise<UserClass> {
   return (): Promise<UserClass> => appLoadService.getCurrentUser();
@@ -157,7 +146,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ChartListComponent,
     NotificationsComponent,
     NotificationsModuleComponent,
-    DoubleConfirmDialogComponent,
     ConfirmDialogComponent,
     NodeBackgroundComponent,
     CatalogPageComponent,
@@ -225,7 +213,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
   ],
   entryComponents: [
     NotificationsModuleComponent,
-    DoubleConfirmDialogComponent,
     ConfirmDialogComponent,
     AgentInstallerDialogComponent,
     AgentDetailsDialogComponent,
@@ -239,7 +226,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     AddNodeDialogComponent,
     AddMipDialogComponent,
     NodeInfoDialogComponent,
-    PodLogModalDialogComponent,
+    PodLogModalDialogComponent
   ]
 })
 export class AppModule { }

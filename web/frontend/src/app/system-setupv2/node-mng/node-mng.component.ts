@@ -7,13 +7,12 @@ import * as FileSaver from 'file-saver';
 
 import { CatalogService } from '../../catalog/services/catalog.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { DoubleConfirmDialogComponent } from '../../double-confirm-dialog/double-confirm-dialog.component';
 import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { UserService } from '../../services/user.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { AddNodeDialogComponent } from '../add-node-dialog/add-node-dialog.component';
-import { Job, KitStatus, Node, Settings, GeneralSettings } from '../models/kit';
+import { Job, KitStatus, Node, Settings } from '../models/kit';
 import { NodeInfoDialogComponent } from '../node-info-dialog/node-info-dialog.component';
 import { KitSettingsService } from '../services/kit-settings.service';
 
@@ -235,16 +234,16 @@ export class NodeManagementComponent implements OnInit {
 
   redeployKit(){
     const option2 = 'Confirm';
-    const dialogRef = this.dialog.open(DoubleConfirmDialogComponent, {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: DIALOG_WIDTH,
       data: {
-        paneString: 'This operation will destroy the cluster and rebuild it.  \n\n \
-                     The cluster will start fresh after this operation is completed. \n\n \
-                     Are you sure you want to do this? It so, please type REDEPLOY and then click Confirm to perform this operation',
-        paneTitle: 'Redeploy Kit Operation',
+        message: 'This operation will destroy the cluster and rebuild it.  \n\n \
+                  The cluster will start fresh after this operation is completed. \n\n \
+                  Are you sure you want to do this? It so, please type REDEPLOY and then click Confirm to perform this operation',
+        title: 'Redeploy Kit Operation',
         option1: 'Cancel',
         option2: option2,
-        doubleConfirmText: 'REDEPLOY'
+        message_double_confirm: 'REDEPLOY'
       },
     });
 
@@ -287,17 +286,17 @@ export class NodeManagementComponent implements OnInit {
 
   refreshKit(){
     const option2 = 'Confirm';
-    const dialogRef = this.dialog.open(DoubleConfirmDialogComponent, {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: DIALOG_WIDTH,
       data: {
-        paneString: 'This operation will destroy the control plane nodes and rebuild them.  \
-                     The Kubernetes cluster will start fresh after this operation is completed. \n\n \
-                     **All sensors will be removed during this process.** \n\n \
-                     Are you sure you want to do this? It so, please type REFRESH and then click Confirm to perform this operation',
-        paneTitle: 'Refresh Kit Operation',
+        message: 'This operation will destroy the control plane nodes and rebuild them.  \
+                  The Kubernetes cluster will start fresh after this operation is completed. \n\n \
+                  **All sensors will be removed during this process.** \n\n \
+                  Are you sure you want to do this? It so, please type REFRESH and then click Confirm to perform this operation',
+        title: 'Refresh Kit Operation',
         option1: 'Cancel',
         option2: option2,
-        doubleConfirmText: 'REFRESH'
+        message_double_confirm: 'REFRESH'
       },
     });
 

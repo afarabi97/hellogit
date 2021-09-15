@@ -1,10 +1,21 @@
 <h1 mat-dialog-title *ngIf="check_variable_value_defined(mat_dialog_data.title)" id="cvah-confirm-dialog-title">{{ mat_dialog_data.title }}</h1>
-<div mat-dialog-content *ngIf="check_variable_value_defined(mat_dialog_data.message)" id="cvah-confirm-dialog-message">
-  <span class="message">{{ mat_dialog_data.message }}</span>
+<div mat-dialog-content *ngIf="check_variable_value_defined(mat_dialog_data.message)">
+  <span id="cvah-confirm-dialog-message" class="message">{{ mat_dialog_data.message }}</span>
+  <mat-form-field *ngIf="check_variable_value_defined(mat_dialog_data.message_double_confirm)"style="width: 100%; margin-top: 7px;">
+    <input matInput id="cvah-confirm-dialog-input"
+           [(ngModel)]="mat_dialog_data.message_double_confirm"
+           matTooltip="Type {{ mat_dialog_data.message_double_confirm }} before clicking Confirm."
+           placeholder="{{ mat_dialog_data.message_double_confirm }}">
+  </mat-form-field>
 </div>
 <div mat-dialog-actions>
-  <button mat-raised-button *ngIf="check_variable_value_defined(mat_dialog_data.option2)"
-          id="cvah-confirm-dialog-button-options2" color="primary"
+  <button mat-raised-button *ngIf="check_variable_value_defined(mat_dialog_data.option2) &&
+                                   !check_variable_value_defined(mat_dialog_data.message_double_confirm)"
+          id="cvah-confirm-dialog-button-options2-not-double-confirm" color="primary"
+          (click)="close(mat_dialog_data.option2)">{{ mat_dialog_data.option2 }}</button>
+  <button mat-raised-button *ngIf="check_variable_value_defined(mat_dialog_data.option2) &&
+                                   check_variable_value_defined(mat_dialog_data.message_double_confirm)"
+          id="cvah-confirm-dialog-button-options2-double-confirm" color="primary"
           (click)="close(mat_dialog_data.option2)">{{ mat_dialog_data.option2 }}</button>
   <button mat-raised-button *ngIf="check_variable_value_defined(mat_dialog_data.option1)"
           id="cvah-confirm-dialog-button-options1" color="warn"

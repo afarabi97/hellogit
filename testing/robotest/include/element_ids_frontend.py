@@ -315,10 +315,12 @@ APP_CATALOG_PAGE__BUTTON_RUN = 'app-catalog-page-div-mat-card-div-button-run' # 
 
 
 # These are for confirm-dailog.component.html
-APP_CONFIRM_DIALOG__TITLE = 'cvah-confirm-dialog-title' # h1
-APP_CONFIRM_DIALOG__MESSAGE = 'cvah-confirm-dialog-message' # div
-APP_CONFIRM_DIALOG__BUTTON_OPTIONS1 = 'cvah-confirm-dialog-button-options1' # button
-APP_CONFIRM_DIALOG__BUTTON_OPTIONS2 = 'cvah-confirm-dialog-button-options2' # button
+CVAH_CONFIRM_DIALOG__TITLE = 'cvah-confirm-dialog-title' # h1
+CVAH_CONFIRM_DIALOG__MESSAGE = 'cvah-confirm-dialog-message' # span
+CVAH_CONFIRM_DIALOG__INPUT = 'cvah-confirm-dialog-input' # input
+CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM = 'cvah-confirm-dialog-button-options2-not-double-confirm' # button
+CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_DOUBLE_CONFIRM = 'cvah-confirm-dialog-button-options2-double-confirm' # button
+CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS1 = 'cvah-confirm-dialog-button-options1' # button
 
 
 # These are for date-time.component.html
