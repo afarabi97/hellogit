@@ -619,10 +619,10 @@ class SuricataPackets(Resource):
                 nodes = []
                 suricata_stats = []
 
-                k8s_obj = kube_apiv1.list_namespaced_pod("default", label_selector="component=suricata")
+                k8s_obj = kube_apiv1.list_namespaced_pod("default", label_selector="component=suricata").items
 
-                if(k8s_obj):
-                    for v1_pod_obj in k8s_obj.items:
+                if k8s_obj:
+                    for v1_pod_obj in k8s_obj:
                         nodes.append({'node_name':v1_pod_obj.spec.node_name, 'pod_name':v1_pod_obj.metadata.name})
 
                     for node in nodes:

@@ -80,8 +80,7 @@
         <td mat-cell *matCellDef="let node;">
           <div *ngIf="(node.type === 'server' && node.write_rejects &&  node.write_rejects.length > 0) ||
              (node.type === 'sensor' && node.app_data && node.app_data.length > 0)">
-            <mat-icon *ngIf="expandedElement !== node">expand_more</mat-icon>
-            <mat-icon *ngIf="node === expandedElement">expand_less</mat-icon>
+            <mat-icon> {{ node.name === expandedElement.name ? "expand_less" : "expand_more" }}</mat-icon>
           </div>
         </td>
       </ng-container>
@@ -89,7 +88,7 @@
       <!-- Extended Node Info -->
       <ng-container matColumnDef="expand_node_info">
         <td mat-cell *matCellDef="let node; let i = index" [attr.colspan]="node_displayed_cols().length">
-          <div class="node-detail" [@detailExpand]="node === expandedElement ? 'expanded' : 'collapsed'">
+          <div class="node-detail" [@detailExpand]="node.name === expandedElement.name ? 'expanded' : 'collapsed'">
             <!-- Sensor -->
             <div *ngIf="expandedElement && expandedElement.type === 'sensor' && node.app_data && node.app_data.length > 0">
               <table mat-table [dataSource]="node.app_data" class="inner-table" aria-describedby="sensor-table">
@@ -135,8 +134,8 @@
       <!-- Default Table lines -->
       <tr mat-header-row *matHeaderRowDef="node_displayed_cols();"></tr>
       <tr mat-row *matRowDef="let rowData; columns: node_displayed_cols();"
-        class="clickable" [class.example-expanded-row]="expandedElement === rowData"
-        (click)="expandedElement = expandedElement === rowData ? null : rowData"></tr>
+        class="clickable" [class.example-expanded-row]="expandedElement.name === rowData.name"
+        (click)="expandedElement = expandedElement.name === rowData.name ? [] : rowData"></tr>
       <tr mat-row *matRowDef="let row; columns: ['expand_node_info']" class="row-detail"></tr>
     </table>
   </mat-card-content>

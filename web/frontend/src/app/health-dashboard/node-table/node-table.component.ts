@@ -38,7 +38,7 @@ export class HealthDashboardNodeTableComponent implements OnChanges {
 
     is_nodes_visible: Boolean = true;
     nodes: Array<Object>;
-    expandedElement: any;
+    expandedElement: any[] = [];
 
     constructor(
       private health_service: HealthService,

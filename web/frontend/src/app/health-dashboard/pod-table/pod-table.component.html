@@ -15,7 +15,7 @@
           <th scope="col" mat-header-cell *matHeaderCellDef>Node Name</th>
           <td mat-cell *matCellDef="let group;">
             <span class="material-icons" style="vertical-align:middle;">
-              {{ expanded_group === group ? "expand_more" : "chevron_right" }}
+              {{ expanded_group === group.group_name ? "expand_more" : "chevron_right" }}
             </span>
             <span style="vertical-align:middle;">
               {{ group.group_name }}
@@ -40,14 +40,14 @@
             error
           </mat-icon>
         </td>
-    </ng-container>
+      </ng-container>
 
       <!-- Filtered Pods Subgroup -->
       <ng-container matColumnDef="expand_group_drawer">
         <td mat-cell *matCellDef="let pod; let i = index">
-          <div class="node-detail" [@detailExpand]="pod === expanded_group ? 'expanded' : 'collapsed'">
+          <div class="node-detail" [@detailExpand]="pod.group_name === expanded_group ? 'expanded' : 'collapsed'">
             <div *ngIf="expanded_group">
-              <table mat-table [dataSource]="filtered_group_data[group_header_data.indexOf(expanded_group)]" class="inner-table"
+              <table mat-table [dataSource]="filtered_group_data[group_header_data.indexOf(getGroup(pod.group_name))]" class="inner-table"
                      aria-describedby="node-detail-table">
                 <!-- Namespace -->
                 <ng-container matColumnDef="namespace">
@@ -117,8 +117,8 @@
       <!-- Default Table lines -->
       <tr mat-header-row *matHeaderRowDef="group_header_column"></tr>
       <tr mat-row *matRowDef="let rowData; columns: group_header_column;"
-        class="clickable" [class.example-expanded-row]="expanded_group === rowData"
-        (click)="expanded_group = expanded_group === rowData ? null : rowData"></tr>
+        class="clickable" [class.example-expanded-row]="expanded_group === rowData.group_name"
+        (click)="setExpandedGroup(rowData.group_name)"></tr>
       <tr mat-row *matRowDef="let row; columns: ['expand_group_drawer']" class="row-detail"></tr>
     </table>
   </mat-card-content>

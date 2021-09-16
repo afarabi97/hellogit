@@ -34,8 +34,8 @@ export class HealthDashboardPodTableComponent implements OnChanges {
 
     is_pods_visible: Boolean = true;
     filtered_group_data: any[];
-    expanded_group: any;
-    group_header_data = [];
+    expanded_group: string = null;
+    group_header_data: any[] = [];
 
     constructor(
       private health_service: HealthService,
@@ -136,8 +136,20 @@ export class HealthDashboardPodTableComponent implements OnChanges {
       });
     }
 
-    reload() {
+    setExpandedGroup(pod_name: string) {
+      const expanded_group = this.expanded_group === pod_name ? null : pod_name;
+      this.expanded_group = expanded_group;
+    }
 
+    getGroup(pod_name: String) {
+      for (const group of this.group_header_data) {
+        if (pod_name === group.group_name) {
+          return group;
+        }
+      }
+    }
+
+    reload() {
       if (this.token && this.token.token == null) {
         this.generate_groups('node_name', []);
         return;
