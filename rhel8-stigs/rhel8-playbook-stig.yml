@@ -710,18 +710,6 @@
     name: tmux
     state: installed
 
-- name: "RHEL-08-020040 | MEDIUM | (Configure) RHEL 8 must enable a user session lock until that user re-establishes access using established identification and authentication procedures for command line sessions."
-  lineinfile:
-    path: /etc/tmux.conf
-    line: 'set -g lock-command vlock'
-    create: yes
-
-- name: "RHEL-08-020041 | MEDIUM | RHEL 8 must ensure session control is automatically started at shell initialization."
-  lineinfile:
-    path: /etc/bashrc
-    line: '[ -n "$PS1" -a -z "$TMUX" ] && exec tmux'
-    create: yes
-
 - name: "RHEL-08-020042 | MEDIUM | RHEL 8 must prevent users from disabling session control mechanisms."
   lineinfile:
     path: /etc/shells
