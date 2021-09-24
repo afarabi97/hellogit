@@ -89,9 +89,11 @@ class RobotSettings(Model):
         docker run -e JIRA_USERNAME -e JIRA_PASSWORD -e JIRA_PROJECT_KEY -i --network="host" -v $(pwd)/testing/robotest:/usr/src/robot/tests -v $(pwd)/testing/robotest-output:/usr/src/robot/output --add-host=controller.lan:$(IP_address) tfplenum/robot-automator:1.1.0 pipenv run python -m run.runner -c DIP_Test_Suite -r 'Ad hoc' -h -b Firefox
 
         docker run --env=JIRA_USERNAME={} --env=JIRA_PASSWORD={} --env=JIRA_PROJECT_KEY={} -i --network="host"
-        --volume={}/tests:/usr/src/robot/tests --volume={}:/usr/src/robot/output {} --add-host=controller.{}:{}
+        --volume={}:/usr/src/robot/tests --volume={}:/usr/src/robot/output {} --add-host=controller.{}:{}
         pipenv run python -m run.runner -c {} -r {} -p {} -h -b {} -v HOST:{} -v HOST_USERNAME:{}' -v HOST_PASSWORD:{} -v KIT_VERSION:{} -v PIPELINE:{}
         """
+        test_suite_category = "-a" if self.robot_category == "all" else f"-c {self.robot_category}"
+
         # 1.    Environment Variables
         self.command = f"docker run --env=JIRA_USERNAME={self.jira_username} --env=JIRA_PASSWORD='{self.jira_password}' --env=JIRA_PROJECT_KEY={self.jira_project_key} -i --network=\"host\" "
         # 2.    Volume Mappings
@@ -99,7 +101,7 @@ class RobotSettings(Model):
         # 3.    Tfplenum Container
         self.command += f"{self.tfplenum_robot_container} python3 -m run.runner "
         # 4.    Robotframework & Jira Variables that determine the output(category, report, project version)
-        self.command += f"-c {self.robot_category} -r '{self.jira_report}' -p {self.jira_project_version} -h -b {self.robot_browser} "
+        self.command += f"{test_suite_category} -r '{self.jira_report}' -p {self.jira_project_version} -h -b {self.robot_browser} "
         # 5.    Calculated Variables That Are Necessary To Run Robot on a specific machine
         self.command += f"-v HOST:{self.ipaddress} -v HOST_USERNAME:{self.username} -v HOST_PASSWORD:{self.password} -v KIT_VERSION:{self.kit_version} -v PIPELINE:{self.pipeline} "
         # 6.    TODO: All the variables passed to robot framework via gitlab

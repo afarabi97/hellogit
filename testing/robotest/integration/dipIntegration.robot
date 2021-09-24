@@ -74,7 +74,8 @@ Run Elastic Integration Test
     Wait Until Page Contains    Replay PCAP on target Sensor    timeout=2s    error=None
     Click Element    id=replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select
     Click Element    //span[@class="mat-option-text"]
-    Click Element    xpath=(//span[@class="mat-button-wrapper"])[24]
+    Wait Until Element Is Enabled  id=replay-pcap-dialog-div-button-execute
+    Click Element    id=replay-pcap-dialog-div-button-execute
     SeleniumLibrary.Capture Page Screenshot    filename=Wannacry-screenshot-{index}.png
 
     # after about 2 minutes

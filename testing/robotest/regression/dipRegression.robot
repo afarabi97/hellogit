@@ -28,9 +28,9 @@ Perform Initial SSO for DIP Controller
     [Documentation]    Grabs the SSO administrator password from the user's controller and performs initial SSO.
     ...                Logs into the DIP controller, accepts banner page, and updates the password when prompted.
     ${sso_pword} =  Execute Command  cat ${SSO_FILE}  # Retrieves the SSO password from the text file
-    Login Into DIP Controller  ${SSO_ADMIN_USERNAME}  ${sso_pword}
-    Accept DoD Banner
-    Update Password
+    ${passed} =  Run Keyword And Return Status  Login Into DIP Controller  ${SSO_ADMIN_USERNAME}  ${sso_pword}
+    Run Keyword If  ${passed}  Run Keywords  Accept DoD Banner
+    ...  AND  Update Password
 
 Verify Correct System Name And Version Number
     [Tags]    THISISCVAH-8225

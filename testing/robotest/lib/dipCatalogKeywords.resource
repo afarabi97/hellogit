@@ -99,7 +99,7 @@ Install App
 Verify App Has Been Installed
     [Arguments]  ${application_name}  ${index}
     [Documentation]  Checks if specified app was sucessfully installed on kit
-    Wait Until Keyword Succeeds  3x  5s  Check App Card Status  ${index}
+    Wait Until Keyword Succeeds  5x  5s  Check App Card Status  ${index}
     Check Notifications For App  ${application_name}
     Check Health Page For App  ${application_name}
 
