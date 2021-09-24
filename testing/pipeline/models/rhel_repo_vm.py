@@ -24,15 +24,12 @@ class RHELRepoSettings(Model):
         VCenterSettings.add_args(parser)
         NodeSettings.add_args(parser, True)
 
-    def from_namespace(self, namespace: Namespace, is_server: bool):
+    def from_namespace(self, namespace: Namespace):
         self.vcenter = VCenterSettings()
         self.vcenter.from_namespace(namespace)
 
         self.node = NodeSettings()
-        self.node.from_namespace(namespace, NodeSettings.valid_node_types[7])
-
-        if is_server:
-            self.node.from_namespace(namespace, NodeSettings.valid_node_types[8])
+        self.node.from_namespace(namespace, NodeSettings.valid_node_types[8])
 
         self.node.cpu = 4
         self.node.memory = 4096

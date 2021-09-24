@@ -9,7 +9,7 @@ MAC_BASE = "00:0a:29:00:00:00"
 
 class NodeSettings(Model):
     unused_ips = None
-    valid_node_types = ("primary_server", "remote_sensor", "controller", "sensor", "server", "control_plane", "mip", "gipsvc", "rhel_work_station_repo", "rhel_server_repo", "minio", "service_node")
+    valid_node_types = ("primary_server", "remote_sensor", "controller", "sensor", "server", "control_plane", "mip", "gipsvc", "rhel_repo", "minio", "service_node")
     valid_sensor_types = ("remote_sensor", "sensor")
     valid_server_types = ("primary_server", "server", "control_plane", "service_node")
     valid_node_types_no_ctrl = valid_sensor_types + valid_server_types
@@ -119,7 +119,7 @@ class NodeSettings(Model):
     @staticmethod
     def add_args(parser: ArgumentParser, is_for_ctrl_setup: bool=False):
         parser.add_argument("--pipeline", dest="pipeline", required=False, default="developer-all")
-        parser.add_argument("--commit-hash", dest="commit_hash", required=True)
+        parser.add_argument("--commit-hash", dest="commit_hash", required=False)
         parser.add_argument("--vm-folder", dest="folder", required=True, help="The folder where all your VM(s) will be created within vsphere.")
         parser.add_argument("--vm-password", dest="password", help="The root password of the VM after it is cloned.", required=True)
         parser.add_argument("--export-password", dest="export_password", help="The root password set during export.", required=True)
@@ -147,7 +147,7 @@ class NodeSettings(Model):
 
 class HwNodeSettings(Model):
     unused_ips = None
-    valid_node_types = ("primary_server", "remote_sensor", "controller", "sensor", "server", "mip", "gipsvc", "rhel_work_station_repo", "rhel_server_repo")
+    valid_node_types = ("primary_server", "remote_sensor", "controller", "sensor", "server", "mip", "gipsvc", "rhel_repo")
     valid_sensor_types = ("remote_sensor", "sensor")
     valid_server_types = ("primary_server", "server")
     valid_node_types_no_ctrl = valid_sensor_types + valid_server_types

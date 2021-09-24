@@ -183,7 +183,7 @@ class Runner:
                 MinIOExport(minio_settings).export_minio()
             elif args.which == SubCmd.test_server_repository_vm:
                 repo_settings = RHELRepoSettings()
-                repo_settings.from_namespace(args, True)
+                repo_settings.from_namespace(args)
                 executor = RHELCreationJob(repo_settings)
                 executor.execute()
             elif args.which == SubCmd.build_server_for_export:
@@ -196,14 +196,14 @@ class Runner:
                 server_repo_settings = YamlManager.load_reposync_settings_from_yaml()
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-                executor_server = ReposyncServerExport( server_repo_settings, export_settings.export_loc)
+                executor_server = ReposyncServerExport(server_repo_settings, export_settings.export_loc)
                 executor_server.export_reposync_server()
 
             elif args.which == SubCmd.export_gip_service_vm:
                 gip_service_settings = YamlManager.load_gip_service_settings_from_yaml()
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-                executor = GIPServiceExport( gip_service_settings, export_settings.export_loc)
+                executor = GIPServiceExport(gip_service_settings, export_settings.export_loc)
                 executor.export_gip_service_vm()
             elif args.which == SubCmd.create_gip_service_vm:
                 service_settings = GIPServiceSettings()

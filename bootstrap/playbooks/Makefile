@@ -52,7 +52,7 @@ chartmuseum:
 
 bootstrap:
 	@echo $(TFPLENUM_SERVER_IP)
-	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }')
+	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }'
 
 pull_docker_images:
 	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t pull-docker-images
