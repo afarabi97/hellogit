@@ -1,8 +1,8 @@
 import base64
 import socket
 
-from app import api, conn_mng, TEMPLATE_DIR, CORE_DIR
-from app.utils.constants import SNMP_SETTINGS_ID
+from app import api, conn_mng, TEMPLATE_DIR
+from app.utils.constants import SNMP_SETTINGS_ID, CORE_DIR
 from app.models import DBModelNotFound, Model
 
 from flask_restx import fields

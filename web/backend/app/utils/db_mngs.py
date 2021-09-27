@@ -164,3 +164,5 @@ class MongoConnectionManager(object):
         :param *exc
         """
         self.close()
+
+conn_mng = MongoConnectionManager()

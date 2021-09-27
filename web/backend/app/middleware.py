@@ -1,7 +1,7 @@
 from werkzeug.wrappers import Request, Response
 from functools import wraps
 from app.common import FORBIDDEN_RESPONSE
-from app.utils.constants import OPERATOR_ROLE, CONTROLLER_ADMIN_ROLE, REALM_ADMIN_ROLE, CONTROLLER_MAINTAINER_ROLE
+from app.utils.constants import OPERATOR_ROLE, CONTROLLER_ADMIN_ROLE, REALM_ADMIN_ROLE, CONTROLLER_MAINTAINER_ROLE, WEB_DIR
 import jwt, os, glob, yaml
 
 JWT_DIR = "/opt/sso-idp/jwt/"
@@ -114,7 +114,7 @@ class AuthMiddleware():
 
         try:
             if os.environ['IS_DEBUG_SERVER'] == "yes":
-                DEBUG_FILE = '/opt/tfplenum/web/angular_debug.yml'
+                DEBUG_FILE = str(WEB_DIR / 'angular_debug.yml')
                 if os.path.isfile(DEBUG_FILE):
                     with open(DEBUG_FILE, 'r') as stream:
                         try:

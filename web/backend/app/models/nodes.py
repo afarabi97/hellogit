@@ -5,7 +5,7 @@ https://flask-restplus.readthedocs.io/en/0.9.2/example.html
 import re
 import uuid
 
-from app import api, conn_mng, TEMPLATE_DIR, CORE_DIR, MIP_DIR
+from app import api, conn_mng, TEMPLATE_DIR
 from app.models import Model, DBModelNotFound, PostValidationError
 from app.models.device_facts import DeviceFacts
 from ipaddress import IPv4Address, ip_network
@@ -15,8 +15,8 @@ from marshmallow import Schema, post_load, pre_load, validate, validates, Valida
 from marshmallow import fields as marsh_fields
 from pymongo import ReturnDocument
 from pymongo.results import InsertOneResult
-from app.utils.constants import (KIT_ID, GENERAL_SETTINGS_ID, KIT_SETTINGS_ID, ESXI_SETTINGS_ID, MIP_SETTINGS_ID,
-                                 JOB_CREATE, JOB_PROVISION, JOB_DEPLOY, JOB_REMOVE, NODE_TYPES, DEPLOYMENT_TYPES)
+from app.utils.constants import (JOB_CREATE, JOB_PROVISION, JOB_DEPLOY, JOB_REMOVE, NODE_TYPES, DEPLOYMENT_TYPES,
+                                 CORE_DIR, MIP_DIR)
 from app.utils.utils import encode_password, decode_password
 from typing import List, Dict
 

@@ -1,4 +1,4 @@
-from app import CORE_DIR, MIP_DIR, STIGS_DIR, conn_mng, REDIS_CLIENT, SCHEDULER
+from app import REDIS_CLIENT
 from app.utils.logging import rq_logger
 from app.models.nodes import Command, Node, NodeJob, NodeSchema
 from app.models.settings.kit_settings import KitSettingsForm
@@ -11,8 +11,8 @@ from pathlib import Path
 from rq.decorators import job
 from rq import get_current_job
 from rq.timeouts import JobTimeoutException
-from app.utils.constants import (KIT_ID, JOB_CREATE, JOB_PROVISION, JOB_DEPLOY, JOB_REMOVE,
-                                 LOG_PATH, NODE_TYPES, DEPLOYMENT_JOBS, DEPLOYMENT_TYPES)
+from app.utils.constants import (JOB_CREATE, JOB_PROVISION, JOB_DEPLOY, JOB_REMOVE,
+                                 LOG_PATH, NODE_TYPES, DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, CORE_DIR, MIP_DIR)
 from typing import Dict, List, Union
 from app.service.socket_service import notify_node_management, log_to_console
 from app.models.device_facts import DeviceFacts, create_device_facts_from_ansible_setup

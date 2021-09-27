@@ -1,13 +1,12 @@
 """
 Main module for handling all of the Kit Configuration REST calls.
 """
-from app import (conn_mng, CORE_DIR, KUBERNETES_NS)
 from app.models.kubernetes import (NodeOrPodStatusModel, PodLogsModel)
 from app.utils.logging import logger
 from app.resources import convert_kib_to_gib, convert_gib_to_kib, convert_mib_to_kib
 import time
 
-from app import app, conn_mng, KUBERNETES_NS, HEALTH_NS, api
+from app import conn_mng, KUBERNETES_NS, HEALTH_NS
 from app.common import ERROR_RESPONSE, NO_CONTENT, NOTFOUND_RESPONSE
 from app.models.kubernetes import NodeOrPodStatusModel, PodLogsModel
 from app.service.job_service import run_command

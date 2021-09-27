@@ -13,18 +13,15 @@ from rq import Queue
 import signal
 
 from app.utils.db_mngs import MongoConnectionManager
-from app.utils.constants import (CORE_DIR, PLAYBOOK_DIR, WEB_DIR, TESTING_DIR, UPGRADES_DIR,
-                                 AGENT_PKGS_DIR, MIP_DIR, STIGS_DIR)
 from flask_cors import CORS
 from flask import Flask, url_for
 from flask_restx import Api, Namespace
 from flask_socketio import SocketIO
 
 from pathlib import Path
-from app.middleware import AuthMiddleware, Auth
-import pymongo
+from app.middleware import AuthMiddleware
 from rq_scheduler import Scheduler
-from app.utils.logging import init_loggers
+from .utils.logging import init_loggers
 
 APP_DIR = Path(__file__).parent  # type: Path
 TEMPLATE_DIR = APP_DIR / 'templates'  # type: Path
@@ -130,7 +127,7 @@ from app import (agent_builder_controller, catalog_controller, common_controller
                  scale_controller, task_controller, tools_controller,
                  version_controller, cold_log_controller, alerts_controller, settings_controller,
                  kit_tokens_controller, health_dashboard_controller, diagnostics_controller)
-                 
+
 
 #This is a hack needed to get coverage to work correctly within the python unittest framework.
 def receive_signal(signal_number, frame):

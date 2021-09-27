@@ -6,7 +6,7 @@ import requests
 import urllib3
 import shutil
 
-from app import (app, conn_mng, TEMPLATE_DIR, AGENT_PKGS_DIR)
+from app import (app, conn_mng, TEMPLATE_DIR)
 from app.utils.logging import logger
 from app.common import cursor_to_json_response
 from app.service.job_service import run_command2
@@ -18,7 +18,7 @@ from flask import send_file, Response, request, jsonify, json
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from pathlib import Path
 from pymongo import ReturnDocument
-from app.utils.constants import TARGET_STATES, AGENT_UPLOAD_DIR
+from app.utils.constants import TARGET_STATES, AGENT_UPLOAD_DIR, AGENT_PKGS_DIR
 from app.utils.utils import encode_password, fix_hostname, sanitize_dictionary
 from typing import Dict, List, Union
 

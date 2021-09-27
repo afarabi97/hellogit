@@ -10,7 +10,7 @@ import os
 import traceback
 import zipfile
 
-from app import conn_mng, AGENT_PKGS_DIR, REDIS_CLIENT
+from app import conn_mng, REDIS_CLIENT
 from app.service.socket_service import NotificationMessage, NotificationCode, notify_page_refresh
 from app.service.job_service import run_command2, run_command
 from bson import ObjectId
@@ -18,7 +18,7 @@ from datetime import datetime
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from kubernetes.client.rest import ApiException
 from rq.decorators import job
-from app.utils.constants import TARGET_STATES, DATE_FORMAT_STR, AGENT_UPLOAD_DIR, PLAYBOOK_DIR
+from app.utils.constants import TARGET_STATES, DATE_FORMAT_STR, AGENT_UPLOAD_DIR, PLAYBOOK_DIR, AGENT_PKGS_DIR
 from app.utils.connection_mngs import get_kubernetes_secret
 from app.utils.tfwinrm_util import WindowsConnectionManager, WinrmCommandFailure
 from app.utils.utils import fix_hostname, decode_password, zip_package

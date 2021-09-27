@@ -17,7 +17,7 @@ from app.service.job_service import run_command2
 from rq.decorators import job
 from app.utils.constants import KIT_ID, NODE_TYPES
 from app.utils.connection_mngs import KubernetesWrapper, KubernetesWrapper2
-
+from app.utils.utils import get_domain
 
 HELM_BINARY_PATH = "/usr/local/bin/helm"
 WORKING_DIR = "/root"
@@ -25,11 +25,6 @@ _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
 _PMO_SUPPORTED_CHARTS = ['cortex', 'hive', 'misp', 'logstash', 'arkime', 'arkime-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek', 'remote-health-agent']
 _SENSOR_APPLICATIONS = ['arkime', 'suricata', 'zeek']
-
-
-def _get_domain() -> str:
-    general_settings_configuration = GeneralSettingsForm.load_from_db() # type: Dict
-    return general_settings_configuration.domain
 
 def _get_controller_ip() -> str:
     general_settings_configuration = GeneralSettingsForm.load_from_db() # type: Dict
@@ -102,7 +97,7 @@ def _get_logstash_nodes() -> list:
     return nodes
 
 def _get_chartmuseum_uri() -> str:
-    return "https://chartmuseum.{domain}".format(domain=_get_domain())
+    return "https://chartmuseum.{domain}".format(domain=get_domain())
 
 
 def get_node_type(hostname: str) -> str:
@@ -324,7 +319,7 @@ def generate_values(application: str, namespace: str, configs: list=None) -> lis
     try:
         values = get_values(application)
         if 'domain' in values:
-            values['domain'] = _get_domain()
+            values['domain'] = get_domain()
         if 'auth_base' in values:
             values['auth_base'] = get_auth_base()
         if 'elastic_ingest_nodes' in values:

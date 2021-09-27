@@ -1,28 +1,29 @@
-import os
-from app.utils.logging import logger
+import socket
+import sys
 from base64 import b64decode
+from datetime import datetime
+from pathlib import Path
+from time import sleep
+from typing import Dict
+
+import paramiko
+from app.utils.constants import DATE_FORMAT_STR, KIT_SETTINGS_ID
+from app.utils.db_mngs import MongoConnectionManager
+from app.utils.logging import logger
+from app.utils.utils import decode_password
 from bson import ObjectId
-from datetime import datetime, timedelta
-from elasticsearch import Elasticsearch
-from elasticsearch.client import ClusterClient, SnapshotClient, IndicesClient
-from elasticsearch.exceptions import ConflictError
-from fabric import Connection, Config
+from fabric import Config, Connection
 from kubernetes import client, config
 from kubernetes.client.models.v1_secret import V1Secret
 from kubernetes.client.rest import ApiException
-from pathlib import Path
-from app.models.nodes import Node
-from app.models.settings.kit_settings import KitSettingsForm
-from app.utils.db_mngs import MongoConnectionManager
-from app.utils.constants import KIT_ID, DATE_FORMAT_STR, NODE_TYPES
-from time import sleep
-from typing import Dict, List, Union
-import paramiko
-import socket
-import sys
 from paramiko import SSHException
+from redis import Redis
+from rq import Queue
+from rq_scheduler import Scheduler
 
-
+REDIS_CLIENT = Redis()
+REDIS_QUEUE = Queue(connection=REDIS_CLIENT)
+SCHEDULER = Scheduler(connection=REDIS_CLIENT)
 
 KUBEDIR = "/root/.kube"
 USERNAME = 'root'
@@ -76,8 +77,9 @@ class FabricConnection():
         self._use_ssh_key = use_ssh_key
 
     def _set_root_password(self) -> str:
-        kit_settings = KitSettingsForm.load_from_db()
-        self._password = kit_settings.password
+        conn_mng = MongoConnectionManager()
+        kit_settings =  conn_mng.mongo_settings.find_one({"_id": KIT_SETTINGS_ID})
+        self._password = decode_password(kit_settings["password"])
 
     def _establish_fabric_connection(self) -> None:
         if self._use_ssh_key:

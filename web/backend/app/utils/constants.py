@@ -15,6 +15,7 @@ TESTING_DIR = SHARED_DIR / '../../../../testing'
 UPGRADES_DIR = SHARED_DIR / '../../../../upgrades'
 AGENT_PKGS_DIR = SHARED_DIR / '../../../../agent_pkgs'
 MIP_DIR = SHARED_DIR / '../../../../mip'
+TEMPLATE_DIR = SHARED_DIR / '../templates'  # type: Path
 
 TFPLENUM_LOG_FILENAME = "/var/log/tfplenum/tfplenum.log"
 REDIS_QUEUE_LOG_FILENAME = "/var/log/tfplenum/rq.log"
@@ -50,6 +51,8 @@ ZEEK_SIG_PATH = "/opt/tfplenum/zeek/custom.sig"
 
 SURICATA_RULESET_LOC = "/opt/tfplenum/suricata/rules/suricata.rules"
 BRO_CUSTOM_DIR = "/opt/tfplenum/zeek/scripts/"
+
+REDIS = 'redis://'
 
 class NODE_TYPES(Enum):
     server = "Server"

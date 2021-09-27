@@ -4,7 +4,7 @@ from kubernetes import client, config, utils
 from typing import Dict, List
 from elasticsearch.client import ClusterClient, SnapshotClient, IndicesClient
 from elasticsearch.exceptions import ConflictError
-from app.catalog_service import _get_domain
+from app.utils.utils import get_domain
 from base64 import b64decode
 import os
 
@@ -53,7 +53,7 @@ def get_kibana_fqdn(name='kibana', namespace='default'):
     core_v1_api = client.CoreV1Api()
     response = core_v1_api.read_namespaced_service(name, namespace)
 
-    fqdn =  "{name}.{domain}".format(name=name,domain=_get_domain())
+    fqdn =  "{name}.{domain}".format(name=name,domain=get_domain())
     # Get the port
     port = response.spec.ports[0].port
 
@@ -67,7 +67,7 @@ def get_elastic_fqdn(name='elasticsearch', namespace='default'):
     core_v1_api = client.CoreV1Api()
     response = core_v1_api.read_namespaced_service(name, namespace)
 
-    fqdn =  "{name}.{domain}".format(name=name,domain=_get_domain())
+    fqdn =  "{name}.{domain}".format(name=name,domain=get_domain())
     # Get the port
     port = response.spec.ports[0].port
 

@@ -15,8 +15,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Union, Dict
 from uuid import uuid4
-from app.utils.constants import DATE_FORMAT_STR
+from .constants import DATE_FORMAT_STR, GENERAL_SETTINGS_ID
+from .db_mngs import conn_mng
 
+def get_domain() -> str:
+    mongo_document = conn_mng.mongo_settings.find_one({"_id": GENERAL_SETTINGS_ID})
+    if mongo_document and "domain" in mongo_document:
+        return mongo_document["domain"]
+    return None
 
 def is_ipv4_address(s: str) -> bool:
     if s is None or len(s) == 0:

@@ -11,8 +11,7 @@ from typing import List
 from flask import Response, request, jsonify
 from bson import ObjectId
 from app.middleware import operator_required
-from app.models.settings.kit_settings import GeneralSettingsForm
-
+from app.utils.utils import get_domain
 
 DISCLUDES = ("elasticsearch",
         "elasticsearch-headless",
@@ -26,11 +25,6 @@ DISCLUDES = ("elasticsearch",
 
 HTTPS_STR = 'https://'
 HTTP_STR = 'http://'
-
-
-def _get_domain() -> str:
-    kickstart_configuration = GeneralSettingsForm.load_from_db() #type: Dict
-    return kickstart_configuration.domain
 
 def get_app_credentials(app: str, user_key: str, pass_key: str):
     username = ""
@@ -136,7 +130,7 @@ def get_portal_links() -> Response:
     :return:
     """
     try:
-        kit_domain = _get_domain()
+        kit_domain = get_domain()
         portal_links = []
         with KubernetesWrapper2(conn_mng) as api:
             kube_api = api.core_V1_API

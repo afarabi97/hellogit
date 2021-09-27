@@ -6,7 +6,7 @@ from app import app, conn_mng, ALERTS_NS
 from app.utils.logging import logger
 
 from app.models.common import HiveSettingsModel
-from app.catalog_service import _get_domain
+from app.utils.utils import get_domain
 from requests.auth import HTTPBasicAuth
 from thehive4py.api import TheHiveApi
 from thehive4py.models import Case, CaseTask, CustomFieldHelper, CustomField, Version
@@ -26,7 +26,7 @@ class HiveFailureError(Exception):
 
 def configure_webhook(api_key: str):
     auth = BearerAuth(api_key)
-    url = "https://hive.{}/api/config/organisation/notification".format(_get_domain())
+    url = "https://hive.{}/api/config/organisation/notification".format(get_domain())
     data = {
         "value": [
             {
@@ -87,7 +87,7 @@ class HiveService:
         self._hive_form = hive_form
         self._fields_to_create = fields_to_create
         self._settings = HiveSettingsModel.load_from_db()
-        self._domain = _get_domain()
+        self._domain = get_domain()
         self._hive_url = 'https://hive.' + self._domain
         self._hive_api = MyTheHiveApi(self._hive_url, self._settings.org_admin_api_key, cert=False)
         self._hive_api_admin = MyTheHiveApi(self._hive_url, self._settings.admin_api_key, cert=False)

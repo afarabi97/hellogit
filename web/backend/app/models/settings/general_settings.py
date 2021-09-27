@@ -6,7 +6,7 @@ import os
 import re
 import uuid
 
-from app import api, conn_mng, TEMPLATE_DIR, CORE_DIR, MIP_DIR
+from app import api, conn_mng, TEMPLATE_DIR
 from app.models import Model, DBModelNotFound, PostValidationError
 from app.models.settings.settings_base import SettingsBase
 from ipaddress import IPv4Address, ip_network
@@ -17,8 +17,7 @@ from marshmallow import Schema, post_load, pre_load, validate, validates, Valida
 from marshmallow import fields as marsh_fields
 from pymongo import ReturnDocument
 from pymongo.results import InsertOneResult
-from app.utils.constants import (KIT_ID, GENERAL_SETTINGS_ID, KIT_SETTINGS_ID, ESXI_SETTINGS_ID, MIP_SETTINGS_ID,
-                                 JOB_CREATE, JOB_PROVISION, JOB_DEPLOY, NODE_TYPES)
+from app.utils.constants import (GENERAL_SETTINGS_ID, CORE_DIR)
 from app.utils.utils import encode_password, decode_password
 from typing import List, Dict
 from jinja2 import Environment, select_autoescape, FileSystemLoader
