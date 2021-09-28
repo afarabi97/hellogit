@@ -47,9 +47,12 @@ sso:
 hosts_file:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t hosts_file
 
+chartmuseum:
+	ansible-playbook $(PLAYBOOK) -i localhost -t chartmuseum
+
 bootstrap:
 	@echo $(TFPLENUM_SERVER_IP)
-	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t execute_pre,frontend,sso,bootstrap,stigs)
+	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t execute_pre,frontend,sso,bootstrap,chartmuseum,stigs)
 
 pull_docker_images:
 	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t pull-docker-images

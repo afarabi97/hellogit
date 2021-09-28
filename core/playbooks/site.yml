@@ -234,13 +234,6 @@
   tags:
     - storage
 
-- name: chartmuseum
-  any_errors_fatal: true
-  hosts: localhost
-  roles:
-    - chartmuseum
-  tags: chartmuseum
-
 - name: Setup Controller API Key
   hosts: localhost
   tasks:

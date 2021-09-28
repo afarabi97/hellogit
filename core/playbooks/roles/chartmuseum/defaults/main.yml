@@ -1,3 +1,0 @@
----
-chartmuseum_tfplenum_config_dir: "{{ tfplenum_config_dir  }}/chartmuseum"
-chart_dir: /var/www/html/offlinerepo/charts

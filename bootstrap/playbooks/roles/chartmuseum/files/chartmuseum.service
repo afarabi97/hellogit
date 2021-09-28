@@ -1,0 +1,13 @@
+[Unit]
+Description=Chartmuseum Service
+After=network.target
+
+[Service]
+User=chartmuseum
+WorkingDirectory=/opt/chartmuseum/charts
+ExecStart=/opt/chartmuseum/linux-amd64/chartmuseum --storage="local" --storage-local-rootdir="/opt/chartmuseum/charts" --port=5002
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

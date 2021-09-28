@@ -97,7 +97,7 @@ def _get_logstash_nodes() -> list:
     return nodes
 
 def _get_chartmuseum_uri() -> str:
-    return "https://chartmuseum.{domain}".format(domain=get_domain())
+    return "https://controller/chartmuseum"
 
 
 def get_node_type(hostname: str) -> str:

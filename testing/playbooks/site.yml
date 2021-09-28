@@ -83,12 +83,6 @@
     - cold-log
   tags: cold-log
 
-- name: Validate Chartmuseum
-  hosts: localhost
-  roles:
-    - chartmuseum
-  tags: chartmuseum
-
 - name: Validate Zeek
   hosts:
     - localhost

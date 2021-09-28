@@ -1,0 +1,64 @@
+---
+- name: Remove /opt/chartmuseum/ if exists
+  file:
+    path: /opt/chartmuseum/
+    state: absent
+
+- name: Add a chartmuseum user
+  user:
+    name: chartmuseum
+    shell: /sbin/nologin
+    create_home: True
+    home: /opt/chartmuseum/
+
+- name: Unarchive a file that is already on the remote machine
+  unarchive:
+    src: "{{ tfplenumoffline_dir }}/chartmuseum-{{ chartmuseum_version }}-linux-amd64.tar.gz"
+    dest: /opt/chartmuseum
+    remote_src: yes
+
+- name: Create /opt/chartmuseum/charts file
+  file:
+    path: /opt/chartmuseum/charts
+    state: directory
+
+- name: Change /opt/chartmuseum/ file ownership, group and permissions
+  file:
+    path: /opt/chartmuseum/
+    owner: chartmuseum
+    group: chartmuseum
+    recurse: yes
+    mode: '0775'
+
+- name: Copy copy service file to proper location
+  copy:
+    src: files/chartmuseum.service
+    dest: /etc/systemd/system/chartmuseum.service
+
+- name:
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: chartmuseum.service
+    enabled: yes
+
+- name: Wait for chartmuseum to be ready
+  wait_for:
+    port: 5002
+    host: "127.0.0.1"
+    connect_timeout: 3
+    delay: 3
+    timeout: 300
+
+- name: Add helm repo if it does not exist
+  command: helm repo add chartmuseum https://controller/chartmuseum --cert-file /etc/ssl/certs/apache-selfsigned.crt
+  register: helmret
+  failed_when: "helmret.rc != 0"
+
+- import_tasks: load_charts.yml
+
+- name: update helm repo
+  shell: |
+    helm repo update
+  register: results
+  changed_when: results.rc == 0

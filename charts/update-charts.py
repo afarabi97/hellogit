@@ -45,7 +45,7 @@ charts = [
 hostname = os.getenv('HOSTNAME')
 domain = '.'.join(hostname.split('.')[1:])
 
-CHARTMUSEUM_FQDN = "chartmuseum.{}".format(domain)
+CHARTMUSEUM_FQDN = "controller/chartmuseum"
 CHARTS_PATH="/opt/tfplenum/charts"
 os.environ['REQUESTS_CA_BUNDLE'] = "/etc/pki/tls/certs/ca-bundle.crt"
 

@@ -58,6 +58,14 @@
     - registry
     - pull-docker-images
 
+- name: Setup chart museum
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - chartmuseum
+  tags:
+    - chartmuseum
+
 - name: Run Stigs
   hosts: localhost
   gather_facts: no

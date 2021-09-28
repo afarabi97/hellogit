@@ -32,7 +32,7 @@
     state_or_province_name: Texas
     locality_name: Dallas
     organization_name: unknown
-    common_name: tfplenum
+    common_name: controller
 
 - name: Generate a Self Signed OpenSSL certificate
   openssl_certificate:
