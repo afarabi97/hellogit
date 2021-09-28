@@ -1,34 +1,30 @@
+import cgi
 import json
-import re
-import requests
+import logging
 import shutil
 import sys
 import tempfile
-import cgi
-import logging
-import os
-import traceback
-import zipfile
-
-from app import conn_mng, REDIS_CLIENT
-from app.service.socket_service import NotificationMessage, NotificationCode, notify_page_refresh
-from app.service.job_service import run_command2, run_command
-from bson import ObjectId
+from contextlib import ExitStack
 from datetime import datetime
-from jinja2 import Environment, select_autoescape, FileSystemLoader
-from kubernetes.client.rest import ApiException
-from rq.decorators import job
-from app.utils.constants import TARGET_STATES, DATE_FORMAT_STR, AGENT_UPLOAD_DIR, PLAYBOOK_DIR, AGENT_PKGS_DIR
-from app.utils.connection_mngs import get_kubernetes_secret
-from app.utils.tfwinrm_util import WindowsConnectionManager, WinrmCommandFailure
-from app.utils.utils import fix_hostname, decode_password, zip_package
-from urllib3.connectionpool import log
 from pathlib import Path
 from pprint import PrettyPrinter
-from pypsrp.powershell import PSDataStreams
 from typing import Dict, List, Union
-from contextlib import ExitStack
 
+import requests
+from app.service.socket_service import (NotificationCode, NotificationMessage,
+                                        notify_page_refresh)
+from app.utils.connection_mngs import REDIS_CLIENT, get_kubernetes_secret
+from app.utils.constants import (AGENT_PKGS_DIR, AGENT_UPLOAD_DIR,
+                                 DATE_FORMAT_STR, TARGET_STATES)
+from app.utils.db_mngs import conn_mng
+from app.utils.tfwinrm_util import (WindowsConnectionManager,
+                                    WinrmCommandFailure)
+from app.utils.utils import decode_password, zip_package
+from bson import ObjectId
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from kubernetes.client.rest import ApiException
+from rq.decorators import job
+from urllib3.connectionpool import log
 
 _JOB_NAME = "agent"
 

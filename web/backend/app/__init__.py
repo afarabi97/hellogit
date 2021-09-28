@@ -118,8 +118,11 @@ api.add_namespace(KIT_TOKEN_NS)
 api.add_namespace(HEALTH_NS)
 api.add_namespace(DIAGNOSTICS_NS)
 
+from .controller.agent_builder_controller import AGENT_NS
+api.add_namespace(AGENT_NS)
+
 # Load the REST API
-from app import (agent_builder_controller, catalog_controller, common_controller, configmap_controller,
+from app import (catalog_controller, common_controller, configmap_controller,
                  console_controller, curator_controller, health_controller,
                  kit_controller, mip_controller,
                  node_controller, notification_controller, pcap_controller,
@@ -128,6 +131,7 @@ from app import (agent_builder_controller, catalog_controller, common_controller
                  version_controller, cold_log_controller, alerts_controller, settings_controller,
                  kit_tokens_controller, health_dashboard_controller, diagnostics_controller)
 
+from .controller import agent_builder_controller
 
 #This is a hack needed to get coverage to work correctly within the python unittest framework.
 def receive_signal(signal_number, frame):

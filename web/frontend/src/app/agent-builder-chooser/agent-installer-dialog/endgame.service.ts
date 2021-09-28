@@ -10,7 +10,7 @@ export class EndgameService{
   constructor(private http: HttpClient) { }
 
   getEndgameSensorProfiles(payload: Object) : Observable<any>{
-      const url = '/api/endgame_sensor_profiles';
+      const url = '/api/agent/endgame/profiles';
       return this.http.post(url, payload).pipe();
   }
 }
