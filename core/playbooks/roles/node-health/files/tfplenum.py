@@ -1,5 +1,4 @@
 from base64 import b64decode
-from elasticsearch import Elasticsearch
 from kubernetes import client, config
 import requests
 import logging
@@ -23,9 +22,8 @@ def _get_controller_api_key():
     return api_key
 
 class TFPlenum:
-    def __init__(self, controller, elasticsearch):
+    def __init__(self, controller):
         self._controller = controller
-        self._elasticsearch = elasticsearch
         self._api_key = _get_controller_api_key()
 
     def update_metrics(self, data):
@@ -36,11 +34,3 @@ class TFPlenum:
             logger.info(str(response))
         else:
             logger.warning(str(response))
-
-    def get_elasticsearch(self):
-        username = 'elastic'
-        password = _get_elastic_password()
-        auth = (username, password)
-        hosts = [self._elasticsearch]
-        elasticsearch = Elasticsearch(hosts, scheme="https", port=9200, http_auth=auth, use_ssl=True, verify_certs=False)
-        return elasticsearch

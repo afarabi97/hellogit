@@ -28,16 +28,9 @@ def main():
     settings.read('metrics.ini')
 
     controller_hostname = settings['update-metrics']['controller']
-    elasticsearch_hostname = settings['update-metrics']['elasticsearch']
     node_type = settings['update-metrics'].get('node_type')
-    check_cluster_health = settings['update-metrics'].get('check_cluster_health')
-
-    tfplenum = TFPlenum(controller_hostname, elasticsearch_hostname)
-    elasticsearch = tfplenum.get_elasticsearch()
-
+    tfplenum = TFPlenum(controller_hostname)
     hostname = socket.gethostname()
-    hostname_short = socket.gethostname().split('.', 1)[0]
-
     psutil_metrics = PsutilMetrics(hostname)
 
     data = []
