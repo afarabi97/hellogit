@@ -5,6 +5,7 @@ from models.kit import KitSettingsV2
 from util.ansible_util import power_on_vms
 from util.connection_mngs import FabricConnectionWrapper, MongoConnectionManager
 from util.ssh import test_nodes_up_and_alive
+from typing import Dict
 
 
 PROJECT_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../../../"
@@ -26,8 +27,8 @@ class OSCAPScanJob:
         cmd3 = 'chmod 555 /tmp/{}'
         cmd4 = 'rm -fr /tmp/{}'
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
-                                    self.ctrl_settings.node.password,
-                                    self.ctrl_settings.node.ipaddress) as client:
+                                     self.ctrl_settings.node.password,
+                                     self.ctrl_settings.node.ipaddress) as client:
             with client.cd("/opt/tfplenum"):
                 client.sudo(cmd.format(report_name), warn=True, shell=True)
                 client.sudo(cmd2.format(report_name,report_name), warn=True, shell=True)
@@ -37,26 +38,19 @@ class OSCAPScanJob:
 
         with MongoConnectionManager(self.ctrl_settings.node.ipaddress) as mongo_manager:
             nodes = mongo_manager.mongo_node.find({})
-            for node in nodes:
-                try:
-                    ip_address = node['management_ip']
-                except KeyError:
-                    ip_address = node['ip_address']
+            for node in nodes: # type : Dict
+                ipaddress = node["ip_address"]
+                hostname = node["hostname"]
 
-        for node in nodes: # type : NodeSettings
-            username = node.username
-            user_dir = "/root"
-            #if node.is_mip():
-                #username = node.mip_username
-                #user_dir = "/home/{}".format(username)
-
-            report_name = "oscap_report_{}.html".format(node.hostname)
-            with FabricConnectionWrapper(username,
-                                         node.password,
-                                         node.ipaddress) as client:
-                with client.cd(user_dir):
-                    client.sudo(cmd.format(report_name), warn=True, shell=True)
-                    client.sudo(cmd2.format(report_name,report_name), warn=True, shell=True)
-                    client.sudo(cmd3.format(report_name), warn=True, shell=True)
-                    client.get("/tmp/{}".format(report_name), "{}/{}".format(PROJECT_DIR, report_name))
-                    client.sudo(cmd4.format(report_name), warn=True, shell=True)
+                username = "root"
+                user_dir = "/root"
+                report_name = "oscap_report_{}.html".format(hostname)
+                with FabricConnectionWrapper(username,
+                                             self.kit_settings.settings.password,
+                                             ipaddress) as client:
+                    with client.cd(user_dir):
+                        client.sudo(cmd.format(report_name), warn=True, shell=True)
+                        client.sudo(cmd2.format(report_name,report_name), warn=True, shell=True)
+                        client.sudo(cmd3.format(report_name), warn=True, shell=True)
+                        client.get("/tmp/{}".format(report_name), "{}/{}".format(PROJECT_DIR, report_name))
+                        client.sudo(cmd4.format(report_name), warn=True, shell=True)
