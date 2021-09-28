@@ -118,10 +118,81 @@ mip playbooks:
   allow_failure: true
   extends: .code-checks
 
-sonarqube front-end code base:
+sonar-scan testing pipeline:
   tags:
     - tfplenum-buildv2
   stage: code-analysis
+  only:
+    changes:
+      - testing/pipeline/*
+      - testing/pipeline/**/*
+  except:
+    - tags
+    - schedules
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    PATH_PWD=$(pwd)
+    echo "TASK [pylint: pipeline] ********************************************************"
+    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD docker.nexus.sil.lab/tfplenum/code-checker:1.1 $PATH_PWD/testing/pipeline/pylint_pipeline.sh
+    echo "TASK [sonar-scanner: pipeline ingestion] ***************************************"
+    sonar-scanner \
+      -Dsonar.qualitygate.wait=true \
+      -Dsonar.python.pylint.reportPath=$PATH_PWD/testing/pipeline/pylint-pipeline.txt \
+      -Dsonar.projectKey=tfplenum-test \
+      -Dsonar.sources=testing/pipeline/> >(tee $PATH_PWD/testing/pipeline/sonar-report.txt) 2> >(tee $PATH_PWD/testing/pipeline/sonar-report.txt >&2)
+    cat $PATH_PWD/testing/pipeline/sonar-report.txt | grep QUALITY >> $PATH_PWD/testing/pipeline/testing-sonarlink.txt
+    cat $PATH_PWD/testing/pipeline/sonar-report.txt | grep -i "total time" >> $PATH_PWD/testing/pipeline/testing-scantime.txt
+  artifacts:
+    paths:
+      - testing/pipeline/testing-sonarlink.txt
+      - testing/pipeline/testing-scantime.txt
+      - testing/pipeline/*.png
+  allow_failure: false
+
+sonar-scan back-end code base:
+  tags:
+    - tfplenum-buildv2
+  stage: code-analysis
+  only:
+    changes:
+      - web/backend/*
+      - web/backend/**/*
+  except:
+    - tags
+    - schedules
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    PATH_PWD=$(pwd)
+    echo "TASK [pylint / pytest-cov: back-end] *******************************************"
+    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD docker.nexus.sil.lab/tfplenum/code-checker:1.1 $PATH_PWD/web/setup/pylint_pytest_backend.sh
+    echo "TASK [sonar-scanner: back-end code-base ingestion] **************************************"
+    sonar-scanner \
+      -Dsonar.qualitygate.wait=true \
+      -Dsonar.python.pylint.reportPath=$PATH_PWD/web/backend/pylint-backend.txt \
+      -Dsonar.projectKey=tfplenum-backend \
+      -Dsonar.sources=web/backend/> >(tee $PATH_PWD/web/backend/sonar-report.txt) 2> >(tee $PATH_PWD/web/backend/sonar-report.txt >&2)
+    cat $PATH_PWD/web/backend/sonar-report.txt | grep QUALITY >> $PATH_PWD/web/backend/backend-sonarlink.txt
+    cat $PATH_PWD/web/backend/sonar-report.txt | grep -i "total time" >> $PATH_PWD/web/backend/backend-scantime.txt
+  artifacts:
+    paths:
+      - web/backend/backend-sonarlink.txt
+      - web/backend/backend-scantime.txt
+      - web/backend/*.png
+  allow_failure: false
+
+sonar-scan front-end code base:
+  tags:
+    - tfplenum-buildv2
+  stage: code-analysis
+  only:
+    changes:
+      - web/frontend/*
+      - web/frontend/**/*
+  except:
+    - tags
+    - schedules
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
@@ -130,91 +201,19 @@ sonarqube front-end code base:
     docker run --rm -v $(pwd):/opt/tfplenum docker.nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/setup_frontend.sh
     echo "TASK [unit-test / coverage: front-end] *****************************************"
     docker run --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD docker.nexus.sil.lab/tfplenum/code-checker:1.1 $PATH_PWD/web/setup/eslint_test_coverage_frontend.sh
-    echo "TASK [sonar-scanner: code-base ingestion] **************************************"
-    sonar-scanner\
-      -Dsonar.qualitygate.wait=true\
-      -Dsonar.eslint.reportPaths=$PATH_PWD/web/frontend/report.json\
-      -Dsonar.javascript.lcov.reportPaths=$PATH_PWD/web/frontend/test-coverage/lcov.info\
-      -Dsonar.typescript.tsconfigPath=$PATH_PWD/web/frontend/src/tsconfig.app.json\
-      -Dsonar.projectKey=tfplenum-frontend\
+    echo "TASK [sonar-scanner: front-end code-base ingestion] **************************************"
+    sonar-scanner \
+      -Dsonar.qualitygate.wait=true \
+      -Dsonar.eslint.reportPaths=$PATH_PWD/web/frontend/report.json \
+      -Dsonar.javascript.lcov.reportPaths=$PATH_PWD/web/frontend/test-coverage/lcov.info \
+      -Dsonar.typescript.tsconfigPath=$PATH_PWD/web/frontend/src/tsconfig.app.json \
+      -Dsonar.projectKey=tfplenum-frontend \
       -Dsonar.sources=web/frontend/src/app/> >(tee $PATH_PWD/web/frontend/sonar-report.txt) 2> >(tee $PATH_PWD/web/frontend/sonar-report.txt >&2)
-    echo "TASK [sonar-scanner: Gathering Sonar Scan Artifacts] **************************"
     cat $PATH_PWD/web/frontend/sonar-report.txt | grep QUALITY >> $PATH_PWD/web/frontend/frontend-sonarlink.txt
     cat $PATH_PWD/web/frontend/sonar-report.txt | grep -i "total time" >> $PATH_PWD/web/frontend/frontend-scantime.txt
-    export TFPLENUM_FRONTEND_SONAR_SCAN_LINK="$(cut -d ' ' -f10 $PATH_PWD/web/frontend/frontend-sonarlink.txt)"
-    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source=$PATH_PWD/web/frontend/,target=$PATH_PWD/web/frontend/ tfplenum/code-checker:1.1 \
-      google-chrome --no-sandbox --headless --hide-scrollbars --disable-gpu --screenshot=$PATH_PWD/web/frontend/frontend-screenshot-$CI_COMMIT_SHORT_SHA.png -e $TFPLENUM_FRONTEND_SONAR_SCAN_LINK \
-      --virtual-time-budget=9000000  --run-all-compositor-stages-before-draw --window-size=1440,900
-  extends: .code-checks
   artifacts:
     paths:
       - web/frontend/frontend-sonarlink.txt
       - web/frontend/frontend-scantime.txt
       - web/frontend/*.png
-  retry: 2
-  timeout: 5m
   allow_failure: false
-
-sonarqube back-end code base:
-  tags:
-    - tfplenum-buildv2
-  stage: code-analysis
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    PATH_PWD=$(pwd)
-    echo "TASK [pylint / pytest-cov: back-end] *******************************************"
-    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD docker.nexus.sil.lab/tfplenum/code-checker:1.1 $PATH_PWD/web/setup/pylint_pytest_backend.sh
-    echo "TASK [sonar-scanner: code-base ingestion] **************************************"
-    sonar-scanner\
-      -Dsonar.qualitygate.wait=true\
-      -Dsonar.python.pylint.reportPath=$PATH_PWD/web/backend/pylint-backend.txt\
-      -Dsonar.projectKey=tfplenum-backend\
-      -Dsonar.sources=web/backend/> >(tee $PATH_PWD/web/backend/sonar-report.txt) 2> >(tee $PATH_PWD/web/backend/sonar-report.txt >&2)
-    echo "TASK [sonar-scanner: Gathering Sonar Scan Artifacts] **************************"
-    cat $PATH_PWD/web/backend/sonar-report.txt | grep QUALITY >> $PATH_PWD/web/backend/backend-sonarlink.txt
-    cat $PATH_PWD/web/backend/sonar-report.txt | grep -i "total time" >> $PATH_PWD/web/backend/backend-scantime.txt
-    export TFPLENUM_BACKEND_SONAR_SCAN_LINK="$(cut -d ' ' -f10 $PATH_PWD/web/backend/backend-sonarlink.txt)"
-    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source=$PATH_PWD/web/backend/,target=$PATH_PWD/web/backend/ tfplenum/code-checker:1.1 \
-      google-chrome --no-sandbox --headless --hide-scrollbars --disable-gpu --screenshot=$PATH_PWD/web/backend/backend-screenshot-$CI_COMMIT_SHORT_SHA.png -e $TFPLENUM_BACKEND_SONAR_SCAN_LINK \
-      --virtual-time-budget=9000000  --run-all-compositor-stages-before-draw --window-size=1440,900
-  extends: .code-checks
-  artifacts:
-    paths:
-      - web/backend/backend-sonarlink.txt
-      - web/backend/backend-scantime.txt
-      - web/backend/*.png
-  timeout: 5m
-  retry: 2
-
-sonarqube testing pipeline:
-  tags:
-    - tfplenum-buildv2
-  stage: code-analysis
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    PATH_PWD=$(pwd)
-    echo "TASK [pylint: pipeline] ********************************************************"
-    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD docker.nexus.sil.lab/tfplenum/code-checker:1.1 $PATH_PWD/testing/pipeline/pylint_pipeline.sh
-    echo "TASK [sonar-scanner: pipeline ingestion] ***************************************"
-    sonar-scanner\
-      -Dsonar.qualitygate.wait=true\
-      -Dsonar.python.pylint.reportPath=$PATH_PWD/testing/pipeline/pylint-pipeline.txt\
-      -Dsonar.projectKey=tfplenum-test\
-      -Dsonar.sources=testing/pipeline/> >(tee $PATH_PWD/testing/pipeline/sonar-report.txt) 2> >(tee $PATH_PWD/testing/pipeline/sonar-report.txt >&2)
-    echo "TASK [sonar-scanner: Gathering Sonar Scan Artifacts] **************************"
-    cat $PATH_PWD/testing/pipeline/sonar-report.txt | grep QUALITY >> $PATH_PWD/testing/pipeline/testing-sonarlink.txt
-    cat $PATH_PWD/testing/pipeline/sonar-report.txt | grep -i "total time" >> $PATH_PWD/testing/pipeline/testing-scantime.txt
-    export TFPLENUM_SONAR_SCAN_LINK="$(cut -d' ' -f10 $PATH_PWD/testing/pipeline/testing-sonarlink.txt)"
-    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source=$PATH_PWD/testing/pipeline/,target=$PATH_PWD/testing/pipeline/ tfplenum/code-checker:1.1 \
-      google-chrome --no-sandbox --headless --hide-scrollbars --disable-gpu --screenshot=$PATH_PWD/testing/pipeline/tfplenum-screenshot-$CI_COMMIT_SHORT_SHA.png -e $TFPLENUM_SONAR_SCAN_LINK \
-      --virtual-time-budget=9000000  --run-all-compositor-stages-before-draw --window-size=1440,900
-  extends: .code-checks
-  artifacts:
-    paths:
-      - testing/pipeline/testing-sonarlink.txt
-      - testing/pipeline/testing-scantime.txt
-      - testing/pipeline/*.png
-  timeout: 5m
-  retry: 2
