@@ -4,13 +4,13 @@
         <mat-card-title>Support</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <mat-grid-list cols="2" rowHeight="4:1" gutterSize="10px">
+        <mat-grid-list cols="2" rowHeight="3:1" gutterSize="10px">
           <mat-grid-tile style="background: rgba(0,0,0,.38);">
             <div class="zoom" fxLayout="column" fxLayoutAlign="space-around start">
               <div style="margin-bottom: 10px; font-size: 1.5em;">
                 Help Desk
               </div>
-              <div style="margin-bottom: 10px; font-size: 1.2em;">
+              <div style="font-size: 1.2em;">
                 <p style="margin-top:0px;">Open between 0800-1700 Central (M-F).</p>
                 <p>Call toll free 833-682-4488 or 210-729-5100.</p>
               </div>
@@ -22,12 +22,15 @@
               <div style="margin-bottom: 10px; font-size: 1.5em;">
                 Service Now
               </div>
-              <div style="margin-bottom: 10px; font-size: 1.2em;">
-                <a id="cvah-pmo-support-servicenow-website"
-                   href="https://afdco.servicenowservices.com/sp" target="_blank" rel="noopener noreferrer">https://afdco.servicenowservices.com/sp</a>
-                <br>
-                <a id="cvah-pmo-support-servicenow-mail"
-                   href="mailto:afdco@servicenowservices.com">afdco@servicenowservices.com</a>
+              <div style="font-size: 1.2em;">
+                <p>
+                  <a id="cvah-pmo-support-servicenow-website"
+                     href="https://afdco.servicenowservices.com/sp" target="_blank" rel="noopener noreferrer">https://afdco.servicenowservices.com/sp</a>
+                </p>
+                <p>
+                  <a id="cvah-pmo-support-servicenow-mail"
+                     href="mailto:afdco@servicenowservices.com">afdco@servicenowservices.com</a>
+                </p>
               </div>
             </div>
           </mat-grid-tile>
@@ -37,9 +40,12 @@
               <div style="margin-bottom: 10px; font-size: 1.5em;">
                 PMO Support Site
               </div>
-              <div style="margin-bottom: 10px; font-size: 1.2em;">
-                <a id="cvah-pmo-support-intelshare-website"
-                   href="https://intelshare.intelink.gov/sites/cvah-pmo" target="_blank" rel="noopener noreferrer">https://intelshare.intelink.gov/sites/cvah-pmo</a>
+              <div style="font-size: 1.2em;">
+                <p>
+                  <a id="cvah-pmo-support-intelshare-website"
+                     href="https://intelshare.intelink.gov/sites/cvah-pmo" target="_blank"
+                     rel="noopener noreferrer">https://intelshare.intelink.gov/sites/cvah-pmo</a>
+                </p>
               </div>
             </div>
           </mat-grid-tile>
@@ -49,11 +55,11 @@
               <div style="margin-bottom: 10px; font-size: 1.5em;">
                 Version Information
               </div>
-              <div *ngIf="is_system_version_defined()" style="margin-bottom: 10px; font-size: 1.2em;">
+              <div *ngIf="is_system_version_defined()" style="font-size: 1.2em;">
                 <p id="cvah-pmo-support-version"
-                   style="margin-top:0px;"><span style="color:white;">Release:</span> {{ system_version.version }}</p>
-                <p id="cvah-pmo-support-commit-hash"><span style="color:white;">Commit Hash:</span> {{ system_version.commit_hash }} </p>
-                <p id="cvah-pmo-support-build-date"><span style="color:white;">Build Date:</span> {{ system_version.build_date }} </p>
+                   style="margin-top:0px;"><span style="color:white;">Release:</span>{{ system_version.version }}</p>
+                <p id="cvah-pmo-support-commit-hash"><span style="color:white;">Commit Hash:</span>{{ system_version.commit_hash }}</p>
+                <p id="cvah-pmo-support-build-date"><span style="color:white;">Build Date:</span>{{ system_version.build_date }}</p>
               </div>
             </div>
           </mat-grid-tile>

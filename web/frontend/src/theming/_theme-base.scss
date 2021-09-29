@@ -8,6 +8,11 @@
 
 
 @mixin global-theme($theme) {
+
+  * {
+    font-family: Roboto,arial,sans-serif;
+  }
+
   p {
     color: map-get($theme, primary-text-color);
     font-size: map-get($theme, primary-font-size);
@@ -231,7 +236,7 @@
           font-size: 14px;
           width: 10000px;
           background-color: black;
-          color: lightgreen;
+          color: #1eb980;
         }
 
         textarea {

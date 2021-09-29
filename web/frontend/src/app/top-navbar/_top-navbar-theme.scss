@@ -14,7 +14,7 @@
       mat-drawer {
         background-color: map-get($theme, navbar-background-color);
         mat-list-item {
-          &:hover {
+          &:not(:nth-child(1)):hover {
             background-color: map-get($theme, primary);
           }
         }

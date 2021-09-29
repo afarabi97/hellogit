@@ -7,9 +7,9 @@ export const environment = {
 
   SENSOR_HOST_INFO_SERVICE_GET_SENSOR_HOST_INFO: `/api/get_sensor_hostinfo`,
 
-  CONFIG_MAP_SERVICE_GET_CONFIG_MAPS: `/api/configmaps`,
-  CONFIG_MAP_SERVICE_BASE_URL: `/api/configmap`,
-  CONFIG_MAP_SERVICE_GET_ASSOCIATED_PODS: `/api/associated/pods/`,
+  CONFIG_MAP_SERVICE_GET_CONFIG_MAPS: `/api/kubernetes/configmaps`,
+  CONFIG_MAP_SERVICE_BASE_URL: `/api/kubernetes/configmap`,
+  CONFIG_MAP_SERVICE_GET_ASSOCIATED_PODS: `/api/kubernetes/associated/pods/`,
 
   COLD_LOG_INGEST_SERVICE_POST_COLD_LOG_FILE: `/api/upload_cold_log_file`,
   COLD_LOG_INGEST_SERVICE_GET_WINLOGBEAT_CONFIGURATION: `/api/get_winlogbeat_configuration`,
@@ -82,12 +82,11 @@ export const environment = {
   PORTAL_SERVICE_ADD_USER_LINK: `/api/add_user_link`,
   PORTAL_SERVICE_REMOVE_USER_LINK: `/api/remove_user_link/`,
   PORTAL_SERVICE_GET_USER_LINKS: `/api/get_user_links`,
-
   TOOLS_SERVICE_CHANGE_KIT_CLOCK: `/api/change_kit_clock`,
   TOOLS_SERVICE_CHANGE_KIT_PASSWORD: `/api/change-kit-password`,
   TOOLS_SERVICE_UPLOAD_DOCUMENTATION: `/api/documentation/upload`,
-  TOOLS_SERVICE_GET_SPACES: `/api/spaces`,
   TOOLS_SERVICE_ES_LICENSE: `/api/es_license`,
+  TOOLS_SERVICE_GET_SPACES: `/api/spaces`,
   TOOLS_SERVICE_MONITORING_INTERFACE: `/api/monitoring-interfaces`,
   TOOLS_SERVICE_CONFIGURE_REPOSITORY: `/api/snapshot`,
 

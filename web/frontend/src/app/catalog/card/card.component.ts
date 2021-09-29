@@ -65,7 +65,8 @@ export class CardComponent {
           failed = true;
         }
       });
-      return failed ? "red": (in_progress ? "yellow" : "green");
+      // red yellow green
+      return failed ? "#ff4949": (in_progress ? "#FFD966" : "#1eb980");
     }
     return 'white';
   }
@@ -77,17 +78,17 @@ export class CardComponent {
    * @memberof CardComponent
    */
   blue() {
-    return "#3498db";
+    return "#6fa8dc";
   }
 
   installColor(node) {
     const status = node.status.toLowerCase();
     const colors = {
-      "deployed": "lightgreen",
-      "pending install": "yellow",
-      "uninstalling": "yellow",
-      "uninstalled": "red",
-      "failed": "red",
+      "deployed": "#1eb980",
+      "pending install": "#FFD966",
+      "uninstalling": "#FFD966",
+      "uninstalled": "#ff4949",
+      "failed": "#ff4949",
     };
     if(colors[status]) {
       return colors[status];

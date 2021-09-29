@@ -109,15 +109,15 @@
                 <th scope="col" mat-header-cell *matHeaderCellDef>Actions</th>
                 <td mat-cell *matCellDef="let ruleSet; dataIndex as z;"
                     id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-actions' }}" class="mat-header-cell">
-                  <button mat-button id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-actions-button-cloud-upload' }}"
+                  <button mat-icon-button id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-actions-button-cloud-upload' }}"
                           matTooltip="Upload Rules File" (click)="upload_rules_file(ruleSet)">
                     <em class="material-icons">cloud_upload</em>
                   </button>
-                  <button mat-button id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-actions-button-edit' }}"
+                  <button mat-icon-button id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-actions-button-edit' }}"
                           matTooltip="Edit RuleSet" (click)="edit_rule_set(ruleSet)">
                     <em class="material-icons">edit</em>
                   </button>
-                  <button mat-button id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-actions-button-delete' }}"
+                  <button mat-icon-button id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-actions-button-delete' }}"
                           matTooltip="Remove RuleSet" (click)="delete_rule_set_confirm_dialog(ruleSet)">
                     <em class="material-icons" style="color: red">delete</em>
                   </button>
@@ -166,12 +166,12 @@
                         <th scope="row" mat-header-cell *matHeaderCellDef>Actions</th>
                         <td mat-cell *matCellDef="let rule; dataIndex as i;"
                             id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-table-rule-td-' + i + '-actions' }}">
-                          <button mat-button id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-table-rule-td-' + i + '-actions-button-edit' }}"
+                          <button mat-icon-button id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-table-rule-td-' + i + '-actions-button-edit' }}"
                                   matTooltip="Edit Rule" (click)="edit_rule(ruleSet, rule)">
                             <em id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-table-rule-td-' + i + '-actions-button-edit-em' }}"
                                 class="material-icons">edit</em>
                           </button>
-                          <button mat-button id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-table-rule-td-' + i + '-actions-button-delete' }}"
+                          <button mat-icon-button id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-table-rule-td-' + i + '-actions-button-delete' }}"
                                   matTooltip="Remove Rule" (click)="delete_rule_confirm_dialog(rule, ruleSet)">
                             <em id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-table-rule-td-' + i + '-actions-button-delete-em' }}"
                                 class="material-icons" style="color: red">delete</em>

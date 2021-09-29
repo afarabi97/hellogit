@@ -89,21 +89,21 @@
           <th scope="row" mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let node; let j = index;">
               <div class="btn-group">
-                <button *ngIf="canDeleteNode(node)" mat-button matTooltip="Delete Node"
+                <button *ngIf="canDeleteNode(node)" mat-icon-button matTooltip="Delete Node"
                         (click)="canRemove(node)"
                         color="warn" [disabled]="node.isRemoving">
                   <em class="material-icons">delete</em>
                 </button>
 
-                <button *ngIf="canGatherFacts(node)" mat-button
-                matTooltip="Refresh Device Facts" color="primary"
-                (click)="updateGatherFacts(node)">
-                <em class="material-icons">refresh</em>
-              </button>
+                <button *ngIf="canGatherFacts(node)" mat-icon-button
+                         matTooltip="Refresh Device Facts" color="primary"
+                         (click)="updateGatherFacts(node)">
+                  <em class="material-icons">refresh</em>
+                </button>
 
               <!--BUTTONS WILL BE REPLACED WITH JOB PROGRESS BAR-->
 
-                <button *ngIf="isISOButtonGroup(node)" mat-button
+                <button *ngIf="isISOButtonGroup(node)" mat-icon-button
                         matTooltip="Download OpenVPN Certificates" color="primary"
                         (click)="downloadOpenVPNCerts(node)">
                     <em class="material-icons">cloud_download</em>

@@ -1,5 +1,5 @@
 .supportedLabel {
-  color: lightgreen;
+  color: #1eb980;
   font-weight: bold;
 }
 
@@ -15,13 +15,14 @@
   font-weight: 400;
   transition: box-shadow .1s ease-out;
   user-select: none;
-  background: #272727;
+  background: #2f2f2f;
+  width: 500px;
 }
 .project-card:hover {
   box-shadow: 0 .2em 6px .1em rgba(0, 0, 0, .15);
 }
 .project-card .card-header {
-  background: linear-gradient(to right,#222222 0,#444444 100%);
+  background: linear-gradient(to right,#2f2f2f 0,#444444 100%);
   overflow: hidden;
   position: relative;
   color: white;

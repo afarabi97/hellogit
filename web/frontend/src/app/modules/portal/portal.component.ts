@@ -34,7 +34,9 @@ import { PORTAL_TITLE, TARGET_CONFIG_VALIDATORS } from './constants/portal.const
 @Component({
   selector: 'cvah-portal',
   templateUrl: './portal.component.html',
-  styleUrls: ['./portal.component.css']
+  styleUrls: [
+    './portal.component.scss'
+  ]
 })
 export class PortalComponent implements OnInit {
   // Used for passing list of portal links to html

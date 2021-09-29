@@ -3,11 +3,8 @@ $list-item-content-height: 200px;
 .list-item {
   overflow: hidden;
   transition: transform 0.2s ease;
-  flex-flow: row-reverse wrap;
-  flex-wrap: wrap;
-  margin-top: 80px;
-  margin-right: 80px;
-  width: 350px;
+  width: 500px;
+  padding-top: 2.5em;
 
   &:hover {
     transform: scale(1.02);
@@ -22,7 +19,5 @@ $list-item-content-height: 200px;
     height: $list-item-content-height;
     display: flex;
     flex-direction: column;
-
   }
-
 }

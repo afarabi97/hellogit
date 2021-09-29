@@ -16,15 +16,15 @@
                       <th scope="col" mat-header-cell *matHeaderCellDef>Elasticsearch Status</th>
                       <td mat-cell *matCellDef="let status;">
                         <mat-icon matSuffix *ngIf="status.elasticsearch_status === 'green'"
-                          style="color: lightgreen;" matTooltip="{{ status.elasticsearch_status }}">
+                          style="color: #1eb980;" matTooltip="{{ status.elasticsearch_status }}">
                           check_circle
                         </mat-icon>
                         <mat-icon matSuffix *ngIf="status.elasticsearch_status === 'yellow'"
-                          style="color: yellow;" matTooltip="{{ status.elasticsearch_status }}">
+                          style="color: #FFD966;" matTooltip="{{ status.elasticsearch_status }}">
                           warning
                         </mat-icon>
                         <mat-icon *ngIf="status.elasticsearch_status === 'red'"
-                          style="color: darkred;" matTooltip="{{ status.elasticsearch_status }}">
+                          style="color: #ff4949;" matTooltip="{{ status.elasticsearch_status }}">
                           error
                         </mat-icon>
                       </td>
@@ -33,15 +33,15 @@
                       <th scope="col" mat-header-cell *matHeaderCellDef>Kibana Status</th>
                         <td mat-cell  *matCellDef="let status;">
                           <mat-icon matSuffix *ngIf="status.kibana_status === 'green'"
-                            style="color: lightgreen;" matTooltip="{{ status.kibana_status }}">
+                            style="color: #1eb980;" matTooltip="{{ status.kibana_status }}">
                             check_circle
                           </mat-icon>
                           <mat-icon matSuffix *ngIf="status.kibana_status === 'yellow'"
-                            style="color: yellow;" matTooltip="{{ status.kibana_status }}">
+                            style="color: #FFD966;" matTooltip="{{ status.kibana_status }}">
                             warning
                           </mat-icon>
                           <mat-icon *ngIf=" status.kibana_status === 'red'"
-                            style="color: darkred;" matTooltip="{{ status.kibana_status }}">
+                            style="color: #ff4949;" matTooltip="{{ status.kibana_status }}">
                             error
                           </mat-icon>
                         </td>
@@ -71,15 +71,15 @@
                     <th scope="col" mat-header-cell *matHeaderCellDef>Elasticsearch Status</th>
                     <td mat-cell *matCellDef="let status;">
                       <mat-icon matSuffix *ngIf="status.elasticsearch_status === 'green'"
-                        style="color: lightgreen;" matTooltip="{{ status.elasticsearch_status }}">
+                        style="color: #1eb980;" matTooltip="{{ status.elasticsearch_status }}">
                         check_circle
                       </mat-icon>
                       <mat-icon matSuffix *ngIf="status.elasticsearch_status === 'yellow' || !status.elasticsearch_status"
-                        style="color: yellow;" matTooltip="{{ status.elasticsearch_status ? status.elasticsearch_status : kit_unavail }}">
+                        style="color: #FFD966;" matTooltip="{{ status.elasticsearch_status ? status.elasticsearch_status : kit_unavail }}">
                         warning
                       </mat-icon>
                       <mat-icon *ngIf=" status.elasticsearch_status === 'red'"
-                        style="color: darkred;" matTooltip="{{ status.elasticsearch_status }}">
+                        style="color: #ff4949;" matTooltip="{{ status.elasticsearch_status }}">
                         error
                       </mat-icon>
                     </td>
@@ -88,15 +88,15 @@
                     <th scope="col" mat-header-cell *matHeaderCellDef>Kibana Status</th>
                     <td mat-cell *matCellDef="let status;">
                       <mat-icon matSuffix *ngIf="status.kibana_status === 'green'"
-                        style="color: lightgreen;" matTooltip="{{ status.kibana_status }}">
+                        style="color: #1eb980;" matTooltip="{{ status.kibana_status }}">
                         check_circle
                       </mat-icon>
                       <mat-icon matSuffix *ngIf="!status.kibana_status"
-                        style="color: yellow;" matTooltip="{{ kit_unavail }}">
+                        style="color: #FFD966;" matTooltip="{{ kit_unavail }}">
                         warning
                       </mat-icon>
                       <mat-icon *ngIf="status.kibana_status === 'red'"
-                        style="color: darkred;" matTooltip="{{ status.kibana_status }}">
+                        style="color: #ff4949;" matTooltip="{{ status.kibana_status }}">
                         error
                       </mat-icon>
                     </td>
@@ -104,7 +104,7 @@
                   <ng-container matColumnDef="actions" >
                     <th scope="col" mat-header-cell *matHeaderCellDef>Actions</th>
                     <td mat-cell *matCellDef="let status;">
-                      <button *ngIf="status.kibana_status" mat-button matTooltip="Click to display kibana login info." color="primary"
+                      <button *ngIf="status.kibana_status" mat-icon-button matTooltip="Click to display kibana login info." color="primary"
                         (click)="kibana_info(status.ipaddress)">
                         <em class="material-icons">info</em>
                       </button>

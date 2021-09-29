@@ -60,7 +60,7 @@
                             {{user_portal_link.description}}
                         </div>
                         <div style="margin-top: 10px;">
-                            <button mat-button *ngIf="operator" id="{{ 'cvah-portal-user-portal-link-' + i + '-button-delete' }}"
+                            <button mat-icon-button *ngIf="operator" id="{{ 'cvah-portal-user-portal-link-' + i + '-button-delete' }}"
                                     color="warn" (click)="open_confirm_remove_user_portal_link($event, user_portal_link)">
                                 <em class="material-icons">delete</em>
                             </button>

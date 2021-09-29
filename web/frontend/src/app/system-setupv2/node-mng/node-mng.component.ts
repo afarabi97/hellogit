@@ -20,8 +20,7 @@ const DIALOG_WIDTH = '800px';
 
 @Component({
   selector: 'app-node-mng',
-  templateUrl: './node-mng.component.html',
-  styleUrls: ['./node-mng.component.css']
+  templateUrl: './node-mng.component.html'
 })
 export class NodeManagementComponent implements OnInit {
   nodesColumns = ['hostname', 'ip_address', 'node_type', 'deployment_type', 'state', 'actions'];

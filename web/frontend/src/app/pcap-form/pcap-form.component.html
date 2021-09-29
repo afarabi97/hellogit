@@ -55,12 +55,12 @@
                     <th scope="col" mat-header-cell *matHeaderCellDef style="padding-left: 10px;">Action</th>
                     <td mat-cell *matCellDef="let pcap; let z = index;"
                         id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-action' }}">
-                        <button mat-button id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-action-button-play-arow' }}"
+                        <button mat-icon-button id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-action-button-play-arow' }}"
                                 matTooltip="Replay PCAP on Target Sensor" (click)="openPCAPReplayModal(pcap)">
                             <em id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-action-button-play-arow-em' }}"
                                 class="material-icons">play_arrow</em>
                         </button>
-                        <button mat-button id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-action-button-delete' }}"
+                        <button mat-icon-button id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-action-button-delete' }}"
                                 matTooltip="Delete PCAP" (click)="openConfirmModal(pcap)">
                             <em id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-action-button-delete-em' }}"
                                 class="material-icons" style="color:red;">delete</em>

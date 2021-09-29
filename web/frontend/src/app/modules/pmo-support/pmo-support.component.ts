@@ -25,7 +25,9 @@ import { GenericJobAndKeyClass, ObjectUtilitiesClass } from '../../classes';
 @Component({
   selector: 'cvah-pmo-support',
   templateUrl: './pmo-support.component.html',
-  styleUrls: ['./pmo-support.component.css']
+  styleUrls: [
+    './pmo-support.component.scss'
+  ]
 })
 export class PmoSupportComponent implements OnInit {
   // Used for passing the system version info to display within html

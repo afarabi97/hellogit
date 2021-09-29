@@ -32,8 +32,8 @@
           </div>
         </form>
         <div fxLayout="row" fxLayoutAlign="space-between none" style="margin-top: 10px;">
-          <button mat-button id="app-catalog-page-div-mat-card-div-button-cancel" (click)="navigateToCatalog()">Cancel</button>
-          <button mat-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;" (click)="stepper.next();getInterfaceDetails();"
+          <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-cancel" (click)="navigateToCatalog()">Cancel</button>
+          <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;" (click)="stepper.next();getInterfaceDetails();"
                   *ngIf="processFormGroup.value.selectedProcess !== 'uninstall'" [disabled]="processFormGroup.invalid">Next</button>
           <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;"
                   *ngIf="processFormGroup.value.selectedProcess === 'uninstall'" (click)="runChart()" [disabled]="valueFormGroup.invalid">Run</button>
@@ -113,7 +113,7 @@
                                 </mat-option>
                               </mat-select>
                             </mat-form-field>
-                            <button mat-button
+                            <button mat-icon-button
                                 matTooltip="Refresh Interfaces" color="primary"
                                 (click)="getInterfaceDetails()">
                                 <em class="material-icons">refresh</em>
@@ -157,11 +157,11 @@
             </mat-accordion>
           </form>
           <div fxLayout="row" fxLayoutAlign="space-between none" style="margin-top: 10px;">
-            <button mat-button id="app-catalog-page-div-mat-card-div-button-cancel" (click)="navigateToCatalog()">Cancel</button>
+            <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-cancel" (click)="navigateToCatalog()">Cancel</button>
             <div>
-              <button mat-button id="app-catalog-page-div-mat-card-div-button-back"
+              <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-back"
                       color="warn" style="margin-right: 10px;" (click)="goBack(stepper)">Back</button>
-              <button mat-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;"
+              <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;"
                       (click)="getValues(stepper)" [disabled]="configFormGroup.invalid">Next</button>
             </div>
           </div>
@@ -188,9 +188,9 @@
             </mat-accordion>
           </form>
           <div fxLayout="row" fxLayoutAlign="space-between none" style="margin-top: 10px;">
-            <button mat-button id="app-catalog-page-div-mat-card-div-button-cancel" (click)="navigateToCatalog()">Cancel</button>
+            <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-cancel" (click)="navigateToCatalog()">Cancel</button>
             <div>
-              <button mat-button id="app-catalog-page-div-mat-card-div-button-back"
+              <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-back"
                       color="warn" style="margin-right: 10px;" (click)="goBack(stepper)">Back</button>
               <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;"
                       (click)="runChart()" [disabled]="valueFormGroup.invalid">Run</button>

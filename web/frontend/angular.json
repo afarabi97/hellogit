@@ -37,11 +37,6 @@
               {
                 "input": "src/theming/dark-theme.scss",
                 "bundleName": "dark-theme"
-              },
-              {
-                "input": "src/theming/example-theme.scss",
-                "bundleName": "example-theme",
-                "inject": false
               }
             ],
             "allowedCommonJsDependencies": [

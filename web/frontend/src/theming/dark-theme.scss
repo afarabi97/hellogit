@@ -12,7 +12,7 @@ $dark-theme: (
     /* Button colors*/
     primary-btn-color: #5f9ea0,
     primary-btn-text-color: white,
-    primary-link-color: lightgreen,
+    primary-link-color: #1eb980,
     danger-btn-color: #8b0000,
     danger-btn-border-color: #8b0000,
 
@@ -29,20 +29,117 @@ $dark-theme: (
     secondary-border-color: #333,
 
     /* Text colors */
-    primary-text-color: lightgreen,
+    primary-text-color: #1eb980,
 
     /* Font size */
     primary-font-size: 12pt
+);
+$cvah-primary: (
+  50 : #e4f7f0,
+  100 : #bcead9,
+  200 : #8fdcc0,
+  300 : #62cea6,
+  400 : #40c493,
+  500 : #1eb980,
+  600 : #1ab278,
+  700 : #16aa6d,
+  800 : #12a263,
+  900 : #0a9350,
+  A100 : #c1ffde,
+  A200 : #8effc3,
+  A400 : #5bffa7,
+  A700 : #41ff9a,
+  contrast: (
+      50 : #000000,
+      100 : #000000,
+      200 : #000000,
+      300 : #000000,
+      400 : #000000,
+      500 : #000000,
+      600 : #ffffff,
+      700 : #ffffff,
+      800 : #ffffff,
+      900 : #ffffff,
+      A100 : #000000,
+      A200 : #000000,
+      A400 : #000000,
+      A700 : #000000,
+  )
+);
+$cvah-warn: (
+  50 : #ffe9e9,
+  100 : #ffc8c8,
+  200 : #ffa4a4,
+  300 : #ff8080,
+  400 : #ff6464,
+  500 : #ff4949,
+  600 : #ff4242,
+  700 : #ff3939,
+  800 : #ff3131,
+  900 : #ff2121,
+  A100 : #ffffff,
+  A200 : #ffffff,
+  A400 : #ffd0d0,
+  A700 : #ffb7b7,
+  contrast: (
+      50 : #000000,
+      100 : #000000,
+      200 : #000000,
+      300 : #000000,
+      400 : #000000,
+      500 : #ffffff,
+      600 : #ffffff,
+      700 : #ffffff,
+      800 : #ffffff,
+      900 : #ffffff,
+      A100 : #000000,
+      A200 : #000000,
+      A400 : #000000,
+      A700 : #000000,
+  )
+);
+
+$cvah-accent: (
+  50 : #eef5fb,
+  100 : #d4e5f5,
+  200 : #b7d4ee,
+  300 : #9ac2e7,
+  400 : #85b5e1,
+  500 : #6fa8dc,
+  600 : #67a0d8,
+  700 : #5c97d3,
+  800 : #528dce,
+  900 : #407dc5,
+  A100 : #ffffff,
+  A200 : #e3efff,
+  A400 : #b0d3ff,
+  A700 : #96c4ff,
+  contrast: (
+      50 : #000000,
+      100 : #000000,
+      200 : #000000,
+      300 : #000000,
+      400 : #000000,
+      500 : #000000,
+      600 : #000000,
+      700 : #000000,
+      800 : #000000,
+      900 : #ffffff,
+      A100 : #000000,
+      A200 : #000000,
+      A400 : #000000,
+      A700 : #000000,
+  )
 );
 
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$tfplenum-app-primary: mat-palette($mat-green);
-$tfplenum-app-accent: mat-palette($mat-light-blue, A200, A100, A400);
+$tfplenum-app-primary: mat-palette($cvah-primary);
+$tfplenum-app-accent:  mat-palette($cvah-accent);
 
 // The warn palette is optional (defaults to red).
-$tfplenum-app-warn: mat-palette($mat-red);
+$tfplenum-app-warn:    mat-palette($cvah-warn);
 
 // Create the theme object (a Sass map containing all of the palettes).
 $tfplenum-app-theme: mat-dark-theme($tfplenum-app-primary, $tfplenum-app-accent, $tfplenum-app-warn);

@@ -7,18 +7,17 @@
         </h3>
         <mat-list>
             <!-- TIMEZONE -->
-            <mat-list-item id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone">
-                <mat-icon mat-list-icon id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone-mat-icon-date-range"
-                          matTooltip="{{ time | date:'MM-dd-yy HH:mm:ss' }} {{ timezone }}">date_range</mat-icon>
+            <mat-list-item id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone"
+                           matTooltip="{{ time | date:'MM-dd-yy HH:mm:ss' }} {{ timezone }}" matTooltipPosition="right">
+                <mat-icon mat-list-icon id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone-mat-icon-date-range">date_range</mat-icon>
                 <div *ngIf="showLinkNames" fxLayout="column" fxLayoutAlign="center none" style="padding-left: 16px;">
                     <div mat-line id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone-div-time"
-                         style="color:lightgreen;">{{ time | date:'MM-dd-yy HH:mm:ss' }}</div>
-                    <div mat-line id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone-div-zone"
-                         style="color:lightgreen;">{{ timezone }}</div>
+                         style="color:#1eb980;">{{ time | date:'MM-dd-yy HH:mm:ss' }} {{ timezone }}</div>
                 </div>
             </mat-list-item>
             <!-- NOTIFICATIONS -->
             <mat-list-item id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-notifications"
+                           matTooltip="Notifications" matTooltipPosition="right"
                            (click)="openNotifications()">
                 <mat-icon mat-list-icon id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-notifications-mat-icon" class="notification-icon">
                     <app-notifications #notifications id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-notifications-mat-icon-app-notifications"></app-notifications>
@@ -33,13 +32,13 @@
                     id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-group-label' }}">{{ group.label }}</h3>
                 <ng-container *ngFor="let child of group.children; let j = index;">
                     <mat-list-item *ngIf="!child.isExternalLink" id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-mat-list-item-' + j }}"
-                                    routerLink="{{ child.url }}" matTooltip="{{ child.label }}" routerLinkActive="active">
+                                    routerLink="{{ child.url }}" matTooltip="{{ child.label }}" matTooltipPosition="right" routerLinkActive="active">
                         <mat-icon mat-list-icon id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-mat-list-item-' + j + '-mat-icon' }}">{{ child.icon }}</mat-icon>
                         <h4 mat-line *ngIf="showLinkNames" id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-mat-list-item-' + j + '-h4-label' }}">{{ child.label }}</h4>
                     </mat-list-item>
                     <a mat-list-item *ngIf="child.isExternalLink"
                        id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-a' }}"
-                       class="confluence-link" matTooltip="{{ child.label}}" href="{{ child.url }}" target="{{ child.target }}">
+                       class="confluence-link" matTooltip="{{ child.label }}" matTooltipPosition="right" href="{{ child.url }}" target="{{ child.target }}">
                         <mat-icon mat-list-icon id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-a-mat-icon' }}">{{ child.icon }}</mat-icon>
                         <h4 mat-line *ngIf="showLinkNames" id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-a-h4-label' }}">{{ child.label }}</h4>
                     </a>
@@ -48,10 +47,10 @@
             </div>
         </mat-list>
         <div matRipple id="app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav"
-             class="main-sidenav-bottom" (click)="toggleSideNavigation()" [matRippleTrigger]="trigger" centered="true">
+             class="main-sidenav-bottom" matTooltip="Toggle" matTooltipPosition="right" (click)="toggleSideNavigation()" [matRippleTrigger]="trigger" centered="true">
             <mat-divider></mat-divider>
             <div #trigger id="app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav-trigger"
-                 class="main-sidenav-button-trigger" matTooltip="Toggle">
+                 class="main-sidenav-button-trigger">
                 <mat-icon *ngIf="!showLinkNames" id="app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav-trigger-mat-icon-arrow-forward">arrow_forward</mat-icon>
                 <mat-icon *ngIf="showLinkNames" id="app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav-trigger-mat-icon-arrow-back">arrow_back</mat-icon>
                 <span *ngIf="showLinkNames" id="app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav-trigger-span-collapse">Collapse</span>
@@ -60,6 +59,6 @@
     </mat-drawer>
 
     <div class="mat-drawer-main-content">
-        <router-outlet id="app-top-navbar-mat-drawer-container-div-router-outlet"></router-outlet>
+        <router-outlet></router-outlet>
     </div>
 </mat-drawer-container>

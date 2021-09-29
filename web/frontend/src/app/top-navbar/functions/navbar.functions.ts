@@ -33,7 +33,7 @@ export function getSideNavigationButtons(userService: UserService, kitStatus: bo
     { label: 'Docker Registry', url: '/registry', icon: 'view_day', isExternalLink: false, section: 'kubernetes', privs: true, kitStatus: false },
     { label: 'Rule Set', url: '/rulesets', icon: 'swap_horiz', isExternalLink: false, section: 'policy_mgmt', privs: operator, kitStatus: true },
     { label: 'Alerts', url: '/alerts', icon: 'warning', isExternalLink: false, section: 'general', privs: operator, kitStatus: true },
-    { label: 'Test PCAP files', url: 'pcaps', icon: 'security', isExternalLink: false, section: 'policy_mgmt', privs: operator, kitStatus: true },
+    { label: 'Test PCAP Files', url: 'pcaps', icon: 'security', isExternalLink: false, section: 'policy_mgmt', privs: operator, kitStatus: true },
     { label: 'Tools', url: '/tools', icon: 'build', isExternalLink: false, section: 'tools', privs: controller_maintainer, kitStatus: false },
     { label: 'API Docs', url: '/api/docs', icon: 'web', isExternalLink: true, section: 'tools', privs: controller_maintainer, target: "_blank", kitStatus: false },
     { label: 'ES Scale', url: '/es_scale', icon: 'tune', isExternalLink: false, section: 'Elastic', privs: controller_maintainer, kitStatus: true },

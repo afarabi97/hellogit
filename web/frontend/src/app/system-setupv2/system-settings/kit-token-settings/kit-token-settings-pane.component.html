@@ -17,8 +17,8 @@
           <th scope="col" mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let kit_token;">
               <div class="btn-group">
-                  <button (click)="delete_token(kit_token.kit_token_id)" mat-button color="warn" matTooltip="Remove Kit"><span class="material-icons">delete</span></button>
-                  <button *ngIf="kit_token.token" (click)="display_token(kit_token)" mat-button color="primary" matTooltip="View Kit Token"><span class="material-icons">description</span></button>
+                  <button (click)="delete_token(kit_token.kit_token_id)" mat-icon-button color="warn" matTooltip="Remove Kit"><span class="material-icons">delete</span></button>
+                  <button *ngIf="kit_token.token" (click)="display_token(kit_token)" mat-icon-button color="primary" matTooltip="View Kit Token"><span class="material-icons">description</span></button>
               </div>
           </td>
       </ng-container>

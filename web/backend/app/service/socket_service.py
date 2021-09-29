@@ -112,11 +112,11 @@ def log_to_console(job_name: str, jobid: str, text: str, color: str=None) -> Non
     """
     log = {'jobName': job_name, 'jobid': jobid, 'log': text}
     if text.startswith('fatal'):
-        log['color'] = 'red'
+        log['color'] = '#ff4949' # red
     elif text.startswith('skipping'):
-        log['color'] = 'lightgreen'
+        log['color'] = '#1eb980' # green
     elif text.startswith('ok'):
-        log['color'] = 'lightgreen'
+        log['color'] = '#1eb980' # green
     elif text.startswith('changed'):
         log['color'] = 'orange'
     else:

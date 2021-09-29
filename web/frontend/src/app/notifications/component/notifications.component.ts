@@ -4,6 +4,7 @@ import { WebsocketService } from '../../services/websocket.service';
 import { NotificationsModuleComponent } from './../notification-module/notifications-module.component';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationService } from '../services/notification.service';
+import { ObjectUtilitiesClass } from 'src/app/classes';
 
 @Component({
   selector: 'app-notifications',
@@ -36,16 +37,17 @@ export class NotificationsComponent implements OnInit {
    * @memberof NotificationsComponent
    */
   ngOnInit() {
-    this._NotificationService.get().subscribe((messages:any) => {
-      messages.map(message => {
+    this._NotificationService.get()
+      .subscribe((messages:any) => {
+        JSON.parse(messages).map(message => {
+          this.makeArray(message);
+        });
+      });
+    this.ioConnection = this._WebsocketService.onBroadcast()
+      .subscribe((message: Notification) => {
+        this.newNotifications.push(message);
         this.makeArray(message);
       });
-    });
-    this.ioConnection = this._WebsocketService.onBroadcast()
-    .subscribe((message: Notification) => {
-      this.newNotifications.push(message);
-      this.makeArray(message);
-    });
   }
 
   /**
@@ -57,7 +59,7 @@ export class NotificationsComponent implements OnInit {
   makeArray(message: any) {
     this.allNotification.push(message);
     this._NotificationService.buttonList.map(role => {
-      if( (role.role === message.role) || role.role === 'all') {
+      if ( (role.role === message.role) || role.role === 'all') {
         role.notifications.unshift(message);
       }
     });
