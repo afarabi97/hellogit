@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
-import { MockUserAllTrueClass } from '../../../static-data/class-objects-v3_4';
+import { MockUserAllTrueClass } from '../../../static-data/class-objects';
 import { UserClass } from '../classes';
 import { AppLoadServiceInterface } from '../interfaces';
 import { TestingModule } from '../modules/testing-modules/testing.module';

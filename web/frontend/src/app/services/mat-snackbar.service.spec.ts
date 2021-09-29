@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { MockSnackBarConfigurationActionClass } from '../../../static-data/class-objects-v3_4';
+import { MockSnackBarConfigurationActionClass } from '../../../static-data/class-objects';
 import { MatSnackbarConfigurationClass } from '../classes';
 import { MatSnackbarServiceInterface } from '../interfaces';
 import { MatSnackBarService } from './mat-snackbar.service';

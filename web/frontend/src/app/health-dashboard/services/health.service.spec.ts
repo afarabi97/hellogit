@@ -11,7 +11,7 @@ import { environment } from '../../../environments/environment';
 import { InjectorModule } from '../../modules/utilily-modules/injector.module';
 import { ApiService } from '../../services/abstract/api.service';
 
-import { MockKitTokenInterface, MockNodeMetricsInterface, MockPodMetricsInterface } from '../../../../static-data/interface-objects-v3_7';
+import { MockKitTokenInterface, MockNodeMetricsInterface, MockPodMetricsInterface } from '../../../../static-data/interface-objects';
 import { HealthServiceInterface } from '../interfaces/service-interfaces/health-service.interface';
 import { HealthService } from './health.service';
 import { KitTokenInterface } from 'src/app/system-setupv2/interfaces/kit-token.interface';

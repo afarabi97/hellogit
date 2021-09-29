@@ -7,8 +7,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of as observableOf, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MockSystemVersionClass } from '../../../../../static-data/class-objects-v3_4';
-import { MockSystemVersionInterface } from '../../../../../static-data/interface-objects-v3_4';
+import { MockSystemVersionClass } from '../../../../../static-data/class-objects';
+import { MockSystemVersionInterface } from '../../../../../static-data/interface-objects';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../services/abstract/api.service';
 import { MatSnackBarService } from '../../../services/mat-snackbar.service';

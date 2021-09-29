@@ -5,7 +5,7 @@ import { MatSelectChange } from '@angular/material/select';
 
 import {
   TextEditorConfigurationNoConfirmActionsInterface,
-} from '../../../../../../static-data/interface-objects-v3_7';
+} from '../../../../../../static-data/interface-objects';
 import { NGXMonacoTextEditorModule } from '../../ngx-monaco-text-editor.module';
 import { NGXMonacoEditorComponent } from './ngx-monaco-editor.component';
 

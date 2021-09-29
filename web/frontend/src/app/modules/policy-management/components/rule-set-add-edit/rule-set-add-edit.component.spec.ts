@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 import { of, throwError } from 'rxjs';
 
-import { MockHostInfoClass, MockRuleSetClass } from '../../../../../../static-data/class-objects-v3_6';
+import { MockHostInfoClass, MockRuleSetClass } from '../../../../../../static-data/class-objects';
 import { SortingService } from '../../../../services/sorting.service';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { InjectorModule } from '../../../utilily-modules/injector.module';

@@ -7,8 +7,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of as observableOf, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MockCatalogStatusClass, MockJobClass } from '../../../../../static-data/class-objects-v3_6';
-import { MockCatalogStatusInterface, MockJobInterface } from '../../../../../static-data/interface-objects-v3_6';
+import { MockCatalogStatusClass, MockJobClass } from '../../../../../static-data/class-objects';
+import { MockCatalogStatusInterface, MockJobInterface } from '../../../../../static-data/interface-objects';
 import { environment } from '../../../../environments/environment';
 import { InjectorModule } from '../../utilily-modules/injector.module';
 import { ApiService } from '../../../services/abstract/api.service';

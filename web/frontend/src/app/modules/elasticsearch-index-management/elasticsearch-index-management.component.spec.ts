@@ -4,7 +4,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { throwError } from 'rxjs';
 
-import { MockErrorMessageClass } from '../../../../static-data/class-objects-v3_6';
+import { MockErrorMessageClass } from '../../../../static-data/class-objects';
 import { MockIndexManagementOptionInterfaceDeleteIndices } from '../../../../static-data/interface-objects';
 import { MockClosedIndices } from '../../../../static-data/return-data';
 import { TestingModule } from '../testing-modules/testing.module';

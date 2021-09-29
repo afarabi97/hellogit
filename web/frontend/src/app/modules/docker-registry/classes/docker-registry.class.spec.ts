@@ -1,4 +1,4 @@
-import { MockDockerRegistryInterface } from '../../../../../static-data/interface-objects-v3_7';
+import { MockDockerRegistryInterface } from '../../../../../static-data/interface-objects';
 import { DockerRegistryInterface } from '../interfaces/docker-registry.interface';
 import { DockerRegistryClass } from './docker-registry.class';
 

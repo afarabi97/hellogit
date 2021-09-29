@@ -6,7 +6,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { of as observableOf, of } from 'rxjs';
 
-import { MockDIPTimeClass, MockKitStatusClass } from '../../../static-data/class-objects-v3_4';
+import { MockDIPTimeClass, MockKitStatusClass } from '../../../static-data/class-objects';
 import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { DateTimeModule } from '../modules/date-time/date-time.module';

@@ -7,8 +7,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of as observableOf, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MockDockerRegistryClass } from '../../../../../static-data/class-objects-v3_7';
-import { MockDockerRegistryInterface } from '../../../../../static-data/interface-objects-v3_7';
+import { MockDockerRegistryClass } from '../../../../../static-data/class-objects';
+import { MockDockerRegistryInterface } from '../../../../../static-data/interface-objects';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../services/abstract/api.service';
 import { InjectorModule } from '../../utilily-modules/injector.module';

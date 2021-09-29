@@ -12,8 +12,8 @@ import {
   MockPortalLinkFakeClass,
   MockUserPortalLinkClass,
   MockUserPortalLinkRemoveClass
-} from '../../../static-data/class-objects-v3_7';
-import { MockPortalLinkInterface, MockUserPortalLinkInterface } from '../../../static-data/interface-objects-v3_7';
+} from '../../../static-data/class-objects';
+import { MockPortalLinkInterface, MockUserPortalLinkInterface } from '../../../static-data/interface-objects';
 import { environment } from '../../environments/environment';
 import { PortalLinkClass, UserPortalLinkClass } from '../classes';
 import { PortalServiceInterface } from '../interfaces';

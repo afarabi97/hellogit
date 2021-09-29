@@ -16,14 +16,14 @@ import {
   MockRuleSetClass,
   MockRuleSyncClass,
   MockSuccessMessageClass
-} from '../../../static-data/class-objects-v3_6';
+} from '../../../static-data/class-objects';
 import {
   MockRuleForToggleInterface,
   MockRuleInterface,
   MockRuleSetInterface,
   MockRuleSyncInterface,
   MockSuccessMessageInterface
-} from '../../../static-data/interface-objects-v3_6';
+} from '../../../static-data/interface-objects';
 import { environment } from '../../environments/environment';
 import {
   ErrorMessageClass,

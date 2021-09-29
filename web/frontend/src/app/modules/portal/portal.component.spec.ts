@@ -4,8 +4,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { of, throwError } from 'rxjs';
 
-import { MockUserPortalLinkClass } from '../../../../static-data/class-objects-v3_7';
-import { MockUserPortalLinkInterface } from '../../../../static-data/interface-objects-v3_7';
+import { MockUserPortalLinkClass } from '../../../../static-data/class-objects';
+import { MockUserPortalLinkInterface } from '../../../../static-data/interface-objects';
 import { UserPortalLinkClass } from '../../classes';
 import { CONFIRM_DIALOG_OPTION } from '../../constants/cvah.constants';
 import { UserPortalLinkInterface } from '../../interfaces';

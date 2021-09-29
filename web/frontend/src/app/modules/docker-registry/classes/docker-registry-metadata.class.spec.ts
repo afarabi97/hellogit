@@ -1,4 +1,4 @@
-import { MockDockerRegistryMetadataInterface } from '../../../../../static-data/interface-objects-v3_7';
+import { MockDockerRegistryMetadataInterface } from '../../../../../static-data/interface-objects';
 import { DockerRegistryMetadataClass } from './docker-registry-metadata.class';
 
 describe('DockerRegistryMetadataClass', () => {

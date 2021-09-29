@@ -7,8 +7,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of as observableOf, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MockHostInfoClass } from '../../../static-data/class-objects-v3_6';
-import { MockHostInfoInterface } from '../../../static-data/interface-objects-v3_6';
+import { MockHostInfoClass } from '../../../static-data/class-objects';
+import { MockHostInfoInterface } from '../../../static-data/interface-objects';
 import { environment } from '../../environments/environment';
 import { HostInfoClass } from '../classes';
 import { SensorHostInfoServiceInterface } from '../interfaces';

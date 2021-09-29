@@ -12,8 +12,8 @@ import {
   MockStatusNoneElasticsearchCheckClass,
   MockStatusPendingElasticsearchCheckClass,
   MockStatusUnknownElasticsearchCheckClass
-} from 'static-data/class-objects-v3_7';
-import { MockElasticsearchNodeReturnInterface } from 'static-data/interface-objects-v3_7';
+} from 'static-data/class-objects';
+import { MockElasticsearchNodeReturnInterface } from 'static-data/interface-objects';
 
 import { TestingModule } from '../testing-modules/testing.module';
 import { InjectorModule } from '../utilily-modules/injector.module';

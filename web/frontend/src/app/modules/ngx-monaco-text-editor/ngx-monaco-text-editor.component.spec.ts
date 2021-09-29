@@ -8,7 +8,7 @@ import {
   TextEditorConfigurationAltActionFuncFalseInterface,
   TextEditorConfigurationAltActionFuncTrueInterface,
   TextEditorConfigurationNoConfirmActionsInterface
-} from '../../../../static-data/interface-objects-v3_7';
+} from '../../../../static-data/interface-objects';
 import { ConfirmActionPopup } from '../../classes/ConfirmActionPopup';
 import { CLOSE_DEFAULT_TOOLTIP, SAVE_DEFAULT_TOOLTIP } from './constants/ngx-monaco-editor.constants';
 import { NGXMonacoTextEditorComponent } from './ngx-monaco-text-editor.component';

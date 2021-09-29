@@ -7,8 +7,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of as observableOf, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MockDIPTimeClass } from '../../../../static-data/class-objects-v3_4';
-import { MockDIPTimeInterface } from '../../../../static-data/interface-objects-v3_4';
+import { MockDIPTimeClass } from '../../../../static-data/class-objects';
+import { MockDIPTimeInterface } from '../../../../static-data/interface-objects';
 import { environment } from '../../../environments/environment';
 import { InjectorModule } from '../../modules/utilily-modules/injector.module';
 import { ApiService } from '../../services/abstract/api.service';

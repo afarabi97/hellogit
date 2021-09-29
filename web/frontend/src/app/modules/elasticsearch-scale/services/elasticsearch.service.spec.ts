@@ -12,12 +12,12 @@ import {
   MockElasticsearchNodeClass,
   MockElasticsearchNodeReturnClass,
   MockStatusReadyElasticsearchCheckClass
-} from '../../../../../static-data/class-objects-v3_7';
+} from '../../../../../static-data/class-objects';
 import {
   MockElasticsearchConfigurationInterface,
   MockElasticsearchNodeInterface,
   MockStatusReadyElasticsearchCheckInterface
-} from '../../../../../static-data/interface-objects-v3_7';
+} from '../../../../../static-data/interface-objects';
 import { environment } from '../../../../environments/environment';
 import { ApiService } from '../../../services/abstract/api.service';
 import { InjectorModule } from '../../utilily-modules/injector.module';

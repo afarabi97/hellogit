@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MockConfirmDialogMatDialogDataInterface } from '../../../../static-data/interface-objects-v3_7';
+import { MockConfirmDialogMatDialogDataInterface } from '../../../../static-data/interface-objects';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
 
 function cleanStylesFromDOM(): void {

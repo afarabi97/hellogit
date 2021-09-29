@@ -3,8 +3,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import * as FileSaver from 'file-saver';
 import { of, throwError } from 'rxjs';
 
-import { MockGenericJobAndKeyClass } from '../../../../static-data/class-objects';
-import { MockSystemVersionClass } from '../../../../static-data/class-objects-v3_4';
+import { MockGenericJobAndKeyClass, MockSystemVersionClass } from '../../../../static-data/class-objects';
 import { WebsocketService } from '../../services/websocket.service';
 import { TestingModule } from '../testing-modules/testing.module';
 import { PmoSupportComponent } from './pmo-support.component';

@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 
-import { MockRuleSetClass } from '../../../../../../static-data/class-objects-v3_6';
+import { MockRuleSetClass } from '../../../../../../static-data/class-objects';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { InjectorModule } from '../../../utilily-modules/injector.module';
 import { DialogDataInterface } from '../../interfaces';

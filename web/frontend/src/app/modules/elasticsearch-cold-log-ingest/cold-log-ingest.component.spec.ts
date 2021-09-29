@@ -13,7 +13,7 @@ import {
   MockWinlogbeatConfigurationClass,
   MockWinlogbeatConfigurationClassDefault
 } from '../../../../static-data/class-objects';
-import { MockErrorMessageClass } from '../../../../static-data/class-objects-v3_6';
+import { MockErrorMessageClass } from '../../../../static-data/class-objects';
 import { TestingModule } from '../testing-modules/testing.module';
 import { InjectorModule } from '../utilily-modules/injector.module';
 import { ColdLogIngestComponent } from './cold-log-ingest.component';

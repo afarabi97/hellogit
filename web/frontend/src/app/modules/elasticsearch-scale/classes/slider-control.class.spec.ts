@@ -1,4 +1,4 @@
-import { MockElasticsearchNodeClass } from '../../../../../static-data/class-objects-v3_7';
+import { MockElasticsearchNodeClass } from '../../../../../static-data/class-objects';
 import { SLIDER_PROGRAMMING_ERROR_TITLE } from '../constants/elasticsearch-scale.constant';
 import { NodeTitleEnum } from '../enums/node-title.enum';
 import { SliderControlClass } from './slider-control.class';

@@ -14,13 +14,13 @@ import {
   MockRuleForToggleDisabledClass,
   MockRuleSetClass,
   MockRuleSetForDeleteClass
-} from '../../../../static-data/class-objects-v3_6';
+} from '../../../../static-data/class-objects';
 import {
   MockErrorMessageInterface,
   MockRuleInterface,
   MockRuleSetDisabledInterface,
   MockRuleSetInterface
-} from '../../../../static-data/interface-objects-v3_6';
+} from '../../../../static-data/interface-objects';
 import { ErrorMessageClass, RuleClass, RuleSetClass } from '../../classes';
 import { CANCEL_DIALOG_OPTION, CONFIRM_DIALOG_OPTION } from '../../constants/cvah.constants';
 import { RuleSetInterface } from '../../interfaces';
