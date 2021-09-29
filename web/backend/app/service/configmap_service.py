@@ -1,10 +1,10 @@
 import traceback
-
-from app import REDIS_CLIENT
-from app.service.socket_service import NotificationMessage, NotificationCode
-from app.service.job_service import run_command2
-from rq.decorators import job
 from typing import List
+
+from app.service.job_service import run_command2
+from app.service.socket_service import NotificationCode, NotificationMessage
+from app.utils.connection_mngs import REDIS_CLIENT
+from rq.decorators import job
 
 _JOB_NAME = "tools"
 

@@ -3,9 +3,9 @@ export const environment = {
 
   SENSOR_HOST_INFO_SERVICE_GET_SENSOR_HOST_INFO: `/api/get_sensor_hostinfo`,
 
-  CONFIG_MAP_SERVICE_GET_CONFIG_MAPS: `/api/configmaps`,
-  CONFIG_MAP_SERVICE_BASE_URL: `/api/configmap`,
-  CONFIG_MAP_SERVICE_GET_ASSOCIATED_PODS: `/api/associated/pods/`,
+  CONFIG_MAP_SERVICE_GET_CONFIG_MAPS: `/api/kubernetes/configmaps`,
+  CONFIG_MAP_SERVICE_BASE_URL: `/api/kubernetes/configmap`,
+  CONFIG_MAP_SERVICE_GET_ASSOCIATED_PODS: `/api/kubernetes/associated/pods/`,
 
   COLD_LOG_INGEST_SERVICE_POST_COLD_LOG_FILE: `/api/upload_cold_log_file`,
   COLD_LOG_INGEST_SERVICE_GET_WINLOGBEAT_CONFIGURATION: `/api/get_winlogbeat_configuration`,
@@ -72,7 +72,7 @@ export const environment = {
 
   ADD_NODE_SERVICE_ADD_NODE_WIZARD_STATE: `/api/get_add_node_wizard_state`,
 
-  DOCKER_REGISTRY_SERVICE_GET_DOCKER_REGISTRY: `/api/docker/registry`,
+  DOCKER_REGISTRY_SERVICE_GET_DOCKER_REGISTRY: `/api/kubernetes/docker/registry`,
 
   PORTAL_SERVICE_GET_PORTAL_LINKS: `/api/get_portal_links`,
   PORTAL_SERVICE_ADD_USER_LINK: `/api/add_user_link`,
@@ -90,18 +90,18 @@ export const environment = {
 
   ENDGAME_SERVICE_ENDGAME_SENSOR_PROFILES: `/api/agent/endgame/profiles`,
 
-  HEALTH_SERVICE_GET_NODES_STATUS: `/api/health/nodes/status`,
-  HEALTH_SERVICE_GET_PODS_STATUS: `/api/health/pods/status`,
+  HEALTH_SERVICE_GET_NODES_STATUS: `/api/kubernetes/nodes/status`,
+  HEALTH_SERVICE_GET_PODS_STATUS: `/api/kubernetes/pods/status`,
   HEALTH_SERVICE_GET_APPLICATIONS_STATUS: `/api/health/applications/status`,
   HEALTH_SERVICE_GET_SNMP_STATUS: `/api/health/snmp/status`,
   HEALTH_SERVICE_GET_SNMP_ALERTS: `/api/health/snmp/alerts`,
   HEALTH_SERVICE_GET_DATASTORES: `/api/health/datastores`,
-  HEALTH_SERVICE_DESCRIBE_NODE: `/api/node/describe`,
-  HEALTH_SERVICE_DESCRIBE_POD: `/api/pod/describe`,
-  HEALTH_SERVICE_POD_LOGS: `/api/pod/logs`,
-  HEALTH_SERVICE_WRITE_REJECTS: `/api/write/rejects`,
+  HEALTH_SERVICE_DESCRIBE_NODE: `/api/kubernetes/node/describe`,
+  HEALTH_SERVICE_DESCRIBE_POD: `/api/kubernetes/pod/describe`,
+  HEALTH_SERVICE_POD_LOGS: `/api/kubernetes/pod/logs`,
+  HEALTH_SERVICE_WRITE_REJECTS: `/api/app/elasticsearch/rejects`,
   HEALTH_SERVICE_APP: `/api/app`,
-  HEALTH_SERVICE_REMOTE: `/api/remote-health`,
+  HEALTH_SERVICE_REMOTE: `/api/kubernetes/remote`,
 
   RULES_SERVICE_RULE_SETS: `/api/ruleset`,
   RULES_SERVICE_RULE_SETS_SYNC: `/api/rulesets/sync`,
@@ -116,8 +116,8 @@ export const environment = {
 
   KIT_TOKENS_SETTINGS_SERVICE: `/api/kit/tokens`,
   HEALTH_DASHBOARD_STATUS: `/api/health/dashboard/status`,
-  REMOTE_HEALTH_DASHBOARD_STATUS: `/api/remote/health/dashboard/status`,
-  HEALTH_DASHBOARD_KIBANA_INFO: `/api/health/dashboard/kibana/info`,
-  REMOTE_HEALTH_DASHBOARD_KIBANA_INFO: `/api/remote/health/dashboard/kibana/info`,
+  REMOTE_HEALTH_DASHBOARD_STATUS: `/api/health/remote/dashboard/status`,
+  HEALTH_DASHBOARD_KIBANA_INFO: `/api/app/kibana/info`,
+  REMOTE_HEALTH_DASHBOARD_KIBANA_INFO: `/api/app/kibana/info/remote`,
   GENERATE_TOKEN: `/api/kit/tokens/generate`
 };

@@ -1,46 +1,41 @@
 """
 Main module for handling all of the Kit Configuration REST calls.
 """
-from app.models.kubernetes import (NodeOrPodStatusModel, PodLogsModel)
-from app.utils.logging import logger
-from app.resources import convert_kib_to_gib, convert_gib_to_kib, convert_mib_to_kib
 import time
-
-from app import conn_mng, KUBERNETES_NS, HEALTH_NS
-from app.common import ERROR_RESPONSE, NO_CONTENT, NOTFOUND_RESPONSE
-from app.models.kubernetes import NodeOrPodStatusModel, PodLogsModel
-from app.service.job_service import run_command
-from app.utils.connection_mngs import KubernetesWrapper, objectify
-from app.utils import snmp
-from app.utils.elastic import ElasticWrapper
-from app.models.health import DatastoreModel
-from app.models.kubernetes import KubernetesNodeMetricsModel, KubernetesPodMetricsModel
-from app.models.settings.esxi_settings import EsxiSettingsForm
-from app.middleware import login_required_roles
-
-from flask import Response, jsonify, request
-from flask_restx import Resource, fields
-
-from kubernetes.client.rest import ApiException
-from kubernetes.utils import parse_quantity
-from kubernetes.stream import stream
-
 from decimal import Decimal
-
-from bson import ObjectId
-
 # Type annotations
-from typing import List, Dict, Optional, TypeVar, Iterable
-from app.models.nodes import Node
-from kubernetes.client.models.v1_pod_list import V1PodList
-from kubernetes.client.models.v1_pod import V1Pod
-from kubernetes.client.models.v1_pod_condition import V1PodCondition
-from kubernetes.client.models.v1_node_list import V1NodeList
-from kubernetes.client.models.v1_node import V1Node
-from kubernetes.client.models.v1_node_condition import V1NodeCondition
-from kubernetes.client.models.v1_event_list import V1EventList
+from typing import Dict, Iterable, List, Optional, TypeVar
 
 import requests
+from app.common import ERROR_RESPONSE, NO_CONTENT
+from app.middleware import login_required_roles
+from app.models.health import APP_NS, HEALTH_NS, DatastoreModel
+from app.models.kubernetes import KUBERNETES_NS
+from app.models.kubernetes import (KubernetesNodeMetricsModel,
+                                   KubernetesPodMetricsModel,
+                                   NodeOrPodStatusModel, PodLogsModel)
+from app.models.settings.esxi_settings import EsxiSettingsForm
+from app.resources import (convert_gib_to_kib, convert_kib_to_gib,
+                           convert_mib_to_kib)
+from app.service.job_service import run_command
+from app.utils import snmp
+from app.utils.connection_mngs import KubernetesWrapper, objectify
+from app.utils.db_mngs import conn_mng
+from app.utils.elastic import ElasticWrapper
+from app.utils.logging import logger
+from bson import ObjectId
+from flask import Response, jsonify, request
+from flask_restx import Resource, fields
+from kubernetes.client.models.v1_event_list import V1EventList
+from kubernetes.client.models.v1_node import V1Node
+from kubernetes.client.models.v1_node_condition import V1NodeCondition
+from kubernetes.client.models.v1_node_list import V1NodeList
+from kubernetes.client.models.v1_pod import V1Pod
+from kubernetes.client.models.v1_pod_condition import V1PodCondition
+from kubernetes.client.models.v1_pod_list import V1PodList
+from kubernetes.client.rest import ApiException
+from kubernetes.stream import stream
+from kubernetes.utils import parse_quantity
 
 T = TypeVar("T")
 
@@ -389,7 +384,7 @@ class DescribeNode(Resource):
         return {'stdout': stdout, 'stderr': ''}
 
 
-@KUBERNETES_NS.route('/health/nodes/status')
+@KUBERNETES_NS.route('/nodes/status')
 class NodesStatus(Resource):
 
     @KUBERNETES_NS.doc(description="Gets the nodes status.")
@@ -401,7 +396,7 @@ class NodesStatus(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
-@KUBERNETES_NS.route('/health/pods/status')
+@KUBERNETES_NS.route('/pods/status')
 class PodsStatus(Resource):
 
     @KUBERNETES_NS.doc(description="Gets the pods status.")
@@ -413,7 +408,31 @@ class PodsStatus(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
-@HEALTH_NS.route('/health/snmp/status')
+@KUBERNETES_NS.route('/remote/<token_id>/nodes/status')
+class RemoteNodesStatus(Resource):
+    def get(self, token_id: str) -> Response:
+        try:
+            response = conn_mng.mongo_kit_tokens.find_one({"_id": ObjectId(token_id)})
+            node_status = response['node_status']
+            return jsonify(node_status)
+
+        except Exception as e:
+            logger.exception(e)
+            return ERROR_RESPONSE
+
+@KUBERNETES_NS.route('/remote/<token_id>/pods/status')
+class RemotePodsStatus(Resource):
+    def get(self, token_id: str) -> Response:
+        try:
+            response = conn_mng.mongo_kit_tokens.find_one({"_id": ObjectId(token_id)})
+            pod_status = response['pod_status']
+            return jsonify(pod_status)
+
+        except Exception as e:
+            logger.exception(e)
+            return ERROR_RESPONSE
+
+@HEALTH_NS.route('/snmp/status')
 class SNMPStatus(Resource):
     @HEALTH_NS.response(200, 'SNMPData', [fields.Raw()])
     def get(self) -> Response:
@@ -423,7 +442,7 @@ class SNMPStatus(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
-@HEALTH_NS.route('/health/snmp/alerts')
+@HEALTH_NS.route('/snmp/alerts')
 class SNMPAlerts(Resource):
     @HEALTH_NS.response(200, 'SNMPAlertList', [fields.Raw()])
     def get(self) -> Response:
@@ -442,32 +461,7 @@ class SNMPAlerts(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
-@KUBERNETES_NS.route('/remote-health/<token_id>/nodes/status')
-class RemoteNodesStatus(Resource):
-    def get(self, token_id: str) -> Response:
-        try:
-            response = conn_mng.mongo_kit_tokens.find_one({"_id": ObjectId(token_id)})
-            node_status = response['node_status']
-            return jsonify(node_status)
-
-        except Exception as e:
-            logger.exception(e)
-            return ERROR_RESPONSE
-
-@KUBERNETES_NS.route('/remote-health/<token_id>/pods/status')
-class RemotePodsStatus(Resource):
-    def get(self, token_id: str) -> Response:
-        try:
-            response = conn_mng.mongo_kit_tokens.find_one({"_id": ObjectId(token_id)})
-            pod_status = response['pod_status']
-            return jsonify(pod_status)
-
-        except Exception as e:
-            logger.exception(e)
-            return ERROR_RESPONSE
-
-
-@HEALTH_NS.route('/remote-health/agent')
+@HEALTH_NS.route('/remote/agent')
 class RemoteAgent(Resource):
     @HEALTH_NS.response(204, 'RemoteHealthData')
     @login_required_roles(['metrics','operator','controller-admin','controller-maintainer'], all_roles_req=False)
@@ -482,38 +476,7 @@ class RemoteAgent(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
-@HEALTH_NS.route('/write/rejects')
-class WriteRejects(Resource):
-    @HEALTH_NS.response(200, 'Elasticsearch Write Rejects', [fields.Raw()])
-    def get(self):
-        try:
-            rejected = []
-            client = ElasticWrapper()
-            response = client.cat.thread_pool(format='json')
-            for item in response:
-                if int(item['rejected']) > 0:
-                    rejected.append(item)
-
-            return rejected
-
-        except Exception as e:
-            logger.exception(e)
-        return ERROR_RESPONSE
-
-@HEALTH_NS.route('/write/rejects/remote/<ipaddress>')
-class RemoteWriteRejects(Resource):
-    @HEALTH_NS.response(204, 'Remote Elasticsearch Write Rejects', [fields.Raw()])
-    def get(self, ipaddress: str):
-        try:
-            response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})
-            write_rejects = response['write_rejects']
-            return write_rejects
-
-        except Exception as e:
-            logger.exception(e)
-        return ERROR_RESPONSE
-
-@HEALTH_NS.route('/health/datastores')
+@HEALTH_NS.route('/datastores')
 class Datastores(Resource):
     @HEALTH_NS.response(200, 'DatastoreList', [DatastoreModel.DTO])
     def get(self):
@@ -532,7 +495,39 @@ class Datastores(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
-@HEALTH_NS.route('/app/zeek/packets')
+
+@APP_NS.route('/elasticsearch/rejects')
+class WriteRejects(Resource):
+    @APP_NS.response(200, 'Elasticsearch Write Rejects', [fields.Raw()])
+    def get(self):
+        try:
+            rejected = []
+            client = ElasticWrapper()
+            response = client.cat.thread_pool(format='json')
+            for item in response:
+                if int(item['rejected']) > 0:
+                    rejected.append(item)
+
+            return rejected
+
+        except Exception as e:
+            logger.exception(e)
+        return ERROR_RESPONSE
+
+@APP_NS.route('/elasticsearch/rejects/remote/<ipaddress>')
+class RemoteWriteRejects(Resource):
+    @APP_NS.response(204, 'Remote Elasticsearch Write Rejects', [fields.Raw()])
+    def get(self, ipaddress: str):
+        try:
+            response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})
+            write_rejects = response['write_rejects']
+            return write_rejects
+
+        except Exception as e:
+            logger.exception(e)
+        return ERROR_RESPONSE
+
+@APP_NS.route('/zeek/packets')
 class ZeekPackets(Resource):
     def create_body(self, sensor_hostname: str) -> dict:
             body =  {
@@ -571,7 +566,7 @@ class ZeekPackets(Resource):
 
             return body
 
-    @HEALTH_NS.response(200, 'Zeek Packets')
+    @APP_NS.response(200, 'Zeek Packets')
     def get(self):
         app_stats = []
         sensors = []
@@ -609,13 +604,13 @@ class ZeekPackets(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
-@HEALTH_NS.route('/app/suricata/packets')
+@APP_NS.route('/suricata/packets')
 class SuricataPackets(Resource):
     def exec_command(self, command: str) -> list:
         exec_command = [ '/bin/sh', '-c', command ]
         return exec_command
 
-    @HEALTH_NS.response(200, 'Suricata Packets')
+    @APP_NS.response(200, 'Suricata Packets')
     def get(self):
         packets_command = "cat /var/log/suricata/stats.log | grep capture.kernel_packets | tail -n 1 | awk '{print $5}'"
         drops_command = "cat /var/log/suricata/stats.log | grep capture.kernel_drops | tail -n 1 | awk '{print $5}'"
@@ -662,9 +657,9 @@ class SuricataPackets(Resource):
             logger.exception(e)
             return ERROR_RESPONSE
 
-@HEALTH_NS.route('/app/zeek/packets/remote/<ipaddress>')
+@APP_NS.route('/zeek/packets/remote/<ipaddress>')
 class RemoteZeekPackets(Resource):
-    @HEALTH_NS.response(200, 'Remote Zeek Packets')
+    @APP_NS.response(200, 'Remote Zeek Packets')
     def get(self, ipaddress: str):
         try:
             response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})
@@ -675,9 +670,9 @@ class RemoteZeekPackets(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
-@HEALTH_NS.route('/app/suricata/packets/remote/<ipaddress>')
+@APP_NS.route('/suricata/packets/remote/<ipaddress>')
 class RemoteSuricataPackets(Resource):
-    @HEALTH_NS.response(200, 'Remote Suricata Packets')
+    @APP_NS.response(200, 'Remote Suricata Packets')
     def get(self, ipaddress: str):
         try:
             response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})

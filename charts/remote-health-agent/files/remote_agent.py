@@ -28,11 +28,11 @@ class RemoteHealthAgent:
         try:
             data = {'token':DIRECTOR_TOKEN,'ipaddress':CONTROLLER_IPADDRESS}
             dashboard_status = self.get_session(self.local_url, "api/health/dashboard/status")
-            node_status = self.get_session(self.local_url, "api/health/nodes/status")
-            pod_status = self.get_session(self.local_url, "api/health/pods/status")
-            kibana_info = self.get_session(self.local_url, "api/health/dashboard/kibana/info")
-            hostname = self.get_session(self.local_url, "api/hostname")
-            write_rejects = self.get_session(self.local_url, "api/write/rejects")
+            node_status = self.get_session(self.local_url, "api/kubernetes/nodes/status")
+            pod_status = self.get_session(self.local_url, "api/kubernetes/pods/status")
+            kibana_info = self.get_session(self.local_url, "api/app/kibana/info")
+            hostname = self.get_session(self.local_url, "api/health/hostname")
+            write_rejects = self.get_session(self.local_url, "api/app/elasticsearch/rejects")
             zeek_packets = self.get_session(self.local_url, "api/app/zeek/packets")
             suricata_packets = self.get_session(self.local_url, "api/app/suricata/packets")
 
@@ -53,7 +53,7 @@ class RemoteHealthAgent:
         try:
             payload = self.get_payload()
             print(payload)
-            requests.post("{}/api/remote-health/agent".format(self.director_url), headers={"Authorization": "Bearer {}".format(DIRECTOR_TOKEN)}, json=payload, verify=self.director_verify)
+            requests.post("{}/api/health/remote/agent".format(self.director_url), headers={"Authorization": "Bearer {}".format(DIRECTOR_TOKEN)}, json=payload, verify=self.director_verify)
 
         except Exception as e:
             print(e)

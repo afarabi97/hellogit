@@ -1,28 +1,25 @@
 import time
-from app import app, api, conn_mng, HEALTH_NS
-from app.utils.logging import logger
-from app.common import NOTFOUND_RESPONSE, ERROR_RESPONSE, CONFLICT_RESPONSE, NO_CONTENT
-from app.utils.elastic import ElasticWrapper, get_elastic_password
-from app.utils.connection_mngs import  KubernetesWrapper
-from app.middleware import login_required_roles
-from base64 import b64decode
-import urllib3
-import requests
 
-from flask import request, Response, jsonify
+import requests
+import urllib3
+from app.common import ERROR_RESPONSE
+from app.middleware import login_required_roles
+from app.models.health import APP_NS, HEALTH_NS
+from app.models.settings.kit_settings import GeneralSettingsForm
+from app.utils.connection_mngs import KubernetesWrapper
+from app.utils.db_mngs import conn_mng
+from app.utils.elastic import ElasticWrapper, get_elastic_password
+from app.utils.logging import logger
+from app.utils.utils import get_domain
+from flask import Response, jsonify, request
 from flask_restx import Resource, fields
+
 
 def client_session(username: str, password: str) -> object:
     with requests.Session() as session:
         session.auth = (username, password)
         session.timeout = 60
     return session
-
-def get_local_api_key():
-    with KubernetesWrapper(conn_mng) as api:
-        response = api.read_namespaced_secret('metrics-api-key', 'default')
-        api_key = b64decode(response.data['api-key']).decode('utf-8')
-        return api_key
 
 def get_kibana_ipaddress():
     try:
@@ -38,7 +35,7 @@ def get_kibana_ipaddress():
         logger.exception(e)
     return ERROR_RESPONSE
 
-@HEALTH_NS.route('/health/dashboard/status')
+@HEALTH_NS.route('/dashboard/status')
 class HealthDashboardStatus(Resource):
     @HEALTH_NS.response(200, 'Dashboard Status')
     def get(self) -> Response:
@@ -63,7 +60,7 @@ class HealthDashboardStatus(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
-@HEALTH_NS.route('/remote/health/dashboard/status')
+@HEALTH_NS.route('/remote/dashboard/status')
 class RemoteHealthDashboardStatus(Resource):
     @HEALTH_NS.response(200, 'Remote Dashboard Status')
     def get(self) -> Response:
@@ -100,42 +97,6 @@ class RemoteHealthDashboardStatus(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
-@HEALTH_NS.route('/health/dashboard/kibana/info')
-class KibanaLoginInfo(Resource):
-    @HEALTH_NS.response(200, 'Kibana Login')
-    def get(self) -> Response:
-        try:
-            kibana_info = {}
-            token = get_local_api_key()
-            portal_links = requests.get("https://localhost/api/get_portal_links",
-                                         headers={"Authorization": "Bearer {}".format(token)},
-                                         verify=False)
-
-            for link in portal_links.json():
-                if "kibana" in link['dns']:
-                    kibana_info['DNS'] = link['dns']
-                    kibana_info['IP Address'] = link['ip']
-                    kibana_info['Username/Password'] = link['logins']
-
-            return jsonify(kibana_info)
-
-        except Exception as e:
-            logger.exception(e)
-        return ERROR_RESPONSE
-
-@HEALTH_NS.route('/remote/health/dashboard/kibana/info/<ipaddress>')
-class RemoteKibanaLoginInfo(Resource):
-    @HEALTH_NS.response(200, 'Kibana Login')
-    def get(self, ipaddress:str) -> Response:
-        try:
-            response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})
-            kibana_info = response['kibana_info']
-            return jsonify(kibana_info)
-
-        except Exception as e:
-            logger.exception(e)
-        return ERROR_RESPONSE
-
 @HEALTH_NS.route('/hostname')
 class Hostname(Resource):
     @HEALTH_NS.response(200, 'Hostname', fields.String())
@@ -144,6 +105,45 @@ class Hostname(Resource):
             response = conn_mng.mongo_settings.find_one({"_id": "general_settings_form"})
             hostname = "controller.{}".format(response['domain'])
             return hostname
+        except Exception as e:
+            logger.exception(e)
+        return ERROR_RESPONSE
+
+
+@APP_NS.route('/kibana/info')
+class KibanaLoginInfo(Resource):
+    @APP_NS.response(200, 'Kibana Login Info')
+    def get(self) -> Response:
+        try:
+            kibana_info = {}
+            kit_domain = get_domain()
+            elastic_password = get_elastic_password()
+            print(elastic_password)
+
+            with KubernetesWrapper(conn_mng) as api:
+                services = api.list_service_for_all_namespaces()
+                for service in services.items:
+                    name = service.metadata.name
+                    if name == "kibana":
+                        svc_ip = service.status.load_balancer.ingress[0].ip
+                        kibana_info['DNS'] = "https://{}.{}".format(name, kit_domain)
+                        kibana_info['IP Address'] = "https://{}".format(svc_ip)
+                        kibana_info['Username/Password'] = 'elastic/{}'.format(elastic_password)
+            return jsonify(kibana_info)
+
+        except Exception as e:
+            logger.exception(e)
+        return ERROR_RESPONSE
+
+@APP_NS.route('/kibana/info/remote/<ipaddress>')
+class RemoteKibanaLoginInfo(Resource):
+    @APP_NS.response(200, 'Kibana Login')
+    def get(self, ipaddress:str) -> Response:
+        try:
+            response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})
+            kibana_info = response['kibana_info']
+            return jsonify(kibana_info)
+
         except Exception as e:
             logger.exception(e)
         return ERROR_RESPONSE

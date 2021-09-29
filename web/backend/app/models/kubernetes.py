@@ -1,10 +1,10 @@
-from app import api
 from app.models import Model
-from flask_restx import fields
+from flask_restx import fields, Namespace
 
+KUBERNETES_NS = Namespace('kubernetes', path="/api/kubernetes", description="Kubernetes related operations.")
 
 class DockerImageMetadataModel(Model):
-    DTO = api.model('DockerImageMetadata', {
+    DTO = KUBERNETES_NS.model('DockerImageMetadata', {
         'image_id': fields.String(example="219ee5171f80", description="The hash of the docker image."),
         'image_size': fields.Float(example=9.63, description="The hash of the docker image."),
         'tag': fields.String(example="1.8.4", description="The tag or version of the docker image.")
@@ -13,9 +13,8 @@ class DockerImageMetadataModel(Model):
     def __init__(self):
         pass
 
-
 class DockerImageModel(Model):
-    DTO = api.model('DockerImage', {
+    DTO = KUBERNETES_NS.model('DockerImage', {
         'name': fields.String(example="busybox", description="The name of the docker image."),
         'metadata': fields.List(fields.Nested(DockerImageMetadataModel.DTO), description="The metadata of the docker image.")
     })
@@ -24,32 +23,32 @@ class DockerImageModel(Model):
         pass
 
 class KubernetesNodeMetricsModel(Model):
-    storage_fields = api.model("KubernetesNodeMetricsStorage", {
+    storage_fields = KUBERNETES_NS.model("KubernetesNodeMetricsStorage", {
         "name": fields.Integer(),
         "free": fields.Integer(),
         "percent": fields.Float()
     })
-    memory_fields = api.model("KubernetesNodeMetricsMemory", {
+    memory_fields = KUBERNETES_NS.model("KubernetesNodeMetricsMemory", {
         "available": fields.Integer(),
         "percent": fields.Float()
     })
-    capacity_fields = api.model("KubernetesNodeMetricsCapacity", {
+    capacity_fields = KUBERNETES_NS.model("KubernetesNodeMetricsCapacity", {
         "cpu": fields.String(),
         "ephermeral-storage": fields.String(),
         "memory": fields.String(),
         "pods": fields.String()
     })
-    allocatable_fields = api.model("KubernetesNodeMetricsAllocatable", {
+    allocatable_fields = KUBERNETES_NS.model("KubernetesNodeMetricsAllocatable", {
         "cpu": fields.String(),
         "ephermeral-storage": fields.String(),
         "memory": fields.String(),
         "pods": fields.String()
     })
-    remaining_fields = api.model("KubernetesNodeMetricsRemaining", {
+    remaining_fields = KUBERNETES_NS.model("KubernetesNodeMetricsRemaining", {
         "cpu": fields.String(),
         "memory": fields.String()
     })
-    DTO = api.model("KubernetesNodeMetrics", {
+    DTO = KUBERNETES_NS.model("KubernetesNodeMetrics", {
         "name": fields.String(),
         "address": fields.String(),
         "ready": fields.Boolean(),
@@ -64,7 +63,7 @@ class KubernetesNodeMetricsModel(Model):
     })
 
 class KubernetesPodMetricsModel(Model):
-    DTO = api.model("KubernetesPodMetrics", {
+    DTO = KUBERNETES_NS.model("KubernetesPodMetrics", {
         "namespace": fields.String(),
         "name": fields.String(),
         "node_name": fields.String(),
@@ -77,13 +76,13 @@ class KubernetesPodMetricsModel(Model):
     })
 
 class ConfigMapDataModel(Model):
-    DTO = api.model('ConfigMapData', {
+    DTO = KUBERNETES_NS.model('ConfigMapData', {
         'labelsForPV': fields.String(example="pp: local-volume-provisioner\n"),
         'storageClassMap': fields.String(example = "fast-disks:\n  hostDir: /mnt/disks/apps\n  mountDir: /mnt/disks/apps\n  blockCleanerCommand:\n    - \"/scripts/shred.sh\"\n    - \"2\"\n  volumeMode: Filesystem\n  fsType: xfs\nelastic-disks:\n  hostDir: /mnt/disks/elastic\n  mountDir: /mnt/disks/elastic\n  blockCleanerCommand:\n    - \"/scripts/shred.sh\"\n    - \"2\"\n  volumeMode: Filesystem\n  fsType: xfs\n"),
     })
 
 class ConfigMapMetadataModel(Model):
-    DTO = api.model('ConfigMapMetadata', {
+    DTO = KUBERNETES_NS.model('ConfigMapMetadata', {
         'annotations': fields.String(example="null"),
         'cluster_name': fields.String(example="null"),
         'creation_timestamp': fields.DateTime(example= 'Tue, 15 Dec 2020 21:40:50 GMT'),
@@ -104,7 +103,7 @@ class ConfigMapMetadataModel(Model):
 
 
 class ConfigMapModel(Model):
-    DTO = api.model('ConfigMap', {
+    DTO = KUBERNETES_NS.model('ConfigMap', {
         'name': fields.String(example="addon-resizer", description="The name of the docker image."),
         'data': fields.Nested(ConfigMapDataModel.DTO),
         'metadata': fields.Nested(ConfigMapMetadataModel.DTO)
@@ -112,7 +111,7 @@ class ConfigMapModel(Model):
 
 
 class ConfigMapViewMetaDataModel(Model):
-    DTO = api.model('ConfigMapViewMetaData', {
+    DTO = KUBERNETES_NS.model('ConfigMapViewMetaData', {
         '_continue': fields.String(example="null"),
         'resource_version': fields.String(example="2787102"),
         'self_link': fields.String(example="/api/v1/configmaps",)
@@ -120,7 +119,7 @@ class ConfigMapViewMetaDataModel(Model):
 
 
 class ConfigMapViewModel(Model):
-    DTO = api.model('ConfigMapView', {
+    DTO = KUBERNETES_NS.model('ConfigMapView', {
         'api_version': fields.String(example="v1"),
         'items': fields.Nested(ConfigMapModel.DTO),
         'kind':fields.String(example="ConfigMapList"),
@@ -129,7 +128,7 @@ class ConfigMapViewModel(Model):
 
 
 class ConfigMapSaveMetaData(Model):
-    DTO = api.model('ConfigMapSaveMetaData', {
+    DTO = KUBERNETES_NS.model('ConfigMapSaveMetaData', {
         'annotations': fields.String(example='null'),
         'cluster_name': fields.String(example='null'),
         'creation_timestamp': fields.DateTime(example= 'Tue, 15 Dec 2020 21:40:50 GMT'),
@@ -150,14 +149,14 @@ class ConfigMapSaveMetaData(Model):
 
 
 class ConfigMapSaveData(Model):
-    DTO = api.model('ConfigMapSaveData',{
+    DTO = KUBERNETES_NS.model('ConfigMapSaveData',{
         'labelsForPV': fields.String(example ="app: local-volume-provisioner\n"),
         'storageClassMap': fields.String(example = "fast-disks:\n  hostDir: /mnt/disks/apps\n  mountDir: /mnt/disks/apps\n  blockCleanerCommand:\n    - \"/scripts/shred.sh\"\n    - \"2\"\n  volumeMode: Filesystem\n  fsType: xfs\nelastic-disks:\n  hostDir: /mnt/disks/elastic\n  mountDir: /mnt/disks/elastic\n  blockCleanerCommand:\n    - \"/scripts/shred.sh\"\n    - \"2\"\n  volumeMode: Filesystem\n  fsType: xfs\n")
     })
 
 
 class ConfigMapSaveConfigMap(Model):
-    DTO = api.model('ConfigMapSaveConfigMap', {
+    DTO = KUBERNETES_NS.model('ConfigMapSaveConfigMap', {
       "api_version":fields.String(example="null"),
       "binary_data":fields.String(example="null"),
       'kind': fields.String(example ='null'),
@@ -167,7 +166,7 @@ class ConfigMapSaveConfigMap(Model):
 
 
 class ConfigMapSavePods(Model):
-    DTO = api.model('ConfigMapSavePods', {
+    DTO = KUBERNETES_NS.model('ConfigMapSavePods', {
         "namespace": fields.String(example="default"),
         "podName":fields.String(example="local-volume-provisioner-4dht8"),
         "namespace": fields.String(example="default"),
@@ -175,20 +174,20 @@ class ConfigMapSavePods(Model):
     })
 
 class ConfigMapSave(Model):
-    DTO = api.model('ConfigMapSave_Post', {
+    DTO = KUBERNETES_NS.model('ConfigMapSave_Post', {
         'configMap': fields.Nested(ConfigMapSaveConfigMap.DTO),
         'associatedPods': fields.Nested(ConfigMapSavePods.DTO)
     })
 
 
 class ConfigMapCreateDataNested(Model):
-    DTO = api.model('ConfigMapCreateData', {
+    DTO = KUBERNETES_NS.model('ConfigMapCreateData', {
 
     })
 
 
 class ConfigMapCreateMetaData(Model):
-    DTO = api.model('ConfigMapCreateMetaData', {
+    DTO = KUBERNETES_NS.model('ConfigMapCreateMetaData', {
         'name': fields.String(example= "configmapconfig"),
         'creation_timestamp':fields.DateTime(example= 'Thu, 07 Jan 2021 20:26:36 GMT'),
         'namespace': fields.String(example = 'default')
@@ -196,13 +195,13 @@ class ConfigMapCreateMetaData(Model):
 
 
 class AssociatedPodModel(Model):
-    DTO = api.model('AssociatedPod', {
+    DTO = KUBERNETES_NS.model('AssociatedPod', {
         'podName': fields.String(example='coredns-977b74bc6-cj4br'),
         'namespace': fields.String(example='kube-system'),
     })
 
 class ApplicationStatusListModel(Model):
-    DTO = api.schema_model('ApplicationStatusList', {
+    DTO = KUBERNETES_NS.schema_model('ApplicationStatusList', {
         "type": "array",
         'items': {
             "type": "object",
@@ -223,14 +222,14 @@ class ApplicationStatusListModel(Model):
     })
 
 class NodeOrPodStatusModel(Model):
-    DTO = api.model('NodeOrPodStatus', {
+    DTO = KUBERNETES_NS.model('NodeOrPodStatus', {
         'stderr': fields.String(),
         'stdout': fields.String(),
     })
 
 
 class PodLogsModel(Model):
-    DTO = api.model('PodLogs', {
+    DTO = KUBERNETES_NS.model('PodLogs', {
         'logs': fields.String(description="All the log information the kubectl logs <podname> -c <container> can manage to pull back."),
         'name': fields.String(description="The container inside of the pod.  Kubernetes can have multiple containers inside of it."),
     })
