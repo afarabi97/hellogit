@@ -1,8 +1,9 @@
 import os
-
-from app import conn_mng
-from app.ruleset_controller import create_ruleset_service, create_rule_from_file
 from pathlib import Path
+
+from app.controller.ruleset_controller import (create_rule_from_file,
+                                               create_ruleset_service)
+from app.utils.db_mngs import conn_mng
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 

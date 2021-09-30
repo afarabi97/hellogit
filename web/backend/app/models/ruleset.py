@@ -1,15 +1,13 @@
-from app import api
 from app.models import Model
-from flask_restx import fields
-from flask_restx.fields import Nested
+from flask_restx import fields, Namespace
 
 from app.utils.constants import  RULESET_STATES, RULE_TYPES
-from app.utils.utils import encode_password, decode_password
 from typing import List, Dict
 
+POLICY_NS = Namespace('policy', path="/api/policy", description="Policy management related operations for Suricata and Zeek.")
 
 class SimpleSensor(Model):
-    DTO = api.model('SimpleSensor', {
+    DTO = POLICY_NS.model('SimpleSensor', {
         'hostname': fields.String(example="navarro2-sensor1.lan", required=True),
         'mac': fields.String(example="00:0a:29:06:eb:12", required=True),
         'management_ip': fields.String(example="10.40.12.67", required=True)
@@ -20,7 +18,7 @@ class SimpleSensor(Model):
 
 
 class RuleSetModel(Model):
-    DTO = api.model('RuleSet', {
+    DTO = POLICY_NS.model('RuleSet', {
         '_id': fields.Integer(example=67811),
         'appType': fields.String(example="Suricata", required=True,
                                  description="The type of RuleSet.  Currently only {} supported.".format(str(RULE_TYPES))),
@@ -42,7 +40,7 @@ class RuleSetModel(Model):
 {"ruleName":"Test","rule":"test","isEnabled":true,"_id":"","byPassValidation":true}}
 """
 class RuleModel(Model):
-    DTO = api.model('Rule', {
+    DTO = POLICY_NS.model('Rule', {
         '_id': fields.Integer(example=3421),
         'ruleName': fields.String(example="emerging-mobile_malware.rules", required=True,
                                   description="The name of the rule."),
@@ -52,7 +50,7 @@ class RuleModel(Model):
         'lastModifiedDate': fields.String(example="2020-12-15 23:20:08", description="The datetime the Rule was last modified."),
         'byPassValidation': fields.Boolean(default=False, description="If set to true, the rule will save even on validation errors."),
         "rule": fields.String(description="Stores the Suricata rules or Zeek scripts based on the RuleSet type.  \
-                                           The /api/rule_content/<RuleID> is the only call that loads this into \
+                                           The /api/rule/<rule_id>/content is the only call that loads this into \
                                            the rules definition because some rules can be up to MB in size.")
     })
 
@@ -61,7 +59,7 @@ class RuleModel(Model):
 
 
 class TestAgainstPcap(Model):
-    DTO = api.model('TestAgainstPcap', {
+    DTO = POLICY_NS.model('TestAgainstPcap', {
         'pcap_name': fields.String(required=True,
                                    description="The name of the PCAP to test against."),
         'rule_content': fields.String(description="The rule or rules you wish to test."),
@@ -70,7 +68,7 @@ class TestAgainstPcap(Model):
 
 
 class HashesModel(Model):
-    DTO = api.model('Hashes', {
+    DTO = POLICY_NS.model('Hashes', {
         'md5': fields.String(example="8226f1dda88c29cf3ef191357a59d47f"),
         'sha1': fields.String(example="074e232ddcb6a2a5795ea7ee09784f8265030438"),
         'sha256': fields.String(example="89687b5d606ba818f0a100e92c9e48641aacfcb32c2c122c5d3002cfa1802cb7")
@@ -78,7 +76,7 @@ class HashesModel(Model):
 
 
 class PCAPMetadata(Model):
-    DTO = api.model('PCAPMetaData', {
+    DTO = POLICY_NS.model('PCAPMetaData', {
         'createdDate': fields.String(example="2020-12-15 23:20:08"),
         'name': fields.String(description="PCAP name as stored on disk."),
         'size': fields.Integer(example=7639515, description="Size in bytes the size of the PCAP."),
@@ -87,7 +85,7 @@ class PCAPMetadata(Model):
 
 
 class PCAPReplayModel(Model):
-    DTO = api.model('PCAPReplay', {
+    DTO = POLICY_NS.model('PCAPReplay', {
         'pcap': fields.String(example="2019-07-09-password-protected-Word-doc-pushes-Dridex.pcap", description="The name of the PCAP as saved on disk."),
         'sensor_ip': fields.String(example="10.40.12.67", description="The IP Address of the sensor we wish to replay our PCAP against."),
         'sensor_hostname': fields.String(example="sensor3.flash", description="The FQDN of the sensor we wish to replay our PCAP against."),

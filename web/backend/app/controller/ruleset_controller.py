@@ -1,34 +1,35 @@
+import json
 import os
 import tempfile
-import json
 import uuid
-
-from app import (app, conn_mng, POLICY_NS, api)
-from app.utils.logging import logger
-from app.common import OK_RESPONSE, ERROR_RESPONSE
-from app.middleware import operator_required
-from app.models.common import (JobID, COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE,
-                               COMMON_SUCCESS_MESSAGE, COMMON_MESSAGE)
-from app.models.ruleset import RuleSetModel, RuleModel, TestAgainstPcap
-from app.service.job_service import run_command2
-from app.service.rulesync_service import perform_rulesync
-from app.utils.utils import tar_folder, zip_folder
 from datetime import datetime
-from flask import jsonify, request, Response, send_file
-from flask_restx import Resource
 from io import StringIO
 from pathlib import Path
+from typing import Dict, List, Tuple, Union
+from zipfile import ZipFile
+
+from app.common import ERROR_RESPONSE, OK_RESPONSE
+from app.middleware import operator_required
+from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_MESSAGE,
+                               COMMON_SUCCESS_MESSAGE, JobID)
+from app.models.ruleset import (POLICY_NS, RuleModel, RuleSetModel,
+                                TestAgainstPcap)
+from app.service.job_service import run_command2
+from app.service.rulesync_service import perform_rulesync
+from app.utils.constants import (DATE_FORMAT_STR, PCAP_UPLOAD_DIR, RULE_TYPES,
+                                 RULESET_STATES, SURICATA_IMAGE_VERSION,
+                                 ZEEK_IMAGE_VERSION, ZEEK_INTEL_PATH,
+                                 ZEEK_SCRIPT_DIR, ZEEK_SIG_PATH)
+from app.utils.db_mngs import conn_mng
+from app.utils.logging import logger
+from app.utils.utils import zip_folder
+from flask import Response, jsonify, request, send_file
+from flask_restx import Resource
 from pymongo import ReturnDocument
 from pymongo.cursor import Cursor
-from pymongo.results import InsertOneResult, DeleteResult
-from app.utils.constants import (RULESET_STATES, DATE_FORMAT_STR,
-                              PCAP_UPLOAD_DIR, SURICATA_IMAGE_VERSION,
-                              RULE_TYPES, ZEEK_IMAGE_VERSION,
-                              ZEEK_SCRIPT_DIR, ZEEK_SIG_PATH, ZEEK_INTEL_PATH)
-from typing import Dict, Tuple, List, Union
+from pymongo.results import DeleteResult, InsertOneResult
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
-from zipfile import ZipFile
 
 CHUNK_SIZE = 5000000
 
@@ -346,7 +347,7 @@ def _process_zipfile(export_path: str, some_zip: str, rule_set: Dict, by_pass_va
                     ret_val.append(rule_or_rules)
     return ret_val
 
-upload_parser = api.parser()
+upload_parser = POLICY_NS.parser()
 upload_parser.add_argument('upload_file', location='files',
                            type=FileStorage, required=True)
 upload_parser.add_argument('ruleSetForm', type=str, required=True, location='form',
@@ -746,5 +747,3 @@ class TestRuleAgainstPCAP(Resource):
             return _test_pcap_against_zeek_signature(pcap_name, rule_content)
 
         return ERROR_RESPONSE
-
-

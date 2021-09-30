@@ -71,8 +71,6 @@ REDIS_CLIENT = Redis()
 REDIS_QUEUE = Queue(connection=REDIS_CLIENT)
 SCHEDULER = Scheduler(connection=REDIS_CLIENT)
 
-
-
 # load_swagger_namespaces
 KIT_SETUP_NS = Namespace('Kit Setup',
                          path="/api",
@@ -81,10 +79,6 @@ KIT_SETUP_NS = Namespace('Kit Setup',
 TOOLS_NS = Namespace('Tools',
                      path="/api",
                      description="Tools page related operations.")
-
-POLICY_NS = Namespace('Policy Management',
-                      path="/api",
-                      description="Policy management related operations for Suricata and Zeek.")
 
 CATALOG_NS = Namespace("Catalog",
                        path="/api",
@@ -103,7 +97,6 @@ DIAGNOSTICS_NS = Namespace("Diagnostics", path="/api", description="Run diagnost
 api.add_namespace(ALERTS_NS)
 api.add_namespace(CATALOG_NS)
 api.add_namespace(KIT_SETUP_NS)
-api.add_namespace(POLICY_NS)
 api.add_namespace(TOOLS_NS)
 api.add_namespace(KIT_TOKEN_NS)
 api.add_namespace(DIAGNOSTICS_NS)
@@ -112,20 +105,24 @@ api.add_namespace(DIAGNOSTICS_NS)
 from app import (catalog_controller, common_controller,
                  console_controller, curator_controller,
                  kit_controller, mip_controller,
-                 node_controller, pcap_controller,
-                 portal_controller, ruleset_controller,
+                 node_controller, portal_controller,
                  scale_controller, task_controller, tools_controller,
                  version_controller, cold_log_controller, alerts_controller, settings_controller,
                  kit_tokens_controller, diagnostics_controller)
 
-from .controller import (agent_builder_controller, health_controller, health_dashboard_controller, configmap_controller, registry_controller, notification_controller)
+from .controller import (agent_builder_controller, health_controller,
+                         health_dashboard_controller, configmap_controller,
+                         registry_controller, notification_controller,
+                         ruleset_controller, pcap_controller)
 
-from app.models.health import APP_NS, HEALTH_NS
-from app.models.kubernetes import KUBERNETES_NS
 from .controller.notification_controller import NOTIFICATIONS_NS
 from .controller.agent_builder_controller import AGENT_NS
+from app.models.ruleset import POLICY_NS
+from app.models.health import APP_NS, HEALTH_NS
+from app.models.kubernetes import KUBERNETES_NS
 
 api.add_namespace(AGENT_NS)
+api.add_namespace(POLICY_NS)
 api.add_namespace(APP_NS)
 api.add_namespace(KUBERNETES_NS)
 api.add_namespace(HEALTH_NS)

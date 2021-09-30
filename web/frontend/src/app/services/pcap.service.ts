@@ -12,24 +12,24 @@ export class PcapService {
               private snackBar: MatSnackBar) { }
 
   get_pcaps(){
-    const url = '/api/pcaps';
+    const url = '/api/policy/pcaps';
     return this.http.get(url).pipe();
   }
 
   uploadPcap(pcap_file: File): Observable<Object> {
-    const url = '/api/pcap/upload';
+    const url = '/api/policy/pcap/upload';
     const formData = new FormData();
     formData.append('upload_file', pcap_file, pcap_file.name);
     return this.http.post(url, formData).pipe();
   }
 
   deletePcap(pcap_name: string): Observable<Object> {
-    const url = `/api/pcap/${pcap_name}`;
+    const url = `/api/policy/pcap/${pcap_name}`;
     return this.http.delete(url).pipe();
   }
 
   replayPcap(payload: Object): Observable<Object> {
-    const url = '/api/pcap/replay';
+    const url = '/api/policy/pcap/replay'
     return this.http.post(url, payload);
   }
 

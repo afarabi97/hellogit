@@ -1,17 +1,20 @@
-from app import api, POLICY_NS
-from app.models.common import JobID, COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
-from app.models.settings.kit_settings import KitSettingsForm
-from app.models.ruleset import PCAPMetadata, PCAPReplayModel
-from app.service.pcap_service import replay_pcap_using_tcpreplay, replay_pcap_using_preserve_timestamp
+
 from datetime import datetime
-from flask import jsonify, request, Response
-from flask_restx import Resource
 from pathlib import Path
+
+from app.middleware import operator_required
+from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE,
+                               JobID)
+from app.models.ruleset import POLICY_NS, PCAPMetadata, PCAPReplayModel
+from app.models.settings.kit_settings import KitSettingsForm
+from app.service.pcap_service import (replay_pcap_using_preserve_timestamp,
+                                      replay_pcap_using_tcpreplay)
 from app.utils.constants import DATE_FORMAT_STR, PCAP_UPLOAD_DIR
 from app.utils.utils import hash_file
-from werkzeug.utils import secure_filename
-from app.middleware import operator_required
+from flask import Response, request
+from flask_restx import Resource
 from werkzeug.datastructures import FileStorage
+from werkzeug.utils import secure_filename
 
 
 @POLICY_NS.route('/pcaps')
@@ -32,7 +35,7 @@ class PcapsCtrl(Resource):
         return sorted(ret_val, key=lambda x: x['name'])
 
 
-upload_parser = api.parser()
+upload_parser = POLICY_NS.parser()
 upload_parser.add_argument('upload_file', location='files',
                            type=FileStorage, required=True)
 

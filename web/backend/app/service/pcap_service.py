@@ -1,28 +1,24 @@
 import base64
-import json
+import glob
 import shutil
 import traceback
-import glob
-
-from app import REDIS_CLIENT
-from app.utils.logging import rq_logger
-from app.models.ruleset import PCAPReplayModel
-from app.service.socket_service import NotificationMessage, NotificationCode
-from app.service.job_service import run_command2
-from app.utils.connection_mngs import KubernetesWrapper, MongoConnectionManager
-from app.utils.constants import (SURICATA_IMAGE_VERSION, ZEEK_IMAGE_VERSION,
-                                 ARKIME_IMAGE_VERSION, SURICATA_RULESET_LOC)
-from app.utils.elastic import get_elastic_service_ip
-from typing import Dict, List
-from rq.decorators import job
-from app.utils.connection_mngs import FabricConnectionManager
-from app.utils.constants import PCAP_UPLOAD_DIR
-from app.utils.kubernetes import get_suricata_pod_name, get_zeek_pod_name, get_arkime_pod_name
-from app.catalog_service import get_node_apps
 from pathlib import Path
+from typing import Dict
 from uuid import uuid4
-from kubernetes.client.models.v1_secret import V1Secret
 
+from app.catalog_service import get_node_apps
+from app.models.ruleset import PCAPReplayModel
+from app.service.job_service import run_command2
+from app.service.socket_service import NotificationCode, NotificationMessage
+from app.utils.connection_mngs import (REDIS_CLIENT, FabricConnectionManager,
+                                       KubernetesWrapper,
+                                       MongoConnectionManager)
+from app.utils.constants import (ARKIME_IMAGE_VERSION, PCAP_UPLOAD_DIR,
+                                 SURICATA_IMAGE_VERSION, SURICATA_RULESET_LOC,
+                                 ZEEK_IMAGE_VERSION)
+from app.utils.elastic import get_elastic_service_ip
+from app.utils.logging import rq_logger
+from rq.decorators import job
 
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")

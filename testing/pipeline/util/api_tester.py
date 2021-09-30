@@ -528,10 +528,10 @@ class APITesterV2:
         return sensors
 
     def _sync_rules(self) -> None:
-        get_request(self._url.format("/api/rulesets/sync"))
+        get_request(self._url.format("/api/policy/rulesets/sync"))
 
     def _get_suricata_rule_id(self) -> str:
-        rule_sets = get_request(self._url.format("/api/ruleset"))
+        rule_sets = get_request(self._url.format("/api/policy/ruleset"))
         for rule in rule_sets:
             if rule["appType"] == "Suricata":
                 return rule['_id']
@@ -548,5 +548,5 @@ class APITesterV2:
                   }
         payload['sensors'] = sensors
         print(payload)
-        update_rules = put_request(self._url.format("/api/ruleset"), payload)
+        update_rules = put_request(self._url.format("/api/poilicy/ruleset"), payload)
         self._sync_rules()

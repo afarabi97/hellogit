@@ -30,7 +30,7 @@ class IntegrationTestsJob:
     def _replay_pcaps(self):
         headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
         root_ca = check_web_ca()
-        REPLAY_PACAP_URL = 'https://{}/api/pcap/replay'.format(self.ctrl_settings.node.ipaddress)
+        REPLAY_PACAP_URL = 'https://{}/api/policy/pcap/replay'.format(self.ctrl_settings.node.ipaddress)
         for node in self.nodes: # type: NodeSettingsV2
             if node.is_sensor():
                 payloads = [
