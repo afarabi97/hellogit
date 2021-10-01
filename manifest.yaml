@@ -28,15 +28,17 @@ MULTIBOOT:
 CPT:
 - app: ACAS
   src:
-    - Repo/Shared/VMs/ACAS/20.12-1/CM-258551-nnm-5.12.1-es7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/20.12-1/CM-258959-acas_configure-20.12-1.noarch.rpm
-    - Repo/Shared/VMs/ACAS/20.12-1/CM-259486-Nessus-8.13.1-es7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/20.12-1/CM-259493-NessusAgent-8.2.2-es7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/20.12-1/CM-260372-SecurityCenter-5.16.1-el7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/20.12-1/CVAH-ACAS.ova
-    - Repo/Shared/VMs/ACAS/20.12-1/CVAH_ACAS_RPM.iso
-    - Repo/Shared/VMs/ACAS/20.12-1/DISA_STIG_Red_Hat_Enterprise_Linux_8_v1r1.audit
-    - Repo/Shared/VMs/ACAS/20.12-1/ReadMe.txt
+    - Repo/Shared/VMs/ACAS/21.04-0/CM-263467-acas_configure-21.04-0.noarch.rpm
+    - Repo/Shared/VMs/ACAS/21.04-0/CM-265460-nnm-5.13.1-es7.x86_64.rpm
+    - Repo/Shared/VMs/ACAS/21.04-0/CM-265614-Nes-8.15.0-es7.x86_64.rpm
+    - Repo/Shared/VMs/ACAS/21.04-0/CM-266078-NesAgent-8.3.0-es7.x86_64.rpm
+    - Repo/Shared/VMs/ACAS/21.04-0/CM-267387-SecurityCenter-5.19.0-el7.x86_64.rpm
+    - Repo/Shared/VMs/ACAS/21.04-0/CVAH-ACAS.ova
+    - Repo/Shared/VMs/ACAS/21.04-0/CVAH_ACAS_RPM.iso
+    - Repo/Shared/VMs/ACAS/21.04-0/dialog-1.2-5.20130523.el7.x86_64.rpm
+    - Repo/Shared/VMs/ACAS/21.04-0/DISA_STIG_Red_Hat_Enterprise_Linux_8_v1r1.audit
+    - Repo/Shared/VMs/ACAS/21.04-0/ReadMe.txt
+    - Repo/Shared/VMs/ACAS/21.04-0/rhel-server-7.9-x86_64-dvd.iso
   dest: staging/v3.7/CPT/Data/CVAH 3.7/Software/VMs/ACAS
 
 - app: ControlThings
@@ -118,8 +120,8 @@ CPT:
 
 - app: Windows 10
   src:
-    - Repo/CPT/VMs/Windows 10 VM/20H2/Win10_Ent_CPT.ova
-    - Repo/CPT/VMs/Windows 10 VM/20H2/ReadMe.txt
+    - Repo/CPT/VMs/Windows 10 VM/21H1/Win10_Ent_CPT.ova
+    - Repo/CPT/VMs/Windows 10 VM/21H1/ReadMe.txt
   dest: staging/v3.7/CPT/Data/CVAH 3.7/Software/VMs/Windows 10 VM
 
 - app: Windows Server 2019
@@ -235,7 +237,6 @@ CPT:
     - Repo/CPT/Documentation/VMs/Mockingbird/1.1.1
     - Repo/CPT/Documentation/VMs/REMnux/2021.29.9
     - Repo/CPT/Documentation/VMs/Windows Server 2019 AFCEDS/1809
-    - Repo/Shared/Documentation/VMs/ACAS/20.12-1
     - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.61
   dest: staging/v3.7/CPT/Data/CVAH 3.7/Documentation/VMs
 
@@ -279,15 +280,17 @@ CPT:
 MDT:
 - app: ACAS
   src:
-    - Repo/Shared/VMs/ACAS/20.12-1/CM-258551-nnm-5.12.1-es7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/20.12-1/CM-258959-acas_configure-20.12-1.noarch.rpm
-    - Repo/Shared/VMs/ACAS/20.12-1/CM-259486-Nessus-8.13.1-es7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/20.12-1/CM-259493-NessusAgent-8.2.2-es7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/20.12-1/CM-260372-SecurityCenter-5.16.1-el7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/20.12-1/CVAH-ACAS.ova
-    - Repo/Shared/VMs/ACAS/20.12-1/CVAH_ACAS_RPM.iso
-    - Repo/Shared/VMs/ACAS/20.12-1/DISA_STIG_Red_Hat_Enterprise_Linux_8_v1r1.audit
-    - Repo/Shared/VMs/ACAS/20.12-1/ReadMe.txt
+    - Repo/Shared/VMs/ACAS/21.04-0/CM-263467-acas_configure-21.04-0.noarch.rpm
+    - Repo/Shared/VMs/ACAS/21.04-0/CM-265460-nnm-5.13.1-es7.x86_64.rpm
+    - Repo/Shared/VMs/ACAS/21.04-0/CM-265614-Nes-8.15.0-es7.x86_64.rpm
+    - Repo/Shared/VMs/ACAS/21.04-0/CM-266078-NesAgent-8.3.0-es7.x86_64.rpm
+    - Repo/Shared/VMs/ACAS/21.04-0/CM-267387-SecurityCenter-5.19.0-el7.x86_64.rpm
+    - Repo/Shared/VMs/ACAS/21.04-0/CVAH-ACAS.ova
+    - Repo/Shared/VMs/ACAS/21.04-0/CVAH_ACAS_RPM.iso
+    - Repo/Shared/VMs/ACAS/21.04-0/dialog-1.2-5.20130523.el7.x86_64.rpm
+    - Repo/Shared/VMs/ACAS/21.04-0/DISA_STIG_Red_Hat_Enterprise_Linux_8_v1r1.audit
+    - Repo/Shared/VMs/ACAS/21.04-0/ReadMe.txt
+    - Repo/Shared/VMs/ACAS/21.04-0/rhel-server-7.9-x86_64-dvd.iso
   dest: staging/v3.7/MDT/Data/CVAH 3.7/Software/VMs/ACAS
 
 - app: Pfsense
@@ -328,8 +331,8 @@ MDT:
 
 - app: Windows 10
   src:
-    - Repo/MDT/VMs/Windows 10 VM/20H2/Win10_Ent_MDT.ova
-    - Repo/MDT/VMs/Windows 10 VM/20H2/ReadMe.txt
+    - Repo/MDT/VMs/Windows 10 VM/21H1/Win10_Ent_MDT.ova
+    - Repo/MDT/VMs/Windows 10 VM/21H1/ReadMe.txt
   dest: staging/v3.7/MDT/Data/CVAH 3.7/Software/VMs/Windows 10 VM
 
 - app: AppStore
@@ -369,7 +372,6 @@ MDT:
 
 - app: Documentation
   src:
-    - Repo/Shared/Documentation/VMs/ACAS/20.12-1
     - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.61
   dest: staging/v3.7/MDT/Data/CVAH 3.7/Documentation/VMs
 
@@ -430,3 +432,5 @@ GIP:
     - Repo/GIP/Software/VM/sat-6-isos
     - Repo/GIP/Software/VM/sat-6-upgrade
   dest: staging_gip/v3.7/GIP/Data/CVAH 3.7/Software/VM
+
+
