@@ -25,7 +25,6 @@
     mode: "0775"
   loop: "{{ range(0, default_data_dir_per_server)|list }}"
 
-
 - name: Create Binding Directories
   file:
     path: "{{ elastic_disk_discovery_dir }}/{{ item }}"

@@ -1,4 +1,12 @@
 ---
+- name: Setup interfaces variable
+  set_fact:
+    servers_node_type: []
+
+- set_fact:
+    servers_node_type: "{{ servers_node_type + [item] }}"
+  with_items: "{{ groups['servers'] }}"
+  when: hostvars[item].node_type == "Server"
 
 - import_tasks: "uninstall.yml"
   when: inventory_hostname == "localhost"
@@ -7,7 +15,7 @@
   - import_tasks: "reset_data.yml"
   - import_tasks: "setup_data_dir.yml"
   - import_tasks: "setup_plugins.yml"
-  when: inventory_hostname in groups['servers']
+  when: inventory_hostname in servers_node_type
   tags:
     - setup-elastic
 
