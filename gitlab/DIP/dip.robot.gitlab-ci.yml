@@ -40,7 +40,6 @@ DIP Robot Tests:
   artifacts:
     untracked: true
     when: always
-  allow_failure: true
   only:
     variables:
       - $RUN_ROBOT_TESTS == "yes" && $PIPELINE == "developer-all"

@@ -5,6 +5,11 @@ ${KIBANA_USERNAME}           elastic
 
 ${SSO_FILE}                 /opt/sso-idp/sso_admin_password.txt
 
+# Pages start with a capital
+${Portal}               https://${host}/portal
+${Rulesets}             https://${host}/rulesets
+${PCAPs}                https://${host}/pcaps
+
 # First Login Screen
 ${locUsernameInput}      id=username
 ${locPasswordInput}      id=password
@@ -29,12 +34,15 @@ ${locCatalogPageNavIcon}    id=app-top-navbar-mat-drawer-container-mat-drawer-ma
 ${locHealthPageNavIcon}     id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-2-mat-list-item-0-mat-icon
 ${locSupportPageNavIcon}    id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-6-mat-list-item-0-mat-icon
 ${locPortalPageNavIcon}     id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-0-mat-list-item-2-mat-icon
+${locRulesetNavIcon}        id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-3-mat-list-item-0-mat-icon
 
 # Support Page
 ${locSystemVersionNumber}   id=cvah-pmo-support-version
 ${locServiceNowURL}         id=cvah-pmo-support-servicenow-website
 
 # Portal Page
-${locKibanaUserPassword}   id=cvah-portal-portal-link-1-logins
-${locKibanaKitIP}          id=cvah-portal-portal-link-1-ip
+# ${locKibanaUserPassword}   id=cvah-portal-portal-link-1-logins
+# ${locKibanaKitIP}          id=cvah-portal-portal-link-1-ip
 ${locElasticLoginButton}    xpath=(//p[@class="euiTitle euiTitle--xsmall secLoginCard__title"])[2]
+
+# Ruleset Page
