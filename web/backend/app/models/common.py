@@ -1,13 +1,11 @@
-from app import api, conn_mng
-from app.utils.constants import HIVE_ID
 from app.models import Model
 from flask_restx import fields
+from flask_restx import Namespace
 
-from marshmallow import Schema, post_load, pre_load, validate, validates, ValidationError
-from marshmallow import fields as marsh_fields
 from rq.job import Job, JobStatus
 from rq.worker import Worker
-from typing import Dict
+
+COMMON_NS = Namespace("common", path="/api", description="Common related operations.")
 
 """
 Example of the common Error format.
@@ -24,7 +22,7 @@ Example of the common Error format.
   ]
 }
 """
-COMMON_ERROR_DTO1 = api.model('CommonFieldError', {
+COMMON_ERROR_DTO1 = COMMON_NS.model('CommonFieldError', {
     "<field_name>": fields.List(fields.String(required=False,
                                   example="Not a valid IPv4 address.",
                                   description="<field_name> refers to one of the fields in the marshmallow's model. \
@@ -32,7 +30,7 @@ COMMON_ERROR_DTO1 = api.model('CommonFieldError', {
                                                all the keys of the dictionary to parse out all the validation logic"))
 })
 
-COMMON_ERROR_DTO = api.model('CommonFieldErrorWithPostValidation', {
+COMMON_ERROR_DTO = COMMON_NS.model('CommonFieldErrorWithPostValidation', {
     "<field_name>": fields.List(fields.String(required=False,
                                   example="Not a valid IPv4 address.",
                                   description="<field_name> refers to one of the fields in the marshmallow's model. \
@@ -44,7 +42,7 @@ COMMON_ERROR_DTO = api.model('CommonFieldErrorWithPostValidation', {
 })
 
 
-COMMON_RETURNS = api.model("Misc", {
+COMMON_RETURNS = COMMON_NS.model("Misc", {
     "ip_blocks": fields.List(fields.String(example="10.40.12.16"),
                              example=["10.40.12.32","10.40.12.64","10.40.12.96","10.40.12.128"],
                              description="IP blocks /27 within a given subnet that are not in use."),
@@ -54,26 +52,26 @@ COMMON_RETURNS = api.model("Misc", {
 })
 
 
-COMMON_MESSAGE = api.model("Message", {
+COMMON_MESSAGE = COMMON_NS.model("Message", {
     "message": fields.String(required=False,
                              example="A message sent back from the message that would normally go to a toast popup.")
 })
 
 
-COMMON_ERROR_MESSAGE = api.model("ErrorMessage", {
+COMMON_ERROR_MESSAGE = COMMON_NS.model("ErrorMessage", {
     "error_message": fields.String(required=False,
                                    example="A message sent back from the message that would normally go to a toast popup.")
 })
 
 
-COMMON_SUCCESS_MESSAGE = api.model("SuccessMessage", {
+COMMON_SUCCESS_MESSAGE = COMMON_NS.model("SuccessMessage", {
     "success_message": fields.String(required=False,
                                    example="A message sent back from the message that would normally go to a toast popup.")
 })
 
 
 class JobID(Model):
-    DTO = api.model('JobID', {
+    DTO = COMMON_NS.model('JobID', {
         "job_id": fields.String(required=True, example="fbbd7123-4926-4a84-a8ea-7c926e38edab",
                                 description="The job id of the BackgroundJob use /api/jobs/<id> for more information."),
         "redis_key": fields.String(required=True, example="fbbd7123-4926-4a84-a8ea-7c926e38edab",
@@ -86,7 +84,7 @@ class JobID(Model):
 
 
 class CurrentTimeMdl(Model):
-    DTO = api.model('CurrentTime', {
+    DTO = COMMON_NS.model('CurrentTime', {
         "timezone": fields.String(required=True, example="UTC",
                                   description="The timezone the controller is configured to use. Defaults to UTC."),
         "datetime": fields.String(required=True, example="12-28-2020 17:18:16",
@@ -102,7 +100,7 @@ class BackgroundJob(Model):
     POSSIBLE_STATES = [JobStatus.QUEUED, JobStatus.FINISHED,
                        JobStatus.FAILED, JobStatus.STARTED,
                        JobStatus.DEFERRED, JobStatus.SCHEDULED]
-    DTO = api.model('BackgroundJob', {
+    DTO = COMMON_NS.model('BackgroundJob', {
         "job_id": fields.String(required=True, example="fbbd7123-4926-4a84-a8ea-7c926e38edab",
                                 description="The task id of the BackgroundJob use /api/jobs/<id> for more information."),
         "redis_key": fields.String(required=True, example="fbbd7123-4926-4a84-a8ea-7c926e38edab",
@@ -156,7 +154,7 @@ class BackgroundJob(Model):
 
 
 class WorkerModel(Model):
-    DTO = api.model('WorkerModel', {
+    DTO = COMMON_NS.model('WorkerModel', {
         "name": fields.String(required=True, example="6a4c8acca21447c4abbf37314fd71165", description="The name of the worker."),
         "hostname": fields.String(required=True, example="controller.lan", description="The hostname where the worker is running."),
         "pid": fields.Integer(required=True, example=30725, description="The process ID of the running worker."),
@@ -190,65 +188,3 @@ class WorkerModel(Model):
             self.current_job = BackgroundJob(current_job)
         else:
             self.current_job = None
-
-
-class HiveSchema(Schema):
-    _id = marsh_fields.Str()
-    admin_api_key = marsh_fields.Str(required=True)
-    org_admin_api_key = marsh_fields.Str(required=True)
-
-    @post_load
-    def create_HiveSettingsModel(self, data: Dict, many: bool, partial: bool):
-        return HiveSettingsModel(**data)
-
-    @validates("admin_api_key")
-    def validate_admin_hive_api_key(self, value: str):
-        if len(value) != 32:
-            raise ValidationError("The admin API key you passed in does not match the appropriate string size of 32.")
-
-    @validates("org_admin_api_key")
-    def validate_org_admin_hive_api_key(self, value: str):
-        if len(value) != 32:
-            raise ValidationError("The org_admin API key you passed in does not match the appropriate string size of 32.")
-
-
-class HiveSettingsModel(Model):
-    schema = HiveSchema()
-    DTO = api.model('HiveSettings', {
-        "admin_api_key": fields.String(required=True,
-                                       example="JFBuZo0AMSy3a8hCdvUIYHhgJLXsZ/2s",
-                                       description="The API key needed in order to create Hive cases."),
-        "org_admin_api_key": fields.String(required=True,
-                                           example="JFBuZo0AMSy3a8hCdvUIYHhgJLXsZ/2s",
-                                           description="The API key needed in order to create Hive cases.")
-    })
-
-    def __init__(self, admin_api_key: str, org_admin_api_key: str, _id: str=HIVE_ID):
-        if admin_api_key:
-            self.admin_api_key = admin_api_key
-        else:
-            self.admin_api_key = ""
-
-        if org_admin_api_key:
-            self.org_admin_api_key = org_admin_api_key
-        else:
-            self.org_admin_api_key = ""
-
-        self._id = _id
-
-    @classmethod
-    def load_from_request(cls, payload: Dict) -> Model:
-        new_kit = cls.schema.load(payload) # type: DIPKitForm
-        return new_kit
-
-    def save_to_db(self):
-        serialized = self.schema.dump(self)
-        conn_mng.mongo_hive_settings.find_one_and_replace({"_id": HIVE_ID}, serialized, upsert=True)
-
-    @classmethod
-    def load_from_db(cls) -> Model:
-        ret_val = conn_mng.mongo_hive_settings.find_one({"_id": HIVE_ID})
-        if ret_val:
-            return cls.schema.load(ret_val)
-
-        return HiveSettingsModel("", "")

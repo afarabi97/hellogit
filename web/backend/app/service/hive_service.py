@@ -1,17 +1,13 @@
-import json
-import requests
-
 from typing import Dict, List
-from app import app, conn_mng, ALERTS_NS
-from app.utils.logging import logger
 
-from app.models.common import HiveSettingsModel
+import requests
+from app.models.alerts import HiveSettingsModel
+from app.utils.logging import logger
 from app.utils.utils import get_domain
-from requests.auth import HTTPBasicAuth
 from thehive4py.api import TheHiveApi
-from thehive4py.models import Case, CaseTask, CustomFieldHelper, CustomField, Version
-from thehive4py.exceptions import CustomFieldException
 from thehive4py.auth import BearerAuth
+from thehive4py.exceptions import CustomFieldException
+from thehive4py.models import Case, CustomField, Version
 
 
 class HiveFailureError(Exception):

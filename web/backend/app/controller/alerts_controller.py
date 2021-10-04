@@ -1,20 +1,19 @@
 """
 Main module for handling all of the config map REST calls.
 """
-from flask import jsonify, Response, request
-from flask_restx import Resource, fields
-from app import app, conn_mng, ALERTS_NS
-from app.common import ERROR_RESPONSE, OK_RESPONSE
-from elasticsearch.exceptions import ConnectionTimeout, RequestError
-from typing import List, Dict
 from collections import OrderedDict
-from app.models.common import HiveSettingsModel
-from marshmallow import ValidationError
-from app.models.common import COMMON_ERROR_DTO1
-from app.models.alerts import AlertsModel, UpdateAlertsModel
-from app.utils.elastic import ElasticWrapper
-from app.service.hive_service import HiveService, HiveFailureError, configure_webhook
+from typing import Dict, List
 
+from app.models.alerts import (ALERTS_NS, HIVE_NS, AlertsModel,
+                               HiveSettingsModel, UpdateAlertsModel)
+from app.models.common import COMMON_ERROR_DTO1
+from app.service.hive_service import (HiveFailureError, HiveService,
+                                      configure_webhook)
+from app.utils.elastic import ElasticWrapper
+from elasticsearch.exceptions import ConnectionTimeout, RequestError
+from flask import Response, jsonify, request
+from flask_restx import Resource, fields
+from marshmallow import ValidationError
 
 DEFAULT_INDEXES = "filebeat-suricata-*,filebeat-zeek-*,endgame-*,filebeat-external-*"
 SIGNAL_INDEX = ".siem-signals-default"
@@ -187,7 +186,7 @@ def get_field_list(payload: Dict) -> List[Dict]:
     return ret_val
 
 
-@ALERTS_NS.route('/alerts/fields')
+@ALERTS_NS.route('/fields')
 class AlertsFieldsCtrl(Resource):
     @ALERTS_NS.doc(description="Returns a list of fields from filebeat and siem indices.")
     @ALERTS_NS.response(500, "Error")
@@ -219,7 +218,7 @@ class AlertsFieldsCtrl(Resource):
 
 
 @ALERTS_NS.doc(params={'count_override': 'Defaults to the count inside of the payload if you specifiy 0 otherwise it will override count.'})
-@ALERTS_NS.route('/alerts/list/<count_override>')
+@ALERTS_NS.route('/list/<count_override>')
 class AlertsDetailedCtrl(Resource):
 
     @ALERTS_NS.doc(description="Get all the alerts from Elasticsearch.")
@@ -262,7 +261,7 @@ class AlertsDetailedCtrl(Resource):
         return payload
 
 
-@ALERTS_NS.route('/alerts/<acknowledged>/<escalated>/<show_closed>/<start_time>/<end_time>/<fields>')
+@ALERTS_NS.route('/<acknowledged>/<escalated>/<show_closed>/<start_time>/<end_time>/<fields>')
 @ALERTS_NS.doc(params={'acknowledged': 'yes or no are valid values.',
                        'escalated': 'yes or no are valid values.',
                        'show_closed': 'yes or no are valid values. When set to yes in conjuction with escalated also being set displays the closed escalated events.',
@@ -389,7 +388,7 @@ class AlertsCtrlv2(Resource):
         return sorted(table_rows, key = lambda i: i['count'], reverse=True), 200
 
 
-@ALERTS_NS.route('/alerts/modify')
+@ALERTS_NS.route('/modify')
 class AlertsAckCtrl(Resource):
 
     @ALERTS_NS.doc(description="Modify alert object in elastic with escalated or acknowledged status.")
@@ -497,7 +496,7 @@ class AlertsAckCtrl(Resource):
         return ret_val, 500
 
 
-@ALERTS_NS.route('/alerts/settings')
+@ALERTS_NS.route('/settings')
 class HiveSettingsCtrl(Resource):
 
     @ALERTS_NS.doc(description="Save hive settings")
@@ -531,7 +530,6 @@ class HiveSettingsCtrl(Resource):
         return ret_val
 
 
-@app.route("/api/hive/webhook", methods=['POST', 'GET'])
 def webhook():
     event = request.get_json()
     body = {}
@@ -594,3 +592,11 @@ def webhook():
         return jsonify(ret_val), 200
 
     return jsonify({}), 400
+
+@HIVE_NS.route("/webhook")
+class AlertWebhook(Resource):
+    def get(self):
+        webhook()
+    def post(self):
+        webhook()
+

@@ -9,6 +9,11 @@
       index-url = http://{{ ansible_controller_hostname }}/offlinerepo/pip/simple
       trusted-host = {{ ansible_controller_hostname }}
 
+- name: Clean repo cache
+  file:
+    path: /var/cache/dnf
+    state: absent
+
 # main.yml - Common tasks for TFplenum
 - import_tasks: 25_max_log_size.yml
 - import_tasks: 35_install_common_packages.yml

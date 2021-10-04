@@ -11,7 +11,7 @@ from pathlib import Path
 from app.tests.base_test_setup import BaseTestCase
 from typing import Dict, List
 
-SENSOR_HOST_INFO_URL = "/api/get_sensor_hostinfo"
+SENSOR_HOST_INFO_URL = "/api/policy/sensor/info"
 CREATE_RULESET_URL = "/api/ruleset"
 UPLOAD_RULE_URL = "/api/rule/upload"
 

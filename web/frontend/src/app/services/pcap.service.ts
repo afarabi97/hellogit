@@ -29,7 +29,7 @@ export class PcapService {
   }
 
   replayPcap(payload: Object): Observable<Object> {
-    const url = '/api/policy/pcap/replay'
+    const url = '/api/policy/pcap/replay';
     return this.http.post(url, payload);
   }
 

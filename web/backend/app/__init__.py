@@ -8,19 +8,19 @@ import eventlet
 # If you move it after the socketio and flask imports it will result in a very nasty SSL recurisve error with the kubernetes API.
 eventlet.monkey_patch(all=False, os=True, select=False, socket=True, thread=False, time=True)
 import os
-from redis import Redis
-from rq import Queue
 import signal
+from pathlib import Path
 
+from app.middleware import AuthMiddleware
 from app.utils.db_mngs import MongoConnectionManager
-from flask_cors import CORS
 from flask import Flask, url_for
+from flask_cors import CORS
 from flask_restx import Api, Namespace
 from flask_socketio import SocketIO
-
-from pathlib import Path
-from app.middleware import AuthMiddleware
+from redis import Redis
+from rq import Queue
 from rq_scheduler import Scheduler
+
 from .utils.logging import init_loggers
 
 APP_DIR = Path(__file__).parent  # type: Path
@@ -84,42 +84,42 @@ CATALOG_NS = Namespace("Catalog",
                        path="/api",
                        description="Catalog related operations used for installing HELM charts on the Kubernetes cluster.")
 
-ALERTS_NS = Namespace("Alerts",
-                       path="/api",
-                       description="Alerts related operations that allow operators to display or Acknowledge or Escalate alert events that come in.")
-
 KIT_TOKEN_NS = Namespace("Kit Token",
                     path="/api",
                     description="<description>")
 
 DIAGNOSTICS_NS = Namespace("Diagnostics", path="/api", description="Run diagnostics to help service desk troubleshoot tickets.")
 
-api.add_namespace(ALERTS_NS)
+
 api.add_namespace(CATALOG_NS)
 api.add_namespace(KIT_SETUP_NS)
 api.add_namespace(TOOLS_NS)
 api.add_namespace(KIT_TOKEN_NS)
 api.add_namespace(DIAGNOSTICS_NS)
 
+
 # Load the REST API
-from app import (catalog_controller, common_controller,
+from app import (catalog_controller,
                  console_controller, curator_controller,
                  kit_controller, mip_controller,
                  node_controller, portal_controller,
                  scale_controller, task_controller, tools_controller,
-                 version_controller, cold_log_controller, alerts_controller, settings_controller,
+                 version_controller, cold_log_controller, settings_controller,
                  kit_tokens_controller, diagnostics_controller)
 
 from .controller import (agent_builder_controller, health_controller,
                          health_dashboard_controller, configmap_controller,
                          registry_controller, notification_controller,
-                         ruleset_controller, pcap_controller)
+                         ruleset_controller, pcap_controller,
+                         alerts_controller, common_controller)
 
 from .controller.notification_controller import NOTIFICATIONS_NS
 from .controller.agent_builder_controller import AGENT_NS
-from app.models.ruleset import POLICY_NS
-from app.models.health import APP_NS, HEALTH_NS
-from app.models.kubernetes import KUBERNETES_NS
+from .models.ruleset import POLICY_NS
+from .models.health import APP_NS, HEALTH_NS
+from .models.kubernetes import KUBERNETES_NS
+from .models.common import COMMON_NS
+from .models.alerts import ALERTS_NS, HIVE_NS
 
 api.add_namespace(AGENT_NS)
 api.add_namespace(POLICY_NS)
@@ -127,6 +127,10 @@ api.add_namespace(APP_NS)
 api.add_namespace(KUBERNETES_NS)
 api.add_namespace(HEALTH_NS)
 api.add_namespace(NOTIFICATIONS_NS)
+api.add_namespace(ALERTS_NS)
+api.add_namespace(HIVE_NS)
+api.add_namespace(COMMON_NS)
+
 
 #This is a hack needed to get coverage to work correctly within the python unittest framework.
 def receive_signal(signal_number, frame):

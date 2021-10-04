@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
 
-  SENSOR_HOST_INFO_SERVICE_GET_SENSOR_HOST_INFO: `/api/get_sensor_hostinfo`,
+  SENSOR_HOST_INFO_SERVICE_GET_SENSOR_HOST_INFO: `/api/policy/sensor/info`,
 
   CONFIG_MAP_SERVICE_GET_CONFIG_MAPS: `/api/kubernetes/configmaps`,
   CONFIG_MAP_SERVICE_BASE_URL: `/api/kubernetes/configmap`,

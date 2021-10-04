@@ -1,15 +1,17 @@
 
 from datetime import datetime
 from pathlib import Path
+from typing import Dict, List
 
 from app.middleware import operator_required
 from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE,
                                JobID)
+from app.models.nodes import Node
 from app.models.ruleset import POLICY_NS, PCAPMetadata, PCAPReplayModel
 from app.models.settings.kit_settings import KitSettingsForm
 from app.service.pcap_service import (replay_pcap_using_preserve_timestamp,
                                       replay_pcap_using_tcpreplay)
-from app.utils.constants import DATE_FORMAT_STR, PCAP_UPLOAD_DIR
+from app.utils.constants import DATE_FORMAT_STR, NODE_TYPES, PCAP_UPLOAD_DIR
 from app.utils.utils import hash_file
 from flask import Response, request
 from flask_restx import Resource
@@ -98,3 +100,20 @@ class ReplayPcapCtrl(Resource):
             job = replay_pcap_using_tcpreplay.delay(payload, kit_settings.password)
 
         return JobID(job).to_dict(), 200
+
+
+@POLICY_NS.route('/sensor/info', methods=['GET'])
+class SensorInfo(Resource):
+    def get(self) -> Response:
+        ret_val = []
+        kit_nodes = Node.load_all_from_db() # type: List[Node]
+
+        for node in kit_nodes:
+            if node.node_type == NODE_TYPES.sensor.value:
+                host_simple = {}
+                host_simple['hostname'] = node.hostname
+                host_simple['management_ip'] = str(node.ip_address)
+                host_simple['mac'] = node.mac_address
+                ret_val.append(host_simple)
+
+        return ret_val, 200
