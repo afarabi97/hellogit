@@ -99,12 +99,12 @@ Install App
 Verify App Has Been Installed
     [Arguments]  ${application_name}  ${index}
     [Documentation]  Checks if specified app was sucessfully installed on kit
-    Wait Until Keyword Succeeds  5x  5s  Check App Card Status  ${index}
+    Wait Until Keyword Succeeds  5x  5s  Check App Card Status  ${index}  DEPLOYED
     Check Notifications For App  ${application_name}
     Check Health Page For App  ${application_name}
 
 Check App Card Status
-    [Arguments]  ${index}
+    [Arguments]  ${index}  ${expected_status}
     [Documentation]  Visual confirmation on the Catalog Page that the app is installed
     Wait Until Element Is Visible  ${locCatalogPageNavIcon}
     Click Element  ${locCatalogPageNavIcon}
@@ -112,9 +112,11 @@ Check App Card Status
     Reload Page
     ${application_card} =  Set Variable  id=app-chart-list-div-app-card-${index}
     Wait Until Page Contains Element  ${application_card}
-    Wait Until Element Contains  ${application_card}  DEPLOYED  2m
+    Wait Until Element Contains  ${application_card}  ${expected_status}  2m
     ${app_card_circle} =  Set Variable  id=app-chart-list-${index}-app-card-div-div-div-button
-    Element Attribute Value Should Be  ${app_card_circle}  style  background-color: green;
+    ${circle_color} =  Set Variable If  '${expected_status}' == 'DEPLOYED'  rgb(30, 185, 128)
+    ...  '${expected_status}' == 'Not Installed'  white
+    Element Attribute Value Should Be  ${app_card_circle}  style  background-color: ${circle_color};
 
 Check Notifications For App
     [Arguments]  ${application_name}
@@ -130,7 +132,7 @@ Check Health Page For App
     Click Element  ${locHealthPageNavIcon}
     Wait Until Page Does Not Contain  Pod Errors  5m
     ${app_name_lower} =  Convert To Lower Case  ${application_name}
-    ${expectedText} =  Set Variable If
+    ${expected_text} =  Set Variable If
     ...  '${app_name_lower}' == 'arkime'  -${app_name_lower}-  ${app_name_lower}  # else var just assigned app name
     ${app_on_health_page} =  Set Variable  False
 
@@ -150,7 +152,7 @@ Check Health Page For App
     FOR  ${table}  IN  @{pod_status_tables}
         Click Element  ${table}
         Sleep  1s
-        ${app_on_health_page} =  Run Keyword And Return Status  Page Should Contain  ${expectedText}
+        ${app_on_health_page} =  Run Keyword And Return Status  Page Should Contain  ${expected_text}
         Run Keyword If	'${app_on_health_page}' == 'True'  Exit For Loop
     END
     Run Keyword if  '${app_on_health_page}'=='False'  Fail  ${application_name} not listed on Health page
@@ -186,7 +188,7 @@ Uninstall App
     ...  AND  Press Keys  None  TAB
     Click Button  ${locCatalogRunBtn}
     ${application_card} =  Set Variable  id=app-chart-list-div-app-card-${index}
-    Wait Until Element Contains  ${application_card}  Not Installed  2m
+    Wait Until Keyword Succeeds  5x  5s  Check App Card Status  ${index}  Not Installed
     Click Element  ${locNotificationsNavIcon}
     Wait Until Element Contains  ${locTopNotification}  COMPLETED Deleting ${application_name}  10m
     Press Keys  None  ESCAPE
