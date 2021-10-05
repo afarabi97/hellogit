@@ -16,9 +16,9 @@ export const environment = {
   COLD_LOG_INGEST_SERVICE_POST_WINLOGBEAT: `/api/install_winlogbeat`,
   COLD_LOG_INGEST_SERVICE_GET_MODULE_INFO: `/api/get_module_info`,
 
-  INDEX_MANAGEMENT_SERVICE_INDEX_MANAGEMENT: `/api/index_management`,
-  INDEX_MANAGEMENT_SERVICE_GET_CLOSED_INDICES: `/api/closed_indices`,
-  INDEX_MANAGEMENT_SERVICE_GET_OPENED_INDICES: `/api/opened_indices`,
+  INDEX_MANAGEMENT_SERVICE_INDEX_MANAGEMENT: `/api/curator/index_management`,
+  INDEX_MANAGEMENT_SERVICE_GET_CLOSED_INDICES: `/api/curator/closed_indices`,
+  INDEX_MANAGEMENT_SERVICE_GET_OPENED_INDICES: `/api/curator/opened_indices`,
 
   ELASTICSEARCH_SERVICE_GET_ELASTIC_NODES: `/api/scale/elastic/nodes`,
   ELASTICSEARCH_SERVICE_POST_ELASTIC_NODES: `/api/scale/elastic`,
@@ -118,12 +118,11 @@ export const environment = {
   POLICY_MANAGEMENT_SERVICE_CHECK_CATALOG_STATUS: `/api/catalog/chart`,
   POLICY_MANAGEMENT_SERVICE_GET_JOBS: `/api/jobs`,
 
-  KIT_TOKENS_SETTINGS_SERVICE: `/api/kit/tokens`,
+  KIT_TOKENS_SETTINGS_SERVICE: `/api/token`,
   HEALTH_DASHBOARD_STATUS: `/api/health/dashboard/status`,
   REMOTE_HEALTH_DASHBOARD_STATUS: `/api/health/remote/dashboard/status`,
   HEALTH_DASHBOARD_KIBANA_INFO: `/api/app/kibana/info`,
-  REMOTE_HEALTH_DASHBOARD_KIBANA_INFO: `/api/app/kibana/info/remote`,
-  GENERATE_TOKEN: `/api/kit/tokens/generate`
+  REMOTE_HEALTH_DASHBOARD_KIBANA_INFO: `/api/app/kibana/info/remote`
 };
 
 /*

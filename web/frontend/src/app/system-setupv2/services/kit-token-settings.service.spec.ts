@@ -26,7 +26,7 @@ describe('KitTokenSettingsService', () => {
   let spy_get_kit_tokens: jasmine.Spy<any>;
   let spy_create_kit_token: jasmine.Spy<any>;
   let spy_delete_kit_token: jasmine.Spy<any>;
-  let spy_generate_kit_token: jasmine.Spy<any>;
+
 
   // Used to handle subscriptions
   const ngUnsubscribe$: Subject<void> = new Subject<void>();
@@ -61,7 +61,6 @@ describe('KitTokenSettingsService', () => {
     spy_get_kit_tokens = spyOn(service, 'get_kit_tokens').and.callThrough();
     spy_create_kit_token = spyOn(service, 'create_kit_token').and.callThrough();
     spy_delete_kit_token = spyOn(service, 'delete_kit_token').and.callThrough();
-    spy_generate_kit_token = spyOn(service, 'generate_kit_token').and.callThrough();
   });
 
   afterAll(() => {
@@ -207,48 +206,6 @@ describe('KitTokenSettingsService', () => {
         after();
       });
     });
-
-      describe('REST generate_kit_token()', () => {
-        it('should call generate_kit_token()', () => {
-          reset();
-
-          service.generate_kit_token(MockKitTokenInterface.ipaddress)
-            .pipe(takeUntil(ngUnsubscribe$))
-            .subscribe((response: string) => {
-              expect(response);
-              expect(service.generate_kit_token).toHaveBeenCalled();
-            });
-
-          const xhrURL: string = `${environment.GENERATE_TOKEN}/${MockKitTokenInterface.ipaddress}`;
-          const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-          expect(xhrRequest.request.method).toEqual(getType);
-
-          xhrRequest.flush([MockKitTokenInterface]);
-
-          after();
-        });
-
-        it('should call generate_kit_token() and handle error', () => {
-          reset();
-
-          service.generate_kit_token(MockKitTokenInterface.ipaddress)
-            .pipe(takeUntil(ngUnsubscribe$))
-            .subscribe(
-              (response: string) => {},
-              (error: HttpErrorResponse) => {
-                expect(error.error).toContain(errorRequest);
-                expect(service.generate_kit_token).toHaveBeenCalled();
-              });
-
-          const xhrURL: string = `${environment.GENERATE_TOKEN}/${MockKitTokenInterface.ipaddress}`;
-          const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-          xhrRequest.flush(errorRequest, mockErrorResponse);
-
-          after();
-        });
-      });
   });
 });
 
@@ -257,8 +214,6 @@ export class KitTokenSettingsServiceSpy implements KitTokenSettingsServiceInterf
   get_kit_tokens = jasmine.createSpy('get_kit_tokens').and.callFake((): Observable<Array<KitTokenClass>> => this.call_fake_get_kit_tokens());
   create_kit_token = jasmine.createSpy('create_kit_token').and.callFake((kit_token: KitTokenInterface): Observable<KitTokenClass> => this.call_fake_create_kit_token(kit_token));
   delete_kit_token = jasmine.createSpy('delete_kit_token').and.callFake((kit_token_id: string): Observable<null> => this.call_fake_delete_kit_token(kit_token_id));
-  replace_kit_token = jasmine.createSpy('replace_kit_token').and.callFake((kit_token_id: string, kit_token: KitTokenInterface): Observable<null> => this.call_fake_replace_kit_token(kit_token_id, kit_token));
-  generate_kit_token = jasmine.createSpy('generate_kit_token').and.callFake((kit_token: KitTokenInterface): Observable<string> => this.call_fake_generate_token());
 
   call_fake_get_kit_tokens(): Observable<Array<KitTokenClass>> {
     return observableOf([MockKitTokenInterface]);
@@ -270,13 +225,5 @@ export class KitTokenSettingsServiceSpy implements KitTokenSettingsServiceInterf
 
   call_fake_delete_kit_token(kit_token_id: string): Observable<null> {
     return observableOf(null);
-  }
-
-  call_fake_replace_kit_token(agent_id: string, kit_token: KitTokenInterface): Observable<null> {
-    return observableOf(null);
-  }
-
-  call_fake_generate_token(): Observable<string> {
-    return observableOf(MockKitTokenInterface.token);
   }
 }

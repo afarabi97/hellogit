@@ -1,16 +1,11 @@
-import os
-from elasticsearch import Elasticsearch
-from app import REDIS_CLIENT
+
+from app.utils.connection_mngs import REDIS_CLIENT
 from app.service.socket_service import NotificationMessage, NotificationCode
-from app.service.job_service import AsyncJob
 from rq.decorators import job
 from app.utils.elastic import ElasticWrapper
 
 
 _JOB_NAME = "curator"
-_NUMBER_OF_SHARDS = 3
-_NUMBER_OF_REPLICAS = 1
-_MAX_NUM_SEGMENTS = 1
 
 def _notification_inprogress(action):
     notification = NotificationMessage(role=_JOB_NAME)

@@ -44,14 +44,4 @@ export class KitTokenSettingsService extends ApiService<any> implements KitToken
     const url = `${environment.KIT_TOKENS_SETTINGS_SERVICE}/${kit_token_id}`;
     return this.httpClient_.delete(url).pipe(catchError((error: HttpErrorResponse) => this.handleError('delete kit_token', error)));
   }
-
-  replace_kit_token(kit_token_id: string, kit_token: KitTokenInterface): Observable<null> {
-    const url = `${environment.KIT_TOKENS_SETTINGS_SERVICE}/${kit_token_id}`;
-    return this.httpClient_.put(url, kit_token).pipe(catchError((error: HttpErrorResponse) => this.handleError('update kit_token', error)));
-  }
-
-  generate_kit_token(ipaddress: string): Observable<string> {
-    return this.httpClient_.get(`${environment.GENERATE_TOKEN}/${ipaddress}`).pipe(catchError((error: HttpErrorResponse) => this.handleError('generate token error', error)));
-  }
-
 }
