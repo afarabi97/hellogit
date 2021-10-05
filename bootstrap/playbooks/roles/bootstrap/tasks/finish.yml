@@ -1,7 +1,0 @@
----
-
-- name: Setup up project defined aliases
-  lineinfile:
-    path: "/root/.bashrc"
-    regexp: '^source .*aliases$'
-    line: 'source /opt/tfplenum/aliases'

@@ -18,7 +18,27 @@
       - name: Import DIP/GIP variables
         include_vars:
           file: "{{ dip_core_vars }}"
+    - name: Set Server Ip Variable
+      set_fact:
+        server_ip: "{{ hostvars['localhost']['ansible_default_ipv4']['address'] }}"
+      when: hostvars['localhost']['ansible_default_ipv4'] is defined and server_ip is not defined or (server_ip is defined and server_ip == '')
   tags: always
+
+- name: Clean Up
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - cleanup
+  tags:
+    - pre_cleanup
+
+- name: Setup Rhel Repos
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - rhel_repo
+  tags:
+    - rhel_repo
 
 - name: Execute Pre
   hosts: localhost
@@ -26,6 +46,14 @@
   roles:
     - execute_pre
   tags: execute_pre
+
+- name: Clone Repo
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - clonerepo
+  tags:
+    - clonerepo
 
 - name: Setup Frontend
   hosts: localhost
@@ -41,14 +69,6 @@
     - sso
   tags: sso
 
-- name: Bootstrap Controller
-  hosts: localhost
-  any_errors_fatal: true
-  roles:
-    - bootstrap
-  tags:
-    - bootstrap
-
 - name: Rerun docker pull
   hosts: localhost
   any_errors_fatal: true
@@ -58,6 +78,13 @@
     - registry
     - pull-docker-images
 
+- name: Setup Helm
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - helm
+  tags: helm
+
 - name: Setup chart museum
   hosts: localhost
   any_errors_fatal: true
@@ -65,6 +92,22 @@
     - chartmuseum
   tags:
     - chartmuseum
+
+- name: Clean Up
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - cleanup
+  vars:
+    post_cleanup: true
+  tags: cleanup
+
+- name: Controller Setup
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - setup
+  tags: setup
 
 - name: Run Stigs
   hosts: localhost

@@ -1,0 +1,18 @@
+---
+- import_tasks: offline_repos.yml
+
+- name: "Install required packages"
+  dnf:
+    name: "{{ package_list }}"
+    state: present
+
+- import_tasks: max_log_size.yml
+- import_tasks: update_etc_hosts.yml
+- import_tasks: update_controller_interface.yml
+  tags: setup_ctrl_interface
+
+- name: Setup up project defined aliases
+  lineinfile:
+    path: "/root/.bashrc"
+    regexp: '^source .*aliases$'
+    line: 'source /opt/tfplenum/aliases'

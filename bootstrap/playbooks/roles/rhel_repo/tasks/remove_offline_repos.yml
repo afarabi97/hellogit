@@ -1,0 +1,12 @@
+---
+- name: Remove yum repo
+  yum_repository:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - tfplenum-appstream-offline-repo
+    - tfplenum-baseos-offline-repo
+    - tfplenum-extras-offline-repo
+  register: yum_results
+- import_tasks: clean_repo.yml
+  when: yum_results.changed

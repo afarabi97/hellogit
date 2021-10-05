@@ -1,0 +1,8 @@
+---
+
+- name: Yum Clean All
+  shell: |
+    dnf clean all
+  changed_when: false
+  args:
+    warn: false

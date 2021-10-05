@@ -1122,16 +1122,19 @@
   yum:
     name: gssproxy
     state: removed
+  when: inventory_hostname != "localhost"
 
 - name: "RHEL-08-040380 | MEDIUM | The iprutils package must not be installed unless mission essential on RHEL 8."
   yum:
     name: iprutils
     state: removed
+  when: inventory_hostname != "localhost"
 
 - name: "RHEL-08-040390 | MEDIUM | The tuned package must not be installed unless mission essential on RHEL 8."
   yum:
     name: tuned
     state: removed
+  when: inventory_hostname != "localhost"
 
 - name: sysctl system
   command: sysctl --system

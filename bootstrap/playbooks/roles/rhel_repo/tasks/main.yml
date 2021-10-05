@@ -1,24 +1,10 @@
 ---
-- name: Setup RHEL Repos
-  block:
-    - name: Labrepo rhel repos
-      get_url:
-        url: "{{ tfplenum_repo }}/nexus-rhel8.repo"
-        dest: "/etc/yum.repos.d/nexus-rhel8.repo"
-    - name: Disable RHEL License
-      replace:
-        path: "/etc/yum/pluginconf.d/subscription-manager.conf"
-        regexp: 'enabled=1'
-        replace: 'enabled=0'
+- import_tasks: add_repo.yml
 
-- name: Clean repos
-  command: dnf clean all
-  ignore_errors: yes
-  args:
-    warn: false
+- name: Disable RHEL License
+  replace:
+    path: "/etc/yum/pluginconf.d/subscription-manager.conf"
+    regexp: 'enabled=1'
+    replace: 'enabled=0'
 
-- name: Clean repo cache
-  file:
-    path: /var/cache/dnf
-    state: absent
 ...

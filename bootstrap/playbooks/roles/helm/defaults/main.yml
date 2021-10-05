@@ -1,0 +1,3 @@
+---
+charts_dir: "{{ tfplenum_root_dir }}/charts"
+offline_charts_dir: "{{ tfplenumoffline_dir }}/charts"

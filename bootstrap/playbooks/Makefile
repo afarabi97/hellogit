@@ -5,14 +5,14 @@ CHECK := $(shell command -v ansible-playbook 2> /dev/null)
 INVENTORY ?= 'inventory.yml'
 PLAYBOOK ?= 'site.yml'
 
-.PHONY: execute_pre, frontend, install_angular, build_frontend_only, build_deploy_frontend, setup_python_env, bootstrap, sso, build_helm_charts, nightly_clone_rebuild_frontend, pull_docker_images, hosts_file, stigs
+.PHONY: execute_pre, frontend, install_angular, build_frontend_only, build_deploy_frontend, setup_python_env, sso, build_helm_charts, nightly_clone_rebuild_frontend, pull_docker_images, hosts_file, stigs
 
 # Default target, build *and* run tests
 all:
 ifndef CHECK
 	$(error Ansible is not installed. Install Ansible with 'yum update -y && yum install -y ansible')
 endif
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t execute_pre,frontend,sso,bootstrap
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)
 
 execute_pre:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t execute_pre
@@ -52,7 +52,7 @@ chartmuseum:
 
 bootstrap:
 	@echo $(TFPLENUM_SERVER_IP)
-	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t execute_pre,frontend,sso,bootstrap,chartmuseum,stigs)
+	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }')
 
 pull_docker_images:
 	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t pull-docker-images

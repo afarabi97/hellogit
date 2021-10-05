@@ -5,7 +5,6 @@ package_list:
   - krb5-devel
   - krb5-workstation
   - net-tools
-  - nfs-utils
   - nmap
   - python36-devel
   - unzip

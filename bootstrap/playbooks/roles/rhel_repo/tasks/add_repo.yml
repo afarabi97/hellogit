@@ -1,0 +1,16 @@
+---
+- name: Check if extras has been created
+  stat:
+    path: "{{ extras_dir }}/repodata"
+  register: extras_stat_result
+
+- block:
+  - name: Remove Nexus Repos
+    import_tasks: remove_nexus_repos.yml
+  - name: Add Offline Repos
+    import_tasks: offline_repos.yml
+  when: extras_stat_result.stat.exists
+
+- name: Add Nexus Yum Repos
+  import_tasks: nexus_yum_repos.yml
+  when: not extras_stat_result.stat.exists

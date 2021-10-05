@@ -18,6 +18,7 @@
     - "{{ tfplenumoffline_dir }}/beats/filebeat"
     - "{{ tfplenumoffline_dir }}/beats/auditbeat"
     - "{{ tfplenumoffline_dir }}/beats/sysmon"
+    - "{{ offline_cert_dir }}"
 
 - name: "Install bootstrap packages"
   dnf:

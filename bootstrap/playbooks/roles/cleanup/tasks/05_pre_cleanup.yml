@@ -1,4 +1,5 @@
 ---
+
 - name: Find repositories in /etc/yum.repos.d.
   find:
     paths: /etc/yum.repos.d
@@ -11,12 +12,3 @@
     path: "{{ item.path }}"
     state: absent
   with_items: "{{ repo.files }}"
-
-- name: Clean up build files
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    - /root/.pip
-    - /root/.npmrc
-    - /var/cache/yum

@@ -1,10 +1,17 @@
 ---
+- import_role:
+    name: rhel_repo
+    tasks_from: add_repo
 
 - name: mongo | Install
   dnf:
     name: mongodb-org
     state: present
     enablerepo: nexus-yum-proxy
+
+- import_role:
+    name: rhel_repo
+    tasks_from: remove_nexus_repos
 
 - name: mongo | Enable Service
   systemd:

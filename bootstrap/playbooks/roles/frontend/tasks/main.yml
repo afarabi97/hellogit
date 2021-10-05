@@ -1,9 +1,7 @@
 ---
-
-- name: Include additional repos
-  include_role:
-    name: common
-    tasks_from: additional_repos
+- import_role:
+    name: rhel_repo
+    tasks_from: add_repo
 
 - name: Get Icons
   get_url:
@@ -35,28 +33,33 @@
   - "4200/tcp"
 
 - import_tasks: 20_setup_httpd.yml
+  tags: setup_httpd
+
 - import_tasks: 25_build_frontend.yml
   tags: build_frontend
 
 - import_tasks: 30_install_mongo.yml
 - import_tasks: 35_install_redis.yml
+  tags: setup_redis
 - import_tasks: 40_install_rq.yml
+  tags: setup_rq
 - import_tasks: 45_restart_services.yml
   tags: restart_frontend_services
 - import_tasks: 55_preload_pcaps.yml
+- import_tasks: 60_preload_rules.yml
 
 # Set ip forwarding on in /proc and in the sysctl file and reload if necessary
--  name: "Enable IP Forwarding so docker containers can reach outside of the network."
-   sysctl:
-     name: net.ipv4.ip_forward
-     value: '1'
-     sysctl_set: yes
-     state: present
-     reload: yes
+- name: "Enable IP Forwarding so docker containers can reach outside of the network."
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+  tags: enable_ip_forward
 
-- name: Clean repo cache
-  file:
-    path: /var/cache/yum
-    state: absent
+- import_role:
+    name: rhel_repo
+    tasks_from: remove_nexus_repos
 
 ...

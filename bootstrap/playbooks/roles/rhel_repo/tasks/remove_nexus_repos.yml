@@ -1,0 +1,14 @@
+---
+- name: Remove yum repo
+  yum_repository:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - nexus-yum-proxy
+    - rhel-8-for-x86_64-baseos-rpms
+    - rhel-8-for-x86_64-appstream-rpms
+    - codeready-builder-for-rhel-8-x86_64-rpms
+    - rhel-8-for-x86_64-supplementary-rpms
+  register: yum_results
+- import_tasks: clean_repo.yml
+  when: yum_results.changed

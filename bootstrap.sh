@@ -49,7 +49,7 @@ function prompt_runtype() {
 function setup_ansible(){
     local tfplenum_root_dir="/opt/tfplenum"
     pushd $tfplenum_root_dir > /dev/null
-    run_cmd dnf install -y make python36 libselinux-python3 policycoreutils-python3 python3-gobject sshpass gcc krb5-devel krb5-workstation net-tools nfs-utils nmap python36-devel unzip vim wget rsync scap-security-guide
+    run_cmd dnf install -y make python36 libselinux-python3 policycoreutils-python3 python3-gobject sshpass gcc krb5-devel krb5-workstation net-tools nmap python36-devel unzip vim wget rsync scap-security-guide
     run_cmd pip3 install virtualenv cryptography==2.9.2
     run_cmd virtualenv --python=python3 --system-site-packages .venv
     run_cmd $tfplenum_root_dir/.venv/bin/python3 -m pip install -U pip==20.2.4

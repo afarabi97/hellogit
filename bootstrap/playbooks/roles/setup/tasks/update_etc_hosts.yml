@@ -1,4 +1,5 @@
 ---
+
 - name: Add Controller to Host file
   blockinfile:
     path: /etc/hosts

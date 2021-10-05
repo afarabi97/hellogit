@@ -15,12 +15,12 @@
 
 - name: Add local repo
   template:
-    src: /opt/tfplenum/bootstrap/playbooks/roles/bootstrap/templates/offline-tfplenum.repo
+    src: /opt/tfplenum/bootstrap/playbooks/roles/setup/templates/offline-tfplenum.repo
     dest: "/etc/yum.repos.d/offline.repo"
 
 - name: offline repo file
   template:
-    src: /opt/tfplenum/bootstrap/playbooks/roles/bootstrap/templates/offline-tfplenum.repo
+    src: /opt/tfplenum/bootstrap/playbooks/roles/setup/templates/offline-tfplenum.repo
     dest: "/var/www/html/offlinerepo/offline.repo"
 
 - name: Enable Firewalld Service
@@ -83,5 +83,13 @@
     mode: 0755
     setype: httpd_sys_content_t
     path: "{{ ks_template_dir }}/uefi"
+
+- name: Remove packages
+  dnf:
+    name:
+      - gssproxy
+      - iprutils
+      - tuned
+    state: absent
 
 ...

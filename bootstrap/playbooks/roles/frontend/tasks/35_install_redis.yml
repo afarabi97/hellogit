@@ -1,4 +1,7 @@
 ---
+- import_role:
+    name: rhel_repo
+    tasks_from: add_repo
 
 - name: redis | Install
   dnf:
@@ -6,6 +9,10 @@
     state: present
     enablerepo: nexus-yum-proxy
     disablerepo: rhel-8-for-x86_64-appstream-rpms
+
+- import_role:
+    name: rhel_repo
+    tasks_from: remove_nexus_repos
 
 - name: redis | Enable Service
   systemd:

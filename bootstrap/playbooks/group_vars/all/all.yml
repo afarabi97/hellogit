@@ -8,9 +8,7 @@ web_install_dir: "{{ tfplenum_root_dir }}/web"
 zeek_sample_dir: "{{ tfplenum_root_dir }}/scripts/zeek_samples"
 dip_core_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
 chart_dir: "{{ tfplenumoffline_dir }}/charts"
-base_iso_dir: "{{ tfplenumoffline_dir }}/tfplenum"
-baseos_dir: "{{ base_iso_dir }}/BaseOS"
-extras_dir: "{{ base_iso_dir }}/Extras"
+
 mip_core_vars: "{{ tfplenum_root_dir }}/mip/group_vars/all/packages.yml"
 
 repo_uri: nexus.sil.lab
@@ -20,14 +18,17 @@ mip_repo: "https://{{ repo_uri }}/repository/mip-repo"
 internal_docker_registry: "docker.{{ repo_uri }}"
 proxy_docker_registry: "ext-docker.{{ repo_uri }}"
 
+TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
+baseos_dir: "{{ TFPLENUM_REPO_DIR }}/BaseOS"
+appstream_dir: "{{ TFPLENUM_REPO_DIR }}/AppStream"
+extras_dir: "{{ TFPLENUM_REPO_DIR }}/Extras"
+
 keycloak_version: 11.0.3
 node_version: v14.5.0
 
 dod_nmil_file: "Certificates_PKCS7_v5.7_DoD.pem"
 dod_smil_file: "Certificates_PKCS7_v5.5_SIPR.pem"
-dod_nmil_download: "{{ tfplenum_repo }}/dod_certs/{{ dod_nmil_file }}"
-dod_smil_download: "{{ tfplenum_repo }}/dod_certs/{{ dod_smil_file }}"
-offline_cert_dir: "{{ tfplenum_root_dir }}/scripts/dod_certs"
+offline_cert_dir: "{{ tfplenumoffline_dir }}/dod_certs"
 
 sil_cert_url: https://{{ repo_uri }}/repository/tfplenum-repo/certs/sil.lab.crt
 
@@ -38,8 +39,6 @@ iso_rhel_server_url_labrepo: "{{ tfplenum_repo }}/isos/{{ iso_rhel_server_name }
 iso_rhel_server_checksum: 7fdfed9c7cced4e526a362e64ed06bcdc6ce0394a98625a40e7d05db29bf7b86
 
 ansible_controller_hostname: "{{ ansible_nodename }}"
-
-TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
 
 #Path where iso is to be mounted ex: /mnt
 mnt_pth: /mnt

@@ -8,7 +8,6 @@
     path: "{{ item }}"
     state: absent
   with_items:
-    - "{{ extras_dir }}"
     - "/tmp/var/"
   when: not rpm_build
 
@@ -50,4 +49,5 @@
 - import_tasks: 20_download_rpms.yml
   tags: downloadrpms
 
+- import_tasks: 30_ansible_collections.yml
 ...

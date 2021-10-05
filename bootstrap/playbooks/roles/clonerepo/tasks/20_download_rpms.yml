@@ -1,4 +1,7 @@
 ---
+- import_role:
+    name: rhel_repo
+    tasks_from: nexus_yum_repos
 
 - name: Download Packages
   shell:  |
@@ -23,3 +26,7 @@
 
 - import_tasks: 25_create_repodata.yml
   tags: create_repodata
+
+- import_role:
+    name: rhel_repo
+    tasks_from: remove_nexus_repos

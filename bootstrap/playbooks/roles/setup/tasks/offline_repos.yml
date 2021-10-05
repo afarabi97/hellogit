@@ -1,0 +1,29 @@
+---
+
+- name: Unregister controller RHEL
+  redhat_subscription:
+    state: absent
+- name: Disable RHEL License
+  replace:
+    path: "/etc/yum/pluginconf.d/subscription-manager.conf"
+    regexp: 'enabled=1'
+    replace: 'enabled=0'
+
+- import_role:
+    name: rhel_repo
+    tasks_from: add_repo
+
+- name: offline repo file
+  template:
+    src: templates/offline-tfplenum.repo
+    dest: "{{ tfplenumoffline_dir }}/offline.repo"
+
+- name: create pip dir
+  file:
+    path: "~/.pip"
+    state: directory
+
+- name: Add pip config
+  template:
+    src: templates/pip.conf.j2
+    dest: "~/.pip/pip.conf"

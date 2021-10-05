@@ -254,6 +254,7 @@ Perform Security Scans:
       - $RUN_SECURITY_SCANS == "yes" && $PIPELINE == "developer-all"
   artifacts:
     untracked: true
+  allow_failure: true
 
 CVAH Catalog PMO Apps:
   stage: catalog

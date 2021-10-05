@@ -1,0 +1,68 @@
+---
+- name: Remove Offline Repos
+  import_tasks: remove_offline_repos.yml
+
+- name: Nexus Rhel BaseOS Repo
+  yum_repository:
+    name: rhel-8-for-x86_64-baseos-rpms
+    description: Nexus Baseos Proxy
+    enabled: 1
+    gpgcheck: 1
+    baseurl: "https://{{ repo_uri }}/repository/rhel8-proxy/$releasever/$basearch/baseos/os"
+    ui_repoid_vars: releasever basearch
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+    priority: 1
+    file: nexus-rhel8
+  register: yum_base_results
+
+- name: Nexus Rhel AppStream Repo
+  yum_repository:
+    name: rhel-8-for-x86_64-appstream-rpms
+    description: Nexus AppStream Proxy
+    enabled: 1
+    gpgcheck: 1
+    baseurl: "https://{{ repo_uri }}/repository/rhel8-proxy/$releasever/$basearch/appstream/os"
+    ui_repoid_vars: releasever basearch
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+    priority: 1
+    file: nexus-rhel8
+  register: yum_app_results
+
+- name: Nexus Rhel CodeReady Repo
+  yum_repository:
+    name: codeready-builder-for-rhel-8-x86_64-rpms
+    description: Nexus CodeReady Proxy
+    enabled: 1
+    gpgcheck: 1
+    baseurl: "https://{{ repo_uri }}/repository/rhel8-proxy/$releasever/$basearch/codeready-builder/os"
+    ui_repoid_vars: releasever basearch
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+    priority: 1
+    file: nexus-rhel8
+  register: yum_ready_results
+
+- name: Nexus Rhel Supplementary Repo
+  yum_repository:
+    name: rhel-8-for-x86_64-supplementary-rpms
+    description: Nexus Supplementary Proxy
+    enabled: 1
+    gpgcheck: 1
+    baseurl: "https://{{ repo_uri }}/repository/rhel8-proxy/$releasever/$basearch/supplementary/os"
+    ui_repoid_vars: releasever basearch
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+    priority: 1
+    file: nexus-rhel8
+  register: yum_supp_results
+
+- name: Add Nexus Group Repo
+  yum_repository:
+    baseurl: "https://{{ repo_uri }}/repository/yum-proxy/"
+    description: "TFplenum Nexus Repo"
+    gpgcheck: 0
+    repo_gpgcheck: 0
+    enabled: true
+    name: "nexus-yum-proxy"
+  register: yum_group_results
+
+- import_tasks: clean_repo.yml
+  when: yum_base_results.changed or yum_app_results.changed or yum_ready_results.changed or yum_supp_results.changed or yum_group_results.changed

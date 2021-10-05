@@ -1,0 +1,12 @@
+---
+- name: Install VMWare Community
+  shell:  |
+    ansible-galaxy collection install {{ tfplenumoffline_dir }}/community-vmware-{{ community_vmware_module_version }}.tar.gz
+  register: collection_results
+  changed_when: collection_results.rc == 0
+
+- name: Install Utils Community
+  shell:  |
+    ansible-galaxy collection install {{ tfplenumoffline_dir }}/ansible-utils-{{ community_utils_module_version }}.tar.gz
+  register: collection_results
+  changed_when: collection_results.rc == 0

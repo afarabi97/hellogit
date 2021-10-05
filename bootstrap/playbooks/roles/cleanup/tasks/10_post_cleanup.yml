@@ -1,9 +1,5 @@
 ---
 
-- import_tasks: 05_pre_cleanup.yml
-- import_tasks: 10_post_cleanup.yml
-  when: post_cleanup
-
 - name: Clean up build files
   file:
     path: "{{ item }}"

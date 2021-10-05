@@ -5,11 +5,8 @@ from models.kit import KitSettingsV2
 from util.ansible_util import power_on_vms
 from util.connection_mngs import FabricConnectionWrapper, MongoConnectionManager
 from util.ssh import test_nodes_up_and_alive
-from typing import Dict
-
 
 PROJECT_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../../../"
-
 
 class OSCAPScanJob:
     def __init__(self,
@@ -22,19 +19,14 @@ class OSCAPScanJob:
         power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         report_name = "oscap_report_ctrl.html"
+        directory = "/opt/tfplenum"
         cmd = 'oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_stig --report {} --oval-results /usr/share/xml/scap/ssg/content/ssg-rhel8-ds.xml'
-        cmd2 = 'cp {} /tmp/{}'
-        cmd3 = 'chmod 555 /tmp/{}'
-        cmd4 = 'rm -fr /tmp/{}'
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
                                      self.ctrl_settings.node.password,
                                      self.ctrl_settings.node.ipaddress) as client:
-            with client.cd("/opt/tfplenum"):
-                client.sudo(cmd.format(report_name), warn=True, shell=True)
-                client.sudo(cmd2.format(report_name,report_name), warn=True, shell=True)
-                client.sudo(cmd3.format(report_name), warn=True, shell=True)
-                client.get("/tmp/{}".format(report_name), "{}/{}".format(PROJECT_DIR, report_name))
-                client.sudo(cmd4.format(report_name), warn=True, shell=True)
+            with client.cd(directory):
+                client.run(cmd.format(report_name), warn=True, shell=True)
+                client.get("{}/{}".format(directory, report_name), report_name)
 
         with MongoConnectionManager(self.ctrl_settings.node.ipaddress) as mongo_manager:
             nodes = mongo_manager.mongo_node.find({})
@@ -49,8 +41,6 @@ class OSCAPScanJob:
                                              self.kit_settings.settings.password,
                                              ipaddress) as client:
                     with client.cd(user_dir):
-                        client.sudo(cmd.format(report_name), warn=True, shell=True)
-                        client.sudo(cmd2.format(report_name,report_name), warn=True, shell=True)
-                        client.sudo(cmd3.format(report_name), warn=True, shell=True)
-                        client.get("/tmp/{}".format(report_name), "{}/{}".format(PROJECT_DIR, report_name))
-                        client.sudo(cmd4.format(report_name), warn=True, shell=True)
+                        client.run(cmd.format(report_name), warn=True, shell=True)
+                        client.get("{}/{}".format(user_dir, report_name), report_name)
+

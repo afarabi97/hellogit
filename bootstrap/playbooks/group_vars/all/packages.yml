@@ -93,6 +93,14 @@ direct_download_package_names:
     url: "{{ tfplenum_raw_group_repo }}/{{ emerging_threat_rules_version }}"
     dest: "{{ tfplenumoffline_dir }}"
     mode: "644"
+  - name: "{{ dod_smil_file }}"
+    url: "{{ tfplenum_repo }}/dod_certs"
+    dest: "{{ offline_cert_dir }}"
+    mode: "644"
+  - name: "{{ dod_nmil_file }}"
+    url: "{{ tfplenum_repo }}/dod_certs"
+    dest: "{{ offline_cert_dir }}"
+    mode: "644"
 
 extra_packages:
   - "kubelet-{{ k8s_version }}"
@@ -127,6 +135,7 @@ extra_packages:
   - docker-ce-cli-20.10.7
   - docker-scan-plugin-0.8.0
   - putty
+  - pwgen
 
 dip_packages_without_deps:
   - "kubeadm-{{ k8s_version }}"

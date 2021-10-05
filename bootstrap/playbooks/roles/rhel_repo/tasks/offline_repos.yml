@@ -1,0 +1,35 @@
+---
+- name: Remove Nexus Repos
+  import_tasks: remove_nexus_repos.yml
+
+- name: Add RHEL AppStream Repo
+  yum_repository:
+    name: "tfplenum-appstream-offline-repo"
+    file: offline
+    baseurl: "file://{{ appstream_dir }}"
+    gpgkey: "/etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
+    gpgcheck: yes
+    description: "tfplenum-appstream-offline-repo"
+  register: offline_app_result
+
+- name: Add RHEL BaseOS Repo
+  yum_repository:
+    name: "tfplenum-baseos-offline-repo"
+    file: offline
+    baseurl: "file://{{ baseos_dir }}"
+    gpgkey: "/etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
+    gpgcheck: yes
+    description: "tfplenum-baseos-offline-repo"
+  register: offline_base_result
+
+- name: Add Extras Repo
+  yum_repository:
+    file: offline
+    name: "tfplenum-extras-offline-repo"
+    baseurl: "file://{{ extras_dir }}"
+    gpgcheck: no
+    description: "tfplenum-extras-offline-repo"
+  register: offline_extras
+
+- import_tasks: clean_repo.yml
+  when: offline_app_result.changed or offline_base_result.changed or offline_extras.changed

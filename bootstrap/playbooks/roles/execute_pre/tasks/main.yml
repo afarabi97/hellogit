@@ -1,12 +1,12 @@
 ---
-- name: Include additional repos
-  include_role:
-    name: common
-    tasks_from: additional_repos
-
 - name: Execute RHEL repo role.
   include_role:
     name: rhel_repo
+
+- name: Add controller to etc host
+  include_role:
+    name: setup
+    tasks_from: update_etc_hosts
 
 - import_tasks: install_packages.yml
 
