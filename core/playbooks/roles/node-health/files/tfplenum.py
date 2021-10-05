@@ -27,7 +27,7 @@ class TFPlenum:
         self._api_key = _get_controller_api_key()
 
     def update_metrics(self, data):
-        resource = "https://{controller}/api/metrics".format(controller=self._controller)
+        resource = "https://{controller}/api/health/metrics".format(controller=self._controller)
         headers = {"Authorization": f"Bearer {self._api_key}"}
         response = requests.post(resource, json=data, headers=headers)
         if response.status_code == 200:

@@ -682,3 +682,20 @@ class RemoteSuricataPackets(Resource):
         except Exception as e:
             logger.exception(e)
         return ERROR_RESPONSE
+
+@HEALTH_NS.route('/metrics')
+class Metrics(Resource):
+    @login_required_roles(['metrics'], all_roles_req=False)
+    def post(self) -> Response:
+        data = request.get_json()
+        status = 200
+        replaced = []
+        for document in data:
+            try:
+                conn_mng.mongo_metrics.find_one_and_replace({"hostname": document['hostname'], "name": document["name"], "type": document["type"]}, document, upsert=True)
+                replaced.append(document)
+            except Exception as e:
+                logger.exception(e)
+                status = 500
+
+        return replaced, status
