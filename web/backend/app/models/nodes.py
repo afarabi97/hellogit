@@ -2,36 +2,33 @@
 https://flask-restplus.readthedocs.io/en/0.9.2/example.html
 
 """
-import re
-import uuid
-
-from app import api, conn_mng, TEMPLATE_DIR
-from app.models import Model, DBModelNotFound, PostValidationError
-from app.models.device_facts import DeviceFacts
-from ipaddress import IPv4Address, ip_network
-from flask_restx import fields
-from flask_restx.fields import Nested
-from marshmallow import Schema, post_load, pre_load, validate, validates, ValidationError
-from marshmallow import fields as marsh_fields
-from pymongo import ReturnDocument
-from pymongo.results import InsertOneResult
-from app.utils.constants import (JOB_CREATE, JOB_PROVISION, JOB_DEPLOY, JOB_REMOVE, NODE_TYPES, DEPLOYMENT_TYPES,
-                                 CORE_DIR, MIP_DIR)
-from app.utils.utils import encode_password, decode_password
-from typing import List, Dict
-
 # imports for inventory generation
 import os
-from jinja2 import Environment, select_autoescape, FileSystemLoader
-from app.calculations import (get_sensors_from_list, get_servers_from_list, server_and_sensor_count)
-from app.resources import NodeResourcePool
+import re
+import uuid
+from typing import Dict, List
 
+from app.calculations import (get_sensors_from_list, get_servers_from_list,
+                              server_and_sensor_count)
+from app.models import Model
+from app.models.device_facts import DeviceFacts
+from app.utils.constants import (CORE_DIR, DEPLOYMENT_TYPES, JOB_CREATE,
+                                 JOB_DEPLOY, JOB_PROVISION, JOB_REMOVE,
+                                 MIP_DIR, NODE_TYPES, TEMPLATE_DIR)
+from app.utils.db_mngs import conn_mng
+from flask_restx import Namespace, fields
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from marshmallow import Schema, ValidationError
+from marshmallow import fields as marsh_fields
+from marshmallow import post_load, validate, validates
+from pymongo import ReturnDocument
 
 JINJA_ENV = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR)),
     autoescape=select_autoescape(['html', 'xml'])
 )
 
+KIT_SETUP_NS = Namespace('kit', path="/api/kit", description="Kit setup related operations.")
 
 def has_consecutive_chars(password: str) -> bool:
     """
@@ -200,7 +197,7 @@ class NodeSchema(Schema):
 
 class Node(NodeBaseModel):
     schema = NodeSchema()
-    DTO = api.model('Node', {
+    DTO = KIT_SETUP_NS.model('Node', {
         "hostname": fields.String(required=True, example="server1", description="The hostname of the node."),
         "ip_address": fields.String(required=True, example="10.40.12.146", description="The static IP Address of the node."),
         "mac_address": fields.String(required=True, example="00:0a:29:6e:7f:ff", description="The MAC Address of the node's management interface."),
@@ -475,7 +472,7 @@ class JobSchema(Schema):
 
 class NodeJob(Model):
     schema = JobSchema()
-    DTO = api.model('NodeJob', {
+    DTO = KIT_SETUP_NS.model('NodeJob', {
         "message": fields.String(required=False, example="done", description="The status of the job."),
         "pending": fields.Boolean(example="True", description="True or False if the job is pending."),
         "complete": fields.Boolean(example="True", description="True or False if the job is complete."),

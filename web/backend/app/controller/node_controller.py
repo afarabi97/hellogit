@@ -1,25 +1,26 @@
-from app.middleware import login_required_roles, controller_admin_required
-from flask import request, Response, jsonify, send_from_directory, send_file
-from app import app, conn_mng, KIT_SETUP_NS, SCHEDULER
-from app.common import ERROR_RESPONSE
-from app.models.nodes import NodeJob, JobSchema, Node, NodeSchema, _generate_inventory
-from app.models.settings.mip_settings import MipSettingsForm
-from app.models.settings.kit_settings import GeneralSettingsForm, KitSettingsForm
-from app.utils.constants import KIT_ID, JOB_CREATE, JOB_PROVISION, JOB_DEPLOY, JOB_REMOVE, DEPLOYMENT_TYPES, DEPLOYMENT_JOBS, NODE_TYPES, PXE_TYPES
-from app.utils.utils import decode_password
-from flask_restx import Resource
 from typing import Dict, List
-from marshmallow.exceptions import ValidationError
-from app.models import PostValidationError, DBModelNotFound
-from app.models.common import JobID, COMMON_ERROR_DTO
-from app.service.node_service import (get_all_nodes_with_jobs, execute,
-    gather_device_facts, send_notification, refresh_kit, update_device_facts_job)
-from datetime import datetime, timedelta
-from randmac import RandMac
-from app.utils.constants import MAC_BASE
-from randmac import RandMac
+
+from app.middleware import controller_admin_required, login_required_roles
+from app.models import DBModelNotFound, PostValidationError
+from app.models.common import COMMON_ERROR_DTO, JobID
+from app.models.nodes import KIT_SETUP_NS, Node, NodeJob, _generate_inventory
+from app.models.settings.kit_settings import (GeneralSettingsForm,
+                                              KitSettingsForm)
+from app.models.settings.mip_settings import MipSettingsForm
+from app.service.catalog_service import delete_helm_apps, get_node_apps
+from app.service.node_service import (execute, gather_device_facts,
+                                      get_all_nodes_with_jobs, refresh_kit,
+                                      send_notification,
+                                      update_device_facts_job)
 from app.service.vpn_service import VpnService
-from app.service.catalog_service import get_node_apps, delete_helm_apps
+from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_DEPLOY,
+                                 JOB_PROVISION, JOB_REMOVE, MAC_BASE,
+                                 NODE_TYPES, PXE_TYPES)
+from app.utils.db_mngs import conn_mng
+from flask import send_file
+from flask_restx import Resource
+from marshmallow.exceptions import ValidationError
+from randmac import RandMac
 
 
 @KIT_SETUP_NS.route("/nodes")
@@ -131,8 +132,7 @@ class NewNodeCtrl(Resource):
 
         except DBModelNotFound:
             return {}, 200
-        #if node.deployment_type == DEPLOYMENT_TYPES.iso.value:
-        #    return "Remote Virtual Node was added.", 200
+
         if node.deployment_type == DEPLOYMENT_TYPES.virtual.value:
             return self._execute_create_virtual_job(node), 200
 
@@ -237,13 +237,6 @@ class GenerateVpnConfigCtrl(Resource):
         except DBModelNotFound:
             return {}, 200
 
-@KIT_SETUP_NS.route("/node/generate-inventory")
-class NodeGenInventory(Resource):
-    @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
-    def get(self):
-        _generate_inventory()
-        return {}, 200
-
 @KIT_SETUP_NS.route("/control-plane")
 class ControlPlaneCtrl(Resource):
 
@@ -269,7 +262,6 @@ class ControlPlaneCtrl(Resource):
             return {}, 200
 
 
-    # @KIT_SETUP_NS.expect([Node.DTO])
     @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
     @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
@@ -309,7 +301,7 @@ class ControlPlaneCtrl(Resource):
         return self._execute_control_plane_job(node)
 
 
-@KIT_SETUP_NS.route("/kit/rebuild")
+@KIT_SETUP_NS.route("/rebuild")
 class KitRefresh(Resource):
 
     def _refresh_kit(self, new_nodes: List[Node], control_plane: List[Node]):

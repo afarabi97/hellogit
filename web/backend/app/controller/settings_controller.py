@@ -1,29 +1,27 @@
 """
 Main module for handling all of the Kit Configuration REST calls.
 """
-from typing import Dict, Tuple
-from flask import request, Response, jsonify
-from flask_restx import Resource
-from pymongo.collection import ReturnDocument
-from app import app, conn_mng, KIT_SETUP_NS
-from app.utils.logging import logger
-from app.common import OK_RESPONSE, ERROR_RESPONSE
-from app.models import PostValidationError, DBModelNotFound
-from app.models.common import JobID, COMMON_ERROR_DTO, COMMON_MESSAGE
+import ssl
+from typing import Dict
+
+from app.common import ERROR_RESPONSE
+from app.middleware import controller_admin_required
+from app.models import DBModelNotFound, PostValidationError
+from app.models.common import COMMON_ERROR_DTO, COMMON_MESSAGE, JobID
 from app.models.settings.esxi_settings import EsxiSettingsForm
+from app.models.settings.general_settings import (SETINGS_NS,
+                                                  GeneralSettingsForm)
 from app.models.settings.kit_settings import KitSettingsForm
 from app.models.settings.mip_settings import MipSettingsForm
-from app.models.settings.general_settings import GeneralSettingsForm
 from app.models.settings.snmp_settings import SNMPSettingsForm
 from app.service.node_service import execute
-from app.service.socket_service import NotificationMessage, NotificationCode
-#from app.service.node_service import add_node
-from app.middleware import controller_admin_required
+from app.service.socket_service import NotificationCode, NotificationMessage
+from app.utils.constants import DEPLOYMENT_JOBS
+from app.utils.logging import logger
+from flask_restx import Resource
 from marshmallow.exceptions import ValidationError
-from app.utils.constants import KIT_ID, DEPLOYMENT_JOBS
-from pyVim.connect import SmartConnect, SmartConnectNoSSL, Connect
+from pyVim.connect import Connect
 from pyVmomi import vim
-import ssl
 
 _JOB_NAME = "Settings"
 
@@ -113,14 +111,14 @@ def _test_esxi_client(esxi_settings: EsxiSettingsForm) -> dict:
         return {"message": str(exc)}, 400
 
 
-@KIT_SETUP_NS.route("/settings/general")
+@SETINGS_NS.route("/general")
 class GeneralSettings(Resource):
 
     def _execute_job(self) -> Dict:
         job = execute.delay(exec_type=DEPLOYMENT_JOBS.setup_controller)
         return JobID(job).to_dict()
 
-    @KIT_SETUP_NS.response(200, 'GeneralSettingsForm Model', GeneralSettingsForm.DTO)
+    @SETINGS_NS.response(200, 'GeneralSettingsForm Model', GeneralSettingsForm.DTO)
     def get(self):
         try:
             settings = GeneralSettingsForm.load_from_db()
@@ -129,14 +127,14 @@ class GeneralSettings(Resource):
         except DBModelNotFound:
             return {}, 200
 
-    @KIT_SETUP_NS.expect(GeneralSettingsForm.DTO)
-    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
-    @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @SETINGS_NS.expect(GeneralSettingsForm.DTO)
+    @SETINGS_NS.response(200, 'JobID Model', JobID.DTO)
+    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
     def post(self):
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
-            general_settings = GeneralSettingsForm.load_from_request(KIT_SETUP_NS.payload)
+            general_settings = GeneralSettingsForm.load_from_request(SETINGS_NS.payload)
             general_settings.save_to_db()
             notification.set_and_send(message="General Settings Saved", status=NotificationCode.COMPLETED.name)
         except ValidationError as e:
@@ -152,14 +150,14 @@ class GeneralSettings(Resource):
         return self._execute_job()
 
 
-@KIT_SETUP_NS.route("/settings/kit")
+@SETINGS_NS.route("/kit")
 class KitSettings(Resource):
 
     def _execute_job(self) -> Dict:
         job = execute.delay(exec_type=DEPLOYMENT_JOBS.setup_controller_kit_settings)
         return JobID(job).to_dict()
 
-    @KIT_SETUP_NS.response(200, 'KitSettingsForm Model', KitSettingsForm.DTO)
+    @SETINGS_NS.response(200, 'KitSettingsForm Model', KitSettingsForm.DTO)
     def get(self):
         try:
             settings = KitSettingsForm.load_from_db() # type: KitSettingsForm
@@ -169,9 +167,9 @@ class KitSettings(Resource):
             return {}, 200
 
     # TODO
-    # @KIT_SETUP_NS.expect(Node.DTO)
-    # @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
-    # @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    # @SETINGS_NS.expect(Node.DTO)
+    # @SETINGS_NS.response(200, 'JobID Model', JobID.DTO)
+    # @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     # @controller_admin_required
     # def put(self):
     #     job = None
@@ -189,14 +187,14 @@ class KitSettings(Resource):
 
     #     return JobID(job).to_dict()
 
-    @KIT_SETUP_NS.expect(KitSettingsForm.DTO)
-    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
-    @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @SETINGS_NS.expect(KitSettingsForm.DTO)
+    @SETINGS_NS.response(200, 'JobID Model', JobID.DTO)
+    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
     def post(self):
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
-            kit_settings = KitSettingsForm.load_from_request(KIT_SETUP_NS.payload)
+            kit_settings = KitSettingsForm.load_from_request(SETINGS_NS.payload)
             kit_settings.save_to_db()
             notification.set_and_send(message="Kit Settings Saved", status=NotificationCode.COMPLETED.name)
         except ValidationError as e:
@@ -212,10 +210,10 @@ class KitSettings(Resource):
         return self._execute_job()
 
 
-@KIT_SETUP_NS.route("/settings/mip")
+@SETINGS_NS.route("/mip")
 class MipSettings(Resource):
 
-    @KIT_SETUP_NS.response(200, 'MipSettingsForm Model', MipSettingsForm.DTO)
+    @SETINGS_NS.response(200, 'MipSettingsForm Model', MipSettingsForm.DTO)
     def get(self):
         try:
             settings = MipSettingsForm.load_from_db()
@@ -224,13 +222,13 @@ class MipSettings(Resource):
         except DBModelNotFound:
             return {}, 200
 
-    @KIT_SETUP_NS.expect(MipSettingsForm.DTO)
-    @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @SETINGS_NS.expect(MipSettingsForm.DTO)
+    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
     def post(self):
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
-            mip_settings = MipSettingsForm.load_from_request(KIT_SETUP_NS.payload)
+            mip_settings = MipSettingsForm.load_from_request(SETINGS_NS.payload)
             mip_settings.save_to_db()
             notification.set_and_send(message="MIP Settings Saved", status=NotificationCode.COMPLETED.name)
             return {}, 200
@@ -246,10 +244,10 @@ class MipSettings(Resource):
 
 
 
-@KIT_SETUP_NS.route("/settings/esxi")
+@SETINGS_NS.route("/esxi")
 class EsxiSettings(Resource):
 
-    @KIT_SETUP_NS.response(200, 'EsxiSettingsForm Model', EsxiSettingsForm.DTO)
+    @SETINGS_NS.response(200, 'EsxiSettingsForm Model', EsxiSettingsForm.DTO)
     def get(self):
         try:
             settings = EsxiSettingsForm.load_from_db()
@@ -258,14 +256,14 @@ class EsxiSettings(Resource):
         except DBModelNotFound:
             return {}, 200
 
-    @KIT_SETUP_NS.expect(EsxiSettingsForm.DTO)
-    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
-    @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @SETINGS_NS.expect(EsxiSettingsForm.DTO)
+    @SETINGS_NS.response(200, 'JobID Model', JobID.DTO)
+    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
     def post(self):
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
-            esxi_settings = EsxiSettingsForm.load_from_request(KIT_SETUP_NS.payload)
+            esxi_settings = EsxiSettingsForm.load_from_request(SETINGS_NS.payload)
             esxi_settings.save_to_db()
             notification.set_and_send(message="VMware Settings Saved", status=NotificationCode.COMPLETED.name)
         except ValidationError as e:
@@ -280,24 +278,24 @@ class EsxiSettings(Resource):
 
         return True, 200
 
-@KIT_SETUP_NS.route("/settings/esxi/test")
+@SETINGS_NS.route("/esxi/test")
 class EsxiSettingsTest(Resource):
 
-    @KIT_SETUP_NS.response(200, 'EsxiSettingsForm Model', EsxiSettingsForm.DTO)
+    @SETINGS_NS.response(200, 'EsxiSettingsForm Model', EsxiSettingsForm.DTO)
     def get(self):
         try:
             return EsxiSettingsForm.load_from_db()
         except DBModelNotFound:
             return {}, 200
 
-    @KIT_SETUP_NS.expect(EsxiSettingsForm.DTO)
-    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
-    @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
-    @KIT_SETUP_NS.response(422, 'Message', COMMON_MESSAGE)
+    @SETINGS_NS.expect(EsxiSettingsForm.DTO)
+    @SETINGS_NS.response(200, 'JobID Model', JobID.DTO)
+    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @SETINGS_NS.response(422, 'Message', COMMON_MESSAGE)
     @controller_admin_required
     def post(self):
         try:
-            esxi_settings = EsxiSettingsForm.load_from_request(KIT_SETUP_NS.payload)
+            esxi_settings = EsxiSettingsForm.load_from_request(SETINGS_NS.payload)
         except ValidationError as e:
             return e.normalized_messages(), 400
         except PostValidationError as e:
@@ -307,10 +305,10 @@ class EsxiSettingsTest(Resource):
 
         return _test_esxi_client(esxi_settings)
 
-@KIT_SETUP_NS.route("/settings/snmp")
+@SETINGS_NS.route("/snmp")
 class SNMPSettings(Resource):
 
-    @KIT_SETUP_NS.response(200, 'Get the SNMP settings.', SNMPSettingsForm.DTO)
+    @SETINGS_NS.response(200, 'Get the SNMP settings.', SNMPSettingsForm.DTO)
     def get(self):
         try:
             return SNMPSettingsForm.load_from_db().to_dict()
@@ -320,17 +318,17 @@ class SNMPSettings(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
-    @KIT_SETUP_NS.expect(SNMPSettingsForm.DTO)
-    @KIT_SETUP_NS.response(200, 'Save SNMP settings.', SNMPSettingsForm.DTO)
-    @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @SETINGS_NS.expect(SNMPSettingsForm.DTO)
+    @SETINGS_NS.response(200, 'Save SNMP settings.', SNMPSettingsForm.DTO)
+    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
     def put(self):
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
-            snmp_settings = SNMPSettingsForm.load_from_request(KIT_SETUP_NS.payload)
+            snmp_settings = SNMPSettingsForm.load_from_request(SETINGS_NS.payload)
             snmp_settings.save_to_db()
             notification.set_and_send(message="SNMP Settings Saved", status=NotificationCode.COMPLETED.name)
         except ValidationError as e:
             notification.set_and_send(message=str(e), status=NotificationCode.ERROR.name)
             return e.normalized_messages(), 400
-        return KIT_SETUP_NS.payload
+        return SETINGS_NS.payload

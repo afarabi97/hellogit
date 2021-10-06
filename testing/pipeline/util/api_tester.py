@@ -402,7 +402,7 @@ class APITesterV2:
         _clean_up(wait=0)
 
     def run_control_plane_post(self):
-        response_dict = post_request(self._url.format("/api/control-plane"), None)
+        response_dict = post_request(self._url.format("/api/kit/control-plane"), None)
         wait_for_job_to_finish("Creating Kickstart Profiles", self._url.format("/api/job/" + response_dict['job_id']), 60)
         wait_for_next_job_in_chain(self._controller_ip, {"node_type": "Control-Plane"})
         _clean_up(wait=0)
@@ -413,7 +413,7 @@ class APITesterV2:
 
         payload = node.to_node_api_payload()
         print(payload)
-        response_dict = post_request(self._url.format("/api/node"), payload)
+        response_dict = post_request(self._url.format("/api/kit/node"), payload)
         wait_for_job_to_finish("Adding node", self._url.format("/api/job/" + response_dict['job_id']), 60)
 
     def run_add_virtual_node_post(self, node: NodeSettingsV2):
@@ -422,7 +422,7 @@ class APITesterV2:
 
         payload = node.to_node_api_payload()
         print(payload)
-        response_dict = post_request(self._url.format("/api/node"), payload)
+        response_dict = post_request(self._url.format("/api/kit/node"), payload)
         wait_for_job_to_finish("Adding virtual node", self._url.format("/api/job/" + response_dict['job_id']), 60)
 
     def run_add_virtual_mip_post(self, node: Union[NodeSettingsV2, HwControllerSetupSettings]):
@@ -431,7 +431,7 @@ class APITesterV2:
 
         payload = node.to_mip_api_payload()
         print(payload)
-        response_dict = post_request(self._url.format("/api/mip"), payload)
+        response_dict = post_request(self._url.format("/api/kit/mip"), payload)
         wait_for_job_to_finish("Adding virtual mip", self._url.format("/api/job/" + response_dict['job_id']), 60)
 
     def _get_control_plane_node(self) -> NodeSettingsV2:

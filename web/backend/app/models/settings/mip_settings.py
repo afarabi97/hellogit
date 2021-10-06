@@ -2,32 +2,23 @@
 https://flask-restplus.readthedocs.io/en/0.9.2/example.html
 
 """
-import re
-import uuid
-
-from app import api, conn_mng, TEMPLATE_DIR
-from app.models import Model, DBModelNotFound, PostValidationError
-from app.models.settings.settings_base import SettingsBase, validate_password_stigs
-from app.models.settings.general_settings import GeneralSettingsForm
-from ipaddress import IPv4Address, ip_network
-from flask_restx import fields
-from flask_restx.fields import Nested
-
-from marshmallow import Schema, post_load, pre_load, validate, validates, ValidationError
-from marshmallow import fields as marsh_fields
-from pymongo import ReturnDocument
-from pymongo.results import InsertOneResult
-from app.utils.constants import (MIP_SETTINGS_ID, MIP_DIR)
-from app.utils.utils import encode_password, decode_password
-from typing import List, Dict
-
 # imports for inventory generation
 import os
-from jinja2 import Environment, select_autoescape, FileSystemLoader
-from app.calculations import (get_sensors_from_list, get_servers_from_list, server_and_sensor_count)
-from app.models.nodes import Node
-from app.resources import NodeResourcePool
+from typing import Dict
 
+from app.models import DBModelNotFound, Model
+from app.models.settings.general_settings import (SETINGS_NS,
+                                                  GeneralSettingsForm)
+from app.models.settings.settings_base import (SettingsBase,
+                                               validate_password_stigs)
+from app.utils.constants import MIP_DIR, MIP_SETTINGS_ID, TEMPLATE_DIR
+from app.utils.db_mngs import conn_mng
+from app.utils.utils import decode_password, encode_password
+from flask_restx import fields
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from marshmallow import Schema
+from marshmallow import fields as marsh_fields
+from marshmallow import post_load, validates
 
 JINJA_ENV = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR)),
@@ -67,7 +58,7 @@ class MipSettingsSchema(Schema):
 
 class MipSettingsForm(SettingsBase):
     schema = MipSettingsSchema()
-    DTO = api.model('MipSettingsForm', {
+    DTO = SETINGS_NS.model('MipSettingsForm', {
         'password': fields.String(required=True, example="mypassword1!Afoobar", description="The root and ssh password for all the MIPs in the kit."),
         'user_password': fields.String(required=True, example="mypassword1!Afoobar", description="The user and ssh password for all the MIPs in the kit."),
         'luks_password': fields.String(required=True, example="mypassword1!Afoobar", description="The drive encryption password for all the MIPs in the kit."),
@@ -110,7 +101,7 @@ class MipSettingsForm(SettingsBase):
             return mip_settings
         return None
 
-    def save_to_db(self, delete_kit: bool=False, delete_add_node_wizard: bool=False):
+    def save_to_db(self):
         self.password = encode_password(self.password)
         self.user_password = encode_password(self.user_password)
         self.luks_password = encode_password(self.luks_password)
@@ -118,9 +109,6 @@ class MipSettingsForm(SettingsBase):
         conn_mng.mongo_settings.find_one_and_replace({"_id": MIP_SETTINGS_ID},
                                                       mip_settings,
                                                       upsert=True)  # type: InsertOneResult
-        #self.password = decode_password(self.password)
-        #self.user_password = decode_password(self.user_password)
-        #self.luks_password = decode_password(self.luks_password)
         _generate_mip_settings_inventory()
 
 

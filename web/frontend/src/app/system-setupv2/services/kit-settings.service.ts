@@ -103,7 +103,7 @@ export class KitSettingsService {
   }
 
   getControlPlane(): Observable<Object> {
-    const url = `/api/control-plane`;
+    const url = `/api/kit/control-plane`;
     return this.http.get(url).pipe();
   }
 
@@ -113,7 +113,7 @@ export class KitSettingsService {
   }
 
   setupControlPlane(): Observable<Object> {
-    const url = `/api/control-plane`;
+    const url = `/api/kit/control-plane`;
     return this.http.post(url, null).pipe();
   }
 
@@ -123,7 +123,7 @@ export class KitSettingsService {
   }
 
   addNode(payload): Observable<Object> {
-    const url = `/api/node`;
+    const url = `/api/kit/node`;
     payload['boot_drives'] = payload['boot_drives'].split(',');
     payload['data_drives'] = payload['data_drives'].split(',');
     if (!Array.isArray(payload['raid_drives'])) {
@@ -133,32 +133,32 @@ export class KitSettingsService {
   }
 
   updateGatherFacts(node: string): Observable<Object> {
-    const url = `/api/node/${node}/update`;
+    const url = `/api/kit/node/${node}/update`;
     return this.http.put(url, {}).pipe();
   }
 
   getNodes(): Observable<Object> {
-    const url = `/api/nodes`;
+    const url = `/api/kit/nodes`;
     return this.http.get(url).pipe();
   }
 
   getNode(node: string): Observable<Object> {
-    const url = `/api/node/${node}`;
+    const url = `/api/kit/node/${node}`;
     return this.http.get(url).pipe();
   }
 
   deleteNode(node: string): Observable<Object> {
-    const url = `/api/node/${node}`;
+    const url = `/api/kit/node/${node}`;
     return this.http.delete(url).pipe();
   }
 
   addMip(payload): Observable<Object> {
-    const url = `/api/mip`;
+    const url = `/api/kit/mip`;
     return this.http.post(url, payload).pipe();
   }
 
   getMips(): Observable<Object> {
-    const url = `/api/mip`;
+    const url = `/api/kit/mip`;
     return this.http.get(url).pipe();
   }
 
@@ -183,7 +183,7 @@ export class KitSettingsService {
   }
 
   getNodeVpnConfig(node: string){
-    const url = `/api/node/${node}/generate-vpn`;
+    const url = `/api/kit/node/${node}/generate-vpn`;
     return this.http.get(url, { responseType: 'blob' }).pipe();
   }
 }

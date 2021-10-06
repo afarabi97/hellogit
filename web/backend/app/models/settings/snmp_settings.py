@@ -1,19 +1,17 @@
 import base64
+import os
 import socket
-
-from app import api, conn_mng, TEMPLATE_DIR
-from app.utils.constants import SNMP_SETTINGS_ID, CORE_DIR
-from app.models import DBModelNotFound, Model
-
-from flask_restx import fields
-from marshmallow import Schema, post_load, pre_dump
-from marshmallow import fields as marsh_fields
-
 from typing import Dict, Optional
 
-# Imports for inventory generation.
-import os
-from jinja2 import Environment, select_autoescape, FileSystemLoader
+from app.models import DBModelNotFound, Model
+from app.models.nodes import KIT_SETUP_NS
+from app.utils.constants import CORE_DIR, SNMP_SETTINGS_ID, TEMPLATE_DIR
+from app.utils.db_mngs import conn_mng
+from flask_restx import fields
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from marshmallow import Schema
+from marshmallow import fields as marsh_fields
+from marshmallow import post_load, pre_dump
 
 JINJA_ENV = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)), autoescape=select_autoescape(["html", "xml"]))
 
@@ -38,7 +36,7 @@ class SNMPSettingsSchema(Schema):
 class SNMPSettingsForm(Model):
     schema = SNMPSettingsSchema()
 
-    DTO = api.model("SNMPSettingsForm", {
+    DTO = KIT_SETUP_NS.model("SNMPSettingsForm", {
         "security_name": fields.String(required=True, example="1qaz2wsx!QAZ@WSX", description="SNMPv3 security name or user name"),
         "auth_pass": fields.String(required=True, example="opennmsuser", description="SNMPv3 authentication passphrase or password."),
         "priv_pass": fields.String(required=True, example="1qaz2wsx!QAZ@WSX", description="SNMPv3 encryption password.")

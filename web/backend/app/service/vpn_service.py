@@ -1,9 +1,7 @@
-import os
-from app.service.job_service import run_command2
 from app.models.nodes import Node
-from jinja2 import Environment, select_autoescape, FileSystemLoader
-from app import TEMPLATE_DIR
-from typing import List, Tuple
+from app.service.job_service import run_command2
+from app.utils.constants import TEMPLATE_DIR
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 WORKING_DIR = "/etc/openvpn"
 

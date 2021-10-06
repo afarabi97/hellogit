@@ -1,16 +1,14 @@
-from app import app, conn_mng, KIT_SETUP_NS
-from flask import request, Response, jsonify
-from app.models.common import JobID
-from app.models.nodes import (Node, NodeSchema, JobSchema, NodeJob, DBModelNotFound)
-from app.models.settings.kit_settings import GeneralSettingsForm
-from app.service.socket_service import notify_node_management
-from app.utils.constants import MIP_CONFIG_ID, DEPLOYMENT_JOBS, JOB_PROVISION, JOB_CREATE, NODE_TYPES, DEPLOYMENT_TYPES, PXE_TYPES
-from app.service.node_service import execute, send_notification
-from flask_restx import Resource
-from pymongo import ReturnDocument
-from app.middleware import controller_admin_required
+
 from typing import Dict, List
-from app.utils.constants import MAC_BASE
+
+from app.models.nodes import KIT_SETUP_NS
+from app.models.common import JobID
+from app.models.nodes import Node
+from app.models.settings.kit_settings import GeneralSettingsForm
+from app.service.node_service import execute, send_notification
+from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_CREATE,
+                                 MAC_BASE, NODE_TYPES, PXE_TYPES)
+from flask_restx import Resource
 from randmac import RandMac
 
 
@@ -39,22 +37,3 @@ class MipCtrl(Resource):
         if mip.deployment_type == DEPLOYMENT_TYPES.virtual.value:
             return self._execute_create_virtual_job(mip), 200
         return self._execute_mip_kickstart_job(mip), 200
-
-
-@KIT_SETUP_NS.route('/mips')
-class MipsCtrl(Resource):
-    def get(self):
-        try:
-            results = []
-            mips = Node.load_deployable_mips_from_db()
-            for mip in mips:
-                job_list = []
-                jobs = NodeJob.load_jobs_by_node(mip)
-                for job in jobs:
-                    job_list.append(job.to_dict())
-                mip_dict = mip.to_dict() # type: Dict
-                mip_dict["jobs"] = job_list
-                results.append(mip_dict)
-            return results
-        except DBModelNotFound:
-            return {}, 200

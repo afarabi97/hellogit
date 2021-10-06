@@ -7,7 +7,7 @@ from typing import List
 import netifaces
 from app.middleware import Auth
 from app.models.common import COMMON_NS, COMMON_RETURNS
-from app.models.nodes import DBModelNotFound
+from app.models import DBModelNotFound
 from app.models.settings.kit_settings import GeneralSettingsForm
 from app.service.job_service import run_command
 from app.utils.constants import CONTROLLER_INTERFACE_NAME

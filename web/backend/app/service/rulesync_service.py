@@ -1,29 +1,20 @@
-from app import REDIS_CLIENT
-from app.utils.logging import rq_logger
-import io
-import json
-import logging
 import os
-import sys
-import traceback
 import tempfile
 from shutil import make_archive
+from typing import Dict, List
 
-from app.service.socket_service import NotificationMessage, NotificationCode, notify_ruleset_refresh
-from app.utils.db_mngs import MongoConnectionManager
-# TODO from app.utils.constants import BRO_CUSTOM_DIR, SURICATA_RULESET_LOC
-from app.utils.connection_mngs import (FabricConnection, KubernetesWrapper)
-from fabric.runners import Result
-from fabric import Connection
 from app.models.nodes import Node
 from app.models.settings.kit_settings import KitSettingsForm
-from app.utils.constants import (KIT_ID,
-                                 RULESET_STATES, NODE_TYPES, RULE_TYPES)
-from logging.handlers import RotatingFileHandler
+from app.service.socket_service import (NotificationCode, NotificationMessage,
+                                        notify_ruleset_refresh)
+from app.utils.connection_mngs import (REDIS_CLIENT, FabricConnection,
+                                       KubernetesWrapper)
+from app.utils.constants import NODE_TYPES, RULE_TYPES, RULESET_STATES
+from app.utils.db_mngs import MongoConnectionManager
+from app.utils.logging import rq_logger
+from fabric import Connection
 from pymongo.results import UpdateResult
 from rq.decorators import job
-from typing import List, Dict
-
 
 SURICATA_RULESET_LOC = "/opt/tfplenum/suricata/rules/suricata.rules"
 ZEEK_CUSTOM_DIR = "/opt/tfplenum/zeek/"

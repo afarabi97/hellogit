@@ -1,7 +1,7 @@
 import re
-from app.models import Model, DBModelNotFound, PostValidationError
+from app.models import Model
 from marshmallow import ValidationError
-from typing import List, Dict
+from typing import Dict
 
 def has_consecutive_chars(password: str) -> bool:
     """

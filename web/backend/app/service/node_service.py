@@ -1,23 +1,25 @@
-from app import REDIS_CLIENT
-from app.utils.logging import rq_logger
-from app.models.nodes import Command, Node, NodeJob, NodeSchema
-from app.models.settings.kit_settings import KitSettingsForm
-from app.models.settings.esxi_settings import EsxiSettingsForm
-from app.models.settings.mip_settings import MipSettingsForm
-from app.models.settings.general_settings import GeneralSettingsForm
-from app.service.socket_service import NotificationMessage, NotificationCode
-from app.service.job_service import AsyncJob
-from pathlib import Path
-from rq.decorators import job
-from rq import get_current_job
-from rq.timeouts import JobTimeoutException
-from app.utils.constants import (JOB_CREATE, JOB_PROVISION, JOB_DEPLOY, JOB_REMOVE,
-                                 LOG_PATH, NODE_TYPES, DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, CORE_DIR, MIP_DIR)
-from typing import Dict, List, Union
-from app.service.socket_service import notify_node_management, log_to_console
-from app.models.device_facts import DeviceFacts, create_device_facts_from_ansible_setup
-from time import sleep
 from datetime import datetime, timedelta
+from time import sleep
+from typing import Dict, List, Union
+
+from app.models.device_facts import (DeviceFacts,
+                                     create_device_facts_from_ansible_setup)
+from app.models.nodes import Command, Node, NodeJob, NodeSchema
+from app.models.settings.esxi_settings import EsxiSettingsForm
+from app.models.settings.general_settings import GeneralSettingsForm
+from app.models.settings.kit_settings import KitSettingsForm
+from app.models.settings.mip_settings import MipSettingsForm
+from app.service.job_service import AsyncJob
+from app.service.socket_service import (NotificationCode, NotificationMessage,
+                                        log_to_console, notify_node_management)
+from app.utils.connection_mngs import REDIS_CLIENT
+from app.utils.constants import (CORE_DIR, DEPLOYMENT_JOBS, DEPLOYMENT_TYPES,
+                                 JOB_CREATE, JOB_DEPLOY, JOB_PROVISION,
+                                 JOB_REMOVE, LOG_PATH, MIP_DIR, NODE_TYPES)
+from app.utils.logging import rq_logger
+from rq import get_current_job
+from rq.decorators import job
+from rq.timeouts import JobTimeoutException
 
 
 class JobFailed(Exception):
@@ -138,21 +140,6 @@ def _execute_job(cmd_object: Command) -> bool:
 
 def send_notification() -> None:
     notify_node_management(kit_status=get_kit_status(), node_data=get_all_nodes_with_jobs())
-
-# def execute_series(cmd_list: list) -> bool:
-#     rc_list = []
-#     for cmd in cmd_list:
-#         rtn_code = _execute_job(cmd)
-#         rc_list.append(rtn_code)
-#         if rtn_code > 0:
-#             break
-#     # Commands were all successful return True
-#     if sum(rc_list) == 0:
-#         return True
-#     # A command failed return False
-#     if sum(rc_list) > 0:
-#         return False
-#     return False
 
 @job('default', connection=REDIS_CLIENT, timeout="5m")
 def update_device_facts_job(node: Node, settings: Union[KitSettingsForm, MipSettingsForm]) -> None:

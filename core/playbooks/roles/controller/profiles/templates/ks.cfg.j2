@@ -71,7 +71,7 @@ timezone {{ timezone }} --isUtc --ntpservers={{ ansible_controller_hostname }}
 
 %pre
 {% if node_index is defined and hostvars[node_index].deployment_type != "Virtual" %}
-curl -XPOST -k -H 'Authorization: Bearer {{ node_state_api_key }}' -H 'Content-Type: application/json' https://{{ server_ip }}/api/node/{{ node_index }}/status -d '{ "name": "provision", "inprogress": true, "error": false, "message": "" }'
+curl -XPOST -k -H 'Authorization: Bearer {{ node_state_api_key }}' -H 'Content-Type: application/json' https://{{ server_ip }}/api/kit/node/{{ node_index }}/status -d '{ "name": "provision", "inprogress": true, "error": false, "message": "" }'
 {% endif %}
 is_physical=true
 manufacturer=$(dmidecode --string system-manufacturer)

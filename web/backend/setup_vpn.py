@@ -10,21 +10,21 @@ class Vpn():
         self.headers = {"Authorization": "Bearer {}".format(bearer)}
 
     def get_node(self):
-        url = "https://localhost/api/node/{}".format(self.hostname)
+        url = "https://localhost/api/kit/node/{}".format(self.hostname)
         return requests.get(url=url, headers=self.headers, verify=False)
 
     def connect(self):
-        url = "https://localhost/api/node/{}/vpn".format(self.hostname)
+        url = "https://localhost/api/kit/node/{}/vpn".format(self.hostname)
         data = { "vpn_status": True }
         requests.post(url=url, json=data, headers=self.headers, verify=False)
 
     def disconnect(self):
-        url = "https://localhost/api/node/{}/vpn".format(self.hostname)
+        url = "https://localhost/api/kit/node/{}/vpn".format(self.hostname)
         data = { "vpn_status": False }
         requests.post(url=url, json=data, headers=self.headers, verify=False)
 
     def deploy_node(self):
-        url = "https://localhost/api/node/{}/deploy".format(self.hostname)
+        url = "https://localhost/api/kit/node/{}/deploy".format(self.hostname)
         requests.post(url=url, headers=self.headers, verify=False)
 
 

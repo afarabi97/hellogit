@@ -2,32 +2,25 @@
 https://flask-restplus.readthedocs.io/en/0.9.2/example.html
 
 """
-import re
-import uuid
 
-from app import api, conn_mng, TEMPLATE_DIR
-from app.models import Model, DBModelNotFound, PostValidationError
-from app.models.settings.settings_base import SettingsBase, validate_password_stigs
-from app.models.settings.general_settings import GeneralSettingsForm
-from app.models.nodes import _generate_inventory
-from ipaddress import IPv4Address, ip_network
-from flask_restx import fields
-from flask_restx.fields import Nested
-
-from marshmallow import Schema, post_load, pre_load, validate, validates, ValidationError
-from marshmallow import fields as marsh_fields
-from pymongo import ReturnDocument
-from pymongo.results import InsertOneResult
-from app.utils.constants import (KIT_SETTINGS_ID, CORE_DIR)
-from app.utils.utils import encode_password, decode_password
-from typing import List, Dict
-
-# imports for inventory generation
 import os
-from jinja2 import Environment, select_autoescape, FileSystemLoader
-from app.calculations import (get_sensors_from_list, get_servers_from_list, server_and_sensor_count)
-from app.models.nodes import Node
-from app.resources import NodeResourcePool
+from ipaddress import IPv4Address, ip_network
+from typing import Dict
+
+from app.models import DBModelNotFound, Model
+from app.models.nodes import _generate_inventory
+from app.models.settings.general_settings import (SETINGS_NS,
+                                                  GeneralSettingsForm)
+from app.models.settings.settings_base import (SettingsBase,
+                                               validate_password_stigs)
+from app.utils.constants import CORE_DIR, KIT_SETTINGS_ID, TEMPLATE_DIR
+from app.utils.db_mngs import conn_mng
+from app.utils.utils import decode_password, encode_password
+from flask_restx import fields
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from marshmallow import Schema
+from marshmallow import fields as marsh_fields
+from marshmallow import post_load, validates
 
 JINJA_ENV = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR)),
@@ -60,7 +53,7 @@ class KitSettingsSchema(Schema):
 
 class KitSettingsForm(SettingsBase):
     schema = KitSettingsSchema()
-    DTO = api.model('KitSettingsForm', {
+    DTO = SETINGS_NS.model('KitSettingsForm', {
         'kubernetes_services_cidr': fields.String(example="10.40.12.64", required=True,
                                                   description="The /27 IP Address block that will be used. EX: 10.40.12.64 - 95"),
         'password': fields.String(required=True, example="mypassword1!Afoobar", description="The root and ssh password for all the nodes in the kit."),
@@ -110,7 +103,7 @@ class KitSettingsForm(SettingsBase):
             return kit_settings
         return None
 
-    def save_to_db(self, delete_kit: bool=False, delete_add_node_wizard: bool=False):
+    def save_to_db(self):
         """
         Saves Kit Settings to mongo database.
 
@@ -124,11 +117,6 @@ class KitSettingsForm(SettingsBase):
                                                       upsert=True)  # type: InsertOneResult
         self.password = decode_password(self.password)
         _generate_kit_settings_inventory()
-        #if delete_kit:
-        #    DIPKitForm.delete_from_db()
-
-        #if delete_add_node_wizard:
-        #    AddNodeWizard.delete_from_db()
         _generate_inventory()
 
 class KitSettingsInventoryGenerator:

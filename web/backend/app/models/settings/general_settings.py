@@ -4,28 +4,25 @@ https://flask-restplus.readthedocs.io/en/0.9.2/example.html
 """
 import os
 import re
-import uuid
+from ipaddress import IPv4Address
+from typing import Dict, List
 
-from app import api, conn_mng, TEMPLATE_DIR
-from app.models import Model, DBModelNotFound, PostValidationError
+from app.models import Model
 from app.models.settings.settings_base import SettingsBase
-from ipaddress import IPv4Address, ip_network
-from flask_restx import fields
-from flask_restx.fields import Nested
-
-from marshmallow import Schema, post_load, pre_load, validate, validates, ValidationError
+from app.utils.constants import CORE_DIR, GENERAL_SETTINGS_ID, TEMPLATE_DIR
+from app.utils.db_mngs import conn_mng
+from flask_restx import Namespace, fields
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from marshmallow import Schema, ValidationError
 from marshmallow import fields as marsh_fields
-from pymongo import ReturnDocument
-from pymongo.results import InsertOneResult
-from app.utils.constants import (GENERAL_SETTINGS_ID, CORE_DIR)
-from app.utils.utils import encode_password, decode_password
-from typing import List, Dict
-from jinja2 import Environment, select_autoescape, FileSystemLoader
+from marshmallow import post_load, validates
 
 JINJA_ENV = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR)),
     autoescape=select_autoescape(['html', 'xml'])
 )
+
+SETINGS_NS = Namespace('settings', path="/api/settings", description="Kit setup related operations.")
 
 def _generate_general_settings_inventory():
     settings = GeneralSettingsForm.load_from_db() # type: GeneralSettingsForm
@@ -56,7 +53,7 @@ class GeneralSettingsSchema(Schema):
 
 class GeneralSettingsForm(SettingsBase):
     schema = GeneralSettingsSchema()
-    DTO = api.model('GeneralSettingsForm', {
+    DTO = SETINGS_NS.model('GeneralSettingsForm', {
         'controller_interface': fields.String(example="10.40.12.145", required=True, description="The IP Address of the controller's management interface."),
         'netmask': fields.String(required=True, example="255.255.255.0", description="The netmask of the systems' network.", default="255.255.255.0"),
         'gateway': fields.String(required=True, example="10.40.12.1", description="The internal gateway IP Address for Kickstart."),
@@ -88,7 +85,7 @@ class GeneralSettingsForm(SettingsBase):
             return general_settings
         return None
 
-    def save_to_db(self, delete_kit: bool=False, delete_add_node_wizard: bool=False):
+    def save_to_db(self):
         """
         Saves General Settings to mongo database.
 

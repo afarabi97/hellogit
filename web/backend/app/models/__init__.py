@@ -5,7 +5,6 @@ Additionally, this base module contains all teh custom exceptions
 """
 
 import json
-import sys
 import base64
 
 from argparse import Namespace

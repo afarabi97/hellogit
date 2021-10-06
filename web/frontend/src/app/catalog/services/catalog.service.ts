@@ -35,7 +35,7 @@ export class CatalogService extends ApiService<any> {
    * @returns {Observable<NodeClass[]>}
    */
   getNodes(): Observable<NodeClass[]> {
-    const url = "/api/nodes";
+    const url = "/api/kit/nodes";
     return this.httpClient_.get<Object>(url).pipe(
       catchError(error => this.handleError(url, error))
     );
