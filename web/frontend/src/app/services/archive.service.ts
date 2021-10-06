@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { HTTP_OPTIONS } from '../globals';
+import { HTTP_OPTIONS } from '../constants/cvah.constants';
 import { EntityConfig } from '../interfaces';
 import { ApiService } from './abstract/api.service';
 

@@ -4,11 +4,10 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { FormGroup, FormBuilder, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { validateFromArray } from 'src/app/validators/generic-validators.validator';
 import { addNodeValidators, kickStartTooltips } from '../validators/kit-setup-validators';
-import { MIP_PXE_TYPES } from '../../frontend-constants';
+import { MIP_PXE_TYPES, COMMON_VALIDATORS } from '../../constants/cvah.constants';
 import { KitSettingsService } from '../services/kit-settings.service';
 import { GeneralSettings } from '../models/kit';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
-import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
 import { MatRadioChange } from '@angular/material/radio';
 import { VirtualNodeFormComponent } from '../virtual-node-form/virtual-node-form.component';
 

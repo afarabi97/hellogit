@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 
 import { HostInfoClass, HostInfoRedacClass } from '../../classes';
-import { COMMON_VALIDATORS } from '../../frontend-constants';
+import { COMMON_VALIDATORS } from '../../constants/cvah.constants';
 import { PcapService } from '../../services/pcap.service';
 import { SensorHostInfoService } from '../../services/sensor-host-info.service';
 import { SortingService } from '../../services/sorting.service';

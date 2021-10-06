@@ -1,7 +1,7 @@
 import { AbstractControl, FormArray, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
 
-import { IP_CONSTRAINT } from '../frontend-constants';
-import { isIpv4InSubnet } from '../globals';
+import { IP_CONSTRAINT } from '../constants/cvah.constants';
+import { is_ipv4_in_subnet } from '../functions/cvah.functions';
 import { ValidatorObjectInterface } from '../interfaces';
 
 export class errorObject {
@@ -112,10 +112,6 @@ function consecutive(password) {
   return false;
 }
 
-
-
-
-
 export function patternValidator(validatorObject: ValidatorObjectInterface, control: AbstractControl) {
   const forbidden = control.value && control.value.length > 0 ? validatorObject.ops.pattern.test(control.value) : {};
   return forbidden ? null : { pattern: { value: control.value }, error_message: validatorObject.error_message };
@@ -186,7 +182,7 @@ export function validateIPAddress(validatorObject: ValidatorObjectInterface, con
       const netmask = ops.parentFormGroup.get('netmask');
       // start validating using previous validation
       if (controller_interface.value !== undefined && pat.test(control.value)) {
-        if (!isIpv4InSubnet(control.value, controller_interface.value, netmask.value)) {
+        if (!is_ipv4_in_subnet(control.value, controller_interface.value, netmask.value)) {
           error = new errorObject({ control: control, error_message: `The value ${control.value} is not in the correct subnet` });
         }
 

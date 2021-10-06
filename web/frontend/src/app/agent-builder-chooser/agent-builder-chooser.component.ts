@@ -10,7 +10,7 @@ import * as FileSaver from 'file-saver';
 import { ConfirmDialogMatDialogDataInterface } from '../interfaces';
 import { ObjectUtilitiesClass } from '../classes';
 import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
-import { COMMON_VALIDATORS } from '../frontend-constants';
+import { COMMON_VALIDATORS } from '../constants/cvah.constants';
 import {
   DialogControlTypes,
   DialogFormControl,

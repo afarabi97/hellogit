@@ -4,7 +4,7 @@ import { MatRadioChange } from '@angular/material/radio';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialogRef } from '@angular/material/dialog';
 
-import { COMMON_VALIDATORS } from '../../frontend-constants';
+import { COMMON_VALIDATORS } from '../../constants/cvah.constants';
 import { validateFromArray } from '../../validators/generic-validators.validator';
 
 

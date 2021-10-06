@@ -1,4 +1,4 @@
-import { IP_CONSTRAINT } from '../../frontend-constants';
+import { IP_CONSTRAINT } from '../../constants/cvah.constants';
 /**
  * How to use form validation:
  * The following is an object that has key value pair, where value is an array of validation objects and the key is the formcontrolName. The validation objects in the array are the following:

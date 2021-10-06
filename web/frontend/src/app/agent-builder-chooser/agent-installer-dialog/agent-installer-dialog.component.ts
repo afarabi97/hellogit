@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { ObjectUtilitiesClass } from '../../classes';
-import { COMMON_VALIDATORS } from '../../frontend-constants';
+import { COMMON_VALIDATORS } from '../../constants/cvah.constants';
 import { validateFromArray } from '../../validators/generic-validators.validator';
 import { AppConfig, ElementSpec } from '../agent-builder.service';
 import { EndgameService } from './endgame.service';

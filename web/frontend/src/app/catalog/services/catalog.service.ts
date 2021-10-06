@@ -4,7 +4,7 @@ import { catchError } from 'rxjs/operators';
 
 import { NodeClass } from '../../classes';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
-import { HTTP_OPTIONS } from '../../globals';
+import { HTTP_OPTIONS } from '../../constants/cvah.constants';
 import { EntityConfig } from '../../interfaces';
 import { ApiService } from '../../services/abstract/api.service';
 

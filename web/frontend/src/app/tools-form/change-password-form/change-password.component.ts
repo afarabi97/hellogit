@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { COMMON_VALIDATORS } from '../../frontend-constants';
+import { COMMON_VALIDATORS } from '../../constants/cvah.constants';
 import { UserService } from '../../services/user.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
 import { ToolsService } from '../services/tools.service';
