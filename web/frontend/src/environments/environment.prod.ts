@@ -74,10 +74,10 @@ export const environment = {
 
   DOCKER_REGISTRY_SERVICE_GET_DOCKER_REGISTRY: `/api/kubernetes/docker/registry`,
 
-  PORTAL_SERVICE_GET_PORTAL_LINKS: `/api/get_portal_links`,
-  PORTAL_SERVICE_ADD_USER_LINK: `/api/add_user_link`,
-  PORTAL_SERVICE_REMOVE_USER_LINK: `/api/remove_user_link/`,
-  PORTAL_SERVICE_GET_USER_LINKS: `/api/get_user_links`,
+  PORTAL_SERVICE_GET_PORTAL_LINKS: `/api/portal/links`,
+  PORTAL_SERVICE_ADD_USER_LINK: `/api/portal/user/links`,
+  PORTAL_SERVICE_REMOVE_USER_LINK: `/api/portal/user/links/`,
+  PORTAL_SERVICE_GET_USER_LINKS: `/api/portal/user/links`,
   TOOLS_SERVICE_CHANGE_KIT_CLOCK: `/api/change_kit_clock`,
   TOOLS_SERVICE_CHANGE_KIT_PASSWORD: `/api/change-kit-password`,
   TOOLS_SERVICE_UPLOAD_DOCUMENTATION: `/api/documentation/upload`,

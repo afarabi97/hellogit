@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Dict
 from uuid import uuid4
 
-from app.catalog_service import get_node_apps
+from .catalog_service import get_node_apps
 from app.models.ruleset import PCAPReplayModel
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage

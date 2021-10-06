@@ -10,7 +10,7 @@ Install/Uninstall Every App
     Set Selenium Speed  0.5s
     Wait Until Element Is Visible  ${locCatalogPageNavIcon}
     Click Element  ${locCatalogPageNavIcon}
-    Wait Until Page Contains  CVAH CATALOG
+    Wait Until Page Contains  Catalog
 
     ${skip_apps} =  Create List  Arkime-viewer  Remote-health-agent
     Wait Until Element Is Visible  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
@@ -108,7 +108,7 @@ Check App Card Status
     [Documentation]  Visual confirmation on the Catalog Page that the app is installed
     Wait Until Element Is Visible  ${locCatalogPageNavIcon}
     Click Element  ${locCatalogPageNavIcon}
-    Wait Until Page Contains  CVAH CATALOG
+    Wait Until Page Contains  Catalog
     Reload Page
     ${application_card} =  Set Variable  id=app-chart-list-div-app-card-${index}
     Wait Until Page Contains Element  ${application_card}
@@ -201,7 +201,7 @@ Clean Up Catalog Page
     Wait Until Page Contains    Portal
     Wait Until Element Is Visible  ${locCatalogPageNavIcon}
     Click Element  ${locCatalogPageNavIcon}
-    Wait Until Page Contains  CVAH CATALOG
+    Wait Until Page Contains  Catalog
     Set Selenium Speed  0.5s
 
     Wait Until Element Is Visible  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]

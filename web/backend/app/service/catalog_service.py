@@ -1,23 +1,21 @@
-from time import sleep, strftime
-import os
-import requests
 import json
-import yaml
-import glob
-from typing import List
-from datetime import timedelta, datetime
+import os
+from time import sleep, strftime
+from typing import Dict, List
 
-from app import conn_mng, REDIS_CLIENT
-from app.utils.logging import logger, rq_logger
+import requests
+import yaml
 from app.models.nodes import Node
 from app.models.settings.kit_settings import GeneralSettingsForm
-from app.service.socket_service import NotificationMessage, NotificationCode
-from app.service.system_info_service import get_auth_base
 from app.service.job_service import run_command2
-from rq.decorators import job
-from app.utils.constants import KIT_ID, NODE_TYPES
-from app.utils.connection_mngs import KubernetesWrapper, KubernetesWrapper2
+from app.service.socket_service import NotificationCode, NotificationMessage
+from app.service.system_info_service import get_auth_base
+from app.utils.connection_mngs import REDIS_CLIENT, KubernetesWrapper
+from app.utils.constants import NODE_TYPES
+from app.utils.db_mngs import conn_mng
+from app.utils.logging import logger, rq_logger
 from app.utils.utils import get_domain
+from rq.decorators import job
 
 HELM_BINARY_PATH = "/usr/local/bin/helm"
 WORKING_DIR = "/root"
@@ -25,6 +23,7 @@ _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
 _PMO_SUPPORTED_CHARTS = ['cortex', 'hive', 'misp', 'logstash', 'arkime', 'arkime-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek', 'remote-health-agent']
 _SENSOR_APPLICATIONS = ['arkime', 'suricata', 'zeek']
+
 
 def _get_controller_ip() -> str:
     general_settings_configuration = GeneralSettingsForm.load_from_db() # type: Dict
@@ -119,7 +118,7 @@ def get_nodes(details: bool=False) -> list:
 
     """
     nodes = []
-    kit_nodes = Node.load_all_from_db() # type: List[Model]
+    kit_nodes = Node.load_all_from_db() # type: List[Node]
 
     for node in kit_nodes:
         host_simple = {}

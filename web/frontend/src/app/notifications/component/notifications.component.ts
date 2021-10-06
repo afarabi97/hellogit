@@ -12,8 +12,8 @@ import { ObjectUtilitiesClass } from 'src/app/classes';
   styleUrls: ['./notifications.component.scss']
 })
 export class NotificationsComponent implements OnInit {
-  public newNotifications: any[] = [];
-  public allNotification: any[] = [];
+  public newNotifications: Notification[] = [];
+  public allNotification: Notification[] = [];
   public messages: any[] = [];
   public messageContent: string;
   public ioConnection: any;
@@ -38,8 +38,8 @@ export class NotificationsComponent implements OnInit {
    */
   ngOnInit() {
     this._NotificationService.get()
-      .subscribe((messages:any) => {
-        JSON.parse(messages).map(message => {
+      .subscribe((messages: Notification[]) => {
+        messages.map(message => {
           this.makeArray(message);
         });
       });
@@ -56,7 +56,7 @@ export class NotificationsComponent implements OnInit {
    * @param {*} message
    * @memberof NotificationsComponent
    */
-  makeArray(message: any) {
+  makeArray(message: Notification) {
     this.allNotification.push(message);
     this._NotificationService.buttonList.map(role => {
       if ( (role.role === message.role) || role.role === 'all') {

@@ -1,24 +1,27 @@
-from app import app, conn_mng, CATALOG_NS
-from app.utils.logging import logger
+from typing import List, Set
+
 from app.common import ERROR_RESPONSE
-from flask import jsonify, request, Response
-from flask_restx import Resource, fields
-from typing import List
-from app.catalog_service import (delete_helm_apps, install_helm_apps, get_app_state,
-                                 get_repo_charts, chart_info, generate_values, get_nodes, get_node_apps,
-                                 reinstall_helm_apps)
 from app.middleware import controller_maintainer_required
+from app.models.catalog import (CATALOG_NS, ChartInfoModel, ChartModel,
+                                ChartNodeModel, HELMActionModel,
+                                SavedHelmValuesModel)
 from app.models.common import JobID
-from app.models.catalog import (ChartModel, ChartInfoModel, ChartNodeModel,
-                                HELMActionModel, SavedHelmValuesModel)
 from app.models.nodes import Node
+from app.service.catalog_service import (chart_info, delete_helm_apps,
+                                         generate_values, get_app_state,
+                                         get_node_apps, get_nodes,
+                                         get_repo_charts, install_helm_apps,
+                                         reinstall_helm_apps)
 from app.utils.connection_mngs import objectify
-from typing import Set, List
+from app.utils.db_mngs import conn_mng
+from app.utils.logging import logger
+from flask import Response, jsonify, request
+from flask_restx import Resource, fields
 
 NAMESPACE = "default"
 
 
-@CATALOG_NS.route('/catalog/<application>/saved-values')
+@CATALOG_NS.route('/<application>/saved-values')
 class HelmChartSavedValues(Resource):
 
     @CATALOG_NS.response(200, "SavedHelmValues", SavedHelmValuesModel.DTO)
@@ -38,7 +41,7 @@ def _add_to_set(sensor_hostname: str, values: List, out_ifaces: Set):
                 out_ifaces.add(iface_name)
 
 
-@CATALOG_NS.route('/catalog/configured-ifaces/<sensor_hostname>')
+@CATALOG_NS.route('/configured-ifaces/<sensor_hostname>')
 class ConfiguredIfaces(Resource):
 
     @CATALOG_NS.response(200, 'A list of iface names that are configured with either zeek or suricata.', \
@@ -60,7 +63,7 @@ class ConfiguredIfaces(Resource):
         return ERROR_RESPONSE
 
 
-@CATALOG_NS.route('/catalog/install')
+@CATALOG_NS.route('/install')
 class HELMInstallCtrl(Resource):
 
     @CATALOG_NS.doc(description="Installs an application using helm.")
@@ -85,7 +88,7 @@ class HELMInstallCtrl(Resource):
         return ERROR_RESPONSE
 
 
-@CATALOG_NS.route('/catalog/delete')
+@CATALOG_NS.route('/delete')
 class HELMDeleteCtrl(Resource):
 
     @CATALOG_NS.doc(description="Delete an application using helm")
@@ -109,7 +112,7 @@ class HELMDeleteCtrl(Resource):
         return ERROR_RESPONSE
 
 
-@CATALOG_NS.route('/catalog/reinstall')
+@CATALOG_NS.route('/reinstall')
 class HELMReinstallCtrl(Resource):
 
     @CATALOG_NS.doc(description="Reinstall an application using helm")
@@ -135,15 +138,16 @@ class HELMReinstallCtrl(Resource):
         return ERROR_RESPONSE
 
 
-@app.route('/api/catalog/generate_values', methods=["POST"])
-@controller_maintainer_required
-def generate_values_chart() -> Response:
-    payload = request.get_json()
-    application = payload["role"]
-    configs = payload["configs"]
-    results = []
-    results = generate_values(application, NAMESPACE, configs)
-    return jsonify(results)
+@CATALOG_NS.route('/generate_values')
+class CatalogGenerateValues(Resource):
+    @controller_maintainer_required
+    def post(self) -> Response:
+        payload = request.get_json()
+        application = payload["role"]
+        configs = payload["configs"]
+        results = []
+        results = generate_values(application, NAMESPACE, configs)
+        return jsonify(results)
 
 
 def _get_all_charts() -> List:
@@ -152,14 +156,15 @@ def _get_all_charts() -> List:
     return charts
 
 
-@app.route('/api/catalog/charts', methods=['GET'])
-def get_all_charts() -> Response:
-    charts = []
-    charts = get_repo_charts()  # type: list
-    return jsonify(charts)
+@CATALOG_NS.route('/charts')
+class CatalogGetCharts(Resource):
+    def get(self) -> Response:
+        charts = []
+        charts = get_repo_charts()  # type: list
+        return jsonify(charts)
 
 
-@CATALOG_NS.route('/catalog/chart/<application>/status')
+@CATALOG_NS.route('/chart/<application>/status')
 class ChartStatusCtrl(Resource):
 
     @CATALOG_NS.doc(description="The object returned will tell users which nodes \
@@ -171,7 +176,7 @@ class ChartStatusCtrl(Resource):
         return results
 
 
-@CATALOG_NS.route('/catalog/charts/status')
+@CATALOG_NS.route('/charts/status')
 class ChartsCtrl(Resource):
 
     @CATALOG_NS.doc(description="The charts currently available for install.  Additionally, the object returned will \
@@ -186,7 +191,7 @@ class ChartsCtrl(Resource):
         return ret_val
 
 
-@CATALOG_NS.route('/catalog/chart/<application>/info')
+@CATALOG_NS.route('/chart/<application>/info')
 class ChartCtrl(Resource):
 
     @CATALOG_NS.doc(description="Displays a charts installation information.  It includes form controls etc.")
@@ -197,7 +202,7 @@ class ChartCtrl(Resource):
         return results
 
 
-@CATALOG_NS.route('/catalog/nodes')
+@CATALOG_NS.route('/nodes')
 class NodeDetails(Resource):
 
     @CATALOG_NS.doc(description="Returns a list of Nodes from the Kit configuration.")
@@ -207,7 +212,7 @@ class NodeDetails(Resource):
         return nodes
 
 
-@CATALOG_NS.route('/catalog/<node_hostname>/apps')
+@CATALOG_NS.route('/<node_hostname>/apps')
 class CatalogAppsCtrl(Resource):
 
     @CATALOG_NS.response(200, 'A list of charts installed on a target host.', \

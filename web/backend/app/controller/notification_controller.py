@@ -17,7 +17,9 @@ class Notifications(Resource):
 
         """
         notifications = list(conn_mng.mongo_notifications.find({}))
-        return JSONEncoder().encode(notifications)
+        for notification in notifications:
+            notification["_id"] = str(notification["_id"])
+        return notifications, 200
 
     @NOTIFICATIONS_NS.response(200, 'Deleted Notifications')
     @controller_maintainer_required
@@ -27,7 +29,7 @@ class Notifications(Resource):
 
         """
         conn_mng.mongo_notifications.delete_many({})
-        return OK_RESPONSE
+        return OK_RESPONSE, 200
 
 
 @NOTIFICATIONS_NS.route('/<notification_id>')
@@ -43,5 +45,5 @@ class DeleteNotifications(Resource):
         """
 
         conn_mng.mongo_notifications.delete_one({"_id": ObjectId(notification_id)})
-        return OK_RESPONSE
+        return OK_RESPONSE, 200
 

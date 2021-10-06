@@ -19,7 +19,7 @@ from randmac import RandMac
 from app.utils.constants import MAC_BASE
 from randmac import RandMac
 from app.service.vpn_service import VpnService
-from app.catalog_service import get_node_apps, delete_helm_apps
+from app.service.catalog_service import get_node_apps, delete_helm_apps
 
 
 @KIT_SETUP_NS.route("/nodes")

@@ -1,12 +1,13 @@
-from app import api
 from app.models import Model
 from app.models.nodes import Node
-from flask_restx import fields
-from flask_restx.fields import Nested
+from flask_restx import fields, Namespace
 
+CATALOG_NS = Namespace("catalog",
+                       path="/api/catalog",
+                       description="Catalog related operations used for installing HELM charts on the Kubernetes cluster.")
 
 class ChartNodeModel(Model):
-    DTO = api.model('ChartNode', {
+    DTO = CATALOG_NS.model('ChartNode', {
         "application": fields.String(example="suricata",
                                      description="The name of the HELM chart."),
         "appVersion": fields.String(example="6.0.0",
@@ -23,7 +24,7 @@ class ChartNodeModel(Model):
 
 
 class ChartModel(Model):
-    DTO = api.model('Chart', {
+    DTO = CATALOG_NS.model('Chart', {
         "application": fields.String(example="suricata",
                                      description="The name of the HELM chart."),
         "version": fields.String(example="1.0.0",
@@ -38,7 +39,7 @@ class ChartModel(Model):
 
 
 class ChartInfoFormCtrlModel(Model):
-    DTO = api.model('ChartInfoFormCtrl', {
+    DTO = CATALOG_NS.model('ChartInfoFormCtrl', {
         "type": fields.String(example="textinputlist",
                               description="The form control type. Valid values are textinput, textinputlist, invisible, and checkbox."),
         "default_value": fields.String(example="",
@@ -56,7 +57,7 @@ class ChartInfoFormCtrlModel(Model):
 
 
 class ChartInfoModel(Model):
-    DTO = api.model('ChartInfo', {
+    DTO = CATALOG_NS.model('ChartInfo', {
         "id": fields.String(example="suricata",
                             description="The name of the HELM chart."),
         "version": fields.String(example="1.0.0",
@@ -74,7 +75,7 @@ class ChartInfoModel(Model):
 
 
 class HELMProcessModel(Model):
-    DTO = api.model('HELMProcess', {
+    DTO = CATALOG_NS.model('HELMProcess', {
         "selectedProcess": fields.String(example="uninstall"),
         "selectedNodes": fields.List(fields.Nested(Node.DTO)),
         "node_affinity": fields.String(example="", description="")
@@ -82,7 +83,7 @@ class HELMProcessModel(Model):
 
 
 class HELMActionModel(Model):
-    DTO = api.model('HELMAction', {
+    DTO = CATALOG_NS.model('HELMAction', {
         "role": fields.String(example="suricata",
                               description="The name of the HELM chart."),
         "process": fields.Nested(HELMProcessModel.DTO)
@@ -90,7 +91,7 @@ class HELMActionModel(Model):
 
 
 class HelmValuesModel(Model):
-    DTO = api.model('HelmValues', {
+    DTO = CATALOG_NS.model('HelmValues', {
         "customvalue1": fields.String(description="A charts custom values.  They can be strings lists or objects."),
         "customvalue2": fields.List(fields.String()),
         "customvalue3 etc": fields.String()
@@ -98,7 +99,7 @@ class HelmValuesModel(Model):
 
 
 class SavedHelmValuesModel(Model):
-    DTO = api.model('SavedHelmValues', {
+    DTO = CATALOG_NS.model('SavedHelmValues', {
         "_id": fields.String(example="5ff6250d16753e86415d9e0d",
                              description="A generated Mongo ID."),
         "application": fields.String(example="suricata",
