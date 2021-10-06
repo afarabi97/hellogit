@@ -1,21 +1,3 @@
-Pull Internal VDD:
-  stage: robot-test
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py pull-internal-vdd \
-    --target-version "$TFPLENUM_EXPORT_VERSION" \
-    --confluence-username "$CONFLUENCE_USERNAME" \
-    --confluence-password "$CONFLUENCE_PASSWORD"
-  artifacts:
-    untracked: true
-    when: always
-  only:
-    variables:
-      - $RUN_ROBOT_TESTS == "yes" && $PIPELINE == "developer-all"
-
 DIP Robot Tests:
   stage: robot-test
   tags:

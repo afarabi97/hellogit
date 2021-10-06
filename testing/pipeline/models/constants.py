@@ -9,7 +9,6 @@ class SubCmd:
     setup_control_plane = 'setup-control-plane'
     add_node = 'add-node'
     deploy_kit = 'deploy-kit'
-    pull_internal_vdd = "pull-internal-vdd"
     verify_manifest = 'verify-manifest'
     build_manifest = 'build-manifest'
 

@@ -6,7 +6,6 @@ from argparse import ArgumentParser, Namespace
 from jobs.ctrl_setup import ControllerSetupJob, checkout_latest_code
 from jobs.drive_creation import DriveCreationJob, DriveHashCreationJob
 from jobs.catalog import CatalogJob
-from jobs.internal_vdd import InternalVDDJob
 from jobs.kit import KitSettingsJob
 from jobs.oscap import OSCAPScanJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
@@ -18,7 +17,6 @@ from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
 from jobs.robot import RobotJob
 from jobs.manifest import VerifyManifestJob, BuildManifestJob
 from models.ctrl_setup import ControllerSetupSettings
-from models.internal_vdd import InternalVDDSettings
 from models.kit import KitSettingsV2
 from models.catalog import CatalogSettings
 from models.common import RepoSettings
@@ -161,12 +159,6 @@ class Runner:
         RepoSettings.add_args(latest_code_parser)
         latest_code_parser.set_defaults(which=SubCmd.checkout_latest_code)
 
-        # Internal VDD Parser
-        internal_vdd_parser = subparsers.add_parser(
-            SubCmd.pull_internal_vdd, help="Pulls the target releases internal vdd")
-        InternalVDDSettings.add_args(internal_vdd_parser)
-        internal_vdd_parser.set_defaults(which=SubCmd.pull_internal_vdd)
-
         args = parser.parse_args()
 
         try:
@@ -254,13 +246,6 @@ class Runner:
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
                 job = OSCAPScanJob(ctrl_settings, kit_settings)
                 job.run_scan()
-
-            # INTERNAL VDD SETTINGS
-            elif args.which == SubCmd.pull_internal_vdd:
-                internal_vdd_settings = InternalVDDSettings()
-                internal_vdd_settings.from_namespace(args)
-                job = InternalVDDJob(internal_vdd_settings)
-                job.pull_internal_vdd()
 
             # ROBOT SETTINGS
             elif args.which == SubCmd.run_robot:
