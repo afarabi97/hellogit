@@ -26,4 +26,7 @@
     - "{{ kube_images | batch(10) | list }}"
   tags: pull-docker-images
 
+- import_role:
+    name: frontend
+    tasks_from: 60_preload_rules
 ...

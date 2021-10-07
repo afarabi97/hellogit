@@ -24,7 +24,7 @@ def preload_suricata():
         print("Completed processing of " + str(path))
 
 def preload_zeek():
-    pathlist = Path(SCRIPT_DIR + '/scripts').glob('**/*.zeek')
+    pathlist = Path(SCRIPT_DIR + '/rules/zeek_samples').glob('**/*.zeek')
     scriptset = {
         "appType": "Zeek Scripts",
         "clearance": "Unclassified",

@@ -1,0 +1,38 @@
+- name: Get ES Password
+  shell: |
+    set -o pipefail
+    kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  register: es_password
+  changed_when: es_password.rc == 0
+
+- name: Set bearer token
+  command: /opt/tfplenum/.venv/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 4
+  register: keycloak_bearer_token
+
+- name: Check Suricata and Zeek Traffic
+  uri:
+    url: "{{ elastic_uri }}/filebeat-{{ item.app }}*/_search"
+    return_content: yes
+    validate_certs: no
+    headers:
+      Accept: "application/json"
+      Content-Type: "application/json"
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: yes
+    body:
+      size: 0
+      query:
+        match:
+          event.kind: "{{ item.type }}"
+    method: GET
+    body_format: json
+  register: total_events
+  until: total_events.json.hits.total.value != 0
+  retries: 20
+  delay: 5
+  loop:
+    - { app: 'zeek', type: 'event' }
+    - { app: 'zeek', type: 'alert' }
+    - { app: 'suricata', type: 'event' }
+    - { app: 'suricata', type: 'alert' }

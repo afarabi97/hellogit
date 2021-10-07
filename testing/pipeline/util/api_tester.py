@@ -111,9 +111,9 @@ def wait_for_next_job_in_chain(controller_ip: str, node_to_check: Dict, timeout:
                 if job["error"]:
                     logging.error("A job has failed exiting")
                     exit(1)
-                elif job["inprogress"]:
+                elif job["inprogress"] and job["description"] and job["job_id"]:
                     job_found = True
-                    wait_for_job_to_finish(job["description"], "https://{}{}".format(controller_ip, "/api/job/" + job['job_id']), timeout)
+                    wait_for_job_to_finish(job["description"], "https://{}{}".format(controller_ip, "/api/job/" + job["job_id"]), timeout)
                 elif job["complete"]:
                     jobs_completed += 1
             sleep(1)
@@ -524,29 +524,42 @@ class APITesterV2:
         self.install_app(payload)
 
     def _get_sensor_hostinfo(self) -> dict:
-        sensors = get_request(self._url.format("/api/get_sensor_hostinfo"))
+        sensors = get_request(self._url.format("/api/policy/sensor/info"))
         return sensors
 
     def _sync_rules(self) -> None:
         get_request(self._url.format("/api/policy/rulesets/sync"))
 
-    def _get_suricata_rule_id(self) -> str:
+    def _get_rule_id(self, app: str) -> str:
         rule_sets = get_request(self._url.format("/api/policy/ruleset"))
         for rule in rule_sets:
-            if rule["appType"] == "Suricata":
+            if rule["appType"] == app:
                 return rule['_id']
 
-    def update_ruleset(self) -> None:
+    def update_ruleset(self, app: str) -> None:
         sensors = self._get_sensor_hostinfo()
-        suricata_rule_id = self._get_suricata_rule_id()
-        payload = {
-                    "_id": int(suricata_rule_id),
-                    "appType": "Suricata",
-                    "name":"Emerging Threats",
+
+        if app == "zeek":
+            rule_id = self._get_rule_id("Zeek Scripts")
+            payload = {
+                    "_id": rule_id,
+                    "appType": "Zeek Scripts",
+                    "name":"Zeek Sample Scripts",
                     "clearance":"Unclassified",
-                    "isEnabled":True
+                    "isEnabled":True,
+                    "sensors": sensors
                   }
-        payload['sensors'] = sensors
-        print(payload)
-        update_rules = put_request(self._url.format("/api/poilicy/ruleset"), payload)
+        elif app == "suricata":
+            rule_id = self._get_rule_id("Suricata")
+            payload = {
+                        "_id": rule_id,
+                        "appType": "Suricata",
+                        "name":"Emerging Threats",
+                        "clearance":"Unclassified",
+                        "isEnabled":True,
+                        "sensors": sensors
+                    }
+
+
+        put_request(self._url.format("/api/policy/ruleset"), payload)
         self._sync_rules()

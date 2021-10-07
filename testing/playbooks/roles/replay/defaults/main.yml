@@ -1,1 +1,0 @@
-pcap_dir: "{{ install_dir }}/playbooks/roles/replay/pcaps"

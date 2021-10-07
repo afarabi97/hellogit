@@ -205,7 +205,6 @@ class UnusedIPAddresses(Resource):
         return available_ip_addresses, 200
 
 
-
 @COMMON_NS.route('/current_user')
 class CurrentUser(Resource):
     def get(self) -> Response:

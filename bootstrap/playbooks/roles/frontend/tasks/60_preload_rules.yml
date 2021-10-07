@@ -1,10 +1,5 @@
 ---
 
-- name: rules | Create Directory
-  file:
-    path: "{{ web_install_dir }}/backend/rules"
-    state: directory
-
 - name: rules | Download
   unarchive:
     src: "{{ tfplenumoffline_dir }}/emerging.rules.tar.gz"

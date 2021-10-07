@@ -30,14 +30,6 @@
     - preflight
   tags: preflight
 
-# - name: Replay PCAPs
-#   hosts:
-#   - localhost
-#   gather_facts: yes
-#   roles:
-#     - replay
-#   tags: replay
-
 - name: Verify kubernetes is healthy
   hosts: localhost
   gather_facts: no

@@ -429,7 +429,6 @@ def example2():
 
     print( network_adapters['1'].get_mac() )
     print( network_adapters['2'].get_mac() )
-    import pdb; pdb.set_trace()
     print("Redfish API version : {} \n".format(remote_mgmt.get_api_version()))
     print("UUID : {} \n".format(remote_mgmt.Root.get_api_UUID()))
     print("System 1 :\n")

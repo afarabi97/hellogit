@@ -34,9 +34,10 @@ class IntegrationTestsJob:
         for node in self.nodes: # type: NodeSettingsV2
             if node.is_sensor():
                 payloads = [
-                    {"pcap":"dns-dnskey.trace", "sensor": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
-                    {"pcap":"get.trace", "sensor": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
-                    {"pcap":"smb1_transaction_request.pcap", "sensor": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False}
+                    {"pcap":"dns-dnskey.trace", "sensor_ip": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    {"pcap":"get.trace", "sensor_ip": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    {"pcap":"smb1_transaction_request.pcap", "sensor_ip": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    {"pcap":"wannacry.pcap", "sensor_ip": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
                 ]
                 for payload in payloads:
                     response = requests.post(REPLAY_PACAP_URL, json=payload, verify=root_ca, headers=headers)

@@ -29,12 +29,14 @@ class CatalogJob:
             logging.info("Installing "+application.title())
             if application == SubCmd.suricata:
                 self.runner.install_suricata()
+                self.runner.update_ruleset(application)
             elif application == SubCmd.arkime_viewer:
                 self.runner.install_arkime_viewer()
             elif application == SubCmd.arkime_capture:
                 self.runner.install_arkime_capture()
             elif application == SubCmd.zeek:
                 self.runner.install_zeek()
+                self.runner.update_ruleset(application)
             elif application == SubCmd.logstash:
                 self.runner.install_logstash()
             elif application == SubCmd.wikijs:

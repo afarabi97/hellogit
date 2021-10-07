@@ -46,7 +46,6 @@
 - import_tasks: 45_restart_services.yml
   tags: restart_frontend_services
 - import_tasks: 55_preload_pcaps.yml
-- import_tasks: 60_preload_rules.yml
 
 # Set ip forwarding on in /proc and in the sysctl file and reload if necessary
 - name: "Enable IP Forwarding so docker containers can reach outside of the network."
