@@ -116,13 +116,8 @@ Check App Card Status
     [Arguments]  ${index}  ${expected_status}
     [Documentation]  Visual confirmation on the Catalog Page that the app is installed
     Wait Until Element Is Visible  ${locCatalogPageNavIcon}
-<<<<<<< HEAD
     Click Element  ${locCatalogPageNavIcon}
     Wait Until Page Contains  Catalog
-=======
-    click  ${locCatalogPageNavIcon}
-    lookFor  CVAH CATALOG
->>>>>>> (test) THISISCVAH-10417: Run robot test to sync zeek and suricata rulesets
     Reload Page
     ${application_card} =  Set Variable  id=app-chart-list-div-app-card-${index}
     lookForElement  ${application_card}
@@ -214,13 +209,8 @@ Clean Up Catalog Page
     Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
     lookFor    Portal
     Wait Until Element Is Visible  ${locCatalogPageNavIcon}
-<<<<<<< HEAD
     Click Element  ${locCatalogPageNavIcon}
     Wait Until Page Contains  Catalog
-=======
-    click  ${locCatalogPageNavIcon}
-    lookFor  CVAH CATALOG
->>>>>>> (test) THISISCVAH-10417: Run robot test to sync zeek and suricata rulesets
     Set Selenium Speed  0.5s
 
     Wait Until Element Is Visible  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]

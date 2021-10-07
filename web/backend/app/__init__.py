@@ -106,6 +106,8 @@ from .models.common import COMMON_NS
 from .models.alerts import ALERTS_NS, HIVE_NS
 from .controller.curator_controller import CURATOR_NS
 from .models.kit_tokens import TOKEN_NS
+from .models.catalog import CATALOG_NS
+from .controller.portal_controller import PORTAL_NS
 from .models.settings.general_settings import SETINGS_NS
 from .models.nodes import KIT_SETUP_NS
 
@@ -120,6 +122,8 @@ api.add_namespace(HIVE_NS)
 api.add_namespace(COMMON_NS)
 api.add_namespace(CURATOR_NS)
 api.add_namespace(TOKEN_NS)
+api.add_namespace(CATALOG_NS)
+api.add_namespace(PORTAL_NS)
 api.add_namespace(SETINGS_NS)
 api.add_namespace(KIT_SETUP_NS)
 
