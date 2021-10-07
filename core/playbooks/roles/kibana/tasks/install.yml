@@ -3,6 +3,29 @@
   include_tasks:
     file: "{{ resource_allocation }}"
 
+- name: Set Default Kibana Resource
+  set_fact:
+    kibana_memory: 4
+    kibana_cpu: "2000m"
+
+- name: Set Kibana Resource
+  block:
+  - name: Baremetal Kit
+    set_fact:
+      kibana_memory: 8
+      kibana_cpu: "4000m"
+    when: kit_size > 1 and kit_size < 4
+  - name: Training Kit
+    set_fact:
+      kibana_memory: "{{ (master_memory  * 0.25) | round | int }}"
+      kibana_cpu: "{{ (((server_cpu * 0.25) * 1000) | round | int) }}m"
+    when: kit_size == 20
+  - name: Training Kit
+    set_fact:
+      kibana_memory: 1
+      kibana_cpu: "1000m"
+    when: kit_size == 0 or kit_size == 1
+
 - name: Create install directory
   file:
     path: "{{ kibana_dir }}"

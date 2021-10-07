@@ -1,0 +1,60 @@
+<!--CPU -->
+<div *ngIf="isVisible" [formGroup]="nodeForm">
+  <mat-form-field>
+    <mat-label>CPU Cores</mat-label>
+    <input matInput placeholder="Enter the number of CPU cores" formControlName="virtual_cpu"
+          matTooltip="{{ getTooltip('virtual_cpu') }}"/>
+    <mat-icon matSuffix *ngIf="nodeForm.get('virtual_cpu')?.valid &&
+                              nodeForm.get('virtual_cpu')?.touched"
+              color="primary">check_circle</mat-icon>
+    <mat-icon matSuffix *ngIf="nodeForm.get('virtual_cpu')?.invalid &&
+                              nodeForm.get('virtual_cpu')?.touched"
+              color="warn">error</mat-icon>
+    <mat-error>{{ getErrorMessage(nodeForm.get("virtual_cpu")) }}</mat-error>
+  </mat-form-field>
+
+  <!--Memory -->
+  <mat-form-field>
+    <mat-label>RAM Memory in GB</mat-label>
+    <input matInput placeholder="Enter the amount of ram memory in GB" formControlName="virtual_mem"
+          matTooltip="{{ getTooltip('virtual_mem') }}"/>
+    <mat-icon matSuffix *ngIf="nodeForm.get('virtual_mem')?.valid &&
+                              nodeForm.get('virtual_mem')?.touched"
+              color="primary">check_circle</mat-icon>
+    <mat-icon matSuffix *ngIf="nodeForm.get('virtual_mem')?.invalid &&
+                                nodeForm.get('virtual_mem')?.touched"
+              color="warn">error</mat-icon>
+    <mat-error>{{ getErrorMessage(nodeForm.get("virtual_mem")) }}</mat-error>
+  </mat-form-field>
+
+  <!--OS drive -->
+  <mat-form-field>
+    <mat-label>OS Drive size in GB</mat-label>
+    <input matInput placeholder="Enter the amount of ram memory in GB" formControlName="virtual_os"
+          matTooltip="{{ getTooltip('virtual_os') }}"/>
+    <mat-icon matSuffix *ngIf="nodeForm.get('virtual_os')?.valid &&
+                              nodeForm.get('virtual_os')?.touched"
+              color="primary">check_circle</mat-icon>
+    <mat-icon matSuffix *ngIf="nodeForm.get('virtual_os')?.invalid &&
+                              nodeForm.get('virtual_os')?.touched"
+              color="warn">error</mat-icon>
+    <mat-error>{{ getErrorMessage(nodeForm.get("virtual_os")) }}</mat-error>
+  </mat-form-field>
+
+  <!--Data drive -->
+  <mat-form-field *ngIf="hasDataDrive()">
+    <mat-label>Data Drive size in GB</mat-label>
+    <input matInput placeholder="Enter the amount of ram memory in GB" formControlName="virtual_data"
+          matTooltip="{{ getTooltip('virtual_data') }}"/>
+    <mat-icon matSuffix *ngIf="nodeForm.get('virtual_data')?.valid &&
+                              nodeForm.get('virtual_data')?.touched"
+              color="primary">check_circle</mat-icon>
+    <mat-icon matSuffix *ngIf="nodeForm.get('virtual_data')?.invalid &&
+                              nodeForm.get('virtual_data')?.touched"
+              color="warn">error</mat-icon>
+    <mat-error>{{ getErrorMessage(nodeForm.get("virtual_data")) }}</mat-error>
+  </mat-form-field>
+  <div style="margin-top: 10px;">
+    <p>This will deploy to the configured ESXI or VCenter server.</p>
+  </div>
+</div>

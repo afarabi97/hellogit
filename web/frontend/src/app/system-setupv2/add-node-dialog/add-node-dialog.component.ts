@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild  } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { MatCheckboxChange } from '@angular/material/checkbox';
@@ -8,8 +8,9 @@ import { validateFromArray } from 'src/app/validators/generic-validators.validat
 import { addNodeValidators, kickStartTooltips } from '../validators/kit-setup-validators';
 import { PXE_TYPES } from '../../frontend-constants';
 import { KitSettingsService } from '../services/kit-settings.service';
-import { Settings, GeneralSettings } from '../models/kit';
+import { GeneralSettings } from '../models/kit';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
+import { VirtualNodeFormComponent } from '../virtual-node-form/virtual-node-form.component';
 
 export interface DeploymentOption {
   value: string;
@@ -22,6 +23,7 @@ export interface DeploymentOption {
   styleUrls: ['add-node-dialog.component.css'],
 })
 export class AddNodeDialogComponent implements OnInit {
+  @ViewChild('virtualNodeForm') virtualNodeForm: VirtualNodeFormComponent;
   isRaid: boolean;
   isNodeType: boolean;
   isCreateDuplicate: boolean;
@@ -30,11 +32,12 @@ export class AddNodeDialogComponent implements OnInit {
   pxe_types: string[] = PXE_TYPES;
   availableIPs: string[] = [];
   settings: Partial<GeneralSettings> = {};
+  nodeType: string;
+
   //Validation
   validationHostnames: string[] = [];
   validationIPs: string[] = [];
   validationMacs: string[] = [];
-
   constructor( public dialogRef: MatDialogRef<AddNodeDialogComponent>,
                private formBuilder: FormBuilder,
                private kitSettingsSrv: KitSettingsService,
@@ -74,7 +77,13 @@ export class AddNodeDialogComponent implements OnInit {
       raid_drives: new FormControl('sda,sdb'),
       os_raid: new FormControl(false),
       os_raid_root_size: new FormControl(50),
-      pxe_type: this.nodeForm ? this.nodeForm.value.pxe_type : new FormControl()
+      pxe_type: this.nodeForm ? this.nodeForm.value.pxe_type : new FormControl(),
+
+      // Virtual form fields
+      virtual_cpu: new FormControl(),
+      virtual_mem: new FormControl(),
+      virtual_os: new FormControl(),
+      virtual_data: new FormControl(),
     });
   }
 
@@ -96,19 +105,20 @@ export class AddNodeDialogComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.isCreateDuplicate){
-      this.onCreateNode();
-      this.onDuplicateNode();
-    } else {
-      this.dialogRef.close(this.nodeForm);
-    }
+    this.onCreateNode();
   }
 
   onCreateNode(): void {
-    console.log(this.nodeForm.value);
-    this.snackbar.showSnackBar(this.nodeForm.value.hostname + ' node created successfully.', -1, 'Dismiss');
-    this.kitSettingsSrv.addNode(this.nodeForm.value).subscribe(data => {},
+    this.kitSettingsSrv.addNode(this.nodeForm.value).subscribe(data => {
+      this.snackbar.showSnackBar(this.nodeForm.value.hostname + ' node created successfully.', -1, 'Dismiss');
+      if (this.isCreateDuplicate) {
+        this.onDuplicateNode();
+      } else {
+        this.dialogRef.close();
+      }
+    },
     err => {
+      this.snackbar.showSnackBar(err.error["post_validation"], -1, 'Dismiss');
         console.error(err);
     });
   }
@@ -116,6 +126,10 @@ export class AddNodeDialogComponent implements OnInit {
   onDuplicateNode(): void {
     const prevHost = this.nodeForm.value.hostname;
     const prevIP = this.nodeForm.value.ip_address;
+    const prevVirtualCpu = this.nodeForm.get('virtual_cpu').value;
+    const prevVirtualMem = this.nodeForm.get('virtual_mem').value;
+    const prevVirtualOS = this.nodeForm.get('virtual_os').value;
+    const prevVirtualData = this.nodeForm.get('virtual_data').value;
     let version = prevHost.match('[0-9]+$');
     this.initializeForm();
 
@@ -138,6 +152,11 @@ export class AddNodeDialogComponent implements OnInit {
       }
     }
     this.nodeForm.get('ip_address').setValue(newIP);
+
+    this.nodeForm.get('virtual_cpu').setValue(prevVirtualCpu);
+    this.nodeForm.get('virtual_mem').setValue(prevVirtualMem);
+    this.nodeForm.get('virtual_os').setValue(prevVirtualOS);
+    this.nodeForm.get('virtual_data').setValue(prevVirtualData);
   }
 
   onNoClick(): void {
@@ -149,10 +168,10 @@ export class AddNodeDialogComponent implements OnInit {
       return;
     }
 
-    if (!this.isNodeType && (event.value === 'Server' || event.value === 'Sensor' || event.value === 'Service')) {
+    if (event.value === 'Server' || event.value === 'Sensor' || event.value === 'Service') {
+      this.nodeType = event.value;
       this.isNodeType = true;
     }
-
 
     this.deploymentOptions = [];
     if (event.value === 'Server'){
@@ -166,9 +185,11 @@ export class AddNodeDialogComponent implements OnInit {
       this.deploymentOptions.push({text: 'Baremetal', value: 'Baremetal'});
       this.deploymentOptions.push({text: 'Virtual Machine', value: 'Virtual'});
     }
+
+    this.virtualNodeForm.setDefaultValues(this.nodeType);
   }
 
-  onDeploymentTypeChange(event: MatRadioChange){
+  setBaremetalValidation(event: MatRadioChange){
     if (!event) {
       return;
     }
@@ -200,6 +221,17 @@ export class AddNodeDialogComponent implements OnInit {
     boot_drives.updateValueAndValidity();
     pxe_type.updateValueAndValidity();
     raid_drives.updateValueAndValidity();
+  }
+
+  onDeploymentTypeChange(event: MatRadioChange){
+    if (!event) {
+      return;
+    }
+
+    this.updateNodeStatus();
+    this.setBaremetalValidation(event);
+    this.virtualNodeForm.setDefaultValues(this.nodeType);
+    this.virtualNodeForm.setVirtualFormValidation(event);
   }
 
   isBaremetalDeployment(): boolean {

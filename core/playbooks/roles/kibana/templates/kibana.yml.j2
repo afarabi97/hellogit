@@ -1,17 +1,3 @@
-{% set kibana_memory = 1 %}
-{% set kibana_cpu = "1000m" %}
-
-{% if kit_size > 1 %}
-  {% set kibana_memory = 6 %}
-  {% set kibana_cpu = "1000m" %}
-{% elif kit_size == 1 %}
-  {% set kibana_memory = 1 %}
-  {% set kibana_cpu = "1000m" %}
-{% elif kit_size == 0 %}
-  {% set kibana_memory = 1 %}
-  {% set kibana_cpu = "1000m" %}
-{% endif %}
-
 ---
 apiVersion: kibana.k8s.elastic.co/v1
 kind: Kibana

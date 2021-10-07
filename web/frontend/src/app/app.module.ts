@@ -48,6 +48,7 @@ import { AddMipDialogComponent } from './system-setupv2/add-mip-dialog/add-mip-d
 import { MipManagementComponent } from './system-setupv2/mip-mng/mip-mng.component';
 import { UnusedIpAddressAutoCompleteComponent } from './system-setupv2/components/unused-ipaddress-autocomplete-ctrl.component';
 import { CopyTokenModalDialogComponent } from './system-setupv2/copy-token-dialog/copy-token-dialog.component';
+import { VirtualNodeFormComponent } from './system-setupv2/virtual-node-form/virtual-node-form.component';
 
 // Kit Page
 
@@ -121,6 +122,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     AppComponent,
     TopNavbarComponent,
     UnusedIpAddressAutoCompleteComponent,
+    VirtualNodeFormComponent,
     SecurityAlertsComponent,
     SystemSettingsComponent,
     NodeManagementComponent,

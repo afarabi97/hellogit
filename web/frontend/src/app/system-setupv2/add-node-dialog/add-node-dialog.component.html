@@ -50,6 +50,8 @@
       </mat-radio-group>
     </div>
 
+    <virtual-node-form #virtualNodeForm [isVisible]="isVirtualMachineDeployment()" [nodeForm]="nodeForm"></virtual-node-form>
+
     <ng-container *ngIf="isBaremetalDeployment()">
       <!-- MAC Address -->
       <mat-form-field>
@@ -124,12 +126,6 @@
                       [value]="pxe">{{ pxe }}</mat-option>
         </mat-select>
       </mat-form-field>
-    </ng-container>
-
-    <ng-container *ngIf="isVirtualMachineDeployment()">
-      <div style="margin-top: 10px;">
-        <p>This will deploy to the configured ESXI or VCenter server.</p>
-      </div>
     </ng-container>
 
     <ng-container *ngIf="isISOSensorDeployment()">

@@ -131,6 +131,7 @@ class NewNodeCtrl(Resource):
             if node.deployment_type == DEPLOYMENT_TYPES.virtual.value:
                 node.mac_address = str(RandMac(MAC_BASE, True)).strip("'")
                 node.pxe_type = PXE_TYPES.uefi.value
+            node.post_validation()
             node.create()
 
             # Alert websocket to update the table
@@ -138,6 +139,8 @@ class NewNodeCtrl(Resource):
 
         except DBModelNotFound:
             return { "error_message": "DBModelNotFound." }
+        except PostValidationError as e:
+            return {"post_validation": e.errors_msgs}, 400
 
         if node.deployment_type == DEPLOYMENT_TYPES.virtual.value:
             return self._execute_create_virtual_job(node), 200

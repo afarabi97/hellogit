@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { FormGroup, FormBuilder, FormControl, Validators, AbstractControl } from '@angular/forms';
@@ -6,10 +6,11 @@ import { validateFromArray } from 'src/app/validators/generic-validators.validat
 import { addNodeValidators, kickStartTooltips } from '../validators/kit-setup-validators';
 import { MIP_PXE_TYPES } from '../../frontend-constants';
 import { KitSettingsService } from '../services/kit-settings.service';
-import { Settings, GeneralSettings } from '../models/kit';
+import { GeneralSettings } from '../models/kit';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
 import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
 import { MatRadioChange } from '@angular/material/radio';
+import { VirtualNodeFormComponent } from '../virtual-node-form/virtual-node-form.component';
 
 export interface DeploymentOption {
   value: string;
@@ -22,12 +23,14 @@ export interface DeploymentOption {
   styleUrls: ['add-mip-dialog.component.css'],
 })
 export class AddMipDialogComponent implements OnInit {
+  @ViewChild('virtualNodeForm') virtualNodeForm: VirtualNodeFormComponent;
 
   isCreateDuplicate: boolean;
   nodeForm: FormGroup;
   pxe_types: string[] = MIP_PXE_TYPES;
   availableIPs: string[] = [];
   settings: Partial<GeneralSettings> = {};
+
   //Validation
   validationHostnames: string[] = [];
   validationIPs: string[] = [];
@@ -67,7 +70,12 @@ export class AddMipDialogComponent implements OnInit {
         { uniqueArray: this.validationMacs })])),
       pxe_type: this.nodeForm ? this.nodeForm.value.pxe_type : new FormControl(),
       deployment_type: this.nodeForm ? this.nodeForm.value.deployment_type :
-        new FormControl(undefined, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]))
+        new FormControl(undefined, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
+
+      // Virtual form fields
+      virtual_cpu: new FormControl(),
+      virtual_mem: new FormControl(),
+      virtual_os: new FormControl()
     });
   }
 
@@ -105,6 +113,9 @@ export class AddMipDialogComponent implements OnInit {
 
     mac_address.updateValueAndValidity();
     pxe_type.updateValueAndValidity();
+
+    this.virtualNodeForm.setVirtualFormValidation(event);
+    this.virtualNodeForm.setDefaultValues("MIP");
   }
 
   updateNodeStatus() {
@@ -145,6 +156,9 @@ export class AddMipDialogComponent implements OnInit {
     const prevHost = this.nodeForm.value.hostname;
     const prevIP = this.nodeForm.value.ip_address;
     let version = prevHost.match('[0-9]+$');
+    const prevVirtualCpu = this.nodeForm.get('virtual_cpu').value;
+    const prevVirtualMem = this.nodeForm.get('virtual_mem').value;
+    const prevVirtualOS = this.nodeForm.get('virtual_os').value;
     this.initializeForm();
 
     if (version){
@@ -166,24 +180,23 @@ export class AddMipDialogComponent implements OnInit {
       }
     }
     this.nodeForm.get('ip_address').setValue(newIP);
+
+    this.nodeForm.get('virtual_cpu').setValue(prevVirtualCpu);
+    this.nodeForm.get('virtual_mem').setValue(prevVirtualMem);
+    this.nodeForm.get('virtual_os').setValue(prevVirtualOS);
   }
 
   onNoClick(): void {
     this.dialogRef.close();
   }
 
-
-
   public getErrorMessage(control: AbstractControl): string {
     return control.errors ? control.errors.error_message : '';
   }
 
-
-
   checkDuplicate(event: MatCheckboxChange){
     this.isCreateDuplicate = event.checked;
   }
-
 
   getTooltip(inputName: string): string {
     return kickStartTooltips[inputName];

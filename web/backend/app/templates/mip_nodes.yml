@@ -19,8 +19,9 @@ all:
           node_type: {{ node.node_type }}
           deployment_type: {{ node.deployment_type }}
           {%- if node.deployment_type == "Virtual" %}
-          memory: 24576
-          cpu: 16
+          memory: {{ node.virtual_mem * 1024 }}
+          cpu: {{ node.virtual_cpu }}
+          virtual_os_size: {{ node.virtual_os }}
           {% endif %}
         {% endfor %}
 ...

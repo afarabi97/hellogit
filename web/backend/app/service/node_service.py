@@ -392,7 +392,8 @@ def execute(exec_type: DEPLOYMENT_JOBS=DEPLOYMENT_JOBS.base_kit, stage: str=JOB_
         rq_logger.info(cmd)
         rq_logger.info(dir)
         command = Command(command=cmd, cwd_dir=dir,
-            job_name=_JOB_NAME_NOTIFICATION, job_id=job_id)
+                          job_name=_JOB_NAME_NOTIFICATION,
+                          job_id=job_id)
 
         is_successful = _execute_job(command)
 

@@ -40,34 +40,46 @@
     - name: Set kit size pre_tasks
       setup:
   tasks:
-    # TODO fix this
-    # - name: Set Kit Size For GIP
-    #   block:
-    #   - name: Set Default GIP Kit Size
-    #     set_fact:
-    #       kit_size: 99
-    #       kit_size_name: "GIP Default (testing only)"
-    #       cacheable: yes
-    #   - name: Set GIP Kit Size
-    #     set_fact:
-    #       kit_size: 100
-    #       kit_size_name: "GIP Gen1"
-    #       cacheable: yes
-    #     when:
-    #       - ansible_processor_vcpus >= 55
-    #       - total_mem_gb >= 90
-    #   when: system_name == "GIP"
-
+    - name: Set Kit Size For GIP
+      block:
+      - name: Set Default GIP Kit Size
+        set_fact:
+          kit_size: 99
+          kit_size_name: "GIP Default (testing only)"
+          cacheable: yes
+      - name: Set GIP Kit Size
+        set_fact:
+          kit_size: 100
+          kit_size_name: "GIP Gen1"
+          cacheable: yes
+        when:
+          - ansible_processor_vcpus >= 55
+          - total_mem_gb >= 90
+      when:
+          - is_gip
+          - inventory_hostname in groups['servers']
     - name: Set Kit Size For DIP
       block:
-      - name: Memory to GB
-        set_fact:
-          total_mem_gb: "{{ (ansible_memtotal_mb/1024)|round|int }}"
       - name: Set Default DIP Kit Size
         set_fact:
           kit_size: -1
           kit_size_name: "DIP Default"
           cacheable: yes
+      - name: Memory to GB
+        set_fact:
+          total_mem_gb: "{{ (ansible_memtotal_mb/1024)|round|int }}"
+      - debug:
+          msg:
+            - "Total Memory: {{ total_mem_gb }}GBs"
+            - "Num of CPUs: {{ ansible_processor_vcpus }}"
+      - name: Training Kit
+        set_fact:
+          kit_size: 20
+          kit_size_name: "Training Kit"
+          cacheable: yes
+        when:
+          - deployment_type == "Virtual"
+      # Specific Hardware Kits Below
       - name: MDT DL160 Node Kit Size
         set_fact:
           kit_size: 0
@@ -76,6 +88,7 @@
         when:
           - ansible_processor_vcpus >= 30
           - total_mem_gb >= 60
+          - deployment_type == "Baremetal"
       - name: CPT DL160 Node Kit Size
         set_fact:
           kit_size: 1
@@ -84,6 +97,7 @@
         when:
           - ansible_processor_vcpus >= 30
           - total_mem_gb >= 500
+          - deployment_type == "Baremetal"
       - name: R440 Legacy Node Kit Size
         set_fact:
           kit_size: 2
@@ -92,6 +106,7 @@
         when:
           - ansible_processor_vcpus == 48
           - total_mem_gb >= 500
+          - deployment_type == "Baremetal"
       - name: R440 Common Node Kit Size
         set_fact:
           kit_size: 3
@@ -100,6 +115,7 @@
         when:
           - ansible_processor_vcpus == 64
           - total_mem_gb >= 500
+          - deployment_type == "Baremetal"
       - name: Small Form Factor
         set_fact:
           kit_size: 4
@@ -108,7 +124,10 @@
         when:
           - ansible_processor_vcpus == 128
           - total_mem_gb >= 500
-      when: inventory_hostname in groups['servers']
+          - deployment_type == "Baremetal"
+      when:
+          - not is_gip
+          - inventory_hostname in groups['servers']
 
     - name: Set Kit Size for localhost
       set_fact:

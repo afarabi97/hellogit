@@ -26,17 +26,41 @@
       ml_memory: 1
       ml_java_memory: 1
       ml_num_procs: "1000m"
+  - name: Training Kit
+    block:
+    - set_fact:
+        server_total_mem_gb: "{{ hostvars[servers_node_type[0]]['total_mem_gb'] }}"
+        server_vcpus: "{{ hostvars[servers_node_type[0]]['ansible_processor_vcpus'] }}"
+    - name: Set Memory
+      set_fact:
+        server_jvm_memory: >-
+          {% if ((server_total_mem_gb|int * 0.5) * 0.5) > 31 %}31{% else %}{{ ((server_total_mem_gb|int * 0.5) * 0.5) |round|int }}{% endif %}
+        server_cpu: "{{ (server_vcpus|int * 0.5) | int }}"
+    - name: Set Kit Resources
+      set_fact:
+        mdil: true
+        master_count: "{{ servers_node_type|length }}"
+        master_num_procs: "{{ (server_cpu * 1000) | int }}m"
+        master_memory: "{{ server_jvm_memory|int * 2 }}"
+        master_java_memory: "{{ server_jvm_memory }}"
+    - debug:
+        msg:
+          - "MDIL Count: {{ master_count }}"
+          - "CPU: {{ master_num_procs }}"
+          - "Memory: {{ master_memory }}"
+          - "JVM: {{ master_java_memory }}"
+    when: kit_size == 20
   - name: Small Form Factor
     set_fact:
-      master_java_memory: 15
       master_memory: 15
+      master_java_memory: 15
       master_num_procs: "1000m"
-      ingest_java_memory: 31
       ingest_memory: 64
+      ingest_java_memory: 31
       ingest_num_procs: "16000m"
       ingest_count: "{{ servers_node_type|length * 2 }}"
-      data_java_memory: 31
       data_memory: 64
+      data_java_memory: 31
       data_num_procs: "24000m"
       data_count: "{{ servers_node_type|length * 3 }}"
       ml_count: "{{ servers_node_type|length }}"
@@ -46,11 +70,11 @@
     when: kit_size == 4
   - name: R440 Common Node
     set_fact:
-      master_java_memory: 15
       master_memory: 15
+      master_java_memory: 15
       master_num_procs: "1000m"
-      data_java_memory: 31
       data_memory: 64
+      data_java_memory: 31
       data_num_procs: "14000m"
       data_count: "{{ servers_node_type|length * 3 }}"
       ml_count: "{{ servers_node_type|length }}"
@@ -60,11 +84,11 @@
     when: kit_size == 3
   - name: R440 Legacy Node
     set_fact:
-      master_java_memory: 15
       master_memory: 15
+      master_java_memory: 15
       master_num_procs: "1000m"
-      data_java_memory: 31
       data_memory: 64
+      data_java_memory: 31
       data_num_procs: "14000m"
       data_count: "{{ servers_node_type|length * 2 }}"
       ml_count: "{{ servers_node_type|length }}"
@@ -75,57 +99,57 @@
   - name: CPT DL160
     set_fact:
       enable_ml: False
-      master_java_memory: 15
       master_memory: 15
+      master_java_memory: 15
       master_num_procs: "1000m"
-      data_java_memory: 31
       data_memory: 64
+      data_java_memory: 31
       data_num_procs: "12000m"
       data_count: "{{ servers_node_type|length * 2 }}"
     when: kit_size == 1
   - name: MDT DL160
     set_fact:
       enable_ml: False
-      master_java_memory: 8
       master_memory: 8
+      master_java_memory: 8
       master_num_procs: "1000m"
-      data_java_memory: 24
       data_memory: 24
+      data_java_memory: 24
       data_num_procs: "12000m"
       data_count: "{{ servers_node_type|length * 2 }}"
     when: kit_size == 0
+  when: not is_gip
 
-# TODO go back and fix this.
-# - name: Set Elastic Resource Allocations for GIP
-#   block:
-#   - name: Set Defaults for VM Setup (for testing only)
-#     set_fact:
-#       master_memory: 4
-#       master_java_memory: 2
-#       master_num_procs: "2000m"
-#       data_count: 6
-#       data_memory: 4
-#       data_java_memory: 2
-#       data_num_procs: "4000m"
-#       ml_memory: 2
-#       ml_java_memory: 1
-#       ml_num_procs: "2000m"
-#       ml_count: 2
-#   - name: GIP Gen1
-#     set_fact:
-#       master_memory: 24
-#       master_java_memory: 24
-#       master_num_procs: "4000m"
-#       data_count: "{{ servers_node_type|length * 1 }}"
-#       data_memory: 31
-#       data_java_memory: 64
-#       data_num_procs: "14000m"
-#       ml_memory: 64
-#       ml_java_memory: 31
-#       ml_num_procs: "8000m"
-#       ml_count: 4
-#     when: kit_size == 100
-#   when: system_name == "GIP"
+- name: Set Elastic Resource Allocations for GIP
+  block:
+  - name: Set Defaults for VM Setup (for testing only)
+    set_fact:
+      master_memory: 4
+      master_java_memory: 2
+      master_num_procs: "2000m"
+      data_count: 6
+      data_memory: 4
+      data_java_memory: 2
+      data_num_procs: "4000m"
+      ml_memory: 2
+      ml_java_memory: 1
+      ml_num_procs: "2000m"
+      ml_count: 2
+  - name: GIP Gen1
+    set_fact:
+      master_memory: 24
+      master_java_memory: 24
+      master_num_procs: "4000m"
+      data_count: "{{ servers_node_type|length * 1 }}"
+      data_memory: 31
+      data_java_memory: 64
+      data_num_procs: "14000m"
+      ml_memory: 64
+      ml_java_memory: 31
+      ml_num_procs: "8000m"
+      ml_count: 4
+    when: kit_size == 100
+  when: is_gip
 
 - name: Set Index Rollover Size
   set_fact:

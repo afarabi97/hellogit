@@ -10,7 +10,7 @@ from typing import Dict, List
 
 from app.calculations import (get_sensors_from_list, get_servers_from_list,
                               server_and_sensor_count)
-from app.models import Model
+from app.models import Model, PostValidationError
 from app.models.device_facts import DeviceFacts
 from app.utils.constants import (CORE_DIR, DEPLOYMENT_TYPES, JOB_CREATE,
                                  JOB_DEPLOY, JOB_PROVISION, JOB_REMOVE,
@@ -156,6 +156,11 @@ class NodeSchema(Schema):
     deviceFacts = marsh_fields.Dict()
     deployment_type = marsh_fields.String(required=False, allow_none=True)
     vpn_status = marsh_fields.Bool(required=False, allow_none=True)
+    virtual_cpu = marsh_fields.Integer(required=False)
+    virtual_mem = marsh_fields.Integer(required=False)
+    virtual_os = marsh_fields.Integer(required=False)
+    virtual_data = marsh_fields.Integer(required=False)
+
 
     @post_load
     def create_Node(self, data: Dict, many: bool, partial: bool):
@@ -222,7 +227,12 @@ class Node(NodeBaseModel):
         #"error": fields.String(),
         "deviceFacts": fields.Nested(DeviceFacts.DTO, default={}),
         "deployment_type": fields.String(example="Baremetal or Virtual"),
-        "vpn_status": fields.Boolean(required=True, default=False, description="When the Node is connected or disconnected from vpn")
+        "vpn_status": fields.Boolean(required=True, default=False, description="When the Node is connected or disconnected from vpn"),
+
+        "virtual_cpu": fields.Integer(description="The number of virtual CPU cores."),
+        "virtual_mem": fields.Integer(description="The number of virtual CPU cores."),
+        "virtual_os": fields.Integer(description="The number of virtual CPU cores."),
+        "virtual_data": fields.Integer(description="The number of virtual CPU cores.")
     })
 
     def __init__(self,
@@ -240,6 +250,10 @@ class Node(NodeBaseModel):
                  deviceFacts: Dict={},
                  deployment_type: str=None,
                  vpn_status: bool=None,
+                 virtual_cpu: int=16,
+                 virtual_mem: int=16,
+                 virtual_os: int=100,
+                 virtual_data: int=500,
                  _id: str=None):
         self._id = _id or uuid.uuid4().hex
         self.hostname = hostname
@@ -258,6 +272,10 @@ class Node(NodeBaseModel):
         self.deployment_type = deployment_type
         self.vpn_status = vpn_status
 
+        self.virtual_cpu = virtual_cpu
+        self.virtual_mem = virtual_mem
+        self.virtual_os = virtual_os
+        self.virtual_data = virtual_data
 
     def update_kit_specific_fields(self, payload: Dict):
         self.node_type = payload["node_type"]
@@ -398,6 +416,14 @@ class Node(NodeBaseModel):
         return ret_val
 
     @classmethod
+    def load_all_servers_from_db(cls) -> List[Model]:
+        ret_val = []
+        query = { "node_type": { "$in": [ "Server" ] } }
+        for node in conn_mng.mongo_node.find(query):
+            ret_val.append(cls.schema.load(node))
+        return ret_val
+
+    @classmethod
     def load_dip_nodes_from_db(cls) -> List[Model]:
         ret_val = []
         query = { "node_type": { "$in": [ "Server", "Sensor", "Service", "Control-Plane" ] } }
@@ -437,19 +463,24 @@ class Node(NodeBaseModel):
     #             if len(node.boot_drives) == 0:
     #                 exc.append_error("When os_raid is set to false at least one boot_drive is required for {}.".format(node.hostname))
 
-    # def post_validation(self):
-    #     """
-    #     These are other validation performed that cannot be done through marshmallow.
-    #     """
-    #     exc = self._common_compares()
+    def post_validation(self):
+        """
+        These are other validation performed that cannot be done through marshmallow.
+        """
+        exc = PostValidationError()
+        servers = self.load_all_servers_from_db()
 
-    #     #if len(self.nodes) < 2:
-    #     #    exc.append_error("Kickstart form submission require at least 2 nodes to be defined before submission.")
+        if self.node_type == "Server" and self.deployment_type == "Virtual":
+            for server in servers:
+                if server.deployment_type == "Virtual":
+                    if server.virtual_cpu != self.virtual_cpu:
+                        exc.append_error("CPU Cores must match {} resources.  Set CPU Core to {}\n".format(server.hostname, server.virtual_cpu))
 
-    #     self._do_optional_node_validations(exc)
+                    if server.virtual_mem != self.virtual_mem:
+                        exc.append_error("Memory must match {} resources.  Set Memory to {}\n".format(server.hostname, server.virtual_mem))
 
-    #     if exc.has_errors():
-    #         raise exc
+        if exc.has_errors():
+            raise exc
 
 
 class JobSchema(Schema):

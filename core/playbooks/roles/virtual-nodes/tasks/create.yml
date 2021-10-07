@@ -46,10 +46,21 @@
     - size_gb: "{{ default_data_disk_size }}"
       type: thin
       datastore: "{{ esxi.datastore }}"
+  when: hostvars[node].node_type == "Control-Plane"
 
 - set_fact:
     disks:
-    - size_gb: "{{ default_mip_disk_size }}"
+    - size_gb: "{{ hostvars[node].virtual_os_size }}"
+      type: thin
+      datastore: "{{ esxi.datastore }}"
+    - size_gb: "{{ hostvars[node].virtual_data_size }}"
+      type: thin
+      datastore: "{{ esxi.datastore }}"
+  when: hostvars[node].node_type == "Server" or hostvars[node].node_type == "Sensor" or hostvars[node].node_type == "Service"
+
+- set_fact:
+    disks:
+    - size_gb: "{{ hostvars[node].virtual_os_size }}"
       type: thin
       datastore: "{{ esxi.datastore }}"
   when: hostvars[node].node_type == "MIP"
