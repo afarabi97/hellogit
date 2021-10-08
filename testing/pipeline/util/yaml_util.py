@@ -127,10 +127,10 @@ class YamlManager:
 
     @classmethod
     def save_reposync_settings_from_yaml(cls, model: RHELRepoSettings) -> RHELRepoSettings:
-        yaml_name = "{}_{}.yml".format(RHELRepoSettings.__name__.lower(), "server")
+        yaml_name = YAML_FILE.format(RHELRepoSettings.__name__.lower())
         cls.save_to_yaml(model, yaml_name)
 
     @classmethod
     def load_reposync_settings_from_yaml(cls) -> RHELRepoSettings:
-        yaml_name = "{}_{}.yml".format(RHELRepoSettings.__name__.lower(), "server")
+        yaml_name = YAML_FILE.format(RHELRepoSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)

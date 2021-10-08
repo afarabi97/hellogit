@@ -57,7 +57,10 @@ Build Server Reposync VM for Export:
     --disk-size "$REPO_SERVER_DISK_SIZE" \
     --vm-template "$REPO_SERVER_TEMPLATE_TO_CLONE" \
     --pipeline "$PIPELINE" \
-    --commit-hash "$CI_COMMIT_SHORT_SHA"
+    --commit-hash "$CI_COMMIT_SHORT_SHA" \
+    --subscription "$RHEL_SUB_METHOD" \
+    --orgnumber "$RHEL_ORGANIZATION" \
+    --activationkey "$RHEL_ACTIVATIONKEY"
   retry: 2
   artifacts:
     untracked: true

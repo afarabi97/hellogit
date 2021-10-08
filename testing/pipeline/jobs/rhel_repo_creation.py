@@ -1,7 +1,5 @@
 import os
-from jobs.stig import StigJob
 from models.rhel_repo_vm import RHELRepoSettings
-from models.stig import STIGSettings
 from util.ansible_util import execute_playbook, take_snapshot
 from util.ssh import test_nodes_up_and_alive
 from util.connection_mngs import FabricConnectionWrapper
@@ -29,6 +27,11 @@ class RHELCreationJob:
                                      self.repo_settings.node.password,
                                      self.repo_settings.node.ipaddress) as remote_shell:
             remote_shell.put(TESTING_DIR + 'reposync_server.sh', '/root/reposync_server.sh')
+            remote_shell.run('mkdir -p /opt/tfplenum/rhel8-stigs/templates')
+            remote_shell.put('rhel8-stigs/rhel8-playbook-stig.yml', '/opt/tfplenum/rhel8-stigs')
+            remote_shell.put('rhel8-stigs/site.yml', '/opt/tfplenum/rhel8-stigs')
+            remote_shell.put('rhel8-stigs/ansible.cfg', '/opt/tfplenum/rhel8-stigs')
+            remote_shell.put('rhel8-stigs/templates/logon-banner.j2', '/opt/tfplenum/rhel8-stigs/templates')
             remote_shell.run(rhelrepo_cmd)
 
     def execute(self):
@@ -43,12 +46,6 @@ class RHELExportJob(RHELCreationJob):
 
     def __init__(self, repo_settings: RHELRepoSettings):
         self.repo_settings = repo_settings
-
-    def _rhel_export(self):
-        with FabricConnectionWrapper(self.repo_settings.node.username,
-                                     self.repo_settings.node.password,
-                                     self.repo_settings.node.ipaddress) as remote_shell:
-            remote_shell.put(TESTING_DIR + 'reposync_server.sh', '/root/reposync_server.sh')
 
     def _is_built_already(self) -> bool:
         commit_hash = self.repo_settings.node.commit_hash
@@ -68,10 +65,5 @@ class RHELExportJob(RHELCreationJob):
             print("Building RHEL server for export")
             execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.repo_settings.to_dict())
             test_nodes_up_and_alive([self.repo_settings.node], 10)
-            self._rhel_export()
-
-            settings = STIGSettings()
-            settings.initalize_for_server_repo()
-            job = StigJob(settings)
-            job.run_stig()
+            self._run_repo_script()
             take_snapshot(self.repo_settings.vcenter, self.repo_settings.node)

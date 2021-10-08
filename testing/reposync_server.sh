@@ -24,6 +24,14 @@ function root_check() {
     fi
 }
 
+function run_stigs() {
+    run_cmd dnf -y install ansible
+    pushd /opt/tfplenum/rhel8-stigs > /dev/null
+    ansible all --list-hosts
+    ansible-playbook site.yml --connection=local -i localhost,
+    popd > /dev/null
+}
+
 function install_deps() {
     run_cmd dnf -y update
     run_cmd dnf -y install httpd dnf-utils createrepo
@@ -146,7 +154,36 @@ EOF
     echo "Reloading firewall"
     run_cmd firewall-cmd --reload
     echo " "
+}
 
+function setup_local_repos() {
+    touch /etc/yum.repos.d/local-rhel8.repo
+    chmod  u+rw,g+r,o+r  /etc/yum.repos.d/local-rhel8.repo
+cat << EOF > /etc/yum.repos.d/local-rhel8.repo
+[LocalRepo_BaseOS]
+name=LocalRepo_BaseOS
+metadata_expire=-1
+enabled=1
+gpgcheck=1
+baseurl=file:///var/www/html/repo/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[LocalRepo_AppStream]
+name=LocalRepo_AppStream
+metadata_expire=-1
+enabled=1
+gpgcheck=1
+baseurl=file:///var/www/html/repo/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[LocalRepo_Supplementary]
+name=LocalRepo_Supplementary
+metadata_expire=-1
+enabled=1
+gpgcheck=1
+baseurl=file:///var/www/html/repo/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+EOF
 }
 
 function cleaning() {
@@ -170,3 +207,5 @@ install_epel
 rhel_reposync
 create_repo_config
 cleaning
+setup_local_repos
+run_stigs

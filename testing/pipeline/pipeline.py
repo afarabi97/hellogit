@@ -180,7 +180,7 @@ class Runner:
                 executor.execute()
             elif args.which == SubCmd.build_server_for_export:
                 repo_settings = RHELRepoSettings()
-                repo_settings.from_namespace(args, True)
+                repo_settings.from_namespace(args)
                 YamlManager.save_reposync_settings_from_yaml(repo_settings)
                 executor = RHELExportJob(repo_settings)
                 executor.build_export()
