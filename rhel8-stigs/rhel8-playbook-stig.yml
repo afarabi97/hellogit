@@ -1143,4 +1143,6 @@
   reboot:
     reboot_timeout: 2000
     test_command: "whoami"
-  when: hostvars[inventory_hostname].node_type in ('Server', 'Sensor', 'Service')
+  when:
+      - hostvars[inventory_hostname].node_type in ('Server', 'Sensor', 'Service')
+      - hostvars[inventory_hostname].deployment_type not in ('Iso')

@@ -32,7 +32,9 @@
   when:
     - hostvars[inventory_hostname].deployment_type == "Iso"
     - hostvars[inventory_hostname]['ansible_' + item] is defined
-    - (hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined and hostvars[inventory_hostname]['ansible_' + item].ipv4.address|ansible.netcommon.ipaddr)
+    - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
+    - "'tap0' != item"
+    - "'lo' not in item"
 
 - name: Get potential monitor interfaces
   set_fact:
@@ -49,8 +51,9 @@
     - "'br0' != item"
     - "'tap0' != item"
     - "management_interface != item"
+    - "ansible_default_ipv4.interface != item"
 
-- name: Set on boot to yes
+- name: Configure monitoring interfaces
   template:
     src: "templates/ifcfg-monitor"
     dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
@@ -64,6 +67,7 @@
   with_items:
     - network
     - NetworkManager
+  when: hostvars[inventory_hostname].deployment_type != "Iso"
 
 - name: Add promisc service
   copy:
