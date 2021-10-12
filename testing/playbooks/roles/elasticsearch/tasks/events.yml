@@ -1,14 +1,3 @@
-- name: Get ES Password
-  shell: |
-    set -o pipefail
-    kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
-  register: es_password
-  changed_when: es_password.rc == 0
-
-- name: Set bearer token
-  command: /opt/tfplenum/.venv/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 4
-  register: keycloak_bearer_token
-
 - name: Check Suricata and Zeek Traffic
   uri:
     url: "{{ elastic_uri }}/filebeat-{{ item.app }}*/_search"
