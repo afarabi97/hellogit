@@ -8,12 +8,13 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
 
 import {
+  MockErrorMessageClass,
   MockFilebeatModuleClassApache,
   MockFilebeatModuleClassWindowsEventLogs,
+  MockStatusClass_LogstashDeployed,
   MockWinlogbeatConfigurationClass,
   MockWinlogbeatConfigurationClassDefault
 } from '../../../../static-data/class-objects';
-import { MockErrorMessageClass } from '../../../../static-data/class-objects';
 import { TestingModule } from '../testing-modules/testing.module';
 import { InjectorModule } from '../utilily-modules/injector.module';
 import { ColdLogIngestComponent } from './cold-log-ingest.component';
@@ -87,6 +88,7 @@ describe('ColdLogIngestComponent', () => {
   let spyApiGetWinlogbeatConfiguration: jasmine.Spy<any>;
   let spyApiPostWinlogbeat: jasmine.Spy<any>;
   let spyApiGetModuleInfo: jasmine.Spy<any>;
+  let spyApiCheckLogstashInstalled: jasmine.Spy<any>;
 
   // Test Error
   const mock_http_error_response: HttpErrorResponse = new HttpErrorResponse({
@@ -154,6 +156,10 @@ describe('ColdLogIngestComponent', () => {
     spyApiGetWinlogbeatConfiguration = spyOn<any>(component, 'api_get_winlogbeat_configuration_').and.callThrough();
     spyApiPostWinlogbeat = spyOn<any>(component, 'api_post_winlogbeat_').and.callThrough();
     spyApiGetModuleInfo = spyOn<any>(component, 'api_get_module_info_').and.callThrough();
+    spyApiCheckLogstashInstalled = spyOn<any>(component, 'api_check_logstash_installed_').and.callThrough();
+
+    // Set spyon service until implemented later
+    spyOn<any>(component['agent_builder_service'], 'checkLogStashInstalled').and.returnValue(of([MockStatusClass_LogstashDeployed]));
 
     // Detect changes
     fixture.detectChanges();
@@ -175,6 +181,7 @@ describe('ColdLogIngestComponent', () => {
     spyApiGetWinlogbeatConfiguration.calls.reset();
     spyApiPostWinlogbeat.calls.reset();
     spyApiGetModuleInfo.calls.reset();
+    spyApiCheckLogstashInstalled.calls.reset();
   };
 
   afterAll(() => {
@@ -217,6 +224,14 @@ describe('ColdLogIngestComponent', () => {
         component.ngOnInit();
 
         expect(component['api_get_module_info_']).toHaveBeenCalled();
+      });
+
+      it('should call api_check_logstash_installed_() from ngOnInit()', () => {
+        reset();
+
+        component.ngOnInit();
+
+        expect(component['api_check_logstash_installed_']).toHaveBeenCalled();
       });
     });
 
@@ -594,6 +609,56 @@ describe('ColdLogIngestComponent', () => {
         spyOn<any>(component['cold_log_ingest_service_'], 'get_module_info').and.returnValue(throwError(mock_http_error_response));
 
         component['api_get_module_info_']();
+
+        expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
+      });
+    });
+
+    describe('private api_check_logstash_installed_()', () => {
+      it('should call api_check_logstash_installed_()', () => {
+        reset();
+
+        component['api_check_logstash_installed_']();
+
+        expect(component['api_check_logstash_installed_']).toHaveBeenCalled();
+      });
+
+      it('should call agent_builder_service.checkLogStashInstalled() from api_check_logstash_installed_()', () => {
+        reset();
+
+        component['api_check_logstash_installed_']();
+
+        expect(component['agent_builder_service'].checkLogStashInstalled).toHaveBeenCalled();
+      });
+
+      it('should call agent_builder_service.checkLogStashInstalled() and handle response and set logstash_deployed = true', () => {
+        reset();
+
+        component['api_check_logstash_installed_']();
+
+        expect(component.logstash_deployed).toBeTrue();
+      });
+
+      it('should call agent_builder_service.checkLogStashInstalled() and handle response and set logstash_deployed = false', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['agent_builder_service'], 'checkLogStashInstalled').and.returnValue(of([]));
+
+        component['api_check_logstash_installed_']();
+
+        expect(component.logstash_deployed).toBeFalse();
+      });
+
+      it('should call agent_builder_service.checkLogStashInstalled() and handle error', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['agent_builder_service'], 'checkLogStashInstalled').and.returnValue(throwError(mock_http_error_response));
+
+        component['api_check_logstash_installed_']();
 
         expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
       });

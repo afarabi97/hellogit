@@ -28,6 +28,7 @@ export * from './portal-link.class';
 export * from './rule-set.class';
 export * from './rule-sync.class';
 export * from './rule.class';
+export * from './status.class';
 export * from './success-message.class';
 export * from './system-version.class';
 export * from './user.class';

@@ -47,7 +47,8 @@
 
         <mat-checkbox id="cvah-elasticsearch-cold-log-ingest-checkbox-use-logstash"
                       formControlName="send_to_logstash"
-                      matTooltip="NOTE: You should only select this if you want your data to be processed by custom logstash processors that you have setup before going to Elasticsearch.">
+                      matTooltip="NOTE: You should only select this if you want your data to be processed by custom logstash processors that you have setup before going to Elasticsearch."
+                      [disabled]="!logstash_deployed">
           (Optional) Send data through logstash instead of sending it directly to elasticsearch.
         </mat-checkbox>
       </form>

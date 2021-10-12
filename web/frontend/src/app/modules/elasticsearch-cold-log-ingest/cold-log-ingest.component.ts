@@ -6,7 +6,8 @@ import { MatSelectChange } from '@angular/material/select';
 import { Title } from '@angular/platform-browser';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { ErrorMessageClass, GenericJobAndKeyClass, ObjectUtilitiesClass } from '../../classes';
+import { AgentBuilderService } from '../../agent-builder-chooser/agent-builder.service';
+import { ErrorMessageClass, GenericJobAndKeyClass, ObjectUtilitiesClass, StatusClass } from '../../classes';
 import {
   DIALOG_WIDTH_800PX,
   MAT_SNACKBAR_CONFIGURATION_60000_DUR,
@@ -55,6 +56,8 @@ export class ColdLogIngestComponent implements OnInit {
   file_sets: FileSetClass[];
   // Used for displaying modules as mat options
   modules: FilebeatModuleClass[];
+  // Used to get coldlog status
+  logstash_deployed: Boolean;
 
   /**
    * Creates an instance of ColdLogIngestComponent.
@@ -62,15 +65,17 @@ export class ColdLogIngestComponent implements OnInit {
    * @param {Title} title_
    * @param {FormBuilder} form_builder_
    * @param {MatDialog} mat_dialog_
-   * @param {ColdLogIngestService} cold_log_ingest_service_
+   * @param {AgentBuilderService} agent_builder_service
    * @param {MatSnackBarService} mat_snackbar_service_
+   * @param {ColdLogIngestService} cold_log_ingest_service_
    * @memberof ColdLogIngestComponent
    */
   constructor(private title_: Title,
               private form_builder_: FormBuilder,
               private mat_dialog_: MatDialog,
-              private cold_log_ingest_service_: ColdLogIngestService,
-              private mat_snackbar_service_: MatSnackBarService) {
+              private agent_builder_service: AgentBuilderService,
+              private mat_snackbar_service_: MatSnackBarService,
+              private cold_log_ingest_service_: ColdLogIngestService) {
     this.file_sets = [];
     this.modules = [];
     this.cold_log_ingest_form_group = new FormGroup({});
@@ -86,6 +91,7 @@ export class ColdLogIngestComponent implements OnInit {
     this.initialize_form_group_();
     this.initialize_form_control_();
     this.api_get_module_info_();
+    this.api_check_logstash_installed_();
   }
 
   /**
@@ -356,6 +362,26 @@ export class ColdLogIngestComponent implements OnInit {
         },
         (error: HttpErrorResponse) => {
           const message: string = 'getting modules';
+          this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        });
+  }
+
+  /**
+   * Used to making api rest call to get check logstash installed
+   *
+   * @memberof ColdLogIngestComponent
+   */
+  private api_check_logstash_installed_() : void {
+    this.agent_builder_service.checkLogStashInstalled()
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: StatusClass[]) => {
+          this.logstash_deployed = ObjectUtilitiesClass.notUndefNull(response) &&
+                                   response.length > 0 &&
+                                   (response[0].status === 'DEPLOYED');
+        },
+        (error: HttpErrorResponse) => {
+          const message: string = 'checking logstash installed';
           this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
         });
   }

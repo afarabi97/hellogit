@@ -1,11 +1,12 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
-export const HTTP_OPTIONS = {
-  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-};
+import { StatusClass } from '../classes';
+import { HTTP_OPTIONS } from '../constants/cvah.constants';
+import { EntityConfig } from '../interfaces';
+import { ApiService } from '../services/abstract/api.service';
 
 export class ErrorMessage {
   error_message: string;
@@ -60,10 +61,10 @@ export class Kerberos {
       this.admin_server = configs.admin_server;
       this.port = configs.port;
     } else {
-      this.domain_name = "";
-      this.key_controller = "";
-      this.admin_server = "";
-      this.port = "";
+      this.domain_name = '';
+      this.key_controller = '';
+      this.admin_server = '';
+      this.port = '';
     }
   }
 }
@@ -80,8 +81,8 @@ export class Ntlm {
       this.domain_name = ntlm.domain_name;
     } else {
       this.is_ssl = false;
-      this.port = "";
-      this.domain_name = "";
+      this.port = '';
+      this.domain_name = '';
     }
   }
 }
@@ -95,8 +96,8 @@ export class SMB {
       this.port = smb.port;
       this.domain_name = smb.domain_name;
     } else {
-      this.port = "";
-      this.domain_name = "";
+      this.port = '';
+      this.domain_name = '';
     }
   }
 }
@@ -126,9 +127,9 @@ export class IpTargetList {
         }
       }
     } else {
-      this._id = "";
-      this.name = "";
-      this.protocol = "";
+      this._id = '';
+      this.name = '';
+      this.protocol = '';
       this.ntlm = new Ntlm(null);
       this.kerberos = new Kerberos(null);
       this.smb = new SMB(null);
@@ -187,49 +188,53 @@ export interface ElementSpec {
   placeholder?: string;
 }
 
+const entityConfig: EntityConfig = { entityPart: '', type: 'AgentBuilderService' };
+
 @Injectable({
   providedIn: 'root'
 })
-export class AgentBuilderService {
+export class AgentBuilderService extends ApiService<any> {
 
-  constructor(private http: HttpClient) { }
+  constructor() {
+    super(entityConfig);
+  }
 
   getAgentInstaller(payload: Object) : Observable<any> {
     const url = '/api/agent/generate';
-    return this.http.post(url, payload, { responseType: 'blob' }).pipe();
+    return this.httpClient_.post(url, payload, { responseType: 'blob' }).pipe();
   }
 
   saveConfig(payload) : Observable<Array<AgentInstallerConfig>> {
     const url = '/api/agent/config';
-    return this.http.post(url, payload).pipe(
+    return this.httpClient_.post(url, payload).pipe(
       map(data => this.mapInstallConfigs(data as Array<Object>))
     );
   }
 
   deleteConfig(payload) : Observable<Array<AgentInstallerConfig>> {
     const url = `/api/agent/config/${payload}`;
-    return this.http.delete(url).pipe(
+    return this.httpClient_.delete(url).pipe(
       map(data => this.mapInstallConfigs(data as Array<Object>))
     );
   }
 
   getSavedConfigs() : Observable<Array<AgentInstallerConfig>> {
     const url = '/api/agent/config';
-    return this.http.get(url).pipe(
+    return this.httpClient_.get(url).pipe(
       map(data => this.mapInstallConfigs(data as Array<Object>))
     );
   }
 
   getIpTargetList(): Observable<Array<IpTargetList>> {
     const url = '/api/agent/targets';
-    return this.http.get(url).pipe(
+    return this.httpClient_.get(url).pipe(
       map(data => this.mapIPTargets(data as Array<Object>))
     );
   }
 
   saveIpTargetList(payload: IpTargetList): Observable<Array<IpTargetList>> {
     const url = '/api/agent/targets';
-    return this.http.post(url, payload).pipe(
+    return this.httpClient_.post(url, payload).pipe(
       map(data => this.mapIPTargets(data as Array<Object>))
     );
   }
@@ -237,21 +242,21 @@ export class AgentBuilderService {
   addHostToIPTargetList(target_config_id: string, host: Object) : Observable<IpTargetList | ErrorMessage> {
     const url = `/api/agent/host/${target_config_id}`;
 
-    return this.http.post(url, host, HTTP_OPTIONS).pipe(
+    return this.httpClient_.post(url, host, HTTP_OPTIONS).pipe(
       map(data => this.mapIPTargetOrError(data))
     );
   }
 
   removeHostFromIpTargetList(target_id: string, host: Host): Observable<SuccessMessage | ErrorMessage> {
     const url = `/api/agent/host/${host.hostname}/${target_id}`;
-    return this.http.delete(url).pipe(
+    return this.httpClient_.delete(url).pipe(
       map(data => this.mapSuccessOrError(data))
     );
   }
 
   deleteIpTargetList(payload: string): Observable<Array<IpTargetList>> {
     const url = `/api/agent/targets/${payload}`;
-    return this.http.delete(url).pipe(
+    return this.httpClient_.delete(url).pipe(
       map(data => this.mapIPTargets(data as Array<Object>))
     );
   }
@@ -260,14 +265,14 @@ export class AgentBuilderService {
                           'target_config': IpTargetList;
                           'windows_domain_creds': WindowsCreds; }): Observable<any> {
     const url = '/api/agent/install';
-    return this.http.post(url, payload);
+    return this.httpClient_.post(url, payload);
   }
 
   uninstallAgents(payload: {'installer_config': AgentInstallerConfig;
                             'target_config': IpTargetList;
                             'windows_domain_creds': WindowsCreds; }): Observable<any> {
     const url = '/api/agent/uninstall';
-    return this.http.post(url, payload);
+    return this.httpClient_.post(url, payload);
   }
 
   uninstallAgent(payload: {'installer_config': AgentInstallerConfig;
@@ -276,7 +281,7 @@ export class AgentBuilderService {
                            target: Host): Observable<any> {
     const url = '/api/agent/uninstall';
     payload['target'] = target;
-    return this.http.post(url, payload);
+    return this.httpClient_.post(url, payload);
   }
 
   reinstallAgent(payload: {'installer_config': AgentInstallerConfig;
@@ -285,17 +290,18 @@ export class AgentBuilderService {
                            target: Host){
     const url = '/api/agent/reinstall';
     payload['target'] = target;
-    return this.http.post(url, payload);
+    return this.httpClient_.post(url, payload);
   }
 
-  checkLogStashInstalled(): Observable<Object> {
-    const url = "/api/catalog/chart/logstash/status";
-    return this.http.get(url);
+  checkLogStashInstalled(): Observable<StatusClass[]> {
+    const url = '/api/catalog/chart/logstash/status';
+    return this.httpClient_.get<StatusClass[]>(url)
+      .pipe(catchError((error: HttpErrorResponse) => this.handleError('get check logstash installed', error)));
   }
 
   getAppConfigs(): Observable<Array<AppConfig>> {
     const url = `/api/agent/configs`;
-    return this.http.get<Array<AppConfig>>(url);
+    return this.httpClient_.get<Array<AppConfig>>(url);
   }
 
   private mapIpTarget(config: Object): IpTargetList {
@@ -315,7 +321,7 @@ export class AgentBuilderService {
   }
 
   private mapIPTargetOrError(config: Object): IpTargetList | ErrorMessage {
-    if (config["error_message"]){
+    if (config['error_message']){
       return new ErrorMessage(config as ErrorMessage);
     }
     return this.mapIpTarget(config);
@@ -330,7 +336,7 @@ export class AgentBuilderService {
   }
 
   private mapSuccessOrError(something: Object): SuccessMessage | ErrorMessage {
-    if (something["error_message"]){
+    if (something['error_message']){
         return new ErrorMessage(something as ErrorMessage);
     }
     return new SuccessMessage(something as SuccessMessage);
