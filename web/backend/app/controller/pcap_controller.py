@@ -81,7 +81,7 @@ class DeletePcap(Resource):
         if pcap_file.exists():
             pcap_file.unlink()
             return {"success_message": "PCAP successfully deleted!"}
-        return {"error_message": "PCAP failed to delete!"}, 400
+        return {"error_message": "PCAP failed to delete!"}
 
 
 @POLICY_NS.route('/pcap/replay')

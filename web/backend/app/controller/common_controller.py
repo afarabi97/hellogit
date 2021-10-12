@@ -6,8 +6,8 @@ from typing import List
 
 import netifaces
 from app.middleware import Auth
-from app.models.common import COMMON_NS, COMMON_RETURNS
 from app.models import DBModelNotFound
+from app.models.common import COMMON_ERROR_MESSAGE, COMMON_NS, COMMON_RETURNS
 from app.models.settings.kit_settings import GeneralSettingsForm
 from app.service.job_service import run_command
 from app.utils.constants import CONTROLLER_INTERFACE_NAME
@@ -97,7 +97,7 @@ def _get_ip_blocks(cidr: int) -> List[int]:
             count = 0
     return valid_ip_blocks
 
-def _nmap_scan(ip: str, netmask: str, used: bool=False) -> list:
+def _nmap_scan(ip: str, netmask: str, used: bool=False) -> List:
     status = "Down"
     if used:
         status = "Up"
@@ -137,6 +137,7 @@ def _get_available_ip_blocks(mng_ip: str, netmask: str) -> List:
 @COMMON_NS.route("/available-ip-blocks")
 class IPBlocks(Resource):
 
+    @COMMON_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @COMMON_NS.response(200, "Array of IP Address Strings", COMMON_RETURNS["ip_blocks"])
     @COMMON_NS.doc(description="Gets available IP blocks based on controllers "
                          "IP Address and netmask.")
@@ -146,9 +147,9 @@ class IPBlocks(Resource):
             mng_ip = str(kickstart_form.controller_interface)
             netmask = str(kickstart_form.netmask)
             available_ip_blocks = _get_available_ip_blocks(mng_ip, netmask)
-            return available_ip_blocks, 200
+            return available_ip_blocks
         except DBModelNotFound as e:
-            return {}
+            return {"error_message": "DBModelNotFound"}
 
 
 @COMMON_NS.route("/ip-blocks/<ip_or_network_id>/<netmask>")
@@ -160,7 +161,7 @@ class IPBlocksGeneric(Resource):
     @COMMON_NS.response(200, "Array of IP Address Strings", COMMON_RETURNS["ip_blocks"])
     @COMMON_NS.doc(description="Gets available IP blocks based on "
                          "IP Address and netmask.")
-    def get(self, ip_or_network_id: str, netmask: str):
+    def get(self, ip_or_network_id: str, netmask: str) -> Response:
         available_ip_blocks = _get_available_ip_blocks(ip_or_network_id, netmask)
         return available_ip_blocks
 
@@ -182,7 +183,7 @@ class UnusedIPAddresses(Resource):
 
         available_ip_addresses = _nmap_scan(ip=ip_or_network_id, netmask=netmask, used=False)
         available_ip_addresses = [x for x in available_ip_addresses if not filter_ip(x)]
-        return available_ip_addresses, 200
+        return available_ip_addresses
 
 
 @COMMON_NS.route("/used-ip-addrs/<ip_or_network_id>/<netmask>")
@@ -202,7 +203,7 @@ class UnusedIPAddresses(Resource):
 
         available_ip_addresses = _nmap_scan(ip=ip_or_network_id, netmask=netmask, used=True)
         available_ip_addresses = [x for x in available_ip_addresses if not filter_ip(x)]
-        return available_ip_addresses, 200
+        return available_ip_addresses
 
 
 @COMMON_NS.route('/current_user')

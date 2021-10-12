@@ -18,6 +18,7 @@ from app.service.node_service import execute
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.constants import DEPLOYMENT_JOBS
 from app.utils.logging import logger
+from flask import Response
 from flask_restx import Resource
 from marshmallow.exceptions import ValidationError
 from pyVim.connect import Connect
@@ -96,7 +97,7 @@ def _test_esxi_client(esxi_settings: EsxiSettingsForm) -> dict:
             return vmware_data, 200
     except vim.fault.HostConnectFault as exc:
        logger.error(str(exc))
-       return {"message": "404 Not Found Unable to connect to hostname or ip address."}, 400
+       return {"message": "404 Not Found Unable to connect to hostname or ip address."}, 404
     except vim.fault.InvalidLogin as exc:
        logger.error(str(exc))
        return {"message": "Cannot complete login due to an incorrect user name or password."}, 400
@@ -118,20 +119,21 @@ class GeneralSettings(Resource):
         job = execute.delay(exec_type=DEPLOYMENT_JOBS.setup_controller)
         return JobID(job).to_dict()
 
+    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @SETINGS_NS.response(200, 'GeneralSettingsForm Model', GeneralSettingsForm.DTO)
-    def get(self):
+    def get(self) -> Response:
         try:
             settings = GeneralSettingsForm.load_from_db()
             if settings:
                 return settings.to_dict()
-        except DBModelNotFound:
-            return {}, 200
+        except DBModelNotFound as e:
+            return {"post_validation": [str(e)]}, 400
 
     @SETINGS_NS.expect(GeneralSettingsForm.DTO)
     @SETINGS_NS.response(200, 'JobID Model', JobID.DTO)
     @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
-    def post(self):
+    def post(self) -> Response:
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
             general_settings = GeneralSettingsForm.load_from_request(SETINGS_NS.payload)
@@ -149,7 +151,7 @@ class GeneralSettings(Resource):
 
         return self._execute_job()
 
-
+@SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
 @SETINGS_NS.route("/kit")
 class KitSettings(Resource):
 
@@ -157,14 +159,15 @@ class KitSettings(Resource):
         job = execute.delay(exec_type=DEPLOYMENT_JOBS.setup_controller_kit_settings)
         return JobID(job).to_dict()
 
+    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @SETINGS_NS.response(200, 'KitSettingsForm Model', KitSettingsForm.DTO)
-    def get(self):
+    def get(self) -> Response:
         try:
             settings = KitSettingsForm.load_from_db() # type: KitSettingsForm
             if settings:
                 return settings.to_dict()
-        except DBModelNotFound:
-            return {}, 200
+        except DBModelNotFound as e:
+            return {"post_validation": [str(e)]}, 400
 
     # TODO
     # @SETINGS_NS.expect(Node.DTO)
@@ -191,7 +194,7 @@ class KitSettings(Resource):
     @SETINGS_NS.response(200, 'JobID Model', JobID.DTO)
     @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
-    def post(self):
+    def post(self) -> Response:
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
             kit_settings = KitSettingsForm.load_from_request(SETINGS_NS.payload)
@@ -213,19 +216,20 @@ class KitSettings(Resource):
 @SETINGS_NS.route("/mip")
 class MipSettings(Resource):
 
+    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @SETINGS_NS.response(200, 'MipSettingsForm Model', MipSettingsForm.DTO)
-    def get(self):
+    def get(self) -> Response:
         try:
             settings = MipSettingsForm.load_from_db()
             if settings:
                 return settings.to_dict()
-        except DBModelNotFound:
-            return {}, 200
+        except DBModelNotFound as e:
+            return {"post_validation": [str(e)]}, 400
 
     @SETINGS_NS.expect(MipSettingsForm.DTO)
     @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
-    def post(self):
+    def post(self) -> Response:
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
             mip_settings = MipSettingsForm.load_from_request(SETINGS_NS.payload)
@@ -247,20 +251,21 @@ class MipSettings(Resource):
 @SETINGS_NS.route("/esxi")
 class EsxiSettings(Resource):
 
+    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @SETINGS_NS.response(200, 'EsxiSettingsForm Model', EsxiSettingsForm.DTO)
-    def get(self):
+    def get(self) -> Response:
         try:
             settings = EsxiSettingsForm.load_from_db()
             if settings:
                 return settings.to_dict()
-        except DBModelNotFound:
-            return {}, 200
+        except DBModelNotFound as e:
+            return {"post_validation": [str(e)]}, 400
 
     @SETINGS_NS.expect(EsxiSettingsForm.DTO)
     @SETINGS_NS.response(200, 'JobID Model', JobID.DTO)
     @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
-    def post(self):
+    def post(self) -> Response:
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
             esxi_settings = EsxiSettingsForm.load_from_request(SETINGS_NS.payload)
@@ -281,19 +286,20 @@ class EsxiSettings(Resource):
 @SETINGS_NS.route("/esxi/test")
 class EsxiSettingsTest(Resource):
 
+    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @SETINGS_NS.response(200, 'EsxiSettingsForm Model', EsxiSettingsForm.DTO)
-    def get(self):
+    def get(self) -> Response:
         try:
             return EsxiSettingsForm.load_from_db()
-        except DBModelNotFound:
-            return {}, 200
+        except DBModelNotFound as e:
+            return {"post_validation": [str(e)]}, 400
 
     @SETINGS_NS.expect(EsxiSettingsForm.DTO)
     @SETINGS_NS.response(200, 'JobID Model', JobID.DTO)
     @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @SETINGS_NS.response(422, 'Message', COMMON_MESSAGE)
     @controller_admin_required
-    def post(self):
+    def post(self) -> Response:
         try:
             esxi_settings = EsxiSettingsForm.load_from_request(SETINGS_NS.payload)
         except ValidationError as e:
@@ -308,12 +314,13 @@ class EsxiSettingsTest(Resource):
 @SETINGS_NS.route("/snmp")
 class SNMPSettings(Resource):
 
+    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @SETINGS_NS.response(200, 'Get the SNMP settings.', SNMPSettingsForm.DTO)
-    def get(self):
+    def get(self) -> Response:
         try:
             return SNMPSettingsForm.load_from_db().to_dict()
-        except DBModelNotFound:
-            return None
+        except DBModelNotFound as e:
+            return {"post_validation": [str(e)]}, 400
         except Exception as e:
             logger.exception(e)
         return ERROR_RESPONSE
@@ -322,7 +329,7 @@ class SNMPSettings(Resource):
     @SETINGS_NS.response(200, 'Save SNMP settings.', SNMPSettingsForm.DTO)
     @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
-    def put(self):
+    def put(self) -> Response:
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
             snmp_settings = SNMPSettingsForm.load_from_request(SETINGS_NS.payload)

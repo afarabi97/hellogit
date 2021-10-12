@@ -50,7 +50,6 @@ class AuthMiddleware():
 
     def __call__(self, environ, start_response):
         request = Request(environ)
-
         # Bypasses authentication and authorization on webhook API call as Hive does not support modification of Headers.
         # Must be exact match to prevent URL fudging to other API calls.
         if request.url_root + "api/hive/webhook" == request.url:

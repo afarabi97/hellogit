@@ -4,6 +4,7 @@ Main module for handling all of the config map REST calls.
 from typing import List, Union
 
 from app.middleware import controller_maintainer_required
+from app.models.common import COMMON_ERROR_MESSAGE
 from app.models.kubernetes import (KUBERNETES_NS, AssociatedPodModel,
                                    ConfigMapSave)
 from app.service.configmap_service import bounce_pods
@@ -11,7 +12,7 @@ from app.utils.connection_mngs import KitFormNotFound, KubernetesWrapper
 from app.utils.db_mngs import conn_mng
 from app.utils.logging import logger
 from flask import Response, jsonify, request
-from flask_restx import Resource
+from flask_restx import Resource, api
 from kubernetes import client
 from kubernetes.client.models.v1_pod_list import V1PodList
 
@@ -60,6 +61,8 @@ class AssociatedPodsCtrl(Resource):
 @KUBERNETES_NS.route('/configmaps')
 class GetConfigMapsOnly(Resource):
 
+    @KUBERNETES_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @KUBERNETES_NS.response(200, 'GetConfigMaps')
     @KUBERNETES_NS.doc(description="Get all the config map data.")
     def get(self) -> Response:
         try:
@@ -68,13 +71,14 @@ class GetConfigMapsOnly(Resource):
                 return jsonify(api_response.to_dict())
         except KitFormNotFound as exception:
             logger.exception(exception)
-            return jsonify([])
+            return {"error_message": "KitFormNotFound"}
 
 
 @KUBERNETES_NS.route("/configmap")
 class ConfigMapCtrl(Resource):
 
     @KUBERNETES_NS.doc(description="Saves a config map to the Kubernetes cluster.")
+    @KUBERNETES_NS.response(200, 'SaveConfigMaps')
     @KUBERNETES_NS.expect([ConfigMapSave.DTO])
     @controller_maintainer_required
     def put(self) -> Response:
@@ -94,4 +98,4 @@ class ConfigMapCtrl(Resource):
         with KubernetesWrapper(conn_mng) as kube_apiv1:
             kube_apiv1.replace_namespaced_config_map(config_map_name, config_map_namespace, body)
             bounce_pods.delay(associated_pods)
-            return jsonify({'name': config_map_name})
+            return {'name': config_map_name}

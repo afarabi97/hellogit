@@ -7,8 +7,7 @@ from app.models.kit_tokens import TOKEN_NS, kit_token, kit_token_list
 from app.utils.db_mngs import conn_mng
 from app.utils.logging import logger
 from bson import ObjectId
-from flask import request
-from flask.json import jsonify
+from flask import Response, request
 from flask_restx import Resource
 
 
@@ -23,7 +22,7 @@ class KitTokens(Resource):
 
     @TOKEN_NS.response(200, 'Kit Token list', kit_token_list)
     @login_required_roles(['controller-admin','controller-maintainer'], all_roles_req=False)
-    def get(self):
+    def get(self) -> Response:
         try:
             response = []
             for kit_token in conn_mng.mongo_kit_tokens.find():
@@ -38,7 +37,7 @@ class KitTokens(Resource):
     @TOKEN_NS.response(200, 'Kit Token', kit_token)
     @TOKEN_NS.expect(kit_token, validate=True)
     @login_required_roles(['controller-admin','controller-maintainer'], all_roles_req=False)
-    def post(self):
+    def post(self) -> Response:
         try:
             data = request.get_json()
             kit_token = data.copy()
@@ -64,7 +63,7 @@ class KitTokens(Resource):
 
     @TOKEN_NS.response(204, "")
     @login_required_roles(['controller-admin','controller-maintainer'], all_roles_req=False)
-    def delete(self, kit_token_id):
+    def delete(self, kit_token_id) -> Response:
         try:
             document = conn_mng.mongo_kit_tokens.delete_one({"_id": ObjectId(kit_token_id)})
             if document.deleted_count == 0:

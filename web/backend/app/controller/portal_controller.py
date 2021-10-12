@@ -8,7 +8,7 @@ from app.middleware import operator_required
 from app.service.portal_service import get_portal_links
 from app.utils.db_mngs import conn_mng
 from bson import ObjectId
-from flask import Response, jsonify, request
+from flask import Response, request
 from flask_restx import Namespace, Resource
 
 PORTAL_NS = Namespace("portal", path="/api/portal", description="Portal related operations.")
@@ -21,7 +21,7 @@ class PortalLinks(Resource):
 
         :return:
         """
-        return jsonify(get_portal_links())
+        return get_portal_links()
 
 
 def get_user_links():

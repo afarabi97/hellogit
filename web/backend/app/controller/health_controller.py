@@ -10,8 +10,7 @@ import requests
 from app.common import ERROR_RESPONSE, NO_CONTENT
 from app.middleware import login_required_roles
 from app.models.health import APP_NS, HEALTH_NS, DatastoreModel
-from app.models.kubernetes import KUBERNETES_NS
-from app.models.kubernetes import (KubernetesNodeMetricsModel,
+from app.models.kubernetes import (KUBERNETES_NS, KubernetesNodeMetricsModel,
                                    KubernetesPodMetricsModel,
                                    NodeOrPodStatusModel, PodLogsModel)
 from app.models.settings.esxi_settings import EsxiSettingsForm
@@ -24,7 +23,7 @@ from app.utils.db_mngs import conn_mng
 from app.utils.elastic import ElasticWrapper
 from app.utils.logging import logger
 from bson import ObjectId
-from flask import Response, jsonify, request
+from flask import Response, request
 from flask_restx import Resource, fields
 from kubernetes.client.models.v1_event_list import V1EventList
 from kubernetes.client.models.v1_node import V1Node
@@ -389,7 +388,7 @@ class NodesStatus(Resource):
 
     @KUBERNETES_NS.doc(description="Gets the nodes status.")
     @KUBERNETES_NS.response(200, 'PodsStatus', [KubernetesNodeMetricsModel.DTO])
-    def get(self):
+    def get(self) -> Response:
         try:
             return _get_nodes_status()
         except Exception as e:
@@ -401,7 +400,7 @@ class PodsStatus(Resource):
 
     @KUBERNETES_NS.doc(description="Gets the pods status.")
     @KUBERNETES_NS.response(200, 'NodeStatus', [KubernetesPodMetricsModel.DTO])
-    def get(self):
+    def get(self) -> Response:
         try:
             return _get_pods_status()
         except Exception as e:
@@ -414,7 +413,7 @@ class RemoteNodesStatus(Resource):
         try:
             response = conn_mng.mongo_kit_tokens.find_one({"_id": ObjectId(token_id)})
             node_status = response['node_status']
-            return jsonify(node_status)
+            return node_status
 
         except Exception as e:
             logger.exception(e)
@@ -426,7 +425,7 @@ class RemotePodsStatus(Resource):
         try:
             response = conn_mng.mongo_kit_tokens.find_one({"_id": ObjectId(token_id)})
             pod_status = response['pod_status']
-            return jsonify(pod_status)
+            return pod_status
 
         except Exception as e:
             logger.exception(e)
@@ -456,7 +455,7 @@ class SNMPAlerts(Resource):
             alerts = []
             for alert in client.search(index="logstash", body=body)["hits"]["hits"]:
                 alerts.append(alert["_source"])
-            return jsonify(alerts)
+            return alerts
         except Exception as e:
             logger.exception(e)
         return ERROR_RESPONSE
@@ -465,7 +464,7 @@ class SNMPAlerts(Resource):
 class RemoteAgent(Resource):
     @HEALTH_NS.response(204, 'RemoteHealthData')
     @login_required_roles(['metrics','operator','controller-admin','controller-maintainer'], all_roles_req=False)
-    def post(self):
+    def post(self) -> Response:
         try:
             payload = request.get_json()
             payload["timestamp"] = time.time()
@@ -479,11 +478,11 @@ class RemoteAgent(Resource):
 @HEALTH_NS.route('/datastores')
 class Datastores(Resource):
     @HEALTH_NS.response(200, 'DatastoreList', [DatastoreModel.DTO])
-    def get(self):
+    def get(self) -> Response:
         try:
             settings = EsxiSettingsForm.load_from_db()
             if not settings:
-                return jsonify([])
+                return []
             ip_address = str(settings.ip_address)
             response = requests.post(f"https://{ip_address}/rest/com/vmware/cis/session", auth=(settings.username, settings.password), verify=False)
             session_id = response.json()['value']
@@ -499,7 +498,7 @@ class Datastores(Resource):
 @APP_NS.route('/elasticsearch/rejects')
 class WriteRejects(Resource):
     @APP_NS.response(200, 'Elasticsearch Write Rejects', [fields.Raw()])
-    def get(self):
+    def get(self) -> Response:
         try:
             rejected = []
             client = ElasticWrapper()
@@ -517,7 +516,7 @@ class WriteRejects(Resource):
 @APP_NS.route('/elasticsearch/rejects/remote/<ipaddress>')
 class RemoteWriteRejects(Resource):
     @APP_NS.response(204, 'Remote Elasticsearch Write Rejects', [fields.Raw()])
-    def get(self, ipaddress: str):
+    def get(self, ipaddress: str) -> Response:
         try:
             response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})
             write_rejects = response['write_rejects']
@@ -567,7 +566,7 @@ class ZeekPackets(Resource):
             return body
 
     @APP_NS.response(200, 'Zeek Packets')
-    def get(self):
+    def get(self) -> Response:
         app_stats = []
         sensors = []
         client = ElasticWrapper()
@@ -598,7 +597,7 @@ class ZeekPackets(Resource):
                                 }
                     app_stats.append(zeek_stats)
 
-            return jsonify(app_stats)
+            return app_stats
 
         except Exception as e:
             logger.exception(e)
@@ -611,7 +610,7 @@ class SuricataPackets(Resource):
         return exec_command
 
     @APP_NS.response(200, 'Suricata Packets')
-    def get(self):
+    def get(self) -> Response:
         packets_command = "cat /var/log/suricata/stats.log | grep capture.kernel_packets | tail -n 1 | awk '{print $5}'"
         drops_command = "cat /var/log/suricata/stats.log | grep capture.kernel_drops | tail -n 1 | awk '{print $5}'"
 
@@ -651,7 +650,7 @@ class SuricataPackets(Resource):
                                                 'packets_processed': int(total_packets),
                                                 'packets_dropped': int(total_dropped)
                                             })
-            return jsonify(suricata_stats)
+            return suricata_stats
 
         except Exception as e:
             logger.exception(e)
@@ -660,11 +659,11 @@ class SuricataPackets(Resource):
 @APP_NS.route('/zeek/packets/remote/<ipaddress>')
 class RemoteZeekPackets(Resource):
     @APP_NS.response(200, 'Remote Zeek Packets')
-    def get(self, ipaddress: str):
+    def get(self, ipaddress: str) -> Response:
         try:
             response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})
             zeek_packets = response['zeek']
-            return jsonify(zeek_packets)
+            return zeek_packets
 
         except Exception as e:
             logger.exception(e)
@@ -673,11 +672,11 @@ class RemoteZeekPackets(Resource):
 @APP_NS.route('/suricata/packets/remote/<ipaddress>')
 class RemoteSuricataPackets(Resource):
     @APP_NS.response(200, 'Remote Suricata Packets')
-    def get(self, ipaddress: str):
+    def get(self, ipaddress: str) -> Response:
         try:
             response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})
             suricata_packets = response['suricata']
-            return jsonify(suricata_packets)
+            return suricata_packets
 
         except Exception as e:
             logger.exception(e)

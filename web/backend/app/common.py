@@ -67,4 +67,4 @@ def cursor_to_json_response(csr, fields: List[str] = None, sort_field: str = Non
     :return: flask.Response containing the data of the records in the cursor.
     """
     records = cursor_to_json(csr, fields, sort_field)
-    return Response(json.dumps(records), mimetype='application/json')
+    return records

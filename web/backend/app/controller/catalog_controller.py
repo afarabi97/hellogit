@@ -15,7 +15,7 @@ from app.service.catalog_service import (chart_info, delete_helm_apps,
 from app.utils.connection_mngs import objectify
 from app.utils.db_mngs import conn_mng
 from app.utils.logging import logger
-from flask import Response, jsonify, request
+from flask import Response, request
 from flask_restx import Resource, fields
 
 NAMESPACE = "default"
@@ -25,7 +25,7 @@ NAMESPACE = "default"
 class HelmChartSavedValues(Resource):
 
     @CATALOG_NS.response(200, "SavedHelmValues", SavedHelmValuesModel.DTO)
-    def get(self, application: str) -> str:
+    def get(self, application: str) -> Response:
         if application:
             saved_values = list(conn_mng.mongo_catalog_saved_values.find(
                 {"application": application}))
@@ -46,7 +46,7 @@ class ConfiguredIfaces(Resource):
 
     @CATALOG_NS.response(200, 'A list of iface names that are configured with either zeek or suricata.', \
                          [fields.String(example="ens192")])
-    def get(self, sensor_hostname: str):
+    def get(self, sensor_hostname: str) -> Response:
         if sensor_hostname:
             ifaces = set()
             zeek_values = list(
@@ -147,7 +147,7 @@ class CatalogGenerateValues(Resource):
         configs = payload["configs"]
         results = []
         results = generate_values(application, NAMESPACE, configs)
-        return jsonify(results)
+        return results, 200
 
 
 def _get_all_charts() -> List:
@@ -161,7 +161,7 @@ class CatalogGetCharts(Resource):
     def get(self) -> Response:
         charts = []
         charts = get_repo_charts()  # type: list
-        return jsonify(charts)
+        return charts, 200
 
 
 @CATALOG_NS.route('/chart/<application>/status')

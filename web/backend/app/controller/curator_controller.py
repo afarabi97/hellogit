@@ -2,20 +2,21 @@ import logging
 import re
 
 from app.middleware import controller_maintainer_required
+from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
 from app.service.curator_service import execute_curator
 from app.utils.elastic import ElasticWrapper
 from app.utils.logging import logger
-from flask import Response, jsonify, request
-from flask_restx import Resource, Namespace
+from flask import Response, request
+from flask_restx import Namespace, Resource
 
 EXCLUDE_FILTER = "^(.ml-config|.kibana|.monitoring|.watches|.apm|.triggered_watches|.security|.siem-signals|.security-tokens).*$"
-DEFAULT_ERROR_MESSAGE_INDICES = { "error_message": "Something went wrong getting the Elasticsearch indices." }
 CURATOR_NS = Namespace("curator", path="/api/curator", description="Elasticsearch curator.")
 
 @CURATOR_NS.route('/closed_indices')
 class GetClosedIndices(Resource):
 
     @CURATOR_NS.response(200, 'Closed Indices')
+    @CURATOR_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
     def get(self) -> Response:
         try:
@@ -26,14 +27,16 @@ class GetClosedIndices(Resource):
                 if index['status'] == "close":
                     filtered_indices.append(index["index"])
             filtered_indices.sort()
-            return (jsonify(filtered_indices), 200)
+            return filtered_indices
         except Exception as exec:
             logger.exception(exec)
-            return DEFAULT_ERROR_MESSAGE_INDICES, 500
+            return { "error_message": "Something went wrong getting the Elasticsearch indices." }
+
 
 @CURATOR_NS.route('/opened_indices')
 class GetOpenedIndices(Resource):
 
+    @CURATOR_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @CURATOR_NS.response(200, 'Opened Indices')
     @controller_maintainer_required
     def get(self) -> Response:
@@ -49,30 +52,32 @@ class GetOpenedIndices(Resource):
                     if "is_write_index" in val and not val['is_write_index']:
                         open_indices.append(index)
             open_indices.sort()
-            return (jsonify(open_indices), 200)
+            return open_indices
         except Exception as exec:
             logger.exception(exec)
-            return DEFAULT_ERROR_MESSAGE_INDICES, 500
+            return { "error_message": "Something went wrong getting the Elasticsearch indices." }
+
 
 @CURATOR_NS.route('/index_management')
 class IndexMangement(Resource):
 
-    @CURATOR_NS.response(200, 'Index Management')
+    @CURATOR_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @CURATOR_NS.response(200, 'Index Management', COMMON_SUCCESS_MESSAGE)
     @controller_maintainer_required
     def post(self) -> Response:
         logging.basicConfig(level=logging.INFO)
         payload = request.get_json()
 
         if "action" not in payload or payload["action"] not in ["DeleteIndices", "CloseIndices"]:
-            return { "error_message": "Invalid value for action" }, 400
+            return { "error_message": "Invalid value for action" }
         if "index_list" not in payload or payload["index_list"] is None:
-            return { "error_message": "Index required" }, 400
+            return { "error_message": "Index required" }
         if len(payload["index_list"]) < 1:
-            return { "error_message": "Index list is empty" }, 400
+            return { "error_message": "Index list is empty" }
 
         units = "minutes"
         age = "1"
         action = payload["action"]
         index_list = payload["index_list"]
         execute_curator.delay(action, index_list, units, age)
-        return "Curator job submitted check notifications for progress.", 200
+        return { "success_message": "Curator job submitted check notifications for progress."}

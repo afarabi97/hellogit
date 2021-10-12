@@ -5,13 +5,12 @@ import urllib3
 from app.common import ERROR_RESPONSE
 from app.middleware import login_required_roles
 from app.models.health import APP_NS, HEALTH_NS
-from app.models.settings.kit_settings import GeneralSettingsForm
 from app.utils.connection_mngs import KubernetesWrapper
 from app.utils.db_mngs import conn_mng
 from app.utils.elastic import ElasticWrapper, get_elastic_password
 from app.utils.logging import logger
 from app.utils.utils import get_domain
-from flask import Response, jsonify, request
+from flask import Response
 from flask_restx import Resource, fields
 
 
@@ -54,7 +53,7 @@ class HealthDashboardStatus(Resource):
             kibana_status = request.json()['status']['overall']['state']
             elastic_status['kibana_status'] = kibana_status
             status.append(elastic_status)
-            return jsonify(status)
+            return status
 
         except Exception as e:
             logger.exception(e)
@@ -91,7 +90,7 @@ class RemoteHealthDashboardStatus(Resource):
                         "kibana_status": None,
                         "hostname": None
                     })
-            return jsonify(dashboard_summary)
+            return dashboard_summary
 
         except Exception as e:
             logger.exception(e)
@@ -129,7 +128,7 @@ class KibanaLoginInfo(Resource):
                         kibana_info['DNS'] = "https://{}.{}".format(name, kit_domain)
                         kibana_info['IP Address'] = "https://{}".format(svc_ip)
                         kibana_info['Username/Password'] = 'elastic/{}'.format(elastic_password)
-            return jsonify(kibana_info)
+            return kibana_info
 
         except Exception as e:
             logger.exception(e)
@@ -142,7 +141,7 @@ class RemoteKibanaLoginInfo(Resource):
         try:
             response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})
             kibana_info = response['kibana_info']
-            return jsonify(kibana_info)
+            return kibana_info
 
         except Exception as e:
             logger.exception(e)

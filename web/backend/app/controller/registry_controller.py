@@ -1,12 +1,11 @@
-import requests
-
-from app.models.kubernetes import KUBERNETES_NS
-from app.utils.logging import logger
-from app.models.kubernetes import DockerImageModel
-from requests.exceptions import ConnectionError
-from flask_restx import Resource
-from requests.models import Response
 from typing import List, Tuple
+
+import requests
+from app.models.kubernetes import KUBERNETES_NS, DockerImageModel
+from app.utils.logging import logger
+from flask import Response
+from flask_restx import Resource
+from requests.exceptions import ConnectionError
 
 
 def get_docker_repo_tags(repo: str) -> List[str]:
@@ -39,7 +38,7 @@ class DockerRegistry(Resource):
 
     @KUBERNETES_NS.doc(description="Gets all the docker registry's containers and their versions.")
     @KUBERNETES_NS.response(200, 'DockerImage', [DockerImageModel.DTO])
-    def get(self):
+    def get(self) -> Response:
         ret_val = []
         try:
             response = requests.get('http://localhost:5000/v2/_catalog') # type: Response

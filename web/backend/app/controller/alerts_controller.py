@@ -11,7 +11,7 @@ from app.service.hive_service import (HiveFailureError, HiveService,
                                       configure_webhook)
 from app.utils.elastic import ElasticWrapper
 from elasticsearch.exceptions import ConnectionTimeout, RequestError
-from flask import Response, jsonify, request
+from flask import Response, request
 from flask_restx import Resource, fields
 from marshmallow import ValidationError
 
@@ -253,7 +253,6 @@ class AlertsDetailedCtrl(Resource):
             body["size"] = str(payload["count"])
             if int(payload["count"]) > 5000:
                 body["size"] = "5000"
-
         if search_kind == "signal":
             search_index = SIGNAL_INDEX
 
@@ -589,14 +588,14 @@ def webhook():
     elastic = ElasticWrapper()
     ret_val = elastic.update_by_query(index=ALL_INDEXES, body=body, request_timeout=ELASTIC_TIMEOUT)
     if ret_val and len(ret_val['failures']) == 0:
-        return jsonify(ret_val), 200
+        return ret_val
 
-    return jsonify({}), 400
+    return {}, 400
 
 @HIVE_NS.route("/webhook")
 class AlertWebhook(Resource):
-    def get(self):
+    def get(self) -> Response:
         webhook()
-    def post(self):
+    def post(self) -> Response:
         webhook()
 

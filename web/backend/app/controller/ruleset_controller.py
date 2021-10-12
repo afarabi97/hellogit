@@ -23,7 +23,7 @@ from app.utils.constants import (DATE_FORMAT_STR, PCAP_UPLOAD_DIR, RULE_TYPES,
 from app.utils.db_mngs import conn_mng
 from app.utils.logging import logger
 from app.utils.utils import zip_folder
-from flask import Response, jsonify, request, send_file
+from flask import Response, request, send_file
 from flask_restx import Resource
 from pymongo import ReturnDocument
 from pymongo.cursor import Cursor
@@ -527,12 +527,12 @@ class SyncRuleSets(Resource):
 
     @POLICY_NS.response(200, 'JobID', JobID.DTO)
     @operator_required
-    def post(self):
+    def post(self) -> Response:
         return self._perform_operation()
 
     @POLICY_NS.response(200, 'JobID', JobID.DTO)
     @operator_required
-    def get(self):
+    def get(self) -> Response:
         return self._perform_operation()
 
 @POLICY_NS.route('/rule/validate')
@@ -552,19 +552,19 @@ class ValidateRule(Resource):
         if rule_type == RULE_TYPES[0]:
             is_success, error_output = _validate_suricata_rule(rule)
             if is_success:
-                return jsonify({"success_message": "Suricata signatures successfully validated!"})
+                return {"success_message": "Suricata signatures successfully validated!"}
         elif rule_type == RULE_TYPES[1]:
             is_success, error_output = _validate_zeek_script(rule)
             if is_success:
-                return jsonify({"success_message": "Zeek script successfully validated!"})
+                return {"success_message": "Zeek script successfully validated!"}
         elif rule_type == RULE_TYPES[2]:
             is_success, error_output = _validate_zeek_intel(rule)
             if is_success:
-                return jsonify({"success_message": "Zeek intel successfully validated!"})
+                return{"success_message": "Zeek intel successfully validated!"}
         elif rule_type == RULE_TYPES[3]:
             is_success, error_output = _validate_zeek_signature(rule)
             if is_success:
-                return jsonify({"success_message": "Zeek signature successfully validated!"})
+                return {"success_message": "Zeek signature successfully validated!"}
         return {"error_message": error_output}, 500
 
 def _test_pcap_against_suricata_rule(pcap_name: str, rule_content: str) -> Response:
@@ -594,7 +594,7 @@ def _test_pcap_against_suricata_rule(pcap_name: str, rule_content: str) -> Respo
                     for results_path in results.glob("eve-*"):
                         return send_file(str(results_path))
 
-    return jsonify({"error_message": output}), 400
+    return {"error_message": output}, 400
 
 def _test_pcap_against_zeek_script(pcap_name: str, rule_content: str) -> Response:
     with tempfile.TemporaryDirectory() as rules_tmp_dir:
@@ -631,7 +631,7 @@ def _test_pcap_against_zeek_script(pcap_name: str, rule_content: str) -> Respons
                         zip_folder(results_tmp_dir, results_tar_ball)
                         return send_file(results_tar_ball + ".zip", mimetype="application/zip")
 
-    return jsonify({"error_message": stdoutput}), 400
+    return {"error_message": stdoutput}, 400
 
 
 def _test_pcap_against_zeek_intel(pcap_name: str, rule_content: str) -> Response:
@@ -678,7 +678,7 @@ def _test_pcap_against_zeek_intel(pcap_name: str, rule_content: str) -> Response
                         zip_folder(results_tmp_dir, results_tar_ball)
                         return send_file(results_tar_ball + ".zip", mimetype="application/zip")
 
-    return jsonify({"error_message": stdoutput}), 400
+    return {"error_message": stdoutput}, 400
 
 def _test_pcap_against_zeek_signature(pcap_name: str, rule_content: str) -> Response:
     with tempfile.TemporaryDirectory() as sigs_tmp_dir:
@@ -715,7 +715,7 @@ def _test_pcap_against_zeek_signature(pcap_name: str, rule_content: str) -> Resp
                         zip_folder(results_tmp_dir, results_tar_ball)
                         return send_file(results_tar_ball + ".zip", mimetype="application/zip")
 
-    return jsonify({"error_message": stdoutput}), 400
+    return {"error_message": stdoutput}, 400
 
 @POLICY_NS.route('/pcap/rule/test')
 class TestRuleAgainstPCAP(Resource):

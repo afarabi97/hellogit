@@ -2,28 +2,29 @@
 Main module for handling all of the Kit Configuration REST calls.
 """
 from typing import Dict
-from flask_restx import Resource
-from app.models.nodes import KIT_SETUP_NS
-from app.models import DBModelNotFound
-from app.models.common import JobID, COMMON_ERROR_DTO
-from app.service.node_service import execute
+
 from app.middleware import controller_admin_required
+from app.models import DBModelNotFound
+from app.models.common import COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE, JobID
+from app.models.nodes import KIT_SETUP_NS, Node
+from app.service.node_service import execute, get_kit_status
 from app.utils.constants import DEPLOYMENT_JOBS, JOB_DEPLOY
-from app.service.node_service import get_kit_status
-from app.models.nodes import Node
+from flask import Response
+from flask_restx import Resource
 
 
 @KIT_SETUP_NS.route("/status")
 class KitStatusCtrl(Resource):
-    def get(self):
+
+    @KIT_SETUP_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    def get(self) -> Response:
         try:
             kit_status = get_kit_status()
             if kit_status:
                 return kit_status, {}
         except DBModelNotFound:
-            return {}, 200
-        return {}, 400
-
+            return {"error_message": "DBModelNotFound."}
+        return {"error_message": "Unknown error."}
 
 @KIT_SETUP_NS.route("/deploy")
 class KitCtrl(Resource):
@@ -36,5 +37,5 @@ class KitCtrl(Resource):
     @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
     @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
-    def get(self):
+    def get(self) -> Response:
         return self._execute_kit_job()

@@ -12,6 +12,7 @@ import requests
 import urllib3
 from app.common import cursor_to_json_response
 from app.middleware import operator_required
+from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
 from app.service.agent_service import (build_agent_if_not_exists,
                                        perform_agent_reinstall)
 from app.service.job_service import run_command2
@@ -21,8 +22,8 @@ from app.utils.db_mngs import conn_mng
 from app.utils.logging import logger
 from app.utils.utils import encode_password, fix_hostname, sanitize_dictionary
 from bson import ObjectId
-from flask import Response, json, jsonify, request, send_file
-from flask_restx import Resource, Namespace
+from flask import Response, json, request, send_file
+from flask_restx import Namespace, Resource
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pymongo import ReturnDocument
 
@@ -39,7 +40,7 @@ JINJA_ENV = Environment(
 
 @AGENT_NS.route('/configs')
 class AppConfigs(Resource):
-    def get(self):
+    def get(self) -> Response:
         configs = []
 
         filenames = AGENT_PKGS_DIR.glob('*/appconfig.json')
@@ -51,11 +52,11 @@ class AppConfigs(Resource):
                     configs.append(data)
                 except JSONDecodeError:
                     pass
-
-        return jsonify(configs)
+        return configs
 
 @AGENT_NS.route('/generate')
 class AgentGenerate(Resource):
+
     @operator_required
     def post(self) -> Response:
         """
@@ -74,6 +75,8 @@ class AgentGenerate(Resource):
 
 @AGENT_NS.route('/endgame/profiles')
 class AgentEndgameProfiles(Resource):
+
+    @AGENT_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @operator_required
     def post(self) -> Response:
         payload = request.get_json()
@@ -98,10 +101,9 @@ class AgentEndgameProfiles(Resource):
         else:
             failure = resp.json()
             if failure:
-                resp = jsonify(failure)
+                resp = failure, 400
             else:
-                resp = jsonify({'error': {'message': 'Failed to connect to Endgame server for uknown reason.', 'code': 520}})
-            resp.status_code = 500
+                resp = {'error_message': 'Failed to connect to Endgame server for unknown reason'}
             return resp
 
         header["Authorization"] = "JWT {}".format(auth_token)
@@ -110,7 +112,7 @@ class AgentEndgameProfiles(Resource):
         url = 'https://{}/api/v1/deployment-profiles'.format(address)
         resp = session.get(url, verify=False)
         if(resp.ok):
-            return jsonify(resp.json()['data'])
+            return resp.json()['data']
         else:
             return resp
 
@@ -171,8 +173,11 @@ def _get_unique_hosts_to_add(target_config: Dict, hosts_to_add: Dict) -> List[Di
             to_insert.append(host_to_add)
     return to_insert
 
+
 @AGENT_NS.route('/host/<target_config_id>')
 class AgentTargetHost(Resource):
+
+    @AGENT_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @operator_required
     def post(self, target_config_id: str) -> Response:
         hosts_to_add = request.get_json()
@@ -184,28 +189,36 @@ class AgentTargetHost(Resource):
                                                         return_document=ReturnDocument.AFTER)
             if ret_val:
                 ret_val["_id"] = str(ret_val["_id"])
-                return jsonify(ret_val)
-        return jsonify({"error_message": "Failed to add a hosts to target configuration {}.".format(target_config['name'])})
+                return ret_val
+        return {"error_message": "Failed to add a hosts to target configuration {}.".format(target_config['name'])}
+
 
 @AGENT_NS.route('/host/<host>/<target_config_id>')
 class DelAgentTargetHost(Resource):
+
+    @AGENT_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @AGENT_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
     @operator_required
     def delete(self, host: str, target_config_id: str) -> Response:
         print(host)
         ret_val = win_targets_cnxn.update_one({'_id': ObjectId(target_config_id)},
                                             {'$pull': {'targets': {'hostname': host}}})
         if ret_val.modified_count == 1:
-            return jsonify({"success_message": "Successfully deleted {} from the target configuration.".format(host)})
-        return jsonify({"error_message": "Failed to delete {} from the target configuration.".format(host)})
+            return {"success_message": "Successfully deleted {} from the target configuration.".format(host)}
+        return {"error_message": "Failed to delete {} from the target configuration.".format(host)}
+
 
 def get_agent_installer_configs():
     saved_configs = win_install_cnxn.find({})
     return cursor_to_json_response(saved_configs, sort_field = 'config_name')
 
+
 @AGENT_NS.route('/config')
 class AgentInstallerConfigs(Resource):
     def get(self) -> Response:
         return get_agent_installer_configs()
+
+    @AGENT_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @operator_required
     def post(self) -> Response:
         payload = request.get_json()
@@ -217,12 +230,14 @@ class AgentInstallerConfigs(Resource):
                 win_install_cnxn.insert_one(payload)
                 return get_agent_installer_configs()
             except:
-                return "", '500 Could not insert document'
+                return {"error_message": "500 Could not insert document"}
         else:
-            return "", '500 "{}" name already in use'.format(payload["config_name"])
+            return {"error_message": "{} name already in use".format(payload["config_name"])}
+
 
 @AGENT_NS.route('/config/<config_id>')
 class AgentInstallerDelConfigs(Resource):
+
     @operator_required
     def delete(self, config_id: str) -> Response:
         win_install_cnxn.delete_one({'_id': ObjectId(config_id)})
@@ -283,8 +298,12 @@ def _create_and_run_celery_tasks(payload: Dict,
         for hostname_or_ip in targets:
             perform_agent_reinstall.delay(payload, hostname_or_ip, do_uninstall_only)
 
+
 @AGENT_NS.route('/uninstall')
 class AgentUninstall(Resource):
+
+    @AGENT_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
+    @AGENT_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @operator_required
     def post(self) -> Response:
         payload = request.get_json()
@@ -294,15 +313,17 @@ class AgentUninstall(Resource):
             target_config = payload['target_config']
             targets = [target['hostname'] for target in target_config.pop('targets')]
             if len(targets) == 0:
-                return jsonify({"message": "Failed to initiate uninstall task. No targets were specified for this configuration. Did you forget to add them?"})
+                return {"error_message": "Failed to initiate uninstall task. No targets were specified for this configuration. Did you forget to add them?"}
         elif 'target' in payload:
             targets = payload['target']
         _create_and_run_celery_tasks(payload, targets, do_uninstall_only=True)
-        return jsonify({"message": "Initiated uninstall task. Open the notification manager to track its progress."})
+        return {"success_message": "Initiated uninstall task. Open the notification manager to track its progress."}
 
 
 @AGENT_NS.route('/install')
 class AgentInstall(Resource):
+
+    @AGENT_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @operator_required
     def post(self) -> Response:
         payload = request.get_json()
@@ -310,13 +331,16 @@ class AgentInstall(Resource):
         target_config = payload['target_config']
         targets = [target['hostname'] for target in target_config.pop('targets')]
         if len(targets) == 0:
-            return jsonify({"message": "Failed to initiated install task. No targets were specified for this configuration. Did you forget to add them?"})
+            return {"error_message": "Failed to initiated install task. No targets were specified for this configuration. Did you forget to add them?"}
 
         _create_and_run_celery_tasks(payload, targets)
-        return jsonify({"message": "Initiated install task. Open the notification manager to track its progress."})
+        return {"error_message": "Initiated install task. Open the notification manager to track its progress."}
+
 
 @AGENT_NS.route('/reinstall')
 class AgentReinstall(Resource):
+
+    AGENT_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
     @operator_required
     def post(self) -> Response:
         payload = request.get_json()
@@ -325,5 +349,5 @@ class AgentReinstall(Resource):
         hostname = target['hostname']
 
         _create_and_run_celery_tasks(payload, hostname)
-        return jsonify({"message": "Initiated reinstall task on {}. \
-                                    Open the notification manager to track its progress.".format(hostname)})
+        return {"success_message": "Initiated reinstall task on {}. \
+                                    Open the notification manager to track its progress.".format(hostname)}
