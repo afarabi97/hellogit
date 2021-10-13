@@ -72,7 +72,7 @@ def build_query_clause(acknowledged: str,
         }
     }
 
-    should_clause = [
+    filter_clause = [
         {
             "match": {
                 "event.kind": search_kind
@@ -137,7 +137,7 @@ def build_query_clause(acknowledged: str,
         "bool": {
             "must": must_clause,
             "must_not": must_not_clause,
-            "should": should_clause
+            "filter": filter_clause
         }
     }
 
