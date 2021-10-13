@@ -9,8 +9,9 @@ from app.models.common import JobID
 from app.models.nodes import Node
 from app.service.catalog_service import (chart_info, delete_helm_apps,
                                          generate_values, get_app_state,
-                                         get_node_apps, get_nodes,
-                                         get_repo_charts, install_helm_apps,
+                                         get_helm_list, get_node_apps,
+                                         get_nodes, get_repo_charts,
+                                         install_helm_apps,
                                          reinstall_helm_apps)
 from app.utils.connection_mngs import objectify
 from app.utils.db_mngs import conn_mng
@@ -185,8 +186,10 @@ class ChartsCtrl(Resource):
     def get(self) -> Response:
         ret_val = []
         charts = _get_all_charts()
+        nodes = Node.load_dip_nodes_from_db() # type: List[Node]
+        chart_releases = get_helm_list()
         for chart in charts:
-            chart["nodes"] = get_app_state(chart['application'], NAMESPACE)
+            chart["nodes"] = get_app_state(chart['application'], NAMESPACE, nodes=nodes, chart_releases=chart_releases)
             ret_val.append(chart)
         return ret_val
 

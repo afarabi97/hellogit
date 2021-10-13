@@ -40,7 +40,6 @@ def update_job(node: Node, stage, from_function: str):
         elif from_function == "handle_failure":
             node_job.set_error("Something broke check the logs.")
 
-
 def get_all_nodes_with_jobs() -> list:
     results = []
     nodes = Node.load_all_from_db() # type: List[Node]
@@ -84,9 +83,11 @@ def get_kit_status() -> dict:
         esxi_settings_configured = True
 
     nodes = Node.load_dip_nodes_from_db() # type: List[Node]
+    all_jobs = NodeJob.load_all_jobs() # type: List[NodeJob]
+
     for node in nodes:
-        jobs = NodeJob.load_jobs_by_node(node) # type: List[NodeJob]
-        for node_job in jobs:
+        job_list = [job for job in all_jobs if node._id == job.node_id]
+        for node_job in job_list:
             if node_job.exec_type == str(DEPLOYMENT_JOBS.base_kit):
                 deploy_kit_running = True
                 if node_job.complete or node_job.error:

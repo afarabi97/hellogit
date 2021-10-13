@@ -622,6 +622,13 @@ class NodeJob(Model):
             return cls.schema.load(ret_val)
         return None
 
+    @classmethod
+    def load_all_jobs(cls) -> List[Model]:
+        results = []
+        for job in conn_mng.mongo_jobs.find():
+            results.append(cls.schema.load(job))
+        return results
+
 class ControlPlaneInventoryGenerator:
     """
     The Esxi Inventory generator class.

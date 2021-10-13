@@ -1,9 +1,11 @@
 import json
 import os
+import re
 from time import sleep, strftime
 from typing import Dict, List
 
 import requests
+import urllib3
 import yaml
 from app.models.nodes import Node
 from app.models.settings.kit_settings import GeneralSettingsForm
@@ -96,7 +98,7 @@ def _get_logstash_nodes() -> list:
     return nodes
 
 def _get_chartmuseum_uri() -> str:
-    return "https://controller/chartmuseum"
+    return "https://localhost/chartmuseum"
 
 
 def get_node_type(hostname: str) -> str:
@@ -195,7 +197,8 @@ def get_repo_charts() -> list:
     results = []
     try:
         uri = _get_chartmuseum_uri()
-        response = requests.get(uri + "/api/charts")
+        urllib3.disable_warnings()
+        response = requests.get(uri + "/api/charts", verify=False)
         charts = json.loads(response.text)
         for key, value in charts.items():
             application = key
@@ -211,6 +214,7 @@ def get_repo_charts() -> list:
                     results.append(t_chart)
     except Exception as exc:
         logger.exception(exc)
+        print(str(exc))
     return results
 
 
@@ -255,9 +259,12 @@ def chart_info(application: str) -> dict:
         print("ERROR: " + str(exc))
     return None
 
-def _get_helm_list(application: str) -> dict:
+def get_helm_list(application: str=None) -> dict:
     chart_releases = None
-    stdout, ret_code = run_command2(command="helm list --all -o json --filter='" + application + "$'",
+    cmd = "helm list --all -o json"
+    if application:
+        cmd = "helm list --all -o json --filter='" + application + "$'"
+    stdout, ret_code = run_command2(command=cmd,
     working_dir=WORKING_DIR, use_shell=True)
 
     if ret_code == 0 and stdout != '':
@@ -265,30 +272,38 @@ def _get_helm_list(application: str) -> dict:
     return chart_releases
 
 
-def get_app_state(application: str, namespace: str) -> list:
+def get_app_state(application: str, namespace: str, nodes: List[Node]=None, chart_releases: List=None) -> list:
+    if not nodes:
+        nodes = Node.load_dip_nodes_from_db() # type: List[Node]
+    saved_values = conn_mng.mongo_catalog_saved_values.find({"application": application})
     deployed_apps = []
     try:
-        chart_releases = _get_helm_list(application)
-        if chart_releases:
-            for chart in chart_releases:
-                node = {}
-                node_hostname = None
-                values = None
-                node["application"] = application
-                node["appVersion"] = chart["app_version"]
-                node["status"] = chart["status"].replace("-", " ").upper()
-                node["deployment_name"] = chart["name"]
-                node["hostname"] = None
-                node["node_type"] = None
-                saved_values = conn_mng.mongo_catalog_saved_values.find_one({"application": application, "deployment_name": chart["name"]})
-                if saved_values:
-                    values = saved_values.get("values", None)
-                if values:
-                    node_hostname = values.get("node_hostname", None)
-                if node_hostname:
-                    node["hostname"] = node_hostname
-                    node["node_type"] = get_node_type(node_hostname)
-                deployed_apps.append(node)
+        if not chart_releases:
+            chart_releases = get_helm_list(application)
+        regex = ".*{}$".format(application)
+        current_chart = [chart for chart in chart_releases if re.match(regex, chart["name"])]
+        if current_chart:
+            chart = current_chart[0]
+            node = {}
+            node_hostname = None
+            values = None
+            node["application"] = application
+            node["appVersion"] = chart["app_version"]
+            node["status"] = chart["status"].replace("-", " ").upper()
+            node["deployment_name"] = chart["name"]
+            node["hostname"] = None
+            node["node_type"] = None
+            saved_values = [svalues for svalues in saved_values if svalues["deployment_name"] == chart["name"]]
+            if saved_values:
+                values = saved_values[0].get("values", None)
+            if values:
+                node_hostname = values.get("node_hostname", None)
+            if node_hostname:
+                cnode = [tnode for tnode in nodes if tnode.hostname == node_hostname]
+                node["hostname"] = node_hostname
+                if cnode:
+                    node["node_type"] = cnode[0].node_type
+            deployed_apps.append(node)
     except Exception as exc:
         logger.error(exc)
         print("ERROR: " + str(exc))
