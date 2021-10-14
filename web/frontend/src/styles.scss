@@ -1,6 +1,10 @@
 body {
     height: 100vh;
     width: 100vw;
+    .mat-dialog-container-override .mat-dialog-container {
+      box-shadow: unset !important;
+      padding: unset !important;
+    }
     cvah-ngx-monaco-text-editor,
     cvah-rule-add-edit {
       flex-direction: column;
@@ -9,6 +13,21 @@ body {
     }
     cvah-elasticsearch-scale {
       height: 100vh;
+    }
+    cvah-generic-dialog {
+      .mat-dialog-title {
+        background-color: black;
+        border-radius: 4px 4px 0px 0px;
+        padding: 12px;
+        margin: 0;
+      }
+      .mat-dialog-content {
+        overflow: hidden !important;
+        height: 682px;
+        margin: unset !important;
+        padding: 12px !important;
+        max-height: unset !important;
+      }
     }
     .mat-dialog-container {
       overflow: hidden;

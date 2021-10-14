@@ -79,10 +79,6 @@ import { ChartListComponent } from './catalog/chart-list/chart-list.component';
 import { NodeBackgroundComponent } from './catalog/node-background/node-background.component';
 import { CatalogPageComponent } from './catalog/page/catalog-page.component';
 
-// notifications
-import { NotificationsComponent } from './notifications/component/notifications.component';
-import { NotificationsModuleComponent } from './notifications/notification-module/notifications-module.component';
-
 // classes
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { ConfirmActionPopup } from './classes/ConfirmActionPopup';
@@ -99,6 +95,8 @@ import { DockerRegistryModule } from './modules/docker-registry/docker-registry.
 import { ElasticsearchColdLogIngestModule } from './modules/elasticsearch-cold-log-ingest/elasticsearch-cold-log-ingest.module';
 import { ElasticsearchIndexManagementModule } from './modules/elasticsearch-index-management/elasticsearch-index-management.module';
 import { ElasticsearchScaleModule } from './modules/elasticsearch-scale/elasticsearch-scale.module';
+import { GenericDialogModule } from './modules/generic-dialog/generic-dialog.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PmoSupportModule } from './modules/pmo-support/pmo-support.module';
 import { PolicyManagementModule } from './modules/policy-management/policy-management.module';
 import { PortalModule } from './modules/portal/portal.module';
@@ -146,8 +144,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     CatalogComponent,
     CardComponent,
     ChartListComponent,
-    NotificationsComponent,
-    NotificationsModuleComponent,
     ConfirmDialogComponent,
     NodeBackgroundComponent,
     CatalogPageComponent,
@@ -191,6 +187,8 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ElasticsearchColdLogIngestModule,
     ElasticsearchIndexManagementModule,
     ElasticsearchScaleModule,
+    GenericDialogModule,
+    NotificationsModule,
     PmoSupportModule,
     PolicyManagementModule,
     PortalModule,
@@ -214,7 +212,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     AppComponent
   ],
   entryComponents: [
-    NotificationsModuleComponent,
     ConfirmDialogComponent,
     AgentInstallerDialogComponent,
     AgentDetailsDialogComponent,

@@ -78,6 +78,8 @@ export const environment = {
 
   DOCKER_REGISTRY_SERVICE_GET_DOCKER_REGISTRY: `/api/kubernetes/docker/registry`,
 
+  NOTIFICATION_SERVICE_BASE_URL: `/api/notifications`,
+
   PORTAL_SERVICE_GET_PORTAL_LINKS: `/api/portal/links`,
   PORTAL_SERVICE_ADD_USER_LINK: `/api/portal/user/links`,
   PORTAL_SERVICE_REMOVE_USER_LINK: `/api/portal/user/links/`,

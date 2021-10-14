@@ -739,27 +739,15 @@ APP_NODE_MAINTENANCE_FORM__A_EM_EXPAND_MORE = 'app-node-maintenance-form-mat-car
 
 
 # These are for notifications.component.html
-APP_NOTIFICATIONS__A_NOTIFICATIONS_LENGTH = 'app-notifications-a-notifications-length' # a
-APP_NOTIFICATIONS__A_MAT_ICON_NOTIFICATIONS_NONE = 'app-notifications-a-mat-icon-notifications-none' # mat-icon
-
-
-# These are for notifications-module.component.html
-# TODO app-notifications-module-div-mat-card-button-name-* # button
-# TODO app-notifications-module-div-mat-card-button-name-*-mat-icon # mat-icon
-APP_NOTIFICATIONS_MODULE__BUTTON_CLEAR_ALL = 'app-notifications-module-div-mat-card-button-clear-all' # button
-# TODO app-notifications-module-div-div-div-list-*-div-div-*-notification-div-mat-icon-sync # mat-icon
-# TODO app-notifications-module-div-div-div-list-*-div-div-*-notification-div-mat-icon-warning # mat-icon
-# TODO app-notifications-module-div-div-div-list-*-div-div-*-notification-div-mat-icon-done # mat-icon
-# TODO app-notifications-module-div-div-div-list-*-div-div-*-notification-div-mat-icon-play-circle-outline # mat-icon
-# TODO app-notifications-module-div-div-div-list-*-div-div-*-notification-div-mat-icon-assignment-turned-in # mat-icon
-# TODO app-notifications-module-div-div-div-list-*-div-div-*-notification-div-mat-icon-not-interested # mat-icon
-# TODO app-notifications-module-div-div-div-list-*-div-div-*-notification-div-mat-icon-clear # mat-icon
-# TODO app-notifications-module-div-div-div-list-*-div-div-*-notification-mat-card-div-div-notification-statusactionapp # div
-# TODO app-notifications-module-div-div-div-list-*-div-div-*-notification-mat-card-div-div-notification-message # div
-# TODO app-notifications-module-div-div-div-list-*-div-div-*-notification-mat-card-div-div-notification-exception # div
-# TODO app-notifications-module-div-div-div-list-*-div-div-*-notification-mat-card-div-div-notification-displaytime # div
-# TODO app-notifications-module-div-div-div-list-*-div-div-*-notification-mat-card-div-mat-icon-delete # mat-icon
-# TODO app-notifications-module-div-div-div-list-*-div-div-mat-icon-delete # mat-icon
+CVAH_NOTIFICATIONS__OPEN_DIALOG_WINDOW = 'cvah-notifications-open-dialog-window' # div
+CVAH_NOTIFICATIONS__LENGTH = 'cvah-notifications-length' # a
+# TODO cvah-notifications-dialog_window-button-name-* # button
+CVAH_NOTIFICATIONS_DIALOG_WINDOW__BUTTON_CLEAR_ALL = 'cvah-notifications-dialog_window-button-clear-all' # button
+# TODO cvah-notifications-dialog_window-*-*--statusactionapp # div
+# TODO cvah-notifications-dialog_window-*-message # div
+# TODO cvah-notifications-dialog_window-*-exception # div
+# TODO cvah-notifications-dialog_window-*-displaytime # div
+# TODO cvah-notifications-dialog_window-*-button-delete # button
 
 
 # These are for passwored-mangement.component.html
@@ -1052,7 +1040,6 @@ APP_TOP_NAVBAR__MAT_LIST_ITEM_TIMEZONE_TIME = 'app-top-navbar-mat-drawer-contain
 APP_TOP_NAVBAR__MAT_LIST_ITEM_TIMEZONE_ZONE = 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone-div-zone' # div
 APP_TOP_NAVBAR__MAT_LIST_ITEM_NOTIFICATIONS = 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-notifications' # mat-list-item
 APP_TOP_NAVBAR__MAT_LIST_ITEM_NOTIFICATIONS_MAT_ICON = 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-notifications-mat-icon' # mat-icon
-APP_TOP_NAVBAR__MAT_LIST_ITEM_NOTIFICATIONS_MAT_ICON__APP_NOTIFICATIONS = 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-notifications-mat-icon-app-notifications' # app-notifications (internal)
 APP_TOP_NAVBAR__MAT_LIST_ITEM_NOTIFICATIONS_H4 = 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-notifications-h4' # h4
 # TODO app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-* # div
 # TODO app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-*-group-label # h3

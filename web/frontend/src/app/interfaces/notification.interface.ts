@@ -1,4 +1,4 @@
-import { NotificationStatusEnum } from '../enums';
+import { NotificationDataInterface } from './notification-data.interface';
 
 /**
  * Interface defines the notification
@@ -7,12 +7,14 @@ import { NotificationStatusEnum } from '../enums';
  * @interface NotificationInterface
  */
 export interface NotificationInterface {
-  _id: string;
-  timestamp: string;
+  _id?: string;
   role: string;
   message: string;
-  status: NotificationStatusEnum;
+  status: string;
   exception: string;
+  timestamp?: Date;
+  displayTime?: string;
   action?: string;
-  application?: string;
+  application: string;
+  data?: NotificationDataInterface;
 }

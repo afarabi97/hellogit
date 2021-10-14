@@ -31,6 +31,7 @@ export * from './kit-form.interface';
 export * from './kit-token.interface';
 export * from './kubernetes-config.interface';
 export * from './node.interface';
+export * from './notification.interface';
 export * from './portal-link.interface';
 export * from './rule-set.interface';
 export * from './rule-sync.interface';

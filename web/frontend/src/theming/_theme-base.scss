@@ -1,6 +1,6 @@
 @import '~@angular/material/theming';
 @include mat-core();
-@import '../app/notifications/notification-module/notifications-theme';
+@import '../app/modules/notifications/notifications-theme';
 @import '../app/top-navbar/top-navbar-theme';
 @import '../app/catalog/chart-list/chart-list-theme';
 @import '../app/catalog/page/catalog-page-theme';

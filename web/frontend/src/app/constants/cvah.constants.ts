@@ -11,7 +11,13 @@ export const TIMEZONES2: string[] = [
   'America/New_York'
 ];
 
+// Used for passing button color to button
+export const PRIMARY_BUTTON_COLOR: string = 'primary';
+export const ACCENT_BUTTON_COLOR: string = 'accent';
+export const WARN_BUTTON_COLOR: string = 'warn';
+
 // Used for passing specific dialog width when opening a mat dialog
+export const DIALOG_WIDTH_50VW: string = '50vw';
 export const DIALOG_WIDTH_80VW: string = '80vw';
 export const DIALOG_HEIGHT_90VH: string = '90vh';
 export const DIALOG_WIDTH_35PERCENT: string = '35%';

@@ -24,6 +24,7 @@ export * from './kit-form.class';
 export * from './kubernetes-config.class';
 export * from './mat-snackbar-configuration.class';
 export * from './node.class';
+export * from './notification.class';
 export * from './portal-link.class';
 export * from './rule-set.class';
 export * from './rule-sync.class';

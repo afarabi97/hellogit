@@ -1,5 +1,8 @@
-import { NotificationStatusEnum } from '../enums';
-import { NotificationInterface } from '../interfaces';
+import { ObjectUtilitiesClass } from '.';
+import { NotificationDataInterface, NotificationInterface } from '../interfaces';
+import { NotificationDataClass } from './notification-data.class';
+import { StatusClass } from './status.class';
+import { StatusInterface } from '../interfaces';
 
 /**
  * Class defines the notification
@@ -9,29 +12,35 @@ import { NotificationInterface } from '../interfaces';
  * @implements {NotificationInterface}
  */
 export class NotificationClass implements NotificationInterface {
-  _id: string;
-  timestamp: string;
+  _id?: string;
   role: string;
   message: string;
-  status: NotificationStatusEnum;
+  status: string;
   exception: string;
+  timestamp?: Date;
+  displayTime?: string;
   action?: string;
-  application?: string;
+  application: string;
+  data?: NotificationDataClass;
 
   /**
    * Creates an instance of NotificationClass.
    *
-   * @param {NotificationInterface} notificationInterface
+   * @param {NotificationInterface} notification_interface
    * @memberof NotificationClass
    */
-  constructor(notificationInterface: NotificationInterface) {
-    this._id = notificationInterface._id;
-    this.timestamp = notificationInterface.timestamp;
-    this.role = notificationInterface.role;
-    this.message = notificationInterface.message;
-    this.status = NotificationStatusEnum[notificationInterface.status];
-    this.exception = notificationInterface.exception;
-    this.action = notificationInterface.action;
-    this.application = notificationInterface.application;
+  constructor(notification_interface: NotificationInterface) {
+    this._id = notification_interface._id;
+    this.role = notification_interface.role;
+    this.message = notification_interface.message;
+    this.status = notification_interface.status;
+    this.exception = notification_interface.exception;
+    this.timestamp = notification_interface.timestamp;
+    this.displayTime = notification_interface.displayTime;
+    this.action = notification_interface.action;
+    this.application = notification_interface.application;
+    if (ObjectUtilitiesClass.notUndefNull(notification_interface.data)) {
+      this.data = new NotificationDataClass(notification_interface.data);
+    }
   }
 }

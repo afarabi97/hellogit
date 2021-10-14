@@ -4,7 +4,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { ObjectUtilitiesClass, KitStatusClass } from '../classes';
 import { returnDate } from '../functions/cvah.functions';
-import { NotificationsComponent } from '../notifications/component/notifications.component';
+import { NotificationsComponent } from '../modules/notifications/notifications.component';
 import { CookieService } from '../services/cookies.service';
 import { UserService } from '../services/user.service';
 import { ToolsService } from '../tools-form/services/tools.service';
@@ -94,7 +94,7 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
    * @memberof TopNavbarComponent
    */
   openNotifications(): void {
-    this.notifications.openNotification();
+    this.notifications.open_notification_dialog_window();
   }
 
   /**

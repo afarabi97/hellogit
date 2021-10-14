@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { Title } from '@angular/platform-browser';
 
-import { Notification } from '../../notifications/interface/notifications.interface';
+import { NotificationClass } from '../../classes';
 import { CookieService } from '../../services/cookies.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { Chart } from '../interface/chart.interface';
@@ -76,7 +76,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
     });
 
     this.ioConnection = this._WebsocketService.onBroadcast()
-    .subscribe((message: Notification) => {
+    .subscribe((message: NotificationClass) => {
       if(message.role === "catalog") {
         if(message.data !== {}) {
           this.charts.map( chart => {

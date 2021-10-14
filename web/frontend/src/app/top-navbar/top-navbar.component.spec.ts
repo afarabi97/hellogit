@@ -13,8 +13,7 @@ import { DateTimeModule } from '../modules/date-time/date-time.module';
 import { TestingModule } from '../modules/testing-modules/testing.module';
 import { InjectorModule } from '../modules/utilily-modules/injector.module';
 import { MaterialModule } from '../modules/utilily-modules/material.module';
-import { NotificationsComponent } from '../notifications/component/notifications.component';
-import { NotificationsModuleComponent } from '../notifications/notification-module/notifications-module.component';
+import { NotificationsComponent } from '../modules/notifications/notifications.component';
 import { CapitalizeFirstPipe } from '../pipes/capitalize-first.pipe';
 import { ApiService } from '../services/abstract/api.service';
 import { CookieService } from '../services/cookies.service';
@@ -32,7 +31,7 @@ function cleanStylesFromDOM(): void {
   }
 }
 
-const MockWebsocketBoradcast = {
+const MockWebsocketBroadcast = {
   role: 'kit',
   status: 'COMPLETED'
 };
@@ -42,7 +41,7 @@ class MockSocket {
     return {'on': () => {}};
   }
   onBroadcast() {
-    return observableOf(MockWebsocketBoradcast);
+    return observableOf(MockWebsocketBroadcast);
   }
 }
 
@@ -62,13 +61,11 @@ class MockSocket {
       TopNavbarComponent,
       NotificationsComponent,
       ModalDialogMatComponent,
-      CapitalizeFirstPipe,
-      NotificationsModuleComponent
+      CapitalizeFirstPipe
     ],
     entryComponents: [
       ModalDialogMatComponent,
-      NotificationsComponent,
-      NotificationsModuleComponent
+      NotificationsComponent
     ],
     providers: [
       CookieService,

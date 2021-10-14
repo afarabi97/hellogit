@@ -8,7 +8,7 @@ import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { TestingModule } from './modules/testing-modules/testing.module';
 import { InjectorModule } from './modules/utilily-modules/injector.module';
 import { MaterialModule } from './modules/utilily-modules/material.module';
-import { NotificationsComponent } from './notifications/component/notifications.component';
+import { NotificationsComponent } from './modules/notifications/notifications.component';
 import { ApiService } from './services/abstract/api.service';
 import { CookieService } from './services/cookies.service';
 import { ToolsService } from './tools-form/services/tools.service';

@@ -31,6 +31,8 @@ import { IndexManagementService } from '../elasticsearch-index-management/servic
 import { IndexManagementServiceSpy } from '../elasticsearch-index-management/services/index-management.service.spec';
 import { ElasticsearchService } from '../elasticsearch-scale/services/elasticsearch.service';
 import { ElasticsearchServiceSpy } from '../elasticsearch-scale/services/elasticsearch.service.spec';
+import { NotificationService } from '../notifications/services/notification.service';
+import { NotificationServiceSpy } from '../notifications/services/notification.service.spec';
 import { DiagnosticsService } from '../pmo-support/services/diagnostics.service';
 import { DiagnosticsServiceSpy } from '../pmo-support/services/diagnostics.service.spec';
 import { SystemVersionService } from '../pmo-support/services/system-version.service';
@@ -59,6 +61,7 @@ import { PolicyManagementServiceSpy } from '../policy-management/services/policy
     { provide: ColdLogIngestService, useClass: ColdLogIngestServiceSpy },
     { provide: IndexManagementService, useClass: IndexManagementServiceSpy },
     { provide: ElasticsearchService, useClass: ElasticsearchServiceSpy },
+    { provide: NotificationService, useClass: NotificationServiceSpy },
     { provide: DiagnosticsService, useClass: DiagnosticsServiceSpy },
     { provide: SystemVersionService, useClass: SystemVersionServiceSpy }
     // { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open', 'closeAll', 'getDialogById']) },
