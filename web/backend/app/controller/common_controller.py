@@ -7,7 +7,7 @@ from typing import List
 import netifaces
 from app.middleware import Auth
 from app.models import DBModelNotFound
-from app.models.common import COMMON_ERROR_MESSAGE, COMMON_NS, COMMON_RETURNS
+from app.models.common import COMMON_NS, COMMON_RETURNS
 from app.models.settings.kit_settings import GeneralSettingsForm
 from app.service.job_service import run_command
 from app.utils.constants import CONTROLLER_INTERFACE_NAME
@@ -137,7 +137,6 @@ def _get_available_ip_blocks(mng_ip: str, netmask: str) -> List:
 @COMMON_NS.route("/available-ip-blocks")
 class IPBlocks(Resource):
 
-    @COMMON_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @COMMON_NS.response(200, "Array of IP Address Strings", COMMON_RETURNS["ip_blocks"])
     @COMMON_NS.doc(description="Gets available IP blocks based on controllers "
                          "IP Address and netmask.")
@@ -148,8 +147,8 @@ class IPBlocks(Resource):
             netmask = str(kickstart_form.netmask)
             available_ip_blocks = _get_available_ip_blocks(mng_ip, netmask)
             return available_ip_blocks
-        except DBModelNotFound as e:
-            return {"error_message": "DBModelNotFound"}
+        except DBModelNotFound:
+            return {"message": "DBModelNotFound"}, 200
 
 
 @COMMON_NS.route("/ip-blocks/<ip_or_network_id>/<netmask>")

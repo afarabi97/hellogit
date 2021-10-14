@@ -119,15 +119,15 @@ class GeneralSettings(Resource):
         job = execute.delay(exec_type=DEPLOYMENT_JOBS.setup_controller)
         return JobID(job).to_dict()
 
-    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @SETINGS_NS.response(200, 'GeneralSettingsForm Model', GeneralSettingsForm.DTO)
     def get(self) -> Response:
         try:
             settings = GeneralSettingsForm.load_from_db()
             if settings:
                 return settings.to_dict()
-        except DBModelNotFound as e:
-            return {"post_validation": [str(e)]}, 400
+        except DBModelNotFound:
+            return {"message": "DBModelNotFound"}, 200
+
 
     @SETINGS_NS.expect(GeneralSettingsForm.DTO)
     @SETINGS_NS.response(200, 'JobID Model', JobID.DTO)
@@ -151,7 +151,7 @@ class GeneralSettings(Resource):
 
         return self._execute_job()
 
-@SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+
 @SETINGS_NS.route("/kit")
 class KitSettings(Resource):
 
@@ -159,15 +159,14 @@ class KitSettings(Resource):
         job = execute.delay(exec_type=DEPLOYMENT_JOBS.setup_controller_kit_settings)
         return JobID(job).to_dict()
 
-    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @SETINGS_NS.response(200, 'KitSettingsForm Model', KitSettingsForm.DTO)
     def get(self) -> Response:
         try:
             settings = KitSettingsForm.load_from_db() # type: KitSettingsForm
             if settings:
                 return settings.to_dict()
-        except DBModelNotFound as e:
-            return {"post_validation": [str(e)]}, 400
+        except DBModelNotFound:
+            return {"message": "DBModelNotFound"}, 200
 
     # TODO
     # @SETINGS_NS.expect(Node.DTO)
@@ -216,18 +215,18 @@ class KitSettings(Resource):
 @SETINGS_NS.route("/mip")
 class MipSettings(Resource):
 
-    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @SETINGS_NS.response(200, 'MipSettingsForm Model', MipSettingsForm.DTO)
     def get(self) -> Response:
         try:
             settings = MipSettingsForm.load_from_db()
             if settings:
                 return settings.to_dict()
-        except DBModelNotFound as e:
-            return {"post_validation": [str(e)]}, 400
+        except DBModelNotFound:
+            return {"message": "DBModelNotFound"}, 200
 
     @SETINGS_NS.expect(MipSettingsForm.DTO)
     @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @SETINGS_NS.response(200, 'Message', COMMON_MESSAGE)
     @controller_admin_required
     def post(self) -> Response:
         notification = NotificationMessage(role=_JOB_NAME.lower())
@@ -235,7 +234,7 @@ class MipSettings(Resource):
             mip_settings = MipSettingsForm.load_from_request(SETINGS_NS.payload)
             mip_settings.save_to_db()
             notification.set_and_send(message="MIP Settings Saved", status=NotificationCode.COMPLETED.name)
-            return {}, 200
+            return {"message": "MIP Settings Saved"}, 200
         except ValidationError as e:
             notification.set_and_send(message=str(e), status=NotificationCode.ERROR.name)
             return {"validation": e.normalized_messages()}, 400
@@ -245,7 +244,6 @@ class MipSettings(Resource):
         except DBModelNotFound as e:
             notification.set_and_send(message=str(e), status=NotificationCode.ERROR.name)
             return {"post_validation": [str(e)]}, 400
-
 
 
 @SETINGS_NS.route("/esxi")
@@ -258,8 +256,8 @@ class EsxiSettings(Resource):
             settings = EsxiSettingsForm.load_from_db()
             if settings:
                 return settings.to_dict()
-        except DBModelNotFound as e:
-            return {"post_validation": [str(e)]}, 400
+        except DBModelNotFound:
+            return {"message": "DBModelNotFound"}, 200
 
     @SETINGS_NS.expect(EsxiSettingsForm.DTO)
     @SETINGS_NS.response(200, 'JobID Model', JobID.DTO)
@@ -283,16 +281,16 @@ class EsxiSettings(Resource):
 
         return True, 200
 
+
 @SETINGS_NS.route("/esxi/test")
 class EsxiSettingsTest(Resource):
 
-    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @SETINGS_NS.response(200, 'EsxiSettingsForm Model', EsxiSettingsForm.DTO)
     def get(self) -> Response:
         try:
             return EsxiSettingsForm.load_from_db()
-        except DBModelNotFound as e:
-            return {"post_validation": [str(e)]}, 400
+        except DBModelNotFound:
+            return {"message": "DBModelNotFound"}, 200
 
     @SETINGS_NS.expect(EsxiSettingsForm.DTO)
     @SETINGS_NS.response(200, 'JobID Model', JobID.DTO)
@@ -306,21 +304,21 @@ class EsxiSettingsTest(Resource):
             return e.normalized_messages(), 400
         except PostValidationError as e:
             return {"post_validation": e.errors_msgs}, 400
-        except DBModelNotFound as e:
-            return {"post_validation": [str(e)]}, 400
+        except DBModelNotFound:
+            return {"message": "DBModelNotFound"}, 200
 
         return _test_esxi_client(esxi_settings)
+
 
 @SETINGS_NS.route("/snmp")
 class SNMPSettings(Resource):
 
-    @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @SETINGS_NS.response(200, 'Get the SNMP settings.', SNMPSettingsForm.DTO)
     def get(self) -> Response:
         try:
             return SNMPSettingsForm.load_from_db().to_dict()
-        except DBModelNotFound as e:
-            return {"post_validation": [str(e)]}, 400
+        except DBModelNotFound:
+            return {"message": "DBModelNotFound"}, 200
         except Exception as e:
             logger.exception(e)
         return ERROR_RESPONSE
