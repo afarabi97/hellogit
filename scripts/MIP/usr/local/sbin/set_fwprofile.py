@@ -35,10 +35,16 @@
 #       *Didn't convert set_firewall to python because
 #           it would take more time than it's worth right now.
 
+#	15Oct2021 v3.01
+#		Kassio Coutinho
+#		*Added sleep command for end user to view print statement
+
+
 # Description
 # =======================
 # This script changes the Firewall profile
 from menu import Menu
+from time import sleep
 from common_routines import Execute_Command, Clear_The_Screen
 from os import path
 import set_vmPortForward as portForward
@@ -70,6 +76,7 @@ def enable_firewalld():
 
 def default():
     print('Setting the default policy.')
+    sleep(1)
     enable_firewalld()
     vmnat_clear()
     Execute_Command([FW])
@@ -77,6 +84,7 @@ def default():
 
 def deny():
     print('Denying all traffic')
+    sleep(1)
     enable_firewalld()
     vmnat_clear()
     Execute_Command([FW, '-D'])
@@ -84,6 +92,7 @@ def deny():
 
 def share():
     print('Setting share policy')
+    sleep(1)
     enable_firewalld()
     vmnat_clear()
     Execute_Command([FW, '-it', '22, 139, 445', '-ih', '/etc/trusted.hosts'])
@@ -91,6 +100,7 @@ def share():
 
 def scan():
     print('Setting scan policy')
+    sleep(1)
     enable_firewalld()
     if not path.exists(
             '/etc/trusted.hosts') or not path.exists('/etc/target.hosts'):
@@ -102,6 +112,7 @@ def scan():
 
 def disable():
     print('Disabling firewall rules (allows all traffic)')
+    sleep(1)
     vmnat_clear()
     Execute_Command([FW, '-A'])
     Execute_Command(['systemctl', 'stop', 'firewalld'])
@@ -115,6 +126,7 @@ def forward():
 
 def save():
     print('Saving the current firewall state/configuration.')
+    sleep(1)
     completed_process = Execute_Command(['nft', 'list', 'ruleset'])
     with open ("/etc/sysconfig/nftables.conf", "w") as save_file:
         save_file.write(completed_process.stdout)
@@ -132,7 +144,7 @@ options = [{'selector': '1',
             'description': 'Deny    -- Deny all traffic through the firewall.',
             'func': deny},
            {'selector': '3',
-            'description': 'Share   -- Set the default policy and allow for inbound connections to an SMB share.',
+            'description': 'Share   -- Set the default policy and allow for inbound connections to an SMB share and SSH.',
             'func': share},
            {'selector': '4',
             'description': 'Scan    -- Set the default policy but limit based on files in /etc/target.hosts and /etc/trusted.hosts.',

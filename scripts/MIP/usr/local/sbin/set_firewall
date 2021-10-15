@@ -30,6 +30,9 @@
 #   Dylan Sigler
 #	Converted from iptables to nftables for RHEL 8.2
 #
+# 15Nov2021 V1.03
+#   Kassio Coutinho
+#	Removed firewalld enable requirement that was preventing script from running
 #Description
 #=======================
 # This script sets firewall rules
@@ -95,11 +98,6 @@ DEFEXCLD="/etc/exclude.hosts"
 if [ $(id -u) != "0" ]; then
 	echo "You must be root to run this command."
 	exit
-fi
-
-if [ `systemctl is-enabled firewalld` == "enabled" ]; then
-  echo "This script should not be run when firewalld is enabled."
-  exit
 fi
 
 systemctl enable nftables
@@ -259,7 +257,7 @@ flush_rules()
 
 # Handy wrapper to set the policy of each chain.
 set_policy()
-{	
+{
 	$FWCMD "add chain ip filter INPUT { type filter hook input priority filter; policy $1 ;}"
 	$FWCMD "add chain ip filter OUTPUT { type filter hook output priority filter; policy $1 ;}"
 	$FWCMD "add chain ip filter FORWARD { type filter hook forward priority filter; policy $1 ;}"

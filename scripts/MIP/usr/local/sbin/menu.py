@@ -26,7 +26,6 @@
 from collections import OrderedDict
 from subprocess import Popen, PIPE, STDOUT
 
-
 class Menu:
     def __init__(self):
         self._options = OrderedDict([('x', ('Exit', None))])
@@ -57,8 +56,6 @@ class Menu:
             print('[ ERR ] Invalid Option')
             print('===============================\n')
             self.present()
-
-    def message(self, msg): print(msg)
 
     def __str__(self):
         msg = \
