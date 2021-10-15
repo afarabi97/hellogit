@@ -258,7 +258,7 @@ CPT:
     - Repo/Shared/Documentation/AppStore/Grassmarlin/master
     - Repo/Shared/Documentation/AppStore/Metasponse/1.6.2.0
     - Repo/Shared/Documentation/AppStore/nfdump/1.6.17
-    - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.6
+    - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     - Repo/Shared/Documentation/AppStore/sysinternals suite/master
   dest: staging/v3.7/CPT/Data/CVAH 3.7/Documentation/AppStore
@@ -383,7 +383,7 @@ MDT:
     - Repo/Shared/Documentation/AppStore/Grassmarlin/master
     - Repo/Shared/Documentation/AppStore/Metasponse/1.6.2.0
     - Repo/Shared/Documentation/AppStore/nfdump/1.6.17
-    - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.6
+    - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     - Repo/Shared/Documentation/AppStore/sysinternals suite/master
   dest: staging/v3.7/MDT/Data/CVAH 3.7/Documentation/AppStore
