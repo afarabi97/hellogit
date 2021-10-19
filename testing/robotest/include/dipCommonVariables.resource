@@ -30,7 +30,10 @@ ${locNotificationsNavIcon}  id=app-notifications-a-mat-icon-notifications-none
 ${locNotificationsPopup}    xpath=//*[contains(@id, "mat-dialog-")]
 ${locTopNotification}       id=app-notifications-module-div-div-div-list-0-div-div-0-notification-mat-card-div-div-notification-statusactionapp
 ${locExpandSideNavIcon}     id=app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav-trigger-mat-icon-arrow-forward
+
+
 ${locCatalogPageNavIcon}    id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-1-mat-list-item-5-mat-icon
+${locNodeMgmtPageNavIcon}   https://${host}/node-mng
 ${locHealthPageNavIcon}     id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-2-mat-list-item-0-mat-icon
 ${locSupportPageNavIcon}    id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-6-mat-list-item-0-mat-icon
 ${locPortalPageNavIcon}     id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-0-mat-list-item-2-mat-icon

@@ -257,10 +257,10 @@ uncheck
 clickAndWaitOnEnable
     [Arguments]     ${button}
     log     Clicking Element And Waiting For It To Be Enabled ${button}
-    Wait Until Element Is Enabled   ${button}   5s
+    Wait Until Element Is Enabled   ${button}   1m
     click  ${button}
     Element Should Be Disabled      ${button}
-    Wait Until Element Is Enabled   ${button}   30s
+    Wait Until Element Is Enabled   ${button}   1m
     log     Element ${button} is enabled again
 
 reload
