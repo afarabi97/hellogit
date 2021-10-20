@@ -69,6 +69,7 @@ package_list:
   - vim
   - scap-security-guide
   - conntrack
+  - zip
 
 pip_installs:
   - netaddr
