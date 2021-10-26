@@ -20,20 +20,20 @@ class NotificationCode(Enum):
     UNKNOWN = 0
     # Status_DEPLOYED indicates that the release has been pushed to Kubernetes.
     DEPLOYED = 1
-    # Status_DELETED indicates that a release has been deleted from Kubernetes.
-    DELETED = 2
     # Status_SUPERSEDED indicates that this release object is outdated and a newer one exists.
     SUPERSEDED = 3
     # Status_FAILED indicates that the release was not successfully deployed.
     FAILED = 4
-    # Status_DELETING indicates that a delete operation is underway.
-    DELETING = 5
     # Status_PENDING_INSTALL indicates that an install operation is underway.
     PENDING_INSTALL = 6
     # Status_PENDING_UPGRADE indicates that an upgrade operation is underway.
     PENDING_UPGRADE = 7
     # Status_PENDING_ROLLBACK indicates that an rollback operation is underway.
     PENDING_ROLLBACK = 8
+    # Status_UNINSTALLING indicates that an uninstall operation is underway.
+    UNINSTALLING = 9
+    # Status_UNISTALLED indicates that an uninstall operation is complete.
+    UNINSTALLED = 10
     # A node is up and ready
     GREEN = 100
     # A node is unresponsive or down

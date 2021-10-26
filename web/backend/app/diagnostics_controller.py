@@ -8,7 +8,7 @@ from rq import get_current_job
 from app.service.job_service import AsyncJob
 from pathlib import Path
 from app.common import NOTFOUND_RESPONSE
-from tempfile import mktemp
+from tempfile import TemporaryFile
 from zipfile import ZipFile
 import os
 from flask_socketio import SocketIO
@@ -31,12 +31,12 @@ class Diagnostics(Resource):
         directory = logs[-1]["log"].split()[4]
         archive = Path(directory).joinpath(archive_file_name)
         if archive.exists():
-            stdout = mktemp()
+            stdout = TemporaryFile()
             with open(stdout, 'w') as mystdout:
                 for line in logs:
                     mystdout.write(line["log"])
 
-            zip = mktemp()
+            zip = TemporaryFile()
             with ZipFile(zip, 'w') as myzip:
                 myzip.write(str(archive), arcname=archive_file_name)
                 myzip.write(stdout, arcname="stdout")

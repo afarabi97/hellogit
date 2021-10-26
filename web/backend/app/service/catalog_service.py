@@ -275,15 +275,14 @@ def get_helm_list(application: str=None) -> dict:
 def get_app_state(application: str, namespace: str, nodes: List[Node]=None, chart_releases: List=None) -> list:
     if not nodes:
         nodes = Node.load_dip_nodes_from_db() # type: List[Node]
-    saved_values = conn_mng.mongo_catalog_saved_values.find({"application": application})
+    saved_values = list(conn_mng.mongo_catalog_saved_values.find({"application": application}))
     deployed_apps = []
     try:
         if not chart_releases:
             chart_releases = get_helm_list(application)
         regex = ".*{}$".format(application)
-        current_chart = [chart for chart in chart_releases if re.match(regex, chart["name"])]
-        if current_chart:
-            chart = current_chart[0]
+        current_charts = [chart for chart in chart_releases if re.match(regex, chart["name"])]
+        for chart in current_charts:
             node = {}
             node_hostname = None
             values = None
@@ -293,9 +292,9 @@ def get_app_state(application: str, namespace: str, nodes: List[Node]=None, char
             node["deployment_name"] = chart["name"]
             node["hostname"] = None
             node["node_type"] = None
-            saved_values = [svalues for svalues in saved_values if svalues["deployment_name"] == chart["name"]]
-            if saved_values:
-                values = saved_values[0].get("values", None)
+            filter_sv = [svalues for svalues in saved_values if svalues["deployment_name"] == chart["name"]]
+            if filter_sv:
+                values = filter_sv[0].get("values", None)
             if values:
                 node_hostname = values.get("node_hostname", None)
             if node_hostname:
@@ -422,11 +421,11 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                 else:
                     if "nodeSelector" in value_items:
                         value_items["nodeSelector"] = { "role": "server" }
-                install_helm_command.delay(deployment_name=deployment_name, application=application, namespace=namespace, value_items=value_items)
+                install_helm_command.delay(deployment_name=deployment_name, application=application, node=node_hostname, namespace=namespace, value_items=value_items)
                 conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
                 conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
                 while True:
-                    sleep(0.5)
+                    sleep(0.25)
                     data = get_app_state(application=application, namespace=namespace)
                     if len(list(filter(lambda d: d["deployment_name"] == deployment_name, data))) > 0:
                         break
@@ -453,7 +452,7 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
             notification.post_to_websocket_api()
     # Send Update Notification to websocket
     while len(list(filter(lambda d: d["deployment_name"] in deployment_names and d["status"].lower() == "deployed", get_app_state(application=application, namespace=namespace)))) < len(deployment_names):
-        sleep(0.5)
+        sleep(0.25)
     notification.set_message(message="Install completed.")
     notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
     notification.set_status(status=NotificationCode.COMPLETED.name)
@@ -461,7 +460,7 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
     return response
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
-def install_helm_command (deployment_name: str, application: str, namespace: str, value_items: dict):
+def install_helm_command (deployment_name: str, application: str, node: str, namespace: str, value_items: dict):
     response = []
     tpath = _write_values(deployment_name, value_items)
     stdout, ret_code = run_command2(command="helm install " + deployment_name +
@@ -477,6 +476,9 @@ def install_helm_command (deployment_name: str, application: str, namespace: str
         results = yaml.full_load(stdout.strip())
         notification.set_status(status=results["STATUS"].upper())
         notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
+        if node is not None:
+            message = '%s %s on %s' % (NotificationCode.INSTALLING.name.capitalize(), application, node)
+            notification.set_message(message=message)
         notification.post_to_websocket_api()
 
         response.append("release: \"" + deployment_name + "\" "  + results["STATUS"].upper())
@@ -497,8 +499,9 @@ def install_helm_command (deployment_name: str, application: str, namespace: str
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def delete_helm_apps (application: str, nodes: List, namespace: str="default"):
     # Send Update Notification to websocket
-    notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.DELETING.name.capitalize(), application=application.capitalize())
+    notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.UNINSTALLING.name.capitalize(), application=application.capitalize())
     response = []
+    deployment_names =[]
     for node in nodes:
         node_hostname = None
         deployment_name = None
@@ -520,42 +523,23 @@ def delete_helm_apps (application: str, nodes: List, namespace: str="default"):
 
 
         if deployment_to_uninstall:
-            message = '%s %s on %s' % (NotificationCode.DELETING.name.capitalize(), application, node_hostname)
+            deployment_names.append(deployment_name)
+            message = '%s %s on %s' % (NotificationCode.UNINSTALLING.name.capitalize(), application, node_hostname)
             notification.set_message(message=message)
             notification.set_exception(exception=None)
             try:
                 # Remove kube node label
                 if node_hostname:
                     execute_kubelet_cmd("kubectl label nodes " + node_hostname + " " + application + "-")
-                cmd = "helm delete {}".format(deployment_to_uninstall)
-                stdout, ret_code = run_command2(command=cmd, working_dir=WORKING_DIR, use_shell=True)
+                delete_helm_command.delay(deployment_name=deployment_to_uninstall, application=application, node=node_hostname, namespace=namespace)
+                while True:
+                    if len(list(filter(lambda d: d["deployment_name"] == deployment_to_uninstall and d["status"].lower() == "uninstalling", get_app_state(application=application, namespace=namespace)))) > 0:
+                        break
                 # Send Update Notification to websocket
                 notification.set_status(status=NotificationCode.IN_PROGRESS.name)
                 notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
                 notification.post_to_websocket_api()
-                if ret_code == 0 and stdout != '':
-                    # PVC deletion takes significatly longer than the other Resources and is the final thing to be removed
-                    # Thus, once the PVC is gone, It has been completely removed
-                    check_deployment_pvc_deletetion(deployment_to_uninstall)
-                    results = stdout.strip()
-                    # Remove old saved values
-                    conn_mng.mongo_catalog_saved_values.delete_one({"deployment_name": deployment_to_uninstall})
-
-                    # Send Update Notification to websocket
-                    message = '%s %s on %s' % (NotificationCode.DELETING.name.capitalize(), application, node_hostname)
-                    notification.set_status(status=NotificationCode.DELETED.name)
-                    notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
-                    notification.post_to_websocket_api()
-                if ret_code != 0 and stdout != '':
-                    results = stdout.strip()
-                    rq_logger.exception(results)
-                    # Send Update Notification to websocket
-                    notification.set_status(status=NotificationCode.ERROR.name)
-                    notification.set_exception(exception=results)
-                    notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
-                    notification.post_to_websocket_api()
                 response.append(results)
-                sleep(1)
             except Exception as exc:
                 rq_logger.exception(exc)
                 # Send Update Notification to websocket
@@ -573,25 +557,45 @@ def delete_helm_apps (application: str, nodes: List, namespace: str="default"):
             notification.post_to_websocket_api()
 
     # Send Update Notification to websocket
-    notification.set_message(message="Delete completed.")
-    notification.set_status(status=NotificationCode.COMPLETED.name)
+    while any(item in deployment_names for item in [d["deployment_name"] for d in get_app_state(application=application, namespace=namespace)]):
+        sleep(0.25)
+    notification.set_message(message="Uninstall completed.")
     notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
+    notification.set_status(status=NotificationCode.COMPLETED.name)
     notification.post_to_websocket_api()
     return response
 
+@job('default', connection=REDIS_CLIENT, timeout="30m")
+def delete_helm_command (deployment_name: str, application: str, node: str, namespace: str):
+    response = []
+    stdout, ret_code = run_command2(command="helm delete " + deployment_name + " --namespace " + namespace +" --wait",
+                                    working_dir=WORKING_DIR, use_shell=True)
+
+    notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.UNINSTALLING.name.capitalize(), application=application.capitalize())
+    if ret_code == 0 and stdout != '':
+        conn_mng.mongo_catalog_saved_values.delete_one({"deployment_name": deployment_name})
+        # Send Update Notification to websocket
+        if node is not None:
+            message = '%s %s on %s' % (NotificationCode.UNINSTALLING.name.capitalize(), application, node)
+            notification.set_message(message=message)
+        notification.set_status(status=NotificationCode.UNINSTALLED.name)
+        notification.post_to_websocket_api()
+
+        response.append("release: \"" + deployment_name + "\" UNINSTALLED")
+    if ret_code != 0:
+        results = ''
+        if stdout != '':
+            results = stdout.strip()
+        rq_logger.exception(results)
+        # Send Update Notification to websocket
+        notification.set_status(status=NotificationCode.ERROR.name)
+        notification.set_exception(exception=results)
+        notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
+        notification.post_to_websocket_api()
+    sleep(1)
+    return response
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def reinstall_helm_apps(application: str, namespace: str, nodes: List, node_affinity: str, values: List):
     delete_helm_apps(application=application, namespace=namespace, nodes=nodes)
     install_helm_apps(application=application, namespace=namespace, node_affinity=node_affinity, values=values)
-
-
-def check_deployment_pvc_deletetion(deployment_name: str):
-    with KubernetesWrapper(conn_mng) as kube_apiv1:
-        while True:
-            try:
-                kube_apiv1.read_namespaced_persistent_volume_claim_status(deployment_name+'-pvc','default',pretty=False)
-                sleep(5)
-            except Exception:
-                break
-    return True

@@ -17,7 +17,7 @@ metallb_version: "v0.10.2"
 arkime_version: "2.7.1"
 suricata_version: "6.0.0"
 emerging_threat_rules_version: "suricata-5.0" # suricata-6.0 rules havent been released yet. (https://rules.emergingthreats.net/open/)
-helm_version: "v3.6.0"
+helm_version: "v3.7.1"
 chartmuseum_version: "v0.13.1"
 elastic_7_version: "7.13.1"
 elastic_7_chart_version: "7.13.1"

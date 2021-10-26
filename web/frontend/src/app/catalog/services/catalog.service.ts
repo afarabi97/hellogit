@@ -72,7 +72,7 @@ export class CatalogService extends ApiService<any> {
    * @memberof CatalogService
    */
   deleteHelm(role, process): Observable<Object>{
-    const url = '/api/catalog/delete';
+    const url = '/api/catalog/uninstall';
     const payload = { role: role, process: process };
       return this.httpClient_.post(url, payload, HTTP_OPTIONS).pipe();
   }

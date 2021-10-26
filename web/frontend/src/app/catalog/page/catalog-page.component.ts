@@ -419,7 +419,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
         this.serverAny();
         this.addDeploymentName();
         this._CatalogService.deleteHelm(this.chart.id, this.processFormGroup.getRawValue())
-          .subscribe(_data => this.snackBar.open(`${this.chart.id} Deletetion Queued`, 'OK', { duration: 5000 }));
+          .subscribe(_data => this.snackBar.open(`${this.chart.id} Uninstall Queued`, 'OK', { duration: 5000 }));
         break;
       case 'reinstall':
         this._CatalogService.reinstallHelm(this.chart.id, this.processFormGroup.getRawValue(), this.makeValueArray())

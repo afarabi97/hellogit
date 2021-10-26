@@ -89,7 +89,7 @@ class HELMInstallCtrl(Resource):
         return ERROR_RESPONSE
 
 
-@CATALOG_NS.route('/delete')
+@CATALOG_NS.route('/uninstall')
 class HELMDeleteCtrl(Resource):
 
     @CATALOG_NS.doc(description="Delete an application using helm")
@@ -109,7 +109,7 @@ class HELMDeleteCtrl(Resource):
                 application=application, namespace=NAMESPACE, nodes=nodes)  # type: Response
             return JobID(job).to_dict()
 
-        logger.error("Executing /api/catalog/delete has failed.")
+        logger.error("Executing /api/catalog/uninstall has failed.")
         return ERROR_RESPONSE
 
 
@@ -135,7 +135,7 @@ class HELMReinstallCtrl(Resource):
                                             node_affinity=node_affinity, values=values)
             return JobID(job).to_dict()
 
-        logger.error("Executing /api/catalog/delete has failed.")
+        logger.error("Executing /api/catalog/reinstall has failed.")
         return ERROR_RESPONSE
 
 

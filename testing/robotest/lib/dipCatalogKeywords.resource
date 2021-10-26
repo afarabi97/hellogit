@@ -199,7 +199,7 @@ Uninstall App
     ${application_card} =  Set Variable  id=app-chart-list-div-app-card-${index}
     Wait Until Keyword Succeeds  5x  5s  Check App Card Status  ${index}  Not Installed
     click  ${locNotificationsNavIcon}
-    Wait Until Element Contains  ${locTopNotification}  COMPLETED Deleting ${application_name}  10m
+    Wait Until Element Contains  ${locTopNotification}  COMPLETED Uninstalling ${application_name}  10m
     Press Keys  None  ESCAPE
     Sleep  10s
 
