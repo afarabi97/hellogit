@@ -8,8 +8,9 @@ Documentation          Test suite for the virtual DIP controller. The following 
 Resource    ../lib/dipCommonKeywords.resource
 Resource    ../lib/dipCatalogKeywords.resource
 Resource    ../lib/dipRulesetKeywords.resource
-Resource    ../include/dipCatalogVariables.resource
-Resource    ../include/dipRulesetVariables.resource
+Resource    ../lib/dipNodeMgmtKeywords.resource
+
+
 
 Library     SeleniumLibrary     15s
 Library     SSHLibrary          15s
@@ -20,8 +21,8 @@ Suite Setup         Open SSH Connection  ${HOST}  ${HOST_USERNAME}  ${HOST_PASSW
 Test Setup          Run Keywords  Runner Open Browser  ${HOST}  ${BROWSER}
                     ...     AND  Set DIP Kit Global Variables
 Test Teardown       Close Browser
-Suite Teardown      Run Keywords  Clean Up Catalog Page
-                    ...  AND  Close All Connections
+Suite Teardown      Close All Connections
+
 
 *** Test Cases ***
 Perform Initial SSO for DIP Controller
@@ -72,39 +73,18 @@ Perform Cleanup On Rulesets Page
 
 Add Sensor - Virtual
     [Tags]    THISISCVAH-10220
-    [Documentation]  Logs in, goes to Node Management page and adds a virtual sensor node
+    [Documentation]     Logs in, goes to Node Management page and adds a virtual sensor node
+    Set Selenium Speed                          0.5s
+    Login Into DIP Controller                   ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
+    Navigate To Node Management
+    Enter Virtual Sensor Information
+    Wait For 30m To Verify Sensor Was Added
 
-    Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
-    Wait Until Page Contains    Portal    timeout=60s    error=Portal Page Did Not Load Within 60s
 
-    Go To    ${locNodeMgmtPageNavIcon}
-    Wait Until Element Is Visible   //table[@class='mat-table cdk-table']/tbody/tr    timeout=60s    error=Node Management Page did not load within 60s
-
-    Click Element    xpath: //*[contains(text(), "Add Node")]
-    Wait Until Page Contains Element    id=mat-input-0    timeout=30s    error=Add Node Prompt Page Did Not Load Within 30s
-    Click Element    id=mat-input-0
-    Input Text    //input[@formcontrolname="hostname"]    test1
-    Click Element    id=mat-input-1
-    Input Text    //input[@data-placeholder="Enter your node IP address here"]    1
-    Wait Until Page Contains Element    //*[contains(@id, "mat-option-")][1]    timeout=30s    error=List of Unused IPs did not load within 30s
-    Click Element    //*[contains(@id, "mat-option-")][1]
-    Click Element    //*[contains(@id, "mat-radio-")][2]
-    Click Element    xpath=//div/div/mat-radio-group/mat-radio-button[2]/label/div/div
-    Click Element    //*[contains(@id, "mat-dialog-")]/add-node-dialog/div/div[2]/button[2]
-    ${count} =    Get Element Count    //*[@id="app-root-app-top-navbar"]/mat-drawer-container/mat-drawer-content/div/app-node-mng/div/mat-card[2]/mat-card-content/table/tbody/tr
-    Wait Until Element Contains  //*[@id="app-root-app-top-navbar"]/mat-drawer-container/mat-drawer-content/div/app-node-mng/div/mat-card[2]/mat-card-content/table/tbody/tr[${count}]/td[5]/app-node-state-progress-bar/a[3]/mat-icon  check_circle  30m    error=Sensor test1 was not added within 30m
-    SeleniumLibrary.Capture Page Screenshot    filename=AddNode-screenshot.png
-
-Remove Node
+Remove Sensor - Virtual
     [Tags]    THISISCVAH-10221
-    [Documentation]  Logs in, goes to Node Management page and removes the added virtual sensor
-    Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
-    Go To    ${locNodeMgmtPageNavIcon}
-    Wait Until Element Is Visible   //table[@class='mat-table cdk-table']/tbody/tr    timeout=60s    error=Node Management Page did not load within 60s
-
-    ${count} =    Get Element Count    //*[@id="app-root-app-top-navbar"]/mat-drawer-container/mat-drawer-content/div/app-node-mng/div/mat-card[2]/mat-card-content/table/tbody/tr
-
-    Click Button    //*[@id="app-root-app-top-navbar"]/mat-drawer-container/mat-drawer-content/div/app-node-mng/div/mat-card[2]/mat-card-content/table/tbody/tr[${count}]/td[6]/div/button[1]
-    Click Button    //*[@id="cvah-confirm-dialog-button-options2-not-double-confirm"]
-    Wait Until Page Does Not Contain    test1    15m    error=Sensor test1 was not removed within 15m
-    SeleniumLibrary.Capture Page Screenshot    filename=RemoveNode-screenshot.png
+    [Documentation]  Logs in, goes to Node Management page and removes added virtual sensor(s)
+    Set Selenium Speed                              0.5s
+    Login Into DIP Controller                       ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
+    Navigate To Node Management
+    Cleanup Virtual Sensors With The Name Robot

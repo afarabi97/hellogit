@@ -24,4 +24,4 @@ DIP Robot Tests:
     when: always
   only:
     variables:
-      - $RUN_ROBOT_TESTS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"

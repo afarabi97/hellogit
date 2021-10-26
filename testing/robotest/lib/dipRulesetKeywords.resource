@@ -91,7 +91,7 @@ Cleanup Zeek Script Ruleset Files
     # click   xpath=//div[@id='mat-select-value-7']/span/span
     # store    xpath=//mat-option[@id='rule-set-add-edit-div-mat-form-field-sensors-mat-select-mat-option-0']/span    locSampleScriptsSenserOption
     click   xpath=//mat-option[@id='rule-set-add-edit-div-mat-form-field-sensors-mat-select-mat-option-0']/span
-    click   xpath=//div[3]/div[3]
+    click   ${locAddRulesetOverlayClick}
 
     # store    xpath=//mat-checkbox[@id='rule-set-add-edit-div-mat-checkbox-is-enabled']/label/div    locSampleScriptIsEnabledBtn
     click   xpath=//mat-checkbox[@id='rule-set-add-edit-div-mat-checkbox-is-enabled']/label/div
@@ -102,16 +102,11 @@ Cleanup Zeek Script Ruleset Files
 
 Cleanup Suricata Ruleset Files
     Navigate To Rulesets
-    log     Clicking Suricata Edit Button
-    click    xpath=//button[@id='cvah-policy-management-table-rule-set-td-0-actions-button-edit']/span/em
-    log     Clicking Suricata Edit Sensor Button
-    click   xpath=//div[@id='mat-select-value-7']/span/span
-    # store    xpath=//mat-option[@id='rule-set-add-edit-div-mat-form-field-sensors-mat-select-mat-option-0']/span    locSampleScriptsSenserOption
-    log     Clicking Suricata Sensor Option
-    click   xpath=//mat-option[@id='rule-set-add-edit-div-mat-form-field-sensors-mat-select-mat-option-0']/span
-    click   xpath=//div[3]/div[3]
-    # store    xpath=//button[@id='rule-set-add-edit-div-button-submit']/span    locSampleScriptSubmitBtn
-    log     Clicking Suricata Submit Button
-    click   xpath=//button[@id='rule-set-add-edit-div-button-submit']/span
+    log     Cleaning Up Suricata Ruleset Files
+    click   ${locRulesetActionEditBtnSuricata}
+    click   ${locAddRulesetSensorField}
+    click   ${locAddRulesetSensorCheckbox}
+    click   ${locAddRulesetOverlayClick}
+    click   ${locAddRulesetSubmitBtn}
     log     Ruleset ready for syncing
     reload
