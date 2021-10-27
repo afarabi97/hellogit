@@ -26,22 +26,22 @@ export class ServerStdoutService {
   }
 
   getConsoleOutput(jobId: string){
-    const url = `/api/get_console_logs/${jobId}`;
+    const url = `/api/jobs/log/${jobId}`;
     return this.http.get(url).pipe();
   }
 
   getJob(jobId: string){
-    const url = `/api/job/${jobId}`;
+    const url = `/api/jobs/${jobId}`;
     return this.http.get(url).pipe();
   }
 
   killJob(jobId: string){
-    const url = `/api/job/${jobId}`;
+    const url = `/api/jobs/${jobId}`;
     return this.http.delete(url);
   }
 
   retryJob(jobId: string){
-    const url = `/api/job/${jobId}/retry`;
+    const url = `/api/jobs/${jobId}/retry`;
     return this.http.put(url, null);
   }
 }

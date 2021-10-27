@@ -123,7 +123,7 @@ def wait_for_next_job_in_chain(controller_ip: str, node_to_check: Dict, timeout:
                         exit(1)
                     elif job["inprogress"] and job["description"] and job["job_id"]:
                         job_found = True
-                        wait_for_job_to_finish(job["description"], "https://{}{}".format(controller_ip, "/api/job/" + job["job_id"]), timeout)
+                        wait_for_job_to_finish(job["description"], "https://{}{}".format(controller_ip, "/api/jobs/" + job["job_id"]), timeout)
                     elif job["complete"]:
                         jobs_completed += 1
                 sleep(1)
@@ -403,7 +403,7 @@ class APITesterV2:
     def run_kit_api_post(self):
         payload = self._kit_settings.to_kit_settings_api_payload()
         response_dict = post_request(self._url.format("/api/settings/kit"), payload)
-        wait_for_job_to_finish("Kit Settings setup", self._url.format("/api/job/" + response_dict['job_id']), 60)
+        wait_for_job_to_finish("Kit Settings setup", self._url.format("/api/jobs/" + response_dict['job_id']), 60)
         _clean_up(wait=0)
 
     def run_mip_api_post(self):
@@ -413,12 +413,12 @@ class APITesterV2:
     def run_general_settings_api_post(self):
         payload = self._kit_settings.to_general_settings_api_payload()
         response_dict = post_request(self._url.format("/api/settings/general"), payload)
-        wait_for_job_to_finish("General Settings setup", self._url.format("/api/job/" + response_dict['job_id']), 60)
+        wait_for_job_to_finish("General Settings setup", self._url.format("/api/jobs/" + response_dict['job_id']), 60)
         _clean_up(wait=0)
 
     def run_control_plane_post(self):
         response_dict = post_request(self._url.format("/api/kit/control-plane"), None)
-        wait_for_job_to_finish("Creating Kickstart Profiles", self._url.format("/api/job/" + response_dict['job_id']), 60)
+        wait_for_job_to_finish("Creating Kickstart Profiles", self._url.format("/api/jobs/" + response_dict['job_id']), 60)
         wait_for_next_job_in_chain(self._controller_ip, {"node_type": "Control-Plane"})
         _clean_up(wait=0)
 
@@ -429,7 +429,7 @@ class APITesterV2:
         payload = node.to_node_api_payload()
         print(payload)
         response_dict = post_request(self._url.format("/api/kit/node"), payload)
-        wait_for_job_to_finish("Adding node", self._url.format("/api/job/" + response_dict['job_id']), 60)
+        wait_for_job_to_finish("Adding node", self._url.format("/api/jobs/" + response_dict['job_id']), 60)
 
     def run_add_virtual_node_post(self, node: NodeSettingsV2):
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
@@ -438,7 +438,7 @@ class APITesterV2:
         payload = node.to_node_api_payload()
         print(payload)
         response_dict = post_request(self._url.format("/api/kit/node"), payload)
-        wait_for_job_to_finish("Adding virtual node", self._url.format("/api/job/" + response_dict['job_id']), 60)
+        wait_for_job_to_finish("Adding virtual node", self._url.format("/api/jobs/" + response_dict['job_id']), 60)
 
     def run_add_virtual_mip_post(self, node: Union[NodeSettingsV2, HwControllerSetupSettings]):
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
@@ -447,7 +447,7 @@ class APITesterV2:
         payload = node.to_mip_api_payload()
         print(payload)
         response_dict = post_request(self._url.format("/api/kit/mip"), payload)
-        wait_for_job_to_finish("Adding virtual mip", self._url.format("/api/job/" + response_dict['job_id']), 60)
+        wait_for_job_to_finish("Adding virtual mip", self._url.format("/api/jobs/" + response_dict['job_id']), 60)
 
     def _get_control_plane_node(self) -> NodeSettingsV2:
         for node in self._nodes:
@@ -468,7 +468,7 @@ class APITesterV2:
 
     def run_kit_deploy(self):
         response_dict = get_request(self._url.format("/api/kit/deploy"))
-        wait_for_job_to_finish("Kit Deploy", self._url.format("/api/job/" + response_dict['job_id']), 60)
+        wait_for_job_to_finish("Kit Deploy", self._url.format("/api/jobs/" + response_dict['job_id']), 60)
 
     def install_logstash(self) -> None:
         payload = self._catalog_payload_generator.generate("logstash", INSTALL, SERVER_ANY)

@@ -15,9 +15,9 @@ def get_commit_hash() -> str:
     return short_sha
 
 def collect_logs():
-    tar_name = "tfplenum-logs-{}-{}.tar".format(date.today(), get_commit_hash())
+    tar_name = "tfplenum-logs-{}-{}.tar.gz".format(date.today(), get_commit_hash())
     os.system("mkdir -p /var/www/html/downloads > /dev/null 2>&1")
-    os.system(f"tar -cf /var/www/html/downloads/{tar_name} -C /var/log . > /dev/null 2>&1")
+    os.system(f"tar -czvf /var/www/html/downloads/{tar_name} -C /var/log . > /dev/null 2>&1")
     print("=====> {} created in /var/www/html/downloads".format(tar_name))
 
 def start_diagnostic():

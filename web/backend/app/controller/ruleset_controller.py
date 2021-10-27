@@ -20,7 +20,7 @@ from app.utils.constants import (DATE_FORMAT_STR, PCAP_UPLOAD_DIR, RULE_TYPES,
                                  RULESET_STATES, SURICATA_IMAGE_VERSION,
                                  ZEEK_IMAGE_VERSION, ZEEK_INTEL_PATH,
                                  ZEEK_SCRIPT_DIR, ZEEK_SIG_PATH)
-from app.utils.db_mngs import conn_mng
+from app.utils.collections import mongo_rule, mongo_ruleset
 from app.utils.logging import logger
 from app.utils.utils import zip_folder
 from flask import Response, request, send_file
@@ -42,7 +42,7 @@ class Rules(Resource):
     @POLICY_NS.doc(description="Returns a list of all the saved Rules based on the RuleSet ID passed in.")
     @POLICY_NS.response(200, 'Rules', [RuleModel.DTO])
     def get(self, rule_set_id: str) -> Response:
-        rules = conn_mng.mongo_rule.find({'rule_set_id': rule_set_id}, projection={"rule": False})
+        rules = mongo_rule().find({'rule_set_id': rule_set_id}, projection={"rule": False})
         return list(rules)
 
 @POLICY_NS.route('/rule/<rule_id>/content')
@@ -52,7 +52,7 @@ class RuleContent(Resource):
     @POLICY_NS.response(200, 'Rules', RuleModel.DTO)
     @POLICY_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     def get(self, rule_id: str) -> Response:
-        rule = conn_mng.mongo_rule.find_one({'_id': rule_id})
+        rule = mongo_rule().find_one({'_id': rule_id})
         if rule:
             return rule
         return {"error_message": "Failed to find rule content for rule ID {}.".format(rule_id)}, 400
@@ -63,7 +63,7 @@ def create_ruleset_service(ruleset: Dict) -> InsertOneResult:
     dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
     ruleset['createdDate'] = dt_string
     ruleset['lastModifiedDate'] = dt_string
-    ret_val = conn_mng.mongo_ruleset.insert_one(ruleset)
+    ret_val = mongo_ruleset().insert_one(ruleset)
     return ret_val
 
 def create_rule_service(rule: Dict, ruleset_id: str, projection={"rule": False}) -> Dict:
@@ -72,8 +72,8 @@ def create_rule_service(rule: Dict, ruleset_id: str, projection={"rule": False})
     dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
     rule['createdDate'] = dt_string
     rule['lastModifiedDate'] = dt_string
-    ret_val = conn_mng.mongo_rule.insert_one(rule)
-    return conn_mng.mongo_rule.find_one({'_id': ret_val.inserted_id}, projection=projection)
+    ret_val = mongo_rule().insert_one(rule)
+    return mongo_rule().find_one({'_id': ret_val.inserted_id}, projection=projection)
 
 def create_rule_srv_wrapper(rule_set: Dict,
                 rule_name: str,
@@ -138,7 +138,7 @@ class Rulesets(Resource):
     @POLICY_NS.doc(description="Returns a list of all the saved RuleSets defined on the RuleSet Page.")
     @POLICY_NS.response(200, 'RuleSets', [RuleSetModel.DTO])
     def get(self) -> Response:
-        rule_sets = conn_mng.mongo_ruleset.find({}) # type: Cursor
+        rule_sets = mongo_ruleset().find({}) # type: Cursor
         ret_val = []
         for rule_set in rule_sets:
             ret_val.append(rule_set)
@@ -171,7 +171,7 @@ class Rulesets(Resource):
 
         ruleset['state'] = RULESET_STATES[1]
         ruleset['lastModifiedDate'] = datetime.utcnow().strftime(DATE_FORMAT_STR)
-        ret_val = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
+        ret_val = mongo_ruleset().find_one_and_update({'_id': ruleset_id},
                                                              {"$set": ruleset},
                                                              return_document=ReturnDocument.AFTER)
         if ret_val:
@@ -185,9 +185,9 @@ class DeleteRuleSet(Resource):
     @POLICY_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
     @operator_required
     def delete(self, ruleset_id: str) -> Response:
-        rules_deleted = conn_mng.mongo_rule.delete_many({'rule_set_id': ruleset_id})
+        rules_deleted = mongo_rule().delete_many({'rule_set_id': ruleset_id})
         if rules_deleted:
-            ret_val = conn_mng.mongo_ruleset.delete_one({'_id': ruleset_id})
+            ret_val = mongo_ruleset().delete_one({'_id': ruleset_id})
             if ret_val.deleted_count == 1:
                 return {"success_message": "Successfully deleted rule set."}
         return {"error_message": "Failed to delete ruleset ID {}.".format(ruleset_id)}, 500
@@ -197,7 +197,7 @@ def _validate_suricata_rule(rule: Dict) -> Tuple[bool, str]:
         try:
             the_rule = rule['rule']
         except KeyError:
-            the_rule = conn_mng.mongo_rule.find_one({"_id": rule["_id"]})['rule']
+            the_rule = mongo_rule().find_one({"_id": rule["_id"]})['rule']
 
         filename = '{}/suricata.rules'.format(tmpdirname)
         if isinstance(the_rule, str):
@@ -226,7 +226,7 @@ def _validate_zeek_script(rule: Dict) -> Tuple[bool, str]:
         try:
             the_rule = rule['rule']
         except KeyError:
-            the_rule = conn_mng.mongo_rule.find_one({"_id": rule["_id"]})['rule']
+            the_rule = mongo_rule().find_one({"_id": rule["_id"]})['rule']
 
         filename = "custom.zeek"
         filepath = '{}/{}'.format(tmpdirname, filename)
@@ -259,7 +259,7 @@ def _validate_zeek_intel(rule: Dict) -> Tuple[bool, str]:
         try:
             the_rule = rule['rule']
         except KeyError:
-            the_rule = conn_mng.mongo_rule.find_one({"_id": rule["_id"]})['rule']
+            the_rule = mongo_rule().find_one({"_id": rule["_id"]})['rule']
 
         filename = "local.zeek"
         filepath = '{}/{}'.format(rules_tmp_dir, filename)
@@ -302,7 +302,7 @@ def _validate_zeek_signature(rule: Dict) -> Tuple[bool, str]:
         try:
             the_rule = rule['rule']
         except KeyError:
-            the_rule = conn_mng.mongo_rule.find_one({"_id": rule["_id"]})['rule']
+            the_rule = mongo_rule().find_one({"_id": rule["_id"]})['rule']
 
         filename = "custom.sig"
         filepath = '{}/{}'.format(tmpdirname, filename)
@@ -366,7 +366,7 @@ class UploadRule(Resource):
             return {"error_message": "Failed to upload file. No file was found in the request."}, 400
 
         by_pass_validation = rule_set.get('byPassValidation', False)
-        rule_set = conn_mng.mongo_ruleset.find_one({'_id': rule_set['_id']})
+        rule_set = mongo_ruleset().find_one({'_id': rule_set['_id']})
         if rule_set:
             rule_set_file = request.files['upload_file']
             filename = secure_filename(rule_set_file.filename)
@@ -402,7 +402,7 @@ class RulesCtrl(Resource):
         rule["_id"] = uuid.uuid4().hex
         ruleset_id = rule["rule_set_id"]
         by_pass_validation = rule['byPassValidation']
-        rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id})
+        rule_set = mongo_ruleset().find_one({'_id': ruleset_id})
         error_output = None
         if rule_set:
             rule_type = rule_set['appType']
@@ -424,7 +424,7 @@ class RulesCtrl(Resource):
             if is_valid:
                 del rule["byPassValidation"]
                 rule = create_rule_service(rule, ruleset_id)
-                conn_mng.mongo_ruleset.update_one({'_id': ruleset_id}, {"$set": {"state": RULESET_STATES[1]}})
+                mongo_ruleset().update_one({'_id': ruleset_id}, {"$set": {"state": RULESET_STATES[1]}})
                 if rule:
                     return rule
             elif error_output:
@@ -441,7 +441,7 @@ class RulesCtrl(Resource):
         id_to_modify = rule['_id']
         by_pass_validation = rule['byPassValidation']
 
-        rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id})
+        rule_set = mongo_ruleset().find_one({'_id': ruleset_id})
         if rule_set:
             rule_type = rule_set['appType']
             is_valid = False
@@ -462,12 +462,12 @@ class RulesCtrl(Resource):
                 del rule["byPassValidation"]
                 dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
                 rule['lastModifiedDate'] = dt_string
-                rule = conn_mng.mongo_rule.find_one_and_update({'_id': id_to_modify},
+                rule = mongo_rule().find_one_and_update({'_id': id_to_modify},
                                                             {"$set": rule},
                                                             projection={"rule": False},
                                                             return_document=ReturnDocument.AFTER)
                 if rule:
-                    rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
+                    rule_set = mongo_ruleset().find_one_and_update({'_id': ruleset_id},
                                                                         {'$set': { "state": RULESET_STATES[1],
                                                                                     "lastModifiedDate": dt_string }},
                                                                         return_document=ReturnDocument.AFTER)
@@ -485,7 +485,7 @@ class DeleteRule(Resource):
     @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @operator_required
     def delete(self, rule_id: str) -> Response:
-        ret_val = conn_mng.mongo_rule.delete_one({'_id': rule_id})  # type: DeleteResult
+        ret_val = mongo_rule().delete_one({'_id': rule_id})  # type: DeleteResult
         if ret_val.deleted_count == 1:
             return {"success_message": "Successfully deleted rule ID {} from the rule set.".format(rule_id)}
         return {"error_message": "Failed to delete a rule for ruleset ID {}.".format(rule_id)}, 500
@@ -498,18 +498,18 @@ class ToggleRule(Resource):
     @POLICY_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @operator_required
     def put(self, rule_id: str) -> Response:
-        rule = conn_mng.mongo_rule.find_one({'_id': rule_id},
+        rule = mongo_rule().find_one({'_id': rule_id},
                                             projection={"rule": False})
         ruleset_id = rule["rule_set_id"]
         dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
         rule['lastModifiedDate'] = dt_string
         rule['isEnabled'] = not rule['isEnabled']
-        rule = conn_mng.mongo_rule.find_one_and_update({'_id': rule_id},
+        rule = mongo_rule().find_one_and_update({'_id': rule_id},
                                                        {'$set': rule},
                                                        projection={"rule": False},
                                                        return_document=ReturnDocument.AFTER)
         if rule:
-            rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
+            rule_set = mongo_ruleset().find_one_and_update({'_id': ruleset_id},
                                                                   {'$set': {"state": RULESET_STATES[1],
                                                                             "lastModifiedDate": dt_string }},
                                                                   return_document=ReturnDocument.AFTER)
@@ -545,7 +545,7 @@ class ValidateRule(Resource):
     @operator_required
     def post(self) -> Response:
         rule = request.get_json()
-        rule_set = conn_mng.mongo_ruleset.find_one({"_id": rule['rule_set_id']})
+        rule_set = mongo_ruleset().find_one({"_id": rule['rule_set_id']})
         rule_type = rule_set['appType']
 
         error_output = "Unknown Error"

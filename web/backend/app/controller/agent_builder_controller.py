@@ -18,7 +18,7 @@ from app.service.agent_service import (build_agent_if_not_exists,
 from app.service.job_service import run_command2
 from app.utils.constants import (AGENT_PKGS_DIR, AGENT_UPLOAD_DIR,
                                  TARGET_STATES, TEMPLATE_DIR)
-from app.utils.db_mngs import conn_mng
+from app.utils.collections import mongo_windows_installer_configs, mongo_windows_target_lists
 from app.utils.logging import logger
 from app.utils.utils import encode_password, fix_hostname, sanitize_dictionary
 from bson import ObjectId
@@ -27,10 +27,10 @@ from flask_restx import Namespace, Resource
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pymongo import ReturnDocument
 
-win_install_cnxn = conn_mng.mongo_windows_installer_configs
-win_targets_cnxn = conn_mng.mongo_windows_target_lists
+win_install_cnxn = mongo_windows_installer_configs()
+win_targets_cnxn = mongo_windows_target_lists()
 
-AGENT_NS = Namespace("agent", path="/api/agent", description="Create and deploy various agent installations.")
+AGENT_NS = Namespace("agent", description="Create and deploy various agent installations.")
 
 JINJA_ENV = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR)),

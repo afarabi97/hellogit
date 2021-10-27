@@ -1,6 +1,6 @@
 from flask_restx import Namespace, fields
 
-TOKEN_NS = Namespace("token", path="/api/token", description="Kit tokens used for metrics.")
+TOKEN_NS = Namespace("token", description="Kit tokens used for metrics.")
 
 IP_ADDRESS_PATTERN = "^(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])$"
 

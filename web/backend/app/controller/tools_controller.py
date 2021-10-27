@@ -1,53 +1,45 @@
-import io
+import base64
+import json
+import os
 import shutil
 import tempfile
 import zipfile
-from pathlib import Path
-from typing import Dict, List
-from glob import glob
-import os
 from datetime import datetime
-import base64
+from glob import glob
+from pathlib import Path
+from typing import Dict
 
-import yaml
-import json
-from fabric.runners import Result
-from flask import Response, jsonify, request
 import kubernetes.client
+import yaml
+from app.common import ERROR_RESPONSE, OK_RESPONSE
+from app.middleware import controller_maintainer_required
+from app.models import scale
+from app.models.common import (COMMON_ERROR_MESSAGE,
+                               COMMON_SUCCESS_MESSAGE, CurrentTimeMdl, JobID)
+from app.models.nodes import Node
+from app.models.settings.kit_settings import KitSettingsForm
+from app.models.tools import (COMMON_TOOLS_RETURNS, TOOLS_NS,
+                              InitalDeviceStatesModel, NetworkDeviceStateModel,
+                              NetworkInterfaceModel, NewPasswordModel)
+from app.service.elastic_service import (Timeout, apply_es_deploy,
+                                         check_elastic_license,
+                                         get_elasticsearch_license,
+                                         setup_s3_repository,
+                                         wait_for_elastic_cluster_ready)
+from app.service.job_service import run_command2
+from app.service.socket_service import NotificationCode, NotificationMessage
+from app.utils.connection_mngs import FabricConnection, KubernetesWrapper
+from app.utils.constants import TFPLENUM_CONFIGS_PATH
+from app.utils.collections import mongo_catalog_saved_values
+from app.utils.logging import logger
+from fabric.runners import Result
+from flask import Response, request
 from flask_restx import Resource
-from kubernetes.client.models.v1_service import V1Service
 from kubernetes.client.models.v1_service_list import V1ServiceList
 from kubernetes.client.rest import ApiException
 from paramiko.ssh_exception import AuthenticationException
-from pymongo import ReturnDocument
-from werkzeug.utils import secure_filename
-from fabric import Connection
-
-from app import app, conn_mng, api, TOOLS_NS
-from app.utils.logging import logger
-from app.common import OK_RESPONSE, ERROR_RESPONSE
-from app.dao import elastic_deploy
-from app.middleware import controller_maintainer_required
-from app.models.common import (JobID, CurrentTimeMdl, COMMON_MESSAGE,
-                               COMMON_SUCCESS_MESSAGE, COMMON_ERROR_MESSAGE)
-from app.models.tools import (NewPasswordModel, COMMON_TOOLS_RETURNS, NetworkDeviceStateModel,
-                              InitalDeviceStatesModel, NetworkInterfaceModel)
-from app.models.nodes import Node
-from app.models.settings.kit_settings import KitSettingsForm
-from app.service.elastic_service import (Timeout, apply_es_deploy,
-                                         setup_s3_repository, get_elasticsearch_license,
-                                         wait_for_elastic_cluster_ready)
-from app.service.elastic_service import check_elastic_license
-from app.service.job_service import run_command2
-from app.service.socket_service import NotificationCode, NotificationMessage
-from app.utils.connection_mngs import (FabricConnection, KubernetesWrapper)
-from app.utils.utils import decode_password, encode_password
-
-from fabric import Connection
 from werkzeug.datastructures import FileStorage
-from app.utils.constants import TFPLENUM_CONFIGS_PATH
-
-
+from werkzeug.utils import secure_filename
 
 _JOB_NAME = "tools"
 
@@ -56,12 +48,12 @@ class AmmendedPasswordNotFound(Exception):
     pass
 
 
-@api.route("/api/controller/datetime")
+@TOOLS_NS.route("/controller/datetime")
 class CurrentTime(Resource):
 
-    @api.response(200, "CurrentTime", CurrentTimeMdl.DTO)
-    @api.response(500, 'Empty 500 return.')
-    @api.doc(description="Gets the Current time of the controller.")
+    @TOOLS_NS.response(200, "CurrentTime", CurrentTimeMdl.DTO)
+    @TOOLS_NS.response(500, 'Empty 500 return.')
+    @TOOLS_NS.doc(description="Gets the Current time of the controller.")
     def get(self):
         timezone_stdout, ret_val = run_command2('timedatectl | grep "Time zone:"', use_shell=True)
         if ret_val != 0:
@@ -77,13 +69,6 @@ class CurrentTime(Resource):
 
         return CurrentTimeMdl(timezone, date_stdout.replace('\n', '')).to_dict()
 
-
-def _get_ammended_password(ip_address_lookup: str, ammended_passwords: List[Dict]) -> str:
-    for item in ammended_passwords:
-        if item["ip_address"] == ip_address_lookup:
-            return item["password"]
-    raise AmmendedPasswordNotFound()
-
 def update_password(config: Dict, password):
     config.password = password
     config.save_to_db()
@@ -94,17 +79,17 @@ class ChangeKitPassword(Resource):
 
     @TOOLS_NS.doc(description="Changes the Kit's ssh root/password on all nodes.")
     @TOOLS_NS.expect(NewPasswordModel.DTO)
-    @TOOLS_NS.response(200, 'Success Message', COMMON_MESSAGE)
-    @TOOLS_NS.response(409, 'Password has already been used. You must try another password.', COMMON_MESSAGE)
-    @TOOLS_NS.response(500, 'Unknown error.', COMMON_MESSAGE)
-    @TOOLS_NS.response(404, 'Kit config not found.', COMMON_MESSAGE)
+    @TOOLS_NS.response(200, 'Success Message', COMMON_SUCCESS_MESSAGE)
+    @TOOLS_NS.response(409, 'Password has already been used. You must try another password.', COMMON_ERROR_MESSAGE)
+    @TOOLS_NS.response(500, 'Unknown error.', COMMON_ERROR_MESSAGE)
+    @TOOLS_NS.response(404, 'Kit config not found.', COMMON_ERROR_MESSAGE)
     @TOOLS_NS.response(403, 'Authentication failure on Node', Node.DTO)
     @controller_maintainer_required
     def post(self):
         model = NewPasswordModel(TOOLS_NS.payload['root_password'])
         current_config = KitSettingsForm.load_from_db() # type: Dict
         if current_config == None:
-            return {"message": "Couldn't find kit configuration."}, 404
+            return {"error_message": "Couldn't find kit configuration."}
         nodes = Node.load_all_servers_sensors_from_db()
         for node in nodes: # type: Node
             try:
@@ -114,19 +99,19 @@ class ChangeKitPassword(Resource):
                     if result.return_code !=0:
                         _result = shell.run("journalctl SYSLOG_IDENTIFIER=pwhistory_helper --since '10s ago'")
                         if (_result.stdout.count("\n") == 2):
-                            return {"message": "Password has already been used. You must try another password."}, 409
+                            return {"error_message": "Password has already been used. You must try another password."}
                         else:
-                            return {"message": "An unknown error occured."}, 500
+                            return {"error_message": "An unknown error occured."}
 
             except AuthenticationException:
                 return node.to_dict(), 403
 
         update_password(current_config, model.root_password)
-        return {"message": "Successfully changed the password of your Kit!"}, 200
+        return {"success_message": "Successfully changed the password of your Kit!"}
 
 
 
-upload_parser = api.parser()
+upload_parser = TOOLS_NS.parser()
 upload_parser.add_argument('upload_file', location='files',
                            type=FileStorage, required=True)
 upload_parser.add_argument('space_name', type=str, required=True, location='form',
@@ -142,10 +127,10 @@ class UpdateDocs(Resource):
     @controller_maintainer_required
     def post(self):
         if 'upload_file' not in request.files:
-            return {"error_message": "Failed to upload file. No file was found in the request."}, 400
+            return {"error_message": "Failed to upload file. No file was found in the request."}
 
         if 'space_name' not in request.form or request.form['space_name'] is None or request.form['space_name'] == "":
-            return {"error_message": "Space name is required."}, 400
+            return {"error_message": "Space name is required."}
 
         with tempfile.TemporaryDirectory() as upload_path: # type: str
             incoming_file = request.files['upload_file']
@@ -154,7 +139,7 @@ class UpdateDocs(Resource):
 
             pos = filename.rfind('.') + 1
             if filename[pos:] != 'zip':
-                return {"error_message": "Failed to upload file. Files must end with the .zip extension."}, 400
+                return {"error_message": "Failed to upload file. Files must end with the .zip extension."}
 
             abs_save_path = str(upload_path) + '/' + filename
             incoming_file.save(abs_save_path)
@@ -174,59 +159,65 @@ def validate_es_license_json(license: dict) -> bool:
     return license.get('license', None) is not None and all(x in license['license'].keys() for x in keys)
 
 
-@app.route('/api/es_license', methods=['PUT'])
-@controller_maintainer_required
-def update_es_license() -> Response:
-    license = request.get_json()
-    current_license = get_elasticsearch_license()
+@TOOLS_NS.route('/es_license')
+class ElasticLicense(Resource):
 
-    if not validate_es_license_json(license) or not license['license'].get('cluster_licenses', None):
-        return jsonify({"error_message": "File is not valid Elastic license"}), 400
-    if datetime.fromtimestamp(license['license']['expiry_date_in_millis']/1000) < datetime.now():
-        return jsonify({"error_message": "Elastic license has expired"}), 400
-    for lic in license['license']['cluster_licenses']:
-        if not validate_es_license_json(lic):
-            return jsonify({"error_message": "File is not valid Elastic license"}), 400
+    @TOOLS_NS.doc(description="Update Elasticsearch license.")
+    @TOOLS_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
+    @TOOLS_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @controller_maintainer_required
+    def put(self) -> Response:
+        license = request.get_json()
+        current_license = get_elasticsearch_license()
 
-    json_string = json.dumps(license, separators=(',', ':'))
-    license_prefix = 'eck-license'
-    secret_name = '{}-{}'.format(license_prefix, datetime.now().strftime("%s"))
-    namespace = 'elastic-system'
-    body = kubernetes.client.V1Secret()
-    body.api_version = 'v1'
-    body.data = {
-        'license': base64.b64encode(json_string.encode('utf-8')).decode('utf-8')
-    }
-    body.kind = 'Secret'
-    body.type = 'Opaque'
-    body.metadata = {
-        'name': secret_name,
-        'labels': {
-            'license.k8s.elastic.co/scope': 'operator'
+        if not validate_es_license_json(license) or not license['license'].get('cluster_licenses', None):
+            return { "error_message": "File is not valid Elastic license" }
+        if datetime.fromtimestamp(license['license']['expiry_date_in_millis']/1000) < datetime.now():
+            return {"error_message": "Elastic license has expired"}
+        for lic in license['license']['cluster_licenses']:
+            if not validate_es_license_json(lic):
+                return {"error_message": "File is not valid Elastic license"}
+
+        json_string = json.dumps(license, separators=(',', ':'))
+        license_prefix = 'eck-license'
+        secret_name = '{}-{}'.format(license_prefix, datetime.now().strftime("%s"))
+        namespace = 'elastic-system'
+        body = kubernetes.client.V1Secret()
+        body.api_version = 'v1'
+        body.data = {
+            'license': base64.b64encode(json_string.encode('utf-8')).decode('utf-8')
         }
-    }
-    with KubernetesWrapper(conn_mng) as kube_apiv1:
+        body.kind = 'Secret'
+        body.type = 'Opaque'
+        body.metadata = {
+            'name': secret_name,
+            'labels': {
+                'license.k8s.elastic.co/scope': 'operator'
+            }
+        }
+        with KubernetesWrapper() as kube_apiv1:
+            try:
+                kube_apiv1.create_namespaced_secret(namespace, body)
+                old_secrets = kube_apiv1.list_namespaced_secret(namespace)
+                for secret in old_secrets.items:
+                    if secret.metadata.name.startswith(license_prefix) and secret.metadata.name != secret_name:
+                        kube_apiv1.delete_namespaced_secret(secret.metadata.name, namespace)
+            except ApiException as e:
+                logger.exception(e)
+                return {"error_message": "Something went wrong saving the Elastic license.  See the logs."}, 500
+        check_elastic_license.delay(current_license=current_license)
+        return {"success_message": "Successfully uploaded Elastic License. It will take a few minutes for Elastic to show. Check notifications for updates."}
+
+    @TOOLS_NS.doc(description="Get Elasticsearch license status.")
+    @TOOLS_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
+    @TOOLS_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @controller_maintainer_required
+    def get(self) -> Response:
         try:
-            kube_apiv1.create_namespaced_secret(namespace, body)
-            old_secrets = kube_apiv1.list_namespaced_secret(namespace)
-            for secret in old_secrets.items:
-                if secret.metadata.name.startswith(license_prefix) and secret.metadata.name != secret_name:
-                    kube_apiv1.delete_namespaced_secret(secret.metadata.name, namespace)
-        except ApiException as e:
+            return get_elasticsearch_license(), 200
+        except Exception as e:
             logger.exception(e)
-            return jsonify({"error_message": "Something went wrong saving the Elastic license.  See the logs."}), 500
-    check_elastic_license.delay(current_license=current_license)
-    return jsonify({"success_message": "Successfully uploaded Elastic License. It will take a few minutes for Elastic to show. Check notifications for updates."})
-
-
-@app.route('/api/es_license', methods=['GET'])
-@controller_maintainer_required
-def get_es_license() -> Response:
-    try:
-        return jsonify(get_elasticsearch_license())
-    except Exception as e:
-        logger.exception(e)
-        return jsonify({"error_message": "Something getting the Elastic license.  See the logs."}), 500
+            return {"error_message": "Something getting the Elastic license.  See the logs."}, 400
 
 
 @TOOLS_NS.route("/spaces")
@@ -250,7 +241,7 @@ class KubernetesError(Exception):
 
 
 def retrieve_service_ip_address(service_name: str) -> str:
-    with KubernetesWrapper(conn_mng) as kube_apiv1:
+    with KubernetesWrapper() as kube_apiv1:
         svcs = kube_apiv1.list_namespaced_service("default") # type: V1ServiceList
         for svc in svcs.items: # type: V1Service
             if svc.metadata.name == service_name:
@@ -343,7 +334,7 @@ class MonitoringInterfaces(Resource):
         nodes = {}
         applications = ["arkime", "zeek", "suricata"]
 
-        documents = list(conn_mng.mongo_catalog_saved_values.find({ "application": {"$in": applications} }))
+        documents = list(mongo_catalog_saved_values().find({ "application": {"$in": applications} }))
         for document in documents:
             hostname = document['values']['node_hostname']
             interfaces = document['values']['interfaces']
@@ -387,56 +378,72 @@ class AllIfaces(Resource):
         return result
 
 
-@app.route('/api/load_elastic_deploy', methods=['GET'])
-@controller_maintainer_required
-def load_es_deploy():
-    notification = NotificationMessage(role=_JOB_NAME)
-    deploy_path = "{}/elasticsearch/deploy.yml".format(TFPLENUM_CONFIGS_PATH)
-    override = request.args.get('override', default = False, type = bool)
+@TOOLS_NS.route('/elastic/deploy')
+class ElasticDeploy(Resource):
 
-    try:
-        if override:
-            elastic_deploy.delete_many()
-        deploy_config = elastic_deploy.read_many()
-        if (override == False and len(deploy_config) > 0):
-            return (jsonify("Deploy config already exists use ?override=1 to reload it"), 200)
-        if override or (override == False and len(deploy_config) == 0):
-            with open(deploy_path, "r") as f:
-                config = f.read()
-            config_yaml = yaml.load_all(config, Loader=yaml.FullLoader)
-            for d in config_yaml:
-                elastic_deploy.create(d)
-        return (jsonify("Deploy config successfully loaded."), 200)
-    except Exception as e:
-        logger.exception(e)
-        notification.set_status(status=NotificationCode.ERROR.name)
-        notification.set_message(str(e))
-        notification.post_to_websocket_api()
-        return jsonify(str(e))
-    return ERROR_RESPONSE
+    @TOOLS_NS.doc(description="Load elastic deploy into mongo database.")
+    @TOOLS_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
+    @TOOLS_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @controller_maintainer_required
+    def get(self) -> Response:
+        '''
+        Save Elastic deploy yaml into mongo
+        '''
+        notification = NotificationMessage(role=_JOB_NAME)
+        deploy_path = "{}/elasticsearch/deploy.yml".format(TFPLENUM_CONFIGS_PATH)
+        override = request.args.get('override', default = False, type = bool)
+
+        try:
+            if override:
+                scale.delete_many()
+            deploy_config = scale.read_many()
+            if (override == False and len(deploy_config) > 0):
+                return { "error_message": "Deploy config already exists use ?override=1 to reload it" }
+            if override or (override == False and len(deploy_config) == 0):
+                with open(deploy_path, "r") as f:
+                    config = f.read()
+                config_yaml = yaml.load_all(config, Loader=yaml.FullLoader)
+                for d in config_yaml:
+                    scale.create(d)
+            return { "success_message": "Deploy config successfully loaded."}
+        except Exception as e:
+            logger.exception(e)
+            notification.set_status(status=NotificationCode.ERROR.name)
+            notification.set_message(str(e))
+            notification.post_to_websocket_api()
+            return { "error_message": str(e)}
+
+    @TOOLS_NS.doc(description="Apply elastic deploy to kubernetes.")
+    @TOOLS_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
+    @TOOLS_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @controller_maintainer_required
+    def post(self) -> Response:
+        '''
+        Read Elastic deploy from mongo and apply to kubernetes
+        '''
+        if apply_es_deploy():
+            return OK_RESPONSE
+
+        return ERROR_RESPONSE
 
 
-@app.route('/api/apply_elastic_deploy', methods=['GET'])
-@controller_maintainer_required
-def apply_es_deploy_rest():
-    if apply_es_deploy():
-        return OK_RESPONSE
+@TOOLS_NS.route('/snapshot')
+class ElasticSnapshot(Resource):
 
-    return ERROR_RESPONSE
-
-
-@app.route('/api/snapshot', methods=['POST'])
-@controller_maintainer_required
-def snapshot():
-    try:
-        wait_for_elastic_cluster_ready(minutes=0)
-    except Timeout as e:
-        return (jsonify("Elastic cluster is not in a ready state."), 500)
-    except Exception as e:
-        logger.exception(e)
-        return (jsonify(str(e)), 500)
-    else:
-        repository_settings = request.get_json()
-        elasticsearch_ip = retrieve_service_ip_address("elasticsearch")
-        job = setup_s3_repository.delay(elasticsearch_ip, repository_settings)
-        return (jsonify(JobID(job).to_dict()), 200)
+    @TOOLS_NS.doc(description="Enable elastic snapshot for minio.")
+    @TOOLS_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
+    @TOOLS_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @controller_maintainer_required
+    def post(self) -> Response:
+        try:
+            wait_for_elastic_cluster_ready(minutes=0)
+        except Timeout as e:
+            return { "error_message": "Elastic cluster is not in a ready state." }
+        except Exception as e:
+            logger.exception(e)
+            return { "error_message": str(e) }
+        else:
+            repository_settings = request.get_json()
+            elasticsearch_ip = retrieve_service_ip_address("elasticsearch")
+            job = setup_s3_repository.delay(elasticsearch_ip, repository_settings)
+            return JobID(job).to_dict(), 200

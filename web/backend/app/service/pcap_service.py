@@ -6,23 +6,25 @@ from pathlib import Path
 from typing import Dict
 from uuid import uuid4
 
-from .catalog_service import get_node_apps
 from app.models.ruleset import PCAPReplayModel
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.connection_mngs import (REDIS_CLIENT, FabricConnectionManager,
-                                       KubernetesWrapper,
-                                       MongoConnectionManager)
+                                       KubernetesWrapper)
 from app.utils.constants import (ARKIME_IMAGE_VERSION, PCAP_UPLOAD_DIR,
                                  SURICATA_IMAGE_VERSION, SURICATA_RULESET_LOC,
                                  ZEEK_IMAGE_VERSION)
 from app.utils.elastic import get_elastic_service_ip
 from app.utils.logging import rq_logger
+from app.utils.utils import get_app_context
 from rq.decorators import job
+
+from .catalog_service import get_node_apps
 
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def replay_pcap_using_tcpreplay(payload: Dict, root_password: str):
+    get_app_context().push()
     replay = PCAPReplayModel(payload)
     notification = NotificationMessage(role="pcap")
     notification.set_status(status=NotificationCode.STARTED.name)
@@ -99,15 +101,14 @@ class SuricataReplayer:
                 ssh_con.put(path, dst_path)
 
     def pull_suricata_config_map(self):
-        with MongoConnectionManager() as mongo:
-            with KubernetesWrapper(mongo) as kube_apiv1:
-                api_response = kube_apiv1.list_config_map_for_all_namespaces()
-                namespace = "default"
-                data_name = "suricata.yaml"
-                config_map = _get_configmap_data(api_response.to_dict(), namespace, data_name)
+        with KubernetesWrapper() as kube_apiv1:
+            api_response = kube_apiv1.list_config_map_for_all_namespaces()
+            namespace = "default"
+            data_name = "suricata.yaml"
+            config_map = _get_configmap_data(api_response.to_dict(), namespace, data_name)
 
-                with Path(self.suricata_config).open('w') as fp:
-                    fp.write(config_map)
+            with Path(self.suricata_config).open('w') as fp:
+                fp.write(config_map)
 
     def patch_configuation(self):
         lines = []
@@ -189,18 +190,17 @@ class ZeekReplayer:
             ssh_con.local("unzip {} -d {}".format(zip_location, self.tmp_dir))
 
     def pull_kubernetes_zeek_configs(self):
-        with MongoConnectionManager() as mongo:
-            with KubernetesWrapper(mongo) as kube_apiv1:
-                api_response = kube_apiv1.list_config_map_for_all_namespaces()
-                namespace = "default"
-                data_name = "local.zeek"
-                config_maps = api_response.to_dict()
-                config_map = _get_configmap_data(config_maps, namespace, data_name)
+        with KubernetesWrapper() as kube_apiv1:
+            api_response = kube_apiv1.list_config_map_for_all_namespaces()
+            namespace = "default"
+            data_name = "local.zeek"
+            config_maps = api_response.to_dict()
+            config_map = _get_configmap_data(config_maps, namespace, data_name)
 
-                with Path(self.local_zeek_config).open('w') as fp:
-                    fp.write(config_map)
+            with Path(self.local_zeek_config).open('w') as fp:
+                fp.write(config_map)
 
-                _save_all_configmap_data(config_maps, namespace, "zeek-scripts", str(self.zeek_scripts))
+            _save_all_configmap_data(config_maps, namespace, "zeek-scripts", str(self.zeek_scripts))
 
     def run_zeek_docker_cmd(self, pcap: Path) -> int:
         pcap_name = pcap.name
@@ -285,21 +285,20 @@ class ArkimeReplayer:
         return ''
 
     def pull_config_maps(self):
-        with MongoConnectionManager() as mongo:
-            with KubernetesWrapper(mongo) as kube_apiv1:
-                api_response = kube_apiv1.list_config_map_for_all_namespaces()
-                config_map = self._get_arkime_config_data(api_response.to_dict())
+        with KubernetesWrapper() as kube_apiv1:
+            api_response = kube_apiv1.list_config_map_for_all_namespaces()
+            config_map = self._get_arkime_config_data(api_response.to_dict())
 
-                with Path(self.arkime_config).open('w') as fp:
-                    fp.write(config_map)
+            with Path(self.arkime_config).open('w') as fp:
+                fp.write(config_map)
 
-                secret_name = "webca-certificate"
-                secrets = kube_apiv1.list_namespaced_secret("default")
-                for secret in secrets.items:  # type: V1Secret
-                    if secret.metadata.name == secret_name:
-                        with Path(self.ca_crt).open('w') as fp:
-                            fp.write(str(base64.b64decode(secret.data['ca.crt']), "UTF-8"))
-                        break
+            secret_name = "webca-certificate"
+            secrets = kube_apiv1.list_namespaced_secret("default")
+            for secret in secrets.items:  # type: V1Secret
+                if secret.metadata.name == secret_name:
+                    with Path(self.ca_crt).open('w') as fp:
+                        fp.write(str(base64.b64decode(secret.data['ca.crt']), "UTF-8"))
+                    break
 
     def run_arkime_docker_cmd(self, pcap: Path):
         pcap_name = pcap.name
@@ -363,6 +362,7 @@ class ArkimeReplayer:
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def replay_pcap_using_preserve_timestamp(payload: Dict, root_password: str):
+    get_app_context().push()
     replay = PCAPReplayModel(payload)
     notification = NotificationMessage(role="pcap")
     notification.set_status(status=NotificationCode.STARTED.name)

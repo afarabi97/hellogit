@@ -5,7 +5,7 @@ from flask_restx import Namespace
 from rq.job import Job, JobStatus
 from rq.worker import Worker
 
-COMMON_NS = Namespace("common", path="/api", description="Common related operations.")
+COMMON_NS = Namespace("common", path="/", description="Common related operations.")
 
 """
 Example of the common Error format.

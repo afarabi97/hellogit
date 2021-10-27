@@ -14,7 +14,7 @@ from app.service.catalog_service import (chart_info, delete_helm_apps,
                                          install_helm_apps,
                                          reinstall_helm_apps)
 from app.utils.connection_mngs import objectify
-from app.utils.db_mngs import conn_mng
+from app.utils.collections import mongo_catalog_saved_values
 from app.utils.logging import logger
 from flask import Response, request
 from flask_restx import Resource, fields
@@ -27,12 +27,9 @@ class HelmChartSavedValues(Resource):
 
     @CATALOG_NS.response(200, "SavedHelmValues", SavedHelmValuesModel.DTO)
     def get(self, application: str) -> Response:
-        if application:
-            saved_values = list(conn_mng.mongo_catalog_saved_values.find(
-                {"application": application}))
-            return [objectify(item) for item in saved_values]
-
-        return ERROR_RESPONSE
+        saved_values = list(mongo_catalog_saved_values().find(
+            {"application": application}))
+        return [objectify(item) for item in saved_values]
 
 
 def _add_to_set(sensor_hostname: str, values: List, out_ifaces: Set):
@@ -48,14 +45,13 @@ class ConfiguredIfaces(Resource):
     @CATALOG_NS.response(200, 'A list of iface names that are configured with either zeek or suricata.', \
                          [fields.String(example="ens192")])
     def get(self, sensor_hostname: str) -> Response:
-        if sensor_hostname:
-            ifaces = set()
-            zeek_values = list(
-                conn_mng.mongo_catalog_saved_values.find({"application": "zeek"}))
-            suricata_values = list(
-                conn_mng.mongo_catalog_saved_values.find({"application": "suricata"}))
-            if zeek_values and len(zeek_values) > 0:
-                _add_to_set(sensor_hostname, zeek_values, ifaces)
+        ifaces = set()
+        zeek_values = list(
+            mongo_catalog_saved_values().find({"application": "zeek"}))
+        suricata_values = list(
+            mongo_catalog_saved_values().find({"application": "suricata"}))
+        if zeek_values and len(zeek_values) > 0:
+            _add_to_set(sensor_hostname, zeek_values, ifaces)
 
             if suricata_values and len(suricata_values) > 0:
                 _add_to_set(sensor_hostname, suricata_values, ifaces)

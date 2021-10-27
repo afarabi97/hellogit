@@ -15,7 +15,7 @@ from app.models.device_facts import DeviceFacts
 from app.utils.constants import (CORE_DIR, DEPLOYMENT_TYPES, JOB_CREATE,
                                  JOB_DEPLOY, JOB_PROVISION, JOB_REMOVE,
                                  MIP_DIR, NODE_TYPES, TEMPLATE_DIR)
-from app.utils.db_mngs import conn_mng
+from app.utils.collections import mongo_jobs, mongo_node
 from flask_restx import Namespace, fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from marshmallow import Schema, ValidationError
@@ -28,7 +28,7 @@ JINJA_ENV = Environment(
     autoescape=select_autoescape(['html', 'xml'])
 )
 
-KIT_SETUP_NS = Namespace('kit', path="/api/kit", description="Kit setup related operations.")
+KIT_SETUP_NS = Namespace("kit", description="Kit setup related operations.")
 
 def has_consecutive_chars(password: str) -> bool:
     """
@@ -99,7 +99,7 @@ class NodeBaseModel(Model):
     @classmethod
     def load_from_db(cls, node_ids: List[str]) -> List[Model]:
         ret_val = []
-        for node in conn_mng.mongo_node.find({"_id": { "$in": node_ids} }):
+        for node in mongo_node().find({"_id": { "$in": node_ids} }):
             ret_val.append(cls.schema.load(node))
 
         return ret_val
@@ -284,7 +284,7 @@ class Node(NodeBaseModel):
 
     def create(self):
         # Create initial node
-        doc = conn_mng.mongo_node.find_one_and_replace({"_id": self._id}, self.schema.dump(self), upsert=True, return_document=ReturnDocument.AFTER)
+        doc = mongo_node().find_one_and_replace({"_id": self._id}, self.schema.dump(self), upsert=True, return_document=ReturnDocument.AFTER)
         node = self.schema.load(doc)
         if node.node_type == NODE_TYPES.sensor.value and node.deployment_type == DEPLOYMENT_TYPES.iso.value:
             createdjob = NodeJob(node_id=node._id, job_id=None, description="Creating Node Profiles", name=JOB_CREATE, pending=True,
@@ -320,11 +320,11 @@ class Node(NodeBaseModel):
             else:
                 self.hostname = f"{self.hostname[:pos]}.{domain}"
 
-        conn_mng.mongo_node.find_one_and_replace({"_id": self._id}, self.schema.dump(self), upsert=True)
+        mongo_node().find_one_and_replace({"_id": self._id}, self.schema.dump(self), upsert=True)
         _generate_inventory()
 
     def find_one_and_update(self) -> Model:
-        node = conn_mng.mongo_node.find_one_and_update({"hostname": self.hostname},
+        node = mongo_node().find_one_and_update({"hostname": self.hostname},
                                                        {"$set": {
                                                            "node_type": self.node_type,
                                                            #"error": self.error,
@@ -336,36 +336,36 @@ class Node(NodeBaseModel):
 
     @classmethod
     def delete_all_from_db(cls):
-        conn_mng.mongo_node.drop()
+        mongo_node().drop()
         _generate_inventory()
 
 
     def delete(self) -> None:
-        conn_mng.mongo_jobs.delete_many({"node_id": self._id})
-        conn_mng.mongo_node.delete_one({"_id": self._id})
+        mongo_jobs().delete_many({"node_id": self._id})
+        mongo_node().delete_one({"_id": self._id})
         _generate_inventory()
 
     @classmethod
     def load_from_db(cls, node_ids: List[str]) -> List[Model]:
         ret_val = []
-        for node in conn_mng.mongo_node.find({"_id": { "$in": node_ids} }):
+        for node in mongo_node().find({"_id": { "$in": node_ids} }):
             ret_val.append(cls.schema.load(node))
 
         return ret_val
 
     @classmethod
     def load_from_db_using_hostname(cls, hostname: str) -> Model:
-        node = conn_mng.mongo_node.find_one({"hostname": hostname })
+        node = mongo_node().find_one({"hostname": hostname })
         if node:
             return cls.schema.load(node)
         return {}
 
     @classmethod
     def load_from_db_using_hostname_with_jobs(cls, hostname: str) -> dict:
-        node = conn_mng.mongo_node.find_one({"hostname": hostname })
+        node = mongo_node().find_one({"hostname": hostname })
         if node:
             job_list = []
-            for job in conn_mng.mongo_jobs.find({"node_id": node["_id"]}):
+            for job in mongo_jobs().find({"node_id": node["_id"]}):
                 job_list.append(job)
             node["jobs"] = job_list
             return node
@@ -375,7 +375,7 @@ class Node(NodeBaseModel):
     def load_control_plane_from_db(cls) -> List[Model]:
         ret_val = []
         query = {"node_type": "Control-Plane"}
-        for node in conn_mng.mongo_node.find(query):
+        for node in mongo_node().find(query):
             ret_val.append(cls.schema.load(node))
         return ret_val
 
@@ -383,7 +383,7 @@ class Node(NodeBaseModel):
     def load_mips_from_db(cls) -> List[Model]:
         ret_val = []
         query = {"node_type": "MIP"}
-        for node in conn_mng.mongo_node.find(query):
+        for node in mongo_node().find(query):
             ret_val.append(cls.schema.load(node))
         return ret_val
 
@@ -391,7 +391,7 @@ class Node(NodeBaseModel):
     def load_deployable_mips_from_db(cls) -> List[Model]:
         ret_val = []
         query = {"node_type": "MIP"}
-        for node in conn_mng.mongo_node.find(query):
+        for node in mongo_node().find(query):
             ret_val.append(cls.schema.load(node))
         for node in ret_val:
             job = NodeJob.load_job_by_node(node, JOB_DEPLOY)
@@ -403,7 +403,7 @@ class Node(NodeBaseModel):
     def load_minio_from_db(cls) -> List[Model]:
         ret_val = []
         query = {"node_type": "Minio"}
-        for node in conn_mng.mongo_node.find(query):
+        for node in mongo_node().find(query):
             ret_val.append(cls.schema.load(node))
         return ret_val
 
@@ -411,7 +411,7 @@ class Node(NodeBaseModel):
     def load_all_servers_sensors_from_db(cls) -> List[Model]:
         ret_val = []
         query = { "node_type": { "$in": [ "Server", "Sensor", "Service" ] } }
-        for node in conn_mng.mongo_node.find(query):
+        for node in mongo_node().find(query):
             ret_val.append(cls.schema.load(node))
         return ret_val
 
@@ -419,7 +419,7 @@ class Node(NodeBaseModel):
     def load_all_servers_from_db(cls) -> List[Model]:
         ret_val = []
         query = { "node_type": { "$in": [ "Server" ] } }
-        for node in conn_mng.mongo_node.find(query):
+        for node in mongo_node().find(query):
             ret_val.append(cls.schema.load(node))
         return ret_val
 
@@ -427,14 +427,14 @@ class Node(NodeBaseModel):
     def load_dip_nodes_from_db(cls) -> List[Model]:
         ret_val = []
         query = { "node_type": { "$in": [ "Server", "Sensor", "Service", "Control-Plane" ] } }
-        for node in conn_mng.mongo_node.find(query):
+        for node in mongo_node().find(query):
             ret_val.append(cls.schema.load(node))
         return ret_val
 
     @classmethod
     def load_all_from_db(cls) -> List[Model]:
         ret_val = []
-        for node in conn_mng.mongo_node.find({}):
+        for node in mongo_node().find({}):
             ret_val.append(cls.schema.load(node))
         return ret_val
 
@@ -539,7 +539,7 @@ class NodeJob(Model):
         self.exec_type = exec_type
 
     def save_to_db(self):
-        conn_mng.mongo_jobs.find_one_and_replace({"_id": self._id}, self.schema.dump(self), upsert=True)
+        mongo_jobs().find_one_and_replace({"_id": self._id}, self.schema.dump(self), upsert=True)
 
     def set_execution_type(self, exec_type: str):
         self.exec_type = exec_type
@@ -599,26 +599,26 @@ class NodeJob(Model):
 
     #@classmethod
     #def update(self) -> Model:
-    #    updated_job = conn_mng.mongo_jobs.find_one_and_replace({"node_id": self.node_id, "name": job.name}, self.schema.dump(self), upsert=True)
+    #    updated_job = mongo_jobs().find_one_and_replace({"node_id": self.node_id, "name": job.name}, self.schema.dump(self), upsert=True)
     #    return cls.schema.load(updated_job)
 
     @classmethod
     def create_remove_node_job(cls, node: Node, job_id: str) -> None:
-        conn_mng.mongo_jobs.delete_many({"node_id": node._id})
+        mongo_jobs().delete_many({"node_id": node._id})
         removeJob = NodeJob(node_id=node._id, job_id=job_id, description="Removing Node", name=JOB_REMOVE, pending=False,
                 error=False, inprogress=True, complete=False, message=None)
         removeJob.save_to_db()
 
     @classmethod
     def load_job_by_node(cls, node: Node, job_name: str) -> Model:
-        job = conn_mng.mongo_jobs.find_one({ "node_id": node._id, "name": job_name }) # type: NodeJob
+        job = mongo_jobs().find_one({ "node_id": node._id, "name": job_name }) # type: NodeJob
         if job:
             return cls.schema.load(job)
         return None
 
     @classmethod
     def load_job_by_node_id(cls, node_id: str, job_name: str) -> Model:
-        job = conn_mng.mongo_jobs.find_one({ "node_id": node_id, "name": job_name }) # type: NodeJob
+        job = mongo_jobs().find_one({ "node_id": node_id, "name": job_name }) # type: NodeJob
         if job:
             return cls.schema.load(job)
         return None
@@ -626,29 +626,29 @@ class NodeJob(Model):
     @classmethod
     def load_jobs_by_hostname(cls, hostname: str) -> List[Model]:
         query = { "hostname": hostname }
-        node = conn_mng.mongo_node.find(query) # type: Node
+        node = mongo_node().find(query) # type: Node
         results = []
-        for job in conn_mng.mongo_jobs.find({"node_id": node._id}):
+        for job in mongo_jobs().find({"node_id": node._id}):
             results.append(cls.schema.load(job))
         return results
 
     @classmethod
     def load_jobs_by_node(cls, node: Node) -> List[Model]:
         results = []
-        for job in conn_mng.mongo_jobs.find({"node_id": node._id}):
+        for job in mongo_jobs().find({"node_id": node._id}):
             results.append(cls.schema.load(job))
         return results
 
     @classmethod
     def load_jobs_by_node_id(cls, node_id: str) -> List[Model]:
         results = []
-        for job in conn_mng.mongo_jobs.find({"node_id": node_id}):
+        for job in mongo_jobs().find({"node_id": node_id}):
             results.append(cls.schema.load(job))
         return results
 
     @classmethod
     def load_jobs_by_job_id(cls, node_id: str) -> Model:
-        ret_val = conn_mng.mongo_jobs.find_one({"job_id": node_id})
+        ret_val = mongo_jobs().find_one({"job_id": node_id})
         if ret_val:
             return cls.schema.load(ret_val)
         return None
@@ -656,7 +656,7 @@ class NodeJob(Model):
     @classmethod
     def load_all_jobs(cls) -> List[Model]:
         results = []
-        for job in conn_mng.mongo_jobs.find():
+        for job in mongo_jobs().find():
             results.append(cls.schema.load(job))
         return results
 

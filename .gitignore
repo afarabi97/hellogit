@@ -78,10 +78,10 @@ hwcontrollersetupsettings.yml
 web/frontend/yarn.lock
 .tool-versions
 umls/
-*-internal_vdd.csv
-tests/
 .pyreverserc
 .cz.toml
 Chart.yaml
 values.yaml
 .commit.json
+web/backend/.coverage
+web/backend/report.xml

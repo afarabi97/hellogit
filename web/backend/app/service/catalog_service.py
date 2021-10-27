@@ -12,11 +12,11 @@ from app.models.settings.kit_settings import GeneralSettingsForm
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.service.system_info_service import get_auth_base
+from app.utils.collections import mongo_catalog_saved_values, mongo_node
 from app.utils.connection_mngs import REDIS_CLIENT, KubernetesWrapper
 from app.utils.constants import NODE_TYPES
-from app.utils.db_mngs import conn_mng
 from app.utils.logging import logger, rq_logger
-from app.utils.utils import get_domain
+from app.utils.utils import get_app_context, get_domain
 from rq.decorators import job
 
 HELM_BINARY_PATH = "/usr/local/bin/helm"
@@ -46,7 +46,7 @@ def _get_elastic_nodes(node_type) -> list:
     elif node_type == "ml":
         label_selector = "elasticsearch.k8s.elastic.co/node-ml=true"
 
-    with KubernetesWrapper(conn_mng) as kube_apiv1:
+    with KubernetesWrapper() as kube_apiv1:
         try:
             api_response = kube_apiv1.list_pod_for_all_namespaces(watch=False,label_selector=label_selector)
             for node in api_response.items:
@@ -65,7 +65,7 @@ def _get_drive_type() -> bool:
     """
     disks = []
     disk_rotation = []
-    sensors = list(conn_mng.mongo_node.find({"node_type": "Sensor"}))
+    sensors = list(mongo_node().find({"node_type": "Sensor"}))
 
     for sensor in sensors:
         disks.append(sensor['deviceFacts']['disks'])
@@ -85,7 +85,7 @@ def _get_logstash_nodes() -> list:
     """
     nodes = []
     label_selector = "component=logstash"
-    with KubernetesWrapper(conn_mng) as kube_apiv1:
+    with KubernetesWrapper() as kube_apiv1:
         try:
             api_response = kube_apiv1.list_pod_for_all_namespaces(watch=False,label_selector=label_selector)
             for node in api_response.items:
@@ -139,14 +139,14 @@ def get_node_apps(node_hostname: str) -> list:
     node = Node.load_from_db_using_hostname(node_hostname)
     deployed_apps = []
     if node.node_type == NODE_TYPES.sensor.value:
-        saved_values = list(conn_mng.mongo_catalog_saved_values.find({"values.node_hostname": node.hostname}))
+        saved_values = list(mongo_catalog_saved_values().find({"values.node_hostname": node.hostname}))
         for val in saved_values:
             deployed_apps.append({"application": val["application"], "deployment_name": val["deployment_name"]})
     elif node.node_type == NODE_TYPES.service_node.value or node.node_type == NODE_TYPES.server.value:
-        saved_values = list(conn_mng.mongo_catalog_saved_values.find({"values.node_hostname": "server"}))
+        saved_values = list(mongo_catalog_saved_values().find({"values.node_hostname": "server"}))
         field_selector = "spec.nodeName={}".format(node.hostname)
         for val in saved_values:
-            with KubernetesWrapper(conn_mng) as kube_apiv1:
+            with KubernetesWrapper() as kube_apiv1:
                 try:
                     label_selector = "component={}".format(val["application"])
                     api_response = kube_apiv1.list_pod_for_all_namespaces(watch=False, label_selector=label_selector, field_selector=field_selector)
@@ -275,7 +275,7 @@ def get_helm_list(application: str=None) -> dict:
 def get_app_state(application: str, namespace: str, nodes: List[Node]=None, chart_releases: List=None) -> list:
     if not nodes:
         nodes = Node.load_dip_nodes_from_db() # type: List[Node]
-    saved_values = list(conn_mng.mongo_catalog_saved_values.find({"application": application}))
+    saved_values = list(mongo_catalog_saved_values().find({"application": application}))
     deployed_apps = []
     try:
         if not chart_releases:
@@ -394,6 +394,7 @@ def _purge_helm_app_on_failure(deployment_name: str, namespace: str):
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def install_helm_apps (application: str, namespace: str, node_affinity: str, values: list, task_id=None):
+    get_app_context().push()
     response = []
     deployment_names =[]
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.INSTALLING.name.capitalize(), application=application.capitalize())
@@ -424,8 +425,8 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                     if "nodeSelector" in value_items:
                         value_items["nodeSelector"] = { "role": "server" }
                 install_helm_command.delay(deployment_name=deployment_name, application=application, node=node_hostname, namespace=namespace, value_items=value_items)
-                conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
-                conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
+                mongo_catalog_saved_values().delete_one({"application": application, "deployment_name": deployment_name})
+                mongo_catalog_saved_values().insert({"application": application, "deployment_name": deployment_name, "values": value_items})
                 while True:
                     sleep(0.25)
                     data = get_app_state(application=application, namespace=namespace)
@@ -463,6 +464,7 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def install_helm_command (deployment_name: str, application: str, node: str, namespace: str, value_items: dict):
+    get_app_context().push()
     response = []
     tpath = _write_values(deployment_name, value_items)
     cmd = "helm install " + deployment_name + " chartmuseum/" + application + " --namespace " + namespace + " --values " + tpath + " --wait --wait-for-jobs"
@@ -498,6 +500,7 @@ def install_helm_command (deployment_name: str, application: str, node: str, nam
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def delete_helm_apps (application: str, nodes: List, namespace: str="default"):
+    get_app_context().push()
     # Send Update Notification to websocket
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.UNINSTALLING.name.capitalize(), application=application.capitalize())
     response = []
@@ -567,13 +570,14 @@ def delete_helm_apps (application: str, nodes: List, namespace: str="default"):
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def delete_helm_command (deployment_name: str, application: str, node: str, namespace: str):
+    get_app_context().push()
     response = []
     stdout, ret_code = run_command2(command="helm delete " + deployment_name + " --namespace " + namespace +" --wait",
                                     working_dir=WORKING_DIR, use_shell=True)
 
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.UNINSTALLING.name.capitalize(), application=application.capitalize())
     if ret_code == 0 and stdout != '':
-        conn_mng.mongo_catalog_saved_values.delete_one({"deployment_name": deployment_name})
+        mongo_catalog_saved_values().delete_one({"deployment_name": deployment_name})
         # Send Update Notification to websocket
         if node is not None:
             message = '%s %s on %s' % (NotificationCode.UNINSTALLING.name.capitalize(), application, node)
@@ -597,5 +601,6 @@ def delete_helm_command (deployment_name: str, application: str, node: str, name
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def reinstall_helm_apps(application: str, namespace: str, nodes: List, node_affinity: str, values: List):
+    get_app_context().push()
     delete_helm_apps(application=application, namespace=namespace, nodes=nodes)
     install_helm_apps(application=application, namespace=namespace, node_affinity=node_affinity, values=values)

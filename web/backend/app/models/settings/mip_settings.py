@@ -12,7 +12,7 @@ from app.models.settings.general_settings import (SETINGS_NS,
 from app.models.settings.settings_base import (SettingsBase,
                                                validate_password_stigs)
 from app.utils.constants import MIP_DIR, MIP_SETTINGS_ID, TEMPLATE_DIR
-from app.utils.db_mngs import conn_mng
+from app.utils.collections import mongo_settings
 from app.utils.utils import decode_password, encode_password
 from flask_restx import fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -77,7 +77,7 @@ class MipSettingsForm(SettingsBase):
 
     @classmethod
     def load_combined_from_db(cls, query: Dict={"_id": MIP_SETTINGS_ID}) -> dict:
-        mongo_document = conn_mng.mongo_settings.find_one(query)
+        mongo_document = mongo_settings().find_one(query)
         if mongo_document:
             mip_settings = cls.schema.load(mongo_document, partial=("nodes",))
             mip_settings.password = decode_password(mip_settings.password)
@@ -92,7 +92,7 @@ class MipSettingsForm(SettingsBase):
 
     @classmethod
     def load_from_db(cls, query: Dict={"_id": MIP_SETTINGS_ID}) -> Model:
-        mongo_document = conn_mng.mongo_settings.find_one(query)
+        mongo_document = mongo_settings().find_one(query)
         if mongo_document:
             mip_settings = cls.schema.load(mongo_document, partial=("nodes",))
             mip_settings.password = decode_password(mip_settings.password)
@@ -106,7 +106,7 @@ class MipSettingsForm(SettingsBase):
         self.user_password = encode_password(self.user_password)
         self.luks_password = encode_password(self.luks_password)
         mip_settings = self.schema.dump(self)
-        conn_mng.mongo_settings.find_one_and_replace({"_id": MIP_SETTINGS_ID},
+        mongo_settings().find_one_and_replace({"_id": MIP_SETTINGS_ID},
                                                       mip_settings,
                                                       upsert=True)  # type: InsertOneResult
         _generate_mip_settings_inventory()

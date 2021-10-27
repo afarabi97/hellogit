@@ -17,7 +17,7 @@
     curl -X POST -H "Authorization: Bearer {{ keycloak_bearer_token.stdout }}"
     -F 'upload_file=@roles/cold-log/files/{{ item.module }}/{{ item.fileset }}.log'
     -F 'cold_log_form={"module":"{{ item.module }}", "fileset":"{{ item.fileset }}", "index_suffix":"{{ item.fileset }}", "send_to_logstash":""}'
-    https://controller.{{ kit_domain }}/api/upload_cold_log_file
+    https://controller.{{ kit_domain }}/api/coldlog/upload
   loop: "{{ modules_and_filesets }}"
   register: post_result
   failed_when: "post_result.rc != 0"

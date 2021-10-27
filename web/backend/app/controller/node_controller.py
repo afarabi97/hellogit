@@ -17,7 +17,7 @@ from app.service.vpn_service import VpnService
 from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_DEPLOY,
                                  JOB_PROVISION, JOB_REMOVE, MAC_BASE,
                                  NODE_TYPES, PXE_TYPES)
-from app.utils.db_mngs import conn_mng
+from app.utils.collections import mongo_catalog_saved_values, mongo_node
 from flask import Response, send_file
 from flask_restx import Resource
 from marshmallow.exceptions import ValidationError
@@ -280,8 +280,8 @@ class ControlPlaneCtrl(Resource):
     @controller_admin_required
     def post(self) -> Response:
         try:
-            conn_mng.mongo_catalog_saved_values.delete_many({})
-            conn_mng.mongo_node.delete_many({})
+            mongo_catalog_saved_values().delete_many({})
+            mongo_node().delete_many({})
             settings = GeneralSettingsForm.load_from_db() # type: Dict
 
             control_plane = {

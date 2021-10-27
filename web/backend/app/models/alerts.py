@@ -2,19 +2,16 @@ from typing import Dict
 
 from app.models import Model
 from app.utils.constants import HIVE_ID
-from app.utils.db_mngs import conn_mng
+from app.utils.collections import mongo_hive_settings
 from flask_restx import Namespace, fields
 from marshmallow import Schema, ValidationError
 from marshmallow import fields as marsh_fields
 from marshmallow import post_load, validates
 
 ALERTS_NS = Namespace("alerts",
-                       path="/api/alerts",
-                       description="Alerts related operations that allow operators to display or Acknowledge or Escalate alert events that come in.")
+                    description="Alerts related operations that allow operators to display or Acknowledge or Escalate alert events that come in.")
 
-HIVE_NS = Namespace("hive",
-                       path="/api/hive",
-                       description="Hive related webhook operations.")
+HIVE_NS = Namespace("hive", description="Hive related webhook operations.")
 
 class AlertsModel(Model):
     DTO = ALERTS_NS.model('AlertModel', {
@@ -125,11 +122,11 @@ class HiveSettingsModel(Model):
 
     def save_to_db(self):
         serialized = self.schema.dump(self)
-        conn_mng.mongo_hive_settings.find_one_and_replace({"_id": HIVE_ID}, serialized, upsert=True)
+        mongo_hive_settings().find_one_and_replace({"_id": HIVE_ID}, serialized, upsert=True)
 
     @classmethod
     def load_from_db(cls) -> Model:
-        ret_val = conn_mng.mongo_hive_settings.find_one({"_id": HIVE_ID})
+        ret_val = mongo_hive_settings().find_one({"_id": HIVE_ID})
         if ret_val:
             return cls.schema.load(ret_val)
 

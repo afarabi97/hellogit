@@ -5,6 +5,7 @@ This module is for storing standard functions which can be reused anywhere withi
 import base64
 import hashlib
 import os
+from flask.ctx import AppContext
 import psutil
 import requests
 import shutil
@@ -16,10 +17,10 @@ from pathlib import Path
 from typing import Union, Dict
 from uuid import uuid4
 from .constants import DATE_FORMAT_STR, GENERAL_SETTINGS_ID
-from .db_mngs import conn_mng
+from app.utils.collections import mongo_settings
 
 def get_domain() -> str:
-    mongo_document = conn_mng.mongo_settings.find_one({"_id": GENERAL_SETTINGS_ID})
+    mongo_document = mongo_settings().find_one({"_id": GENERAL_SETTINGS_ID})
     if mongo_document and "domain" in mongo_document:
         return mongo_document["domain"]
     return None
@@ -212,3 +213,7 @@ class TfplenumTempDir:
     @property
     def file_path_str(self) -> str:
         return str(self._created_path)
+
+def get_app_context() -> AppContext:
+    from app import create_app
+    return create_app().app_context()

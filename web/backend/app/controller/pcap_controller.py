@@ -102,7 +102,7 @@ class ReplayPcapCtrl(Resource):
         return JobID(job).to_dict(), 200
 
 
-@POLICY_NS.route('/sensor/info', methods=['GET'])
+@POLICY_NS.route('/sensor/info')
 class SensorInfo(Resource):
     def get(self) -> Response:
         ret_val = []

@@ -1,13 +1,14 @@
-from elasticsearch import Elasticsearch
-from kubernetes.client.rest import ApiException
-from kubernetes import client, config, utils
-from typing import Dict, List
-from elasticsearch.client import ClusterClient, SnapshotClient, IndicesClient
-from elasticsearch.exceptions import ConflictError
-from app.utils.utils import get_domain
 from base64 import b64decode
-import os
+from typing import Dict, List
 
+from app.utils.utils import get_domain
+from elasticsearch import Elasticsearch
+from elasticsearch.client import ClusterClient, IndicesClient, SnapshotClient
+from elasticsearch.exceptions import ConflictError
+from kubernetes import client, config, utils
+from kubernetes.client.rest import ApiException
+
+from .constants import CA_BUNDLE
 
 ELASTIC_OP_GROUP = "elasticsearch.k8s.elastic.co"
 ELASTIC_OP_VERSION = "v1"
@@ -79,7 +80,7 @@ def ElasticWrapper() -> Elasticsearch:
     return Elasticsearch(elastic_fqdn, scheme="https",
                            port=port, http_auth=('elastic', password),
                            use_ssl=True, verify_certs=True,
-                           ca_certs=os.environ['REQUESTS_CA_BUNDLE'])
+                           ca_certs=CA_BUNDLE)
 
 
 class ElasticsearchManager:

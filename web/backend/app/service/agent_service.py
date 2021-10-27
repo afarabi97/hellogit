@@ -13,14 +13,14 @@ from typing import Dict, List, Union
 import requests
 from app.service.socket_service import (NotificationCode, NotificationMessage,
                                         notify_page_refresh)
+from app.utils.collections import mongo_windows_target_lists
 from app.utils.connection_mngs import REDIS_CLIENT, get_kubernetes_secret
 from app.utils.constants import (AGENT_PKGS_DIR, AGENT_UPLOAD_DIR,
                                  DATE_FORMAT_STR, TARGET_STATES)
-from app.utils.db_mngs import conn_mng
 from app.utils.logging import rq_logger
 from app.utils.tfwinrm_util import (WindowsConnectionManager,
                                     WinrmCommandFailure)
-from app.utils.utils import decode_password, zip_package
+from app.utils.utils import decode_password, get_app_context, zip_package
 from bson import ObjectId
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from kubernetes.client.rest import ApiException
@@ -171,7 +171,7 @@ class AgentBuilder:
                                 folder_to_copy: str):
         if kubernetes_dir.exists() and kubernetes_dir.is_dir():
             try:
-                secret = get_kubernetes_secret(conn_mng, '{}-agent-certificate'.format(application_name))
+                secret = get_kubernetes_secret('{}-agent-certificate'.format(application_name))
                 secret.write_to_file(folder_to_copy)
             except ApiException:
                 pass
@@ -279,7 +279,7 @@ class WinRunner:
 
     def _update_single_host_state(self, host_or_ip: str, new_state: str, dt_string: str):
         new_target = { "hostname" : host_or_ip, "state" : new_state, "last_state_change" : dt_string }
-        ret_val = conn_mng.mongo_windows_target_lists.update_one({"_id": ObjectId(self._target_config["_id"]), "targets.hostname": host_or_ip},
+        ret_val = mongo_windows_target_lists().update_one({"_id": ObjectId(self._target_config["_id"]), "targets.hostname": host_or_ip},
                                                                 {"$set": {"targets.$": new_target }} )
         if ret_val.modified_count != 1:
             print("==Failed to update the state of the Windows host")
@@ -465,6 +465,7 @@ class WinRunner:
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def perform_agent_reinstall(configs: Dict, hostname_or_ip: Union[str, List], do_uninstall_only: bool) -> int:
+    get_app_context().push()
     try:
         runner = WinRunner(hostname_or_ip, configs, do_uninstall_only)
         return runner.execute()

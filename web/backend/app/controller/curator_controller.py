@@ -10,7 +10,8 @@ from flask import Response, request
 from flask_restx import Namespace, Resource
 
 EXCLUDE_FILTER = "^(.ml-config|.kibana|.monitoring|.watches|.apm|.triggered_watches|.security|.siem-signals|.security-tokens).*$"
-CURATOR_NS = Namespace("curator", path="/api/curator", description="Elasticsearch curator.")
+DEFAULT_ERROR_MESSAGE_INDICES = { "error_message": "Something went wrong getting the Elasticsearch indices." }
+CURATOR_NS = Namespace("curator", description="Elasticsearch curator.")
 
 @CURATOR_NS.route('/closed_indices')
 class GetClosedIndices(Resource):
@@ -65,7 +66,6 @@ class IndexMangement(Resource):
     @CURATOR_NS.response(200, 'Index Management', COMMON_SUCCESS_MESSAGE)
     @controller_maintainer_required
     def post(self) -> Response:
-        logging.basicConfig(level=logging.INFO)
         payload = request.get_json()
 
         if "action" not in payload or payload["action"] not in ["DeleteIndices", "CloseIndices"]:

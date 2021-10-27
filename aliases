@@ -1,6 +1,6 @@
 alias docker_clear='sudo docker stop $(sudo docker ps -a -q);sudo docker rm $(sudo docker ps -a -q)'
 alias git_graph='git log --pretty=oneline --graph --decorate --all'
-alias run_backend_debug='fuser -k 5001/tcp; systemctl stop tfplenum-backend; cd /opt/tfplenum/web/backend/; source /opt/tfplenum/.venv/bin/activate; python run.py'
+alias run_backend_debug='fuser -k 5001/tcp; systemctl stop tfplenum-backend; cd /opt/tfplenum/web/backend/; source /opt/tfplenum/.venv/bin/activate; python wsgi.py --debug'
 alias run_frontend_debug='fuser -k 4200/tcp; cd /opt/tfplenum/web/frontend; npm start'
 alias open_mongo='mongo'
 alias server_backup='/opt/tfplenum/web/setup/backup_tfplenum.sh'

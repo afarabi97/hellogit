@@ -11,10 +11,10 @@ export const environment = {
   CONFIG_MAP_SERVICE_BASE_URL: `/api/kubernetes/configmap`,
   CONFIG_MAP_SERVICE_GET_ASSOCIATED_PODS: `/api/kubernetes/associated/pods/`,
 
-  COLD_LOG_INGEST_SERVICE_POST_COLD_LOG_FILE: `/api/upload_cold_log_file`,
-  COLD_LOG_INGEST_SERVICE_GET_WINLOGBEAT_CONFIGURATION: `/api/get_winlogbeat_configuration`,
-  COLD_LOG_INGEST_SERVICE_POST_WINLOGBEAT: `/api/install_winlogbeat`,
-  COLD_LOG_INGEST_SERVICE_GET_MODULE_INFO: `/api/get_module_info`,
+  COLD_LOG_INGEST_SERVICE_POST_COLD_LOG_FILE: `/api/coldlog/upload`,
+  COLD_LOG_INGEST_SERVICE_GET_WINLOGBEAT_CONFIGURATION: `/api/coldlog/winglogbeat/configure`,
+  COLD_LOG_INGEST_SERVICE_POST_WINLOGBEAT: `/api/coldlog/winlogbeat/install`,
+  COLD_LOG_INGEST_SERVICE_GET_MODULE_INFO: `/api/coldlog/module/info`,
 
   INDEX_MANAGEMENT_SERVICE_INDEX_MANAGEMENT: `/api/curator/index_management`,
   INDEX_MANAGEMENT_SERVICE_GET_CLOSED_INDICES: `/api/curator/closed_indices`,
@@ -24,7 +24,7 @@ export const environment = {
   ELASTICSEARCH_SERVICE_POST_ELASTIC_NODES: `/api/scale/elastic`,
   ELASTICSEARCH_SERVICE_GET_ELASTIC_FULL_CONFIG: `/api/scale/elastic/advanced`,
   ELASTICSEARCH_SERVICE_POST_ELASTIC_FULL_CONFIG: `/api/scale/elastic/advanced`,
-  ELASTICSEARCH_SERVICE_DEPLOY_ELASTIC: `/api/apply_elastic_deploy`,
+  ELASTICSEARCH_SERVICE_DEPLOY_ELASTIC: `/api/tools/elastic/deploy`,
   ELASTICSEARCH_SERVICE_CHECK_ELASTIC: `/api/scale/check`,
 
   DIAGNOSTICS_SERVICE_DIAGNOSTICS: `/api/diagnostics`,
@@ -80,15 +80,15 @@ export const environment = {
   PORTAL_SERVICE_REMOVE_USER_LINK: `/api/portal/user/links/`,
   PORTAL_SERVICE_GET_USER_LINKS: `/api/portal/user/links`,
 
-  TOOLS_SERVICE_CHANGE_KIT_CLOCK: `/api/change_kit_clock`,
-  TOOLS_SERVICE_CHANGE_KIT_PASSWORD: `/api/change-kit-password`,
-  TOOLS_SERVICE_UPLOAD_DOCUMENTATION: `/api/documentation/upload`,
-  TOOLS_SERVICE_ES_LICENSE: `/api/es_license`,
-  TOOLS_SERVICE_GET_SPACES: `/api/spaces`,
-  TOOLS_SERVICE_MONITORING_INTERFACE: `/api/monitoring-interfaces`,
-  TOOLS_SERVICE_CONFIGURE_REPOSITORY: `/api/snapshot`,
+  TOOLS_SERVICE_CHANGE_KIT_CLOCK: `/api/tools/change_kit_clock`,
+  TOOLS_SERVICE_CHANGE_KIT_PASSWORD: `/api/tools/change-kit-password`,
+  TOOLS_SERVICE_UPLOAD_DOCUMENTATION: `/api/tools/documentation/upload`,
+  TOOLS_SERVICE_GET_SPACES: `/api/tools/spaces`,
+  TOOLS_SERVICE_ES_LICENSE: `/api/tools/es_license`,
+  TOOLS_SERVICE_MONITORING_INTERFACE: `/api/tools/monitoring-interfaces`,
+  TOOLS_SERVICE_CONFIGURE_REPOSITORY: `/api/tools/snapshot`,
 
-  NAV_BAR_SERVICE_GET_CURRENT_DIP_TIME: `/api/controller/datetime`,
+  NAV_BAR_SERVICE_GET_CURRENT_DIP_TIME: `/api/tools/controller/datetime`,
 
   ENDGAME_SERVICE_ENDGAME_SENSOR_PROFILES: `/api/agent/endgame/profiles`,
 

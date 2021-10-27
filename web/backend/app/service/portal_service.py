@@ -1,7 +1,7 @@
 from typing import List
 
-from app.utils.connection_mngs import KubernetesWrapper2
-from app.utils.db_mngs import conn_mng
+from app.utils.connection_mngs import KubernetesWrapper
+from app.utils.collections import mongo_catalog_saved_values
 from app.utils.elastic import get_elastic_password
 from app.utils.logging import logger
 from app.utils.utils import get_domain
@@ -17,13 +17,11 @@ DISCLUDES = ("elasticsearch",
         "kube-dns-external")
 
 HTTPS_STR = 'https://'
-HTTP_STR = 'http://'
 
 def get_app_credentials(app: str, user_key: str, pass_key: str):
     username = ""
     password = ""
-    collection = conn_mng.mongo_catalog_saved_values
-    application = collection.find_one({'application': app})
+    application = mongo_catalog_saved_values().find_one({'application': app})
     if application and "values" in application:
         if pass_key in application['values']:
             password = application['values'][pass_key]
@@ -34,74 +32,31 @@ def get_app_credentials(app: str, user_key: str, pass_key: str):
         return "{}/{}".format(username, password)
     return "??/??"
 
-def _append_portal_link(portal_links: List, dns: str, ip: str = None):
-    short_dns = dns.split('.')[0]
-    if short_dns == "arkime":
+def _append_portal_link(name: str, kit_domain: str, ip: str = None):
+    if name == "arkime":
         logins = get_app_credentials('arkime-viewer','username','password')
-        if ip:
-            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
-        else:
-            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif short_dns == "hive":
+    elif name == "hive":
         logins = get_app_credentials('hive','superadmin_username','superadmin_password')
-        if ip:
-            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
-        else:
-            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif short_dns == "cortex":
+    elif name == "cortex":
         logins = get_app_credentials('cortex','superadmin_username','superadmin_password')
-        if ip:
-            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
-        else:
-            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif short_dns == "kibana":
+    elif name == "kibana":
         password = get_elastic_password()
         logins = 'elastic/{}'.format(password)
-        if ip:
-            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
-        else:
-            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif short_dns == "redmine":
+    elif name == "redmine":
         logins = 'admin/admin'
-        if ip:
-            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
-        else:
-            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif short_dns == "misp":
+    elif name == "misp":
         logins = get_app_credentials('misp','admin_user','admin_pass')
-        if ip:
-            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
-        else:
-            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif short_dns == "wikijs":
+    elif name == "wikijs":
         logins = get_app_credentials('wikijs','admin_email','admin_pass')
-        if ip:
-            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
-        else:
-            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif short_dns == "mattermost":
+    elif name == "mattermost":
         logins = get_app_credentials('mattermost','admin_user','admin_pass')
-        if ip:
-            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
-        else:
-            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif short_dns == "rocketchat":
+    elif name == "rocketchat":
         logins = get_app_credentials('rocketchat','admin_user','admin_pass')
-        if ip:
-            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
-        else:
-            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif short_dns == "nifi":
+    elif name == "nifi":
         logins = ''
-        if ip:
-            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR +  dns, 'logins': logins})
-        else:
-            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    else:
-        if ip:
-            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': ''})
-        else:
-            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': ''})
+    fip = HTTPS_STR + ip
+    dns = HTTPS_STR + name + "." + kit_domain
+    return {'ip': fip, 'dns': dns, 'logins': logins}
 
 def _is_discluded(dns: str) -> bool:
     """
@@ -116,19 +71,18 @@ def _is_discluded(dns: str) -> bool:
     return False
 
 def get_portal_links():
+    kit_domain = get_domain()
     portal_links = []
-    try:
-        kit_domain = get_domain()
-        with KubernetesWrapper2(conn_mng) as api:
-            kube_api = api.core_V1_API
-            services = kube_api.list_service_for_all_namespaces()
-            for service in services.items:
-                name = service.metadata.name
-                if service.status.load_balancer.ingress:
-                    svc_ip = service.status.load_balancer.ingress[0].ip
-                    if _is_discluded(name):
-                        continue
-                    _append_portal_link(portal_links, "{}.{}".format(name, kit_domain), svc_ip)
-    except Exception as e:
-        logger.exception(e)
+    with KubernetesWrapper() as api:
+        services = api.list_service_for_all_namespaces()
+        for service in services.items:
+            name = service.metadata.name
+            print(name)
+            print(service.status.load_balancer.ingress)
+            if service.status.load_balancer.ingress:
+                svc_ip = service.status.load_balancer.ingress[0].ip
+                if _is_discluded(name):
+                    continue
+                portal_links.append(_append_portal_link(name, kit_domain, svc_ip))
+    print(portal_links)
     return portal_links

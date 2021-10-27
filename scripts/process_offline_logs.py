@@ -53,7 +53,7 @@ class OfflineLogProcessor:
             }
 
             print(cold_log_form)
-            response = self.session.post(self.base_url + "/api/upload_cold_log_file",
+            response = self.session.post(self.base_url + "/api/coldlog/upload",
                                          files=files,
                                          data=payload)
             if response.status_code != 200:
@@ -89,7 +89,7 @@ class OfflineLogProcessor:
             "winrm_scheme": args.winrm_scheme
         }
 
-        response = self.session.post(self.base_url + "/api/install_winlogbeat",
+        response = self.session.post(self.base_url + "/api/coldlog/winlogbeat/install",
                                      json=windows_install_form)
 
         if response.status_code != 200:

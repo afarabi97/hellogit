@@ -6,7 +6,7 @@ from typing import Dict, Optional
 from app.models import DBModelNotFound, Model
 from app.models.nodes import KIT_SETUP_NS
 from app.utils.constants import CORE_DIR, SNMP_SETTINGS_ID, TEMPLATE_DIR
-from app.utils.db_mngs import conn_mng
+from app.utils.collections import mongo_settings
 from flask_restx import fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from marshmallow import Schema
@@ -49,7 +49,7 @@ class SNMPSettingsForm(Model):
 
     @classmethod
     def load_from_db(cls) -> Optional["SNMPSettingsForm"]:
-        document = conn_mng.mongo_settings.find_one({"_id": SNMP_SETTINGS_ID}, {"_id": False})
+        document = mongo_settings().find_one({"_id": SNMP_SETTINGS_ID}, {"_id": False})
 
         if document:
             return cls(**cls.schema.load(document))
@@ -61,7 +61,7 @@ class SNMPSettingsForm(Model):
         return cls(**cls.schema.load(payload))
 
     def save_to_db(self):
-        conn_mng.mongo_settings.find_one_and_replace({"_id": SNMP_SETTINGS_ID}, self.schema.dump(self.to_dict()), upsert=True)
+        mongo_settings().find_one_and_replace({"_id": SNMP_SETTINGS_ID}, self.schema.dump(self.to_dict()), upsert=True)
         SNMPSettingsInventoryGenerator(self).generate()
 
 

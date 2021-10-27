@@ -1,19 +1,17 @@
 import os
-
-from time import sleep
-from collections import defaultdict
-from pint import UnitRegistry
 import traceback
-from elasticsearch import Elasticsearch
-from kubernetes import client, config
+from collections import defaultdict
+from time import sleep
 
-from app import REDIS_CLIENT
-from app.utils.logging import logger
-from app.service.socket_service import NotificationMessage, NotificationCode
-from app.dao import elastic_deploy
-from rq.decorators import job
+from app.models.scale import read
+from app.service.socket_service import NotificationCode, NotificationMessage
+from app.utils.connection_mngs import REDIS_CLIENT
 from app.utils.elastic import ElasticWrapper
-
+from app.utils.logging import logger
+from app.utils.utils import get_app_context
+from kubernetes import client, config
+from pint import UnitRegistry
+from rq.decorators import job
 
 _JOB_NAME = "scale"
 ELASTIC_OP_GROUP = "elasticsearch.k8s.elastic.co"
@@ -90,7 +88,7 @@ def get_namespaced_custom_object_status() -> str:
 def es_cluster_status() -> str:
     notification = NotificationMessage(role=_JOB_NAME)
     try:
-        deploy_config = elastic_deploy.read()
+        deploy_config = read()
         deploy_master_count = 0
         deploy_data_count = 0
         deploy_ml_count = 0
@@ -117,7 +115,6 @@ def es_cluster_status() -> str:
             es_node_count = parse_nodes(nodes)
 
         resp = get_namespaced_custom_object_status()
-
         if (es_node_count
                 and es_node_count["master"] ==  deploy_master_count
                 and es_node_count["data"] == deploy_data_count
@@ -129,7 +126,6 @@ def es_cluster_status() -> str:
 
         if resp is None:
             return "None"
-
         if resp["status"]["phase"] != "Ready":
             return resp["status"]["phase"]
 
@@ -144,6 +140,7 @@ def es_cluster_status() -> str:
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def check_scale_status(application: str):
+    get_app_context().push()
     notification = NotificationMessage(role=_JOB_NAME)
     notification.set_message("%s scaling started." % application)
     notification.set_status(NotificationCode.STARTED.name)
@@ -196,7 +193,7 @@ def get_allowable_scale_count():
     ingest_count = 0
     server_node_count = 0
 
-    deploy_config = elastic_deploy.read()
+    deploy_config = read()
     if "spec" in deploy_config:
         spec = deploy_config["spec"]
         if "nodeSets" in spec:
@@ -282,22 +279,13 @@ def get_allowable_scale_count():
                 data[node_name] = stats
                 request.append({ node_name: data[node_name]})
 
-    max_total_masters = 0
+    max_total_masters = 3
     max_total_data = 0
     max_total_ml = 0
     max_total_ingest = 0
+
     for i in request:
         for key, value in i.items():
-            if master_count > 0:
-                es_master_cpu_av = int((value["cpu_remaining"] / master_cpu_request))
-                es_master_mem_av = int((value["mem_remaining"] / master_memory_request))
-                master_min = min([es_master_cpu_av, es_master_mem_av])
-
-            if master_min >= MAX_MASTER_PER_NODE:
-                max_total_masters = max_total_masters + MAX_MASTER_PER_NODE
-            else:
-                max_total_masters = master_min
-
             if data_count > 0:
                 es_data_cpu_av = int((value["cpu_remaining"] / data_cpu_request))
                 es_data_mem_av = int((value["mem_remaining"] / data_memory_request))

@@ -7,22 +7,23 @@ import re
 from ipaddress import IPv4Address
 from typing import Dict, List
 
+from app.utils.logging import rq_logger
 from app.models import Model
 from app.models.settings.settings_base import SettingsBase
 from app.utils.constants import CORE_DIR, GENERAL_SETTINGS_ID, TEMPLATE_DIR
-from app.utils.db_mngs import conn_mng
 from flask_restx import Namespace, fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from marshmallow import Schema, ValidationError
 from marshmallow import fields as marsh_fields
 from marshmallow import post_load, validates
+from app.utils.collections import mongo_settings
 
 JINJA_ENV = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR)),
     autoescape=select_autoescape(['html', 'xml'])
 )
 
-SETINGS_NS = Namespace('settings', path="/api/settings", description="Kit setup related operations.")
+SETINGS_NS = Namespace('settings', description="Kit setup related operations.")
 
 def _generate_general_settings_inventory():
     settings = GeneralSettingsForm.load_from_db() # type: GeneralSettingsForm
@@ -79,7 +80,8 @@ class GeneralSettingsForm(SettingsBase):
 
     @classmethod
     def load_from_db(cls, query: Dict={"_id": GENERAL_SETTINGS_ID}) -> Model:
-        mongo_document = conn_mng.mongo_settings.find_one(query)
+        mongo_document = mongo_settings().find_one(query)
+        rq_logger.debug(mongo_document)
         if mongo_document:
             general_settings = cls.schema.load(mongo_document, partial=("nodes",))
             return general_settings
@@ -92,7 +94,7 @@ class GeneralSettingsForm(SettingsBase):
         :param general_settings_form: Dictionary for the Kit Settings form
         """
         general_settings = self.schema.dump(self)
-        conn_mng.mongo_settings.find_one_and_replace({"_id": GENERAL_SETTINGS_ID},
+        mongo_settings().find_one_and_replace({"_id": GENERAL_SETTINGS_ID},
                                                       general_settings,
                                                       upsert=True)  # type: InsertOneResult
         _generate_general_settings_inventory()

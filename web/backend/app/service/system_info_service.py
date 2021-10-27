@@ -1,7 +1,11 @@
 
-from datetime import datetime
 import configparser
 import socket
+from datetime import datetime
+
+from app.utils.constants import PROJECT_ROOT_DIR
+from git import Repo
+from git.exc import InvalidGitRepositoryError
 
 INI = "/etc/tfplenum/tfplenum.ini"
 
@@ -35,3 +39,12 @@ def get_auth_base() -> str:
         return base_template.format(hostname=hostname)
     except Exception:
         return base_template.format(hostname="controller.lan")
+
+def get_commit_hash() -> str:
+    try:
+        repo = Repo(str(PROJECT_ROOT_DIR))
+        sha = repo.head.commit.hexsha
+        return repo.git.rev_parse(sha, short=8)
+    except InvalidGitRepositoryError:
+        pass
+    return "None"

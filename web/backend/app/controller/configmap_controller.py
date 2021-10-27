@@ -9,7 +9,6 @@ from app.models.kubernetes import (KUBERNETES_NS, AssociatedPodModel,
                                    ConfigMapSave)
 from app.service.configmap_service import bounce_pods
 from app.utils.connection_mngs import KitFormNotFound, KubernetesWrapper
-from app.utils.db_mngs import conn_mng
 from app.utils.logging import logger
 from flask import Response, jsonify, request
 from flask_restx import Resource, api
@@ -48,7 +47,7 @@ class AssociatedPodsCtrl(Resource):
     @KUBERNETES_NS.response(200, 'AssociatedPod', [AssociatedPodModel.DTO])
     def get(self, config_map_name: str) -> List:
         ret_val = []
-        with KubernetesWrapper(conn_mng) as kube_apiv1:
+        with KubernetesWrapper() as kube_apiv1:
             api_response = kube_apiv1.list_pod_for_all_namespaces() # type: V1PodList
             for item in  api_response.items:
                 for volume in item.spec.volumes:
@@ -66,7 +65,7 @@ class GetConfigMapsOnly(Resource):
     @KUBERNETES_NS.doc(description="Get all the config map data.")
     def get(self) -> Response:
         try:
-            with KubernetesWrapper(conn_mng) as kube_apiv1:
+            with KubernetesWrapper() as kube_apiv1:
                 api_response = kube_apiv1.list_config_map_for_all_namespaces()
                 return jsonify(api_response.to_dict())
         except KitFormNotFound as exception:
@@ -95,7 +94,7 @@ class ConfigMapCtrl(Resource):
         config_map_name = config_map['metadata']['name']
         config_map_namespace = config_map['metadata']['namespace']
 
-        with KubernetesWrapper(conn_mng) as kube_apiv1:
+        with KubernetesWrapper() as kube_apiv1:
             kube_apiv1.replace_namespaced_config_map(config_map_name, config_map_namespace, body)
             bounce_pods.delay(associated_pods)
             return {'name': config_map_name}

@@ -8,7 +8,6 @@ from typing import Dict
 
 import paramiko
 from app.utils.constants import DATE_FORMAT_STR, KIT_SETTINGS_ID
-from app.utils.db_mngs import MongoConnectionManager
 from app.utils.logging import logger
 from app.utils.utils import decode_password
 from bson import ObjectId
@@ -20,6 +19,8 @@ from paramiko import SSHException
 from redis import Redis
 from rq import Queue
 from rq_scheduler import Scheduler
+
+from .collections import mongo_settings
 
 REDIS_CLIENT = Redis()
 REDIS_QUEUE = Queue(connection=REDIS_CLIENT)
@@ -77,8 +78,7 @@ class FabricConnection():
         self._use_ssh_key = use_ssh_key
 
     def _set_root_password(self) -> str:
-        conn_mng = MongoConnectionManager()
-        kit_settings =  conn_mng.mongo_settings.find_one({"_id": KIT_SETTINGS_ID})
+        kit_settings =  mongo_settings().find_one({"_id": KIT_SETTINGS_ID})
         self._password = decode_password(kit_settings["password"])
 
     def _establish_fabric_connection(self) -> None:
@@ -111,27 +111,10 @@ class FabricConnection():
 
 class KubernetesWrapper():
 
-    def __init__(self, mongo_conn: MongoConnectionManager=None):
-        """
-        :param mongo_conn: The MongoConnection manager, if this is passed in, the wrapper will not close it.
-                           if run the wrapper and dont set it the context manager will close it.
-        """
-        if mongo_conn is None:
-            self._mongo_conn = MongoConnectionManager()
-            self._is_close = True
-        else:
-            self._mongo_conn = mongo_conn
-            self._is_close = False
+    def __init__(self):
 
         config.load_kube_config()
         self._kube_apiv1 = client.CoreV1Api()
-
-    def close(self) -> None:
-        """
-        Closes the connections associated with this context wrapper.
-        """
-        if self._mongo_conn and self._is_close:
-            self._mongo_conn.close()
 
     def __enter__(self) -> client.CoreV1Api():
         """
@@ -143,17 +126,14 @@ class KubernetesWrapper():
         return self._kube_apiv1
 
     def __exit__(self, *exc) -> None:
-        self.close()
+        return self
 
 
 class KubernetesWrapper2(KubernetesWrapper):
 
-    def __init__(self, mongo_conn: MongoConnectionManager=None):
-        """
-        :param mongo_conn: The MongoConnection manager, if this is passed in, the wrapper will not close it.
-                           if run the wrapper and dont set it the context manager will close it.
-        """
-        super().__init__(mongo_conn)
+    def __init__(self):
+
+        super().__init__()
         self._apps_apiv1 = client.AppsV1Api()
         self._batch_apiv1 = client.BatchV1Api()
 
@@ -244,13 +224,12 @@ class KubernetesSecret:
         tls_key.write_text(self.tls_key)
 
 
-def get_kubernetes_secret(conn_mng: MongoConnectionManager,
-                          secret_name: str,
+def get_kubernetes_secret(secret_name: str,
                           namespace: str="default",
                           retries:int=3) -> KubernetesSecret:
     while retries != 0:
         try:
-            with KubernetesWrapper2(conn_mng) as api:
+            with KubernetesWrapper2() as api:
                 v1 = api.core_V1_API
                 response = v1.read_namespaced_secret(secret_name, namespace)
                 return KubernetesSecret(response)

@@ -7,11 +7,12 @@ from app.models.nodes import Node
 from app.models.settings.kit_settings import KitSettingsForm
 from app.service.socket_service import (NotificationCode, NotificationMessage,
                                         notify_ruleset_refresh)
+from app.utils.collections import mongo_rule, mongo_ruleset
 from app.utils.connection_mngs import (REDIS_CLIENT, FabricConnection,
                                        KubernetesWrapper)
 from app.utils.constants import NODE_TYPES, RULE_TYPES, RULESET_STATES
-from app.utils.db_mngs import MongoConnectionManager
 from app.utils.logging import rq_logger
+from app.utils.utils import get_app_context
 from fabric import Connection
 from pymongo.results import UpdateResult
 from rq.decorators import job
@@ -24,9 +25,8 @@ ZEEK_SIG_PATH = os.path.join(ZEEK_CUSTOM_DIR, 'custom.sig')
 
 
 def _get_pod_name(ip_address: str,
-                  component: str,
-                  mongo_conn: MongoConnectionManager=None) -> str:
-    with KubernetesWrapper(mongo_conn) as kube_apiv1:
+                  component: str) -> str:
+    with KubernetesWrapper() as kube_apiv1:
         api_response = kube_apiv1.list_pod_for_all_namespaces(watch=False)
         for pod in api_response.to_dict()['items']:
             if ip_address == pod['status']['host_ip']:
@@ -39,14 +39,12 @@ def _get_pod_name(ip_address: str,
     raise ValueError("Failed to find %s pod name." % component)
 
 
-def get_suricata_pod_name(ip_address: str,
-                          mongo_conn: MongoConnectionManager=None) -> str:
-    return _get_pod_name(ip_address, 'suricata', mongo_conn)
+def get_suricata_pod_name(ip_address: str) -> str:
+    return _get_pod_name(ip_address, 'suricata')
 
 
-def get_zeek_pod_name(ip_address: str,
-                     mongo_conn: MongoConnectionManager=None) -> str:
-    return _get_pod_name(ip_address, 'zeek', mongo_conn)
+def get_zeek_pod_name(ip_address: str) -> str:
+    return _get_pod_name(ip_address, 'zeek')
 
 
 class RuleSyncError(Exception):
@@ -58,7 +56,6 @@ class RuleSynchronization():
 
     def __init__(self):
         self.rule_sets = None # type: List[Dict]
-        self.mongo = None # type: MongoConnectionManager
         self.notification = NotificationMessage(role="rulesync")
 
     def _send_notification(self, msg: str, code: str = NotificationCode.ERROR.name, exception=''):
@@ -94,7 +91,7 @@ class RuleSynchronization():
                 except KeyError:
                     self._send_notification("Failed to clear " + str(rule_set))
 
-        self.mongo.mongo_ruleset.update_many({'_id': {'$in': ids_to_reset}}, {'$set': {'state': []}})
+        mongo_ruleset().update_many({'_id': {'$in': ids_to_reset}}, {'$set': {'state': []}})
 
     def _build_suricata_rule_file(self, ip_address: str) -> tempfile.NamedTemporaryFile:
         rq_logger.info("Building suricata rule file for {}.".format(ip_address))
@@ -109,7 +106,7 @@ class RuleSynchronization():
             if not rule_set["isEnabled"]:
                 continue
 
-            rules = self.mongo.mongo_rule.find({"rule_set_id": rule_set["_id"]})
+            rules = mongo_rule().find({"rule_set_id": rule_set["_id"]})
             for rule in rules:
                 try:
                     if rule["isEnabled"]:
@@ -136,7 +133,7 @@ class RuleSynchronization():
             if not rule_set["isEnabled"]:
                 continue
 
-            rules = self.mongo.mongo_rule.find({"rule_set_id": rule_set["_id"]})
+            rules = mongo_rule().find({"rule_set_id": rule_set["_id"]})
             for rule in rules:
                 try:
                     if rule["isEnabled"]:
@@ -163,7 +160,7 @@ class RuleSynchronization():
             if not rule_set["isEnabled"]:
                 continue
 
-            rules = self.mongo.mongo_rule.find({"rule_set_id": rule_set["_id"]})
+            rules = mongo_rule().find({"rule_set_id": rule_set["_id"]})
             for rule in rules:
                 try:
                     if rule["isEnabled"]:
@@ -188,8 +185,7 @@ class RuleSynchronization():
 
             if self._is_sensor_in_ruleset(ip_address, rule_set) and rule_set["isEnabled"]:
                 state_obj = {"hostname": hostname, "state": statestr}
-                # self.mongo.mongo_ruleset.update_one({"_id": rule_set["_id"]}, {"state": []}) # type: UpdateResult
-                ret_val = self.mongo.mongo_ruleset.update_one({"_id": rule_set["_id"]}, {"$push": {"state": state_obj}}) # type: UpdateResult
+                ret_val = mongo_ruleset().update_one({"_id": rule_set["_id"]}, {"$push": {"state": state_obj}}) # type: UpdateResult
                 if ret_val.modified_count == 0:
                     self._send_notification("Failed to update rule set ID {} with {}".format(rule_set["_id"], str(state_obj)))
 
@@ -218,7 +214,7 @@ class RuleSynchronization():
         self._set_states(hostname, ip_address, statestr, RULE_TYPES[3])
 
     def _get_suricata_pod_name(self, ip_address: str) -> str:
-        with KubernetesWrapper(self.mongo) as kube_apiv1:
+        with KubernetesWrapper() as kube_apiv1:
             api_response = kube_apiv1.list_pod_for_all_namespaces(watch=False)
             for pod in api_response.to_dict()['items']:
                 if ip_address == pod['status']['host_ip'] and 'suricata' == pod['metadata']['labels']['component']:
@@ -228,7 +224,7 @@ class RuleSynchronization():
 
     def _sync_suricata_rulesets(self, fabric: Connection, ip_address: str, hostname: str):
         try:
-            suricata_pod_name = get_suricata_pod_name(ip_address, self.mongo)
+            suricata_pod_name = get_suricata_pod_name(ip_address)
         except ValueError as e:
             rq_logger.warn(str(e))
             self._send_notification("Suricata is not installed on {}".format(hostname), NotificationCode.CANCELLED.name)
@@ -281,7 +277,7 @@ class RuleSynchronization():
             rule_set_dir = os.path.join(zeek_load_dir.name, rule_set_name)
             os.mkdir(rule_set_dir)
 
-            rules = self.mongo.mongo_rule.find({"rule_set_id": rule_set["_id"]})
+            rules = mongo_rule().find({"rule_set_id": rule_set["_id"]})
             for rule in rules:
                 if not rule["isEnabled"]:
                     continue
@@ -303,7 +299,7 @@ class RuleSynchronization():
 
     def _sync_zeek_items(self, fabric: Connection, ip_address: str, hostname: str):
         try:
-            zeek_pod_name = get_zeek_pod_name(ip_address, self.mongo)
+            zeek_pod_name = get_zeek_pod_name(ip_address)
         except ValueError as e:
             rq_logger.warn(str(e))
             self._send_notification("Zeek is not installed on {}".format(hostname), NotificationCode.CANCELLED.name)
@@ -347,50 +343,48 @@ class RuleSynchronization():
             self.notification.set_message("Rule synchronization started.")
             self.notification.post_to_websocket_api()
 
-            with MongoConnectionManager() as mongo:
-                self.mongo = mongo
-                kit_nodes = Node.load_all_from_db() # type: List[Model]
-                kickstart_form = KitSettingsForm.load_from_db() # type: Dict
-                password = kickstart_form.password
-                self.rule_sets = list(self.mongo.mongo_ruleset.find({}))
-                self._clear_enabled_rulesets(kit_nodes)
+            kit_nodes = Node.load_all_from_db() # type: List[Model]
+            kickstart_form = KitSettingsForm.load_from_db() # type: Dict
+            password = kickstart_form.password
+            self.rule_sets = list(mongo_ruleset().find({}))
+            self._clear_enabled_rulesets(kit_nodes)
 
-                self.notification.set_status(status=NotificationCode.IN_PROGRESS.name)
-                self.notification.set_message("Rule synchronization in progress.")
-                self.notification.post_to_websocket_api()
-                errors = False
-                for node in kit_nodes: # type: Node
-                    if node.node_type != NODE_TYPES.sensor.value:
-                        continue
+            self.notification.set_status(status=NotificationCode.IN_PROGRESS.name)
+            self.notification.set_message("Rule synchronization in progress.")
+            self.notification.post_to_websocket_api()
+            errors = False
+            for node in kit_nodes: # type: Node
+                if node.node_type != NODE_TYPES.sensor.value:
+                    continue
 
-                    ip_address = node.deviceFacts['default_ipv4_settings']['address']
-                    hostname = node.deviceFacts['hostname']
-                    with FabricConnection(ip_address, password) as fabric:
-                        try:
-                            rq_logger.info("Synchronizing Suricata signatures for {}.".format(hostname))
-                            self._sync_suricata_rulesets(fabric, ip_address, hostname)
-                        except Exception as e:
-                            errors = True
-                            self._set_suricata_states(hostname, ip_address, RULESET_STATES[3])
-                            self.notification.set_status(status=NotificationCode.ERROR.name)
-                            self.notification.set_message("Failed to synchronize Suricata rules for {}.".format(hostname))
-                            self.notification.set_exception(e)
-                            self.notification.post_to_websocket_api()
-                            rq_logger.exception(e)
+                ip_address = node.deviceFacts['default_ipv4_settings']['address']
+                hostname = node.deviceFacts['hostname']
+                with FabricConnection(ip_address, password) as fabric:
+                    try:
+                        rq_logger.info("Synchronizing Suricata signatures for {}.".format(hostname))
+                        self._sync_suricata_rulesets(fabric, ip_address, hostname)
+                    except Exception as e:
+                        errors = True
+                        self._set_suricata_states(hostname, ip_address, RULESET_STATES[3])
+                        self.notification.set_status(status=NotificationCode.ERROR.name)
+                        self.notification.set_message("Failed to synchronize Suricata rules for {}.".format(hostname))
+                        self.notification.set_exception(e)
+                        self.notification.post_to_websocket_api()
+                        rq_logger.exception(e)
 
-                        try:
-                            rq_logger.info("Synchronizing Zeek scripts, intel, and signatures for {}.".format(hostname))
-                            self._sync_zeek_items(fabric, ip_address, hostname)
-                        except Exception as e:
-                            errors = True
-                            self.notification.set_status(status=NotificationCode.ERROR.name)
-                            self.notification.set_message("Failed to synchronize Zeek scripts, intel, and signatures for {}.".format(hostname))
-                            self.notification.set_exception(e)
-                            self.notification.post_to_websocket_api()
-                            self._set_zeek_intel_states(hostname, ip_address, RULESET_STATES[3])
-                            self._set_zeek_script_states(hostname, ip_address, RULESET_STATES[3])
-                            self._set_zeek_signatures_states(hostname, ip_address, RULESET_STATES[3])
-                            rq_logger.exception(e)
+                    try:
+                        rq_logger.info("Synchronizing Zeek scripts, intel, and signatures for {}.".format(hostname))
+                        self._sync_zeek_items(fabric, ip_address, hostname)
+                    except Exception as e:
+                        errors = True
+                        self.notification.set_status(status=NotificationCode.ERROR.name)
+                        self.notification.set_message("Failed to synchronize Zeek scripts, intel, and signatures for {}.".format(hostname))
+                        self.notification.set_exception(e)
+                        self.notification.post_to_websocket_api()
+                        self._set_zeek_intel_states(hostname, ip_address, RULESET_STATES[3])
+                        self._set_zeek_script_states(hostname, ip_address, RULESET_STATES[3])
+                        self._set_zeek_signatures_states(hostname, ip_address, RULESET_STATES[3])
+                        rq_logger.exception(e)
 
             if not errors:
                 self.notification.set_status(status=NotificationCode.COMPLETED.name)
@@ -411,6 +405,7 @@ class RuleSynchronization():
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def perform_rulesync():
+    get_app_context().push()
     rs = RuleSynchronization()
     rs.sync_rulesets()
     notify_ruleset_refresh()

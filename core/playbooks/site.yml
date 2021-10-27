@@ -402,6 +402,11 @@
       command: /opt/tfplenum/scripts/retrieve_beats_certs.py
       register: result
       changed_when: result.rc == 0
+      until: result.rc == 0
+      retries: 5
+      delay: 10
+  tags:
+    - retrieve-beats-certs
 
 - name: Run Stigs
   hosts:

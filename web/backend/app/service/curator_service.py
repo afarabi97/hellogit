@@ -1,9 +1,9 @@
 
+from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.connection_mngs import REDIS_CLIENT
-from app.service.socket_service import NotificationMessage, NotificationCode
-from rq.decorators import job
 from app.utils.elastic import ElasticWrapper
-
+from app.utils.utils import get_app_context
+from rq.decorators import job
 
 _JOB_NAME = "curator"
 
@@ -23,7 +23,7 @@ def _empty_index(msg: str) -> None:
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def execute_curator(action, index_list, units, age):
-
+    get_app_context().push()
     notification = NotificationMessage(role=_JOB_NAME)
     notification.set_message("%s %s job started." % (_JOB_NAME.capitalize(), action))
     notification.set_status(NotificationCode.STARTED.name)

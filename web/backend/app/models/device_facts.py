@@ -1,28 +1,19 @@
 import json
 import os
-import re
-import uuid
-import subprocess
 import socket
+import subprocess
+from typing import Dict, List
 
-from app import api, conn_mng, REDIS_CLIENT
-from app.models import Model, DBModelNotFound, PostValidationError
-from ipaddress import IPv4Address
-from flask_restx import fields
-from flask_restx.fields import Nested
+from app.models import Model
+from flask_restx import fields, Namespace
 
-from marshmallow import Schema, post_load, validate, validates, ValidationError
-from marshmallow import fields as marsh_fields
-from pymongo.results import InsertOneResult
-from app.utils.utils import encode_password, decode_password
-from typing import List, Dict, Tuple
-
+DEVICE_FACTS_NS = Namespace("facts", description="Device facts related operations.")
 
 class Disk(Model):
     """
     A disk object which represents a logical disk on a server.
     """
-    DTO = api.model('Disk', {
+    DTO = DEVICE_FACTS_NS.model('Disk', {
         "has_root": fields.Boolean(description="Flag indicating whether or not a disk has the root of a filesystem present."),
         "name": fields.String(example="sdb", description="Name of disk / storage device."),
         "size_gb": fields.Float(example=50.0, description="The size of the storage device in GB."),
@@ -72,7 +63,7 @@ class Interface(Model):
     """
     An interface object which represents an interface on a server.
     """
-    DTO = api.model('Interface', {
+    DTO = DEVICE_FACTS_NS.model('Interface', {
         "ip_address": fields.String(example="10.40.12.146",
                                     description="Ip Address of interface not all interfaces have an ip address."),
         "mac_address": fields.String(example="00:0a:29:6e:7f:ff",
@@ -93,7 +84,7 @@ class Interface(Model):
 
 
 class DefaultIpv4Settings(Model):
-    DTO = api.model('DefaultIpv4Settings', {
+    DTO = DEVICE_FACTS_NS.model('DefaultIpv4Settings', {
         "address": fields.String(example="10.40.12.146", description="The default IP address used by the node."),
         "alias": fields.String(example="br0"),
         "broadcast": fields.String(example="10.40.12.255"),
@@ -124,7 +115,7 @@ class DeviceFacts(Model):
     A node object which represents a server weather physical or virtual with the
     following properties:
     """
-    DTO = api.model('DeviceFacts', {
+    DTO = DEVICE_FACTS_NS.model('DeviceFacts', {
         "cpus_available": fields.Integer(example=16, description="The number of CPUs on the node."),
         "default_ipv4_settings": fields.List(fields.Nested(DefaultIpv4Settings.DTO)),
         "disks": fields.List(fields.Nested(Disk.DTO)),

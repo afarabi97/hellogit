@@ -14,7 +14,7 @@ from app.models.settings.general_settings import (SETINGS_NS,
 from app.models.settings.settings_base import (SettingsBase,
                                                validate_password_stigs)
 from app.utils.constants import CORE_DIR, KIT_SETTINGS_ID, TEMPLATE_DIR
-from app.utils.db_mngs import conn_mng
+from app.utils.collections import mongo_settings
 from app.utils.utils import decode_password, encode_password
 from flask_restx import fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -83,7 +83,7 @@ class KitSettingsForm(SettingsBase):
 
     @classmethod
     def load_combined_from_db(cls, query: Dict={"_id": KIT_SETTINGS_ID}) -> dict:
-        mongo_document = conn_mng.mongo_settings.find_one(query)
+        mongo_document = mongo_settings().find_one(query)
         if mongo_document:
             kit_settings = cls.schema.load(mongo_document)
             kit_settings.password = decode_password(kit_settings.password)
@@ -96,7 +96,7 @@ class KitSettingsForm(SettingsBase):
 
     @classmethod
     def load_from_db(cls, query: Dict={"_id": KIT_SETTINGS_ID}) -> Model:
-        mongo_document = conn_mng.mongo_settings.find_one(query)
+        mongo_document = mongo_settings().find_one(query)
         if mongo_document:
             kit_settings = cls.schema.load(mongo_document)
             kit_settings.password = decode_password(kit_settings.password)
@@ -112,7 +112,7 @@ class KitSettingsForm(SettingsBase):
         self.password = encode_password(self.password)
 
         kit_settings = self.schema.dump(self)
-        conn_mng.mongo_settings.find_one_and_replace({"_id": KIT_SETTINGS_ID},
+        mongo_settings().find_one_and_replace({"_id": KIT_SETTINGS_ID},
                                                       kit_settings,
                                                       upsert=True)  # type: InsertOneResult
         self.password = decode_password(self.password)

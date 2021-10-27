@@ -6,12 +6,12 @@ Main module that controls the REST calls for the portal page.
 from app.common import cursor_to_json_response
 from app.middleware import operator_required
 from app.service.portal_service import get_portal_links
-from app.utils.db_mngs import conn_mng
+from app.utils.collections import mongo_user_links
 from bson import ObjectId
 from flask import Response, request
 from flask_restx import Namespace, Resource
 
-PORTAL_NS = Namespace("portal", path="/api/portal", description="Portal related operations.")
+PORTAL_NS = Namespace("portal", description="Portal related operations.")
 
 @PORTAL_NS.route('/links')
 class PortalLinks(Resource):
@@ -25,14 +25,14 @@ class PortalLinks(Resource):
 
 
 def get_user_links():
-    user_links = conn_mng.mongo_user_links.find({})
+    user_links = mongo_user_links().find({})
     return cursor_to_json_response(user_links, fields = ['name', 'url', 'description'], sort_field = 'name')
 
 @PORTAL_NS.route('/user/links')
 class UserLinks(Resource):
     def get(self) -> Response:
         """
-        Send all links in mongo_user_links.
+        Send all links in mongo_user_links().
         :return: flask.Response containing all link data.
         """
         return get_user_links()
@@ -40,15 +40,15 @@ class UserLinks(Resource):
     @operator_required
     def post(self) -> Response:
         """
-        Add a new link to mongo_user_links.
+        Add a new link to mongo_user_links().
         :return: flask.Response containing all user link data, including the new
         one.
         """
         link_data = request.get_json()
-        matches = conn_mng.mongo_user_links.find({'name': link_data['name']}).count()
-        matches += conn_mng.mongo_user_links.find({'url': link_data['url']}).count()
+        matches = mongo_user_links().find({'name': link_data['name']}).count()
+        matches += mongo_user_links().find({'url': link_data['url']}).count()
         if matches == 0:
-            conn_mng.mongo_user_links.insert_one(link_data)
+            mongo_user_links().insert_one(link_data)
         return get_user_links()
 
 @PORTAL_NS.route('/user/links/<link_id>')
@@ -61,5 +61,5 @@ class DelUserLinks(Resource):
         :return: flask.Response containing all user link data, with the specified
         link removed.
         """
-        conn_mng.mongo_user_links.delete_one({'_id': ObjectId(link_id)})
+        mongo_user_links().delete_one({'_id': ObjectId(link_id)})
         return get_user_links()

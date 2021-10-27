@@ -4,7 +4,7 @@ from flask_restx import fields, Namespace
 from app.utils.constants import  RULESET_STATES, RULE_TYPES
 from typing import List, Dict
 
-POLICY_NS = Namespace('policy', path="/api/policy", description="Policy management related operations for Suricata and Zeek.")
+POLICY_NS = Namespace('policy', description="Policy management related operations for Suricata and Zeek.")
 
 class SimpleSensor(Model):
     DTO = POLICY_NS.model('SimpleSensor', {

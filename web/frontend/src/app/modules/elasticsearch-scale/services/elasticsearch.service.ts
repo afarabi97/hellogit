@@ -99,7 +99,7 @@ export class ElasticsearchService extends ApiService<any> implements Elasticsear
    * @memberof ElasticsearchService
    */
   deploy_elastic(): Observable<void> {
-    return this.httpClient_.get<void>(environment.ELASTICSEARCH_SERVICE_DEPLOY_ELASTIC)
+    return this.httpClient_.post<void>(environment.ELASTICSEARCH_SERVICE_DEPLOY_ELASTIC, HTTP_OPTIONS)
       .pipe(catchError((error: HttpErrorResponse) => this.handleError('elasticsearch deploy', error)));
   }
 

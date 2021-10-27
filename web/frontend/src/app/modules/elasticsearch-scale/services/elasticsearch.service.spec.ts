@@ -285,7 +285,7 @@ describe('ElasticsearchService', () => {
         const xhrURL: string = environment.ELASTICSEARCH_SERVICE_DEPLOY_ELASTIC;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
-        expect(xhrRequest.request.method).toEqual(getType);
+        expect(xhrRequest.request.method).toEqual(postType);
 
         xhrRequest.flush(null);
 

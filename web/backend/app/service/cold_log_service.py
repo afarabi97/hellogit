@@ -1,25 +1,22 @@
-import os
-
 import shutil
-import tempfile
-import traceback
-
-from app import app, conn_mng, TEMPLATE_DIR, REDIS_CLIENT
-from app.utils.logging import rq_logger
-from app.models.cold_log import ColdLogUploadModel, WinlogbeatInstallModel
-from app.service.job_service import run_command2
-from app.service.socket_service import NotificationMessage, NotificationCode
-from app.service.job_service import AsyncJob
-from elasticsearch import Elasticsearch
-from rq.decorators import job
-from app.utils.tfwinrm_util import (configure_and_run_winlogbeat_for_cold_log_ingest, install_winlogbeat_for_cold_log_ingest)
-from app.utils.utils import zip_package, TfplenumTempDir
 from pathlib import Path
-from app.utils.constants import BEATS_IMAGE_VERSIONS, ColdLogModules
-from typing import List, Dict
-from jinja2 import Environment, select_autoescape, FileSystemLoader
-from app.utils.elastic import ElasticWrapper, get_elastic_password, get_elastic_service_ip, get_elastic_fqdn
+from typing import Dict, List
 
+from app.models.cold_log import ColdLogUploadModel, WinlogbeatInstallModel
+from app.service.job_service import AsyncJob, run_command2
+from app.service.socket_service import NotificationCode, NotificationMessage
+from app.utils.connection_mngs import REDIS_CLIENT
+from app.utils.constants import (BEATS_IMAGE_VERSIONS, TEMPLATE_DIR,
+                                 ColdLogModules)
+from app.utils.elastic import (ElasticWrapper, get_elastic_password,
+                               get_elastic_service_ip)
+from app.utils.logging import rq_logger
+from app.utils.tfwinrm_util import (
+    configure_and_run_winlogbeat_for_cold_log_ingest,
+    install_winlogbeat_for_cold_log_ingest)
+from app.utils.utils import TfplenumTempDir, get_app_context, zip_package
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from rq.decorators import job
 
 JOB_NAME = "process_logs"
 INSTALL_WINLOGBEAT_JOB_NAME = "winlogbeat_install"
@@ -88,7 +85,7 @@ class ColdLogsProcessor:
             "index": "",
             "send_to_logstash": self._send_to_logstash
         }
-        self._log_files = None # type: List (EX: ["/abs/path/test.evtx", "/abs/pathcool.evtx"])
+        self._log_files = None # type: List
         self._log_names = None # type: List
 
     def _generate_certs_if_not_exists(self, cert_location: str):
@@ -258,7 +255,7 @@ class ColdLogsProcessor:
 
             rq_logger.debug(run_cmd)
             job = AsyncJob(JOB_NAME.capitalize(), "", run_cmd, use_shell=True)
-            result = job.run_asycn_command()
+            result = job.run_async_command()
             self._remove_lifecyle_settings_from_index()
             return result
 
@@ -267,6 +264,7 @@ class ColdLogsProcessor:
 def process_cold_logs(model_dict: Dict,
                       logs: List[str],
                       tmpdirname: str):
+    get_app_context().push()
     desc = "Cold Log Ingestion"
     notification = NotificationMessage(role=JOB_NAME)
     try:
@@ -313,6 +311,7 @@ def process_cold_logs(model_dict: Dict,
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def install_winlogbeat_srv():
+    get_app_context().push()
     try:
         model = WinlogbeatInstallModel()
         model.initalize_from_mongo()

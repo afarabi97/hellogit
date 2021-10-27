@@ -25,5 +25,8 @@ def _setup_logger(log_handle: Logger, log_file_name: str, max_bytes: int=1000000
     log_handle.addHandler(handler)
 
 def init_loggers():
-    _setup_logger(logger, TFPLENUM_LOG_FILENAME)
-    _setup_logger(rq_logger, REDIS_QUEUE_LOG_FILENAME)
+    try:
+        _setup_logger(logger, TFPLENUM_LOG_FILENAME)
+        _setup_logger(rq_logger, REDIS_QUEUE_LOG_FILENAME)
+    except Exception as exc:
+        pass

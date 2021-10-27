@@ -1,14 +1,12 @@
 import datetime
-
-from app import app, conn_mng, REDIS
-from app.utils.logging import rq_logger
 from enum import Enum
-from flask_socketio import SocketIO
-from uuid import uuid4
-from pymongo.errors import AutoReconnect
-from typing import Dict, Tuple, List
 from time import sleep
 
+from app.utils.constants import REDIS
+from app.utils.collections import mongo_console, mongo_notifications
+from app.utils.logging import rq_logger
+from flask_socketio import SocketIO
+from pymongo.errors import AutoReconnect
 
 socketio = SocketIO(message_queue=REDIS)
 
@@ -85,7 +83,7 @@ class NotificationMessage(object):
     def post_to_websocket_api(self) -> None:
         try:
             notification = self.to_json()
-            result = conn_mng.mongo_notifications.insert_one(notification)
+            result = mongo_notifications().insert_one(notification)
             if result and result.inserted_id:
                 notification["_id"] = str(result.inserted_id)
             socketio.emit(self.message_type, notification, broadcast=True)
@@ -127,7 +125,7 @@ def log_to_console(job_name: str, jobid: str, text: str, color: str=None) -> Non
 
     socketio.emit('message', log, broadcast=True)
     try:
-        res = conn_mng.mongo_console.insert_one(log)
+        res = mongo_console().insert_one(log)
     except AutoReconnect as exc:
         rq_logger.error(str(exc))
         pass
@@ -148,4 +146,5 @@ def notify_node_management(kit_status: dict, node_data: dict):
     socketio.emit('kit-status-change', kit_status, broadcast=True)
     socketio.emit('node-state-change', node_data, broadcast=True)
 
-
+def notify_diag():
+    socketio.emit("diagnostics_finished_running", True, broadcast=True)

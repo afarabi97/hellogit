@@ -16,6 +16,8 @@ UPGRADES_DIR = SHARED_DIR / '../../../../upgrades'
 AGENT_PKGS_DIR = SHARED_DIR / '../../../../agent_pkgs'
 MIP_DIR = SHARED_DIR / '../../../../mip'
 TEMPLATE_DIR = SHARED_DIR / '../templates'  # type: Path
+SCRIPTS_DIR = SHARED_DIR / '../../../../scripts'
+PROJECT_ROOT_DIR = SHARED_DIR / '../../../..'
 
 TFPLENUM_LOG_FILENAME = "/var/log/tfplenum/tfplenum.log"
 REDIS_QUEUE_LOG_FILENAME = "/var/log/tfplenum/rq.log"
@@ -51,6 +53,7 @@ ZEEK_SIG_PATH = "/opt/tfplenum/zeek/custom.sig"
 
 SURICATA_RULESET_LOC = "/opt/tfplenum/suricata/rules/suricata.rules"
 BRO_CUSTOM_DIR = "/opt/tfplenum/zeek/scripts/"
+CA_BUNDLE = "/etc/pki/tls/certs/ca-bundle.crt"
 
 REDIS = 'redis://'
 

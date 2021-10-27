@@ -1,11 +1,14 @@
 import json
-from app import conn_mng
 from app.models import Model
 from app.utils.constants import WINDOWS_COLD_LOG_CONFIG_ID
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import ImmutableMultiDict
 from werkzeug.datastructures import FileStorage
 from typing import Dict
+from flask_restx import Namespace
+from app.utils.collections import mongo_configurations
+
+COLDLOG_NS = Namespace("coldlog", description="Cold log service operations.")
 
 class ColdLogUploadModel(Model):
 
@@ -82,16 +85,16 @@ class WinlogbeatInstallModel(Model):
         self.password = self.b64encode_string(self.password)
         payload = self.to_dict()
         payload["_id"] = WINDOWS_COLD_LOG_CONFIG_ID
-        conn_mng.mongo_configurations.find_one_and_replace({"_id": WINDOWS_COLD_LOG_CONFIG_ID},
+        mongo_configurations().find_one_and_replace({"_id": WINDOWS_COLD_LOG_CONFIG_ID},
                                                            payload,
                                                            upsert=True)
 
     def is_configured(self) -> bool:
-        ret_val = conn_mng.mongo_configurations.find_one({"_id": WINDOWS_COLD_LOG_CONFIG_ID})
+        ret_val = mongo_configurations().find_one({"_id": WINDOWS_COLD_LOG_CONFIG_ID})
         return ret_val != None
 
     def initalize_from_mongo(self):
-        ret_val = conn_mng.mongo_configurations.find_one({"_id": WINDOWS_COLD_LOG_CONFIG_ID})
+        ret_val = mongo_configurations().find_one({"_id": WINDOWS_COLD_LOG_CONFIG_ID})
         if ret_val:
             self.windows_host = ret_val["windows_host"]
             self.winrm_port = ret_val["winrm_port"]

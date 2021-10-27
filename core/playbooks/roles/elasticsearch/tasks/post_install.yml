@@ -127,7 +127,7 @@
 - name: Load Deploy into controller mongo
   uri:
     method: GET
-    url: "https://{{ ansible_controller_hostname }}/api/load_elastic_deploy?override=1"
+    url: "https://{{ ansible_controller_hostname }}/api/tools/elastic/deploy?override=1"
     validate_certs: no
     status_code: 200, 201
     headers:

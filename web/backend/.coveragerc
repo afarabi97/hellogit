@@ -1,0 +1,7 @@
+[report]
+show_missing = True
+omit =
+    tests/*
+    wsgi.py
+    setup_vpn.py
+    preload_rules.py

@@ -1,28 +1,20 @@
-
-import io
-import yaml
-import traceback
-from time import sleep
-from typing import Dict
-import json
-from datetime import datetime, timedelta
-from elasticsearch.exceptions import TransportError
-from elasticsearch import Elasticsearch
-from fabric import Connection
-from rq.decorators import job
-from kubernetes import client, config, utils
-from app import conn_mng, REDIS_CLIENT
-from app.utils.logging import logger
-from app.service.socket_service import NotificationMessage, NotificationCode
-from app.utils.elastic import ElasticWrapper, ElasticsearchManager
-from app.service.scale_service import check_scale_status
-from app.dao import elastic_deploy
-
-from kubernetes.client.rest import ApiException
-from pprint import pprint
 import base64
 import os
+import traceback
+from datetime import datetime, timedelta
+from time import sleep
+from typing import Dict
 
+import yaml
+from app.models.scale import read
+from app.service.scale_service import check_scale_status
+from app.service.socket_service import NotificationCode, NotificationMessage
+from app.utils.connection_mngs import REDIS_CLIENT
+from app.utils.elastic import ElasticsearchManager, ElasticWrapper
+from app.utils.logging import logger
+from app.utils.utils import get_app_context
+from kubernetes import client, config
+from rq.decorators import job
 
 _JOB_NAME = "tools"
 ELASTIC_OP_GROUP = "elasticsearch.k8s.elastic.co"
@@ -42,7 +34,7 @@ class Timeout(Exception):
 def apply_es_deploy(run_check_scale_status: bool=True):
     notification = NotificationMessage(role=_JOB_NAME)
     try:
-        deploy_config = elastic_deploy.read()
+        deploy_config = read()
         deploy_config_yaml = yaml.dump(deploy_config)
         if not config.load_kube_config():
             config.load_kube_config()
@@ -150,6 +142,7 @@ def wait_for_elastic_cluster_ready(minutes=10):
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def setup_s3_repository(service_ip: str, repository_settings: Dict):
+    get_app_context().push()
     notification = NotificationMessage(role=_JOB_NAME)
     notification.set_message("Updating the Elastic S3 repository settings.")
     notification.set_status(NotificationCode.IN_PROGRESS.name)
@@ -195,6 +188,7 @@ def get_elasticsearch_license() -> dict:
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def check_elastic_license(current_license: dict):
+    get_app_context().push()
     future_time = datetime.utcnow() + timedelta(minutes=10)
     notification = NotificationMessage(role=_JOB_NAME)
     notification.set_message("Checking for Elastic license updates")

@@ -1,11 +1,11 @@
 from app.common import OK_RESPONSE, JSONEncoder
 from app.middleware import controller_maintainer_required
-from app.utils.db_mngs import conn_mng
+from app.utils.collections import mongo_notifications
 from bson import ObjectId
 from flask import Response
 from flask_restx import Namespace, Resource
 
-NOTIFICATIONS_NS = Namespace("notifications", path="/api/notifications", description="Notifications for CVAH UI.")
+NOTIFICATIONS_NS = Namespace("notifications", description="Notifications for CVAH UI.")
 
 @NOTIFICATIONS_NS.route('')
 class Notifications(Resource):
@@ -16,7 +16,7 @@ class Notifications(Resource):
         Gets all notifications from mongodb
 
         """
-        notifications = list(conn_mng.mongo_notifications.find({}))
+        notifications = list(mongo_notifications().find({}))
         for notification in notifications:
             notification["_id"] = str(notification["_id"])
         return notifications
@@ -28,7 +28,7 @@ class Notifications(Resource):
         Delete all notifications from mongodb
 
         """
-        conn_mng.mongo_notifications.delete_many({})
+        mongo_notifications().delete_many({})
         return OK_RESPONSE
 
 
@@ -44,5 +44,5 @@ class DeleteNotifications(Resource):
         :param _id: notification id
         """
 
-        conn_mng.mongo_notifications.delete_one({"_id": ObjectId(notification_id)})
+        mongo_notifications().delete_one({"_id": ObjectId(notification_id)})
         return OK_RESPONSE

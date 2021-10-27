@@ -1,9 +1,9 @@
-from app import api
 from app.models import Model
-from flask_restx import fields
+from flask_restx import fields, Namespace
 
+TOOLS_NS = Namespace("tools", description="Tools page related operations.")
 
-COMMON_TOOLS_RETURNS = api.model('Spaces', {
+COMMON_TOOLS_RETURNS = TOOLS_NS.model('Spaces', {
     "spaces": fields.List(fields.String(example="THISISCVAH"),
                         example=["THISISCVAH", "TACTICS"],
                         description="The confluence space names or an arbitrary name.")
@@ -11,7 +11,7 @@ COMMON_TOOLS_RETURNS = api.model('Spaces', {
 
 
 class NewPasswordModel(Model):
-    DTO = api.model('NewPassword', {
+    DTO = TOOLS_NS.model('NewPassword', {
         "root_password": fields.String(required=True, example="Password!123456",
                                        description="The new password of the Kit.")
     })
@@ -21,7 +21,7 @@ class NewPasswordModel(Model):
 
 
 class NetworkDeviceStateModel(Model):
-    DTO = api.model('NetworkDeviceState', {
+    DTO = TOOLS_NS.model('NetworkDeviceState', {
         "node": fields.String(example="sensor1.lan",
                               description="The FQDN or hostname of the node."),
         "device": fields.String(example="ens192",
@@ -40,7 +40,7 @@ class NetworkDeviceStateModel(Model):
 
 
 class NetworkInterfaceModel(Model):
-    DTO = api.model('NetworkInterface', {
+    DTO = TOOLS_NS.model('NetworkInterface', {
         "name": fields.String(example="ens192",
                               description="The name of the network interface card (NIC)."),
         "state": fields.String(example="up",
@@ -56,7 +56,7 @@ class NetworkInterfaceModel(Model):
 
 
 class InitalDeviceStatesModel(Model):
-    DTO = api.model('InitalDeviceStates', {
+    DTO = TOOLS_NS.model('InitalDeviceStates', {
         "node": fields.String(example="sensor1.lan",
                               description="The FQDN or hostname of the node."),
         "interfaces": fields.List(fields.Nested(NetworkInterfaceModel.DTO))

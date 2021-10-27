@@ -19,7 +19,7 @@ from app.resources import (convert_gib_to_kib, convert_kib_to_gib,
 from app.service.job_service import run_command
 from app.utils import snmp
 from app.utils.connection_mngs import KubernetesWrapper, objectify
-from app.utils.db_mngs import conn_mng
+from app.utils.collections import mongo_metrics, mongo_kit_tokens
 from app.utils.elastic import ElasticWrapper
 from app.utils.logging import logger
 from bson import ObjectId
@@ -62,7 +62,7 @@ def is_ready_or_succeeded(pod: V1Pod) -> bool:
     return False
 
 def get_event_warnings(pod: V1Pod) -> V1EventList:
-    with KubernetesWrapper(conn_mng) as kube_apiv1:
+    with KubernetesWrapper() as kube_apiv1:
         field_selector = f"involvedObject.uid={pod.metadata.uid},type=Warning"
         try:
             return kube_apiv1.list_event_for_all_namespaces(field_selector=field_selector) # type: V1EventList
@@ -199,8 +199,8 @@ def get_node_hostname(node: V1Node) -> str:
             return address.address
 
 def get_storage(hostname: str) -> Optional[list]:
-    root_usage = conn_mng.mongo_metrics.find_one({"hostname": hostname, "name": "root_usage"})
-    data_usage = conn_mng.mongo_metrics.find_one({"hostname": hostname, "name": "data_usage"})
+    root_usage = mongo_metrics().find_one({"hostname": hostname, "name": "root_usage"})
+    data_usage = mongo_metrics().find_one({"hostname": hostname, "name": "data_usage"})
     storage = []
     if root_usage:
         storage.append({"name": "root", "free": root_usage["value"]["free"], "percent": root_usage["value"]["percent"]})
@@ -211,13 +211,13 @@ def get_storage(hostname: str) -> Optional[list]:
     return None
 
 def get_cpu(hostname: str) -> Optional[int]:
-    cpu_percent = conn_mng.mongo_metrics.find_one({"hostname": hostname, "name": "cpu_percent"})
+    cpu_percent = mongo_metrics().find_one({"hostname": hostname, "name": "cpu_percent"})
     if cpu_percent:
         return cpu_percent["value"]
     return None
 
 def get_memory(hostname: str) -> Optional[dict]:
-    memory = conn_mng.mongo_metrics.find_one({"hostname": hostname, "name": "memory"})
+    memory = mongo_metrics().find_one({"hostname": hostname, "name": "memory"})
     if memory:
         return {
             "available": memory["value"]["available"],
@@ -320,7 +320,7 @@ def get_pod_metrics(pod: V1Pod) -> dict:
     return _metrics
 
 def _get_nodes_status() -> List[dict]:
-    with KubernetesWrapper(conn_mng) as kube_apiv1:
+    with KubernetesWrapper() as kube_apiv1:
         pods = kube_apiv1.list_pod_for_all_namespaces(watch=False) # type: V1PodList
         nodes = kube_apiv1.list_node() # type: V1NodeList
 
@@ -329,7 +329,7 @@ def _get_nodes_status() -> List[dict]:
         return _node_metrics
 
 def _get_pods_status() -> List[dict]:
-    with KubernetesWrapper(conn_mng) as kube_apiv1:
+    with KubernetesWrapper() as kube_apiv1:
         pods = kube_apiv1.list_pod_for_all_namespaces(watch=False) # type: V1PodList
 
         _pod_metrics = list(map(lambda pod: get_pod_metrics(pod), pods.items))
@@ -354,7 +354,7 @@ class PodLogsCtrl(Resource):
     @KUBERNETES_NS.doc(description="Runs a command and pulls the pods describe command output.")
     def get(self, pod_name: str, namespace: str) -> Response:
         logs = []
-        with KubernetesWrapper(conn_mng) as kube_apiv1:
+        with KubernetesWrapper() as kube_apiv1:
             pod = kube_apiv1.read_namespaced_pod(pod_name, namespace) # type: V1PodList
             pod = pod.to_dict()
             containers = []
@@ -411,7 +411,7 @@ class PodsStatus(Resource):
 class RemoteNodesStatus(Resource):
     def get(self, token_id: str) -> Response:
         try:
-            response = conn_mng.mongo_kit_tokens.find_one({"_id": ObjectId(token_id)})
+            response = mongo_kit_tokens().find_one({"_id": ObjectId(token_id)})
             node_status = response['node_status']
             return node_status
 
@@ -423,7 +423,7 @@ class RemoteNodesStatus(Resource):
 class RemotePodsStatus(Resource):
     def get(self, token_id: str) -> Response:
         try:
-            response = conn_mng.mongo_kit_tokens.find_one({"_id": ObjectId(token_id)})
+            response = mongo_kit_tokens().find_one({"_id": ObjectId(token_id)})
             pod_status = response['pod_status']
             return pod_status
 
@@ -469,7 +469,7 @@ class RemoteAgent(Resource):
             payload = request.get_json()
             payload["timestamp"] = time.time()
             ipaddress = payload['ipaddress']
-            conn_mng.mongo_kit_tokens.replace_one({"ipaddress": ipaddress}, payload)
+            mongo_kit_tokens().replace_one({"ipaddress": ipaddress}, payload)
             return NO_CONTENT
         except Exception as e:
             logger.exception(e)
@@ -518,7 +518,7 @@ class RemoteWriteRejects(Resource):
     @APP_NS.response(204, 'Remote Elasticsearch Write Rejects', [fields.Raw()])
     def get(self, ipaddress: str) -> Response:
         try:
-            response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})
+            response = mongo_kit_tokens().find_one({"ipaddress": ipaddress})
             write_rejects = response['write_rejects']
             return write_rejects
 
@@ -572,7 +572,7 @@ class ZeekPackets(Resource):
         client = ElasticWrapper()
 
         try:
-            with KubernetesWrapper(conn_mng) as kube_apiv1:
+            with KubernetesWrapper() as kube_apiv1:
                 node_info = kube_apiv1.list_node().items
                 for node in node_info:
                     if node.metadata.labels['role'] == 'sensor':
@@ -615,7 +615,7 @@ class SuricataPackets(Resource):
         drops_command = "cat /var/log/suricata/stats.log | grep capture.kernel_drops | tail -n 1 | awk '{print $5}'"
 
         try:
-            with KubernetesWrapper(conn_mng) as kube_apiv1:
+            with KubernetesWrapper() as kube_apiv1:
                 nodes = []
                 suricata_stats = []
 
@@ -661,7 +661,7 @@ class RemoteZeekPackets(Resource):
     @APP_NS.response(200, 'Remote Zeek Packets')
     def get(self, ipaddress: str) -> Response:
         try:
-            response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})
+            response = mongo_kit_tokens().find_one({"ipaddress": ipaddress})
             zeek_packets = response['zeek']
             return zeek_packets
 
@@ -674,7 +674,7 @@ class RemoteSuricataPackets(Resource):
     @APP_NS.response(200, 'Remote Suricata Packets')
     def get(self, ipaddress: str) -> Response:
         try:
-            response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})
+            response = mongo_kit_tokens().find_one({"ipaddress": ipaddress})
             suricata_packets = response['suricata']
             return suricata_packets
 
@@ -691,7 +691,7 @@ class Metrics(Resource):
         replaced = []
         for document in data:
             try:
-                conn_mng.mongo_metrics.find_one_and_replace({"hostname": document['hostname'], "name": document["name"], "type": document["type"]}, document, upsert=True)
+                mongo_metrics().find_one_and_replace({"hostname": document['hostname'], "name": document["name"], "type": document["type"]}, document, upsert=True)
                 replaced.append(document)
             except Exception as e:
                 logger.exception(e)

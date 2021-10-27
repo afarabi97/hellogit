@@ -1,8 +1,8 @@
 from app.models import Model
 from flask_restx import fields, Namespace
 
-APP_NS = Namespace("app", path="/api/app", description="Health page related operations.")
-HEALTH_NS = Namespace("health", path="/api/health", description="Health page related operations.")
+APP_NS = Namespace("app", description="Health page related operations.")
+HEALTH_NS = Namespace("health", description="Health page related operations.")
 
 class DatastoreModel(Model):
     DTO = HEALTH_NS.model('Datastore', {

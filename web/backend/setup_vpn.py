@@ -37,7 +37,7 @@ class Vpn():
     def cancel_deploy_job(self):
         if self.deploy_job:
             if not self.deploy_job["complete"] and not self.deploy_job["error"]:
-                url = "https://localhost/api/job/{}".format(self.deploy_job["job_id"])
+                url = "https://localhost/api/jobs/{}".format(self.deploy_job["job_id"])
                 req = requests.delete(url=url, headers=self.headers, verify=False) # type: Response
                 if req.status_code == 200:
                     print("{} deploy job cancelled.".format(self.node["hostname"]))

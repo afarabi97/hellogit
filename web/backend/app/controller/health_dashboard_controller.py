@@ -6,12 +6,12 @@ from app.common import ERROR_RESPONSE
 from app.middleware import login_required_roles
 from app.models.health import APP_NS, HEALTH_NS
 from app.utils.connection_mngs import KubernetesWrapper
-from app.utils.db_mngs import conn_mng
 from app.utils.elastic import ElasticWrapper, get_elastic_password
 from app.utils.logging import logger
 from app.utils.utils import get_domain
 from flask import Response
 from flask_restx import Resource, fields
+from app.utils.collections import mongo_settings, mongo_kit_tokens
 
 
 def client_session(username: str, password: str) -> object:
@@ -22,7 +22,7 @@ def client_session(username: str, password: str) -> object:
 
 def get_kibana_ipaddress():
     try:
-        with KubernetesWrapper(conn_mng) as api:
+        with KubernetesWrapper() as api:
             services = api.list_service_for_all_namespaces()
             for service in services.items:
                 name = service.metadata.name
@@ -65,7 +65,7 @@ class RemoteHealthDashboardStatus(Resource):
     def get(self) -> Response:
         try:
             response = []
-            for kit_token in conn_mng.mongo_kit_tokens.find():
+            for kit_token in mongo_kit_tokens().find():
                 kit_token_id = str(kit_token.pop("_id"))
                 kit_token["kit_token_id"] = kit_token_id
                 response.append(kit_token)
@@ -101,7 +101,7 @@ class Hostname(Resource):
     @HEALTH_NS.response(200, 'Hostname', fields.String())
     def get(self) -> Response:
         try:
-            response = conn_mng.mongo_settings.find_one({"_id": "general_settings_form"})
+            response = mongo_settings().find_one({"_id": "general_settings_form"})
             hostname = "controller.{}".format(response['domain'])
             return hostname
         except Exception as e:
@@ -119,7 +119,7 @@ class KibanaLoginInfo(Resource):
             elastic_password = get_elastic_password()
             print(elastic_password)
 
-            with KubernetesWrapper(conn_mng) as api:
+            with KubernetesWrapper() as api:
                 services = api.list_service_for_all_namespaces()
                 for service in services.items:
                     name = service.metadata.name
@@ -139,7 +139,7 @@ class RemoteKibanaLoginInfo(Resource):
     @APP_NS.response(200, 'Kibana Login')
     def get(self, ipaddress:str) -> Response:
         try:
-            response = conn_mng.mongo_kit_tokens.find_one({"ipaddress": ipaddress})
+            response = mongo_kit_tokens().find_one({"ipaddress": ipaddress})
             kibana_info = response['kibana_info']
             return kibana_info
 

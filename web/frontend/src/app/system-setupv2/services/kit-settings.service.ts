@@ -167,7 +167,7 @@ export class KitSettingsService {
   }
 
   getJob(jobId: string){
-    const url = `/api/job/${jobId}`;
+    const url = `/api/jobs/${jobId}`;
     return this.http.get(url).pipe();
   }
 

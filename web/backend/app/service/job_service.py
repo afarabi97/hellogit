@@ -53,7 +53,7 @@ class AsyncJob:
     def job_name(self):
         return self._job_name
 
-    def run_asycn_command(self) -> int:
+    def run_async_command(self) -> int:
         if not self._use_shell:
             self._command = shlex.split(self._command)
 

@@ -4,7 +4,7 @@ from app.common import (CONFLICT_RESPONSE, ERROR_RESPONSE, NO_CONTENT,
                         NOTFOUND_RESPONSE)
 from app.middleware import login_required_roles
 from app.models.kit_tokens import TOKEN_NS, kit_token, kit_token_list
-from app.utils.db_mngs import conn_mng
+from app.utils.collections import mongo_kit_tokens
 from app.utils.logging import logger
 from bson import ObjectId
 from flask import Response, request
@@ -25,7 +25,7 @@ class KitTokens(Resource):
     def get(self) -> Response:
         try:
             response = []
-            for kit_token in conn_mng.mongo_kit_tokens.find():
+            for kit_token in mongo_kit_tokens().find():
                 kit_token_id = str(kit_token.pop("_id"))
                 kit_token["kit_token_id"] = kit_token_id
                 response.append(kit_token)
@@ -43,12 +43,12 @@ class KitTokens(Resource):
             kit_token = data.copy()
             kit_token["token"] = generate_api_key(kit_token["ipaddress"])
 
-            if conn_mng.mongo_kit_tokens.find_one({"ipaddress": kit_token["ipaddress"]}):
+            if mongo_kit_tokens().find_one({"ipaddress": kit_token["ipaddress"]}):
                 return CONFLICT_RESPONSE
 
             object_id = ObjectId()
             kit_token["_id"] = object_id
-            conn_mng.mongo_kit_tokens.insert_one(kit_token)
+            mongo_kit_tokens().insert_one(kit_token)
 
             kit_token["kit_token_id"] = str(object_id)
             del kit_token["_id"]
@@ -65,7 +65,7 @@ class KitTokens(Resource):
     @login_required_roles(['controller-admin','controller-maintainer'], all_roles_req=False)
     def delete(self, kit_token_id) -> Response:
         try:
-            document = conn_mng.mongo_kit_tokens.delete_one({"_id": ObjectId(kit_token_id)})
+            document = mongo_kit_tokens().delete_one({"_id": ObjectId(kit_token_id)})
             if document.deleted_count == 0:
                 return NOTFOUND_RESPONSE
             else:

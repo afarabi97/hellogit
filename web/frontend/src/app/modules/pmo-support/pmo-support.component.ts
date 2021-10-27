@@ -187,7 +187,7 @@ export class PmoSupportComponent implements OnInit {
           }
           /* istanbul ignore else */
           if (response.type === HttpEventType.Response) {
-            saveAs(response.body, 'diagnostics.zip');
+            saveAs(response.body, 'diagnostics.tar.gz');
             this.diagnostics_job_id = null;
             this.diagnostics_download_progress = null;
           }

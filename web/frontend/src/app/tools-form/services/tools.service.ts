@@ -112,7 +112,7 @@ export class ToolsService extends ApiService<any> {
   }
 
   getIfaceStates(hostname: string): Observable<Object> {
-    const url = `/api/ifaces/${hostname}`;
+    const url = `/api/tools/ifaces/${hostname}`;
     return this.httpClient_.get(url).pipe(catchError((err: any) => this.handleError('interfaces', err)));
   }
 

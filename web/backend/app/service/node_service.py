@@ -17,6 +17,7 @@ from app.utils.constants import (CORE_DIR, DEPLOYMENT_JOBS, DEPLOYMENT_TYPES,
                                  JOB_CREATE, JOB_DEPLOY, JOB_PROVISION,
                                  JOB_REMOVE, LOG_PATH, MIP_DIR, NODE_TYPES)
 from app.utils.logging import rq_logger
+from app.utils.utils import get_app_context
 from rq import get_current_job
 from rq.decorators import job
 from rq.timeouts import JobTimeoutException
@@ -134,7 +135,7 @@ def get_kit_status() -> dict:
 
 def _execute_job(cmd_object: Command) -> bool:
     async_job = AsyncJob(job_name=cmd_object.job_name, job_id=cmd_object.job_id, command=cmd_object.command, working_dir=cmd_object.cwd_dir, use_shell=True)
-    ret_val = async_job.run_asycn_command()
+    ret_val = async_job.run_async_command()
     if ret_val == 0:
         return True
     return False
@@ -144,6 +145,7 @@ def send_notification() -> None:
 
 @job('default', connection=REDIS_CLIENT, timeout="5m")
 def update_device_facts_job(node: Node, settings: Union[KitSettingsForm, MipSettingsForm]) -> None:
+    get_app_context().push()
     try:
         notification = NotificationMessage(role=_JOB_NAME_NOTIFICATION.lower())
         device_facts = create_device_facts_from_ansible_setup(str(node.ip_address), settings.password)
@@ -160,6 +162,7 @@ def update_device_facts_job(node: Node, settings: Union[KitSettingsForm, MipSett
 
 @job('default', connection=REDIS_CLIENT, timeout="120m")
 def gather_device_facts(node: Node, settings: Union[KitSettingsForm, MipSettingsForm]):
+    get_app_context().push()
     try:
         JOB_TIMEOUT = 90
         future_time = datetime.utcnow() + timedelta(minutes=JOB_TIMEOUT)
@@ -274,6 +277,7 @@ class NodeService():
         # Setup Controller Run on Save General Settings
         elif self.exec_type == DEPLOYMENT_JOBS.setup_controller:
             settings = GeneralSettingsForm.load_from_db() # type: GeneralSettingsForm
+            rq_logger.debug(settings)
             settings.job_id = self.job_id
             settings.job_completed = False
             settings.save_to_db()
@@ -366,6 +370,7 @@ class NodeService():
 
 @job('default', connection=REDIS_CLIENT, timeout="120m")
 def execute(exec_type: DEPLOYMENT_JOBS=DEPLOYMENT_JOBS.base_kit, stage: str=JOB_CREATE, node: Union[Node, List[Node]]=None):
+    get_app_context().push()
     try:
         success = False
         job_id = get_current_job().id
@@ -421,7 +426,7 @@ def execute(exec_type: DEPLOYMENT_JOBS=DEPLOYMENT_JOBS.base_kit, stage: str=JOB_
 
 @job('default', connection=REDIS_CLIENT, timeout="120m")
 def refresh_kit(nodes: List[Node], new_control_plane: List[Node]):
-
+    get_app_context().push()
     notification = NotificationMessage(role=_JOB_NAME_NOTIFICATION.lower())
     notification.set_and_send(message="Kit Refresh started.",
         status=NotificationCode.STARTED.name)
