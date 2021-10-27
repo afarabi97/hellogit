@@ -1,14 +1,16 @@
-import requests
 import random
-import time
-import urllib3
 import sys
-from util.connection_mngs import FabricConnectionWrapper
-from models.verodin import VerodinSettings
-from models.ctrl_setup import HwControllerSetupSettings
-from models.node import HardwareNodeSettingsV2
-from models.kit import KitSettingsV2
+import time
 from typing import List
+
+import requests
+import urllib3
+from util.api_tester import APITesterV2
+from models.ctrl_setup import HwControllerSetupSettings
+from models.kit import KitSettingsV2
+from models.node import HardwareNodeSettingsV2
+from models.verodin import VerodinSettings
+from util.connection_mngs import FabricConnectionWrapper
 
 
 class VerodinJob:
@@ -31,6 +33,9 @@ class VerodinJob:
         self.session = self._connection(self.verodin_username, self.verodin_password)
         self.elastic_secret, self.elastic_ip = self._get_es_info()
         self.sim_type = self._get_sim_type()
+        self.runner = APITesterV2(self.ctrl_settings,
+                                self.kit_settings,
+                                nodes=self.nodes)
 
     def _connection(self, username:str, password:str) -> object:
         with requests.Session() as session:
@@ -235,6 +240,8 @@ class VerodinJob:
             eval_id = self._get_eval_id()
             self._delete_eval(eval_id)
 
+        self.runner.update_ruleset("suricata")
+        self.runner.update_ruleset("zeek")
         # Returns old integration id for kit
         integration_id = self._get_integration_id()
         # Deletes old kit integration for elastic if it exists
