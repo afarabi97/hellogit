@@ -55,8 +55,8 @@ CPT:
 
 - app: Endgame
   src:
-    - Repo/CPT/VMs/Endgame/3.23.2/smp-platform-3.23.2-22.b11175e5.ga-359.iso
-    - Repo/CPT/VMs/Endgame/3.23.2/ReadMe.txt
+    - Repo/CPT/VMs/Endgame/3.23.3-32/smp-platform-3.23.3-32.8afa095d.ga-360.iso
+    - Repo/CPT/VMs/Endgame/3.23.3-32/ReadMe.txt
   dest: staging/v3.7/CPT/Data/CVAH 3.7/Software/VMs/Endgame
 
 - app: Kali Linux VM
@@ -233,7 +233,7 @@ CPT:
 - app: Documentation
   src:
     - Repo/CPT/Documentation/VMs/Cuckoo Sandbox/2.0.7
-    - Repo/CPT/Documentation/VMs/Endgame/3.23.2
+    - Repo/CPT/Documentation/VMs/Endgame/3.23.3-32
     - Repo/CPT/Documentation/VMs/Mockingbird/1.1.1
     - Repo/CPT/Documentation/VMs/REMnux/2021.29.9
     - Repo/CPT/Documentation/VMs/Windows Server 2019 AFCEDS/1809
@@ -432,5 +432,3 @@ GIP:
     - Repo/GIP/Software/VM/sat-6-isos
     - Repo/GIP/Software/VM/sat-6-upgrade
   dest: staging_gip/v3.7/GIP/Data/CVAH 3.7/Software/VM
-
-
