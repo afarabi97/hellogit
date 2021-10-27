@@ -308,7 +308,7 @@ def process_cold_logs(model_dict: Dict,
     finally:
         shutil.rmtree(tmpdirname)
 
-    rq_logger.exception("YAY success")
+    rq_logger.info("YAY success")
 
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")

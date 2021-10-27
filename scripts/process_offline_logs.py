@@ -4,10 +4,15 @@ import getpass
 import glob
 import requests
 import subprocess
+import sys
 
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import List
+
+sys.path.append('/opt/tfplenum/web/backend/app/utils')
+
+from constants import ColdLogModules
 
 
 SETUP_CMD = 'setup'
@@ -29,12 +34,14 @@ class OfflineLogProcessor:
                   index_suffix: str,
                   log_type: str,
                   log_files: List[str],
-                  send_to_logstash: bool):
+                  send_to_logstash: bool,
+                  file_set: str):
         for log_path in log_files:
             cold_log_form = {
                 "module": log_type,
                 "index_suffix": index_suffix,
-                "send_to_logstash": send_to_logstash
+                "send_to_logstash": send_to_logstash,
+                "fileset": file_set
             }
 
             payload = { "cold_log_form":
@@ -118,27 +125,36 @@ def main():
                               help="The Windows Remote Management transport. If not specified it defaults to http.",
                               default="http", choices=['http', 'https'])
 
-    run_parser = subparsers.add_parser(RUN_CMD, help="This command submits user specified zip files to the REST calls.")
-    run_parser.set_defaults(which=RUN_CMD)
+    for module in ColdLogModules.to_list(): # type: Dict
+        generic_parser = subparsers.add_parser(module['value'], help=f"Use this to parse {module['name']} files.")
+        generic_parser.set_defaults(which="generic", log_type=module['value'])
 
-    run_parser.add_argument('-t', '--log-type', dest='log_type', required=True,
-                            choices=['suricata', 'system', 'apache', 'auditd', 'windows'],
-                            help="Selects the proper Filebeat module to use")
-    run_parser.add_argument('-z','--log-zip-or-file', dest='log_file_or_zip', required=True, nargs="*",
-                            help="Select an individual file or a zip of files that is on the system.")
-    run_parser.add_argument('-i','--index-suffix', dest='index_suffix', required=False, default="cold-log",
-                            help="Change the index suffix. Default is filebeat-external-<cold-log>-<log-type>")
-    run_parser.add_argument('-l', '--send-to-logstash', dest='send_to_logstash', action='store_true', default=False,
-                            help="Sends the data to Logstash instead of going directly to Elasticsearch.  This is useful if you have custom processors/ filters setup in logstash that you want to use.")
+        filessets = [fileset['value'] for fileset in module['filesets']]
+        if len(filessets) == 1:
+            generic_parser.add_argument('-t', '--file-set', required=False, choices=filessets)
+            generic_parser.set_defaults(file_set=filessets[0])
+        elif len(filessets) > 1:
+            generic_parser.add_argument('-t', '--file-set', required=True, choices=filessets)
+
+        generic_parser.add_argument('-z','--log-zip-or-file', dest='log_file_or_zip', required=True, nargs="*",
+                                help="Select an individual file or a zip of files that is on the system.")
+        generic_parser.add_argument('-i','--index-suffix', dest='index_suffix', required=False, default="cold-log",
+                                help="Change the index suffix. Default is filebeat-external-<cold-log>-<log-type>")
+        generic_parser.add_argument('-l', '--send-to-logstash', dest='send_to_logstash', action='store_true', default=False,
+                                help="Sends the data to Logstash instead of going directly to Elasticsearch.  This is useful if you have custom processors/ filters setup in logstash that you want to use.")
     args = parser.parse_args()
-
     api = OfflineLogProcessor()
-    if args.which == SETUP_CMD:
-        api.kickoff_winlogbeat_install(args)
-    elif args.which == RUN_CMD:
-        check_invalid_file(args.log_file_or_zip)
-        api.post_file(args.index_suffix, args.log_type, args.log_file_or_zip, args.send_to_logstash)
-
+    try:
+        if args.which == SETUP_CMD:
+            api.kickoff_winlogbeat_install(args)
+        else:
+            check_invalid_file(args.log_file_or_zip)
+            if "file_set" not in args:
+                api.post_file(args.index_suffix, args.log_type, args.log_file_or_zip, args.send_to_logstash, None)
+            else:
+                api.post_file(args.index_suffix, args.log_type, args.log_file_or_zip, args.send_to_logstash, args.file_set)
+    except AttributeError:
+        parser.print_help()
 
 if __name__ == '__main__':
     main()

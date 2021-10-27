@@ -1,0 +1,17 @@
+---
+- name: testfiles | Create Directory
+  file:
+    path: "{{ web_root }}/testfiles"
+    state: directory
+
+- name: testfiles | Download
+  get_url:
+    url: "{{ item }}"
+    dest: "{{ web_root }}/testfiles"
+  with_items:
+    - "{{ tfplenum_repo }}/testfiles/apache.zip"
+    - "{{ tfplenum_repo }}/testfiles/audit_logs.zip"
+    - "{{ tfplenum_repo }}/testfiles/rules.zip"
+    - "{{ tfplenum_repo }}/testfiles/suricata_events.zip"
+    - "{{ tfplenum_repo }}/testfiles/system_logs.zip"
+    - "{{ tfplenum_repo }}/testfiles/windows_events.zip"

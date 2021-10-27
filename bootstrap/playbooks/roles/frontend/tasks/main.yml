@@ -64,6 +64,7 @@
     - rpm_setup
 
 - import_tasks: 55_preload_pcaps.yml
+- import_tasks: 56_preload_samples.yml
 
 # Set ip forwarding on in /proc and in the sysctl file and reload if necessary
 - name: "Enable IP Forwarding so docker containers can reach outside of the network."

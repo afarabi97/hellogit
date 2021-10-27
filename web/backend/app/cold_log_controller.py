@@ -42,7 +42,7 @@ def upload_cold_log_file() -> Response:
             with zipfile.ZipFile(abs_save_path) as zip_ref:
                 zip_ref.extractall(tmpdirname)
 
-            for root, files in os.walk(tmpdirname):
+            for root, _, files in os.walk(tmpdirname):
                 for file_path in files:
                     abs_path = root + "/" + file_path
                     if ".zip" in abs_path.lower():
