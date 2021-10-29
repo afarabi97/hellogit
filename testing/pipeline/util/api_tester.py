@@ -6,6 +6,7 @@ from time import sleep
 import pymongo
 import os
 import tempfile
+from pymongo.errors import ConnectionFailure
 
 from datetime import datetime, timedelta
 from util.connection_mngs import MongoConnectionManager
@@ -49,7 +50,7 @@ def print_json(something: Union[Dict, List]) -> None:
     print("Printing Response back:")
     print(json.dumps(something, indent=4, sort_keys=True))
 
-
+@retry()
 def get_request(url: str) -> Union[List, Dict]:
     headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
     # root_ca = check_web_ca()
@@ -59,7 +60,7 @@ def get_request(url: str) -> Union[List, Dict]:
     else:
         raise APIFailure(url + ' FAILED!\n' + str(response.status_code))
 
-
+@retry()
 def post_request(url: str, payload: Dict) -> Union[List, Dict]:
     headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
     # root_ca = check_web_ca()
@@ -69,7 +70,7 @@ def post_request(url: str, payload: Dict) -> Union[List, Dict]:
     else:
         raise APIFailure(url + ' FAILED!\n' + str(response.status_code))
 
-
+@retry()
 def put_request(url: str, payload: Dict) -> Union[List, Dict]:
     headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
     # root_ca = check_web_ca()
@@ -99,28 +100,42 @@ def wait_for_job_to_finish(job_name: str, url: str, minutes_timeout: int):
             logging.error("Job failed horribly.  See /var/log/tfplenum/rq.log for details.")
             exit(2)
 
+@retry()
+def get_jobs(mongo_manager: MongoConnectionManager, node_id: str) -> list:
+    return list(mongo_manager.mongo_jobs.find({"node_id": node_id}))
+
+@retry()
+def get_node_id(mongo_manager: MongoConnectionManager, node_to_check: dict) -> str:
+ return mongo_manager.mongo_node.find_one(node_to_check)["_id"]
+
 def wait_for_next_job_in_chain(controller_ip: str, node_to_check: Dict, timeout:int=30):
     job_found = False
     with MongoConnectionManager(controller_ip) as mongo_manager:
-        node_id = mongo_manager.mongo_node.find_one(node_to_check)["_id"]
+        node_id = get_node_id(mongo_manager, node_to_check) # type: str
         while True:
-            jobs_completed = 0
-            jobs = list(mongo_manager.mongo_jobs.find({"node_id": node_id}))
-            num_jobs = len(jobs)
-            for job in jobs:
-                if job["error"]:
-                    logging.error("A job has failed exiting")
-                    exit(1)
-                elif job["inprogress"] and job["description"] and job["job_id"]:
+            try:
+                jobs_completed = 0
+                jobs = get_jobs(mongo_manager, node_id) # type: list
+                num_jobs = len(jobs)
+                for job in jobs:
+                    if job["error"]:
+                        logging.error("A job has failed exiting")
+                        exit(1)
+                    elif job["inprogress"] and job["description"] and job["job_id"]:
+                        job_found = True
+                        wait_for_job_to_finish(job["description"], "https://{}{}".format(controller_ip, "/api/job/" + job["job_id"]), timeout)
+                    elif job["complete"]:
+                        jobs_completed += 1
+                sleep(1)
+                if num_jobs == jobs_completed:
+                    # If all the jobs for a given node are completed, then we dont care and pass this edge case.
                     job_found = True
-                    wait_for_job_to_finish(job["description"], "https://{}{}".format(controller_ip, "/api/job/" + job["job_id"]), timeout)
-                elif job["complete"]:
-                    jobs_completed += 1
-            sleep(1)
-            if num_jobs == jobs_completed:
-                # If all the jobs for a given node are completed, then we dont care and pass this edge case.
-                job_found = True
-                break
+                    break
+            except ConnectionFailure:
+                logging.exception("Job chain is exploding but we dont care keep trying...")
+                sleep(1)
+                pass
+
 
     if not job_found:
         logging.error("The next job in chain was not found. Failing")
