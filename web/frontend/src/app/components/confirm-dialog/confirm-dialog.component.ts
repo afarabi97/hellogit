@@ -18,6 +18,8 @@ import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
   ]
 })
 export class ConfirmDialogComponent {
+  // Used for two way data binding user input for double confirm
+  double_confirm_value: string;
 
   /**
    * Creates an instance of ConfirmDialogComponent.
@@ -27,7 +29,9 @@ export class ConfirmDialogComponent {
    * @memberof ConfirmDialogComponent
    */
   constructor(private mat_dialog_ref_: MatDialogRef<ConfirmDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public mat_dialog_data: ConfirmDialogMatDialogDataInterface) { }
+              @Inject(MAT_DIALOG_DATA) public mat_dialog_data: ConfirmDialogMatDialogDataInterface) {
+    this.double_confirm_value = '';
+  }
 
   /**
    * Check to see if variable value is defined and not null
@@ -38,6 +42,16 @@ export class ConfirmDialogComponent {
    */
   check_variable_value_defined(variable_value: any): boolean {
     return ObjectUtilitiesClass.notUndefNull(variable_value);
+  }
+
+  /**
+   * Used for checking if user typed the double confirm message
+   *
+   * @returns {boolean}
+   * @memberof ConfirmDialogComponent
+   */
+  is_double_confirm_message_typed(): boolean {
+    return this.double_confirm_value.toLowerCase() === this.mat_dialog_data.message_double_confirm.toLowerCase();
   }
 
   /**

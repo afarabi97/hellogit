@@ -16,6 +16,7 @@
   <button mat-raised-button *ngIf="check_variable_value_defined(mat_dialog_data.option2) &&
                                    check_variable_value_defined(mat_dialog_data.message_double_confirm)"
           id="cvah-confirm-dialog-button-options2-double-confirm" color="primary"
+          [disabled]="!is_double_confirm_message_typed()"
           (click)="close(mat_dialog_data.option2)">{{ mat_dialog_data.option2 }}</button>
   <button mat-raised-button *ngIf="check_variable_value_defined(mat_dialog_data.option1)"
           id="cvah-confirm-dialog-button-options1" color="warn"
