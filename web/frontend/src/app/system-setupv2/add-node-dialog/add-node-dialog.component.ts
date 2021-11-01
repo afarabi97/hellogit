@@ -50,13 +50,7 @@ export class AddNodeDialogComponent implements OnInit {
 
   ngOnInit(){
     this.initializeForm();
-    this.kitSettingsSrv.getGeneralSettings().subscribe((data: GeneralSettings) => {
-      this.settings = data;
-      this.kitSettingsSrv.getUnusedIPAddresses(this.settings.controller_interface, this.settings.netmask).subscribe((data2: string[]) => {
-        this.availableIPs = data2;
-      });
-    });
-  }
+    }
 
   initializeForm() {
     this.updateNodeStatus();
@@ -90,6 +84,18 @@ export class AddNodeDialogComponent implements OnInit {
     const nodesHostnames = [];
     const nodesIP = [];
     const nodesMacAddress = [];
+
+    this.kitSettingsSrv.getGeneralSettings().subscribe((data: GeneralSettings) => {
+      this.settings = data;
+      this.kitSettingsSrv.getUnusedIPAddresses(this.settings.controller_interface, this.settings.netmask).subscribe((data2: string[]) => {
+        this.availableIPs = data2;
+      });
+      this.kitSettingsSrv.getUsedIPAddresses(this.settings.controller_interface, this.settings.netmask).subscribe((data2: string[]) => {
+        for (const d of data2){
+          nodesIP.push(d);
+        }
+      });
+    });
 
     this.kitSettingsSrv.getNodes().subscribe((data: Node[]) => {
       for (const node of data){

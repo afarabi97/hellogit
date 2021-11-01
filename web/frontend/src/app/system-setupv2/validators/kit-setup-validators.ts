@@ -119,7 +119,7 @@ export const addNodeValidators = {
     { error_message: 'Hostname is required', validatorFn: 'required' }
   ],
   ip_address: [
-    { error_message: (value) => `Duplicate IP Address found: ${value}. Node must have a unique IP Address.`, validatorFn: 'unique' },
+    { error_message: (value) => `Used IP Address found: ${value}. Node must have a unique IP Address.`, validatorFn: 'unique' },
     { error_message: 'IP Address is required.', validatorFn: 'required' },
     { ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' }
   ],
