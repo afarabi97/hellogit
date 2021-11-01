@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
-import { AgentInstallerConfig, AppConfig } from '../agent-builder.service';
+import { AgentInstallerConfig, AppConfig } from '../../agent-builder.service';
 
 @Component({
     selector: 'agent-details-dialog',

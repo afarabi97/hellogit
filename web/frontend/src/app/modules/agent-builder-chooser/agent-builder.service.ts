@@ -3,10 +3,10 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { StatusClass } from '../classes';
-import { HTTP_OPTIONS } from '../constants/cvah.constants';
-import { EntityConfig } from '../interfaces';
-import { ApiService } from '../services/abstract/api.service';
+import { StatusClass } from '../../classes';
+import { HTTP_OPTIONS } from '../../constants/cvah.constants';
+import { EntityConfig } from '../../interfaces';
+import { ApiService } from '../../services/abstract/api.service';
 
 export class ErrorMessage {
   error_message: string;

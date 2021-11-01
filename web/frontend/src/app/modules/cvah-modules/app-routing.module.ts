@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { AgentBuilderChooserComponent } from '../../agent-builder-chooser/agent-builder-chooser.component';
+import { AgentBuilderChooserComponent } from '../agent-builder-chooser/agent-builder-chooser.component';
 import { CatalogComponent } from '../../catalog/component/catalog.component';
 import { CatalogPageComponent } from '../../catalog/page/catalog-page.component';
 import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from '../../guards';

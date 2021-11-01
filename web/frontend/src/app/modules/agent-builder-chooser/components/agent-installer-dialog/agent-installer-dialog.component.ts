@@ -1,15 +1,15 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { MatStepper } from '@angular/material/stepper';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatStepper } from '@angular/material/stepper';
 
-import { ObjectUtilitiesClass } from '../../classes';
-import { COMMON_VALIDATORS } from '../../constants/cvah.constants';
-import { validateFromArray } from '../../validators/generic-validators.validator';
-import { AppConfig, ElementSpec } from '../agent-builder.service';
-import { EndgameService } from './endgame.service';
+import { ObjectUtilitiesClass } from '../../../../classes';
+import { COMMON_VALIDATORS } from '../../../../constants/cvah.constants';
+import { validateFromArray } from '../../../../validators/generic-validators.validator';
+import { AppConfig, ElementSpec } from '../../agent-builder.service';
+import { EndgameService } from '../../services/endgame.service';
 
 @Component({
   selector: 'agent-installer-dialog',

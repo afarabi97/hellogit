@@ -66,12 +66,6 @@ import { UpdateEsLicenseComponent } from './tools-form/update-es-license-form/up
 import { PcapFormComponent } from './pcap-form/pcap-form.component';
 import { ReplayPcapDialogComponent } from './pcap-form/replay-pcap-dialog/replay-pcap-dialog.component';
 
-// Windows Agent Deployer
-import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
-import { AgentInstallerDialogComponent } from './agent-builder-chooser/agent-installer-dialog/agent-installer-dialog.component';
-import { AgentDetailsDialogComponent } from './agent-builder-chooser/agent-details-dialog/agent-details-dialog.component';
-import { AgentTargetDialogComponent } from './agent-builder-chooser/agent-target-dialog/agent-target-dialog.component';
-
 // Catalog
 import { CatalogComponent } from './catalog/component/catalog.component';
 import { CardComponent } from './catalog/card/card.component';
@@ -88,6 +82,7 @@ import { UserClass } from './classes';
 import { CapitalizeFirstPipe } from './pipes/capitalize-first.pipe';
 
 // modules
+import { AgentBuilderChooserModule } from './modules/agent-builder-chooser/agent-builder-chooser.module';
 import { ConfigMapModule } from './modules/config-map/config-map.module';
 import { AppRoutingModule } from './modules/cvah-modules/app-routing.module';
 import { DateTimeModule } from './modules/date-time/date-time.module';
@@ -132,10 +127,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     UpdateEsLicenseComponent,
     NodeMaintenanceFormComponent,
     PcapFormComponent,
-    AgentBuilderChooserComponent,
-    AgentInstallerDialogComponent,
-    AgentDetailsDialogComponent,
-    AgentTargetDialogComponent,
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
     HealthDashboardModalDialogComponent,
@@ -181,6 +172,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     NgxMatDatetimePickerModule,
     NgxMatNativeDateModule,
     AppRoutingModule,
+    AgentBuilderChooserModule,
     ConfigMapModule,
     DateTimeModule,
     DockerRegistryModule,
@@ -213,9 +205,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
   ],
   entryComponents: [
     ConfirmDialogComponent,
-    AgentInstallerDialogComponent,
-    AgentDetailsDialogComponent,
-    AgentTargetDialogComponent,
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
     HealthDashboardModalDialogComponent,

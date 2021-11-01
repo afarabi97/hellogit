@@ -7,18 +7,18 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import * as FileSaver from 'file-saver';
 
-import { ConfirmDialogMatDialogDataInterface } from '../interfaces';
-import { ObjectUtilitiesClass } from '../classes';
-import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
-import { COMMON_VALIDATORS } from '../constants/cvah.constants';
+import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
+import { ObjectUtilitiesClass } from '../../classes';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { COMMON_VALIDATORS } from '../../constants/cvah.constants';
 import {
   DialogControlTypes,
   DialogFormControl,
   DialogFormControlConfigClass
-} from '../modal-dialog-mat/modal-dialog-mat-form-types';
-import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
-import { WebsocketService } from '../services/websocket.service';
-import { validateFromArray } from '../validators/generic-validators.validator';
+} from '../../modal-dialog-mat/modal-dialog-mat-form-types';
+import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
+import { WebsocketService } from '../../services/websocket.service';
+import { validateFromArray } from '../../validators/generic-validators.validator';
 import {
   AgentBuilderService,
   AgentInstallerConfig,
@@ -28,9 +28,9 @@ import {
   IpTargetList,
   WindowsCreds
 } from './agent-builder.service';
-import { AgentDetailsDialogComponent } from './agent-details-dialog/agent-details-dialog.component';
-import { AgentInstallerDialogComponent } from './agent-installer-dialog/agent-installer-dialog.component';
-import { AgentTargetDialogComponent } from './agent-target-dialog/agent-target-dialog.component';
+import { AgentDetailsDialogComponent } from './components/agent-details-dialog/agent-details-dialog.component';
+import { AgentInstallerDialogComponent } from './components/agent-installer-dialog/agent-installer-dialog.component';
+import { AgentTargetDialogComponent } from './components/agent-target-dialog/agent-target-dialog.component';
 import { DOMAIN_PASSWORD_LABEL } from './constants/agent-builder-chooser.constant';
 
 const DIALOG_WIDTH = "800px";

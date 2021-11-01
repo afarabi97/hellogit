@@ -3,9 +3,9 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: null
 })
-export class EndgameService{
+export class EndgameService {
 
   constructor(private http: HttpClient) { }
 
