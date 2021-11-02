@@ -1,9 +1,10 @@
 *** Settings ***
 Resource    ../include/dipCommonVariables.resource
 
-Library     SeleniumLibrary     15s    run_on_failure=NONE
+Library     SeleniumLibrary     15s    run_on_failure= Loggy.failure
 Library     SSHLibrary          15s
 Library     String
+Library     Loggy.py
 
 *** Keywords ***
 Set DIP Kit Global Variables
@@ -49,7 +50,6 @@ handle selenium failure
     SeleniumLibrary.Log Source      loglevel=DEBUG
     Log variables   level=DEBUG
 
-
 Open Firefox
     [Arguments]                ${host}  ${browser}
     Open Browser               https://${host}            browser=${browser}
@@ -81,8 +81,6 @@ Login Into DIP Controller
             Update Password
         END
     END
-
-
 
 Accept DoD Banner
     [Documentation]  This function is made to accept the DoD Banner
@@ -144,7 +142,6 @@ Get Kibana Credentials
     log     Kibana Password: ${KIBANA_PASSWORD}
     Set Global Variable     ${KIBANA_IP}
     Set Global Variable     ${KIBANA_PASSWORD}
-
 
 Login Into Kibana
     Navigate To Kibana
@@ -331,10 +328,9 @@ inject
     # ${desired}=    Replace String    ${second_element}    \\*\{7\}\\d     ********
     # ${desired_element}=    Replace String Using Regexp    ${desired}     \\*     X
 
-
 log
     [Arguments]     ${text}
-    Log To Console  ${text}
+    Loggy.loggy     ${text}
 
 shoot
     [Arguments]     ${name}

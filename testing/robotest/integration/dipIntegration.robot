@@ -54,7 +54,6 @@ Run Elastic Integration Test
     [Documentation]    Grab the elastic password and run some tests
     Set Selenium Speed  0.5s
     Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
-    log     Running Elastic Integration Tests
     Install Multiple Apps  Logstash  Zeek  Suricata  Arkime-viewer  Arkime
     Login Into Kibana
     Navigate To PCAPs
@@ -65,7 +64,6 @@ Run Elastic Integration Test
 Perform Cleanup On Rulesets Page
     Set Selenium Speed  0.5s
     Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
-    log     Cleaning Up Zeek Integration And Zeek Sample Scripts
     Cleanup Zeek Signature Ruleset Files
     Cleanup Zeek Script Ruleset Files
     Cleanup Suricata Ruleset Files
