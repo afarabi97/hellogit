@@ -10,7 +10,7 @@ formControls:
   falseValue: false
   name: serviceNode
 - type: textinput
-  default_value: '2'
+  default_value: '1'
   description: Enter how many logstash replicas to run
   required: true
   regexp: ^\d+$

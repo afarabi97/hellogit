@@ -43,7 +43,7 @@ export class VirtualNodeFormComponent implements OnInit {
       this.nodeForm.get('virtual_data').setValue(500);
     } else if (nodeType === "Sensor"){
       this.nodeForm.get('virtual_cpu').setValue(16);
-      this.nodeForm.get('virtual_mem').setValue(16);
+      this.nodeForm.get('virtual_mem').setValue(32);
       this.nodeForm.get('virtual_os').setValue(100);
       this.nodeForm.get('virtual_data').setValue(500);
     } else if (nodeType === "Service"){

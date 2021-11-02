@@ -108,7 +108,7 @@ helm_versions:
   arkime: 1.0.0
   arkime_viewer: 1.0.1
   cortex: 1.0.0
-  logstash: 1.0.0
+  logstash: 1.0.1
   hive: 1.0.0
   jcat_nifi: 1.0.0
   chartmuseum: 2.12.0
