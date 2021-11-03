@@ -4,6 +4,14 @@
     tasks_from: nexus_yum_repos
   when: not rpm_install
 
+- name: Disable redis dnf module
+  shell: |
+    dnf module disable redis -y
+  args:
+    warn: false
+  register: results
+  changed_when: results.rc == 0
+
 - name: Download Packages
   shell:  |
     dnf download --repoid="nexus-yum-proxy" --destdir="{{ extras_dir }}/Packages/" {{ extra_packages | join(' ') }}
@@ -13,7 +21,7 @@
 - name: Download MIP Packages
   shell: "{{ item }}"
   with_items:
-    - "dnf download --destdir={{ extras_dir }}/Packages --resolve --arch=x86_64,noarch {{ download_packages | join(' ') }}"
+    - "dnf download --destdir={{ extras_dir }}/Packages --arch=x86_64,noarch {{ download_packages | join(' ') }}"
   args:
     warn: false
 

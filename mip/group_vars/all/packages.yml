@@ -3,17 +3,18 @@
 download_packages:
   - libpcap-devel
   - fping
-  - openvpn
-  - easy-rsa
-  - ntfs-3g
+  - openvpn-2.4.11-1.el8
+  - easy-rsa-3.0.8-1.el8
+  - ntfs-3g-2021.8.22-2.el8
+  - ntfs-3g-libs-2021.8.22-2.el8
   - p7zip
   - terminator
   - fuse-sshfs
   - tofrodos
   - screen
   - srm.x86_64
-  - nload
-  - sshpass
+  - nload-0.7.4-16.el8
+  - sshpass-1.06-9.el8
   - pcsc-lite-ccid-1.4.29-4.el8.x86_64
 
 packages:

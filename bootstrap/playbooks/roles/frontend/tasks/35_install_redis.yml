@@ -4,6 +4,14 @@
     tasks_from: add_repo
   when: not rpm_install
 
+- name: Disable redis dnf module
+  shell: |
+    dnf module disable redis -y
+  args:
+    warn: false
+  register: results
+  changed_when: results.rc == 0
+
 - name: redis | Install
   dnf:
     name: redis
