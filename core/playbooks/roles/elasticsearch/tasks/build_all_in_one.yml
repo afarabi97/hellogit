@@ -1,11 +1,11 @@
 ---
-- name: set ECK All in One File
+- name: set ECK CRDS and Operator files
   set_fact:
-    eck_file: "{{ tfplenumoffline_dir }}/eck-all-in-one-{{ docker_versions.elastic_operator }}.yaml"
+    eck_operator_file: "{{ tfplenumoffline_dir }}/operator-{{ docker_versions.elastic_operator }}.yaml"
 
 - name: Read all in one
   set_fact:
-    eck_operator: "{{ lookup('file', eck_file) | from_yaml_all }}"
+    eck_operator: "{{ lookup('file', eck_operator_file) | from_yaml_all }}"
 
 - name: get index
   set_fact:

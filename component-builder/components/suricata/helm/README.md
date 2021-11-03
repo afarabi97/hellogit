@@ -64,4 +64,3 @@ formControls:
   regexp: ''
   name: log_types
   error_message: Please select a log type
-

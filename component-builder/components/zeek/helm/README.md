@@ -91,3 +91,4 @@ formControls:
   regexp: ''
   name: log_types
   error_message: Please ensure a log type is checked
+  

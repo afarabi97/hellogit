@@ -139,6 +139,12 @@
     - { name: "s3-access-key", key: "s3.client.default.access_key", value: "minioadmin"}
     - { name: "s3-secret-key", key: "s3.client.default.secret_key", value: "minioadmin"}
 
+- name: Install ECK CRDs
+  shell: |
+    kubectl apply -f {{ tfplenumoffline_dir }}/crds-{{ docker_versions.elastic_operator }}.yaml
+  register: results
+  changed_when: results.rc == 0
+
 - name: Install ECK Operator
   shell: |
     kubectl apply -f {{ elastic_dir }}/operator.yml
