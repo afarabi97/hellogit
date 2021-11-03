@@ -20,6 +20,15 @@ class MongoConnectionManager(object):
         self._tfplenum_database = self._client.tfplenum_database  # type: Database
 
     @property
+    def mongo_client(self) -> MongoClient:
+        """
+        Returns the mongo client.
+
+        :return:
+        """
+        return self._client
+
+    @property
     def mongo_database(self) -> Database:
         """
         Returns the mongo database management object so that we can create dynamic collections.
@@ -36,6 +45,24 @@ class MongoConnectionManager(object):
         :return:
         """
         return self._tfplenum_database.kickstart
+
+    @property
+    def mongo_settings(self) -> Collection:
+        """
+        Returns a mongo object that can do database manipulations.
+
+        :return:
+        """
+        return self._tfplenum_database.settings
+
+    @property
+    def mongo_kit_status(self) -> Collection:
+        """
+        Returns a mongo object that can do database manipulations.
+
+        :return:
+        """
+        return self._tfplenum_database.kit_status
 
     @property
     def mongo_node(self) -> Collection:
@@ -55,40 +82,72 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.configurations
 
     @property
-    def mongo_kit(self) -> Collection:
-        """
-        Returns a mongo object that can do database manipulations.
+    def mongo_add_node_wizard(self) -> Collection:
+        return self._tfplenum_database.add_node_wizard
 
-        :return:
-        """
+    @property
+    def mongo_counters(self) -> Collection:
+        return self._tfplenum_database.counters
+
+    @property
+    def mongo_kit(self) -> Collection:
         return self._tfplenum_database.kit
 
     @property
-    def mongo_mip_config(self) -> Collection:
-        """
-        Returns a mongo object that can do database manipulations.
+    def mongo_ruleset(self) -> Collection:
+        return self._tfplenum_database.ruleset
 
-        :return:
-        """
-        return self._tfplenum_database.mip_config
+    @property
+    def mongo_rule(self) -> Collection:
+        return self._tfplenum_database.rule
 
     @property
     def mongo_console(self) -> Collection:
-        """
-        Returns a mongo object that can do database manipulations.
-
-        :return:
-        """
         return self._tfplenum_database.console
 
     @property
-    def mongo_portal(self) -> Collection:
-        """
-        Returns a mongo object that can do database manipulations.
+    def mongo_notifications(self) -> Collection:
+        return self._tfplenum_database.notifications
 
-        :return:
-        """
-        return self._tfplenum_database.portal
+    @property
+    def mongo_catalog_saved_values(self) -> Collection:
+        return self._tfplenum_database.catalog_saved_values
+
+    @property
+    def mongo_elastic_deploy(self) -> Collection:
+        return self._tfplenum_database.elastic_deploy
+
+    @property
+    def mongo_user_links(self) -> Collection:
+        return self._tfplenum_database.user_links
+
+    @property
+    def mongo_windows_installer_configs(self) -> Collection:
+        return self._tfplenum_database.windows_installer_configs
+
+    @property
+    def mongo_windows_target_lists(self) -> Collection:
+        return self._tfplenum_database.windows_target_lists
+
+    @property
+    def mongo_metrics(self) -> Collection:
+        return self._tfplenum_database.metrics
+
+    @property
+    def mongo_mip_config(self) -> Collection:
+        return self._tfplenum_database.mip_config
+
+    @property
+    def mongo_spaces(self) -> Collection:
+        return self._tfplenum_database.spaces
+
+    @property
+    def mongo_hive_settings(self) -> Collection:
+        return self._tfplenum_database.hive_settings
+
+    @property
+    def mongo_kit_tokens(self) -> Collection:
+        return self._tfplenum_database.kit_tokens
 
     def close(self):
         """
@@ -112,6 +171,7 @@ class MongoConnectionManager(object):
         :param *exc
         """
         self.close()
+
 
 
 class FabricConnectionWrapper:

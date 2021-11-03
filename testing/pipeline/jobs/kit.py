@@ -32,13 +32,13 @@ class KitSettingsJob:
         self.kit_settings = kit_settings
         self.is_virtual = is_virtual
 
-    def _open_mongo_port(self):
+    def _open_test_ports(self):
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
                                      self.ctrl_settings.node.password,
                                      self.ctrl_settings.node.ipaddress) as client:
             client.put(TEMPLATES_DIR + "mongod.conf", '/etc/mongod.conf')
             client.run('systemctl restart mongod')
-            client.run("firewall-cmd --permanent --add-port=27017/tcp")
+            client.run("firewall-cmd --permanent --add-port=27017/tcp") # Opens mongo port
             client.run('firewall-cmd --reload')
 
     def _clear_net_on_hwnode(self, node: HardwareNodeSettingsV2):
@@ -79,7 +79,7 @@ class KitSettingsJob:
 
     def setup_control_plane(self):
         self.api = APITesterV2(self.ctrl_settings, self.kit_settings)
-        self._open_mongo_port()
+        self._open_test_ports()
         self.api.run_control_plane_post()
 
     def run_hw_mip_boot(self, node:HardwareNodeSettingsV2):
@@ -132,7 +132,7 @@ class KitSettingsJob:
         loop.run_until_complete(self._do_virtual_add_node_work(nodes))
 
     async def _run_add_hardware_node(self, node:HardwareNodeSettingsV2):
-        self._open_mongo_port()
+        self._open_test_ports()
         self.api = APITesterV2(self.ctrl_settings, self.kit_settings)
         self.api.run_add_node_post(node)
         await asyncio.sleep(5)

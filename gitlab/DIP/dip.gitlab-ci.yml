@@ -296,18 +296,6 @@ CVAH Catalog Community Apps:
     variables:
       - $RUN_INTEGRATION == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "developer-all"
 
-# Run Python Unit Tests:
-#   tags:
-#     - tfplenum-buildv2
-#   stage: unit-test
-#   script: |
-#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-#     echo "Current working directory is $(pwd)"
-#     python3 testing/pipeline/pipeline.py run-unit-tests
-#   only:
-#     variables:
-#       - $PIPELINE == "developer-all"
-
 System Function Testing:
   stage: integration-test
   tags:
@@ -324,6 +312,18 @@ System Function Testing:
       - "./*.xml"
     reports:
       junit: "./*.xml"
+
+Disk Stress Test:
+  stage: disk-test
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py run-disk-fillup-tests
+  only:
+    variables:
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
 
 Simulate Power Failure:
   stage: test-powerfailure

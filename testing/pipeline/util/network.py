@@ -170,19 +170,6 @@ class IPAddressManager:
             self._create_ip_block_cache()
             IPAddressManager.kit_block_ip = IPAddressManager.unused_ip_blocks[self._kit_index]
 
-        self._is_block_valid(IPAddressManager.kit_block_ip)
-
-    def _is_block_valid(self, ip_block: List[str]) -> bool:
-        pos = ip_block.rfind('.') + 1
-        last_octet = int(ip_block[pos:])
-        count = 0
-        for i in range(last_octet, last_octet + 32):
-            count = count + 1
-            ipaddress = self._network_id[0: len(self._network_id) - 1] + str(i)
-            if ipaddress not in IPAddressManager.unused_ips:
-                logging.warn("{} is already in use. This may be because we have not deleted the old kit yet or it"
-                             " may be a IP conflict.".format(ipaddress))
-
     def filter_ip(self, ipaddress: str) -> bool:
         """
         Filters IP addresses from NMAP functions commands.
@@ -228,6 +215,10 @@ class IPAddressManager:
     def get_controller_ip_address(self):
         IPAddressManager.next_ip = IPAddressManager.kit_block_ip
         return IPAddressManager.kit_block_ip
+
+    def get_control_plane_ip_address(self) -> str:
+        self.get_controller_ip_address()
+        return self.get_next_node_address()
 
     def get_next_node_address_v2(self, index: int) -> str:
         """

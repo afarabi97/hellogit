@@ -219,6 +219,7 @@ stages:
   - catalog
   - robot-test
   - integration-test
+  - disk-test
   - test-powerfailure
   - rerun-integration-test
   - export

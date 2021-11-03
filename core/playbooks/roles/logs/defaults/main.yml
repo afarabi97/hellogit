@@ -4,6 +4,6 @@
 logs_dir: "{{ tfplenum_config_dir }}/logs"
 log_deleter_path: "{{ logs_dir }}/delete_old.sh"
 fpc_path: "/data/pcap"
-fpc_free: 25
+fpc_free: 20
 
 ...

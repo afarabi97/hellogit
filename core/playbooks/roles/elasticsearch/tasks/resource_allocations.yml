@@ -27,6 +27,11 @@
       ml_memory: 1
       ml_java_memory: 1
       ml_num_procs: "1000m"
+      watermark_low: "3gb"
+      watermark_high: "2gb"
+      watermark_flood_stage: "1gb"
+      watermark_interval: "30s"
+
   - name: Training Kit
     block:
     - set_fact:
@@ -68,6 +73,10 @@
       ml_memory: 64
       ml_java_memory: 24
       ml_num_procs: "8000m"
+      watermark_low: "100gb"
+      watermark_high: "75gb"
+      watermark_flood_stage: "50gb"
+      watermark_interval: "10s"
     when: kit_size == 4
   - name: R440 Common Node
     set_fact:
@@ -82,6 +91,10 @@
       ml_memory: 64
       ml_java_memory: 31
       ml_num_procs: "8000m"
+      watermark_low: "100gb"
+      watermark_high: "75gb"
+      watermark_flood_stage: "50gb"
+      watermark_interval: "10s"
     when: kit_size == 3
   - name: R440 Legacy Node
     set_fact:
@@ -96,6 +109,10 @@
       ml_memory: 64
       ml_java_memory: 31
       ml_num_procs: "6000m"
+      watermark_low: "100gb"
+      watermark_high: "75gb"
+      watermark_flood_stage: "50gb"
+      watermark_interval: "10s"
     when: kit_size == 2
   - name: CPT DL160
     set_fact:
@@ -136,6 +153,10 @@
       ml_java_memory: 1
       ml_num_procs: "2000m"
       ml_count: 2
+      watermark_low: "100gb"
+      watermark_high: "75gb"
+      watermark_flood_stage: "50gb"
+      watermark_interval: "10s"
   - name: GIP Gen1
     set_fact:
       master_memory: 24
@@ -149,6 +170,10 @@
       ml_java_memory: 31
       ml_num_procs: "8000m"
       ml_count: 4
+      watermark_low: "100gb"
+      watermark_high: "75gb"
+      watermark_flood_stage: "50gb"
+      watermark_interval: "10s"
     when: kit_size == 100
   when: is_gip
 

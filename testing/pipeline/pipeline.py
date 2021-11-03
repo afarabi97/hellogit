@@ -98,8 +98,8 @@ class Runner:
             which=SubCmd.run_integration_tests)
 
         unittest_parser = subparsers.add_parser(
-            SubCmd.run_unit_tests, help="This command is used to run unit tests on a given controller.")
-        unittest_parser.set_defaults(which=SubCmd.run_unit_tests)
+            SubCmd.run_disk_fillup_tests, help="This command is used to run disk fillup tests on a given DIP kit.")
+        unittest_parser.set_defaults(which=SubCmd.run_disk_fillup_tests)
 
         powerfailure_parser = subparsers.add_parser(
             SubCmd.simulate_power_failure, help="This command is used to simulate a power failures on a Kit.")
@@ -254,17 +254,12 @@ class Runner:
                 job = RobotJob(robot_settings)
                 job.run_robot()
 
-            elif args.which == SubCmd.run_unit_tests:
-                pass
-                # TODO
-                # ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
-                # try:
-                #     kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
-                # except FileNotFoundError:
-                #     kickstart_settings = None
-
-                # executor = IntegrationTestsJob( ctrl_settings, kickstart_settings)
-                # executor.run_unit_tests()
+            elif args.which == SubCmd.run_disk_fillup_tests:
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
+                nodes = YamlManager.load_nodes_from_yaml_files(ctrl_settings, kit_settings)
+                executor = IntegrationTestsJob( ctrl_settings, kit_settings, nodes)
+                executor.run_disk_fillup_tests()
             elif args.which == SubCmd.run_integration_tests:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()

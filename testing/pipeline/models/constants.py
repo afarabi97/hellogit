@@ -17,7 +17,7 @@ class SubCmd:
     run_verodin = 'run-verodin'
     run_integration_tests = 'run-integration-tests'
     simulate_power_failure = 'simulate-power-failure'
-    run_unit_tests = 'run-unit-tests'
+    run_disk_fillup_tests = 'run-disk-fillup-tests'
     checkout_latest_code = 'checkout-latest-code'
     run_remote_node= 'run-remote-node'
     run_export = 'run-export'

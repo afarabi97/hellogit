@@ -27,6 +27,12 @@ spec:
       xpack.monitoring.collection.interval: 30s
       node.attr.node_name: ${NODE_NAME}
       cluster.routing.allocation.awareness.attributes: node_name
+      cluster.routing.allocation.disk.threshold_enabled: true
+      cluster.routing.allocation.disk.watermark.low: "{{ watermark_low }}"
+      cluster.routing.allocation.disk.watermark.high: "{{ watermark_high }}"
+      cluster.routing.allocation.disk.watermark.flood_stage: "{{ watermark_flood_stage }}"
+      cluster.info.update.interval: "{{ watermark_interval }}"
+
       thread_pool.write.queue_size: 1000
       xpack.ml.enabled: {{ enable_ml }}
       xpack.security.authc.token.enabled: true
