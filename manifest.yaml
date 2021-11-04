@@ -99,11 +99,11 @@ CPT:
 
 - app: Security Onion 2
   src:
-    - Repo/Shared/VMs/Security Onion 2/2.3.61/USB bootable tool
-    - Repo/Shared/VMs/Security Onion 2/2.3.61/ReadMe.txt
-    - Repo/Shared/VMs/Security Onion 2/2.3.61/securityonion-2.3.61-MSEARCH.iso
-    - Repo/Shared/VMs/Security Onion 2/2.3.61/securityonion-2.3.61-MSEARCH.iso.sig
-    - Repo/Shared/VMs/Security Onion 2/2.3.61/Signing Key.txt
+    - Repo/Shared/VMs/Security Onion 2/2.3.80/USB bootable tool
+    - Repo/Shared/VMs/Security Onion 2/2.3.80/ReadMe.txt
+    - Repo/Shared/VMs/Security Onion 2/2.3.80/securityonion-2.3.80.iso
+    - Repo/Shared/VMs/Security Onion 2/2.3.80/securityonion-2.3.80.iso.sig
+    - Repo/Shared/VMs/Security Onion 2/2.3.80/Signing Key.txt
   dest: staging/v3.7/CPT/Data/CVAH 3.7/Software/VMs/Security Onion 2
 
 - app: Security Onion (Original)
@@ -237,7 +237,7 @@ CPT:
     - Repo/CPT/Documentation/VMs/Mockingbird/1.1.1
     - Repo/CPT/Documentation/VMs/REMnux/2021.29.9
     - Repo/CPT/Documentation/VMs/Windows Server 2019 AFCEDS/1809
-    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.61
+    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.80
   dest: staging/v3.7/CPT/Data/CVAH 3.7/Documentation/VMs
 
 - app: Documentation
@@ -309,11 +309,11 @@ MDT:
 
 - app: Security Onion 2
   src:
-    - Repo/Shared/VMs/Security Onion 2/2.3.61/USB bootable tool
-    - Repo/Shared/VMs/Security Onion 2/2.3.61/ReadMe.txt
-    - Repo/Shared/VMs/Security Onion 2/2.3.61/securityonion-2.3.61-MSEARCH.iso
-    - Repo/Shared/VMs/Security Onion 2/2.3.61/securityonion-2.3.61-MSEARCH.iso.sig
-    - Repo/Shared/VMs/Security Onion 2/2.3.61/Signing Key.txt
+    - Repo/Shared/VMs/Security Onion 2/2.3.80/USB bootable tool
+    - Repo/Shared/VMs/Security Onion 2/2.3.80/ReadMe.txt
+    - Repo/Shared/VMs/Security Onion 2/2.3.80/securityonion-2.3.80.iso
+    - Repo/Shared/VMs/Security Onion 2/2.3.80/securityonion-2.3.80.iso.sig
+    - Repo/Shared/VMs/Security Onion 2/2.3.80/Signing Key.txt
   dest: staging/v3.7/MDT/Data/CVAH 3.7/Software/VMs/Security Onion 2
 
 - app: Security Onion (Original)
@@ -372,7 +372,7 @@ MDT:
 
 - app: Documentation
   src:
-    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.61
+    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.80
   dest: staging/v3.7/MDT/Data/CVAH 3.7/Documentation/VMs
 
 - app: Documentation
