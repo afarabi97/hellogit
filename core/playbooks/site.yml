@@ -34,7 +34,7 @@
 
 - name: Set Kit Size
   hosts:
-    - servers
+    - elastic_nodes
     - localhost
   tags: always
   gather_facts: no
@@ -60,7 +60,7 @@
           - total_mem_gb >= 90
       when:
           - is_gip
-          - inventory_hostname in groups['servers']
+          - inventory_hostname in groups['elastic_nodes']
     - name: Set Kit Size For DIP
       block:
       - name: Set Default DIP Kit Size
@@ -130,12 +130,11 @@
           - deployment_type == "Baremetal"
       when:
           - not is_gip
-          - inventory_hostname in groups['servers']
-
+          - inventory_hostname in groups['elastic_nodes']
     - name: Set Kit Size for localhost
       set_fact:
-        kit_size: "{{ hostvars[groups['servers'][0]]['kit_size'] }}"
-        kit_size_name: "{{ hostvars[groups['servers'][0]]['kit_size_name'] }}"
+        kit_size: "{{ hostvars[groups['elastic_nodes'][0]]['kit_size'] }}"
+        kit_size_name: "{{ hostvars[groups['elastic_nodes'][0]]['kit_size_name'] }}"
         cacheable: yes
       when: inventory_hostname == "localhost"
     - debug:

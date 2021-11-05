@@ -5,11 +5,12 @@
     master_count: 3
     enable_ml: True
     mdil: False
+    elastic_node_count: "{{ groups['elastic_nodes']|length }}"
 
 # - name: Multiple Masters if more than 2 servers are available
 #   set_fact:
 #     master_count: 3
-#   when: servers_node_type|length > 2
+#   when: elastic_node_count > 2
 
 - name: Set Elastic Resource Allocations for DIP
   block:
@@ -21,7 +22,7 @@
       data_java_memory: 1
       data_memory: 1
       data_num_procs: "1000m"
-      data_count: "{{ servers_node_type|length * 2 }}"
+      data_count: "{{ elastic_node_count * 2 }}"
       ml_count: 1
       ml_memory: 1
       ml_java_memory: 1
@@ -29,8 +30,8 @@
   - name: Training Kit
     block:
     - set_fact:
-        server_total_mem_gb: "{{ hostvars[servers_node_type[0]]['total_mem_gb'] }}"
-        server_vcpus: "{{ hostvars[servers_node_type[0]]['ansible_processor_vcpus'] }}"
+        server_total_mem_gb: "{{ hostvars[groups['elastic_nodes'][0]]['total_mem_gb'] }}"
+        server_vcpus: "{{ hostvars[groups['elastic_nodes'][0]]['ansible_processor_vcpus'] }}"
     - name: Set Memory
       set_fact:
         server_jvm_memory: >-
@@ -39,7 +40,7 @@
     - name: Set Kit Resources
       set_fact:
         mdil: true
-        master_count: "{{ servers_node_type|length }}"
+        master_count: "{{ elastic_node_count }}"
         master_num_procs: "{{ (server_cpu * 1000) | int }}m"
         master_memory: "{{ server_jvm_memory|int * 2 }}"
         master_java_memory: "{{ server_jvm_memory }}"
@@ -58,12 +59,12 @@
       ingest_memory: 64
       ingest_java_memory: 31
       ingest_num_procs: "16000m"
-      ingest_count: "{{ servers_node_type|length * 2 }}"
+      ingest_count: "{{ elastic_node_count * 2 }}"
       data_memory: 64
       data_java_memory: 31
       data_num_procs: "24000m"
-      data_count: "{{ servers_node_type|length * 3 }}"
-      ml_count: "{{ servers_node_type|length }}"
+      data_count: "{{ elastic_node_count * 3 }}"
+      ml_count: "{{ elastic_node_count }}"
       ml_memory: 64
       ml_java_memory: 24
       ml_num_procs: "8000m"
@@ -76,8 +77,8 @@
       data_memory: 64
       data_java_memory: 31
       data_num_procs: "14000m"
-      data_count: "{{ servers_node_type|length * 3 }}"
-      ml_count: "{{ servers_node_type|length }}"
+      data_count: "{{ elastic_node_count * 3 }}"
+      ml_count: "{{ elastic_node_count }}"
       ml_memory: 64
       ml_java_memory: 31
       ml_num_procs: "8000m"
@@ -90,8 +91,8 @@
       data_memory: 64
       data_java_memory: 31
       data_num_procs: "14000m"
-      data_count: "{{ servers_node_type|length * 2 }}"
-      ml_count: "{{ servers_node_type|length }}"
+      data_count: "{{ elastic_node_count * 2 }}"
+      ml_count: "{{ elastic_node_count }}"
       ml_memory: 64
       ml_java_memory: 31
       ml_num_procs: "6000m"
@@ -105,7 +106,7 @@
       data_memory: 64
       data_java_memory: 31
       data_num_procs: "12000m"
-      data_count: "{{ servers_node_type|length * 2 }}"
+      data_count: "{{ elastic_node_count * 2 }}"
     when: kit_size == 1
   - name: MDT DL160
     set_fact:
@@ -116,7 +117,7 @@
       data_memory: 24
       data_java_memory: 24
       data_num_procs: "12000m"
-      data_count: "{{ servers_node_type|length * 2 }}"
+      data_count: "{{ elastic_node_count * 2 }}"
     when: kit_size == 0
   when: not is_gip
 
@@ -140,7 +141,7 @@
       master_memory: 24
       master_java_memory: 24
       master_num_procs: "4000m"
-      data_count: "{{ servers_node_type|length * 1 }}"
+      data_count: "{{ elastic_node_count * 1 }}"
       data_memory: 31
       data_java_memory: 64
       data_num_procs: "14000m"

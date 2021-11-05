@@ -1,4 +1,14 @@
 ---
+
+- name: Create elastic nodes group
+  add_host:
+    hostname: "{{ item }}"
+    groups: elastic_nodes
+  with_items: "{{ groups['servers'] }}"
+  when:
+    - "'servers' in groups"
+    - hostvars[item].node_type == "Server"
+
 - name: set_fact ansible_controller hostname and ip
   set_fact:
     ansible_controller_ip: "{{ hostvars.localhost.ansible_default_ipv4.address }}"
