@@ -99,6 +99,7 @@ sonarqube front-end code base:
       - web/frontend/frontend-sonarlink.txt
       - web/frontend/frontend-scantime.txt
       - web/frontend/*.png
+  retry: 2
 
 
 sonarqube back-end code base:

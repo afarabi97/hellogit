@@ -463,8 +463,8 @@ class APITesterV2:
             deployment_name = list(deployment.keys())[0]
             deployments.append(deployment_name)
         control_plane = self._get_control_plane_node()
-        wait_for_deployments_to_ready(deployments, control_plane, 20)
-        wait_for_jobs_to_complete(deployments, control_plane, 20)
+        wait_for_deployments_to_ready(deployments, control_plane, 10)
+        wait_for_jobs_to_complete(deployments, control_plane, 10)
 
     def run_kit_deploy(self):
         response_dict = get_request(self._url.format("/api/kit/deploy"))

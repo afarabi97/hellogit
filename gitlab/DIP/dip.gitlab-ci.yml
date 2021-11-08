@@ -185,6 +185,7 @@ Sensor Setup:
     --os-raid "$VM_RAID" \
     --dns-servers $DNS_SERVERS \
     --monitoring-interface $MONITORING_INTERFACE
+  retry: 2
   artifacts:
     untracked: true
   only:
@@ -212,6 +213,7 @@ Service Setup:
     --num-nodes $NUM_SERVICE_NODES \
     --os-raid "$VM_RAID" \
     --dns-servers $DNS_SERVERS
+  retry: 2
   artifacts:
     untracked: true
   only:
@@ -240,6 +242,7 @@ MIP Setup:
     --num-nodes $NUM_MIPS \
     --os-raid "$VM_RAID" \
     --dns-servers $DNS_SERVERS
+  retry: 2
   artifacts:
     untracked: true
   extends: .all-mip-hw
@@ -279,6 +282,7 @@ CVAH Catalog PMO Apps:
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+  retry: 2
 
 CVAH Catalog Community Apps:
   stage: catalog
@@ -295,6 +299,7 @@ CVAH Catalog Community Apps:
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "developer-all"
+  retry: 2
 
 System Function Testing:
   stage: integration-test

@@ -467,10 +467,24 @@ def install_helm_command (deployment_name: str, application: str, node: str, nam
     get_app_context().push()
     response = []
     tpath = _write_values(deployment_name, value_items)
+    stdout, _ = run_command2(command="helm repo update", working_dir=WORKING_DIR, use_shell=True)
+    rq_logger.debug(stdout)
+
     cmd = "helm install " + deployment_name + " chartmuseum/" + application + " --namespace " + namespace + " --values " + tpath + " --wait --wait-for-jobs"
     rq_logger.info(cmd)
     stdout, ret_code = run_command2(command=cmd,
-        working_dir=WORKING_DIR, use_shell=True)
+                                    working_dir=WORKING_DIR, use_shell=True)
+
+    # Retry one more time.
+    if ret_code != 0:
+        rq_logger.warn(stdout)
+        sleep(10)
+        stdout, _ = run_command2(command=f"helm uninstall {deployment_name}",
+                                 working_dir=WORKING_DIR, use_shell=True)
+        rq_logger.debug(stdout)
+        rq_logger.info("Retrying: " + cmd)
+        stdout, ret_code = run_command2(command=cmd,
+                                        working_dir=WORKING_DIR, use_shell=True)
 
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.INSTALLING.name.capitalize(), application=application.capitalize())
     if ret_code == 0 and stdout != '':
@@ -486,7 +500,7 @@ def install_helm_command (deployment_name: str, application: str, node: str, nam
         response.append("release: \"" + deployment_name + "\" "  + results["STATUS"].upper())
     if ret_code != 0 and stdout != '':
         results = stdout.strip()
-        rq_logger.exception(results)
+        rq_logger.error(results)
         # Send Update Notification to websocket
         notification.set_status(status=NotificationCode.ERROR.name)
         notification.set_exception(exception=results)
@@ -495,6 +509,7 @@ def install_helm_command (deployment_name: str, application: str, node: str, nam
         _purge_helm_app_on_failure(deployment_name, namespace)
     if os.path.exists(tpath):
         os.remove(tpath)
+        rq_logger.debug("Removed {}".format(tpath))
     sleep(1)
     return response
 
