@@ -3,6 +3,9 @@
 
 #Version is major.minor format
 VERSION=4.0
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+pushd "$SCRIPT_DIR" > /dev/null
 
 function main {
   echo "   ___  _______  _____          ____     ";
@@ -26,3 +29,5 @@ function main {
 }
 
 main
+
+popd > /dev/null
