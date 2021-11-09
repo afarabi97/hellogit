@@ -2,9 +2,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { GenericJobAndKeyClass } from 'src/app/classes';
 
 import { environment } from '../../../../environments/environment';
+import { GenericJobAndKeyClass } from '../../../classes';
 import { HTTP_OPTIONS } from '../../../constants/cvah.constants';
 import { EntityConfig, GenericJobAndKeyInterface } from '../../../interfaces';
 import { ApiService } from '../../../services/abstract/api.service';

@@ -18,36 +18,6 @@
         </mat-radio-group>
       </form>
     </mat-step>
-    <!-- Kerberos Configuration -->
-    <mat-step *ngIf="isKerberos" id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration"
-              label="Kerberos Configuration" [stepControl]="kerberosForm">
-      <form [formGroup]="kerberosForm">
-        <!-- Port -->
-        <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-port">
-          <mat-label>Port</mat-label>
-          <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-port-input" formControlName="port">
-        </mat-form-field>
-        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-error-port">{{ getErrorMessage(kerberosForm, 'port') }}</mat-error>
-        <!-- Windows DNS Suffix -->
-        <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-windows-dns-suffix">
-          <mat-label>Windows DNS Suffix</mat-label>
-          <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-windows-dns-suffix-input" formControlName="domain_name">
-        </mat-form-field>
-        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-error-domain-name">{{ getErrorMessage(kerberosForm, 'domain_name') }}</mat-error>
-        <!-- Key Controller Hostname -->
-        <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-key-controller-hostname">
-          <mat-label>Key Controller Hostname</mat-label>
-          <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-key-controller-hostname-input" formControlName="key_controller">
-        </mat-form-field>
-        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-error-key-controller">{{ getErrorMessage(kerberosForm, 'key_controller') }}</mat-error>
-        <!-- Admin Server Hostname -->
-        <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-admin-server-hostname">
-          <mat-label>Admin Server Hostname</mat-label>
-          <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-admin-server-hostname-input" formControlName="admin_server">
-        </mat-form-field>
-        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-error-admin-server">{{ getErrorMessage(kerberosForm, 'admin_server') }}</mat-error>
-      </form>
-    </mat-step>
     <!-- Protocol Configuration -->
     <mat-step *ngIf="isNegOrNTLM" id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration"
               label="Protocol Configuration" [stepControl]="ntlmForm">

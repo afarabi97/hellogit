@@ -323,6 +323,7 @@ class AgentUninstall(Resource):
 @AGENT_NS.route('/install')
 class AgentInstall(Resource):
 
+    @AGENT_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
     @AGENT_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @operator_required
     def post(self) -> Response:
@@ -331,10 +332,10 @@ class AgentInstall(Resource):
         target_config = payload['target_config']
         targets = [target['hostname'] for target in target_config.pop('targets')]
         if len(targets) == 0:
-            return {"error_message": "Failed to initiated install task. No targets were specified for this configuration. Did you forget to add them?"}
+            return {"error_message": "Failed to initiate install task. No targets were specified for this configuration. Did you forget to add them?"}
 
         _create_and_run_celery_tasks(payload, targets)
-        return {"error_message": "Initiated install task. Open the notification manager to track its progress."}
+        return {"success_message": "Initiated install task. Open the notification manager to track its progress."}
 
 
 @AGENT_NS.route('/reinstall')

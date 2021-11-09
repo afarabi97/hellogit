@@ -5,7 +5,18 @@
 export const environment = {
   production: false,
 
+  AGENT_BUILDER_SERVICE_AGENT_GENERATE: `/api/agent/generate`,
+  AGENT_BUILDER_SERVICE_AGENT_CONFIG: `/api/agent/config`,
+  AGENT_BUILDER_SERVICE_AGENT_TARGETS: `/api/agent/targets`,
+  AGENT_BUILDER_SERVICE_AGENT_HOST: `/api/agent/host/`,
+  AGENT_BUILDER_SERVICE_AGENTS_INSTALL: `/api/agent/install`,
+  AGENT_BUILDER_SERVICE_AGENTS_UNINSTALL: `/api/agent/uninstall`,
+  AGENT_BUILDER_SERVICE_AGENT_REINSTALL: `/api/agent/reinstall`,
+  AGENT_BUILDER_SERVICE_AGENT_CONFIGS: `/api/agent/configs`,
+
   SENSOR_HOST_INFO_SERVICE_GET_SENSOR_HOST_INFO: `/api/policy/sensor/info`,
+
+  CATALOG_SERVICE_CHECK_LOGSTASH_INSTALLED: `/api/catalog/chart/logstash/status`,
 
   CONFIG_MAP_SERVICE_GET_CONFIG_MAPS: `/api/kubernetes/configmaps`,
   CONFIG_MAP_SERVICE_BASE_URL: `/api/kubernetes/configmap`,
@@ -34,21 +45,10 @@ export const environment = {
 
   USER_SERVICE_CURRENT_USER: `/api/current_user`,
 
-  AGENT_BUILDER_SERVICE_GENERATE_WINDOWS_INSTALLER: `/api/agent/generate`,
-  AGENT_BUILDER_SERVICE_SAVE_AGENT_INSTALLER_CONFIG: `/api/agent/config`,
-  AGENT_BUILDER_SERVICE_DELETE_AGENT_INSTALLER_CONFIG: `/api/agent/config/`,
-  AGENT_BUILDER_SERVICE_GET_AGENT_INSTALLER_CONFIGS: `/api/agent/config`,
-  AGENT_BUILDER_SERVICE_GET_AGENT_INSTALLER_TARGET_LISTS: `/api/agent/targets`,
-  AGENT_BUILDER_SERVICE_SAVE_AGENT_INSTALLER_TARGET_LIST: `/api/agent/targets`,
-  AGENT_BUILDER_SERVICE_ADD_HOST_TO_IP_TARGET_LIST: `/api/agent/host/`,
-  AGENT_BUILDER_SERVICE_DELETE_HOST_FROM_IP_TARGET_LIST: `/api/agent/host/`,
-  AGENT_BUILDER_SERVICE_DELETE_AGENT_INSTALLER_TARGET_LIST: `/api/agent/targets/`,
-  AGENT_BUILDER_SERVICE_INSTALL_AGENTS: `/api/agent/install`,
-  AGENT_BUILDER_SERVICE_UNINSTALL_AGENTS: `/api/agent/uninstall`,
-  AGENT_BUILDER_SERVICE_UNINSTALL_AGENT: `/api/agent/uninstall`,
-  AGENT_BUILDER_SERVICE_REINSTALL_AGENT: `/api/agent/reinstall`,
-  AGENT_BUILDER_SERVICE_CHECK_LOGSTASH_INSTALLED: `/api/catalog/chart/logstash/status`,
-  AGENT_BUILDER_SERVICE_CUSTOM_WINDOWS_INSTALLER_PACKAGES: `/api/agent/configs`,
+  ARCHIVE_SERVICE_ARCHIVE_FORM: `/api/archive_form`,
+  ARCHIVE_SERVICE_ARCHIVE_DELETE: `/api/delete_archive/`,
+  ARCHIVE_SERVICE_ARCHIVE_RESTORE: `/api/restore_archived`,
+  ARCHIVE_SERVICE_ARCHIVE_GET: `/api/get_archived/`,
 
   KIT_SERVICE_GET_KIT_FORM: `/api/get_kit_form`,
   KIT_SERVICE_EXECUTE_KIT_INVENTORY: `/api/execute_kit_inventory`,

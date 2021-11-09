@@ -20,11 +20,9 @@ const SMB_PORT = "445";
 })
 export class AgentTargetDialogComponent implements OnInit {
   newTargetAgentForm: FormGroup;
-  kerberosForm: FormGroup;
   ntlmForm: FormGroup;
   smbForm: FormGroup;
   isNegOrNTLM: boolean;
-  isKerberos: boolean;
   isSMB: boolean;
   sensor_profiles: Array<{name: string; value: string}> = [];
   dnsInstructions: string;
@@ -32,7 +30,6 @@ export class AgentTargetDialogComponent implements OnInit {
   constructor(private fb: FormBuilder,
               public dialogRef: MatDialogRef<AgentTargetDialogComponent>) {
     this.isNegOrNTLM = false;
-    this.isKerberos = false;
     this.isSMB = false;
     this.dnsInstructions = 'The \"Windows DNS Suffix\" is optional. If you do not include it, you will need to use the IP address of the Windows target(s). ' +
                            'If you leave out the \"Windows DNS Suffix\" you will need to make sure each host you enter has the appropriate ' +
@@ -50,17 +47,6 @@ export class AgentTargetDialogComponent implements OnInit {
       protocol: new FormControl('', Validators.compose([Validators.required]))
     });
 
-    this.kerberosForm = this.fb.group({
-      port: new FormControl('',
-                  Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
-      domain_name: new FormControl('',
-                   Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
-      key_controller: new FormControl('',
-                  Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
-      admin_server: new FormControl('',
-                  Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
-    });
-
     this.ntlmForm = this.fb.group({
       port: new FormControl('',
             Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
@@ -76,16 +62,12 @@ export class AgentTargetDialogComponent implements OnInit {
   }
 
   changeStep(event: MatRadioChange){
-    this.isKerberos = false;
     this.isNegOrNTLM = false;
     this.isSMB = false;
 
     if (event.value === "ntlm"){
       this.isNegOrNTLM = true;
       this.ntlmForm.get('port').setValue(WINRM_PORT);
-    } else if (event.value === "kerberos") {
-      this.isKerberos = true;
-      this.kerberosForm.get('port').setValue(WINRM_PORT_SSL);
     } else if (event.value === "smb") {
       this.isSMB = true;
       this.smbForm.get('port').setValue(SMB_PORT);
@@ -104,9 +86,7 @@ export class AgentTargetDialogComponent implements OnInit {
   }
 
   isWizardValid(): boolean {
-    if (this.isKerberos){
-      return (this.kerberosForm.valid && this.newTargetAgentForm.valid);
-    } else if (this.isNegOrNTLM){
+    if (this.isNegOrNTLM){
       return (this.ntlmForm.valid && this.newTargetAgentForm.valid);
     } else if (this.isSMB){
       return (this.smbForm.valid && this.newTargetAgentForm.valid);
@@ -117,7 +97,6 @@ export class AgentTargetDialogComponent implements OnInit {
   submitAndClose() {
     this.dialogRef.close({ "name": this.newTargetAgentForm.value["config_name"],
                            "protocol": this.newTargetAgentForm.value["protocol"],
-                           "kerberos": this.kerberosForm.value,
                            "ntlm": this.ntlmForm.value,
                            "smb": this.smbForm.value });
   }

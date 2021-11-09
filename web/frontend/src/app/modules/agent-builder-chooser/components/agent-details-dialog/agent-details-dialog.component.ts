@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
-import { AgentInstallerConfig, AppConfig } from '../../agent-builder.service';
+import { AppConfigClass, AgentInstallerConfigurationClass } from '../../classes';
 
 @Component({
     selector: 'agent-details-dialog',
@@ -9,8 +9,8 @@ import { AgentInstallerConfig, AppConfig } from '../../agent-builder.service';
     styleUrls: ['./agent-details-dialog.component.scss']
   })
 export class AgentDetailsDialogComponent {
-  appConfigs: AppConfig[];
-  config: AgentInstallerConfig;
+  appConfigs: AppConfigClass[];
+  config: AgentInstallerConfigurationClass;
 
   constructor(public dialogRef: MatDialogRef<AgentDetailsDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any) {

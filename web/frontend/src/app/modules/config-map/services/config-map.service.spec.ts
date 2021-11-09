@@ -102,7 +102,12 @@ describe('ConfigMapService', () => {
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: KubernetesConfigClass) => {
             const objectKeys: string[] = Object.keys(response);
-            objectKeys.forEach((key: string) => expect(response[key]).toEqual(MockKubernetesConfigClass[key]));
+            objectKeys.forEach((key: string) => {
+              if (!(response[key] instanceof Array)) {
+                expect(response[key]).toEqual(MockKubernetesConfigClass[key]);
+              }
+            });
+
             expect(service.get_config_maps).toHaveBeenCalled();
           });
 
@@ -181,7 +186,7 @@ describe('ConfigMapService', () => {
     });
 
     describe('REST get_associated_pods()', () => {
-      it('should call get_elastic_full_config()', () => {
+      it('should call get_associated_pods()', () => {
         reset();
 
         service.get_associated_pods(MockConfigMapEditClass.name)

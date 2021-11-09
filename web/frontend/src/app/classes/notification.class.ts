@@ -1,8 +1,6 @@
-import { ObjectUtilitiesClass } from '.';
-import { NotificationDataInterface, NotificationInterface } from '../interfaces';
+import { NotificationInterface } from '../interfaces';
 import { NotificationDataClass } from './notification-data.class';
-import { StatusClass } from './status.class';
-import { StatusInterface } from '../interfaces';
+import { ObjectUtilitiesClass } from './object-utilities.class';
 
 /**
  * Class defines the notification

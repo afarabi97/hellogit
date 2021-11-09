@@ -1,8 +1,10 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-import { NodeClass } from '../../classes';
+import { environment } from '../../../environments/environment';
+import { NodeClass, StatusClass } from '../../classes';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
 import { HTTP_OPTIONS } from '../../constants/cvah.constants';
 import { EntityConfig } from '../../interfaces';
@@ -104,5 +106,10 @@ export class CatalogService extends ApiService<any> {
     return this.httpClient_.get<Object>(url).pipe(
       catchError(error => this.handleError(url, error))
     );
+  }
+
+  checkLogStashInstalled(): Observable<StatusClass[]> {
+    return this.httpClient_.get<StatusClass[]>(environment.CATALOG_SERVICE_CHECK_LOGSTASH_INSTALLED)
+      .pipe(catchError((error: HttpErrorResponse) => this.handleError('get check logstash installed', error)));
   }
 }

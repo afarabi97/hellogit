@@ -21,6 +21,10 @@ import { KitTokenSettingsService } from '../../system-setupv2/services/kit-token
 import { KitTokenSettingsServiceSpy } from '../../system-setupv2/services/kit-token-settings.service.spec';
 import { NavBarService } from '../../top-navbar/services/navbar.service';
 import { NavbarServiceSpy } from '../../top-navbar/services/navbar.service.spec';
+import { AgentBuilderService } from '../agent-builder-chooser/services/agent-builder.service';
+import { AgentBuilderServiceSpy } from '../agent-builder-chooser/services/agent-builder.service.spec';
+import { EndgameService } from '../agent-builder-chooser/services/endgame.service';
+import { EndgameServiceSpy } from '../agent-builder-chooser/services/endgame.service.spec';
 import { ConfigMapService } from '../config-map/services/config-map.service';
 import { ConfigMapServiceSpy } from '../config-map/services/config-map.service.spec';
 import { DockerRegistryService } from '../docker-registry/services/docker-registry.service';
@@ -56,6 +60,8 @@ import { PolicyManagementServiceSpy } from '../policy-management/services/policy
     { provide: KitTokenSettingsService, useClass: KitTokenSettingsServiceSpy },
     { provide: PolicyManagementService, useClass: PolicyManagementServiceSpy },
     { provide: NavBarService, useClass: NavbarServiceSpy },
+    { provide: AgentBuilderService, useClass: AgentBuilderServiceSpy },
+    { provide: EndgameService, useClass: EndgameServiceSpy },
     { provide: ConfigMapService, useClass: ConfigMapServiceSpy },
     { provide: DockerRegistryService, useClass: DockerRegistryServiceSpy },
     { provide: ColdLogIngestService, useClass: ColdLogIngestServiceSpy },

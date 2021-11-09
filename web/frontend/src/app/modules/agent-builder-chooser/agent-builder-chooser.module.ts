@@ -9,6 +9,7 @@ import { AgentBuilderChooserComponent } from './agent-builder-chooser.component'
 import { AgentDetailsDialogComponent } from './components/agent-details-dialog/agent-details-dialog.component';
 import { AgentInstallerDialogComponent } from './components/agent-installer-dialog/agent-installer-dialog.component';
 import { AgentTargetDialogComponent } from './components/agent-target-dialog/agent-target-dialog.component';
+import { AgentBuilderService } from './services/agent-builder.service';
 import { EndgameService } from './services/endgame.service';
 
 @NgModule({
@@ -35,6 +36,7 @@ import { EndgameService } from './services/endgame.service';
     AgentTargetDialogComponent
   ],
   providers: [
+    AgentBuilderService,
     EndgameService
   ]
 })

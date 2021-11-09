@@ -6,6 +6,7 @@ import { MatSelectChange } from '@angular/material/select';
 import { Title } from '@angular/platform-browser';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
+import { CatalogService } from '../../catalog/services/catalog.service';
 import { ErrorMessageClass, GenericJobAndKeyClass, ObjectUtilitiesClass, StatusClass } from '../../classes';
 import {
   DIALOG_WIDTH_800PX,
@@ -19,7 +20,6 @@ import {
   DialogFormControlConfigClass
 } from '../../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
-import { AgentBuilderService } from '../agent-builder-chooser/agent-builder.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { FileSetClass } from './classes/file-set.class';
 import { FilebeatModuleClass } from './classes/filebeat-module.class';
@@ -65,7 +65,7 @@ export class ColdLogIngestComponent implements OnInit {
    * @param {Title} title_
    * @param {FormBuilder} form_builder_
    * @param {MatDialog} mat_dialog_
-   * @param {AgentBuilderService} agent_builder_service
+   * @param {CatalogService} catalog_service_
    * @param {MatSnackBarService} mat_snackbar_service_
    * @param {ColdLogIngestService} cold_log_ingest_service_
    * @memberof ColdLogIngestComponent
@@ -73,7 +73,7 @@ export class ColdLogIngestComponent implements OnInit {
   constructor(private title_: Title,
               private form_builder_: FormBuilder,
               private mat_dialog_: MatDialog,
-              private agent_builder_service: AgentBuilderService,
+              private catalog_service_: CatalogService,
               private mat_snackbar_service_: MatSnackBarService,
               private cold_log_ingest_service_: ColdLogIngestService) {
     this.file_sets = [];
@@ -372,7 +372,7 @@ export class ColdLogIngestComponent implements OnInit {
    * @memberof ColdLogIngestComponent
    */
   private api_check_logstash_installed_() : void {
-    this.agent_builder_service.checkLogStashInstalled()
+    this.catalog_service_.checkLogStashInstalled()
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: StatusClass[]) => {

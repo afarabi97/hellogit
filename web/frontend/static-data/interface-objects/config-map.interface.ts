@@ -38,7 +38,7 @@ export const MockConfigMapInterfaceLogstash: ConfigMapInterface = {
   api_version: null,
   binary_data: null,
   data: {
-    'logstash.yml': 'config.reload.automatic: true\nconfig.reload.interval: 10\npipeline.workers: 8\npipeline.batch.size: 8192\n', 
+    'logstash.yml': 'config.reload.automatic: true\nconfig.reload.interval: 10\npipeline.workers: 8\npipeline.batch.size: 8192\n',
     'metricbeat.yml': 'metricbeat.config.modules:\n  # Mounted `metricbeat-daemonset-modules` configmap:\n  path: ${path.config}/modules.d/*.yml\n  # Reload module configs as they change:\n  reload.enabled: true\n\nmetricbeat.modules:\n- module: logstash\n  metricsets:\n  - node\n  - node_stats\n  period: 30s\n  hosts: [\'localhost:9600\']\n  xpack.enabled: true\n  enabled: true\n- module: system\n  enabled: false\n\noutput.elasticsearch:\n  hosts:\n    - https://tfplenum-es-data-0.tfplenum-es-data.default.svc.cluster.local:9200\n    - https://tfplenum-es-data-1.tfplenum-es-data.default.svc.cluster.local:9200\n    - https://tfplenum-es-data-2.tfplenum-es-data.default.svc.cluster.local:9200\n    - https://tfplenum-es-data-3.tfplenum-es-data.default.svc.cluster.local:9200\n  username: ${ELASTICSEARCH_USERNAME}\n  password: ${ELASTICSEARCH_PASSWORD}\n  ssl.certificate_authorities: [\'/etc/ssl/certs/container/ca.crt\']', 
     'pipelines.yml': '- pipeline.id: external_beats\n  path.config: \'/usr/share/logstash/pipeline/external_beats.conf\'\n- pipeline.id: internal_filebeat\n  path.config: \'/usr/share/logstash/pipeline/internal_filebeat.conf\'\n'
   },

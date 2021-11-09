@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
@@ -5,10 +6,13 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatStepper } from '@angular/material/stepper';
 
-import { ObjectUtilitiesClass } from '../../../../classes';
-import { COMMON_VALIDATORS } from '../../../../constants/cvah.constants';
+import { ErrorMessageClass, ObjectUtilitiesClass } from '../../../../classes';
+import { COMMON_VALIDATORS, MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../../../constants/cvah.constants';
+import { MatOptionInterface } from '../../../../interfaces';
+import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
-import { AppConfig, ElementSpec } from '../../agent-builder.service';
+import { AppConfigClass, ElementSpecClass, EndgameSensorProfileClass } from '../../classes';
+import { EndgameLoginInterface } from '../../interfaces';
 import { EndgameService } from '../../services/endgame.service';
 
 @Component({
@@ -20,22 +24,24 @@ export class AgentInstallerDialogComponent implements OnInit {
   newHostAgentForm: FormGroup;
   externalIPToolTip: string;
   endgame_server_reachable: boolean;
-  sensor_profiles: Array<{name: string; value: string}> = [];
+  sensor_profiles: MatOptionInterface[];
   // Custom packages
-  appConfigs: AppConfig[];
+  appConfigs: AppConfigClass[];
   appNames: string[];
-  configs: {[key: string]: AppConfig};
-  applicableConfigs: AppConfig[];
+  configs: {[key: string]: AppConfigClass};
+  applicableConfigs: AppConfigClass[];
   applications: FormGroup;
   options: FormGroup;
   formElements = ['textinput', 'checkbox'];
 
   constructor(private fb: FormBuilder,
               public dialogRef: MatDialogRef<AgentInstallerDialogComponent>,
-              private endgameSrv: EndgameService,
+              private mat_snackbar_service_: MatSnackBarService,
+              private endgame_service_: EndgameService,
               private snackBar: MatSnackBar,
               @Inject(MAT_DIALOG_DATA) public data: any) {
     this.endgame_server_reachable = false;
+    this.sensor_profiles = [];
   }
 
   onNoClick(): void {
@@ -65,7 +71,7 @@ export class AgentInstallerDialogComponent implements OnInit {
     this.appConfigs = this.data;
     const configs = {};
 
-    this.appNames = this.appConfigs.map((appConfig: AppConfig) => {
+    this.appNames = this.appConfigs.map((appConfig: AppConfigClass) => {
       const name = appConfig.name;
       configs[name] = appConfig;
 
@@ -128,29 +134,38 @@ export class AgentInstallerDialogComponent implements OnInit {
        user_name.valid &&
        port.valid) {
 
-      const endgame_options = {
-        'endgame_password': password.value,
-        'endgame_server_ip': server_ip.value,
-        'endgame_user_name': user_name.value,
-        'endgame_port': port.value
+      const endgame_login: EndgameLoginInterface = {
+        endgame_password: password.value,
+        endgame_server_ip: server_ip.value,
+        endgame_user_name: user_name.value,
+        endgame_port: port.value
       };
 
-      this.endgameSrv.getEndgameSensorProfiles(endgame_options).subscribe(
-        profile_data => {
-          this.endgame_server_reachable = true;
-          this.sensor_profiles = new Array();
+      this.endgame_service_.endgame_sensor_profiles(endgame_login)
+        .subscribe(
+          (response: EndgameSensorProfileClass[]) => {
+            this.endgame_server_reachable = true;
+            this.sensor_profiles = response.map((sp: EndgameSensorProfileClass) => {
+              const mat_option: MatOptionInterface = {
+                name: sp.name,
+                value: sp.id
+              };
 
-          for (const profile of profile_data){
-            this.sensor_profiles.push({name: profile['name'], value: profile['id']});
-          }
-          stepper.next();
-          this.snackBar.open("Successfully connected to Endgame.", "Close", { duration: 5000});
-        },
-        err => {
+              return mat_option;
+            });
+            stepper.next();
+            const message: string = 'connected to Endgame';
+            this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          },
+          (error: ErrorMessageClass | HttpErrorResponse) => {
             this.endgame_server_reachable = false;
-            this.showEndgameSnackBar(err.error);
-        }
-      );
+            if (error instanceof ErrorMessageClass) {
+              this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            } else {
+              const message: string = 'connecting to endgame';
+              this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            }
+          });
     }
   }
 
@@ -159,7 +174,7 @@ export class AgentInstallerDialogComponent implements OnInit {
            ObjectUtilitiesClass.notUndefNull(control.errors) ? control.errors.error_message : '';
   }
 
-  onApplicationChange(event: MatCheckboxChange, appConfig: AppConfig) {
+  onApplicationChange(event: MatCheckboxChange, appConfig: AppConfigClass) {
     const checked = event.checked;
     const name = appConfig.name;
 
@@ -229,7 +244,7 @@ export class AgentInstallerDialogComponent implements OnInit {
     return new FormGroup(controls);
   }
 
-  private createTextinputControl(spec: ElementSpec): FormControl {
+  private createTextinputControl(spec: ElementSpecClass): FormControl {
     const validators = [];
     const regexp = spec['regexp'];
     const required = spec['required'];
@@ -248,12 +263,12 @@ export class AgentInstallerDialogComponent implements OnInit {
       return new FormControl(default_value, validators);
   }
 
-  private createCheckboxControl(spec: ElementSpec) {
+  private createCheckboxControl(spec: ElementSpecClass) {
     const default_value = spec['default_value'] || null;
       return new FormControl(default_value);
   }
 
-  private createControl(spec: ElementSpec) {
+  private createControl(spec: ElementSpecClass) {
       let control: FormControl;
 
       switch(spec.type) {
@@ -270,12 +285,12 @@ export class AgentInstallerDialogComponent implements OnInit {
       return control;
   }
 
-  private getFormSpec(appConfig: AppConfig) {
+  private getFormSpec(appConfig: AppConfigClass) {
     const formSpec = appConfig['form'];
-      return formSpec ? formSpec.filter((elementSpec: ElementSpec) => this.formElements.includes(elementSpec.type)) : [];
+      return formSpec ? formSpec.filter((elementSpec: ElementSpecClass) => this.formElements.includes(elementSpec.type)) : [];
   }
 
-  private createFormGroup(appConfig: AppConfig) {
+  private createFormGroup(appConfig: AppConfigClass) {
       // Removes any unknown elements.
       const formSpec = this.getFormSpec(appConfig);
 

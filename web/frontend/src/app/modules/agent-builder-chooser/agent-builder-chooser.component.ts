@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -7,31 +8,33 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import * as FileSaver from 'file-saver';
 
-import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
-import { ObjectUtilitiesClass } from '../../classes';
+import { CatalogService } from '../../catalog/services/catalog.service';
+import { ErrorMessageClass, ObjectUtilitiesClass } from '../../classes';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { COMMON_VALIDATORS } from '../../constants/cvah.constants';
+import { COMMON_VALIDATORS, MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../constants/cvah.constants';
+import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
 import {
   DialogControlTypes,
   DialogFormControl,
   DialogFormControlConfigClass
 } from '../../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
+import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
 import {
-  AgentBuilderService,
-  AgentInstallerConfig,
-  AppConfig,
-  ErrorMessage,
-  Host,
-  IpTargetList,
-  WindowsCreds
-} from './agent-builder.service';
+  AgentInstallerConfigurationClass,
+  AppConfigClass,
+  HostClass,
+  IPTargetListClass,
+  WindowsCredentialsClass
+} from './classes';
 import { AgentDetailsDialogComponent } from './components/agent-details-dialog/agent-details-dialog.component';
 import { AgentInstallerDialogComponent } from './components/agent-installer-dialog/agent-installer-dialog.component';
 import { AgentTargetDialogComponent } from './components/agent-target-dialog/agent-target-dialog.component';
 import { DOMAIN_PASSWORD_LABEL } from './constants/agent-builder-chooser.constant';
+import { HostInterface } from './interfaces';
+import { AgentBuilderService } from './services/agent-builder.service';
 
 const DIALOG_WIDTH = "800px";
 const DIALOG_MAX_HEIGHT = "800px";
@@ -44,21 +47,23 @@ export class AgentBuilderChooserComponent implements OnInit {
 
   @ViewChild('installerConfigPaginator') installerConfigPaginator: MatPaginator;
   @ViewChild('targetConfigPaginator') targetConfigPaginator: MatPaginator;
-  @ViewChild('targetTable') targetTable: MatTable<MatTableDataSource<IpTargetList>>;
-  @ViewChildren('hostTable') hostTables: QueryList<MatTable<Host>>;
+  @ViewChild('targetTable') targetTable: MatTable<MatTableDataSource<IPTargetListClass>>;
+  @ViewChildren('hostTable') hostTables: QueryList<MatTable<HostClass>>;
   // Columns for material tables.
   columnsForInstallerConfigs: string[] = ['select', 'config_name', 'install_custom', 'install_endgame', 'endgame_sensor_name', 'actions'];
   columnsForTargetConfigs: string[] = ['select', 'name', 'protocol', 'port', 'domain_name', 'actions'];
   columnsForHosts: string[] = ['hostname', 'state', 'last_state_change', 'actions'];
-  appConfigs: AppConfig[];
-  config_selection: AgentInstallerConfig = null;
-  target_selection: IpTargetList = null;
+  appConfigs: AppConfigClass[];
+  config_selection: AgentInstallerConfigurationClass = null;
+  target_selection: IPTargetListClass = null;
   // Interface
   configs: MatTableDataSource<any>;
   targetConfigs: MatTableDataSource<any>;
   is_downloading: boolean;
 
   constructor(private agentBuilderSvc: AgentBuilderService,
+              private catalog_service_: CatalogService,
+              private mat_snackbar_service_: MatSnackBarService,
               private titleSvc: Title,
               private socketSrv: WebsocketService,
               private snackBar: MatSnackBar,
@@ -70,7 +75,7 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.agentBuilderSvc.checkLogStashInstalled().subscribe(data =>{
+    this.catalog_service_.checkLogStashInstalled().subscribe(data =>{
       const status = data as Array<Object>;
       if (status && status.length > 0){
         if (status[0]["status"] !== "DEPLOYED"){
@@ -84,9 +89,11 @@ export class AgentBuilderChooserComponent implements OnInit {
       }
     });
 
-    this.agentBuilderSvc.getAppConfigs().subscribe(appConfigs => {
-      this.appConfigs = appConfigs;
-    });
+    this.agentBuilderSvc.get_app_configs()
+      .subscribe(
+        (appConfigs: AppConfigClass[]) => {
+          this.appConfigs = appConfigs;
+        });
 
     this.getSavedConfigs();
     this.getSavedTargetConfigs();
@@ -131,14 +138,14 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   getSavedConfigs() {
-    this.agentBuilderSvc.getSavedConfigs().subscribe(
+    this.agentBuilderSvc.agent_get_configs().subscribe(
       configs => {
         this.setSavedConfigs(configs);
       });
   }
 
   getSavedTargetConfigs(){
-    this.agentBuilderSvc.getIpTargetList().subscribe(configs => {
+    this.agentBuilderSvc.agent_get_ip_target_list().subscribe(configs => {
       this.setTargetConfigs(configs);
     });
   }
@@ -153,7 +160,7 @@ export class AgentBuilderChooserComponent implements OnInit {
       windows_domain_creds: null
     };
 
-    this.agentBuilderSvc.getAgentInstaller(payload).subscribe(
+    this.agentBuilderSvc.agent_generate(payload).subscribe(
       installer_response => {
         try {
           const installer_blob = new Blob([installer_response], { type: 'zip' });
@@ -213,7 +220,7 @@ export class AgentBuilderChooserComponent implements OnInit {
 
       if (form && form.valid) {
         const rawValue = form.getRawValue();
-        const credentials = new WindowsCreds(rawValue);
+        const credentials = new WindowsCredentialsClass(rawValue);
         return callback(credentials);
       } else {
         // void function does nothing only used to handle code smell
@@ -234,16 +241,19 @@ export class AgentBuilderChooserComponent implements OnInit {
         'target_config': target['config'],
         'windows_domain_creds': credentials
       };
-      const response = this.agentBuilderSvc.installAgents(payload);
-
-      response.subscribe(
-        data => {
-          this.displaySnackBar(data['success_message']);
-        },
-        _error => {
-          this.displaySnackBar("Failed initiate install task for an unknown reason.");
-        }
-      );
+      this.agentBuilderSvc.agents_install(payload)
+        .subscribe(
+          data => {
+            this.displaySnackBar(data['success_message']);
+          },
+          (error: ErrorMessageClass | HttpErrorResponse) => {
+            if (error instanceof ErrorMessageClass) {
+              this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            } else {
+              const message: string = 'initiating install task for an unknown reason';
+              this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            }
+          });
     });
   }
 
@@ -257,16 +267,19 @@ export class AgentBuilderChooserComponent implements OnInit {
         target_config: target['config'],
         windows_domain_creds: credentials
       };
-      const response = this.agentBuilderSvc.uninstallAgents(payload);
-
-      response.subscribe(
-        data => {
-          this.displaySnackBar(data['success_message']);
-        },
-        _error => {
-          this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target hosts.");
-        }
-      );
+      this.agentBuilderSvc.agents_uninstall(payload)
+        .subscribe(
+          data => {
+            this.displaySnackBar(data['success_message']);
+          },
+          (error: ErrorMessageClass | HttpErrorResponse) => {
+            if (error instanceof ErrorMessageClass) {
+              this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            } else {
+              const message: string = 'executing uninstall action as this Agent is already uninstalled on target host';
+              this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            }
+          });
     });
   }
 
@@ -278,11 +291,10 @@ export class AgentBuilderChooserComponent implements OnInit {
       const payload = {
         installer_config: config,
         target_config: target,
-        windows_domain_creds: credentials
+        windows_domain_creds: credentials,
+        target: host
       };
-      const response = this.agentBuilderSvc.reinstallAgent(payload, host);
-
-      response.subscribe(
+      this.agentBuilderSvc.agent_reinstall(payload).subscribe(
         data => {
           this.displaySnackBar(data['success_message']);
         },
@@ -301,26 +313,30 @@ export class AgentBuilderChooserComponent implements OnInit {
       const payload = {
         installer_config: config,
         target_config: target,
-        windows_domain_creds: credentials
+        windows_domain_creds: credentials,
+        target: host
       };
 
-      const response = this.agentBuilderSvc.uninstallAgent(payload, host);
-
-      response.subscribe(
-        data => {
-          this.displaySnackBar(data['success_message']);
-        },
-        _error => {
-          this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target host.");
-        }
-      );
+      this.agentBuilderSvc.agent_uninstall(payload)
+        .subscribe(
+          data => {
+            this.displaySnackBar(data['success_message']);
+          },
+          (error: ErrorMessageClass | HttpErrorResponse) => {
+            if (error instanceof ErrorMessageClass) {
+              this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            } else {
+              const message: string = 'executing uninstall action as this Agent is already uninstalled on target host';
+              this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            }
+          });
     });
   }
 
-  openConfirmDeleteConfig(config: any) {
+  openConfirmDeleteConfig(agent_installer_configuration: AgentInstallerConfigurationClass) {
     const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
-      title: `Remove configuration ${config.config_name}?`,
-      message: `Are you sure you want to delete ${config.config_name}?`,
+      title: `Remove configuration ${agent_installer_configuration.config_name}?`,
+      message: `Are you sure you want to delete ${agent_installer_configuration.config_name}?`,
       option1: 'Cancel',
       option2: 'Confirm'
     };
@@ -331,9 +347,9 @@ export class AgentBuilderChooserComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(response => {
       if (response === confirm_dialog.option2) {
-        this.agentBuilderSvc.deleteConfig(config['_id']).subscribe(config_list => {
+        this.agentBuilderSvc.agent_delete_config(agent_installer_configuration._id).subscribe(config_list => {
           this.setSavedConfigs(config_list);
-          this.displaySnackBar(`${config.config_name} was deleted successfully.`);
+          this.displaySnackBar(`${agent_installer_configuration.config_name} was deleted successfully.`);
         },
         error => {
           this.displaySnackBar("Failed to delete configuration.");
@@ -343,7 +359,7 @@ export class AgentBuilderChooserComponent implements OnInit {
     });
   }
 
-  openConfirmDeleteTarget(config: IpTargetList) {
+  openConfirmDeleteTarget(config: IPTargetListClass) {
     const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
       title: `Remove configuration ${config.name}?`,
       message: 'Before deleting this target configuration, it is strongly advised to first do a "Batch Uninstall". ' +
@@ -358,7 +374,7 @@ export class AgentBuilderChooserComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(response => {
       if (response === confirm_dialog.option2) {
-        this.agentBuilderSvc.deleteIpTargetList(config.name).subscribe(configs => {
+        this.agentBuilderSvc.agent_delete_ip_target_list(config.name).subscribe(configs => {
           this.setTargetConfigs(configs);
           this.displaySnackBar(`${config.name} was deleted successfully.`);
         },
@@ -386,16 +402,20 @@ export class AgentBuilderChooserComponent implements OnInit {
         const scratch = {...formData, ...endgame};
         formData = scratch;
 
-        this.agentBuilderSvc.saveConfig(formData).subscribe(
-          configs => {
-            this.setSavedConfigs(configs);
-            this.displaySnackBar("Saved configuration successfully.");
-          },
-          error => {
-            this.displaySnackBar(`Failed to save configuration. ${error.message}`);
-            console.error("Save config error:", error);
-          }
-        );
+        this.agentBuilderSvc.agent_save_config(formData)
+          .subscribe(
+            configs => {
+              this.setSavedConfigs(configs);
+              this.displaySnackBar("Saved configuration successfully.");
+            },
+            (error: ErrorMessageClass | HttpErrorResponse) => {
+              if (error instanceof ErrorMessageClass) {
+                this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+              } else {
+                const message: string = 'saving configuration';
+                this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+              }
+            });
       }
     });
   }
@@ -410,8 +430,8 @@ export class AgentBuilderChooserComponent implements OnInit {
     dialogRef.afterClosed().subscribe(
       result => {
         if (result) {
-          const name = (result as IpTargetList).name;
-          this.agentBuilderSvc.saveIpTargetList(result as IpTargetList).subscribe(configs => {
+          const name = (result as IPTargetListClass).name;
+          this.agentBuilderSvc.agent_save_ip_target_list(result as IPTargetListClass).subscribe(configs => {
             this.setTargetConfigs(configs);
             this.displaySnackBar(`${name} was saved successfully.`);
       },
@@ -423,27 +443,23 @@ export class AgentBuilderChooserComponent implements OnInit {
     });
   }
 
-  getPort(config: IpTargetList): string {
-    if (config.protocol === "kerberos") {
-      return config.kerberos.port;
-    } else if (config.protocol === "smb") {
+  getPort(config: IPTargetListClass): string {
+    if (config.protocol === "smb") {
       return config.smb.port;
     }
 
     return config.ntlm.port;
   }
 
-  getDomainSuffix(config: IpTargetList): string {
-    if (config.protocol === "kerberos") {
-      return config.kerberos.domain_name;
-    } else if (config.protocol === "smb") {
+  getDomainSuffix(config: IPTargetListClass): string {
+    if (config.protocol === "smb") {
       return config.smb.domain_name;
     }
 
     return config.ntlm.domain_name;
   }
 
-  openAddWindowsHostModal(targetConfig: IpTargetList, hostList: MatTableDataSource<Host>) {
+  openAddWindowsHostModal(targetConfig: IPTargetListClass, hostList: MatTableDataSource<HostClass>) {
     const hostnamesFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
     hostnamesFormControlConfig.label = 'Windows Hostname';
     hostnamesFormControlConfig.formState = '';
@@ -469,14 +485,13 @@ export class AgentBuilderChooserComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       const form = result as FormGroup;
       if (form && form.valid) {
-        const host = form.getRawValue() as Host;
-        this.agentBuilderSvc.addHostToIPTargetList(targetConfig._id, host).subscribe(data => {
-          if (data instanceof ErrorMessage){
-            this.displaySnackBar(data.error_message);
-          } else {
-            const additionalTargets: Host[] = data.targets;
-            let targets: Host[] = [];
-            let distinct: Host[] = [];
+        const host: HostInterface = form.getRawValue();
+        this.agentBuilderSvc.agent_add_host_to_ip_target_list(targetConfig._id, host)
+        .subscribe(
+          data => {
+            const additionalTargets: HostClass[] = data.targets;
+            let targets: HostClass[] = [];
+            let distinct: HostClass[] = [];
 
             if (targetConfig.targets) {
               targets = targetConfig.targets;
@@ -489,19 +504,26 @@ export class AgentBuilderChooserComponent implements OnInit {
             }
 
             this.displaySnackBar("Windows hosts saved successfully.");
-          }
-        });
+          },
+          (error: ErrorMessageClass | HttpErrorResponse) => {
+            if (error instanceof ErrorMessageClass) {
+              this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            } else {
+              const message: string = 'adding host to ip target list';
+              this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            }
+          });
       }
     });
   }
 
-  isFirstHost(host: Host, hostIndex: number, hosts: Host[]) {
-    const hostIndexFromHosts: number = hosts.findIndex((h: Host) => h.hostname.toLowerCase() === host.hostname.toLowerCase());
+  isFirstHost(host: HostClass, hostIndex: number, hosts: HostClass[]) {
+    const hostIndexFromHosts: number = hosts.findIndex((h: HostClass) => h.hostname.toLowerCase() === host.hostname.toLowerCase());
 
     return hostIndexFromHosts === hostIndex;
   }
 
-  openRemoveHostModal(target_config: IpTargetList, hostList: MatTableDataSource<Host>, host: Host, hostIndex: number) {
+  openRemoveHostModal(target_config: IPTargetListClass, hostList: MatTableDataSource<HostClass>, host: HostClass, hostIndex: number) {
     const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
       title: `Remove configuration ${host.hostname}?`,
       message: `Before deleting this ${host.hostname}, it is strongly advised to uninstall first. This action cannot be undone.`,
@@ -515,22 +537,24 @@ export class AgentBuilderChooserComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(response => {
       if (response === confirm_dialog.option2) {
-        this.agentBuilderSvc.removeHostFromIpTargetList(target_config._id, host).subscribe(data => {
-          if (data instanceof ErrorMessage){
-            this.displaySnackBar(data.error_message);
-          } else {
+        this.agentBuilderSvc.agent_remove_host_from_ip_target_list(target_config._id, host)
+        .subscribe(
+          data => {
             this.displaySnackBar(data.success_message);
 
             const newHostList = hostList.data.filter((_host, index) => index !== hostIndex);
 
             hostList.data = newHostList;
             target_config.targets = newHostList;
-          }
-        },
-        error => {
-          this.displaySnackBar("Failed to delete configuration.");
-          console.error("Delete config error:", error);
-        });
+          },
+          (error: ErrorMessageClass | HttpErrorResponse) => {
+            if (error instanceof ErrorMessageClass) {
+              this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            } else {
+              const message: string = 'removing host from ip target list';
+              this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            }
+          });
       }
     });
   }
@@ -539,15 +563,15 @@ export class AgentBuilderChooserComponent implements OnInit {
     this.snackBar.open(message, "Close", { duration: duration_seconds * 1000});
   }
 
-  private setSavedConfigs(configs: Array<AgentInstallerConfig>) {
-    this.configs = new MatTableDataSource<AgentInstallerConfig>(configs);
+  private setSavedConfigs(configs: AgentInstallerConfigurationClass[]) {
+    this.configs = new MatTableDataSource<AgentInstallerConfigurationClass>(configs);
     this.configs.paginator = this.installerConfigPaginator;
     this.config_selection = null;
     this.ref.detectChanges();
   }
 
 
-  private setTargetConfigs(configs: Array<IpTargetList>){
+  private setTargetConfigs(configs: IPTargetListClass[]){
     const rows = [];
     for (const config of configs) {
       const targets = config['targets'];
@@ -573,7 +597,7 @@ export class AgentBuilderChooserComponent implements OnInit {
     });
   }
 
-  private _update_targets(target_config: IpTargetList, update_config: IpTargetList){
+  private _update_targets(target_config: IPTargetListClass, update_config: IPTargetListClass){
     for (const target of target_config.targets){
       for (const update of update_config.targets){
         if (target.hostname === update.hostname){
@@ -586,7 +610,7 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   private refreshStateChanges(){
-    this.agentBuilderSvc.getIpTargetList().subscribe((data: IpTargetList[]) => {
+    this.agentBuilderSvc.agent_get_ip_target_list().subscribe((data: IPTargetListClass[]) => {
       Object.keys(this.targetConfigs.data).forEach((key: string) => {
         const target_config = this.targetConfigs.data[key]['config'];
         for (const updated_config of data) {
