@@ -17,6 +17,7 @@ from app.utils.connection_mngs import REDIS_CLIENT, get_kubernetes_secret
 from app.utils.constants import (AGENT_PKGS_DIR, AGENT_UPLOAD_DIR,
                                  DATE_FORMAT_STR, TARGET_STATES)
 from app.utils.db_mngs import conn_mng
+from app.utils.logging import rq_logger
 from app.utils.tfwinrm_util import (WindowsConnectionManager,
                                     WinrmCommandFailure)
 from app.utils.utils import decode_password, zip_package

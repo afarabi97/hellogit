@@ -238,7 +238,7 @@ export class AgentBuilderChooserComponent implements OnInit {
 
       response.subscribe(
         data => {
-          this.displaySnackBar(data['message']);
+          this.displaySnackBar(data['success_message']);
         },
         _error => {
           this.displaySnackBar("Failed initiate install task for an unknown reason.");
@@ -261,7 +261,7 @@ export class AgentBuilderChooserComponent implements OnInit {
 
       response.subscribe(
         data => {
-          this.displaySnackBar(data['message']);
+          this.displaySnackBar(data['success_message']);
         },
         _error => {
           this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target hosts.");
@@ -284,7 +284,7 @@ export class AgentBuilderChooserComponent implements OnInit {
 
       response.subscribe(
         data => {
-          this.displaySnackBar(data['message']);
+          this.displaySnackBar(data['success_message']);
         },
         _error => {
           this.displaySnackBar("Failed initiate reinstall on host for an unknown reason.");
@@ -308,7 +308,7 @@ export class AgentBuilderChooserComponent implements OnInit {
 
       response.subscribe(
         data => {
-          this.displaySnackBar(data['message']);
+          this.displaySnackBar(data['success_message']);
         },
         _error => {
           this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target host.");
