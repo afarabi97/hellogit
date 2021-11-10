@@ -141,7 +141,6 @@ def build_query_clause(acknowledged: str,
         }
     }
 
-
 def get_additional_match_clauses(payload: Dict) -> List[Dict]:
     ret_val = []
     if "event.kind" in payload and payload['event.kind'] == "signal":
@@ -387,6 +386,86 @@ class AlertsCtrlv2(Resource):
         return sorted(table_rows, key = lambda i: i['count'], reverse=True), 200
 
 
+@ALERTS_NS.route('/remove')
+class AlertsDelCtrl(Resource):
+
+    @ALERTS_NS.doc(description="Remove alert object in elastic and hive with escalated or acknowledged status. \
+                                The removed alert is put back into acknoweldge state and is also removed from hive.")
+    @ALERTS_NS.response(500, "Error")
+    @ALERTS_NS.response(200, "OK")
+    @ALERTS_NS.expect(UpdateAlertsModel.DTO)
+    def post(self) -> Response:
+        indicies = ALL_INDEXES
+        elastic = ElasticWrapper()
+        payload = ALERTS_NS.payload
+        acknowledged = "yes" if payload["form"]["acknowledged"] else 'no'
+        escalated = "yes" if payload["form"]["escalated"] else 'no'
+        start_time = payload["form"]["startDatetime"]
+        end_time = payload["form"]["endDatetime"]
+        show_closed = "yes" if payload["form"]["showClosed"] else 'no'
+        search_kind = "alert"
+        if "event.kind" in payload:
+            search_kind = payload["event.kind"]
+        additional_must_clauses = get_additional_match_clauses(payload)
+        body = {}
+        body["query"] = build_query_clause(acknowledged=acknowledged,
+                                           escalated=escalated,
+                                           start_time=start_time,
+                                           end_time=end_time,
+                                           search_kind=search_kind,
+                                           additional_must_clauses=additional_must_clauses,
+                                           show_closed=show_closed)
+        body["size"] = 1
+        body["_source"] = "event.hive_id"
+        payload = elastic.search(body=body, index=indicies,
+                                 doc_type=None, params=None,
+                                 headers=None, request_timeout=ELASTIC_TIMEOUT)
+        hive_id = payload["hits"]["hits"][0]["_source"]["event"]["hive_id"]
+
+        hive_srv = HiveService()
+        hive_srv.delete_hive_case(hive_id)
+
+        to_modify = {
+            "query": {
+                "match": {
+                    "event.hive_id": hive_id
+                }
+            }
+        }
+
+        if search_kind == "signal":
+            to_modify["script"] = {
+                "source": '''
+                    ctx._source.event.acknowledged = true;
+                    ctx._source.event.escalated = false;
+                    ctx._source.signal.status = "closed";
+                    ctx._source.event.remove("hive_resolution_status");
+                    ctx._source.event.remove("hive_status");
+                    ctx._source.event.remove("hive_impact_status");
+                    ctx._source.event.remove("hive_id");
+                ''',
+                "lang": "painless"
+            }
+        else:
+            to_modify["script"] = {
+                "source": '''
+                    ctx._source.event.acknowledged = true;
+                    ctx._source.event.escalated = false;
+                    ctx._source.event.remove("hive_resolution_status");
+                    ctx._source.event.remove("hive_status");
+                    ctx._source.event.remove("hive_impact_status");
+                    ctx._source.event.remove("hive_id");
+                ''',
+                "lang": "painless"
+            }
+
+        ret_val = elastic.update_by_query(index=indicies, body=to_modify, request_timeout=ELASTIC_TIMEOUT)
+        if ret_val and len(ret_val['failures']) == 0:
+            return ret_val, 200
+
+        return ret_val, 500
+
+
 @ALERTS_NS.route('/modify')
 class AlertsAckCtrl(Resource):
 
@@ -419,9 +498,9 @@ class AlertsAckCtrl(Resource):
         if perform_escalation:
             try:
                 hive_custom_fields = hive_custom_fields_to_create(payload)
-                hive_srv = HiveService(payload["form"]["hiveForm"], hive_custom_fields)
-                hive_srv.create_custom_fields()
-                hive_info = hive_srv.create_hive_case()
+                hive_srv = HiveService()
+                hive_srv.create_custom_fields(hive_custom_fields)
+                hive_info = hive_srv.create_hive_case(payload["form"]["hiveForm"], hive_custom_fields)
             except HiveFailureError as e:
                 return e.payload, 400
 
@@ -574,11 +653,19 @@ def webhook():
     }
 
     if event["operation"] == "delete":
-        body["script"]["source"] += 'ctx._source.event.escalated = false;\n'
-        body["script"]["source"] += 'ctx._source.event.acknowledged = true;\n'
+        body["script"] = {
+            "source": '''
+                ctx._source.event.remove("hive_resolution_status");
+                ctx._source.event.remove("hive_status");
+                ctx._source.event.remove("hive_impact_status");
+                ctx._source.event.remove("hive_id");
+                ctx._source.event.escalated = false;
+                ctx._source.event.acknowledged = true;
+            ''',
+            "lang": "painless"
+        }
         if event_kind == 'signal':
-            body["script"]["source"] += 'ctx._source.signal.status = "open";\n'
-
+            body["script"]["source"] += 'ctx._source.signal.status = "closed";\n'
     elif event_kind == 'signal':
         if hive_status == 'Resolved':
             body["script"]["source"] += 'ctx._source.signal.status = "closed"\n'

@@ -163,6 +163,44 @@ export class SecurityAlertsComponent implements OnInit {
     this._ackorUnsetAck(alert, paneTitle, paneString);
   }
 
+  removeAlerts(alert: Object) {
+    const count = alert['count'];
+    const paneString = `Are you sure you want to remove ${count} alerts? \
+                        \n\nDoing so will turn these alerts into a false positive \
+                        which will not appear anymore on your alerts page. Also, \
+                        the hive case for these alerts shall be deleted. \
+                        It is advised to close out cases in the hive application itself.`;
+    const paneTitle = 'Remove Alerts';
+
+    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+      title: paneTitle,
+      message: paneString,
+      option1: 'Cancel',
+      option2: 'Confirm'
+    };
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: DIALOG_WIDTH,
+      data: confirm_dialog,
+    });
+
+    dialogRef.afterClosed().subscribe(response => {
+      if (response === confirm_dialog.option2) {
+        this.alertSrv.removeAlerts(alert, this.controlForm).subscribe(new_data=>{
+          const new_count = new_data['total'];
+          const msg = `Successfully performed operation on ${new_count} Alerts.`;
+          this.matSnackBarSrv.displaySnackBar(msg);
+          this.updateAlertsTable();
+        }, err => {
+          if (err && err['message']){
+            this.matSnackBarSrv.displaySnackBar(err['message']);
+          } else {
+            this.matSnackBarSrv.displaySnackBar('Failed to remove the Alerts for an unknown reason.');
+          }
+        });
+      }
+    });
+  }
+
   unSetacknowledgedEvent(alert: Object){
     const count = alert['count'];
     const paneString = `Are you sure you want to undo ${count} acknowledged alerts? \

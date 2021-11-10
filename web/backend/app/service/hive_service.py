@@ -8,6 +8,7 @@ from thehive4py.api import TheHiveApi
 from thehive4py.auth import BearerAuth
 from thehive4py.exceptions import CustomFieldException
 from thehive4py.models import Case, CustomField, Version
+from thehive4py.exceptions import CaseException
 
 
 class HiveFailureError(Exception):
@@ -76,20 +77,26 @@ class MyTheHiveApi(TheHiveApi):
         except requests.exceptions.RequestException as e:
             raise CustomFieldException("Custom field create error: {}".format(e))
 
-
 class HiveService:
 
-    def __init__(self, hive_form: Dict, fields_to_create: List[Dict]):
-        self._hive_form = hive_form
-        self._fields_to_create = fields_to_create
+    def __init__(self):
         self._settings = HiveSettingsModel.load_from_db()
         self._domain = get_domain()
         self._hive_url = 'https://hive.' + self._domain
         self._hive_api = MyTheHiveApi(self._hive_url, self._settings.org_admin_api_key, cert=False)
         self._hive_api_admin = MyTheHiveApi(self._hive_url, self._settings.admin_api_key, cert=False)
 
-    def create_custom_fields(self):
-        for field in self._fields_to_create:
+    def delete_hive_case(self, hive_case_id):
+        logger.debug(f"deleting_hive_case: {hive_case_id}")
+        try:
+            ret_val = self._hive_api.delete_case("~" + str(hive_case_id))
+            logger.debug(ret_val.status_code)
+            logger.debug(ret_val.content)
+        except CaseException as e:
+            logger.exception(e)
+
+    def create_custom_fields(self, fields_to_create: List[Dict]=None):
+        for field in fields_to_create:
             custom_field = CustomField(name=field["name"], reference=field["name"], description="Do not modify", options=[], type=field["type"])
             try:
                 ret_val = self._hive_api_admin.create_custom_field(custom_field)
@@ -99,17 +106,17 @@ class HiveService:
                 # We ignore fields that have already been created
                 logger.debug(str(e))
 
-    def create_hive_case(self):
-        tags = [] if not self._hive_form.get("event_tags") else self._hive_form.get("event_tags").split(',')
+    def create_hive_case(self, hive_form: Dict, fields_to_create: List[Dict]=None):
+        tags = [] if not hive_form.get("event_tags") else hive_form.get("event_tags").split(',')
         custom_fields = {}
-        for field in self._fields_to_create:
+        for field in fields_to_create:
             custom_fields[field["name"]] = field["value"]
 
-        decscription = self._hive_form.get('event_description').replace('\n\n', '$FIXIT').replace('\n', '').replace('$FIXIT','\n\n')
-        case = Case(title = self._hive_form.get('event_title'),
+        decscription = hive_form.get('event_description').replace('\n\n', '$FIXIT').replace('\n', '').replace('$FIXIT','\n\n')
+        case = Case(title = hive_form.get('event_title'),
                     description = decscription,
-                    severity = int(self._hive_form.get('event_severity')),
-                    owner = self._hive_form.get('event_owner'),
+                    severity = int(hive_form.get('event_severity')),
+                    owner = hive_form.get('event_owner'),
                     tags = tags,
                     customFields = custom_fields)
 

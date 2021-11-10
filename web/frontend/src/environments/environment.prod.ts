@@ -30,11 +30,6 @@ export const environment = {
 
   USER_SERVICE_CURRENT_USER: `/api/current_user`,
 
-  ARCHIVE_SERVICE_ARCHIVE_FORM: `/api/archive_form`,
-  ARCHIVE_SERVICE_ARCHIVE_DELETE: `/api/delete_archive/`,
-  ARCHIVE_SERVICE_ARCHIVE_RESTORE: `/api/restore_archived`,
-  ARCHIVE_SERVICE_ARCHIVE_GET: `/api/get_archived/`,
-
   AGENT_BUILDER_SERVICE_GENERATE_WINDOWS_INSTALLER: `/api/agent/generate`,
   AGENT_BUILDER_SERVICE_SAVE_AGENT_INSTALLER_CONFIG: `/api/agent/config`,
   AGENT_BUILDER_SERVICE_DELETE_AGENT_INSTALLER_CONFIG: `/api/agent/config/`,

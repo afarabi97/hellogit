@@ -52,6 +52,12 @@ export class AlertService {
     return this.http.post(url, alert).pipe();
   }
 
+  removeAlerts(alert: Object, controlForm: FormGroup){
+    const url = '/api/alerts/remove';
+    alert['form'] = controlForm.value;
+    return this.http.post(url, alert).pipe();
+  }
+
   saveHiveSettings(form: FormGroup){
     const url = '/api/alerts/settings';
     return this.http.post(url, form.value);
