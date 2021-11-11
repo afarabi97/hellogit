@@ -36,7 +36,7 @@
           <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;" (click)="stepper.next();getInterfaceDetails();"
                   *ngIf="processFormGroup.value.selectedProcess !== 'uninstall'" [disabled]="processFormGroup.invalid">Next</button>
           <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;"
-                  *ngIf="processFormGroup.value.selectedProcess === 'uninstall'" (click)="runChart()" [disabled]="valueFormGroup.invalid">Run</button>
+                  *ngIf="processFormGroup.value.selectedProcess === 'uninstall'" (click)="runChart()" [disabled]="processFormGroup.invalid">Run</button>
         </div>
       </mat-step>
         <!-- Configuration Overview -->

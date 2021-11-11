@@ -197,7 +197,10 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
 
   selectProcessChange() {
     if(this.processFormGroup.get("selectedProcess").valid) {
-      this.processFormGroup.get("selectedNodes").enable();
+      if (this.chart?.node_affinity !== this.serverAnyValue) {
+        this.processFormGroup.get("selectedNodes").enable();
+        this.processFormGroup.get("selectedNodes").setValidators([Validators.required]);
+      }
     }
   }
 
