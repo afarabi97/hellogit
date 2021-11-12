@@ -1,10 +1,19 @@
 import os
 import shlex
 import subprocess
-from typing import Callable, Tuple
+from typing import Callable, List, Tuple
 
+from app.models.common import JobID
+from app.models.nodes import Node, NodeJob
 from app.service.socket_service import log_to_console
+from app.utils.connection_mngs import REDIS_CLIENT, REDIS_QUEUE
+from app.utils.constants import DEPLOYMENT_JOBS
 from app.utils.logging import rq_logger
+from app.utils.utils import kill_child_processes
+from rq import Worker
+from rq.command import send_stop_job_command
+from rq.job import Job
+from rq.registry import StartedJobRegistry
 
 
 def _open_proc(command: str,
@@ -92,3 +101,34 @@ def run_command2(command: str,
     proc = _open_proc(command, working_dir, use_shell)
     sout, _ = proc.communicate()
     return sout.decode('utf-8'), proc.poll()
+
+
+def check_gather_device_facts_job(node: Node) -> str:
+    all_jobs = (StartedJobRegistry(connection=REDIS_CLIENT).get_job_ids())
+    started_jobs = Job.fetch_many(all_jobs, connection=REDIS_CLIENT) # type: List[Job]
+    for job in started_jobs:
+        if "node_id" in job.meta and job.meta["node_id"] == node._id \
+            and "job_name" in job.meta and job.meta["job_name"] == DEPLOYMENT_JOBS.gather_device_facts.value:
+            return job.id
+    return None
+
+def cancel_job(job_id, txt):
+    log_to_console(job_name="nodes", jobid=job_id, text=txt, color="red")
+    send_stop_job_command(connection=REDIS_CLIENT, job_id=job_id)
+
+def delete_job(job_id):
+        job_obj = NodeJob.load_jobs_by_job_id(job_id) # type: NodeJob
+        if job_obj:
+            job_obj.set_error("Job killed by User")
+
+        workers = Worker.all(queue=REDIS_QUEUE)
+        for worker in workers:
+            job = worker.get_current_job()
+            if job and job_id == job.get_id():
+                kill_child_processes(worker.pid)
+                job.delete()
+                return JobID(job).to_dict()
+
+        job = Job.fetch(job_id, connection=REDIS_CLIENT)
+        job.delete()
+        return JobID(job).to_dict()

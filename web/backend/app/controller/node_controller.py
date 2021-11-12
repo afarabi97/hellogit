@@ -9,14 +9,15 @@ from app.models.settings.kit_settings import (GeneralSettingsForm,
                                               KitSettingsForm)
 from app.models.settings.mip_settings import MipSettingsForm
 from app.service.catalog_service import delete_helm_apps, get_node_apps
+from app.service.job_service import check_gather_device_facts_job, cancel_job
 from app.service.node_service import (execute, gather_device_facts,
                                       get_all_nodes_with_jobs, refresh_kit,
                                       send_notification,
                                       update_device_facts_job)
 from app.service.vpn_service import VpnService
-from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_DEPLOY,
-                                 JOB_PROVISION, JOB_REMOVE, MAC_BASE,
-                                 NODE_TYPES, PXE_TYPES)
+from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_CREATE,
+                                 JOB_DEPLOY, JOB_PROVISION, JOB_REMOVE,
+                                 MAC_BASE, NODE_TYPES, PXE_TYPES)
 from app.utils.collections import mongo_catalog_saved_values, mongo_node
 from flask import Response, send_file
 from flask_restx import Resource
@@ -177,22 +178,46 @@ class NodeStateCtrl(Resource):
     @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
     @login_required_roles(['controller-node-state'], True)
     def post(self, hostname: str) -> Response:
+        job_error = False
+        job_complete = False
+        job_inprogress = False
+        job_create = False
+        job_provision = False
+        job_deploy = False
         try:
             node = Node.load_from_db_using_hostname(hostname) # type: Node
             payload = KIT_SETUP_NS.payload
             if payload and node:
                 job = NodeJob.load_job_by_node(node=node, job_name=payload["name"]) # type: NodeJob
+                if "error" in payload and payload["error"]:
+                    job_error = True
+                elif "complete" in payload and payload["complete"]:
+                    job_complete = True
+                elif "inprogress" in payload and payload["inprogress"]:
+                    job_inprogress = True
+                if "name" in payload:
+                    if payload["name"] == JOB_CREATE:
+                        job_create = True
+                    elif payload["name"] == JOB_PROVISION:
+                        job_provision = True
+                    elif payload["name"] == JOB_DEPLOY:
+                        job_deploy = True
                 if job:
+                    if job_provision and job_inprogress and job.inprogress:
+                        job_id = check_gather_device_facts_job(node) # type: str
+                        if job_id:
+                            txt = "Provision job {} cancelled by another job.  Check node status on node management page.".format(job_id)
+                            cancel_job(job_id, txt)
                     job.set_job_state()
-                    if "error" in payload and payload["error"]:
+                    if job_error:
                         text = "An error has occurred"
                         if "message" in payload:
                             text = payload["message"]
                         job.set_error(text)
-                    if "complete" in payload and payload["complete"]:
+                    if job_complete:
                         job.set_complete()
-                    if "inprogress" in payload and payload["inprogress"]:
-                        if payload["name"] == JOB_PROVISION:
+                    if job_inprogress:
+                        if job_provision:
                             settings = KitSettingsForm.load_from_db() # type: KitSettingsForm
                             if node.node_type == NODE_TYPES.mip.value:
                                 settings = MipSettingsForm.load_from_db() # type: MipSettingsForm

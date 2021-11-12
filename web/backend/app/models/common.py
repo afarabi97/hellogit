@@ -124,7 +124,8 @@ class BackgroundJob(Model):
                                                  "be persisted. In the future, this method will also be responsible "
                                                  "for determining ttl for repeated jobs."),
         "queued_position": fields.Integer(required=True, example=1, description="The position the job is in the queue at."),
-        "meta": fields.String(required=True, description="Meta data saved on job.")
+        "meta": fields.String(required=True, description="Meta data saved on job."),
+        "worker_name": fields.String(description="Worker name")
     })
 
     def __init__(self, job: Job):
@@ -150,7 +151,8 @@ class BackgroundJob(Model):
         self.meta = job.meta
         self.ttl = job.get_ttl()
         self.result_ttl = job.get_result_ttl()
-        self.queued_position = job.get_position()
+        self.queued_position = job.get_position(),
+        self.worker_name = job_obj["worker_name"]
 
 
 class WorkerModel(Model):

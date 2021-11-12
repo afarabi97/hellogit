@@ -81,6 +81,8 @@ class DEPLOYMENT_JOBS(Enum):
     mip_deploy = "Deploy MIP"
     create_virtual = "Create Virtual Machine"
     provision_virtual = "Provision Virtual Machine"
+    gather_device_facts = "Gather Device Facts"
+
 
 
 class TARGET_STATES(Enum):

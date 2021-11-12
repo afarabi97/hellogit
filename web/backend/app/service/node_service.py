@@ -20,6 +20,7 @@ from app.utils.logging import rq_logger
 from app.utils.utils import get_app_context
 from rq import get_current_job
 from rq.decorators import job
+from rq.job import Job
 from rq.timeouts import JobTimeoutException
 
 
@@ -164,36 +165,49 @@ def update_device_facts_job(node: Node, settings: Union[KitSettingsForm, MipSett
 def gather_device_facts(node: Node, settings: Union[KitSettingsForm, MipSettingsForm]):
     get_app_context().push()
     try:
+        job = get_current_job() # type: Job
+        job.meta['node_id'] = node._id
+        job.meta['job_name'] = DEPLOYMENT_JOBS.gather_device_facts.value
+        job.save_meta()
+
         JOB_TIMEOUT = 90
         future_time = datetime.utcnow() + timedelta(minutes=JOB_TIMEOUT)
         failed = False
         node_job = NodeJob.load_job_by_node(node=node, job_name=JOB_PROVISION) # type: NodeJob
+        node_job.set_inprogress(job.id)
+
+        # update node status on node management
+        send_notification()
+
         notification = NotificationMessage(role=_JOB_NAME_NOTIFICATION.lower())
         while True:
             device_facts = None
             try:
-                rq_logger.info("checking for node {}".format(node.hostname))
                 device_facts = create_device_facts_from_ansible_setup(str(node.ip_address), settings.password) # type: DeviceFacts
             except Exception as exc:
-                rq_logger.error(str(exc))
-                rq_logger.info("node {} not found".format(node.hostname))
                 pass
-
             if device_facts:
                 node.deviceFacts = device_facts.to_dict()
                 node.save_to_db()
                 if node_job:
                     node_job.set_job_state()
                     node_job.set_complete()
+                    log_text = "INFO:{}: {} successfully provisioned.".format(str(datetime.now()), node.hostname)
+                    rq_logger.info(log_text)
+                    log_to_console(_JOB_NAME_NOTIFICATION, job.id, log_text, "green")
+
                 if node.node_type == NODE_TYPES.mip.value:
                     execute.delay(node=node, exec_type=DEPLOYMENT_JOBS.mip_deploy, stage=JOB_DEPLOY)
+                elif node.node_type == NODE_TYPES.control_plane.value and node.deployment_type == DEPLOYMENT_TYPES.baremetal.value:
+                    execute.delay(node=node, exec_type=DEPLOYMENT_JOBS.setup_control_plane, stage=JOB_DEPLOY)
                 else:
                     kit_status = get_kit_status()
                     if kit_status["base_kit_deployed"]:
                         execute.delay(node=node, exec_type=DEPLOYMENT_JOBS.add_node, stage=JOB_DEPLOY)
                 break
             elif future_time <= datetime.utcnow():
-                msg = "Unable to find {} provisioning timeout.".format(node.hostname)
+                msg = "ERROR:{}: Unable to find {} provisioning timeout.".format(str(datetime.now()), node.hostname)
+                log_to_console(_JOB_NAME_NOTIFICATION, job.id, msg, "red")
                 notification.set_and_send(message=msg,
                     status=NotificationCode.ERROR.name)
                 if node_job:
@@ -202,14 +216,17 @@ def gather_device_facts(node: Node, settings: Union[KitSettingsForm, MipSettings
                 break
             else:
                 sleep(10)
-                rq_logger.info("Waiting for node {} to be ready".format(node.hostname))
+                log_text = "INFO:{}: Waiting for node {} to provision - This can take a while, you may want to grab a coffee".format(str(datetime.now()), node.hostname)
+                log_to_console(_JOB_NAME_NOTIFICATION, job.id, log_text)
+                rq_logger.info(log_text)
         send_notification()
         if failed:
             raise JobFailed("An unknown error occurred check the rq logs")
             return False
     except JobTimeoutException as exc:
         if node:
-            msg = "Unable to find {} provisioning timeout.".format(node.hostname)
+            msg = "ERROR:{}: Unable to find {} provisioning timeout.".format(str(datetime.now()), node.hostname)
+            log_to_console(_JOB_NAME_NOTIFICATION, job.id, msg, "red")
             notification.set_and_send(message=msg, status=NotificationCode.ERROR.name)
         if node_job:
             node_job.set_error(message=msg)
