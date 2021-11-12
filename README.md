@@ -335,54 +335,7 @@ To schedule the usage of a hardware kit go here [Hardware Kit Calendar](https://
 
 > '#' stands for the actual elevation number on the physical rack. In the server room first find the Rack number (IE: Rack 1).  Then find the elevation number to identify where the hardware actually is.
 
-<strong>Rack 1</strong>
-
-| # | Physical equipment | Logical | Notes   |
-| ---      | ---      | ---      |  ---      | 
-| 42 | | | |
-| 41 | | | |
-| 40 | | | |
-| 39 | Core Switch | | |
-| 38 | | | |
-| 37 | IDRAC Switch | | |
-| 36 | | | |
-| 35 | DCIANS_SIL_DIP5_DL-1_32.25 HP Proliant DL160 Gen 9 | Earl (10.105.X.X) (DL160) PFsense 10.96.0.5 | |
-| 34 | DCIANS_SIL_DIP5_DL-2_32.26 HP Proliant DL160 Gen 9 | | |
-| 33 | DCIANS_SIL_DIP5_SM-1_32.20 Super Micro | | |
-| 32 | DCIANS_SIL_DIP5_SM-2_32.21 Super Micro | | |
-| 31 | DCIANS_SIL_DIP5_SM-3_32.22 Super Micro | | |
-| 30 | DCIANS_SIL_DIP5_SM-4_32.23 Super Micro | | |
-| 29 | DCIANS_SIL_DIP5_SM-5_32.24 Super Micro | | |
-| 28 | | | |
-| 27 | | | |
-| 26 | | | |
-| 25 | | | |
-| 24 | | | |
-| 23 | | | |
-| 22 | | | |
-| 21 | | | |
-| 20 | | | |
-| 19 | | | |
-| 18 | | | |
-| 17 | | | |
-| 16 | | | |
-| 15 | | | |
-| 14 | | | |
-| 13 | | | |
-| 12 | | | |
-| 11 | | | |
-| 10 | | | |
-| 9 | | | |
-| 8 | | | |
-| 7 | | | |
-| 6 | | | |
-| 5 | | | |
-| 4 | | | |
-| 3 | | | |
-| 2 | | | |
-| 1 | | | |
-
-<strong>Rack 2</strong>
+<strong>Rack 3</strong>
 
 | # | Physical equipment | Notes |
 | ---      | ---      | ---      |
@@ -429,54 +382,7 @@ To schedule the usage of a hardware kit go here [Hardware Kit Calendar](https://
 | 2 | PDU 2 | | 
 | 1 | PDU 2 | | 
 
-<strong>Rack 3</strong>
-
-| # | Physical equipment | Notes   |
-| ---      | ---      | ---      |
-| 42 | | | 
-| 41 | | | 
-| 40 | | | 
-| 39 | | | 
-| 38 | | | 
-| 37 | | | 
-| 36 | | | 
-| 35 | | | 
-| 34 | | | 
-| 33 | | | 
-| 32 | | | 
-| 31 | | | 
-| 30 | | | 
-| 29 | | | 
-| 28 | | | 
-| 27 | | | 
-| 26 | | | 
-| 25 | | | 
-| 24 | | | 
-| 23 | | | 
-| 22 | iDRAC-R440-Kit12-1 | Legacy R440 ESXi ????? | 
-| 21 | iDRAC-R440-Kit12-2 | Legacy R440 Server 1 | 
-| 20 | iDRAC-R440-Kit12-3 | Legacy R440 Server 2 | 
-| 19 | iDRAC-R440-Kit12-4 | Legacy R440 Sensor 4 | 
-| 18 | iDRAC-R440-Kit12-5 | Legacy R440 Sensor 4 | 
-| 17 | iDRAC-R440-Kit12-6 | Legacy R440 Sensor 4 | 
-| 16 | iDRAC-R440-Kit12-7 | Legacy R440 Sensor 4 | 
-| 15 | | | 
-| 14 | | | 
-| 13 | | | 
-| 12 | | | 
-| 11 | | | 
-| 10 | | | 
-| 9 | | | 
-| 8 | | | 
-| 7 | | | 
-| 6 | | | 
-| 5 | | | 
-| 4 | | | 
-| 3 | | | 
-| 2 | | | 
-| 1 | | | 
-
-<strong>Rack 8</strong>
+<strong>Rack 4</strong>
 
 | # | Physical equipment | Notes   |
 | ---      | ---      | ---      |
@@ -524,20 +430,20 @@ To schedule the usage of a hardware kit go here [Hardware Kit Calendar](https://
 | 1 | PDU 2 | | 
 
 
-<strong>Rack 9</strong>
+<strong>Rack 5</strong>
 
 | # | Physical equipment | Notes   |
 | ---      | ---      | ---      |
 | 42 | | | 
 | 41 | | | 
-| 40 | Dell 4112 switch | | 
-| 39 | iDRAC-DL160-Kit10-1 | Joker DL160 ESXI | 
-| 38 | iDRAC-DL160-Kit10-2 | Joker DL160 Server 1 | 
-| 37 | iDRAC-DL160-Kit10-3 | Joker DL160 Server 2 | 
-| 36 | iDRAC-DL160-Kit10-4 | Joker DL160 Sensor 1 | 
-| 35 | iDRAC-DL160-Kit10-5 | Joker DL160 Sensor 2 | 
-| 34 | iDRAC-DL160-Kit10-6 | Joker DL160 Sensor 3 | 
-| 33 | iDRAC-DL160-Kit10-7 | Joker DL160 Sensor 4 | 
+| 40 | | | 
+| 39 | | | 
+| 38 | | | 
+| 37 | | | 
+| 36 | | | 
+| 35 | | | 
+| 34 | | | 
+| 33 | | | 
 | 32 | Dell 4112 switch | | 
 | 31 | iDRAC-R440-Kit6-1 | Flash Legacy R440 ESXI | 
 | 30 | iDRAC-R440-Kit6-2 | Flash Legacy R440 Server 1 | 
@@ -549,13 +455,13 @@ To schedule the usage of a hardware kit go here [Hardware Kit Calendar](https://
 | 24 | | | 
 | 23 | | | 
 | 22 | Dell 4112 switch | | 
-| 21 | iDRAC-R440-Kit9-1 | Inferno Legacy R440 ESXI | 
-| 20 | iDRAC-R440-Kit9-2 | Inferno Legacy R440 Server 1 | 
-| 19 | iDRAC-R440-Kit9-3 | Inferno Legacy R440 Server 2 | 
-| 18 | iDRAC-R440-Kit9-4 | Inferno Legacy R440 Sensor 1 | 
-| 17 | iDRAC-R440-Kit9-5 | Inferno Legacy R440 Sensor 2 | 
-| 16 | iDRAC-R440-Kit9-6 | Inferno Legacy R440 Sensor 3 | 
-| 15 | iDRAC-R440-Kit9-7 | Inferno Legacy R440 Sensor 4 | 
+| 21 | iDRAC-R440-Kit9-1 | Phuket Legacy R440 ESXI | 
+| 20 | iDRAC-R440-Kit9-2 | Phuket Legacy R440 Server 1 | 
+| 19 | iDRAC-R440-Kit9-3 | Phuket Legacy R440 Server 2 | 
+| 18 | iDRAC-R440-Kit9-4 | Phuket Legacy R440 Sensor 1 | 
+| 17 | iDRAC-R440-Kit9-5 | Phuket Legacy R440 Sensor 2 | 
+| 16 | iDRAC-R440-Kit9-6 | Phuket Legacy R440 Sensor 3 | 
+| 15 | iDRAC-R440-Kit9-7 | Phuket Legacy R440 Sensor 4 | 
 | 14 | | | 
 | 13 | | | 
 | 12 | | | 
