@@ -3,12 +3,12 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-import { environment } from '../../../environments/environment';
-import { NodeClass, StatusClass } from '../../classes';
-import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
-import { HTTP_OPTIONS } from '../../constants/cvah.constants';
-import { EntityConfig } from '../../interfaces';
-import { ApiService } from '../../services/abstract/api.service';
+import { environment } from '../../../../environments/environment';
+import { NodeClass, StatusClass } from '../../../classes';
+import { SnackbarWrapper } from '../../../classes/snackbar-wrapper';
+import { HTTP_OPTIONS } from '../../../constants/cvah.constants';
+import { EntityConfig } from '../../../interfaces';
+import { ApiService } from '../../../services/abstract/api.service';
 
 const entityConfig: EntityConfig = { entityPart: 'catalog/', type: 'Catalog' };
 

@@ -2,7 +2,7 @@ import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { CapitalizeFirstPipe } from '../../pipes/capitalize-first.pipe';
+import { CapitalizeFirstPipe } from '../../../../pipes/capitalize-first.pipe';
 import { NodeBackgroundComponent } from '../node-background/node-background.component';
 import { CardComponent } from './card.component';
 

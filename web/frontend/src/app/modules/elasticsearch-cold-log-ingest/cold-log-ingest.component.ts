@@ -6,7 +6,6 @@ import { MatSelectChange } from '@angular/material/select';
 import { Title } from '@angular/platform-browser';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { CatalogService } from '../../catalog/services/catalog.service';
 import { ErrorMessageClass, GenericJobAndKeyClass, ObjectUtilitiesClass, StatusClass } from '../../classes';
 import {
   DIALOG_WIDTH_800PX,
@@ -21,6 +20,7 @@ import {
 } from '../../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
+import { CatalogService } from '../catalog/services/catalog.service';
 import { FileSetClass } from './classes/file-set.class';
 import { FilebeatModuleClass } from './classes/filebeat-module.class';
 import { WinlogbeatConfigurationClass } from './classes/winlogbeat-configuration.class';

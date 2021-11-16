@@ -2,10 +2,9 @@
 @include mat-core();
 @import '../app/modules/notifications/notifications-theme';
 @import '../app/top-navbar/top-navbar-theme';
-@import '../app/catalog/chart-list/chart-list-theme';
-@import '../app/catalog/page/catalog-page-theme';
+@import '../app/modules/catalog/components/chart-list/chart-list-theme';
+@import '../app/modules/catalog/components/catalog-page/catalog-page-theme';
 @import '../app/health-dashboard/dashboard/dashboard_theme';
-
 
 @mixin global-theme($theme) {
 

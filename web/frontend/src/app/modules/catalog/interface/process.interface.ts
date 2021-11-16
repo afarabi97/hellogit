@@ -1,4 +1,4 @@
-import { NodeClass } from '../../classes';
+import { NodeClass } from '../../../classes';
 
 /**
  * Interface defines the process

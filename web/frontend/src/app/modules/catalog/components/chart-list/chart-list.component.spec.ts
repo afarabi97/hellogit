@@ -5,12 +5,12 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 
-import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
-import { InjectorModule } from '../../modules/utilily-modules/injector.module';
-import { CapitalizeFirstPipe } from '../../pipes/capitalize-first.pipe';
+import { SnackbarWrapper } from '../../../../classes/snackbar-wrapper';
+import { InjectorModule } from '../../../utilily-modules/injector.module';
+import { CapitalizeFirstPipe } from '../../../../pipes/capitalize-first.pipe';
 import { CardComponent } from '../card/card.component';
 import { NodeBackgroundComponent } from '../node-background/node-background.component';
-import { CatalogService } from '../services/catalog.service';
+import { CatalogService } from '../../services/catalog.service';
 import { ChartListComponent } from './chart-list.component';
 
 describe('ChartListComponent', () => {

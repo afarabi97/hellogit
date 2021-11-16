@@ -6,14 +6,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatStepper } from '@angular/material/stepper';
 import { Router } from '@angular/router';
 
-import { NodeClass, ObjectUtilitiesClass, StatusClass } from '../../classes';
-import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { SortingService } from '../../services/sorting.service';
-import { DEPLOYED, INSTALL, PROCESS_LIST, REINSTALL, UNINSTALL, UNKNOWN } from '../constants/catalog.constants';
-import { ProcessInterface } from '../interface';
-import { ChartInfo } from '../interface/chart.interface';
-import { CatalogService } from '../services/catalog.service';
+import { NodeClass, ObjectUtilitiesClass, StatusClass } from '../../../../classes';
+import { ConfirmDialogMatDialogDataInterface } from '../../../../interfaces';
+import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
+import { SortingService } from '../../../../services/sorting.service';
+import { DEPLOYED, INSTALL, PROCESS_LIST, REINSTALL, UNINSTALL, UNKNOWN } from '../../constants/catalog.constants';
+import { ProcessInterface } from '../../interface';
+import { ChartInfo } from '../../interface/chart.interface';
+import { CatalogService } from '../../services/catalog.service';
 import { ToolsService } from 'src/app/tools-form/services/tools.service';
 
 @Component({

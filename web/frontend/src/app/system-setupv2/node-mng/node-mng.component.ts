@@ -5,7 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import * as FileSaver from 'file-saver';
 
-import { CatalogService } from '../../catalog/services/catalog.service';
+import { CatalogService } from '../../modules/catalog/services/catalog.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';

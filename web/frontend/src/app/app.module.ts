@@ -62,23 +62,22 @@ import { UpdateEsLicenseComponent } from './tools-form/update-es-license-form/up
 import { PcapFormComponent } from './pcap-form/pcap-form.component';
 import { ReplayPcapDialogComponent } from './pcap-form/replay-pcap-dialog/replay-pcap-dialog.component';
 
-// Catalog
-import { CatalogComponent } from './catalog/component/catalog.component';
-import { CardComponent } from './catalog/card/card.component';
-import { ChartListComponent } from './catalog/chart-list/chart-list.component';
-import { NodeBackgroundComponent } from './catalog/node-background/node-background.component';
-import { CatalogPageComponent } from './catalog/page/catalog-page.component';
-
 // classes
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { ConfirmActionPopup } from './classes/ConfirmActionPopup';
 import { UserClass } from './classes';
 
-// Pipes
-import { CapitalizeFirstPipe } from './pipes/capitalize-first.pipe';
+// Health Dashboard
+import { HealthDashboardComponent } from './health-dashboard/dashboard/health-dashboard.component';
+import { HealthDashboardNodeTableComponent } from './health-dashboard/node-table/node-table.component';
+import { HealthDashboardPodTableComponent } from './health-dashboard/pod-table/pod-table.component';
+import { HealthDashboardSNMPComponent } from './health-dashboard/snmp/snmp-stats.component';
+import { HealthDashboardDatastoresComponent } from './health-dashboard/datastores/datastores.component';
+import { HealthDashboardModalDialogComponent } from './health-dashboard-dialog/health-dashboard-dialog.component';
 
 // modules
 import { AgentBuilderChooserModule } from './modules/agent-builder-chooser/agent-builder-chooser.module';
+import { CatalogModule } from './modules/catalog/catalog.module';
 import { ConfigMapModule } from './modules/config-map/config-map.module';
 import { AppRoutingModule } from './modules/cvah-modules/app-routing.module';
 import { DateTimeModule } from './modules/date-time/date-time.module';
@@ -94,14 +93,7 @@ import { PortalModule } from './modules/portal/portal.module';
 import { SecurityAlertsModule } from './modules/security-alerts/security-alerts.module';
 import { InjectorModule } from './modules/utilily-modules/injector.module';
 import { MaterialModule } from './modules/utilily-modules/material.module';
-
-// Health Dashboard
-import { HealthDashboardComponent } from './health-dashboard/dashboard/health-dashboard.component';
-import { HealthDashboardNodeTableComponent } from './health-dashboard/node-table/node-table.component';
-import { HealthDashboardPodTableComponent } from './health-dashboard/pod-table/pod-table.component';
-import { HealthDashboardSNMPComponent } from './health-dashboard/snmp/snmp-stats.component';
-import { HealthDashboardDatastoresComponent } from './health-dashboard/datastores/datastores.component';
-import { HealthDashboardModalDialogComponent } from './health-dashboard-dialog/health-dashboard-dialog.component';
+import { PipesModule } from './modules/utilily-modules/pipes.module';
 
 export function initializeApp(appLoadService: AppLoadService): () => Promise<UserClass> {
   return (): Promise<UserClass> => appLoadService.getCurrentUser();
@@ -127,13 +119,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ModalDialogDisplayMatComponent,
     HealthDashboardModalDialogComponent,
     CopyTokenModalDialogComponent,
-    CapitalizeFirstPipe,
-    CatalogComponent,
-    CardComponent,
-    ChartListComponent,
     ConfirmDialogComponent,
-    NodeBackgroundComponent,
-    CatalogPageComponent,
     ReplayPcapDialogComponent,
     AddNodeDialogComponent,
     NodeInfoDialogComponent,
@@ -168,6 +154,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     NgxMatNativeDateModule,
     AppRoutingModule,
     AgentBuilderChooserModule,
+    CatalogModule,
     ConfigMapModule,
     DateTimeModule,
     DockerRegistryModule,
@@ -181,7 +168,8 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     PortalModule,
     SecurityAlertsModule,
     InjectorModule,
-    ChartsModule
+    ChartsModule,
+    PipesModule
   ],
   providers: [
     SnackbarWrapper,

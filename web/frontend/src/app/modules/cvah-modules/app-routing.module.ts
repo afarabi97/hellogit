@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { CatalogComponent } from '../../catalog/component/catalog.component';
-import { CatalogPageComponent } from '../../catalog/page/catalog-page.component';
 import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from '../../guards';
 import { HealthDashboardComponent } from '../../health-dashboard/dashboard/health-dashboard.component';
 import { PcapFormComponent } from '../../pcap-form/pcap-form.component';
@@ -12,6 +10,8 @@ import { NodeManagementComponent } from '../../system-setupv2/node-mng/node-mng.
 import { SystemSettingsComponent } from '../../system-setupv2/system-settings/system-settings.component';
 import { ToolsFormComponent } from '../../tools-form/tools.component';
 import { AgentBuilderChooserComponent } from '../agent-builder-chooser/agent-builder-chooser.component';
+import { CatalogComponent } from '../catalog/catalog.component';
+import { CatalogPageComponent } from '../catalog/components/catalog-page/catalog-page.component';
 import { ConfigmapsComponent } from '../config-map/config-map.component';
 import { DockerRegistryComponent } from '../docker-registry/docker-registry.component';
 import { ColdLogIngestComponent } from '../elasticsearch-cold-log-ingest/cold-log-ingest.component';
@@ -26,15 +26,15 @@ import { SecurityAlertsComponent } from '../security-alerts/security-alerts.comp
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
-  { path: 'portal', component:  PortalComponent},
-  { path: 'support', component:  PmoSupportComponent},
-  { path: 'health', component:  HealthDashboardComponent},
-  { path: 'alerts', component:  SecurityAlertsComponent},
+  { path: 'portal', component:  PortalComponent },
+  { path: 'support', component:  PmoSupportComponent },
+  { path: 'health', component:  HealthDashboardComponent },
+  { path: 'alerts', component:  SecurityAlertsComponent },
   { path: 'settings', component: SystemSettingsComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'node-mng', component: NodeManagementComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'mip-mng', component: MipManagementComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'configmaps', component: ConfigmapsComponent, canActivate: [ OperatorRequiredGuard ] },
-  { path: 'stdout/:id', component: ServerStdoutComponent, canActivate: [ ControllerAdminRequiredGuard ]  },
+  { path: 'stdout/:id', component: ServerStdoutComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'registry', component: DockerRegistryComponent },
   { path: 'windows_agent_deployer', component: AgentBuilderChooserComponent, canActivate: [ OperatorRequiredGuard ] },
   { path: 'rulesets', component: PolicyManagementComponent, canActivate: [ OperatorRequiredGuard ] },

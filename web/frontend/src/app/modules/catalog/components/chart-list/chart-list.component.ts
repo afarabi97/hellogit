@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Chart } from '../interface/chart.interface';
-import { CatalogService } from '../services/catalog.service';
+import { Chart } from '../../interface/chart.interface';
+import { CatalogService } from '../../services/catalog.service';
 
 @Component({
   selector: 'app-chart-list',

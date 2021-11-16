@@ -5,8 +5,8 @@ import { Title } from '@angular/platform-browser';
 import { NotificationClass } from '../../classes';
 import { CookieService } from '../../services/cookies.service';
 import { WebsocketService } from '../../services/websocket.service';
-import { Chart } from '../interface/chart.interface';
-import { CatalogService } from '../services/catalog.service';
+import { Chart } from './interface/chart.interface';
+import { CatalogService } from './services/catalog.service';
 import { KitSettingsService } from '../../system-setupv2/services/kit-settings.service';
 import { Node } from '../../system-setupv2/models/kit';
 

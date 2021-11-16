@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
-import { ObjectUtilitiesClass } from '../../classes';
-import { Chart } from '../interface/chart.interface';
+import { ObjectUtilitiesClass } from '../../../../classes';
+import { Chart } from '../../interface/chart.interface';
 
 @Component({
   selector: 'app-card',

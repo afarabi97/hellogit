@@ -1,18 +1,17 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import * as FileSaver from 'file-saver';
 
-import { CatalogService } from '../../catalog/services/catalog.service';
 import { ErrorMessageClass, ObjectUtilitiesClass } from '../../classes';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { COMMON_VALIDATORS, DIALOG_MAX_HEIGHT_800PX, DIALOG_WIDTH_50VW, DIALOG_WIDTH_800PX, MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../constants/cvah.constants';
-import { ConfirmDialogMatDialogDataInterface, DialogDataInterface } from '../../interfaces';
+import { COMMON_VALIDATORS, MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../constants/cvah.constants';
+import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
 import {
   DialogControlTypes,
   DialogFormControl,
@@ -22,6 +21,7 @@ import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
+import { CatalogService } from '../catalog/services/catalog.service';
 import {
   AgentInstallerConfigurationClass,
   AppConfigClass,
@@ -33,10 +33,16 @@ import {
 import { AgentDetailsDialogComponent } from './components/agent-details-dialog/agent-details-dialog.component';
 import { AgentInstallerDialogComponent } from './components/agent-installer-dialog/agent-installer-dialog.component';
 import { AgentTargetDialogComponent } from './components/agent-target-dialog/agent-target-dialog.component';
-import { DOMAIN_PASSWORD_LABEL, WINDOWS_AGENT_DETAILS, WINDOWS_AGENT_INSTALLER, WINDOWS_AGENT_TARGET } from './constants/agent-builder-chooser.constant';
-import { AgentDetailsDialogDataInterface, AgentInstallerConfigurationInterface, AgentInstallerDialogDataInterface, AppNameAppConfigPairInterface, HostInterface, IPTargetListInterface } from './interfaces';
+import { DOMAIN_PASSWORD_LABEL } from './constants/agent-builder-chooser.constant';
+import {
+  AgentDetailsDialogDataInterface,
+  AgentInstallerConfigurationInterface,
+  AgentInstallerDialogDataInterface,
+  AppNameAppConfigPairInterface,
+  HostInterface,
+  IPTargetListInterface
+} from './interfaces';
 import { AgentBuilderService } from './services/agent-builder.service';
-import { GenericDialogService } from 'src/app/services/helpers/generic-dialog.service';
 
 const DIALOG_WIDTH = "800px";
 const DIALOG_MAX_HEIGHT = "800px";
