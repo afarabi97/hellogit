@@ -1,7 +1,8 @@
-analyze ansible test playbooks:
+test playbooks:
   tags:
-    - tfplenum-buildv2
+    - docker-runner
   stage: code-analysis
+  image: quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
@@ -9,10 +10,11 @@ analyze ansible test playbooks:
   allow_failure: true
   extends: .code-checks
 
-analyze ansible bootstrap playbooks:
+bootstrap playbooks:
   tags:
-    - tfplenum-buildv2
+    - docker-runner
   stage: code-analysis
+  image: quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
@@ -20,49 +22,99 @@ analyze ansible bootstrap playbooks:
   allow_failure: true
   extends: .code-checks
 
-analyze ansible core playbooks:
+core playbooks:
   tags:
-    - tfplenum-buildv2
+    - docker-runner
   stage: code-analysis
+  image: quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     ansible-lint core/playbooks/site.yml
-    ansible-lint core/playbooks/remove-node.yml
   allow_failure: true
   extends: .code-checks
 
-analyze ansible deployer playbooks:
+remove node playbooks:
   tags:
-    - tfplenum-buildv2
+    - docker-runner
   stage: code-analysis
+  image: quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    ansible-lint deployer/playbooks/site.yml
+    ansible-lint core/playbooks/remove_node.yml
   allow_failure: true
   extends: .code-checks
 
-analyze ansible stigs playbooks:
+virtual node playbooks:
   tags:
-    - tfplenum-buildv2
+    - docker-runner
   stage: code-analysis
+  image: quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    ansible-lint stigs/playbooks/site.yml
+    ansible-lint core/playbooks/virtual_node_playbook.yml
   allow_failure: true
   extends: .code-checks
 
-analyze ansible mip playbooks:
+kickstart profiles playbooks:
   tags:
-    - tfplenum-buildv2
+    - docker-runner
   stage: code-analysis
+  image: quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    ansible-lint mip/mip-core/site.yml
-    ansible-lint mip/mip-deployer/site.yml
+    ansible-lint core/playbooks/kickstart_profiles.yml
+  allow_failure: true
+  extends: .code-checks
+
+controller playbooks:
+  tags:
+    - docker-runner
+  stage: code-analysis
+  image: quay.io/ansible/toolset:3.4.0
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    ansible-lint core/playbooks/controller_playbook.yml
+  allow_failure: true
+  extends: .code-checks
+
+control plane playbooks:
+  tags:
+    - docker-runner
+  stage: code-analysis
+  image: quay.io/ansible/toolset:3.4.0
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    ansible-lint core/playbooks/control_plane_playbook.yml
+  allow_failure: true
+  extends: .code-checks
+
+stigs playbooks:
+  tags:
+    - docker-runner
+  stage: code-analysis
+  image: quay.io/ansible/toolset:3.4.0
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    ansible-lint rhel8-stigs/site.yml
+  allow_failure: true
+  extends: .code-checks
+
+mip playbooks:
+  tags:
+    - docker-runner
+  stage: code-analysis
+  image: quay.io/ansible/toolset:3.4.0
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    ansible-lint mip/site.yml
   allow_failure: true
   extends: .code-checks
 

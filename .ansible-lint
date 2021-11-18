@@ -1,0 +1,4 @@
+skip_list:
+    - ignore-errors
+    - experimental
+    - yaml
