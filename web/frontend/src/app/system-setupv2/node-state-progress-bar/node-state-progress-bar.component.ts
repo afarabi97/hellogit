@@ -1,4 +1,4 @@
-import { Injectable, Renderer2, Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { Renderer2, Component, OnInit, Input } from '@angular/core';
 import { Node, Job, RetryJob } from '../models/kit';
 import { NodeManagementComponent } from '../node-mng/node-mng.component';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
@@ -102,7 +102,16 @@ export class NodeStateProgressBarComponent implements OnInit {
     }
   }
 
+  closeDropDown(){
+    this.toggleDropDown = false;
+  }
+
   dropDownHandler(job: Job) {
+    // Close the previous dropdowns
+    for (const progress of this.nodeMng.progressCircles.toArray()){
+      progress.closeDropDown()
+    }
+
     if (!this.currentToggleJob || this.validateDropDownJob(job)) {
       this.toggleDropDown = !this.toggleDropDown;
     }
