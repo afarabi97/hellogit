@@ -52,7 +52,7 @@ export class CardComponent {
    * @memberof CardComponent
    */
   getClassName() {
-    if(this.chart.nodes !== undefined) {
+    if(this.chart.nodes !== undefined && this.chart.nodes.length > 0) {
       if( this.chart.nodes.length === 0 ) {
         return 'white';
       }
