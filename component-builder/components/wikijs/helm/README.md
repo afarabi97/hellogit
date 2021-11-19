@@ -28,4 +28,3 @@ formControls:
     character.  Valid special characters !@#$%^&*()<>.?).
 - type: invisible
   name: node_hostname
-

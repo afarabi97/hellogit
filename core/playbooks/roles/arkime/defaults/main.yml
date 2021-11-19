@@ -28,13 +28,5 @@ elastic_url: "https://elasticsearch.{{ kit_domain }}:{{ elastic_port }}"
 elastic_user: elastic
 
 indices:
-  - users_v*
-  - stats_v*
-  - lookups_v*
-  - files_v*
-  - fields_v*
-  - hunts_v*
-  - dstats_v*
-  - sequence_v*
-  - queries_v*
+  - arkime_*
 ...

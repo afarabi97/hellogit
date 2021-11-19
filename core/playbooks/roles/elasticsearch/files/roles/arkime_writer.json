@@ -8,17 +8,7 @@
     "indices": [
         {
             "names": [
-                "sessions*",
-                "stats*",
-                "lookups*",
-                "dstats*",
-                "hunts*",
-                "users*",
-                "fields*",
-                "queries*",
-                "sequence*",
-                "files*",
-                "history*"
+                "arkime_*"
             ],
             "privileges": [
                 "all"

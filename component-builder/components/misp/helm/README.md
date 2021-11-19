@@ -39,4 +39,3 @@ formControls:
   dependent_app: cortex
 - type: invisible
   name: node_hostname
-
