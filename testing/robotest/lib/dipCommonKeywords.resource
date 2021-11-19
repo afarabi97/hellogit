@@ -116,13 +116,20 @@ Navigate To ${page}
         Get Kibana Credentials
         Go To           ${KIBANA_IP}
         lookFor         Welcome to Elastic
+    ELSE IF     "${page}" == "Hive"
+        Get Hive IP
+        Go To           ${HIVE_IP}
+        lookFor         Sign in to start your session
     ELSE IF     "${page}" == "PCAPs"
         Go To       ${PCAPs}
         lookFor         Test Files
     ELSE IF     "${page}" == "Node Management"
         Go To           ${NodeManagement}
         lookFor         Node Management
-        whenVisible     ${locNodeMgmtTable}     timeout=60s     error=Node Management Page did not load within 60s
+        whenVisible     ${locNodeMgmtTable}     timeout=60s     error=Node Management Page did not load within
+    ELSE IF     "${page}" == "Alerts"
+        Go To    ${Alerts}
+        lookFor  Hive Settings
     END
 
 Get Kibana Credentials
@@ -143,6 +150,17 @@ Get Kibana Credentials
     Set Global Variable     ${KIBANA_IP}
     Set Global Variable     ${KIBANA_PASSWORD}
 
+Get Hive IP
+    log         Retrieving Hive Username and Password
+    Go To       ${Portal}
+    lookFor     Portal
+
+    ${index} =  Find Portal App index  hive
+    ${locHiveKitIP} =  Set Variable  id=cvah-portal-portal-link-${index}-ip
+    ${HIVE_IP} =  Get Text    ${locHiveKitIP}
+    log     Hive IP: ${HIVE_IP}
+    Set Global Variable     ${HIVE_IP}
+
 Login Into Kibana
     Navigate To Kibana
     click       ${locElasticLoginButton}
@@ -162,12 +180,15 @@ Login Into Kibana
 
 Play ${pcap} PCAP
     IF      "${pcap}" == "Wannacry"
-        click           //em[@id="app-pcap-form-div-mat-card-mat-card-content-table-td-7-action-button-play-arow-em"]
-        lookFor         Replay PCAP on target Sensor
-        click           id=replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select
-        click           //span[@class="mat-option-text"]
-        click           id=replay-pcap-dialog-div-button-execute
-        shoot           Wannacry
+        click    ${locPcapPlayBtn}
+        click    ${locPcapSensorHostname}
+        click    ${locPcapFirstSensorHostname}
+        click    ${locPcapPreserveTimestamp}
+        click    ${locPcapSensorInterface}
+        click    ${locPcapEns224}
+        click    ${locOverlayClick}
+        shoot    Play Pcap Options
+        click    ${locPcapExecuteBtn}
     END
 
 Wait And Validate Kibana Hits
@@ -219,6 +240,10 @@ click
     Click Element   ${element}
     log     Clicked element: ${element}
 
+failTest
+    Loggy.failure
+    fail
+
 type
     [Arguments]     ${element}      ${value}
     lookForElement  ${element}
@@ -259,7 +284,7 @@ gone
 lookFor
     [Arguments]     ${text}     ${timeout}=30s      ${error}=None
     Wait Until Page Contains    ${text}     timeout=${timeout}      error=${error}
-    log     Page Contains: ${text}!
+    log     Page Contains: ${text}
 
 lookForElement
     [Arguments]     ${element}  ${timeout}=30s   ${error}=None   ${limit}=None
@@ -329,8 +354,8 @@ inject
     # ${desired_element}=    Replace String Using Regexp    ${desired}     \\*     X
 
 log
-    [Arguments]     ${text}
-    Loggy.loggy     ${text}
+    [Arguments]     ${text}    ${isError}=False
+    Loggy.loggy     ${text}    ${isError}
 
 shoot
     [Arguments]     ${name}

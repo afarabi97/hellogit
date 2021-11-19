@@ -9,6 +9,7 @@ Resource    ../lib/dipCommonKeywords.resource
 Resource    ../lib/dipCatalogKeywords.resource
 Resource    ../lib/dipRulesetKeywords.resource
 Resource    ../lib/dipNodeMgmtKeywords.resource
+Resource    ../lib/dipAlertsKeywords.resource
 
 
 
@@ -32,7 +33,6 @@ Perform Initial SSO for DIP Controller
     ${sso_pword} =  Execute Command  cat ${SSO_FILE}  # Retrieves the SSO password from the text file
     Login Into DIP Controller  ${SSO_ADMIN_USERNAME}  ${sso_pword}
 
-
 Sync Zeek And Suricata Rulesets
     [Tags]  THISISCVAH-10222
     [Documentation]     The robot portion of the test will add a ruleset folder and enable the already
@@ -48,6 +48,15 @@ Sync Zeek And Suricata Rulesets
     Add Integration Ruleset
     Sync And Verify Rulesets
 
+Validate Alerts Pages
+    [Tags]    THISISCVAH-10993
+    [Documentation]     Retest- Alerts Pages Validation after backend refactor
+    Set Selenium Speed                          0.5s
+    Login Into DIP Controller                   ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
+    Install App  Hive
+    Obtain and Utilize Hive Keys
+    Verify Play Stop and Refresh Button
+    Verify Table Sorting
 
 Run Elastic Integration Test
     [Tags]    THISISCVAH-10191
