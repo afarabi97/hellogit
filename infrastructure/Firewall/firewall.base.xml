@@ -128,7 +128,7 @@
 	<interfaces>
 		<wan>
 			<enable></enable>
-			<if>em1</if>
+			<if>vmx1</if>
 			<descr><![CDATA[External]]></descr>
 			<spoofmac></spoofmac>
 			<alias-address></alias-address>
@@ -142,7 +142,7 @@
 		</wan>
 		<lan>
 			<enable></enable>
-			<if>em0</if>
+			<if>vmx0</if>
 			<descr><![CDATA[Management]]></descr>
 			<spoofmac></spoofmac>
 			<ipaddr>10.101.32.1</ipaddr>
@@ -153,7 +153,7 @@
 			<gatewayv6></gatewayv6>
 		</lan>
 		<opt1>
-			<if>em2</if>
+			<if>vmx2</if>
 			<descr><![CDATA[Internal]]></descr>
 			<spoofmac></spoofmac>
 			<enable></enable>
@@ -166,7 +166,7 @@
 		</opt1>
 		<opt2>
 			<descr><![CDATA[DMZ]]></descr>
-			<if>em3</if>
+			<if>vmx3</if>
 			<enable></enable>
 			<ipaddr>10.101.37.1</ipaddr>
 			<subnet>24</subnet>
@@ -174,7 +174,7 @@
 		</opt2>
 		<opt3>
 			<descr><![CDATA[Spare]]></descr>
-			<if>em4</if>
+			<if>vmx4</if>
 			<spoofmac></spoofmac>
 			<ipaddr>10.101.33.1</ipaddr>
 			<subnet>24</subnet>

@@ -44,7 +44,7 @@ Hash Master GIP Drive:
     --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_GIP_DRIVE"
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-gip"
+      - $PIPELINE == "export-gip" && $CREATE_GIP_DRIVE == "yes"
 
 Hash Check Master GIP Drive:
   stage: checkhash
@@ -60,7 +60,7 @@ Hash Check Master GIP Drive:
     --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_GIP_DRIVE"
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-gip"
+      - $PIPELINE == "export-gip" && $CREATE_GIP_DRIVE == "yes"
 
 Hash Master CPT Drive:
   stage: hashfiles
@@ -76,9 +76,9 @@ Hash Master CPT Drive:
     --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_CPT_DRIVE"
   only:
     variables:
-      - $PIPELINE == "export-all" && $RUN_CREATE_MASTER_DRIVE == "yes"
-      - $PIPELINE == "minor-release"
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "drive-only"
+      - $PIPELINE == "export-all" && $CREATE_CPT_DRIVE == "yes"
+      - $PIPELINE == "minor-release" && $CREATE_CPT_DRIVE == "yes"
+      - $PIPELINE == "drive-only" && $CREATE_CPT_DRIVE == "yes"
 
 Hash Master MDT Drive:
   stage: hashfiles
@@ -94,9 +94,9 @@ Hash Master MDT Drive:
     --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_MDT_DRIVE"
   only:
     variables:
-      - $PIPELINE == "export-all" && $RUN_CREATE_MASTER_DRIVE == "yes"
-      - $MDT == "yes" && $PIPELINE == "minor-release"
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "drive-only"
+      - $PIPELINE == "export-all" && $CREATE_MDT_DRIVE == "yes"
+      - $PIPELINE == "minor-release" && $CREATE_MDT_DRIVE == "yes"
+      - $PIPELINE == "drive-only" && $CREATE_MDT_DRIVE == "yes"
 
 Hash Check Master CPT Drive:
   stage: checkhash
@@ -112,9 +112,9 @@ Hash Check Master CPT Drive:
     --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_CPT_DRIVE"
   only:
     variables:
-      - $PIPELINE == "export-all" && $RUN_CREATE_MASTER_DRIVE == "yes"
-      - $PIPELINE == "minor-release"
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "drive-only"
+      - $PIPELINE == "export-all" && $CREATE_CPT_DRIVE == "yes"
+      - $PIPELINE == "minor-release" && $CREATE_CPT_DRIVE == "yes"
+      - $PIPELINE == "drive-only" && $CREATE_CPT_DRIVE == "yes"
 
 Hash Check Master MDT Drive:
   stage: checkhash
@@ -130,9 +130,9 @@ Hash Check Master MDT Drive:
     --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_MDT_DRIVE"
   only:
     variables:
-      - $PIPELINE == "export-all" && $RUN_CREATE_MASTER_DRIVE == "yes"
-      - $MDT == "yes" && $PIPELINE == "minor-release"
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "drive-only"
+      - $PIPELINE == "export-all" && $CREATE_MDT_DRIVE == "yes"
+      - $PIPELINE == "minor-release" && $CREATE_MDT_DRIVE == "yes"
+      - $PIPELINE == "drive-only" && $CREATE_MDT_DRIVE == "yes"
 
 Create Master CPT Drive:
   stage: publish
@@ -149,9 +149,9 @@ Create Master CPT Drive:
     --burn-multiboot $CREATE_MULTIBOOT
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-all"
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "minor-release"
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "drive-only"
+      - $PIPELINE == "export-all" && $CREATE_CPT_DRIVE == "yes"
+      - $PIPELINE == "minor-release" && $CREATE_CPT_DRIVE == "yes"
+      - $PIPELINE == "drive-only" && $CREATE_CPT_DRIVE == "yes"
 
 Create Master MDT Drive:
   stage: publish
@@ -168,9 +168,9 @@ Create Master MDT Drive:
     --burn-multiboot $CREATE_MULTIBOOT
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-all"
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $MDT == "yes" && $PIPELINE == "minor-release"
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "drive-only"
+      - $PIPELINE == "export-all" && $CREATE_MDT_DRIVE == "yes"
+      - $PIPELINE == "minor-release" && $CREATE_MDT_DRIVE == "yes"
+      - $PIPELINE == "drive-only" && $CREATE_MDT_DRIVE == "yes"
 
 Create Master GIP Drive:
   stage: publish
@@ -187,4 +187,4 @@ Create Master GIP Drive:
     --burn-multiboot "no"
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-gip"
+      - $PIPELINE == "export-gip" && $CREATE_GIP_DRIVE == "yes"

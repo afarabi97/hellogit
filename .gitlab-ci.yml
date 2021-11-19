@@ -63,9 +63,11 @@ variables:
   IS_CLEANUP: "no"
   RUN_ROBOT_TESTS: "yes"
   MINIO_USE_TLS: "no"
+  # Creates multiboot partition on full drives, when doing a minor release make sure this is set to no
   CREATE_MULTIBOOT: "yes"
-  RUN_CREATE_MASTER_DRIVE: "no"
-  RUN_CREATE_GIP_DRIVE: "no"
+  CREATE_CPT_DRIVE: "yes"
+  CREATE_MDT_DRIVE: "yes"
+  CREATE_GIP_DRIVE: "yes"
   RPM_BUILD: "no"
 
   # Breaking point variables
@@ -158,7 +160,7 @@ variables:
   APP_STORE_CPT_EXPORT_LOC: "$MASTER_DRIVE_CREATION_PATH/staging/v$TFPLENUM_EXPORT_VERSION/CPT/Data/CVAH $TFPLENUM_EXPORT_VERSION/Software/AppStore"
   APP_STORE_MDT_EXPORT_LOC: "$MASTER_DRIVE_CREATION_PATH/staging/v$TFPLENUM_EXPORT_VERSION/MDT/Data/CVAH $TFPLENUM_EXPORT_VERSION/Software/AppStore"
 
-  DRIVE_STAGING_FOLDER: "$MASTER_DRIVE_CREATION_PATH/staging"
+  DRIVE_STAGING_FOLDER: "$MASTER_DRIVE_CREATION_PATH/staging/v$TFPLENUM_EXPORT_VERSION"
   DRIVE_GIP_STAGING_FOLDER: "$MASTER_DRIVE_CREATION_PATH/staging_gip"
   TEMPLATE_PATH: "/mnt/drive_creation/templates"
   RELEASE_PATH: "/mnt/drive_creation/v$TFPLENUM_EXPORT_VERSION/CPT/Data/CVAH $TFPLENUM_EXPORT_VERSION/Software/DIP"

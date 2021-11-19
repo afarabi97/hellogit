@@ -20,10 +20,6 @@ class ExportLocSettings(Model):
         self.staging_export_path = './staging'
         self.export_version = 'RC'
 
-    @property
-    def publish_to_mdt(self) -> bool:
-        return self.mdt_export_path != './mdt'
-
     def render_export_name(self,
                            export_prefix: str,
                            export_hash: str,

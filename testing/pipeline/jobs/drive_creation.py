@@ -107,10 +107,6 @@ class DriveCreationJob:
         exes_files = self.multiboot_path + "/exes/*"
         self._remote_sudo_cmd(shell, "cp -v {} {}".format(exes_files, self.multi2_path))
 
-        #Copy VMs to large Fat32 partition
-        vms = self.multiboot_path + "/vms/*"
-        self._remote_sudo_cmd(shell, "cp -rv {} {}".format(vms, self.fat32_data_path))
-
         #Copy kickstart file to root of all Fat32 partitions.
         self._sudo_copy_to_drive_creation(shell,
                                           ROOT_DIR + "/infrastructure/ESXi/ks.cfg",
@@ -133,7 +129,7 @@ class DriveCreationJob:
             "n\n\n\n"  # Create Logical partition 6 accept all defaults for start and end
             "t\n"      # Change partition type
             "5\n"      # Partition 5
-            "c\n"      # Change to FAT32
+            "7\n"      # Change to NTFS
             "t\n"      # Change partition type
             "6\n"      # Partition 6
             "83\n"     # Change to Linux
@@ -146,8 +142,8 @@ class DriveCreationJob:
         sleep(10)
         self._remote_sudo_cmd(shell, cmd)
 
-    def _create_fat32_data_partition(self, shell: Connection):
-        cmd = "mkfs.vfat {}5 -n FAT32data ".format(self._drive_settings.external_drive)
+    def _create_ntfs_data_partition(self, shell: Connection):
+        cmd = "mkfs.ntfs -f {}5 -L NTFSData".format(self._drive_settings.external_drive)
         self._remote_sudo_cmd(shell, cmd)
         sleep(5)
 
@@ -237,7 +233,7 @@ class DriveCreationJob:
             if self.has_multi_boot:
                 self._burn_image_to_disk(shell)
                 self._fix_partition_five_and_six(shell)
-                self._create_fat32_data_partition(shell)
+                self._create_ntfs_data_partition(shell)
                 self._create_xfs_data_partition(shell)
                 self._mount(shell)
 

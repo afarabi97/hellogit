@@ -6,8 +6,10 @@ import shlex
 import shutil
 
 from fabric import Connection
+from invoke.exceptions import UnexpectedExit
 from util.ansible_util import execute_playbook, take_snapshot
 from util.connection_mngs import FabricConnectionWrapper
+from uuid import uuid4
 from models import Model
 from models.export import ExportSettings, ExportLocSettings
 from models.ctrl_setup import ControllerSetupSettings
@@ -37,10 +39,8 @@ def create_export_path(export_loc: ExportLocSettings) -> Tuple[Path]:
     cpt_export_path = Path(export_loc.cpt_export_path + '/')
     cpt_export_path.mkdir(parents=True, exist_ok=True)
 
-    mdt_export_path = None
-    if export_loc.publish_to_mdt:
-        mdt_export_path = Path(export_loc.mdt_export_path + '/')
-        mdt_export_path.mkdir(parents=True, exist_ok=True)
+    mdt_export_path = Path(export_loc.mdt_export_path + '/')
+    mdt_export_path.mkdir(parents=True, exist_ok=True)
 
     return cpt_export_path, mdt_export_path, staging_export_path
 
@@ -63,11 +63,14 @@ def clear_based_on_pattern(some_path: Union[str, Path], pattern: str):
 def get_commit_hash(username: str,
                     password: str,
                     ctrl_ip: str):
-    short_hash = ""
-    with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
-        long_hash=remote_shell.run("cd /opt/tfplenum; git log | head -n 1 | awk '{print $2}'", hide=True).stdout.strip()
-        short_hash=remote_shell.run(f"cd /opt/tfplenum; git rev-parse --short {long_hash}").stdout.strip()
-    return str(short_hash)
+    try:
+        short_hash = ""
+        with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
+            long_hash=remote_shell.run("cd /opt/tfplenum; git log | head -n 1 | awk '{print $2}'", hide=True).stdout.strip()
+            short_hash=remote_shell.run(f"cd /opt/tfplenum; git rev-parse --short {long_hash}").stdout.strip()
+        return str(short_hash)
+    except UnexpectedExit:
+        return "rpm" + str(uuid4())[0:5]
 
 
 def export(vcenter_settings: VCenterSettings,
@@ -116,10 +119,9 @@ def export(vcenter_settings: VCenterSettings,
     cpt_destination_path = "{}/{}".format(str(cpt_export_path), export_name)
     shutil.move(staging_destination_path, cpt_destination_path)
 
-    if export_loc.publish_to_mdt:
-        clear_based_on_pattern(str(mdt_export_path), export_prefix + "*")
-        mdt_destination_path = "{}/{}".format(str(mdt_export_path), export_name)
-        shutil.copy2(cpt_destination_path, mdt_destination_path)
+    clear_based_on_pattern(str(mdt_export_path), export_prefix + "*")
+    mdt_destination_path = "{}/{}".format(str(mdt_export_path), export_name)
+    shutil.copy2(cpt_destination_path, mdt_destination_path)
 
 
 class MinIOExport:
@@ -275,19 +277,15 @@ class ConfluenceExport:
         clear_based_on_pattern(str(cpt_export_path), "*.zip")
         shutil.move(stage_html_docs_path, cpt_html_docs_path)
 
-        if self.html_export_settings.export_loc.publish_to_mdt:
-            mdt_html_docs_path = "{}/{}".format(str(mdt_export_path), file_name)
-            clear_based_on_pattern(str(mdt_export_path), "*.zip")
-            shutil.copy2(cpt_html_docs_path, mdt_html_docs_path)
+        mdt_html_docs_path = "{}/{}".format(str(mdt_export_path), file_name)
+        clear_based_on_pattern(str(mdt_export_path), "*.zip")
+        shutil.copy2(cpt_html_docs_path, mdt_html_docs_path)
 
     def export_pdf_docs(self):
         cpt_export_path, mdt_export_path, staging_export_path = create_export_path(self.pdf_export_settings.export_loc)
         confluence = MyConfluenceExporter(url=self.pdf_export_settings.confluence.url,
                                           username=self.pdf_export_settings.confluence.username,
                                           password=self.pdf_export_settings.confluence.password)
-        clear_based_on_pattern(str(cpt_export_path), "*.pdf")
-        if self.pdf_export_settings.export_loc.publish_to_mdt:
-            clear_based_on_pattern(str(mdt_export_path), "*.pdf")
 
         for page_title in self.pdf_export_settings.page_titles_ary:
             stage_pdf_path = confluence.export_single_page_pdf(str(staging_export_path),
@@ -298,9 +296,8 @@ class ConfluenceExport:
             cpt_pdf_path = "{}/{}".format(str(cpt_export_path), file_name)
             shutil.move(stage_pdf_path, cpt_pdf_path)
 
-            if self.pdf_export_settings.export_loc.publish_to_mdt:
-                mdt_pdf_path = "{}/{}".format(str(mdt_export_path), file_name)
-                shutil.copy2(cpt_pdf_path, mdt_pdf_path)
+            mdt_pdf_path = "{}/{}".format(str(mdt_export_path), file_name)
+            shutil.copy2(cpt_pdf_path, mdt_pdf_path)
 
     def _push_file_and_unzip(self,
                              file_to_push: str,

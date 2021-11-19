@@ -14,12 +14,6 @@ MULTIBOOT:
     - Repo/MULTIBOOT/isos/VMware-VMvisor-Installer-7.0.0.update02-17630552.x86_64-DellEMC_Customized-A00_ks.iso
   dest: staging/v3.7/MULTIBOOT/isos
 
-- app: VMs
-  src:
-    - Repo/Shared/VMs/Pfsense/2.4.5-p1/firewall-disk1.vmdk
-    - Repo/Shared/VMs/Pfsense/2.4.5-p1/firewall.vmx
-  dest: staging/v3.7/MULTIBOOT/vms/firewall
-
 - app: img
   src:
     - Repo/MULTIBOOT/img/2.0/MULTIBOOT.img
@@ -73,12 +67,10 @@ CPT:
 
 - app: Pfsense
   src:
-    - Repo/Shared/VMs/Pfsense/2.4.5-p1/firewall.ova
-    - Repo/Shared/VMs/Pfsense/2.4.5-p1/firewall-disk1.vmdk
-    - Repo/Shared/VMs/Pfsense/2.4.5-p1/firewall.vmx
-    - Repo/Shared/VMs/Pfsense/2.4.5-p1/ReadMe.txt
-    - Repo/Shared/VMs/Pfsense/2.4.5-p1/setup_esxi.sh
-  dest: staging/v3.7/MDT/Data/CVAH 3.7/Software/VMs/Pfsense
+    - Repo/Shared/VMs/Pfsense/2.5.2/firewall.ova
+    - Repo/Shared/VMs/Pfsense/2.5.2/ReadMe.txt
+    - Repo/Shared/VMs/Pfsense/2.5.2/setup_esxi.sh
+  dest: staging/v3.7/CPT/Data/CVAH 3.7/Software/VMs/Pfsense
 
 - app: REMnuX
   src:
@@ -295,11 +287,9 @@ MDT:
 
 - app: Pfsense
   src:
-    - Repo/Shared/VMs/Pfsense/2.4.5-p1/firewall.ova
-    - Repo/Shared/VMs/Pfsense/2.4.5-p1/firewall-disk1.vmdk
-    - Repo/Shared/VMs/Pfsense/2.4.5-p1/firewall.vmx
-    - Repo/Shared/VMs/Pfsense/2.4.5-p1/ReadMe.txt
-    - Repo/Shared/VMs/Pfsense/2.4.5-p1/setup_esxi.sh
+    - Repo/Shared/VMs/Pfsense/2.5.2/firewall.ova
+    - Repo/Shared/VMs/Pfsense/2.5.2/ReadMe.txt
+    - Repo/Shared/VMs/Pfsense/2.5.2/setup_esxi.sh
   dest: staging/v3.7/MDT/Data/CVAH 3.7/Software/VMs/Pfsense
 
 - app: RhelRepo
