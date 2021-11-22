@@ -8,14 +8,27 @@
 
 - name: Copy Audit External Template
   template:
-    src: "templates/auditbeat-external.yml.j2"
-    dest: "{{ auditbeat_dir }}/auditbeat-external.yml"
+    src: "templates/{{ item }}.yml.j2"
+    dest: "{{ auditbeat_dir }}/{{ item }}.yml"
     owner: root
     group: root
     mode: 0600
+  with_items:
+    - auditbeat-external
+    - auditbeat
 
 - name: Run Audit Beat External Setup
   command: "/usr/bin/auditbeat -c {{ auditbeat_dir }}/auditbeat-external.yml setup -e"
+  delegate_to: localhost
+  register: ret_val
+  changed_when: ret_val.rc == 0
+  run_once: true
+  retries: 3
+  until: ret_val.rc == 0
+  delay: 10
+
+- name: Run Audit Beat Setup
+  command: "/usr/bin/auditbeat -c {{ auditbeat_dir }}/auditbeat.yml setup -e"
   delegate_to: localhost
   register: ret_val
   changed_when: ret_val.rc == 0

@@ -36,12 +36,12 @@
 
 - name: Copy python files.
   copy:
-    src: "{{ item }}"
+    src: "files/{{ item }}"
     dest: /opt/metrics/{{ item }}
   loop:
-    - "updateMetrics.py"
-    - "tfplenum.py"
-    - "psutilMetrics.py"
+    - updateMetrics.py
+    - tfplenum.py
+    - psutilMetrics.py
 
 - name: Create a config file.
   template:

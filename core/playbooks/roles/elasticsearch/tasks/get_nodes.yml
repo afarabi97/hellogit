@@ -1,9 +1,12 @@
-- name: Create Elasticsearch Ingest Nodes
+- name: Get Elasticsearch Ingest Nodes
   shell: |
     set -o pipefail
     kubectl get pods -l elasticsearch.k8s.elastic.co/node-ingest=true -o json
   register: ingest_pods
   changed_when: ingest_pods.rc == 0
+  until: ingest_pods.rc == 0
+  retries: 20
+  delay: 5
 
 - name: Set Ingest Nodes list
   set_fact:

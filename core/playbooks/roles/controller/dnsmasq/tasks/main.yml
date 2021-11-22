@@ -117,5 +117,5 @@
   cron:
     name: update-dns
     user: root
-    job: "cd /opt/tfplenum/core/playbooks/ && export ANSIBLE_LOG_PATH={{ tfplenum_log_path }}/dnsupdate.log;ansible-playbook controller_playbook.yml -i inventory -t update_etc_hosts"
+    job: "cd {{ playbook_dir }} && export ANSIBLE_LOG_PATH={{ tfplenum_log_path }}/dnsupdate.log;ansible-playbook controller_dns_playbook.yml --connection=local -i inventory/ -t update_etc_hosts"
     state: present

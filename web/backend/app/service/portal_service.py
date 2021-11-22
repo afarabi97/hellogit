@@ -73,16 +73,16 @@ def _is_discluded(dns: str) -> bool:
 def get_portal_links():
     kit_domain = get_domain()
     portal_links = []
-    with KubernetesWrapper() as api:
-        services = api.list_service_for_all_namespaces()
-        for service in services.items:
-            name = service.metadata.name
-            print(name)
-            print(service.status.load_balancer.ingress)
-            if service.status.load_balancer.ingress:
-                svc_ip = service.status.load_balancer.ingress[0].ip
-                if _is_discluded(name):
-                    continue
-                portal_links.append(_append_portal_link(name, kit_domain, svc_ip))
-    print(portal_links)
+    try:
+        with KubernetesWrapper() as api:
+            services = api.list_service_for_all_namespaces()
+            for service in services.items:
+                name = service.metadata.name
+                if service.status.load_balancer.ingress:
+                    svc_ip = service.status.load_balancer.ingress[0].ip
+                    if _is_discluded(name):
+                        continue
+                    portal_links.append(_append_portal_link(name, kit_domain, svc_ip))
+    except Exception:
+        pass
     return portal_links

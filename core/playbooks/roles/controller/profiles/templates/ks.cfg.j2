@@ -137,10 +137,11 @@ raid pv.02 --fstype="lvmpv" --device="pv.02" --label="lvmpv-pv02" --level=0 {{ r
 volgroup vg_data pv.02
 logvol /data --fstype="xfs" --name=data --size=1 --vgname=vg_data --grow
 {% else %}
-
+{% if data_drive|length == 1 %}
 part pv.02 --fstype="lvmpv" --size=1 --grow --ondisk={{ data_drive[0] }}
 volgroup vg_data pv.02
 logvol /data --fstype="xfs" --size=1 --name=data --vgname=vg_data --grow
+{% endif %}
 {% endif %}
 {%- endif %}
 

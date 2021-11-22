@@ -174,8 +174,8 @@ def gather_device_facts(node: Node, settings: Union[KitSettingsForm, MipSettings
         future_time = datetime.utcnow() + timedelta(minutes=JOB_TIMEOUT)
         failed = False
         node_job = NodeJob.load_job_by_node(node=node, job_name=JOB_PROVISION) # type: NodeJob
-        node_job.set_inprogress(job.id)
-
+        if node_job:
+            node_job.set_inprogress(job.id)
         # update node status on node management
         send_notification()
 

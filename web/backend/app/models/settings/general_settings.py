@@ -7,7 +7,6 @@ import re
 from ipaddress import IPv4Address
 from typing import Dict, List
 
-from app.utils.logging import rq_logger
 from app.models import Model
 from app.models.settings.settings_base import SettingsBase
 from app.utils.constants import CORE_DIR, GENERAL_SETTINGS_ID, TEMPLATE_DIR
@@ -81,7 +80,6 @@ class GeneralSettingsForm(SettingsBase):
     @classmethod
     def load_from_db(cls, query: Dict={"_id": GENERAL_SETTINGS_ID}) -> Model:
         mongo_document = mongo_settings().find_one(query)
-        rq_logger.debug(mongo_document)
         if mongo_document:
             general_settings = cls.schema.load(mongo_document, partial=("nodes",))
             return general_settings

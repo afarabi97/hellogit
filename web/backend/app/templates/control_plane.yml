@@ -13,17 +13,14 @@ all:
             {%- for drive in node.boot_drives %}
               - {{ drive | lower() }}
             {%- endfor %}
-            data_drive:
-            {%- for drive in node.data_drives %}
-              - {{ drive | lower() }}
-            {%- endfor %}
-            os_raid: {{ node.os_raid }}
-            os_raid_root_size: {{ node.os_raid_root_size | default(50) }}
+            data_drive: []
+            os_raid: False
+            os_raid_root_size: 50
             pxe_type: {{ node.pxe_type | lower() }}
             node_type: {{ node.node_type }}
             deployment_type: {{ node.deployment_type }}
-            memory: 4096
-            cpu: 4
+            memory: 8192
+            cpu: 8
           {%- endif %}
           {%- endfor %}
 

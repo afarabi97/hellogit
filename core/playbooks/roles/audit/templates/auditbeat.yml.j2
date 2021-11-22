@@ -66,7 +66,7 @@ setup.ilm:
 
 #============================== Dashboards =====================================
 setup.dashboards.enabled: true
-setup.dashboards.index: "auditbeat-internal-*"
+# setup.dashboards.index: "auditbeat-internal-*"
 
 #============================== Kibana =====================================
 setup.kibana:
@@ -90,9 +90,9 @@ output.elasticsearch:
 {% if "localhost" in inventory_hostname %}
     hosts: ['elasticsearch.{{ kit_domain }}:{{ elastic_port }}']
 {% else %}
-{% for node in ingest_nodes %}
     hosts:
-    - {{ node }}
+{% for node in ingest_nodes %}
+      - {{ node }}
 {% endfor %}
 {% endif %}
     protocol: "https"
