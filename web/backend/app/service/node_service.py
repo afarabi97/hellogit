@@ -241,6 +241,7 @@ class NodeService():
         self.stage = stage
         self.node = node
         self.job_id = job_id
+        self.cmd = None
 
     def get_cmd(self) -> str:
         # Base_Kit

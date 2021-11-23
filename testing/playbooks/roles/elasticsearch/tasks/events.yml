@@ -18,7 +18,7 @@
     body_format: json
   register: total_events
   until: total_events.json.hits.total.value != 0
-  retries: 20
+  retries: 60
   delay: 5
   loop:
     - { app: 'zeek', type: 'event' }

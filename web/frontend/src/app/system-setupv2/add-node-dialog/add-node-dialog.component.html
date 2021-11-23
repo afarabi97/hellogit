@@ -44,7 +44,7 @@
         (change)="onDeploymentTypeChange($event)"
         formControlName="deployment_type"
         fxLayout="column" fxLayoutAlign="space-between none" >
-        <mat-radio-button class="radio-button" *ngFor="let opt of deploymentOptions" [value]="opt.value">
+        <mat-radio-button class="radio-button" *ngFor="let opt of deploymentOptions" [value]="opt.value" [disabled]="opt.disabled">
           {{ opt.text }}
         </mat-radio-button>
       </mat-radio-group>

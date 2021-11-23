@@ -135,20 +135,6 @@ export class NodeManagementComponent implements OnInit {
       width: DIALOG_WIDTH,
       data: 'Blank'
     });
-
-    dialogRef.afterClosed().subscribe(result => {
-        const form = result as FormGroup;
-        if (form && form.valid){
-          this.kitSettingsSvc.addNode(form.value).subscribe(data => {},
-          err => {
-              console.error(err);
-          });
-
-        }
-      },
-      err => {
-          console.error(err);
-      });
   }
 
   showNodeInfo(node) {

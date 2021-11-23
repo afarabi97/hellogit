@@ -7,13 +7,14 @@ import { COMMON_VALIDATORS, PXE_TYPES } from '../../constants/cvah.constants';
 import { validateFromArray } from 'src/app/validators/generic-validators.validator';
 import { addNodeValidators, kickStartTooltips } from '../validators/kit-setup-validators';
 import { KitSettingsService } from '../services/kit-settings.service';
-import { GeneralSettings } from '../models/kit';
+import { GeneralSettings, KitStatus } from '../models/kit';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
 import { VirtualNodeFormComponent } from '../virtual-node-form/virtual-node-form.component';
 
 export interface DeploymentOption {
   value: string;
   text: string;
+  disabled: boolean;
 }
 
 @Component({
@@ -28,6 +29,7 @@ export class AddNodeDialogComponent implements OnInit {
   isCreateDuplicate: boolean;
   nodeForm: FormGroup;
   deploymentOptions: DeploymentOption[];
+  kitStatus: Partial<KitStatus> = {};
   pxe_types: string[] = PXE_TYPES;
   availableIPs: string[] = [];
   settings: Partial<GeneralSettings> = {};
@@ -84,6 +86,10 @@ export class AddNodeDialogComponent implements OnInit {
     const nodesHostnames = [];
     const nodesIP = [];
     const nodesMacAddress = [];
+
+    this.kitSettingsSrv.getKitStatus().subscribe(data => {
+      this.kitStatus = data;
+    });
 
     this.kitSettingsSrv.getGeneralSettings().subscribe((data: GeneralSettings) => {
       this.settings = data;
@@ -179,18 +185,16 @@ export class AddNodeDialogComponent implements OnInit {
     }
 
     this.deploymentOptions = [];
-    if (event.value === 'Server'){
-      this.deploymentOptions.push({text: 'Baremetal', value: 'Baremetal'});
-      this.deploymentOptions.push({text: 'Virtual Machine', value: 'Virtual'});
-    } else if (event.value === 'Sensor'){
-      this.deploymentOptions.push({text: 'Baremetal', value: 'Baremetal'});
-      this.deploymentOptions.push({text: 'Virtual Machine', value: 'Virtual'});
-      this.deploymentOptions.push({text: 'ISO Remote Sensor Download', value: 'Iso'});
-    } else if (event.value === 'Service'){
-      this.deploymentOptions.push({text: 'Baremetal', value: 'Baremetal'});
-      this.deploymentOptions.push({text: 'Virtual Machine', value: 'Virtual'});
+    this.deploymentOptions.push({text: 'Baremetal', value: 'Baremetal', disabled: false});
+    if(this.kitStatus.esxi_settings_configured){
+      this.deploymentOptions.push({text: 'Virtual Machine', value: 'Virtual', disabled: false});
     }
-
+    else{
+      this.deploymentOptions.push({text: 'Virtual Machine', value: 'Virtual', disabled: true});
+    }
+    if (event.value === 'Sensor'){
+      this.deploymentOptions.push({text: 'ISO Remote Sensor Download', value: 'Iso', disabled: false});
+    }
     this.virtualNodeForm.setDefaultValues(this.nodeType);
   }
 
