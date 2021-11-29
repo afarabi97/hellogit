@@ -1,0 +1,31 @@
+[2.4.5-RELEASE][assessor@firewall.catwoman]/home/assessor: #ssh assessor@10.20.136.1
+#ssh: Command not found.
+[2.4.5-RELEASE][assessor@firewall.catwoman]/home/assessor: exit
+logout
+Connection to 10.20.136.3 closed.
+
+david at david-Precision-7730 in ~
+$ ssh assessor@10.20.136.3
+
+
+
+! OUTGOING (controller to outside)
+conf t
+ip access-list INTERNAL_IN
+ no seq 172
+ seq 172 permit udp host 10.20.137.15 host 10.10.101.248 eq 53
+ no seq 510
+ seq 510 permit udp host 10.20.137.15 host 10.10.101.248 eq 123
+end
+
+
+! RETURN (outside back to controller)
+conf t
+ip access-list P2P_IN
+ no seq 50
+ seq 50 permit udp host 10.10.101.248 eq 53 host 10.20.137.15
+ no seq 120
+ seq 120 permit udp host 10.10.101.248 eq 123 host 10.20.137.15
+end
+
+write mem

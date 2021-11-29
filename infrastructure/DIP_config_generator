@@ -18,35 +18,38 @@ def validate(global_kit_id: str) -> bool:
 
 def write_switch_config(global_kit_id, folder):
     a, b = decode(global_kit_id)
-    with open(SCRIPT_DIR + "Switch/switch.base.dell.conf", "r") as conf:
+    with open(SCRIPT_DIR + "Switch/switch.base.dell.xml", "r") as conf:
        configuration = conf.read()
-    configuration = configuration.replace("10.101.32", f"10.{a}.{b}")
-    configuration = configuration.replace("10.101.35", f"10.{a}.{b+1}")
-    configuration = configuration.replace("SW-DIP-101", f"SW-DIP-{global_kit_id}")
-    with open(folder + "/switch.conf", "w") as conf:
+    configuration = configuration.replace("10.20.136", f"10.{a}.{b}") # Management Port
+    configuration = configuration.replace("10.20.137", f"10.{a}.{b+1}") # Internal Port
+    configuration = configuration.replace("10.20.138", f"10.{a}.{b+2}") # DMZ Port
+    configuration = configuration.replace("10.20.139", f"10.{a}.{b+3}") # P2P Port
+    configuration = configuration.replace("SW-DIP-020003", f"SW-DIP-{global_kit_id}")
+    with open(SCRIPT_DIR + folder + "/switch.conf", "w") as conf:
         conf.write(configuration)
 
 def write_aux_switch_config(global_kit_id, folder):
     a, b = decode(global_kit_id)
-    with open(SCRIPT_DIR + "Switch/auxiliary.switch.base.dell.conf", "r") as conf:
+    with open(SCRIPT_DIR + "Switch/auxiliary.switch.base.dell.xml", "r") as conf:
        configuration = conf.read()
-    configuration = configuration.replace("10.101.32", f"10.{a}.{b}")
-    configuration = configuration.replace("10.101.35", f"10.{a}.{b+1}")
-    configuration = configuration.replace("SW-AUX-101", f"SW-AUX-{global_kit_id}")
-    with open(folder + "/aux.conf", "w") as conf:
+    configuration = configuration.replace("10.20.136", f"10.{a}.{b}") # Management Port
+    configuration = configuration.replace("10.20.137", f"10.{a}.{b+1}") # Internal Port
+    configuration = configuration.replace("10.20.139", f"10.{a}.{b+3}") # P2P Port
+    configuration = configuration.replace("AUX-DIP-020003", f"SW-AUX-{global_kit_id}")
+    with open(SCRIPT_DIR + folder + "/aux.conf", "w") as conf:
         conf.write(configuration)
 
 def write_firewall_config(global_kit_id, domain, folder):
     a, b = decode(global_kit_id)
-    with open(SCRIPT_DIR + "Firewall/firewall.base.xml", "r") as conf:
+    with open(SCRIPT_DIR + "Firewall/firewall.basev2.xml", "r") as conf:
        configuration = conf.read()
-    configuration = configuration.replace("10.101.32", f"10.{a}.{b}")
-    configuration = configuration.replace("10.101.33", f"10.{a}.{b+3}")
-    configuration = configuration.replace("10.101.35", f"10.{a}.{b+1}")
-    configuration = configuration.replace("10.101.37", f"10.{a}.{b+2}")
-    configuration = configuration.replace(".lan", ".{}".format(domain))
-    configuration = configuration.replace("<domain>lan</domain>", f"<domain>{domain}</domain>")
-    with open(folder + "/firewall.xml", "w") as conf:
+    configuration = configuration.replace("10.20.136", f"10.{a}.{b}") # Management Port
+    configuration = configuration.replace("10.20.137", f"10.{a}.{b+1}") # Internal Port
+    configuration = configuration.replace("10.20.138", f"10.{a}.{b+2}") # DMZ Port
+    configuration = configuration.replace("10.20.139", f"10.{a}.{b+3}") # P2P Port
+    configuration = configuration.replace(".catwoman", ".{}".format(domain))
+    configuration = configuration.replace("<domain>catwoman</domain>", f"<domain>{domain}</domain>")
+    with open(SCRIPT_DIR + folder + "/firewall.xml", "w") as conf:
         conf.write(configuration)
 
 def decode(global_kit_id: str):
