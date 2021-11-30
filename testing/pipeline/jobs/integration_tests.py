@@ -317,10 +317,17 @@ class IntegrationTestsJob:
         }
         cold_log_index = "filebeat-external-cold-log-system"
         self._es.indices.delete(cold_log_index)
-        for i in range(0, 10):
+        for i in range(0, len(indexes)):
             index = indexes[i]
+
+            # Skip the index we deleted.
             if index == cold_log_index:
                 continue
+
+            # Skip the interal indicies as it can cause issues deleting that data.
+            if index.startswith(".") or index == "" or index is None:
+                continue
+
             print("Deleting docs out of " + index)
             result = self._es.delete_by_query(index, body, params={"wait_for_completion": "false"})
             task_id = result["task"]
@@ -336,7 +343,20 @@ class IntegrationTestsJob:
             self._open_or_close_kubernetes_port_on_ctrl_plane(is_close=False)
             loop = asyncio.new_event_loop()
             loop.run_until_complete(self._do_disk_fill_up_work())
-            self._clear_elastic_indexes()
+
+            retries = 0
+            while True:
+                print("Attempting to clear elastic indexes on retry number {}".format(retries))
+                try:
+                    self._clear_elastic_indexes()
+                    break
+                except TransportError:
+                    if retries >= 10:
+                        break
+
+                    time.sleep(60)
+                    retries = retries + 1
+                    continue
         finally:
             self._open_or_close_kubernetes_port_on_ctrl_plane(is_close=True)
 

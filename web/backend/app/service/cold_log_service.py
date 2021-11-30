@@ -17,6 +17,8 @@ from app.utils.tfwinrm_util import (
 from app.utils.utils import TfplenumTempDir, get_app_context, zip_package
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from rq.decorators import job
+from uuid import uuid4
+
 
 JOB_NAME = "process_logs"
 INSTALL_WINLOGBEAT_JOB_NAME = "winlogbeat_install"
@@ -237,6 +239,7 @@ class ColdLogsProcessor:
 
     def process_linux_logs(self, log_files: List[str], model: ColdLogUploadModel):
         with TfplenumTempDir() as tmp_directory:
+            container_name = str(uuid4())[0:8]
             module = model.module
             fileset = model.fileset
             self._setup_class_members(log_files, module)
@@ -248,7 +251,7 @@ class ColdLogsProcessor:
             mount_section = self._get_volume_mount_section(tmp_directory, logs_directory)
             module_section = self._get_module_specific_params(module, fileset)
             container_section = "localhost:5000/beats/filebeat:{} -e ".format(BEATS_IMAGE_VERSIONS)
-            run_cmd = ("docker run --rm " +
+            run_cmd = ("docker run --rm --name " + container_name + " " +
                         mount_section +
                         container_section +
                         module_section)
@@ -257,7 +260,7 @@ class ColdLogsProcessor:
             job = AsyncJob(JOB_NAME.capitalize(), "", run_cmd, use_shell=True)
             result = job.run_async_command()
             self._remove_lifecyle_settings_from_index()
-            return result
+            return result, container_name
 
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
@@ -267,6 +270,7 @@ def process_cold_logs(model_dict: Dict,
     get_app_context().push()
     desc = "Cold Log Ingestion"
     notification = NotificationMessage(role=JOB_NAME)
+    container_name = None
     try:
         model = ColdLogUploadModel()
         model.from_dictionary(model_dict)
@@ -281,7 +285,7 @@ def process_cold_logs(model_dict: Dict,
 
         ret_val = 1
         if model.is_linux():
-            ret_val = logs_processor.process_linux_logs(logs, model)
+            ret_val, container_name = logs_processor.process_linux_logs(logs, model)
         elif model.is_windows():
             ret_val = logs_processor.process_windows_event_logs(logs)
         else:
@@ -304,6 +308,9 @@ def process_cold_logs(model_dict: Dict,
         notification.set_status(NotificationCode.ERROR.name)
         notification.post_to_websocket_api()
     finally:
+        # We need to stop the container so that proper cleanup can be performed.
+        if container_name is not None:
+            run_command2("docker stop " + container_name)
         shutil.rmtree(tmpdirname)
 
     rq_logger.info("YAY success")

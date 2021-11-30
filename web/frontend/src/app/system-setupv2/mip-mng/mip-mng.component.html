@@ -28,7 +28,7 @@
        <ng-container matColumnDef="state">
          <th scope="col" mat-header-cell *matHeaderCellDef>State</th>
          <td mat-cell *matCellDef="let mip;">
-             <app-node-state-progress-bar [jobs]="mip.jobs"></app-node-state-progress-bar>
+             <app-node-state-progress-bar #progressCircles [jobs]="mip.jobs"></app-node-state-progress-bar>
          </td>
        </ng-container>
 

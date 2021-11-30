@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChildren } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
@@ -30,6 +30,8 @@ export class MipManagementComponent implements OnInit {
   isoSensorExists: boolean = false;
   mipSettings: Partial<MipSettings> = {};
   buttonisDisabled: boolean = true;
+
+  @ViewChildren('progressCircles') public progressCircles;
 
   constructor(public _WebsocketService:WebsocketService,
               private title: Title,

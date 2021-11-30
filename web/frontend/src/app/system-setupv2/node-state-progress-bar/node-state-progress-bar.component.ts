@@ -1,6 +1,7 @@
 import { Renderer2, Component, OnInit, Input } from '@angular/core';
 import { Node, Job, RetryJob } from '../models/kit';
 import { NodeManagementComponent } from '../node-mng/node-mng.component';
+import { MipManagementComponent } from '../mip-mng/mip-mng.component';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { ServerStdoutService } from '../../server-stdout/server-stdout.service';
 
@@ -24,6 +25,7 @@ export class NodeStateProgressBarComponent implements OnInit {
   constructor(
     private nodeMng: NodeManagementComponent,
     private stdoutService: ServerStdoutService,
+    private mipMng: MipManagementComponent,
     private matSnackBarService: MatSnackBarService,
     private renderer: Renderer2
   ) {
@@ -108,8 +110,16 @@ export class NodeStateProgressBarComponent implements OnInit {
 
   dropDownHandler(job: Job) {
     // Close the previous dropdowns
-    for (const progress of this.nodeMng.progressCircles.toArray()){
-      progress.closeDropDown()
+    if (this.nodeMng.progressCircles){
+      for (const progress of this.nodeMng.progressCircles.toArray()){
+        progress.closeDropDown()
+      }
+    }
+
+    if (this.mipMng.progressCircles){
+      for (const progress of this.mipMng.progressCircles.toArray()){
+        progress.closeDropDown()
+      }
     }
 
     if (!this.currentToggleJob || this.validateDropDownJob(job)) {

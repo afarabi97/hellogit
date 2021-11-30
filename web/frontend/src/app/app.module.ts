@@ -198,7 +198,8 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ControllerAdminRequiredGuard,
     ControllerMaintainerRequiredGuard,
     OperatorRequiredGuard,
-    NodeManagementComponent
+    NodeManagementComponent,
+    MipManagementComponent
   ],
   bootstrap: [
     AppComponent
