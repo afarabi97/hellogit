@@ -59,6 +59,7 @@ export class PmoSupportComponent implements OnInit {
    * @memberof PmoSupportComponent
    */
   ngOnInit(): void {
+    this.mat_snackbar_service_.displaySnackBar("Be cognizant downloading log files and then uploading them to service now if they are from a classified network.", MAT_SNACKBAR_CONFIGURATION_60000_DUR);
     this.title_.setTitle(PMO_SUPPORT_TITLE);
     this.setup_websocket_diagnostics_finished_();
     this.api_get_system_version_();
