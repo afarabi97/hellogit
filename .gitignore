@@ -85,3 +85,4 @@ values.yaml
 .commit.json
 web/backend/.coverage
 web/backend/report.xml
+.envrc

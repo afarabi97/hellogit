@@ -22,6 +22,7 @@
     - { "src": "vscode/{{ vscode_file }}", "dest": "{{ extras_dir }}/Packages" }
     - { "src": "gitkraken/{{ gitkraken_file }}", "dest": "{{ extras_dir }}/Packages" }
     - { "src": "google-chrome/{{ chrome_file }}", "dest": "{{ extras_dir }}/Packages" }
+    - { "src": "microcode/{{ microcode_file }}", "dest": "{{ extras_dir }}/Packages/" }
     - { "src": "nexpose/{{ nexpose_file }}", "dest": "{{ web_root }}/MIP/" }
     - { "src": "burpsuite/{{ burpsuite_file }}", "dest": "{{ web_root }}/MIP/" }
     - { "src": "drivers/{{ nvidia_driver }}", "dest": "{{ web_root }}/MIP/"}

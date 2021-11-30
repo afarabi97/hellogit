@@ -18,6 +18,8 @@ download_packages:
   - pcsc-lite-ccid-1.4.29-4.el8.x86_64
 
 packages:
+  #Microcode Fix
+  - microcode_ctl-4:20210608-1.el8.x86_64
   #Modules required for grub splash page
   - grub2-efi-x64-modules
   #VMware packages
@@ -116,6 +118,8 @@ gitkraken_file: gitkraken-amd64_7.7.2.rpm
 nexpose_file: Rapid7Setup-Linux64_6.6.97.bin
 vmware_file: VMware-Workstation-Full-16.1.2-17966106.x86_64.bundle
 vscode_file: code-1.59.0-1628120127.el8.x86_64.rpm
+# Redhat Microcode Software
+microcode_file: microcode_ctl-20210608-1.el8.x86_64.rpm
 
 software:
   - "{{ web_server }}/{{ vmware_file }}"
@@ -123,5 +127,3 @@ software:
 cpt_software:
   - "{{ web_server }}/{{ nexpose_file }}"
   - "{{ web_server }}/{{ burpsuite_file }}"
-
-...
