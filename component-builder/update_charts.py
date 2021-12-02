@@ -1,15 +1,15 @@
+import argparse
 import os
-import yaml
-import requests
-import tempfile
 from pathlib import Path
-
-
 from typing import Dict
+
+import requests
+import urllib3
+import yaml
+from build import Builder, filter_helm_components, get_all_components
 from jinja2 import Environment, select_autoescape
 from jinja2.loaders import FileSystemLoader
 
-import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -18,6 +18,10 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 HELM_URL = "https://nexus.sil.lab/repository/tfplenum-helm"
 CHART_MUSEUM_URI = "http://localhost:5002/api/charts"
 
+parser = argparse.ArgumentParser(description='Update local or remote repository')
+parser.add_argument('--chart', choices=['local','remote'], help='Charts will be updated locally or remotely')
+parser.add_argument('--docker', choices=['local'], const="local", nargs='?', help='Docker image will be updated in local docker registry')
+args = parser.parse_args()
 
 def download_file(url: str, download_loc: str = None):
     print("Downloading {}".format(url))
@@ -34,7 +38,6 @@ def download_file(url: str, download_loc: str = None):
                 #if chunk:
                 f.write(chunk)
     return local_filename
-
 
 class NexusHelmChartUpdater:
 
@@ -66,8 +69,8 @@ class NexusHelmChartUpdater:
         print("Deleting {}".format(url))
         requests.delete(url, verify=False)
 
-    def _push_chart(self, chart_tar_name: str, tmp_dir_path: str):
-        chart_tar_path=tmp_dir_path + "/" + chart_tar_name
+    def _push_chart(self, chart_tar_name: str):
+        chart_tar_path=CHART_FOLDER + "/" + chart_tar_name
         data = None
         if os.path.exists(chart_tar_path):
             data = open(chart_tar_path, 'rb')
@@ -82,18 +85,37 @@ class NexusHelmChartUpdater:
                 print(chart_tar_name + "Update failed.")
                 print(r.text)
 
-    def execute(self):
+    def _local_update(self):
+        components = get_all_components()
+        helm_components = filter_helm_components(components)
+        for helm_component in helm_components:
+            build = Builder(helm_component)
+            build.build_helm_chart(remote=False)
+
+    def execute(self, location: str):
         Path(CHART_FOLDER).mkdir(parents=False, exist_ok=True)
+        if location == "local":
+            self._local_update()
         for chart_tar_name in self._helm_charts:
-            download_file(HELM_URL + "/" + chart_tar_name, CHART_FOLDER)
+            if location == "remote":
+                download_file(HELM_URL + "/" + chart_tar_name, CHART_FOLDER)
             self._delete_chart(chart_tar_name)
-            self._push_chart(chart_tar_name, CHART_FOLDER)
+            self._push_chart(chart_tar_name)
         print("All charts were saved to {} for verfication purposes.".format(CHART_FOLDER))
+
+    def parse_args(self, args: dict):
+        if args.chart == "remote":
+            self.execute(args.chart)
+        elif args.chart == "local":
+            self.execute(args.chart)
+        elif args.docker == "local":
+            print("TODO")
+        else:
+            parser.print_help()
 
 def main():
     updater = NexusHelmChartUpdater()
-    updater.execute()
-
+    updater.parse_args(args)
 
 if __name__ == '__main__':
     main()

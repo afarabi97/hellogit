@@ -17,6 +17,7 @@ HELM_URL = "https://nexus.sil.lab/repository/tfplenum-helm"
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 PROJECT_DIR = SCRIPT_DIR + "/../"
 COMPONENTS_DIR = SCRIPT_DIR + "/components"
+CHART_FOLDER = "/opt/tfplenum/charts"
 
 
 def eprint(*args, **kwargs):
@@ -138,16 +139,23 @@ class Builder:
             eprint("Failed with for unknown reason with status code {}.".format(response.status_code))
             exit(3)
 
-    def build_helm_chart(self):
+    def build_helm_chart(self, remote=True):
         templates = ("values.yaml.j2", "Chart.yaml.j2")
         for template_name in templates:
             self._process_template(template_name)
 
-        ret_code = run_command(f"helm package {self.component_dir}/helm")
+        if remote:
+            cmd = f"helm package {self.component_dir}/helm"
+        else:
+            cmd =  f"helm package {self.component_dir}/helm -d {CHART_FOLDER}"
+
+        ret_code = run_command(cmd)
+
         if ret_code != 0:
             eprint("Failed to package helm chart.")
             exit(ret_code)
-        self._publish_helm()
+        if remote:
+            self._publish_helm()
 
     def build_docker_file(self):
         self._process_template("Dockerfile.j2", "docker")
