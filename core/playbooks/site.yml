@@ -273,7 +273,7 @@
 - name: Deploy Elasticsearch
   hosts:
     - localhost
-    - servers
+    - elastic_nodes
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
