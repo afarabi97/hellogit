@@ -1,5 +1,5 @@
-import { CANCEL_DIALOG_OPTION, CONFIRM_DIALOG_OPTION } from 'src/app/constants/cvah.constants';
-import { ConfirmDialogMatDialogDataInterface } from 'src/app/interfaces';
+import { CANCEL_DIALOG_OPTION, CONFIRM_DIALOG_OPTION } from '../../../constants/cvah.constants';
+import { ConfirmDialogMatDialogDataInterface } from '../../../interfaces';
 import { NotificationButtonInterface } from '../interface/notification-button.interface';
 
 // Used for displaying notification sent through websocket and tied to a button for quick access
@@ -16,6 +16,8 @@ export const NOTIFICATION_BUTTON_LIST: NotificationButtonInterface[] = [
   { name: 'Tools', selected: false, title: 'Tools Messages', role: 'tools', notifications: [], icon: 'build' },
   { name: 'Index Management', selected: false, title: 'Index Management Messages', role: 'curator', notifications: [], icon: 'timeline' }
 ];
+// Default number for notification items to display
+export const NUMBER_OF_NOTIFICATION_ITEMS: number = 30;
 // Used as the default selected button when first opening notification dialog window
 export const DEFAULT_SELECTED_NOTIFICATION_BUTTON: NotificationButtonInterface = { name: 'All', selected: true, title: 'All Messages', role: 'all', notifications: [], icon: 'dashboard' };
 // Used for notifications dialog window

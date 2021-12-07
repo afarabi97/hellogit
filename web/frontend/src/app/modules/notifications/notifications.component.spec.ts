@@ -4,13 +4,18 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { of, throwError } from 'rxjs';
 
 import {
+  MockNotificationClassArray,
   MockNotificationClass_NotInArray,
   MockNotificationClass_ZeekPendingInstall
 } from '../../../../static-data/class-objects';
 import { NotificationClass } from '../../classes';
 import { ACCENT_BUTTON_COLOR, PRIMARY_BUTTON_COLOR } from '../../constants/cvah.constants';
 import { TestingModule } from '../testing-modules/testing.module';
-import { DELETE_ALL_NOTIFICATIONS_CONFIRM_DIALOG, NOTIFICATION_BUTTON_LIST } from './constants/notifications.constant';
+import {
+  DELETE_ALL_NOTIFICATIONS_CONFIRM_DIALOG,
+  NOTIFICATION_BUTTON_LIST,
+  NUMBER_OF_NOTIFICATION_ITEMS
+} from './constants/notifications.constant';
 import { NotificationButtonInterface } from './interface/notification-button.interface';
 import { NotificationsComponent } from './notifications.component';
 import { NotificationsModule } from './notifications.module';
@@ -28,6 +33,7 @@ describe('NotificationsComponent', () => {
   let fixture: ComponentFixture<NotificationsComponent>;
 
   // Setup spy references
+  let spyHostListenerOnScroll: jasmine.Spy<any>;
   let spyNGOnInit: jasmine.Spy<any>;
   let spyButtonSelect: jasmine.Spy<any>;
   let spyGetSelectedButtonColor: jasmine.Spy<any>;
@@ -42,6 +48,13 @@ describe('NotificationsComponent', () => {
   let spyApiDeleteAllNotifications: jasmine.Spy<any>;
 
   // Test Data
+  const mock_scroll_event: any = {
+    target: {
+      offsetHeight: 100,
+      scrollTop: 200,
+      scrollHeight: 250
+    }
+  };
   const mock_http_error_response: HttpErrorResponse = new HttpErrorResponse({
     error: 'Fake Error',
     status: 500,
@@ -63,6 +76,7 @@ describe('NotificationsComponent', () => {
     component = fixture.componentInstance;
 
     // Add method spies
+    spyHostListenerOnScroll = spyOn(component, 'host_listener_on_scroll').and.callThrough();
     spyNGOnInit = spyOn(component, 'ngOnInit').and.callThrough();
     spyButtonSelect = spyOn(component, 'button_select').and.callThrough();
     spyGetSelectedButtonColor = spyOn(component, 'get_selected_button_color').and.callThrough();
@@ -87,6 +101,7 @@ describe('NotificationsComponent', () => {
     component.notification_button_list.forEach((nb: NotificationButtonInterface) => {
       nb.notifications = [];
     });
+    spyHostListenerOnScroll.calls.reset();
     spyNGOnInit.calls.reset();
     spyButtonSelect.calls.reset();
     spyGetSelectedButtonColor.calls.reset();
@@ -110,6 +125,41 @@ describe('NotificationsComponent', () => {
   });
 
   describe('NotificationsComponent methods', () => {
+    describe('host_listener_on_scroll()', () => {
+      it('should call host_listener_on_scroll()', () => {
+        reset();
+
+        component.host_listener_on_scroll(mock_scroll_event);
+
+        expect(component.host_listener_on_scroll).toHaveBeenCalled();
+      });
+
+      it('should call host_listener_on_scroll() and set button_select_gate_active = false', () => {
+        reset();
+
+        component['button_select_gate_active_'] = true;
+        component.host_listener_on_scroll(mock_scroll_event);
+
+        expect(component['button_select_gate_active_']).toBeFalse();
+      });
+
+      it('should call host_listener_on_scroll() and set offset_ = 30', () => {
+        reset();
+
+        component.host_listener_on_scroll(mock_scroll_event);
+
+        expect(component['offset_']).toEqual(NUMBER_OF_NOTIFICATION_ITEMS);
+      });
+
+      it('should call api_get_notifications_() from host_listener_on_scroll()', () => {
+        reset();
+
+        component.host_listener_on_scroll(mock_scroll_event);
+
+        expect(component['api_get_notifications_']).toHaveBeenCalled();
+      });
+    });
+
     describe('ngOnInit()', () => {
       it('should call ngOnInit()', () => {
         reset();
@@ -117,14 +167,6 @@ describe('NotificationsComponent', () => {
         component.ngOnInit();
 
         expect(component.ngOnInit).toHaveBeenCalled();
-      });
-
-      it('should call api_get_notifications_() from ngOnInit()', () => {
-        reset();
-
-        component.ngOnInit();
-
-        expect(component['api_get_notifications_']).toHaveBeenCalled();
       });
 
       it('should call setup_websocket_onbroadcast_() from ngOnInit()', () => {
@@ -311,15 +353,15 @@ describe('NotificationsComponent', () => {
       it('should call set_notification_display_time_() and return notification with displayTime set', () => {
         reset();
 
-        const displaytime_ends_with: string[] = [ 'Now', 'm', 'h', 'day(s)', 'week(s)', '' ];
+        const displaytime_ends_with: string[] = [ 'Now', 'minute(s) ago', 'hour(s) ago', 'day(s) ago', 'week(s) ago', '??' ];
         // all values are based on method from component muliplied by 60000
         const multiply_values: number[] = [ 1000, 60000, 86399000, 604799000, 604800000, -60000 ];
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 6; i++) {
           const date_from_mock: Date = new Date();
           // 18000000 value compensates for the -5 utc central time when
           // resetting the value on the mock object. add + 18000000 to value
           // so test passes locally
-          MockNotificationClass_ZeekPendingInstall.timestamp = new Date(date_from_mock.getTime() - multiply_values[i]);
+          MockNotificationClass_ZeekPendingInstall.timestamp = new Date(date_from_mock.getTime() - multiply_values[i]).toString();
 
           const return_value: NotificationClass = component['set_notification_display_time_'](MockNotificationClass_ZeekPendingInstall);
           const displaytime: string = return_value.displayTime;
@@ -422,9 +464,10 @@ describe('NotificationsComponent', () => {
       it('should call notification_service_.delete_all_notifications() and handle response and should remove notification from corresponding notifications array within notifications_button_list', () => {
         reset();
 
+        component.notification_button_list[0].notifications = MockNotificationClassArray;
         component['api_delete_notification_'](MockNotificationClass_ZeekPendingInstall);
         component.notification_button_list.forEach((nb: NotificationButtonInterface) => {
-          const index_found: number = nb.notifications.findIndex((n: NotificationClass) => n._id);
+          const index_found: number = nb.notifications.findIndex((n: NotificationClass) => n._id === MockNotificationClass_ZeekPendingInstall._id);
 
           expect(index_found).toEqual(-1);
         });

@@ -36,11 +36,15 @@ export class NotificationService extends ApiService<any> implements Notification
   /**
    * REST call to GET notifications
    *
+   * @param {number} offset
+   * @param {string} role
    * @returns {Observable<NotificationClass[]>}
    * @memberof NotificationService
    */
-  get_notifications(): Observable<NotificationClass[]> {
-    return this.httpClient_.get<NotificationInterface[]>(environment.NOTIFICATION_SERVICE_BASE_URL)
+  get_notifications(offset: number, role: string): Observable<NotificationClass[]> {
+    const url: string = `${environment.NOTIFICATION_SERVICE_BASE_URL}/${offset}/${role}`;
+
+    return this.httpClient_.get<NotificationInterface[]>(url)
       .pipe(map((response: NotificationInterface[]) => response.map((r: NotificationInterface) => new NotificationClass(r))),
             catchError((error: HttpErrorResponse) => this.handleError('get notifications', error)));
   }

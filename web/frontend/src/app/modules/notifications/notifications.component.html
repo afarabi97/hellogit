@@ -27,7 +27,7 @@
     </mat-card>
 
     <!--Messages-->
-    <div fxFlex class="messageCenter" fxLayout="column" fxLayoutAlign="center">
+    <div fxFlex class="messageCenter" fxLayout="column" fxLayoutAlign="center" (scroll)="host_listener_on_scroll($event)">
       <div class="messageCenter__center__outerCard">
         <ng-container *ngFor="let notification_button of notification_button_list; let i = index;">
           <div class="messageCenter__center__outerCard__margin" *ngIf="(selected_notification_button.role === notification_button.role)">
@@ -54,6 +54,7 @@
                     <div id="{{ 'cvah-notifications-dialog_window-' + i + '-' + j + '-statusactionapp' }}">{{ notification.status }}&nbsp;{{ notification.action }}&nbsp;{{notification.application}}</div>
                     <div id="{{ 'cvah-notifications-dialog_window-' + i + '-' + j + '-message' }}">{{ notification.message }}</div>
                     <div id="{{ 'cvah-notifications-dialog_window-' + i + '-' + j + '-exception' }}">{{ notification.exception }}</div>
+                    <div id="{{ 'cvah-notifications-dialog_window-' + i + '-' + j + '-timestamp' }}">{{ notification.timestamp }}</div>
                     <div id="{{ 'cvah-notifications-dialog_window-' + i + '-' + j + '-displaytime' }}">{{ notification.displayTime }}</div>
                   </div>
                   <div class="messageCenter__center__outerCard__innerCard__right" *ngIf="controller_maintainer" fxFlex="none">

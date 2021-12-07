@@ -8,7 +8,7 @@ import { NotificationClass } from '../../../../classes';
  * @interface NotificationServiceInterface
  */
 export interface NotificationServiceInterface {
-  get_notifications(): Observable<NotificationClass[]>;
+  get_notifications(offset: number, role: string): Observable<NotificationClass[]>;
   delete_notification(id: any): Observable<void>;
   delete_all_notifications(): Observable<void>;
 }

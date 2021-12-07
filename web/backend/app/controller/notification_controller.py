@@ -4,22 +4,36 @@ from app.utils.collections import mongo_notifications
 from bson import ObjectId
 from flask import Response
 from flask_restx import Namespace, Resource
+import pymongo
 
 NOTIFICATIONS_NS = Namespace("notifications", description="Notifications for CVAH UI.")
+NUMBER_OF_NOTIFICATION_ITEMS = 30
 
-@NOTIFICATIONS_NS.route('')
+
+@NOTIFICATIONS_NS.route('/<offset>/<role>')
 class Notifications(Resource):
 
     @NOTIFICATIONS_NS.response(200, 'Notifications')
-    def get(self) -> Response:
+    def get(self, offset: str, role: str) -> Response:
         """
         Gets all notifications from mongodb
-
         """
-        notifications = list(mongo_notifications().find({}))
+        filter_obj = {}
+        if role != "all":
+            filter_obj = {"role": role}
+
+        notifications = list(mongo_notifications().find(filter_obj)
+                            .sort("timestamp", pymongo.DESCENDING)
+                            .skip(int(offset))
+                            .limit(NUMBER_OF_NOTIFICATION_ITEMS))
+
         for notification in notifications:
             notification["_id"] = str(notification["_id"])
         return notifications
+
+
+@NOTIFICATIONS_NS.route('')
+class NotificationsDel(Resource):
 
     @NOTIFICATIONS_NS.response(200, 'Deleted Notifications')
     @controller_maintainer_required

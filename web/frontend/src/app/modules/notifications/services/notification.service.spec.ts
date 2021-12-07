@@ -85,14 +85,14 @@ describe('NotificationService', () => {
       it('should call get_notifications()', () => {
         reset();
 
-        service.get_notifications()
+        service.get_notifications(0, 'all')
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: NotificationClass[]) => {
             expect(response.length).toEqual(MockNotificationInterfaceArray.length);
             expect(service.get_notifications).toHaveBeenCalled();
           });
 
-        const xhrURL: string = environment.NOTIFICATION_SERVICE_BASE_URL;
+        const xhrURL: string = `${environment.NOTIFICATION_SERVICE_BASE_URL}/0/all`;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         expect(xhrRequest.request.method).toEqual(getType);
@@ -105,7 +105,7 @@ describe('NotificationService', () => {
       it('should call get_notifications() and handle error', () => {
         reset();
 
-        service.get_notifications()
+        service.get_notifications(0, 'all')
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
             (response: NotificationClass[]) => {},
@@ -114,7 +114,7 @@ describe('NotificationService', () => {
               expect(service.get_notifications).toHaveBeenCalled();
             });
 
-        const xhrURL: string = environment.NOTIFICATION_SERVICE_BASE_URL;
+        const xhrURL: string = `${environment.NOTIFICATION_SERVICE_BASE_URL}/0/all`;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorRequest, mockErrorResponse);
@@ -211,7 +211,7 @@ describe('NotificationService', () => {
 export class NotificationServiceSpy implements NotificationServiceInterface {
 
   get_notifications = jasmine.createSpy('get_notifications').and.callFake(
-    (): Observable<NotificationClass[]> => this.call_fake_get_notifications()
+    (offset: number, role: string): Observable<NotificationClass[]> => this.call_fake_get_notifications(offset, role)
   );
 
   delete_notification = jasmine.createSpy('delete_notification').and.callFake(
@@ -222,7 +222,7 @@ export class NotificationServiceSpy implements NotificationServiceInterface {
     (): Observable<void> => of(null)
   );
 
-  call_fake_get_notifications(): Observable<NotificationClass[]> {
+  call_fake_get_notifications(offset: number, role: string): Observable<NotificationClass[]> {
     return of(MockNotificationClassArray);
   }
 }

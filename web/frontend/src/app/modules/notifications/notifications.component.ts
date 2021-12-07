@@ -1,9 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { NotificationClass } from '../../classes';
+import { NotificationClass, ObjectUtilitiesClass } from '../../classes';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import {
   ACCENT_BUTTON_COLOR,
@@ -23,7 +23,8 @@ import {
   DELETE_ALL_NOTIFICATIONS_CONFIRM_DIALOG,
   DIALOG_MAX_HEIGHT_762PX,
   NOTIFICATION_BUTTON_LIST,
-  NOTIFICATION_DIALOG_TITLE
+  NOTIFICATION_DIALOG_TITLE,
+  NUMBER_OF_NOTIFICATION_ITEMS
 } from './constants/notifications.constant';
 import { NotificationButtonInterface } from './interface/notification-button.interface';
 import { NotificationService } from './services/notification.service';
@@ -55,6 +56,10 @@ export class NotificationsComponent implements OnInit {
   notification_button_list: NotificationButtonInterface[];
   // Used for passing value to html is user is controller maintainer
   controller_maintainer: boolean;
+  // Used for scrolling notifications
+  private offset_: number;
+  private end_of_scroll_: boolean;
+  private button_select_gate_active_: boolean;
 
   /**
    * Creates an instance of NotificationsComponent.
@@ -77,6 +82,41 @@ export class NotificationsComponent implements OnInit {
     this.notification_button_list = NOTIFICATION_BUTTON_LIST.map((nb: NotificationButtonInterface) => nb);
     this.selected_notification_button = DEFAULT_SELECTED_NOTIFICATION_BUTTON;
     this.new_notifications = [];
+    this.offset_ = 0;
+    this.end_of_scroll_ = false;
+    this.button_select_gate_active_ = false;
+  }
+
+  /**
+   * Used for listening to window scroll event so that notifications can
+   * add more to list if available
+   *
+   * @param {*} event
+   * @memberof NotificationsComponent
+   */
+  @HostListener('window:scroll')
+  host_listener_on_scroll(event: any): void {
+    //This button gate covers an annoying edge case in the event that the scroll handler
+    // is triggered when user also pushes the one of the other filter buttons.
+    if (this.button_select_gate_active_) {
+      this.button_select_gate_active_ = false;
+    } else {
+      /* istanbul ignore else */
+      if (!this.end_of_scroll_) {
+        /* istanbul ignore else */
+        if (ObjectUtilitiesClass.notUndefNull(event) &&
+            ObjectUtilitiesClass.notUndefNull(event.target) &&
+            ObjectUtilitiesClass.notUndefNull(event.target.offsetHeight) &&
+            ObjectUtilitiesClass.notUndefNull(event.target.scrollTop) &&
+            ObjectUtilitiesClass.notUndefNull(event.target.scrollHeight)) {
+          /* istanbul ignore else */
+          if (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight) {
+            this.offset_ += NUMBER_OF_NOTIFICATION_ITEMS;
+            this.api_get_notifications_(event.target);
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -85,7 +125,6 @@ export class NotificationsComponent implements OnInit {
    * @memberof NotificationsComponent
    */
   ngOnInit(): void {
-    this.api_get_notifications_();
     this.setup_websocket_onbroadcast_();
   }
 
@@ -96,7 +135,14 @@ export class NotificationsComponent implements OnInit {
    * @memberof NotificationsComponent
    */
   button_select(notification_button: NotificationButtonInterface): void {
+    // Reset the endOf scroll, offset_ and clear the notification button list.
+    this.offset_ = 0;
+    this.end_of_scroll_ = false;
+    this.button_select_gate_active_ = true;
+
+    //Set the selected notification button
     this.notification_button_list.forEach((nb: NotificationButtonInterface) => {
+      nb.notifications.splice(0, nb.notifications.length);
       if (nb === notification_button) {
         nb.selected = true;
         this.selected_notification_button = nb;
@@ -104,6 +150,9 @@ export class NotificationsComponent implements OnInit {
         nb.selected = false;
       }
     });
+
+    // Make the api call to the notifcation manager for the new notificiations.
+    this.api_get_notifications_();
   }
 
   /**
@@ -166,6 +215,24 @@ export class NotificationsComponent implements OnInit {
       panelClass: 'mat-dialog-container-override',
       data: this.notification_button_list
     };
+
+    // Reset the endOf scroll, offset_ and clear the notification button list.
+    this.offset_ = 0;
+    this.end_of_scroll_ = false;
+
+    //Set the selected notification button
+    for (let i = 0; i < this.notification_button_list.length; i++){
+      this.notification_button_list[i].notifications.splice(0, this.notification_button_list[i].notifications.length);
+      if (i === 0){
+        this.notification_button_list[0].selected = true;
+        this.selected_notification_button = this.notification_button_list[0];
+      } else {
+        this.notification_button_list[i].selected = false;
+      }
+    }
+
+    // Make the api call to the notifcation manager for the new notificiations.
+    this.api_get_notifications_();
     this.generic_dialog_factory_service_.open(dialog_data, mat_dialog_config);
   }
 
@@ -177,11 +244,15 @@ export class NotificationsComponent implements OnInit {
    * @param {NotificationClass} notification
    * @memberof NotificationsComponent
    */
-  private add_notification_to_button_list_(notification: NotificationClass): void {
+  private add_notification_to_button_list_(notification: NotificationClass, fromWebSocket=false): void {
     this.notification_button_list.forEach((nb: NotificationButtonInterface) => {
       this.set_notification_display_time_(notification);
       if ((nb.role === notification.role) || (nb.role === 'all')) {
-        nb.notifications.unshift(notification);
+        if (fromWebSocket) {
+          nb.notifications.unshift(notification);
+        } else {
+          nb.notifications.push(notification);
+        }
       }
     });
   }
@@ -195,25 +266,23 @@ export class NotificationsComponent implements OnInit {
    * @memberof NotificationsComponent
    */
   private set_notification_display_time_(notification: NotificationClass): NotificationClass {
-    const date = new Date();
-    const time_now_ = new Date(date.toUTCString());
-    const d1 = new Date(time_now_.toISOString());
-    const d2 = new Date(notification.timestamp + 'Z');
-    const timeDifference = d1.getTime() - d2.getTime();
+    const time_now_ = new Date();
+    const d2 = new Date(notification.timestamp);
+    const timeDifference = time_now_.getTime() - d2.getTime();
     const seconds = (timeDifference) / 1000;
 
     if (seconds < 60 && seconds >=0 ) {
       notification.displayTime = 'Now';
     } else if (seconds >= 60 && seconds < 3600) {
-      notification.displayTime = Math.floor(seconds / 60) + ' m';
+      notification.displayTime = Math.floor(seconds / 60) + ' minute(s) ago';
     } else if (seconds >= 3600 && seconds < 86400) {
-      notification.displayTime = Math.floor(seconds / 3600) + ' h';
+      notification.displayTime = Math.floor(seconds / 3600) + ' hour(s) ago';
     } else if (seconds >= 86400 && seconds < 604800) {
-      notification.displayTime = Math.floor(seconds / 86400) + ' day(s)';
+      notification.displayTime = Math.floor(seconds / 86400) + ' day(s) ago';
     } else if (seconds >= 604800) {
-      notification.displayTime = Math.floor(seconds / 604800) + ' week(s)';
+      notification.displayTime = Math.floor(seconds / 604800) + ' week(s) ago';
     } else {
-      notification.displayTime = '';
+      notification.displayTime = '??';
     }
 
     return notification;
@@ -232,7 +301,7 @@ export class NotificationsComponent implements OnInit {
       .subscribe(
         (response: NotificationInterface) => {
           this.new_notifications.push(response);
-          this.add_notification_to_button_list_(new NotificationClass(response));
+          this.add_notification_to_button_list_(new NotificationClass(response), true);
         });
   }
 
@@ -240,14 +309,24 @@ export class NotificationsComponent implements OnInit {
    * Used for making api rest call to get - {notification}
    *
    * @private
+   * @param {*} [scroll_element=null]
    * @memberof NotificationsComponent
    */
-  private api_get_notifications_(): void {
-    this.notification_service_.get_notifications()
+  private api_get_notifications_(scroll_element: any = null): void {
+    this.notification_service_.get_notifications(this.offset_, this.selected_notification_button.role)
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: NotificationClass[]) => {
-          response.forEach((ni: NotificationClass) => this.add_notification_to_button_list_(ni));
+          if (ObjectUtilitiesClass.notUndefNull(scroll_element) &&
+              ObjectUtilitiesClass.notUndefNull(scroll_element.scrollTop)){
+            const old_scroll_top: number = scroll_element.scrollTop;
+            scroll_element.scrollTop = scroll_element.scrollTop - 100;
+            response.forEach((ni: NotificationClass) => this.add_notification_to_button_list_(ni));
+            scroll_element.scrollTop = old_scroll_top;
+            this.end_of_scroll_ = response.length === 0;
+          } else {
+            response.forEach((ni: NotificationClass) => this.add_notification_to_button_list_(ni));
+          }
         },
         (error: HttpErrorResponse) => {
           const message: string = 'getting all notifications';

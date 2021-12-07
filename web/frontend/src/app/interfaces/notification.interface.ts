@@ -12,7 +12,7 @@ export interface NotificationInterface {
   message: string;
   status: string;
   exception: string;
-  timestamp?: Date;
+  timestamp?: string;
   displayTime?: string;
   action?: string;
   application: string;
