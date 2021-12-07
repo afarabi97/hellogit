@@ -9,7 +9,7 @@ misc_versions:
   community_utils_module_version: "2.2.0"
   emerging_threat_rules_version: "suricata-5.0" # suricata-6.0 rules havent been released yet. (https://rules.emergingthreats.net/open/)
   helm_version: "v3.7.1"
-  crio_version: "v1.20.0"
+  crio_version: "v1.21.3"
   chartmuseum_version: "v0.13.1"
   keycloak_version: "11.0.3"
   node_version: v14.5.0
@@ -25,12 +25,12 @@ docker_versions:
   mongodb_version: 4.4.3
   busybox_version: "1.33.1"
   zeek_version: "4.0.3"
-  k8s_coredns_version: "v1.8.0"
-  k8s_etcd_version: "3.4.13-0"
-  k8s_pause_version: "3.4.1"
-  k8s_resizer_version: "1.8.4"  # up to 1.8.11 works
-  k8s_version: "1.21.1"
-  metallb_version: "v0.10.2"
+  k8s_coredns_version: "v1.8.4"
+  k8s_etcd_version: "3.5.0-0"
+  k8s_pause_version: "3.5"
+  k8s_resizer_version: "2.3"
+  k8s_version: "1.22.3"
+  metallb_version: "v0.10.3"
   arkime_version: "2.7.1"
   suricata_version: "6.0.0"
   elastic_7_version: "7.15.1"
@@ -46,7 +46,7 @@ docker_versions:
   misp_version: 2.4.148
   misp_modules_version: 2.4.148
   redis_version: 6.2.5-alpine
-  calico_version: "v3.16.4"
+  calico_version: "v3.20.2"
   nginx_version: 1.19.6
   cert_manager_version: v1.5.4
   storage_provisioner_version: 2.3.4
@@ -60,7 +60,7 @@ extra_packages:
   - "kubectl-{{ docker_versions.k8s_version }}"
   - kubernetes-cni-0.8.7
   - containerd.io-1.2.0-3.el7
-  - cri-tools-1.13.0-0
+  - cri-tools-1.19.0-0
   - docker-ce-18.09.1-3.el7
   - docker-ce-cli-20.10.7-3.el7
   - docker-scan-plugin-0.8.0-3.el7

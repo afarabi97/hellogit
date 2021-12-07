@@ -98,7 +98,7 @@
   delay: 5
 
 - set_fact:
-    per_page: 200
+    per_page: 25
 - set_fact:
     number_of_pages: "{{ (detections.json.total / per_page) | round | int }}"
 

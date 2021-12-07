@@ -1,4 +1,4 @@
 ---
 
 crio_dir_version: "{{ tfplenum_opt_dir  }}/crio-{{misc_versions.crio_version}}"
-crio_dir: "{{ tfplenum_opt_dir  }}/crio"
+crio_dir: "{{ tfplenum_opt_dir  }}/cri-o"

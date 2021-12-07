@@ -7,12 +7,6 @@
     creates: "{{ crio_dir_version }}"
     remote_src: yes
 
-- name: Create Crio Symlink
-  file:
-    src: "{{ crio_dir_version }}"
-    dest: "{{ crio_dir }}"
-    state: link
-
 - name: Copy custom Makefile
   copy:
     src: "files/Makefile"
