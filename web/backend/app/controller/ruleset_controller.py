@@ -359,6 +359,7 @@ class UploadRule(Resource):
     @POLICY_NS.doc(description="Uploads large rule files.  Uploading them as ZIP is highly recommend for rulesets larger than 10 MB.")
     @POLICY_NS.expect(upload_parser)
     @POLICY_NS.response(200, 'Rules', [RuleModel.DTO])
+    @POLICY_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     def post(self) -> Response:
         rule_set = json.loads(request.form['ruleSetForm'], encoding="utf-8")
@@ -394,6 +395,7 @@ class RulesCtrl(Resource):
 
     @POLICY_NS.doc(description="Saves a new Rule.")
     @POLICY_NS.response(200, 'Rule', RuleModel.DTO)
+    @POLICY_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @POLICY_NS.expect(RuleModel.DTO)
     @operator_required
@@ -434,6 +436,8 @@ class RulesCtrl(Resource):
     @POLICY_NS.doc(description="Updates an exiting Rule.")
     @POLICY_NS.expect(RuleModel.DTO)
     @POLICY_NS.response(200, 'Rule', RuleModel.DTO)
+    @POLICY_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @operator_required
     def put(self) -> Response:
         rule = request.get_json()
@@ -495,7 +499,7 @@ class ToggleRule(Resource):
 
     @POLICY_NS.doc(description="Enables or disables a rule without validating the rule for the quick checkboxes.")
     @POLICY_NS.response(200, 'Rule', RuleModel.DTO)
-    @POLICY_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @operator_required
     def put(self, rule_id: str) -> Response:
         rule = mongo_rule().find_one({'_id': rule_id},
@@ -515,7 +519,7 @@ class ToggleRule(Resource):
                                                                   return_document=ReturnDocument.AFTER)
             if rule_set:
                 return rule
-        return {"error_message": "Failed to update a rule for ruleset ID {}.".format(ruleset_id)}, 400
+        return {"error_message": "Failed to update a rule for ruleset ID {}.".format(ruleset_id)}, 500
 
 @POLICY_NS.doc(description="Syncs Rulesets ")
 @POLICY_NS.route('/rulesets/sync')

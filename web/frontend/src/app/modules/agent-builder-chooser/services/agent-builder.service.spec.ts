@@ -223,10 +223,10 @@ describe('AgentBuilderService', () => {
         service.agent_save_config(MockAgentInstallerConfigurationInterface1)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: AgentInstallerConfigurationClass[]) => {
-            const objectKeys: string[] = Object.keys(response);
+            const objectKeys: string[] = Object.keys(response[0]);
             objectKeys.forEach((key: string) => {
-              if (!(response[key] instanceof Array)) {
-                expect(response[key]).toEqual(MockAgentInstallerConfigurationClassesArray[key]);
+              if (!(response[0][key] instanceof Array)) {
+                expect(response[0][key]).toEqual(MockAgentInstallerConfigurationClassesArray[0][key]);
               }
             });
 
@@ -257,8 +257,10 @@ describe('AgentBuilderService', () => {
                     expect(error['error'][key]).toEqual(errorMessageRequest[key]);
                   }
                 });
+
                 expect(error['error']).toContain(errorMessageRequest);
               }
+
               expect(service.agent_save_config).toHaveBeenCalled();
             });
 
@@ -298,10 +300,10 @@ describe('AgentBuilderService', () => {
         service.agent_delete_config(MockAgentInstallerConfigurationInterface1._id)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: AgentInstallerConfigurationClass[]) => {
-            const objectKeys: string[] = Object.keys(response);
+            const objectKeys: string[] = Object.keys(response[0]);
             objectKeys.forEach((key: string) => {
-              if (!(response[key] instanceof Array)) {
-                expect(response[key]).toEqual(MockAgentInstallerConfigurationClassesArray[key]);
+              if (!(response[0][key] instanceof Array)) {
+                expect(response[0][key]).toEqual(MockAgentInstallerConfigurationClassesArray[0][key]);
               }
             });
 
@@ -346,10 +348,10 @@ describe('AgentBuilderService', () => {
         service.agent_get_configs()
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: AgentInstallerConfigurationClass[]) => {
-            const objectKeys: string[] = Object.keys(response);
+            const objectKeys: string[] = Object.keys(response[0]);
             objectKeys.forEach((key: string) => {
-              if (!(response[key] instanceof Array)) {
-                expect(response[key]).toEqual(MockAgentInstallerConfigurationClassesArray[key]);
+              if (!(response[0][key] instanceof Array)) {
+                expect(response[0][key]).toEqual(MockAgentInstallerConfigurationClassesArray[0][key]);
               }
             });
 
@@ -394,10 +396,10 @@ describe('AgentBuilderService', () => {
         service.agent_get_ip_target_list()
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: IPTargetListClass[]) => {
-            const objectKeys: string[] = Object.keys(response);
+            const objectKeys: string[] = Object.keys(response[0]);
             objectKeys.forEach((key: string) => {
-              if (!(response[key] instanceof Array)) {
-                expect(response[key]).toEqual(MockIPTargetListClassesArray[key]);
+              if (!(response[0][key] instanceof Array)) {
+                expect(response[0][key]).toEqual(MockIPTargetListClassesArray[0][key]);
               }
             });
 
@@ -442,10 +444,10 @@ describe('AgentBuilderService', () => {
         service.agent_save_ip_target_list(MockIPTargetListInterface1)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: IPTargetListClass[]) => {
-            const objectKeys: string[] = Object.keys(response);
+            const objectKeys: string[] = Object.keys(response[0]);
             objectKeys.forEach((key: string) => {
-              if (!(response[key] instanceof Array)) {
-                expect(response[key]).toEqual(MockIPTargetListClassesArray[key]);
+              if (!(response[0][key] instanceof Array)) {
+                expect(response[0][key]).toEqual(MockIPTargetListClassesArray[0][key]);
               }
             });
 
@@ -525,8 +527,10 @@ describe('AgentBuilderService', () => {
                     expect(error['error'][key]).toEqual(errorMessageRequest[key]);
                   }
                 });
+
                 expect(error['error']).toContain(errorMessageRequest);
               }
+
               expect(service.agent_add_host_to_ip_target_list).toHaveBeenCalled();
             });
 
@@ -601,8 +605,10 @@ describe('AgentBuilderService', () => {
                     expect(error['error'][key]).toEqual(errorMessageRequest[key]);
                   }
                 });
+
                 expect(error['error']).toContain(errorMessageRequest);
               }
+
               expect(service.agent_remove_host_from_ip_target_list).toHaveBeenCalled();
             });
 
@@ -642,10 +648,10 @@ describe('AgentBuilderService', () => {
         service.agent_delete_ip_target_list(MockIPTargetListClass1.name)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: IPTargetListClass[]) => {
-            const objectKeys: string[] = Object.keys(response);
+            const objectKeys: string[] = Object.keys(response[0]);
             objectKeys.forEach((key: string) => {
-              if (!(response[key] instanceof Array)) {
-                expect(response[key]).toEqual(MockIPTargetListClassesArray[key]);
+              if (!(response[0][key] instanceof Array)) {
+                expect(response[0][key]).toEqual(MockIPTargetListClassesArray[0][key]);
               }
             });
 
@@ -725,8 +731,10 @@ describe('AgentBuilderService', () => {
                     expect(error['error'][key]).toEqual(errorMessageRequest[key]);
                   }
                 });
+
                 expect(error['error']).toContain(errorMessageRequest);
               }
+
               expect(service.agents_install).toHaveBeenCalled();
             });
 
@@ -801,8 +809,10 @@ describe('AgentBuilderService', () => {
                     expect(error['error'][key]).toEqual(errorMessageRequest[key]);
                   }
                 });
+
                 expect(error['error']).toContain(errorMessageRequest);
               }
+
               expect(service.agents_uninstall).toHaveBeenCalled();
             });
 
@@ -877,8 +887,10 @@ describe('AgentBuilderService', () => {
                     expect(error['error'][key]).toEqual(errorMessageRequest[key]);
                   }
                 });
+
                 expect(error['error']).toContain(errorMessageRequest);
               }
+
               expect(service.agent_uninstall).toHaveBeenCalled();
             });
 
@@ -966,10 +978,10 @@ describe('AgentBuilderService', () => {
         service.get_app_configs()
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: AppConfigClass[]) => {
-            const objectKeys: string[] = Object.keys(response);
+            const objectKeys: string[] = Object.keys(response[0]);
             objectKeys.forEach((key: string) => {
-              if (!(response[key] instanceof Array)) {
-                expect(response[key]).toEqual(MockAppConfigClassesArray[key]);
+              if (!(response[0][key] instanceof Array)) {
+                expect(response[0][key]).toEqual(MockAppConfigClassesArray[0][key]);
               }
             });
 

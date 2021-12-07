@@ -19,8 +19,8 @@ import {
   DialogFormControlConfigClass
 } from '../../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
+import { CatalogService } from '../../services/catalog.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
-import { CatalogService } from '../catalog/services/catalog.service';
 import { FileSetClass } from './classes/file-set.class';
 import { FilebeatModuleClass } from './classes/filebeat-module.class';
 import { WinlogbeatConfigurationClass } from './classes/winlogbeat-configuration.class';
@@ -372,7 +372,7 @@ export class ColdLogIngestComponent implements OnInit {
    * @memberof ColdLogIngestComponent
    */
   private api_check_logstash_installed_() : void {
-    this.catalog_service_.checkLogStashInstalled()
+    this.catalog_service_.get_chart_statuses('logstash')
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: StatusClass[]) => {

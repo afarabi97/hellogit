@@ -1,8 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Chart } from '../../interface/chart.interface';
-import { CatalogService } from '../../services/catalog.service';
+import { ChartClass } from '../../../../classes';
 
 @Component({
   selector: 'app-chart-list',
@@ -13,22 +12,18 @@ import { CatalogService } from '../../services/catalog.service';
   }
 })
 export class ChartListComponent{
-  @Input() charts: Chart[];
+  @Input() charts: ChartClass[];
 
-  constructor(private router: Router,
-              private _CatalogService: CatalogService) { }
+  constructor(private router: Router) { }
 
   /**
    * opens the card and passes the data do
    *
-   * @param {Chart} chart
+   * @param {ChartClass} chart
    * @memberof ChartListComponent
    */
-  onSelectCard(chart: Chart) {
-    this._CatalogService.getByString(`chart/${chart.application}/info`).subscribe(data => {
-      this._CatalogService.chart = data;
-      this.router.navigate([`/application/${chart.application}`]);
-    });
+  onSelectCard(chart: ChartClass) {
+    this.router.navigate([`/application/${chart.application}`]);
   }
 
 }

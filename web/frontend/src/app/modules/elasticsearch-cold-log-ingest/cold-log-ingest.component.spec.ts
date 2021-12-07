@@ -153,7 +153,9 @@ describe('ColdLogIngestComponent', () => {
     spyApiCheckLogstashInstalled = spyOn<any>(component, 'api_check_logstash_installed_').and.callThrough();
 
     // Set spyon service until implemented later
-    spyOn<any>(component['catalog_service_'], 'checkLogStashInstalled').and.returnValue(of([MockStatusClass_LogstashDeployed]));
+    // Allows respy to change default spy created in spy service
+    jasmine.getEnv().allowRespy(true);
+    spyOn<any>(component['catalog_service_'], 'get_chart_statuses').and.returnValue(of([MockStatusClass_LogstashDeployed]));
 
     // Detect changes
     fixture.detectChanges();
@@ -615,15 +617,15 @@ describe('ColdLogIngestComponent', () => {
         expect(component['api_check_logstash_installed_']).toHaveBeenCalled();
       });
 
-      it('should call catalog_service_.checkLogStashInstalled() from api_check_logstash_installed_()', () => {
+      it('should call catalog_service_.get_chart_statuses() from api_check_logstash_installed_()', () => {
         reset();
 
         component['api_check_logstash_installed_']();
 
-        expect(component['catalog_service_'].checkLogStashInstalled).toHaveBeenCalled();
+        expect(component['catalog_service_'].get_chart_statuses).toHaveBeenCalled();
       });
 
-      it('should call catalog_service_.checkLogStashInstalled() and handle response and set logstash_deployed = true', () => {
+      it('should call catalog_service_.get_chart_statuses() and handle response and set logstash_deployed = true', () => {
         reset();
 
         component['api_check_logstash_installed_']();
@@ -631,24 +633,24 @@ describe('ColdLogIngestComponent', () => {
         expect(component.logstash_deployed).toBeTrue();
       });
 
-      it('should call catalog_service_.checkLogStashInstalled() and handle response and set logstash_deployed = false', () => {
+      it('should call catalog_service_.get_chart_statuses() and handle response and set logstash_deployed = false', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['catalog_service_'], 'checkLogStashInstalled').and.returnValue(of([]));
+        spyOn<any>(component['catalog_service_'], 'get_chart_statuses').and.returnValue(of([]));
 
         component['api_check_logstash_installed_']();
 
         expect(component.logstash_deployed).toBeFalse();
       });
 
-      it('should call catalog_service_.checkLogStashInstalled() and handle error', () => {
+      it('should call catalog_service_.get_chart_statuses() and handle error', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['catalog_service_'], 'checkLogStashInstalled').and.returnValue(throwError(mock_http_error_response));
+        spyOn<any>(component['catalog_service_'], 'get_chart_statuses').and.returnValue(throwError(mock_http_error_response));
 
         component['api_check_logstash_installed_']();
 

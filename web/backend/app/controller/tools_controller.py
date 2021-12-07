@@ -89,7 +89,7 @@ class ChangeKitPassword(Resource):
         model = NewPasswordModel(TOOLS_NS.payload['root_password'])
         current_config = KitSettingsForm.load_from_db() # type: Dict
         if current_config == None:
-            return {"error_message": "Couldn't find kit configuration."}
+            return {"error_message": "Couldn't find kit configuration."}, 404
         nodes = Node.load_all_servers_sensors_from_db()
         for node in nodes: # type: Node
             try:
@@ -99,9 +99,9 @@ class ChangeKitPassword(Resource):
                     if result.return_code !=0:
                         _result = shell.run("journalctl SYSLOG_IDENTIFIER=pwhistory_helper --since '10s ago'")
                         if (_result.stdout.count("\n") == 2):
-                            return {"error_message": "Password has already been used. You must try another password."}
+                            return {"error_message": "Password has already been used. You must try another password."}, 409
                         else:
-                            return {"error_message": "An unknown error occured."}
+                            return {"error_message": "An unknown error occured."}, 500
 
             except AuthenticationException:
                 return node.to_dict(), 403
@@ -123,14 +123,14 @@ class UpdateDocs(Resource):
     @TOOLS_NS.doc(description="Uploads new confluence documentation placing it into the navigation bar.")
     @TOOLS_NS.expect(upload_parser)
     @TOOLS_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
-    @TOOLS_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @TOOLS_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
     def post(self):
         if 'upload_file' not in request.files:
-            return {"error_message": "Failed to upload file. No file was found in the request."}
+            return {"error_message": "Failed to upload file. No file was found in the request."}, 400
 
         if 'space_name' not in request.form or request.form['space_name'] is None or request.form['space_name'] == "":
-            return {"error_message": "Space name is required."}
+            return {"error_message": "Space name is required."}, 400
 
         with tempfile.TemporaryDirectory() as upload_path: # type: str
             incoming_file = request.files['upload_file']
@@ -139,7 +139,7 @@ class UpdateDocs(Resource):
 
             pos = filename.rfind('.') + 1
             if filename[pos:] != 'zip':
-                return {"error_message": "Failed to upload file. Files must end with the .zip extension."}
+                return {"error_message": "Failed to upload file. Files must end with the .zip extension."}, 400
 
             abs_save_path = str(upload_path) + '/' + filename
             incoming_file.save(abs_save_path)
@@ -165,18 +165,19 @@ class ElasticLicense(Resource):
     @TOOLS_NS.doc(description="Update Elasticsearch license.")
     @TOOLS_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
     @TOOLS_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @TOOLS_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
     def put(self) -> Response:
         license = request.get_json()
         current_license = get_elasticsearch_license()
 
         if not validate_es_license_json(license) or not license['license'].get('cluster_licenses', None):
-            return { "error_message": "File is not valid Elastic license" }
+            return { "error_message": "File is not valid Elastic license" }, 400
         if datetime.fromtimestamp(license['license']['expiry_date_in_millis']/1000) < datetime.now():
-            return {"error_message": "Elastic license has expired"}
+            return {"error_message": "Elastic license has expired"}, 400
         for lic in license['license']['cluster_licenses']:
             if not validate_es_license_json(lic):
-                return {"error_message": "File is not valid Elastic license"}
+                return {"error_message": "File is not valid Elastic license"}, 400
 
         json_string = json.dumps(license, separators=(',', ':'))
         license_prefix = 'eck-license'
@@ -210,14 +211,14 @@ class ElasticLicense(Resource):
 
     @TOOLS_NS.doc(description="Get Elasticsearch license status.")
     @TOOLS_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
-    @TOOLS_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @TOOLS_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
     def get(self) -> Response:
         try:
             return get_elasticsearch_license(), 200
         except Exception as e:
             logger.exception(e)
-            return {"error_message": "Something getting the Elastic license.  See the logs."}, 400
+            return {"error_message": "Something getting the Elastic license.  See the logs."}, 500
 
 
 @TOOLS_NS.route("/spaces")
@@ -398,7 +399,7 @@ class ElasticDeploy(Resource):
                 scale.delete_many()
             deploy_config = scale.read_many()
             if (override == False and len(deploy_config) > 0):
-                return { "error_message": "Deploy config already exists use ?override=1 to reload it" }
+                return { "error_message": "Deploy config already exists use ?override=1 to reload it" }, 400
             if override or (override == False and len(deploy_config) == 0):
                 with open(deploy_path, "r") as f:
                     config = f.read()
@@ -411,7 +412,7 @@ class ElasticDeploy(Resource):
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_message(str(e))
             notification.post_to_websocket_api()
-            return { "error_message": str(e)}
+            return { "error_message": str(e)}, 400
 
     @TOOLS_NS.doc(description="Apply elastic deploy to kubernetes.")
     @TOOLS_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
@@ -438,10 +439,10 @@ class ElasticSnapshot(Resource):
         try:
             wait_for_elastic_cluster_ready(minutes=0)
         except Timeout as e:
-            return { "error_message": "Elastic cluster is not in a ready state." }
+            return { "error_message": "Elastic cluster is not in a ready state." }, 400
         except Exception as e:
             logger.exception(e)
-            return { "error_message": str(e) }
+            return { "error_message": str(e) }, 400
         else:
             repository_settings = request.get_json()
             elasticsearch_ip = retrieve_service_ip_address("elasticsearch")

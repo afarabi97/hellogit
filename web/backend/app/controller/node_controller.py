@@ -35,7 +35,7 @@ class NodesCtrl(Resource):
         try:
             return get_all_nodes_with_jobs()
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }
+            return { "error_message": "DBModelNotFound." }, 400
 
 @KIT_SETUP_NS.route("/node/<hostname>")
 class NodeCtrl(Resource):
@@ -45,6 +45,7 @@ class NodeCtrl(Resource):
         return JobID(job).to_dict()
 
     @KIT_SETUP_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @KIT_SETUP_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
     @controller_admin_required
     def get(self, hostname: str) -> Response:
@@ -53,10 +54,11 @@ class NodeCtrl(Resource):
             if node:
                 return node
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }
-        return { "error_message": "Unknown error" }
+            return { "error_message": "DBModelNotFound." }, 400
+        return { "error_message": "Unknown error" }, 500
 
     @KIT_SETUP_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @KIT_SETUP_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_admin_required
     def delete(self, hostname: str) -> Response:
         delete_node = False
@@ -84,12 +86,13 @@ class NodeCtrl(Resource):
                    return node.to_dict(), 200
 
         except DBModelNotFound:
-           return { "error_message": "DBModelNotFound." }
-        return { "error_message": "Node not found." }
+           return { "error_message": "DBModelNotFound." }, 400
+        return { "error_message": "Node not found." }, 500
 
 @KIT_SETUP_NS.route("/node/<hostname>/update")
 class NodeUpdateFactsCtrl(Resource):
 
+    @KIT_SETUP_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @KIT_SETUP_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     def put(self, hostname) -> Response:
         try:
@@ -104,7 +107,7 @@ class NodeUpdateFactsCtrl(Resource):
                 return "Update node facts started", 200
         except Exception as exc:
             return {" error_message": str(exc) }, 400
-        return { "error_message": "Unknown error" }
+        return { "error_message": "Unknown error" }, 500
 
 
 @KIT_SETUP_NS.route("/node")
@@ -139,7 +142,7 @@ class NewNodeCtrl(Resource):
             send_notification()
 
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }
+            return { "error_message": "DBModelNotFound." }, 400
         except PostValidationError as e:
             return {"post_validation": e.errors_msgs}, 400
 
@@ -166,9 +169,9 @@ class NodeVpnCtrl(Resource):
                 send_notification()
             return "Updated", 200
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }
+            return { "error_message": "DBModelNotFound." }, 400
         except ValueError:
-            return { "error_message": "Invalid State." }
+            return { "error_message": "Invalid State." }, 400
 
 
 @KIT_SETUP_NS.route("/node/<hostname>/status")
@@ -227,9 +230,9 @@ class NodeStateCtrl(Resource):
                     send_notification()
             return { "success_message": "Updated" }
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }
+            return { "error_message": "DBModelNotFound." }, 400
         except ValueError:
-            return { "error_message": "Invalid state" }
+            return { "error_message": "Invalid state" }, 400
 
 
 @KIT_SETUP_NS.route("/node/<hostname>/deploy")
@@ -242,6 +245,7 @@ class NodeCtrlRebuild(Resource):
     @KIT_SETUP_NS.expect(Node.DTO)
     @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
     @KIT_SETUP_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @KIT_SETUP_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @controller_admin_required
     def post(self, hostname: str) -> Response:
         job_id = None
@@ -254,8 +258,8 @@ class NodeCtrlRebuild(Resource):
             # Alert websocket to update the table
             send_notification()
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }
-        return { "error_message": "Unable to start deployment for {}".format(hostname) }
+            return { "error_message": "DBModelNotFound." }, 400
+        return { "error_message": "Unable to start deployment for {}".format(hostname) }, 500
 
 @KIT_SETUP_NS.route("/node/<hostname>/generate-vpn")
 class GenerateVpnConfigCtrl(Resource):
@@ -272,7 +276,7 @@ class GenerateVpnConfigCtrl(Resource):
             if filename:
                 return send_file(filename, mimetype="text/plain")
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }
+            return { "error_message": "DBModelNotFound." }, 400
 
 @KIT_SETUP_NS.route("/control-plane")
 class ControlPlaneCtrl(Resource):
@@ -297,7 +301,7 @@ class ControlPlaneCtrl(Resource):
                 results.append(node_json)
             return results
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }
+            return { "error_message": "DBModelNotFound." }, 400
 
 
     @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
@@ -329,7 +333,7 @@ class ControlPlaneCtrl(Resource):
             send_notification()
 
         except ValidationError as e:
-            return e.normalized_messages()
+            return { "error_message": e.normalized_messages() }, 400
         except PostValidationError as e:
             return {"post_validation": e.errors_msgs}
         except DBModelNotFound as e:

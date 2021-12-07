@@ -5,9 +5,9 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import * as FileSaver from 'file-saver';
 
-import { CatalogService } from '../../modules/catalog/services/catalog.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
+import { CatalogService } from '../../services/catalog.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { UserService } from '../../services/user.service';
 import { WebsocketService } from '../../services/websocket.service';
@@ -349,7 +349,7 @@ export class NodeManagementComponent implements OnInit {
    */
   canRemove(node: Node): void {
     const installed_apps = [];
-    this._CatalogService.getinstalledapps(node.hostname).subscribe(result => {
+    this._CatalogService.get_installed_apps(node.hostname).subscribe(result => {
       const result_casted = result as [];
       if( result_casted !== null && result_casted.length > 0 ) {
         for (const app of result_casted){

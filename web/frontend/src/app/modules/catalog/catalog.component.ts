@@ -2,11 +2,10 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { Title } from '@angular/platform-browser';
 
-import { NotificationClass } from '../../classes';
+import { NotificationClass, ChartClass } from '../../classes';
 import { CookieService } from '../../services/cookies.service';
 import { WebsocketService } from '../../services/websocket.service';
-import { Chart } from './interface/chart.interface';
-import { CatalogService } from './services/catalog.service';
+import { CatalogService } from '../../services/catalog.service';
 import { KitSettingsService } from '../../system-setupv2/services/kit-settings.service';
 import { Node } from '../../system-setupv2/models/kit';
 
@@ -20,11 +19,12 @@ export class CatalogComponent implements OnInit, OnDestroy {
   @ViewChild('pmoElement')  public pmoElement: MatSlideToggle;
   @ViewChild('commElement') public commElement: MatSlideToggle;
   charts: any;
-  filteredCharts: Chart[];
+  filteredCharts: ChartClass[];
   ioConnection: any;
   showCharts = { 'pmo': true, 'comm': false };
   hasSensors: boolean;
   nodes: Node[];
+  is_loading: boolean;
 
   /**
    *Creates an instance of CatalogComponent.
@@ -36,7 +36,9 @@ export class CatalogComponent implements OnInit, OnDestroy {
                private titleSvc: Title,
                public _WebsocketService: WebsocketService,
                private cookieService: CookieService,
-               private kitSettingsSrv: KitSettingsService) { }
+               private kitSettingsSrv: KitSettingsService) {
+    this.is_loading = false;
+  }
 
   /**
    * Gets all the charts
@@ -47,7 +49,6 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.titleSvc.setTitle("Catalog");
     this.hasSensors = false;
     this.nodes = [];
-    this._CatalogService.isLoading = false;
     if(this.cookieService.get('chartFilter') !== '') {
       const show = JSON.parse(this.cookieService.get('chartFilter'));
       this.showCharts['pmo'] = false;
@@ -69,7 +70,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
             this.hasSensors = true;
           }
         }
-        this._CatalogService.isLoading = true;
+        this.is_loading = true;
         this.filterCharts();
       });
 
@@ -112,8 +113,8 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.updateCookie();
   }
 
-  private filterPMOApplications(isChecked: boolean): Chart[] {
-    let filteredCharts = [] as Chart[];
+  private filterPMOApplications(isChecked: boolean): ChartClass[] {
+    let filteredCharts = [] as ChartClass[];
     if (isChecked){
       filteredCharts = this.charts.filter((obj,index,ary) => {
         if (obj.pmoSupported){
@@ -125,8 +126,8 @@ export class CatalogComponent implements OnInit, OnDestroy {
     return filteredCharts;
   }
 
-  private filterCommunityApplications(isChecked: boolean): Chart[] {
-    let filteredCharts = [] as Chart[];
+  private filterCommunityApplications(isChecked: boolean): ChartClass[] {
+    let filteredCharts = [] as ChartClass[];
     if (isChecked){
       filteredCharts = this.charts.filter((obj,index,ary) => {
         if (obj.pmoSupported){

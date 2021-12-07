@@ -28,6 +28,7 @@ describe('CardComponent', () => {
   it('should create chart with info', waitForAsync(() => {
     const mockChart = {
       "appVersion": "7.3.1",
+      "version": '1.0.2',
       "application": "logstash",
       "description": "Logstash is an open source, server-side data processing pipeline that ingests data from a multitude of sources simultaneously, transforms it, and then sends it to your favorite stash.",
       "pmoSupported": false,

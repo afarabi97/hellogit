@@ -25,10 +25,10 @@ import {
   DialogFormControlConfigClass
 } from '../../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
+import { CatalogService } from '../../services/catalog.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
-import { CatalogService } from '../catalog/services/catalog.service';
 import {
   AgentInstallerConfigurationClass,
   AppConfigClass,
@@ -47,6 +47,8 @@ import {
   HOST_MAT_TABLE_COLUMNS,
   INSTALL_WINDOWS_HOSTS,
   IP_TARGET_CONFIGS_MAT_TABLE_COLUMNS,
+  LOGSTASH_NO_DATA_MESSAGE,
+  LOGSTASH_NOT_DEPLOYED_STATE_MESSAGE,
   REINSTALL_WINDOWS_HOST,
   UNINSTALL_WINDOWS_HOST,
   UNINSTALL_WINDOWS_HOSTS
@@ -130,24 +132,8 @@ export class AgentBuilderChooserComponent implements OnInit {
    */
   ngOnInit(): void {
     this.title_.setTitle(AGENT_BUILDER_CHOOSER_TITLE);
-    this.catalog_service_.checkLogStashInstalled()
-      .subscribe(
-        (response: StatusClass[]) => {
-          if (response.length > 0) {
-            /* istanbul ignore else */
-            if (response[0].status !== 'DEPLOYED') {
-              const message: string = 'Logstash is not in a deployed state. Please check the system health page or try to reinstall Logstash on the catalog page.';
-              this.mat_snackbar_service_.displaySnackBar(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-            }
-          } else {
-            const message: string = 'Before using this page, it is recommended that you install Logstash on your Kubernetes cluster. ' +
-                                    'Please go to the Catalog page and install it. Failing to install it will cause Winlogbeats and ' +
-                                    'Endgame agent data capture to Elasticsearch to fail.';
-            this.mat_snackbar_service_.displaySnackBar(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-          }
-        });
-
     this.websocket_get_socket_on_refresh();
+    this.api_get_chart_status_();
     this.api_agent_get_configs_();
     this.api_agent_get_ip_target_list_();
     this.api_get_app_configs_();
@@ -718,6 +704,32 @@ export class AgentBuilderChooserComponent implements OnInit {
    */
   private websocket_get_socket_on_refresh(): void {
     this.websocket_service.getSocket().on('refresh', (_data: any) => this.api_agent_get_ip_target_list_(true));
+  }
+
+  /**
+   * Used for making api rest call to get chart status
+   *
+   * @private
+   * @memberof AgentBuilderChooserComponent
+   */
+  private api_get_chart_status_(): void {
+    this.catalog_service_.get_chart_statuses('logstash')
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (reponse: StatusClass[]) => {
+          if (ObjectUtilitiesClass.notUndefNull(reponse) && reponse.length > 0) {
+            /* istanbul ignore else */
+            if (reponse[0].status !== 'DEPLOYED') {
+              this.mat_snackbar_service_.displaySnackBar(LOGSTASH_NOT_DEPLOYED_STATE_MESSAGE, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            }
+          } else {
+            this.mat_snackbar_service_.displaySnackBar(LOGSTASH_NO_DATA_MESSAGE, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        },
+        (error: HttpErrorResponse) => {
+          const message: string = 'retrieving logstash installation status';
+          this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        });
   }
 
   /**

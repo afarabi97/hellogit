@@ -18,8 +18,10 @@ import {
   MockIPTargetListClass2,
   MockIPTargetListClass3,
   MockIPTargetListClassesArray,
+  MockStatusClass_LogstashDeployedError,
   MockWindowsCredentialsClass
 } from '../../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import {
   MockAgentInstallerConfigurationInterface1,
   MockErrorMessageInterface,
@@ -35,14 +37,6 @@ import { AgentBuilderChooserComponent } from './agent-builder-chooser.component'
 import { AgentBuilderChooserModule } from './agent-builder-chooser.module';
 import { AppConfigClass, HostClass } from './classes';
 import { AgentInterface, AgentTargetInterface, MatTableRowIPTargetListInterface } from './interfaces';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 interface MockFile {
   name: string;
@@ -105,6 +99,7 @@ describe('AgentBuilderChooserComponent', () => {
   let spyGetCredentials: jasmine.Spy<any>;
   let spyUpdateIPTargetsListTargets: jasmine.Spy<any>;
   let spyWebsocketGetSocketOnRefresh: jasmine.Spy<any>;
+  let spyApiGetChartStatus: jasmine.Spy<any>;
   let spyApiAgentGenerate: jasmine.Spy<any>;
   let spyApiAgentSaveConfig: jasmine.Spy<any>;
   let spyApiAgentDeleteConfig: jasmine.Spy<any>;
@@ -211,6 +206,7 @@ describe('AgentBuilderChooserComponent', () => {
     });
     spyUpdateIPTargetsListTargets = spyOn<any>(component, 'update_ip_targets_list_targets_').and.callThrough();
     spyWebsocketGetSocketOnRefresh = spyOn<any>(component, 'websocket_get_socket_on_refresh').and.callThrough();
+    spyApiGetChartStatus = spyOn<any>(component, 'api_get_chart_status_').and.callThrough();
     spyApiAgentGenerate = spyOn<any>(component, 'api_agent_generate_').and.callThrough();
     spyApiAgentSaveConfig = spyOn<any>(component, 'api_agent_save_config_').and.callThrough();
     spyApiAgentDeleteConfig = spyOn<any>(component, 'api_agent_delete_config_').and.callThrough();
@@ -260,6 +256,7 @@ describe('AgentBuilderChooserComponent', () => {
     spyGetCredentials.calls.reset();
     spyUpdateIPTargetsListTargets.calls.reset();
     spyWebsocketGetSocketOnRefresh.calls.reset();
+    spyApiGetChartStatus.calls.reset();
     spyApiAgentGenerate.calls.reset();
     spyApiAgentSaveConfig.calls.reset();
     spyApiAgentDeleteConfig.calls.reset();
@@ -276,9 +273,7 @@ describe('AgentBuilderChooserComponent', () => {
     spyApiGetAppConfigs.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create AgentBuilderChooserComponent', () => {
     expect(component).toBeTruthy();
@@ -300,6 +295,14 @@ describe('AgentBuilderChooserComponent', () => {
         component.ngOnInit();
 
         expect(component['websocket_get_socket_on_refresh']).toHaveBeenCalled();
+      });
+
+      it('should call api_get_chart_status_() from ngOnInit()', () => {
+        reset();
+
+        component.ngOnInit();
+
+        expect(component['api_get_chart_status_']).toHaveBeenCalled();
       });
 
       it('should call api_agent_get_configs_() from ngOnInit()', () => {
@@ -831,6 +834,8 @@ describe('AgentBuilderChooserComponent', () => {
       it('should call add_hosts_to_ip_target_list()', () => {
         reset();
 
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
+
         component.add_hosts_to_ip_target_list(MockIPTargetListClass1, host_list);
 
         expect(component.add_hosts_to_ip_target_list).toHaveBeenCalled();
@@ -1066,6 +1071,60 @@ describe('AgentBuilderChooserComponent', () => {
         component['websocket_get_socket_on_refresh']();
 
         expect(component['websocket_get_socket_on_refresh']).toHaveBeenCalled();
+      });
+    });
+
+    describe('private api_get_chart_status_()', () => {
+      it('should call api_get_chart_status_()', () => {
+        reset();
+
+        component['api_get_chart_status_']();
+
+        expect(component['api_get_chart_status_']).toHaveBeenCalled();
+      });
+
+      it('should call catalog_service_.get_chart_statuses() from api_get_chart_status_()', () => {
+        reset();
+
+        component['api_get_chart_status_']();
+
+        expect(component['catalog_service_'].get_chart_statuses).toHaveBeenCalled();
+      });
+
+      it('should call catalog_service_.get_chart_statuses() and handle response no logstash deployed object', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['catalog_service_'], 'get_chart_statuses').and.returnValue(of([MockStatusClass_LogstashDeployedError]));
+
+        component['api_get_chart_status_']();
+
+        expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
+      });
+
+      it('should call catalog_service_.get_chart_statuses() and handle response empty []', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['catalog_service_'], 'get_chart_statuses').and.returnValue(of([]));
+
+        component['api_get_chart_status_']();
+
+        expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
+      });
+
+      it('should call catalog_service_.get_chart_statuses() and handle error', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['catalog_service_'], 'get_chart_statuses').and.returnValue(throwError(mock_http_error_response));
+
+        component['api_get_chart_status_']();
+
+        expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
       });
     });
 

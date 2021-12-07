@@ -73,7 +73,7 @@ class PcapCtrl(Resource):
 class DeletePcap(Resource):
 
     @POLICY_NS.doc(description="Delets a PCAP by the name passed in.")
-    @POLICY_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @POLICY_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @POLICY_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
     @operator_required
     def delete(self, pcap_name: str) -> Response:
@@ -81,7 +81,7 @@ class DeletePcap(Resource):
         if pcap_file.exists():
             pcap_file.unlink()
             return {"success_message": "PCAP successfully deleted!"}
-        return {"error_message": "PCAP failed to delete!"}
+        return {"error_message": "PCAP failed to delete!"}, 500
 
 
 @POLICY_NS.route('/pcap/replay')

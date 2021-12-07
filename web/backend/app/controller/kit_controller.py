@@ -17,14 +17,15 @@ from flask_restx import Resource
 class KitStatusCtrl(Resource):
 
     @KIT_SETUP_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @KIT_SETUP_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     def get(self) -> Response:
         try:
             kit_status = get_kit_status()
             if kit_status:
                 return kit_status, {}
         except DBModelNotFound:
-            return {"error_message": "DBModelNotFound."}
-        return {"error_message": "Unknown error."}
+            return {"error_message": "DBModelNotFound."}, 400
+        return {"error_message": "Unknown error."}, 500
 
 @KIT_SETUP_NS.route("/deploy")
 class KitCtrl(Resource):

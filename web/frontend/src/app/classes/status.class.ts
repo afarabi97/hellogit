@@ -11,7 +11,7 @@ export class StatusClass implements StatusInterface {
   application: string;
   deployment_name: string;
   hostname: string;
-  node_type?: string;
+  node_type: string;
   status: string;
 
   /**

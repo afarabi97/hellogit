@@ -1,20 +1,23 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSelectChange } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatStepper } from '@angular/material/stepper';
 import { Router } from '@angular/router';
 
-import { NodeClass, ObjectUtilitiesClass, StatusClass } from '../../../../classes';
-import { ConfirmDialogMatDialogDataInterface } from '../../../../interfaces';
+import { ChartInfoClass, NodeClass, ObjectUtilitiesClass, StatusClass } from '../../../../classes';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
+import {
+  CatalogHelmActionInterface,
+  ConfirmDialogMatDialogDataInterface,
+  GenerateFileInterface,
+  ProcessFromFormGroupInterface
+} from '../../../../interfaces';
+import { CatalogService } from '../../../../services/catalog.service';
 import { SortingService } from '../../../../services/sorting.service';
+import { ToolsService } from '../../../../tools-form/services/tools.service';
 import { DEPLOYED, INSTALL, PROCESS_LIST, REINSTALL, UNINSTALL, UNKNOWN } from '../../constants/catalog.constants';
-import { ProcessInterface } from '../../interface';
-import { ChartInfo } from '../../interface/chart.interface';
-import { CatalogService } from '../../services/catalog.service';
-import { ToolsService } from 'src/app/tools-form/services/tools.service';
+import { ProcessInterface } from '../../interfaces';
 
 @Component({
   selector: 'app-catalog-page',
@@ -27,6 +30,7 @@ import { ToolsService } from 'src/app/tools-form/services/tools.service';
 export class CatalogPageComponent implements OnInit, AfterViewInit {
   readonly serverAnyValue = 'Server - Any';
   readonly serverValue = 'Server';
+  readonly route_regex_end = '([^\/]+$)';
   processFormGroup: FormGroup;
   configFormGroup: FormGroup;
   valueFormGroup: FormGroup;
@@ -34,7 +38,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   isReady: boolean;
   isLoading: boolean;
   processList: ProcessInterface[];
-  chart: ChartInfo;
+  chart: ChartInfoClass;
   nodes: NodeClass[];
   isAdvance: boolean;
   content: any;
@@ -71,11 +75,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       p.children = [];
       return p;
     });
-    this.processFormGroup = this._formBuilder.group({
-      'selectedProcess': new FormControl('', Validators.required),
-      'selectedNodes': new FormControl({value: [], disabled: true}),
-      'node_affinity': new FormControl('')
-    });
     this.configFormGroup = new FormGroup({});
     this.valueFormGroup =  new FormGroup({});
   }
@@ -86,29 +85,38 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   ngOnInit() {
-    if(this._CatalogService.chart === undefined) {
+    const application: string[] = this.router.url.match(this.route_regex_end);
+    if (application.length === 0) {
       this.navigateToCatalog();
     } else {
-      this.chart = this._CatalogService.chart;
-      this.isDevDependent();
+      this._CatalogService.get_chart_info(application[0]).subscribe((response: ChartInfoClass) => {
+        this.chart = response;
+        this.isDevDependent();
 
-      this._CatalogService.getByString(`chart/${this.chart.id}/status`).subscribe((statusGroup: StatusClass[]) => {
-        this.statuses = statusGroup;
-        this.manageState_();
+        this._CatalogService.get_chart_statuses(this.chart.id).subscribe((statusGroup: StatusClass[]) => {
+          this.statuses = statusGroup;
+          this.manageState_();
+        });
+
+        this._CatalogService.get_saved_values(this.chart.id).subscribe(values => {
+          this.savedValues = values.length !== 0 ? values : null;
+        });
+
+        if(this.chart.node_affinity === this.serverAnyValue) {
+          this.setupServiceNode();
+        }
+        this.processFormGroup = this._formBuilder.group({
+          'selectedProcess': new FormControl('', Validators.required),
+          'selectedNodes': new FormControl({value: [], disabled: true}),
+          'node_affinity': new FormControl(this.chart.node_affinity)
+        });
+        this.cdRef.detectChanges();
       });
-
-      this._CatalogService.getByString(`${this.chart.id}/saved-values`).subscribe(values => {
-        this.savedValues = values.length !== 0 ? values : null;
-      });
-
-      if(this.chart.node_affinity === "Server - Any") {
-        this.setupServiceNode();
-      }
     }
   }
 
   /**
-   * Used for naviagting router back to catalog page
+   * Used for navigating router back to catalog page
    *
    * @memberof CatalogPageComponent
    */
@@ -123,7 +131,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    */
   isDevDependent() {
     if(this.chart.devDependent) {
-      this._CatalogService.getByString(`chart/${this.chart.devDependent}/status`).subscribe(status => {
+      this._CatalogService.get_chart_statuses(this.chart.devDependent).subscribe(status => {
         if(status.length === 0 ) {
           const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
             title: `${this.chart.id} is dependent on ${this.chart.devDependent}`,
@@ -198,7 +206,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   selectProcessChange() {
     if(this.processFormGroup.get("selectedProcess").valid) {
       this.processFormGroup.get("selectedNodes").enable();
-      if (this.chart?.node_affinity !== this.serverAnyValue) {
+      if (this.processFormGroup.get("node_affinity").value !== this.serverAnyValue) {
         this.processFormGroup.get("selectedNodes").setValidators([Validators.required]);
       }
     }
@@ -306,7 +314,12 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   getValuesCall() {
-    this._CatalogService.getValuesFile(this.chart.id, this.processFormGroup.getRawValue(), this.configArray).subscribe(data => {
+    const generate_values_file: GenerateFileInterface = {
+      role: this.chart.id,
+      process: this.processFormGroup.getRawValue(),
+      configs: this.configArray
+    };
+    this._CatalogService.generate_values_file(generate_values_file).subscribe(data => {
       this.content = data;
         this.processFormGroup.getRawValue().selectedNodes.map(nodes => {
           this.content.map( value => {
@@ -412,25 +425,29 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   runChart() {
+    const catalog_helm_action: CatalogHelmActionInterface = new Object() as CatalogHelmActionInterface;
+    catalog_helm_action.role = this.chart.id;
+    catalog_helm_action.process = this.processFormGroup.getRawValue() as ProcessFromFormGroupInterface;
     switch (this.processFormGroup.getRawValue().selectedProcess) {
       case 'install':
-        this._CatalogService.installHelm(this.chart.id, this.processFormGroup.getRawValue(), this.makeValueArray())
+        catalog_helm_action.values = this.makeValueArray();
+        this._CatalogService.catalog_install(catalog_helm_action)
           .subscribe(_data => this.snackBar.open(`${this.chart.id} Installation Queued`, 'OK', { duration: 5000 }));
         break;
       case 'uninstall':
         this.serverAny();
         this.addDeploymentName();
-        this._CatalogService.deleteHelm(this.chart.id, this.processFormGroup.getRawValue())
+        this._CatalogService.catalog_uninstall(catalog_helm_action)
           .subscribe(_data => this.snackBar.open(`${this.chart.id} Uninstall Queued`, 'OK', { duration: 5000 }));
         break;
       case 'reinstall':
-        this._CatalogService.reinstallHelm(this.chart.id, this.processFormGroup.getRawValue(), this.makeValueArray())
+        catalog_helm_action.values = this.makeValueArray();
+        this._CatalogService.catalog_reinstall(catalog_helm_action)
           .subscribe(_data => this.snackBar.open(`${this.chart.id} Reinstallation Queued`, 'OK', { duration: 5000 }));
         break;
       default:
     }
     this.navigateToCatalog();
-    this._CatalogService.isLoading = false;
   }
 
 
@@ -441,7 +458,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   makeValueArray(): Array<any> {
-    this.processFormGroup.controls['node_affinity'].setValue(this.chart.node_affinity);
     this.processFormGroup.getRawValue().selectedNodes.map((node: NodeClass) => {
       this.valueFormGroup.controls[node.deployment_name].disable();
       const hostname_ctrl: Object = this.valueFormGroup.controls[node.deployment_name].value;
@@ -499,7 +515,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   }
 
   setupServiceNode() {
-    this._CatalogService.getNodes().subscribe(nodes => {
+    this._CatalogService.get_kit_nodes().subscribe(nodes => {
       this.nodes = nodes;
       this.nodes.map(node => {
           if (node.node_type === "Service") {
@@ -626,7 +642,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   private manageState_(): void {
-    this._CatalogService.getNodes().subscribe((nodes: NodeClass[]) => {
+    this._CatalogService.get_kit_nodes().subscribe((nodes: NodeClass[]) => {
       this.processList = this.setProcessListChildren_(nodes);
     });
   }
@@ -718,7 +734,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
         const checkboxformControl = new FormControl(valid_control ? value[control.name] : control.default_value);
         if(ObjectUtilitiesClass.notUndefNull(control.dependent_app)) {
           let appValues;
-          this._CatalogService.getByString(`${control.dependent_app}/saved-values`).subscribe(values => {
+          this._CatalogService.get_saved_values(control.dependent_app).subscribe(values => {
             appValues = values.length !== 0 ? values : null;
             if(appValues != null) {
               checkboxformControl.enable();

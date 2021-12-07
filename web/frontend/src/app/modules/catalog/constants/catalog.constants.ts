@@ -1,4 +1,4 @@
-import { ProcessInterface } from '../interface';
+import { ProcessInterface } from '../interfaces';
 
 export const DEPLOYED = 'DEPLOYED';
 export const UNKNOWN = 'UNKNOWN';

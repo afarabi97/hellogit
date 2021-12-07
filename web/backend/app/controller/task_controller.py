@@ -102,7 +102,7 @@ class RedisJobRetry(Resource):
                 job_obj.set_inprogress(job_id)
             return JobID(job).to_dict()
         except NoSuchJobError:
-            return {"error_message": "The passed in job ID no longer exists on the redis queue.  It is possible that something erased it."}
+            return {"error_message": "The passed in job ID no longer exists on the redis queue.  It is possible that something erased it."}, 400
 
 
 @JOB_NS.route('')

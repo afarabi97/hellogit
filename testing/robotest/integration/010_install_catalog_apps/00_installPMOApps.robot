@@ -19,4 +19,4 @@ Install PMO Applications
     [Documentation]              Check functionality of the Catalog
     ...                          page by installing  PMO supported apps.
     Set Selenium Speed           0.5s
-    Install Multiple Apps        Logstash    Arkime-viewer   Arkime  Suricata   Zeek    Cortex  Hive    Misp    Rocketchat  Wikijs
+    Install Multiple Apps        Logstash    Arkime-viewer  Arkime  Suricata    Zeek    Cortex  Misp    Hive    Rocketchat  Wikijs

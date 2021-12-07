@@ -14,7 +14,10 @@ export interface DeviceFactsInterface {
   disks: DisksInterface[];
   hostname: string;
   interfaces: InterfacesInterface[];
+  management_ip: string;
   memory_available: number;
+  memory_gb: number;
+  memory_mb: number;
   potential_monitor_interfaces: string[];
   product_name: string;
 }

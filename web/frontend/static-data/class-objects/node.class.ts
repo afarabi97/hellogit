@@ -3,3 +3,7 @@ import { MockNodeSensorInterface, MockNodeServerInterface } from '../interface-o
 
 export const MockNodeServerClass: NodeClass = new NodeClass(MockNodeServerInterface);
 export const MockNodeSensorClass: NodeClass = new NodeClass(MockNodeSensorInterface);
+export const MockNodeClassArray: NodeClass[] = [
+  MockNodeServerClass,
+  MockNodeSensorClass
+];

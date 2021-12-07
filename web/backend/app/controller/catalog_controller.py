@@ -18,6 +18,7 @@ from app.utils.collections import mongo_catalog_saved_values
 from app.utils.logging import logger
 from flask import Response, request
 from flask_restx import Resource, fields
+from app.models.common import COMMON_ERROR_MESSAGE
 
 NAMESPACE = "default"
 
@@ -44,6 +45,7 @@ class ConfiguredIfaces(Resource):
 
     @CATALOG_NS.response(200, 'A list of iface names that are configured with either zeek or suricata.', \
                          [fields.String(example="ens192")])
+    @CATALOG_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     def get(self, sensor_hostname: str) -> Response:
         ifaces = set()
         zeek_values = list(
@@ -57,7 +59,7 @@ class ConfiguredIfaces(Resource):
                 _add_to_set(sensor_hostname, suricata_values, ifaces)
 
             return list(ifaces)
-        return ERROR_RESPONSE
+        return { 'error_message': 'Failed to to list iface names configured withg either zeek or suricata' }, 500
 
 
 @CATALOG_NS.route('/install')
@@ -66,7 +68,7 @@ class HELMInstallCtrl(Resource):
     @CATALOG_NS.doc(description="Installs an application using helm.")
     @CATALOG_NS.expect(HELMActionModel.DTO)
     @CATALOG_NS.response(200, "JobID", JobID.DTO)
-    @CATALOG_NS.response(500, "Error")
+    @CATALOG_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
     def post(self) -> Response:
         payload = request.get_json()
@@ -82,7 +84,7 @@ class HELMInstallCtrl(Resource):
             return JobID(job).to_dict(), 200
 
         logger.error("Executing /api/catalog/install has failed.")
-        return ERROR_RESPONSE
+        return { 'error_=message': 'Failed to install catalog application using helm' }, 500
 
 
 @CATALOG_NS.route('/uninstall')
@@ -91,7 +93,7 @@ class HELMDeleteCtrl(Resource):
     @CATALOG_NS.doc(description="Delete an application using helm")
     @CATALOG_NS.expect(HELMActionModel.DTO)
     @CATALOG_NS.response(200, "JobID", JobID.DTO)
-    @CATALOG_NS.response(500, "Error")
+    @CATALOG_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
     def post(self) -> Response:
         payload = request.get_json()
@@ -106,7 +108,7 @@ class HELMDeleteCtrl(Resource):
             return JobID(job).to_dict()
 
         logger.error("Executing /api/catalog/uninstall has failed.")
-        return ERROR_RESPONSE
+        return { 'error_message': 'Failed to uninstall catalog application using helm' }, 500
 
 
 @CATALOG_NS.route('/reinstall')
@@ -115,7 +117,7 @@ class HELMReinstallCtrl(Resource):
     @CATALOG_NS.doc(description="Reinstall an application using helm")
     @CATALOG_NS.expect(HELMActionModel.DTO)
     @CATALOG_NS.response(200, "JobID", JobID.DTO)
-    @CATALOG_NS.response(500, "Error")
+    @CATALOG_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
     def post(self) -> Response:
         payload = request.get_json()
@@ -132,7 +134,7 @@ class HELMReinstallCtrl(Resource):
             return JobID(job).to_dict()
 
         logger.error("Executing /api/catalog/reinstall has failed.")
-        return ERROR_RESPONSE
+        return { 'error_message': 'Failed to reinstall catalog application using helm' }, 500
 
 
 @CATALOG_NS.route('/generate_values')

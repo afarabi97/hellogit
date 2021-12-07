@@ -103,7 +103,7 @@ class AgentEndgameProfiles(Resource):
             if failure:
                 resp = failure, 400
             else:
-                resp = {'error_message': 'Failed to connect to Endgame server for unknown reason'}
+                resp = {'error_message': 'Failed to connect to Endgame server for unknown reason'}, 500
             return resp
 
         header["Authorization"] = "JWT {}".format(auth_token)
@@ -190,7 +190,7 @@ class AgentTargetHost(Resource):
             if ret_val:
                 ret_val["_id"] = str(ret_val["_id"])
                 return ret_val
-        return {"error_message": "Failed to add a hosts to target configuration {}.".format(target_config['name'])}
+        return {"error_message": "Failed to add a hosts to target configuration {}.".format(target_config['name'])}, 500
 
 
 @AGENT_NS.route('/host/<host>/<target_config_id>')
@@ -205,7 +205,7 @@ class DelAgentTargetHost(Resource):
                                             {'$pull': {'targets': {'hostname': host}}})
         if ret_val.modified_count == 1:
             return {"success_message": "Successfully deleted {} from the target configuration.".format(host)}
-        return {"error_message": "Failed to delete {} from the target configuration.".format(host)}
+        return {"error_message": "Failed to delete {} from the target configuration.".format(host)}, 500
 
 
 def get_agent_installer_configs():
@@ -218,6 +218,7 @@ class AgentInstallerConfigs(Resource):
     def get(self) -> Response:
         return get_agent_installer_configs()
 
+    @AGENT_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @AGENT_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @operator_required
     def post(self) -> Response:
@@ -230,9 +231,9 @@ class AgentInstallerConfigs(Resource):
                 win_install_cnxn.insert_one(payload)
                 return get_agent_installer_configs()
             except:
-                return {"error_message": "500 Could not insert document"}
+                return {"error_message": "Could not insert document"}, 500
         else:
-            return {"error_message": "{} name already in use".format(payload["config_name"])}
+            return {"error_message": "{} name already in use".format(payload["config_name"])}, 400
 
 
 @AGENT_NS.route('/config/<config_id>')
@@ -303,7 +304,7 @@ def _create_and_run_celery_tasks(payload: Dict,
 class AgentUninstall(Resource):
 
     @AGENT_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
-    @AGENT_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @AGENT_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @operator_required
     def post(self) -> Response:
         payload = request.get_json()
@@ -313,7 +314,7 @@ class AgentUninstall(Resource):
             target_config = payload['target_config']
             targets = [target['hostname'] for target in target_config.pop('targets')]
             if len(targets) == 0:
-                return {"error_message": "Failed to initiate uninstall task. No targets were specified for this configuration. Did you forget to add them?"}
+                return {"error_message": "Failed to initiate uninstall task. No targets were specified for this configuration. Did you forget to add them?"}, 400
         elif 'target' in payload:
             targets = payload['target']
         _create_and_run_celery_tasks(payload, targets, do_uninstall_only=True)
@@ -324,7 +325,7 @@ class AgentUninstall(Resource):
 class AgentInstall(Resource):
 
     @AGENT_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
-    @AGENT_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @AGENT_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @operator_required
     def post(self) -> Response:
         payload = request.get_json()
@@ -332,7 +333,7 @@ class AgentInstall(Resource):
         target_config = payload['target_config']
         targets = [target['hostname'] for target in target_config.pop('targets')]
         if len(targets) == 0:
-            return {"error_message": "Failed to initiate install task. No targets were specified for this configuration. Did you forget to add them?"}
+            return {"error_message": "Failed to initiate install task. No targets were specified for this configuration. Did you forget to add them?"}, 400
 
         _create_and_run_celery_tasks(payload, targets)
         return {"success_message": "Initiated install task. Open the notification manager to track its progress."}

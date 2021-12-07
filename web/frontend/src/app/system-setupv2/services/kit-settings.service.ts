@@ -135,7 +135,7 @@ export class KitSettingsService {
           payload['raid_drives'] = payload['raid_drives'].split(',');
         }
       }else{
-        payload['raid_drives'] = []
+        payload['raid_drives'] = [];
       }
     }
 

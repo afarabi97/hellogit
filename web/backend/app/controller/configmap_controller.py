@@ -70,7 +70,7 @@ class GetConfigMapsOnly(Resource):
                 return jsonify(api_response.to_dict())
         except KitFormNotFound as exception:
             logger.exception(exception)
-            return {"error_message": "KitFormNotFound"}
+            return {"error_message": "KitFormNotFound"}, 400
 
 
 @KUBERNETES_NS.route("/configmap")

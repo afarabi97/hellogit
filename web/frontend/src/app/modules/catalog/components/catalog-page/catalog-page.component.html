@@ -5,7 +5,8 @@
   <div fxLayout="column" fxLayoutAlign="center stretch" style="width: 100%;">
     <mat-horizontal-stepper #stepper linear="true" style="margin-left: 10px; margin-right: 10px;" (selectionChange)="selectionChange($event)">
       <!-- Process -->
-      <mat-step id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group" [stepControl]="processFormGroup">
+      <mat-step *ngIf="processFormGroup" id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group"
+                [stepControl]="processFormGroup">
         <form [formGroup]="processFormGroup">
           <ng-template matStepLabel>Process</ng-template>
           <h5>Process Selection</h5>

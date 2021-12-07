@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 
 import { HealthService } from '../../health-dashboard/services/health.service';
 import { HealthServiceSpy } from '../../health-dashboard/services/health.service.spec';
+import { CatalogService } from '../../services/catalog.service';
+import { CatalogServiceSpy } from '../../services/catalog.service.spec';
 import { CookieService } from '../../services/cookies.service';
 import { CookieServiceSpy } from '../../services/cookies.service.spec';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
@@ -50,6 +52,7 @@ import { PolicyManagementServiceSpy } from '../policy-management/services/policy
   ],
   providers: [
     { provide: HealthService, useClass: HealthServiceSpy },
+    { provide: CatalogService, useClass: CatalogServiceSpy },
     { provide: CookieService, useClass: CookieServiceSpy },
     { provide: MatSnackBarService, useClass: MatSnackbarServiceSpy },
     { provide: PortalService, useClass: PortalServiceSpy },

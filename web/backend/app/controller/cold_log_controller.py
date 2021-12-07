@@ -19,6 +19,7 @@ class ColdLogUpload(Resource):
     @COLDLOG_NS.doc(description="Upload zip or individual files for coldlog ingest.")
     @COLDLOG_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
     @COLDLOG_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @COLDLOG_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     def post(self) -> Response:
         """
         Supports the uploading of zip files or individual files.
@@ -28,7 +29,7 @@ class ColdLogUpload(Resource):
         model = ColdLogUploadModel()
         model.from_request(request.files, request.form)
         if 'upload_file' not in request.files:
-            return {"error_message": "Failed to upload file. No file was found in the request."}
+            return {"error_message": "Failed to upload file. No file was found in the request."}, 400
 
         if model.is_windows():
             win_model = WinlogbeatInstallModel()

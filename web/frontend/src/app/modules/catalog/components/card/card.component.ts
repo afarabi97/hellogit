@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { ObjectUtilitiesClass } from '../../../../classes';
-import { Chart } from '../../interface/chart.interface';
+import { ChartClass, ObjectUtilitiesClass } from '../../../../classes';
 
 @Component({
   selector: 'app-card',
@@ -12,7 +11,7 @@ export class CardComponent {
 
   // Unique ID passed from parent component to create unique element ids
   @Input() uniqueHTMLID: string;
-  @Input() chart: Chart;
+  @Input() chart: ChartClass;
   color: string;
   hoverColor: string;
   hovered: boolean;
@@ -59,7 +58,7 @@ export class CardComponent {
       let in_progress = false;
       let failed = false;
       this.chart.nodes.map( chart => {
-        if( chart.status.toLowerCase() !== "deployed") {
+        if(chart.status.toLowerCase() !== "deployed") {
           in_progress = true;
         } else if ( chart.status.toLowerCase() === "failed") {
           failed = true;

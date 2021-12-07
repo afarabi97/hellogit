@@ -32,3 +32,8 @@ export const DNS_INSTRUCTIONS: string = 'The \'Windows DNS Suffix\' is optional.
                                         'If you leave out the \'Windows DNS Suffix\' you will need to make sure each host you enter has the appropriate ' +
                                         'fully qualified domain name with the suffix attached (EX: <Windows hostname>.<DNS suffix>).  If you add the Windows DNS suffix, ' +
                                         'you will only need to specifiy the Windows hostnames when filling out the targets for this configuration.';
+// Logstash Messages
+export const LOGSTASH_NOT_DEPLOYED_STATE_MESSAGE: string = 'Logstash is not in a deployed state. Please check the system health page or try to reinstall Logstash on the catalog page.';
+export const LOGSTASH_NO_DATA_MESSAGE: string = 'Before using this page, it is recommended that you install Logstash on your Kubernetes cluster. ' +
+                                                'Please go to the Catalog page and install it. Failing to install it will cause Winlogbeats and ' +
+                                                'Endgame agent data capture to Elasticsearch to fail.';

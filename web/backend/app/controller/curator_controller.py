@@ -65,7 +65,7 @@ class GetClosedIndices(Resource):
         except Exception as exec:
            print(str(exec))
            logger.exception(exec)
-           return { "error_message": "Something went wrong getting the Elasticsearch indices." }
+           return { "error_message": "Something went wrong getting the Elasticsearch indices." }, 500
 
 
 @CURATOR_NS.route('/indices')
@@ -95,7 +95,7 @@ class GetOpenedIndices(Resource):
         except Exception as exec:
             print(str(exec))
             logger.exception(exec)
-            return { "error_message": "Something went wrong getting the Elasticsearch indices." }
+            return { "error_message": "Something went wrong getting the Elasticsearch indices." }, 500
 
 
 @CURATOR_NS.route('/process')
@@ -108,11 +108,11 @@ class IndexMangement(Resource):
         payload = request.get_json()
 
         if "action" not in payload or payload["action"] not in ["DeleteIndices", "CloseIndices", "CleanUpOptimize"]:
-            return { "error_message": "Invalid value for action" }
+            return { "error_message": "Invalid value for action" }, 400
         if "index_list" not in payload or payload["index_list"] is None:
-            return { "error_message": "Index required" }
+            return { "error_message": "Index required" }, 400
         if len(payload["index_list"]) < 1:
-            return { "error_message": "Index list is empty" }
+            return { "error_message": "Index list is empty" }, 400
 
         units = "minutes"
         age = "1"

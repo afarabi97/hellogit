@@ -11,6 +11,7 @@ export class DisksClass implements DisksInterface {
   name: string;
   size_gb: number;
   size_tb: number;
+  disk_rotation: string;
 
   /**
    * Creates an instance of DisksClass.
@@ -23,5 +24,6 @@ export class DisksClass implements DisksInterface {
     this.name = disksInterface.name;
     this.size_gb = disksInterface.size_gb;
     this.size_tb = disksInterface.size_tb;
+    this.disk_rotation = disksInterface.disk_rotation;
   }
 }

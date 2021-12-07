@@ -9,4 +9,5 @@ export interface DisksInterface {
   name: string;
   size_gb: number;
   size_tb: number;
+  disk_rotation: string;
 }

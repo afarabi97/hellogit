@@ -16,6 +16,13 @@ export const environment = {
 
   SENSOR_HOST_INFO_SERVICE_GET_SENSOR_HOST_INFO: `/api/policy/sensor/info`,
 
+  CATALOG_SERVICE_BASE: `/api/catalog/`,
+  CATALOG_SERVICE_NODES: `/api/catalog/nodes`,
+  CATALOG_SERVICE_GENERATE_VALUES: `/api/catalog/generate_values`,
+  CATALOG_SERVICE_INSTALL: `/api/catalog/install`,
+  CATALOG_SERVICE_REINSTALL: `/api/catalog/reinstall`,
+  CATALOG_SERVICE_UNINSTALL: `/api/catalog/uninstall`,
+  CATALOG_SERVICE_CHARTS_STATUS: `/api/catalog/charts/status`,
   CATALOG_SERVICE_CHECK_LOGSTASH_INSTALLED: `/api/catalog/chart/logstash/status`,
 
   CONFIG_MAP_SERVICE_GET_CONFIG_MAPS: `/api/kubernetes/configmaps`,
@@ -49,12 +56,6 @@ export const environment = {
   ARCHIVE_SERVICE_ARCHIVE_DELETE: `/api/delete_archive/`,
   ARCHIVE_SERVICE_ARCHIVE_RESTORE: `/api/restore_archived`,
   ARCHIVE_SERVICE_ARCHIVE_GET: `/api/get_archived/`,
-
-  KIT_SERVICE_GET_KIT_FORM: `/api/get_kit_form`,
-  KIT_SERVICE_EXECUTE_KIT_INVENTORY: `/api/execute_kit_inventory`,
-  KIT_SERVICE_GENERATE_KIT_INVENTORY: `/api/generate-kit-inventory`,
-  KIT_SERVICE_EXECUTE_ADD_NODE: `/api/execute_add_node`,
-  KIT_SERVICE_EXECUTE_REMOVE_NODE: `/api/execute_remove_node`,
 
   KICKSTART_SERVICE_GET_AVAILABLE_IP_BLOCKS: `/api/available-ip-blocks`,
   KICKSTART_SERVICE_GET_IP_BLOCKS: `/api/ip-blocks/`,

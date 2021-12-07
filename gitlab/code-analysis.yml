@@ -153,7 +153,7 @@ sonarqube front-end code base:
       - web/frontend/*.png
   retry: 2
   timeout: 5m
-  allow_failure: true
+  allow_failure: false
 
 sonarqube back-end code base:
   tags:
