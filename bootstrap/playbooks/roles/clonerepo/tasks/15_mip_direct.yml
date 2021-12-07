@@ -11,7 +11,6 @@
     remote_src: yes
   with_items:
    - "{{ mip_repo }}/mip_images/{{ mip_images_tar }}"
-   - "{{ mip_repo }}/2fa/{{ twofa_tar }}"
 
 - name: Fetch MIP resources.
   get_url:
@@ -27,3 +26,4 @@
     - { "src": "burpsuite/{{ burpsuite_file }}", "dest": "{{ web_root }}/MIP/" }
     - { "src": "drivers/{{ nvidia_driver }}", "dest": "{{ web_root }}/MIP/"}
     - { "src": "drivers/{{ amd_driver }}", "dest": "{{ web_root }}/MIP/"}
+    - { "src": "2fa/{{ twofa_tar }}", "dest": "{{ web_root }}/MIP/" }

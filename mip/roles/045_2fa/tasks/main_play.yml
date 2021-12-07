@@ -1,28 +1,9 @@
 ---
 - name: Copying 2fa folder to Desktop
-  copy:
-    src: '{{ mip_scripts_dir }}/2fa'
-    dest: /home/assessor/Desktop/
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Copy the 2fa certs
-  get_url:
-    url: "http://controller.{{ kit_domain }}/MIP/{{ item }}"
-    dest: /home/assessor/Desktop/2fa
-    owner: root
-    group: root
-    mode: '0755'
-  with_items:
-    - 2fa_certs/NMIL_Cert_DoD_Root_CA_3.der.p7b
-    - 2fa_certs/NMIL_Cert_DoD_Root_CA_3.der.p7b.pem
-    - 2fa_certs/SMIL_checkedbase64.zip
-
-- name: Copying 2fa image to Desktop
-  get_url:
-    url: "http://controller.{{ kit_domain }}/MIP/MIP_Images/2fa/tcl/2famapper.png"
-    dest: /home/assessor/Desktop/2fa/tcl
+  unarchive:
+    src: "{{ web_server }}/{{ twofa_tar }}"
+    dest: "/home/assessor/Desktop/"
+    remote_src: yes
     owner: root
     group: root
     mode: '0755'
@@ -34,7 +15,7 @@
   shell: authselect apply-changes
 
 - name: Run ans_2fa_rhel8_configure script
-  shell: ./ans_2fa_rhel8_configure NMIL
+  shell: ./ans_2fa_rhel8_configure
   args:
     chdir: /home/assessor/Desktop/2fa/
 
