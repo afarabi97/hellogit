@@ -96,24 +96,6 @@ class MyConfluenceExporter(Confluence):
                 break
         return False
 
-    def _wait_for_pdf2(self,
-                       export_job_id: int,
-                       timeout_min: int) -> Union[None, str]:
-        start_time = datetime.utcnow()
-        while True:
-            result = self._check_if_pdf_ready2(export_job_id)
-            if not result:
-                print("Documentation not ready. Sleeping 5 seconds.")
-                sleep(5)
-            else:
-                return result
-
-            current_time = datetime.utcnow()
-            if current_time > (start_time + timedelta(minutes=timeout_min)):
-                print("Waiting for PDF timed out after %d." % timeout_min)
-                break
-        return None
-
     def _download_pdf(self, page_id: int, export_hash: str, export_path: str, export_version: str, export_format: str) -> str:
         headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
@@ -151,128 +133,13 @@ class MyConfluenceExporter(Confluence):
             print("Successfully exported documentation to {}".format(file_to_save))
         return file_to_save
 
-    def _download_pdf2(self, page_id: int, export_path: str, export_version: str, timeout_min: int, title: str) -> str:
-        headers = {
-            'Accept': 'application/json, text/plain, */*',
-            'Accept-Encoding': ACCEPT_ENCODING,
-            'Accept-Language': ACCEPT_LANG,
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/json;charset=UTF-8',
-            'Host': HOST,
-            'ORIGIN': ORIGIN,
-            'User-Agent': USER_AGENT
-        }
-
-        payload = {
-            "pageId": str(page_id),
-            "pageSet":"current",
-            "pageOptions":{
-
-            },
-            "templateId":"com.k15t.scroll.pdf.default-template-documentation",
-            "locale":"en-US",
-            "debugMode": False,
-            "properties":{
-                "labels":{
-                    "includeContentWithLabels":[
-
-                    ],
-                    "excludeContentWithLabels":[
-
-                    ],
-                    "indexTerms":[
-
-                    ]
-                },
-                "content":{
-                    "headings":[
-                        "enableNumberedHeadings"
-                    ],
-                    "layout":[
-
-                    ],
-                    "links":[
-                        "enableExternalLinks",
-                        "enableConfluenceLinks"
-                    ],
-                    "tables":[
-                        "repeatTableHeaders"
-                    ],
-                    "pagebreak":[
-
-                    ],
-                    "comalaWorkflows":[
-
-                    ],
-                    "attachments":"notEmbedAttachments"
-                },
-                "macros":{
-                    "macros":[
-
-                    ]
-                },
-                "title":{
-                    "figure":"after",
-                    "table":"after"
-                },
-                "printOptions":{
-                    "artifactFileName":"<span contenteditable=\"false\" draggable=\"false\" class=\"template-placeholder\" data-placeholder-app-key=\"com.k15t.scroll.pdf\" data-placeholder-key=\"document-title\" data-placeholder-velocity=\"${document.title}\" data-placeholder-name=\"Document Title\" data-placeholder-properties=\"{}\">Document Title</span>-v<span contenteditable=\"false\" draggable=\"false\" class=\"template-placeholder\" data-placeholder-app-key=\"com.k15t.scroll.pdf\" data-placeholder-key=\"document-revision\" data-placeholder-velocity=\"${document.rootPage.revision}\" data-placeholder-name=\"Document Revision\" data-placeholder-properties=\"{}\">Document Revision</span>-<span contenteditable=\"false\" draggable=\"false\" class=\"template-placeholder\" data-placeholder-app-key=\"com.k15t.scroll.pdf\" data-placeholder-key=\"export-date\" data-placeholder-velocity=\"${export.date(&amp;#x22;YYYMMdd_HHmmss&amp;#x22;)}\" data-placeholder-name=\"Export Date (YYYMMdd_HHmmss)\" data-placeholder-properties=\"{&amp;#x22;pattern&amp;#x22;:&amp;#x22;YYYMMdd_HHmmss&amp;#x22;}\">Export Date (YYYMMdd_HHmmss)</span>",
-                    "optimization":[
-                        "optimizePrint"
-                    ],
-                    "documentLinkSuffix":" (see page <span contenteditable=\"false\" draggable=\"false\" class=\"template-placeholder\" data-placeholder-app-key=\"com.k15t.scroll.pdf\" data-placeholder-velocity=\"${targetNumber}\"  data-placeholder-name=\"Target Number\">Target Number</span>)",
-                    "figureLinkSuffix":" (see figure <span contenteditable=\"false\" draggable=\"false\" class=\"template-placeholder\" data-placeholder-app-key=\"com.k15t.scroll.pdf\" data-placeholder-velocity=\"${targetNumber}\"  data-placeholder-name=\"Target Number\">Target Number</span>)",
-                    "tableLinkSuffix":" (see table ${targetNumber})",
-                    "pdfCompliance":[
-
-                    ],
-                    "imageCompression":"none"
-                },
-                "metadata":{
-                    "title":"",
-                    "author":"",
-                    "subject":"",
-                    "keywords":""
-                },
-                "locale":{
-                    "defaultLocale":"en"
-                },
-                "bookmarks":{
-                    "level":"3",
-                    "expandedLevel":"3",
-                    "bookmarksPanel":[
-
-                    ]
-                }
-            }
-        }
+    def _download_pdf3(self, page_id: int, export_path: str, export_version: str, timeout_min: int, title: str):
+        url = f"{self.url}/spaces/flyingpdf/pdfpageexport.action?pageId={page_id}"
         file_to_save = ""
-        url = self.url + "/plugins/servlet/scroll-pdf/api/exports"
-        response = self._session.request(
-            method='POST',
-            url=url,
-            headers=headers,
-            timeout=self.timeout,
-            verify=self.verify_ssl,
-            json=payload
-        )
-        if response.status_code == 200:
-            payload = response.json()
-            download_url = self._wait_for_pdf2(payload["exportJobId"], timeout_min)
-            headers = {
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-                'Accept-Encoding': ACCEPT_ENCODING,
-                'Accept-Language': ACCEPT_LANG,
-                'Connection': 'keep-alive',
-                'Host': HOST,
-                'Upgrade-Insecure-Requests': '1',
-                'User-Agent': USER_AGENT
-            }
-
-            with self._session.request(
+        with self._session.request(
                 method='GET',
-                url=download_url,
-                headers=headers,
+                url=url,
+                # headers=headers,
                 timeout=self.timeout,
                 verify=self.verify_ssl,
                 stream=True
@@ -285,8 +152,6 @@ class MyConfluenceExporter(Confluence):
                             f.write(chunk)
 
                 print("Successfully exported documentation to {}".format(file_to_save))
-        else:
-            print("Failed to initiate download with url: {} status_code: {}".format(url, response.status_code))
         return file_to_save
 
     def _get_content_array(self, space: str, page_id: str, out_content: List[int]):
@@ -366,7 +231,7 @@ class MyConfluenceExporter(Confluence):
 
         page = self.get_page_by_title(space, title)
         page_id = str(page['id'])
-        return self._download_pdf2(page_id, export_path, export_version, timeout_min, title)
+        return self._download_pdf3(page_id, export_path, export_version, timeout_min, title)
 
     def export_page_w_children(self,
                                export_path: str,
