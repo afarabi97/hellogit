@@ -58,10 +58,6 @@ import { NodeMaintenanceFormComponent } from './tools-form/node-maintenance-form
 import { RepositorySettingsComponent } from './tools-form/repository-settings/repository-settings.component';
 import { UpdateEsLicenseComponent } from './tools-form/update-es-license-form/update-es-license-form.component';
 
-// PCAP Test Page
-import { PcapFormComponent } from './pcap-form/pcap-form.component';
-import { ReplayPcapDialogComponent } from './pcap-form/replay-pcap-dialog/replay-pcap-dialog.component';
-
 // classes
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { ConfirmActionPopup } from './classes/ConfirmActionPopup';
@@ -87,6 +83,7 @@ import { ElasticsearchIndexManagementModule } from './modules/elasticsearch-inde
 import { ElasticsearchScaleModule } from './modules/elasticsearch-scale/elasticsearch-scale.module';
 import { GenericDialogModule } from './modules/generic-dialog/generic-dialog.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { PCAPFormModule } from './modules/pcap-form/pcap-form.module';
 import { PmoSupportModule } from './modules/pmo-support/pmo-support.module';
 import { PolicyManagementModule } from './modules/policy-management/policy-management.module';
 import { PortalModule } from './modules/portal/portal.module';
@@ -114,13 +111,11 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     UpdateDocsFormComponent,
     UpdateEsLicenseComponent,
     NodeMaintenanceFormComponent,
-    PcapFormComponent,
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
     HealthDashboardModalDialogComponent,
     CopyTokenModalDialogComponent,
     ConfirmDialogComponent,
-    ReplayPcapDialogComponent,
     AddNodeDialogComponent,
     NodeInfoDialogComponent,
     PasswordMessageComponent,
@@ -163,6 +158,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ElasticsearchScaleModule,
     GenericDialogModule,
     NotificationsModule,
+    PCAPFormModule,
     PmoSupportModule,
     PolicyManagementModule,
     PortalModule,
@@ -194,7 +190,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ModalDialogDisplayMatComponent,
     HealthDashboardModalDialogComponent,
     CopyTokenModalDialogComponent,
-    ReplayPcapDialogComponent,
     AddNodeDialogComponent,
     AddMipDialogComponent,
     NodeInfoDialogComponent,

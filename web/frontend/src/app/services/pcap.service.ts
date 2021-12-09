@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: null
 })
 export class PcapService {
   constructor(private http: HttpClient,

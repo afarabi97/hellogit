@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from '../../guards';
 import { HealthDashboardComponent } from '../../health-dashboard/dashboard/health-dashboard.component';
-import { PcapFormComponent } from '../../pcap-form/pcap-form.component';
 import { ServerStdoutComponent } from '../../server-stdout/server-stdout.component';
 import { MipManagementComponent } from '../../system-setupv2/mip-mng/mip-mng.component';
 import { NodeManagementComponent } from '../../system-setupv2/node-mng/node-mng.component';
@@ -19,6 +18,7 @@ import {
   ElasticsearchIndexManagementComponent
 } from '../elasticsearch-index-management/elasticsearch-index-management.component';
 import { ElasticsearchScaleComponent } from '../elasticsearch-scale/elasticsearch-scale.component';
+import { PcapFormComponent } from '../pcap-form/pcap-form.component';
 import { PmoSupportComponent } from '../pmo-support/pmo-support.component';
 import { PolicyManagementComponent } from '../policy-management/policy-management.component';
 import { PortalComponent } from '../portal/portal.component';

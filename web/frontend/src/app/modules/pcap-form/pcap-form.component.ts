@@ -1,13 +1,14 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { PcapService } from '../services/pcap.service';
-import { Title } from '@angular/platform-browser';
+import { FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
-import { FormGroup } from '@angular/forms';
-import { ReplayPcapDialogComponent } from './replay-pcap-dialog/replay-pcap-dialog.component';
-import { ConfirmDialogMatDialogDataInterface } from '../interfaces';
+import { Title } from '@angular/platform-browser';
+
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
+import { PcapService } from '../../services/pcap.service';
+import { ReplayPcapDialogComponent } from './components/replay-pcap-dialog/replay-pcap-dialog.component';
 
 const DIALOG_WIDTH = '800px';
 

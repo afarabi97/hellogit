@@ -4,15 +4,12 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { PcapService } from '../../services/pcap.service';
 import { NGXMonacoTextEditorModule } from '../ngx-monaco-text-editor/ngx-monaco-text-editor.module';
 import { MaterialModule } from '../utilily-modules/material.module';
-import {
-  RuleSetAddEditComponent
-} from './components/rule-set-add-edit/rule-set-add-edit.component';
 import { RuleAddEditComponent } from './components/rule-add-edit/rule-add-edit.component';
-import {
-  RulesUploadComponent
-} from './components/rules-upload/rules-upload.component';
+import { RuleSetAddEditComponent } from './components/rule-set-add-edit/rule-set-add-edit.component';
+import { RulesUploadComponent } from './components/rules-upload/rules-upload.component';
 import { PolicyManagementComponent } from './policy-management.component';
 
 @NgModule({
@@ -39,6 +36,9 @@ import { PolicyManagementComponent } from './policy-management.component';
     RuleAddEditComponent,
     RulesUploadComponent,
     PolicyManagementComponent
+  ],
+  providers: [
+    PcapService
   ]
 })
 export class PolicyManagementModule { }

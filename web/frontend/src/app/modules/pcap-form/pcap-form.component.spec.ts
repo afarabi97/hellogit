@@ -10,7 +10,7 @@ import { Title } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { PcapFormComponent } from './pcap-form.component';
-import { PcapService } from '../services/pcap.service';
+import { PcapService } from '../../services/pcap.service';
 
 //describe the begining of test suite here
 describe('Pcap loading', () => {

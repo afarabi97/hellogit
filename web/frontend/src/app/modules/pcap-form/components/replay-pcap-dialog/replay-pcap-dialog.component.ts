@@ -3,12 +3,12 @@ import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 
-import { HostInfoClass, HostInfoRedacClass } from '../../classes';
-import { COMMON_VALIDATORS } from '../../constants/cvah.constants';
-import { PcapService } from '../../services/pcap.service';
-import { SensorHostInfoService } from '../../services/sensor-host-info.service';
-import { SortingService } from '../../services/sorting.service';
-import { validateFromArray } from '../../validators/generic-validators.validator';
+import { HostInfoClass, HostInfoRedacClass } from '../../../../classes';
+import { COMMON_VALIDATORS } from '../../../../constants/cvah.constants';
+import { PcapService } from '../../../../services/pcap.service';
+import { SensorHostInfoService } from '../../../../services/sensor-host-info.service';
+import { SortingService } from '../../../../services/sorting.service';
+import { validateFromArray } from '../../../../validators/generic-validators.validator';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 
 
