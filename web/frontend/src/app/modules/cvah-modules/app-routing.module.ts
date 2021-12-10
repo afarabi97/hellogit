@@ -1,23 +1,20 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { AgentBuilderChooserComponent } from '../agent-builder-chooser/agent-builder-chooser.component';
 import { CatalogComponent } from '../../catalog/component/catalog.component';
 import { CatalogPageComponent } from '../../catalog/page/catalog-page.component';
 import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from '../../guards';
 import { HealthDashboardComponent } from '../../health-dashboard/dashboard/health-dashboard.component';
 import { PcapFormComponent } from '../../pcap-form/pcap-form.component';
-import { SecurityAlertsComponent } from '../../security-alerts/security-alerts.component';
 import { ServerStdoutComponent } from '../../server-stdout/server-stdout.component';
 import { MipManagementComponent } from '../../system-setupv2/mip-mng/mip-mng.component';
 import { NodeManagementComponent } from '../../system-setupv2/node-mng/node-mng.component';
 import { SystemSettingsComponent } from '../../system-setupv2/system-settings/system-settings.component';
 import { ToolsFormComponent } from '../../tools-form/tools.component';
+import { AgentBuilderChooserComponent } from '../agent-builder-chooser/agent-builder-chooser.component';
 import { ConfigmapsComponent } from '../config-map/config-map.component';
 import { DockerRegistryComponent } from '../docker-registry/docker-registry.component';
-import {
-  ColdLogIngestComponent
-} from '../elasticsearch-cold-log-ingest/cold-log-ingest.component';
+import { ColdLogIngestComponent } from '../elasticsearch-cold-log-ingest/cold-log-ingest.component';
 import {
   ElasticsearchIndexManagementComponent
 } from '../elasticsearch-index-management/elasticsearch-index-management.component';
@@ -25,6 +22,7 @@ import { ElasticsearchScaleComponent } from '../elasticsearch-scale/elasticsearc
 import { PmoSupportComponent } from '../pmo-support/pmo-support.component';
 import { PolicyManagementComponent } from '../policy-management/policy-management.component';
 import { PortalComponent } from '../portal/portal.component';
+import { SecurityAlertsComponent } from '../security-alerts/security-alerts.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },

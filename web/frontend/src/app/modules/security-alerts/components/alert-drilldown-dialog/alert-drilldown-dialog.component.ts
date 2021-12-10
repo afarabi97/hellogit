@@ -1,10 +1,11 @@
 import { AfterViewInit, Component, Inject, OnChanges, OnInit, ViewChild } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { AlertService } from '../alerts.service';
-import { MatTableDataSource } from '@angular/material/table';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatSnackBarService } from '../../services/mat-snackbar.service';
+import { MatTableDataSource } from '@angular/material/table';
+
+import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
+import { AlertService } from '../../services/alerts.service';
 
 
 @Component({

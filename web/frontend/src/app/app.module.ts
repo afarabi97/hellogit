@@ -27,10 +27,6 @@ import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.com
 import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal-dialog-display-mat.component';
 import { PodLogModalDialogComponent } from './pod-log-dialog/pod-log-dialog.component';
 
-// Security Alerts
-import { SecurityAlertsComponent } from './security-alerts/security-alerts.component';
-import { AlertDrillDownDialogComponent } from './security-alerts/alert-drilldown-dialog/alert-drilldown-dialog.component';
-
 // System Setup
 import { SystemSettingsComponent } from './system-setupv2/system-settings/system-settings.component';
 import { NodeManagementComponent } from './system-setupv2/node-mng/node-mng.component';
@@ -95,6 +91,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { PmoSupportModule } from './modules/pmo-support/pmo-support.module';
 import { PolicyManagementModule } from './modules/policy-management/policy-management.module';
 import { PortalModule } from './modules/portal/portal.module';
+import { SecurityAlertsModule } from './modules/security-alerts/security-alerts.module';
 import { InjectorModule } from './modules/utilily-modules/injector.module';
 import { MaterialModule } from './modules/utilily-modules/material.module';
 
@@ -116,7 +113,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     TopNavbarComponent,
     UnusedIpAddressAutoCompleteComponent,
     VirtualNodeFormComponent,
-    SecurityAlertsComponent,
     SystemSettingsComponent,
     NodeManagementComponent,
     NodeStateProgressBarComponent,
@@ -139,7 +135,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     NodeBackgroundComponent,
     CatalogPageComponent,
     ReplayPcapDialogComponent,
-    AlertDrillDownDialogComponent,
     AddNodeDialogComponent,
     NodeInfoDialogComponent,
     PasswordMessageComponent,
@@ -184,6 +179,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     PmoSupportModule,
     PolicyManagementModule,
     PortalModule,
+    SecurityAlertsModule,
     InjectorModule,
     ChartsModule
   ],
@@ -211,7 +207,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     HealthDashboardModalDialogComponent,
     CopyTokenModalDialogComponent,
     ReplayPcapDialogComponent,
-    AlertDrillDownDialogComponent,
     AddNodeDialogComponent,
     AddMipDialogComponent,
     NodeInfoDialogComponent,

@@ -1,5 +1,5 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnChanges, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
@@ -13,20 +13,20 @@ import { Title } from '@angular/platform-browser';
 import { forkJoin, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
-import { UserPortalLinkClass } from '../classes';
-import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
+import { UserPortalLinkClass } from '../../classes';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
 import {
   DialogControlTypes,
   DialogFormControl,
   DialogFormControlConfigClass
-} from '../modal-dialog-mat/modal-dialog-mat-form-types';
-import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
-import { CookieService } from '../services/cookies.service';
-import { MatSnackBarService } from '../services/mat-snackbar.service';
-import { PortalService } from '../services/portal.service';
-import { AlertDrillDownDialogComponent } from './alert-drilldown-dialog/alert-drilldown-dialog.component';
-import { AlertService } from './alerts.service';
-import { ConfirmDialogMatDialogDataInterface } from '../interfaces';
+} from '../../modal-dialog-mat/modal-dialog-mat-form-types';
+import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
+import { CookieService } from '../../services/cookies.service';
+import { MatSnackBarService } from '../../services/mat-snackbar.service';
+import { PortalService } from '../../services/portal.service';
+import { AlertDrillDownDialogComponent } from './components/alert-drilldown-dialog/alert-drilldown-dialog.component';
+import { AlertService } from './services/alerts.service';
 
 const DIALOG_WIDTH = '1000px';
 
@@ -45,7 +45,7 @@ const MOLOCH_FIELD_LOOKUP = {
   templateUrl: './security-alerts.component.html',
   styleUrls: ['./security-alerts.component.css']
 })
-export class SecurityAlertsComponent implements OnInit {
+export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('paginator') paginator: MatPaginator;
   //CHIP fields
   @ViewChild('groupByInput') groupByInput: ElementRef<HTMLInputElement>;
