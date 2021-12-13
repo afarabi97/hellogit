@@ -1,108 +1,229 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 
-import { COMMON_VALIDATORS } from '../../../../constants/cvah.constants';
-import { validateFromArray } from '../../../../validators/generic-validators.validator';
-
-
-const WINRM_PORT = "5985";
-const WINRM_PORT_SSL = "5986";
-const SMB_PORT = "445";
-
+import { ObjectUtilitiesClass } from '../../../../classes';
+import {
+  DNS_INSTRUCTIONS,
+  SMB_PORT,
+  VALIDATORS_REQUIRED,
+  VALIDATORS_REQUIRED_FROM_ARRAY,
+  WINRM_PORT,
+  WINRM_PORT_SSL,
+} from '../../constants/agent-builder-chooser.constant';
+import { IPTargetListInterface } from '../../interfaces';
 
 @Component({
-  selector: 'agent-target-dialog',
+  selector: 'cvah-agent-target-dialog',
   templateUrl: 'agent-target-dialog.component.html',
   styleUrls: ['./agent-target-dialog.component.scss']
 })
 export class AgentTargetDialogComponent implements OnInit {
-  newTargetAgentForm: FormGroup;
-  ntlmForm: FormGroup;
-  smbForm: FormGroup;
-  isNegOrNTLM: boolean;
-  isSMB: boolean;
-  sensor_profiles: Array<{name: string; value: string}> = [];
-  dnsInstructions: string;
+  // Used for tracking user changes within html
+  ip_target_list_form_group: FormGroup;
+  ntlm_form_group: FormGroup;
+  smb_form_group: FormGroup;
+  // Used to guide form group active and what stage html is on
+  is_ntlm: boolean;
+  is_smb: boolean;
+  // Static displayed in html
+  dns_instructions: string;
 
-  constructor(private fb: FormBuilder,
-              public dialogRef: MatDialogRef<AgentTargetDialogComponent>) {
-    this.isNegOrNTLM = false;
-    this.isSMB = false;
-    this.dnsInstructions = 'The \"Windows DNS Suffix\" is optional. If you do not include it, you will need to use the IP address of the Windows target(s). ' +
-                           'If you leave out the \"Windows DNS Suffix\" you will need to make sure each host you enter has the appropriate ' +
-                           'fully qualified domain name with the suffix attached (EX: <Windows hostname>.<DNS suffix>).  If you add the Windows DNS suffix, ' +
-                           'you will only need to specifiy the Windows hostnames when filling out the targets for this configuration.';
+  /**
+   * Creates an instance of AgentTargetDialogComponent.
+   *
+   * @param {FormBuilder} form_builder_
+   * @param {MatDialogRef<AgentTargetDialogComponent>} mat_dialog_ref_
+   * @memberof AgentTargetDialogComponent
+   */
+  constructor(private form_builder_: FormBuilder,
+              private mat_dialog_ref_: MatDialogRef<AgentTargetDialogComponent>) {
+    this.is_ntlm = false;
+    this.is_smb = false;
+    this.dns_instructions = DNS_INSTRUCTIONS;
   }
 
-  onNoClick(): void {
-    this.dialogRef.close();
+  /**
+   * Used for setting up initializer methods
+   *
+   * @memberof AgentTargetDialogComponent
+   */
+  ngOnInit(): void {
+    this.initialize_ip_target_list_form_group_();
+    this.initialize_ntlm_form_group_();
+    this.initialize_smb_form_group_();
   }
 
-  ngOnInit() {
-    this.newTargetAgentForm = this.fb.group({
-      config_name: new FormControl('', Validators.compose([Validators.required])),
-      protocol: new FormControl('', Validators.compose([Validators.required]))
-    });
+  /**
+   * Used for setting port value based on radio button selection
+   *
+   * @param {MatRadioChange} event
+   * @memberof AgentTargetDialogComponent
+   */
+  protocol_change_step(event: MatRadioChange): void {
+    this.is_ntlm = false;
+    this.is_smb = false;
 
-    this.ntlmForm = this.fb.group({
-      port: new FormControl('',
-            Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
-      domain_name: new FormControl(''),
-      is_ssl: new FormControl(false)
-    });
-
-    this.smbForm = this.fb.group({
-      port: new FormControl('',
-            Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
-      domain_name: new FormControl('')
-    });
-  }
-
-  changeStep(event: MatRadioChange){
-    this.isNegOrNTLM = false;
-    this.isSMB = false;
-
-    if (event.value === "ntlm"){
-      this.isNegOrNTLM = true;
-      this.ntlmForm.get('port').setValue(WINRM_PORT);
-    } else if (event.value === "smb") {
-      this.isSMB = true;
-      this.smbForm.get('port').setValue(SMB_PORT);
+    if (event.value === 'ntlm') {
+      this.is_ntlm = true;
+      this.ntlm_form_group.get('port').setValue(WINRM_PORT);
+    } else {
+      this.is_smb = true;
+      this.smb_form_group.get('port').setValue(SMB_PORT);
     }
   }
 
-  changePortIfNotDirty(event: MatCheckboxChange){
-    const port_ctrl = this.ntlmForm.controls['port'] as FormControl;
-    if (!port_ctrl.dirty){
-      if (event.checked){
-        this.ntlmForm.controls['port'].setValue(WINRM_PORT_SSL);
+  /**
+   * Used for changing the ntlm port value between ssl / non ssl
+   *
+   * @param {MatCheckboxChange} event
+   * @memberof AgentTargetDialogComponent
+   */
+  change_non_dirty_port_value(event: MatCheckboxChange): void {
+    const abstract_control: AbstractControl = this.ntlm_form_group.get('port');
+    /* istanbul ignore else */
+    if (!abstract_control.dirty) {
+      if (event.checked) {
+        this.ntlm_form_group.get('port').setValue(WINRM_PORT_SSL);
       } else {
-        this.ntlmForm.controls['port'].setValue(WINRM_PORT);
+        this.ntlm_form_group.get('port').setValue(WINRM_PORT);
       }
     }
   }
 
-  isWizardValid(): boolean {
-    if (this.isNegOrNTLM){
-      return (this.ntlmForm.valid && this.newTargetAgentForm.valid);
-    } else if (this.isSMB){
-      return (this.smbForm.valid && this.newTargetAgentForm.valid);
+  /**
+   * Used for returning and displaying error message within html
+   *
+   * @param {FormGroup} form_group
+   * @param {string} control_name
+   * @returns {string}
+   * @memberof AgentTargetDialogComponent
+   */
+  get_error_message(form_group: FormGroup, control_name: string): string {
+    const abstract_control: AbstractControl = form_group.get(control_name);
+
+    return ObjectUtilitiesClass.notUndefNull(abstract_control) &&
+           abstract_control.errors ? abstract_control.errors.error_message : '';
+  }
+
+  /**
+   * Used for checking to see if form goup configuration is valid
+   *
+   * @returns {boolean}
+   * @memberof AgentTargetDialogComponent
+   */
+  form_groups_valid(): boolean {
+    if (this.is_ntlm) {
+      return (this.ntlm_form_group.valid && this.ip_target_list_form_group.valid);
+    } else if (this.is_smb) {
+      return (this.smb_form_group.valid && this.ip_target_list_form_group.valid);
+    } else {
+      return false;
     }
-    return false;
   }
 
-  submitAndClose() {
-    this.dialogRef.close({ "name": this.newTargetAgentForm.value["config_name"],
-                           "protocol": this.newTargetAgentForm.value["protocol"],
-                           "ntlm": this.ntlmForm.value,
-                           "smb": this.smbForm.value });
+  /**
+   * Used for closing mat dialog window
+   *
+   * @memberof AgentTargetDialogComponent
+   */
+  close(): void {
+    this.mat_dialog_ref_.close();
   }
 
-  public getErrorMessage(form: FormGroup, control_name: string): string {
-    const control = form.get(control_name);
-    return control.errors ? control.errors.error_message : '';
+  /**
+   * Used for closing mat dialog window and submitting object on close
+   *
+   * @memberof AgentTargetDialogComponent
+   */
+  submit(): void {
+    const ip_target_list: IPTargetListInterface = {
+      name: this.ip_target_list_form_group.get('config_name').value,
+      protocol: this.ip_target_list_form_group.get('protocol').value,
+      ntlm: this.ntlm_form_group.value,
+      smb: this.smb_form_group.value
+    };
+    this.mat_dialog_ref_.close(ip_target_list);
+  }
+
+  /**
+   * Used for initializing ip target list form group
+   *
+   * @private
+   * @memberof AgentTargetDialogComponent
+   */
+  private initialize_ip_target_list_form_group_(): void {
+    const ip_target_list_form_group: FormGroup = this.form_builder_.group({
+      config_name: new FormControl('', VALIDATORS_REQUIRED),
+      protocol: new FormControl(null, VALIDATORS_REQUIRED)
+    });
+
+    this.set_ip_target_list_form_group_(ip_target_list_form_group);
+  }
+
+  /**
+   * Used for initializing ntlm form group
+   *
+   * @private
+   * @memberof AgentTargetDialogComponent
+   */
+  private initialize_ntlm_form_group_(): void {
+    const ntlm_form_group: FormGroup = this.form_builder_.group({
+      port: new FormControl('', VALIDATORS_REQUIRED_FROM_ARRAY),
+      domain_name: new FormControl(''),
+      is_ssl: new FormControl(false)
+    });
+
+    this.set_ntlm_form_group_(ntlm_form_group);
+  }
+
+  /**
+   * Used for initializing smb form group
+   *
+   * @private
+   * @memberof AgentTargetDialogComponent
+   */
+  private initialize_smb_form_group_(): void {
+    const smb_form_group: FormGroup = this.form_builder_.group({
+      port: new FormControl('', VALIDATORS_REQUIRED_FROM_ARRAY),
+      domain_name: new FormControl('')
+    });
+
+    this.set_smb_form_group_(smb_form_group);
+  }
+
+  /**
+   * Used for setting ip target list form group
+   *
+   * @private
+   * @param {FormGroup} ip_target_list_form_group
+   * @memberof AgentTargetDialogComponent
+   */
+  private set_ip_target_list_form_group_(ip_target_list_form_group: FormGroup): void {
+    this.ip_target_list_form_group = ip_target_list_form_group;
+  }
+
+  /**
+   * Used for setting ntlm form group
+   *
+   * @private
+   * @param {FormGroup} ntlm_form_group
+   * @memberof AgentTargetDialogComponent
+   */
+  private set_ntlm_form_group_(ntlm_form_group: FormGroup): void {
+    this.ntlm_form_group = ntlm_form_group;
+  }
+
+  /**
+   * Used for setting smb form group
+   *
+   * @private
+   * @param {FormGroup} smb_form_group
+   * @memberof AgentTargetDialogComponent
+   */
+  private set_smb_form_group_(smb_form_group: FormGroup): void {
+    this.smb_form_group = smb_form_group;
   }
 }

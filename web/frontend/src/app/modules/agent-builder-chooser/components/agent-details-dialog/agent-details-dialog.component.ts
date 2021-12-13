@@ -1,27 +1,50 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
-import { AppConfigClass, AgentInstallerConfigurationClass } from '../../classes';
+import { AppConfigClass, ElementSpecClass } from '../../classes';
+import { AgentDetailsDialogDataInterface } from '../../interfaces';
 
+/**
+ * Component used as dialog window to view windows agent details
+ *
+ * @export
+ * @class AgentDetailsDialogComponent
+ */
 @Component({
-    selector: 'agent-details-dialog',
-    templateUrl: 'agent-details-dialog.component.html',
-    styleUrls: ['./agent-details-dialog.component.scss']
-  })
+  selector: 'cvah-agent-details-dialog',
+  templateUrl: 'agent-details-dialog.component.html',
+  styleUrls: ['./agent-details-dialog.component.scss']
+})
 export class AgentDetailsDialogComponent {
-  appConfigs: AppConfigClass[];
-  config: AgentInstallerConfigurationClass;
 
-  constructor(public dialogRef: MatDialogRef<AgentDetailsDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: any) {
-    this.config = data['config'];
-    const appConfigs = data['appConfigs'];
-    const customPackages = this.config.customPackages;
-    const packageNames = customPackages ? Object.keys(customPackages) : [];
-    this.appConfigs = customPackages ? appConfigs.filter(e => packageNames.includes(e.name)) : [];
+  /**
+   * Creates an instance of AgentDetailsDialogComponent.
+   *
+   * @param {MatDialogRef<AgentDetailsDialogComponent>} mat_dialog_ref_
+   * @param {AgentDetailsDialogDataInterface} mat_dialog_data
+   * @memberof AgentDetailsDialogComponent
+   */
+  constructor(private mat_dialog_ref_: MatDialogRef<AgentDetailsDialogComponent>,
+              @Inject(MAT_DIALOG_DATA) public mat_dialog_data: AgentDetailsDialogDataInterface) { }
+
+  /**
+   * Used for getting element config data
+   *
+   * @param {AppConfigClass} app_config
+   * @param {ElementSpecClass} element_spec
+   * @returns
+   * @memberof AgentDetailsDialogComponent
+   */
+  get_element_config(app_config: AppConfigClass, element_spec: ElementSpecClass): any {
+    return this.mat_dialog_data.agent_installer_configuration.customPackages[app_config.name][element_spec.name];
   }
 
-  onClose(): void {
-    this.dialogRef.close();
+  /**
+   * Used for closing the dialog window
+   *
+   * @memberof AgentDetailsDialogComponent
+   */
+  close(): void {
+    this.mat_dialog_ref_.close();
   }
 }

@@ -87,6 +87,7 @@ describe('GenericDialogService', () => {
   let spyTemplateSet: jasmine.Spy<any>;
   let spyContextGet: jasmine.Spy<any>;
   let spyContextSet: jasmine.Spy<any>;
+  let spyDialogRef: jasmine.Spy<any>;
   let spyClose: jasmine.Spy<any>;
 
   // Test Data
@@ -160,6 +161,7 @@ describe('GenericDialogService', () => {
     spyTemplateSet = spyOnProperty(service, 'template', 'set').and.callThrough();
     spyContextGet = spyOnProperty(service, 'context', 'get').and.callThrough();
     spyContextSet = spyOnProperty(service, 'context', 'set').and.callThrough();
+    spyDialogRef = spyOn(service, 'dialog_ref').and.callThrough();
     spyClose = spyOn(service, 'close').and.callThrough();
 
     // Detect changes
@@ -173,6 +175,7 @@ describe('GenericDialogService', () => {
     spyTemplateSet.calls.reset();
     spyContextGet.calls.reset();
     spyContextSet.calls.reset();
+    spyDialogRef.calls.reset();
     spyClose.calls.reset();
   };
 
@@ -280,6 +283,24 @@ describe('GenericDialogService', () => {
         service.context = new_fake_context;
 
         expect(service.context).toBe(new_fake_context);
+      });
+    });
+
+    describe('dialog_ref()', () => {
+      it('should call dialog_ref()', () => {
+        reset();
+
+        service.dialog_ref();
+
+        expect(service.dialog_ref).toHaveBeenCalled();
+      });
+
+      it('should call dialog_ref() and return MatDialogRef', () => {
+        reset();
+
+        const return_value: MatDialogRef<GenericDialogComponent<undefined>, any> = service.dialog_ref();
+
+        expect(return_value).toBeDefined();
       });
     });
 

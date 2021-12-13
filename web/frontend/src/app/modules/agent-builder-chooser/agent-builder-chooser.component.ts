@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
@@ -11,8 +11,8 @@ import * as FileSaver from 'file-saver';
 import { CatalogService } from '../../catalog/services/catalog.service';
 import { ErrorMessageClass, ObjectUtilitiesClass } from '../../classes';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { COMMON_VALIDATORS, MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../constants/cvah.constants';
-import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
+import { COMMON_VALIDATORS, DIALOG_MAX_HEIGHT_800PX, DIALOG_WIDTH_50VW, DIALOG_WIDTH_800PX, MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../constants/cvah.constants';
+import { ConfirmDialogMatDialogDataInterface, DialogDataInterface } from '../../interfaces';
 import {
   DialogControlTypes,
   DialogFormControl,
@@ -25,6 +25,7 @@ import { validateFromArray } from '../../validators/generic-validators.validator
 import {
   AgentInstallerConfigurationClass,
   AppConfigClass,
+  CustomPackageClass,
   HostClass,
   IPTargetListClass,
   WindowsCredentialsClass
@@ -32,9 +33,10 @@ import {
 import { AgentDetailsDialogComponent } from './components/agent-details-dialog/agent-details-dialog.component';
 import { AgentInstallerDialogComponent } from './components/agent-installer-dialog/agent-installer-dialog.component';
 import { AgentTargetDialogComponent } from './components/agent-target-dialog/agent-target-dialog.component';
-import { DOMAIN_PASSWORD_LABEL } from './constants/agent-builder-chooser.constant';
-import { HostInterface } from './interfaces';
+import { DOMAIN_PASSWORD_LABEL, WINDOWS_AGENT_DETAILS, WINDOWS_AGENT_INSTALLER, WINDOWS_AGENT_TARGET } from './constants/agent-builder-chooser.constant';
+import { AgentDetailsDialogDataInterface, AgentInstallerConfigurationInterface, AgentInstallerDialogDataInterface, AppNameAppConfigPairInterface, HostInterface, IPTargetListInterface } from './interfaces';
 import { AgentBuilderService } from './services/agent-builder.service';
+import { GenericDialogService } from 'src/app/services/helpers/generic-dialog.service';
 
 const DIALOG_WIDTH = "800px";
 const DIALOG_MAX_HEIGHT = "800px";
@@ -100,6 +102,21 @@ export class AgentBuilderChooserComponent implements OnInit {
     this.socketRefresh();
   }
 
+  get_app_configs_with_custom_packages(agent_installer_configuration: AgentInstallerConfigurationClass): AppConfigClass[] {
+    const custom_packages: CustomPackageClass =
+      ObjectUtilitiesClass.notUndefNull(agent_installer_configuration.customPackages) ?
+        agent_installer_configuration.customPackages : {};
+    const package_names = Object.keys(custom_packages);
+
+    return this.appConfigs.filter((ac: AppConfigClass) => package_names.includes(ac.name));
+  }
+
+  check_custom_packages(agent_installer_configuration: AgentInstallerConfigurationClass): boolean {
+    const app_configs: AppConfigClass[] = this.get_app_configs_with_custom_packages(agent_installer_configuration);
+
+    return app_configs.length > 0;
+  }
+
   updateSelectedConfig(config) {
     this.config_selection = config;
   }
@@ -129,11 +146,16 @@ export class AgentBuilderChooserComponent implements OnInit {
     }
   }
 
-  showConfig(config) {
+  showConfig(agent_installer_configuration: AgentInstallerConfigurationClass) {
+    const app_configs: AppConfigClass[] = this.get_app_configs_with_custom_packages(agent_installer_configuration);
+    const agent_details_dialog_data: AgentDetailsDialogDataInterface = {
+      app_configs: app_configs,
+      agent_installer_configuration: agent_installer_configuration
+    };
     this.dialog.open(AgentDetailsDialogComponent, {
       width: DIALOG_WIDTH,
       maxHeight: DIALOG_MAX_HEIGHT,
-      data: { appConfigs: this.appConfigs, config: config }
+      data: agent_details_dialog_data
     });
   }
 
@@ -386,38 +408,31 @@ export class AgentBuilderChooserComponent implements OnInit {
     });
   }
 
-  addNewConfiguration(){
+  addNewConfiguration() {
+    const app_name_app_config_pair: AppNameAppConfigPairInterface = new Object() as AppNameAppConfigPairInterface;
+    this.appConfigs.forEach((ac: AppConfigClass) => app_name_app_config_pair[ac.name] = ac);
+    const agent_installer_dialog_data: AgentInstallerDialogDataInterface = {
+      app_configs: this.appConfigs,
+      app_names: this.appConfigs.map((ac: AppConfigClass) => ac.name),
+      app_name_app_config_pair: app_name_app_config_pair
+    };
     const dialogRef = this.dialog.open(AgentInstallerDialogComponent, {
       width: DIALOG_WIDTH,
       maxHeight: DIALOG_MAX_HEIGHT,
-      data: this.appConfigs
+      data: agent_installer_dialog_data
     });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result && result.valid){
-        let formData = result.getRawValue();
-        const endgame = formData['endgame_options'];
-        delete formData['endgame_options'];
-
-        const scratch = {...formData, ...endgame};
-        formData = scratch;
-
-        this.agentBuilderSvc.agent_save_config(formData)
-          .subscribe(
-            configs => {
-              this.setSavedConfigs(configs);
-              this.displaySnackBar("Saved configuration successfully.");
-            },
-            (error: ErrorMessageClass | HttpErrorResponse) => {
-              if (error instanceof ErrorMessageClass) {
-                this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-              } else {
-                const message: string = 'saving configuration';
-                this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-              }
-            });
-      }
-    });
+    dialogRef.afterClosed()
+      .subscribe(
+        (response: FormGroup) => {
+          if (ObjectUtilitiesClass.notUndefNull(response) && response.valid) {
+            let formData = response.getRawValue();
+            const endgame = formData['endgame_options'];
+            delete formData['endgame_options'];
+            const scratch = {...formData, ...endgame};
+            formData = scratch;
+            this.api_agent_save_config_(formData as AgentInstallerConfigurationInterface);
+          }
+        });
   }
 
   openAddNewTargetConfigModal() {
@@ -427,36 +442,29 @@ export class AgentBuilderChooserComponent implements OnInit {
       data: {}
     });
 
-    dialogRef.afterClosed().subscribe(
-      result => {
-        if (result) {
-          const name = (result as IPTargetListClass).name;
-          this.agentBuilderSvc.agent_save_ip_target_list(result as IPTargetListClass).subscribe(configs => {
-            this.setTargetConfigs(configs);
-            this.displaySnackBar(`${name} was saved successfully.`);
-      },
-      error => {
-        this.displaySnackBar("Failed to save new configuration.");
-        console.error("Save config error:", error);
-      });
-      }
-    });
+    dialogRef.afterClosed()
+      .subscribe(
+        (response: IPTargetListInterface) => {
+          if (ObjectUtilitiesClass.notUndefNull(response)) {
+            this.api_agent_ip_target_list_(response);
+          }
+        });
   }
 
   getPort(config: IPTargetListClass): string {
     if (config.protocol === "smb") {
       return config.smb.port;
+    } else {
+      return config.ntlm.port;
     }
-
-    return config.ntlm.port;
   }
 
   getDomainSuffix(config: IPTargetListClass): string {
     if (config.protocol === "smb") {
       return config.smb.domain_name;
+    } else {
+      return config.ntlm.domain_name;
     }
-
-    return config.ntlm.domain_name;
   }
 
   openAddWindowsHostModal(targetConfig: IPTargetListClass, hostList: MatTableDataSource<HostClass>) {
@@ -640,5 +648,35 @@ export class AgentBuilderChooserComponent implements OnInit {
 
     return `Executing this form will attempt to ${softwareAction} the selected executable
            ${middleMessage}. Are you sure you want to do this?`;
+  }
+
+  private api_agent_save_config_(formData: AgentInstallerConfigurationInterface) {
+    this.agentBuilderSvc.agent_save_config(formData)
+      .subscribe(
+        (response: AgentInstallerConfigurationClass[]) => {
+          this.setSavedConfigs(response);
+          this.displaySnackBar("Saved configuration successfully.");
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = 'saving configuration';
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        });
+  }
+
+  private api_agent_ip_target_list_(ip_target_list: IPTargetListInterface): void {
+    this.agentBuilderSvc.agent_save_ip_target_list(ip_target_list)
+      .subscribe(
+        (response: IPTargetListClass[]) => {
+          this.setTargetConfigs(response);
+          this.displaySnackBar(`${ip_target_list.name} was saved successfully.`);
+        },
+        error => {
+          this.displaySnackBar("Failed to save new configuration.");
+          console.error("Save config error:", error);
+        });
   }
 }

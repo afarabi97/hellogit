@@ -1,19 +1,16 @@
 <div mat-dialog-content>
-
   <mat-tab-group dynamicHeight>
-    <mat-tab *ngFor="let appConfig of appConfigs; let i = index;" id="{{ 'agent-details-dialog-div-mat-dialog-content-mat-tab-group-mat-tab-' + i }}" label="{{ appConfig.name }}">
-      <ng-container *ngIf="appConfig['form']">
-        <dl *ngFor="let element of appConfig['form']; let j = index;" id="{{ 'agent-details-dialog-div-mat-dialog-content-mat-tab-group-mat-tab-' + i + '-dl-' + j }}">
+    <mat-tab *ngFor="let app_config of mat_dialog_data.app_configs; let i = index;" id="{{ 'agent-details-dialog-div-mat-dialog-content-mat-tab-group-mat-tab-' + i }}" label="{{ app_config.name }}">
+      <ng-container *ngIf="app_config.form">
+        <dl *ngFor="let element_spec of app_config.form; let j = index;" id="{{ 'agent-details-dialog-div-mat-dialog-content-mat-tab-group-mat-tab-' + i + '-dl-' + j }}">
           <dt id="{{ 'agent-details-dialog-div-mat-dialog-content-mat-tab-group-mat-tab-' + i + '-dl-' + j + '-dt-element-name' }}"
-              [ngClass]="{ 'hint': element?.description }" matTooltip="{{ element?.description }}">{{ element.name }}</dt>
-          <dd id="{{ 'agent-details-dialog-div-mat-dialog-content-mat-tab-group-mat-tab-' + i + '-dl-' + j + '-dd-element-config' }}">{{ config['customPackages'][appConfig.name][element.name] }}</dd>
+              [ngClass]="{ 'hint': element_spec?.description }" matTooltip="{{ element_spec?.description }}">{{ element_spec.name }}</dt>
+          <dd id="{{ 'agent-details-dialog-div-mat-dialog-content-mat-tab-group-mat-tab-' + i + '-dl-' + j + '-dd-element-config' }}">{{ get_element_config(app_config, element_spec) }}</dd>
         </dl>
       </ng-container>
     </mat-tab>
   </mat-tab-group>
-
 </div>
-
 <div mat-dialog-actions>
-  <button mat-raised-button id="agent-details-dialog-div-mat-dialog-actions-button-close" (click)="onClose()">Close</button>
+  <button mat-raised-button id="agent-details-dialog-div-mat-dialog-actions-button-close" (click)="close()">Close</button>
 </div>

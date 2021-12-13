@@ -6,16 +6,21 @@ export const MockElementSpecInterface1: ElementSpecInterface = {
   placeholder: 'Username'
 };
 export const MockElementSpecInterface2: ElementSpecInterface = {
+  description: 'Enter password',
   name: 'password',
   type: 'password',
   placeholder: 'Password'
 };
 export const MockElementSpecInterface3: ElementSpecInterface = {
   name: 'description',
-  type: 'textarea',
-  placeholder: 'Description'
+  type: 'textinput',
+  placeholder: 'Description',
+  default_value: 'fake description',
+  regexp: '^[a-zA-Z]',
+  required: true
 };
 export const MockElementSpecInterface4: ElementSpecInterface = {
+  description: 'Check if admin',
   name: 'is_admin',
   type: 'checkbox',
   label: 'Admin User',

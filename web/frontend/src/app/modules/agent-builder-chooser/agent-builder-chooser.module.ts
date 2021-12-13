@@ -18,21 +18,21 @@ import { EndgameService } from './services/endgame.service';
     FlexLayoutModule,
     FormsModule,
     ReactiveFormsModule,
-    BrowserAnimationsModule,
-    MaterialModule
+    MaterialModule,
+    BrowserAnimationsModule
   ],
   declarations: [
     AgentBuilderChooserComponent,
-    AgentInstallerDialogComponent,
     AgentDetailsDialogComponent,
+    AgentInstallerDialogComponent,
     AgentTargetDialogComponent
   ],
   exports: [
     AgentBuilderChooserComponent
   ],
   entryComponents: [
-    AgentInstallerDialogComponent,
     AgentDetailsDialogComponent,
+    AgentInstallerDialogComponent,
     AgentTargetDialogComponent
   ],
   providers: [

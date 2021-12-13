@@ -1,6 +1,7 @@
 import { TemplateRef } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
 
-import { GenericDialogRef } from '../../types/generic-dialog.types';
+import { GenericDialogComponent } from '../../modules/generic-dialog/generic-dialog.component';
 
 /**
  * Service used as a helper service for generic dialog factory service
@@ -14,10 +15,10 @@ export class GenericDialogService<T = undefined> {
   /**
    * Creates an instance of GenericDialogService.
    *
-   * @param {GenericDialogRef<T>} generic_dialog_ref_ - Injected generic dialog ref
+   * @param {MatDialogRef<GenericDialogComponent<T>, any>} generic_dialog_ref_
    * @memberof GenericDialogService
    */
-  constructor(private generic_dialog_ref_: GenericDialogRef<T>) {}
+  constructor(private generic_dialog_ref_: MatDialogRef<GenericDialogComponent<T>, any>) {}
 
   /**
    * Used to get the generic dialog title
@@ -74,6 +75,16 @@ export class GenericDialogService<T = undefined> {
    */
   set context(context_for_set: any) {
     this.generic_dialog_ref_.componentInstance.mat_dialog_data.context = context_for_set;
+  }
+
+  /**
+   * Used for returning a ref to the original mat dialog ref
+   *
+   * @returns {MatDialogRef<GenericDialogComponent<T>, any>}
+   * @memberof GenericDialogService
+   */
+  dialog_ref(): MatDialogRef<GenericDialogComponent<T>, any> {
+    return this.generic_dialog_ref_;
   }
 
   /**

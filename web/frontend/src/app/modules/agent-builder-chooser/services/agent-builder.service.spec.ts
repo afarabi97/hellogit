@@ -26,6 +26,7 @@ import {
   MockHostInterface1,
   MockHostInterface2,
   MockIPTargetListInterface1,
+  MockIPTargetListInterface2,
   MockIPTargetListInterfacesArray,
   MockSuccessMessageInterface
 } from '../../../../../static-data/interface-objects';
@@ -438,7 +439,7 @@ describe('AgentBuilderService', () => {
       it('should call agent_save_ip_target_list() and return ip target list class array', () => {
         reset();
 
-        service.agent_save_ip_target_list(MockIPTargetListClass1)
+        service.agent_save_ip_target_list(MockIPTargetListInterface1)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: IPTargetListClass[]) => {
             const objectKeys: string[] = Object.keys(response);
@@ -464,7 +465,7 @@ describe('AgentBuilderService', () => {
       it('should call agent_save_ip_target_list() and handle error', () => {
         reset();
 
-        service.agent_save_ip_target_list(MockIPTargetListClass2)
+        service.agent_save_ip_target_list(MockIPTargetListInterface2)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
             (response: IPTargetListClass[]) => {},

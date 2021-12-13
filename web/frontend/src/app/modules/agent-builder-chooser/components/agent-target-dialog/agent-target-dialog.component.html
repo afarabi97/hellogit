@@ -2,15 +2,15 @@
   <mat-vertical-stepper [linear]=true>
     <!-- Configuration Name -->
     <mat-step id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-configuration-name"
-              label="Configuration Name" [stepControl]="newTargetAgentForm">
-      <form [formGroup]="newTargetAgentForm">
+              label="Configuration Name" [stepControl]="ip_target_list_form_group">
+      <form [formGroup]="ip_target_list_form_group">
         <!-- Config Name -->
         <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-configuration-name-form-mat-form-field-config-name">
           <mat-label>Config Name</mat-label>
           <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-configuration-name-form-mat-form-field-config-name-input" formControlName="config_name">
         </mat-form-field>
         <mat-radio-group id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-configuration-name-form-mat-radio-group"
-                         formControlName="protocol" fxLayout="column" fxLayoutAlign="start start" (change)="changeStep($event)">
+                         formControlName="protocol" fxLayout="column" fxLayoutAlign="start start" (change)="protocol_change_step($event)">
           <mat-radio-button id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-configuration-name-form-mat-radio-group-mat-radio-button-ntlm"
                             value="ntlm" style="margin-bottom: 5px">WinRM NTLM</mat-radio-button>
           <mat-radio-button id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-configuration-name-form-mat-radio-group-mat-radio-button-smb"
@@ -19,19 +19,19 @@
       </form>
     </mat-step>
     <!-- Protocol Configuration -->
-    <mat-step *ngIf="isNegOrNTLM" id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration"
-              label="Protocol Configuration" [stepControl]="ntlmForm">
-      <form [formGroup]="ntlmForm">
+    <mat-step *ngIf="is_ntlm" id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration"
+              label="Protocol Configuration" [stepControl]="ntlm_form_group">
+      <form [formGroup]="ntlm_form_group">
         <mat-checkbox id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-mat-checkbox-ssl"
-                      formControlName="is_ssl" (change)="changePortIfNotDirty($event)">SSL</mat-checkbox>
+                      formControlName="is_ssl" (change)="change_non_dirty_port_value($event)">SSL</mat-checkbox>
         <!-- Port -->
         <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-mat-form-field-port">
           <mat-label>Port</mat-label>
           <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-mat-form-field-port-input" formControlName="port">
         </mat-form-field>
-        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-mat-error-port">{{ getErrorMessage(ntlmForm, 'port') }}</mat-error>
+        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-mat-error-port">{{ get_error_message(ntlm_form_group, 'port') }}</mat-error>
         <p id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-p-dns-instructions">
-          {{ dnsInstructions }}
+          {{ dns_instructions }}
         </p>
         <!-- Windows DNS Suffix -->
         <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-mat-form-field-windows-dns-suffix">
@@ -41,17 +41,17 @@
       </form>
     </mat-step>
     <!-- SMB Configuration -->
-    <mat-step *ngIf="isSMB" id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration"
-              label="SMB Configuration" [stepControl]="smbForm">
-      <form [formGroup]="smbForm">
+    <mat-step *ngIf="is_smb" id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration"
+              label="SMB Configuration" [stepControl]="smb_form_group">
+      <form [formGroup]="smb_form_group">
         <!-- Port -->
         <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration-mat-form-field-port">
           <mat-label>Port</mat-label>
           <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration-mat-form-field-port-input" formControlName="port">
         </mat-form-field>
-        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration-mat-error-port">{{ getErrorMessage(smbForm, 'port') }}</mat-error>
+        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration-mat-error-port">{{ get_error_message(smb_form_group, 'port') }}</mat-error>
         <p id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration-p-dns-instructions">
-          {{ dnsInstructions }}
+          {{ dns_instructions }}
         </p>
         <!-- Windows DNS Suffix -->
         <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration-mat-form-field-windows-dns-suffix">
@@ -64,7 +64,7 @@
 </div>
 <div mat-dialog-actions>
   <button mat-raised-button id="agent-target-dialog-button-cancel"
-          color="warn" (click)="onNoClick()">Cancel</button>
+          color="warn" (click)="close()">Cancel</button>
   <button mat-raised-button id="agent-target-dialog-button-add-configuration"
-          color="primary" [disabled]="!isWizardValid()" (click)="submitAndClose()">Add Configuration</button>
+          color="primary" [disabled]="!form_groups_valid()" (click)="submit()">Add Target</button>
 </div>

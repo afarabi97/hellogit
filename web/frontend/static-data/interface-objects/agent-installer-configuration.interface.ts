@@ -20,6 +20,10 @@ export const MockAgentInstallerConfigurationInterface1: AgentInstallerConfigurat
     'App Config 1': {
       username: MockElementSpecInterface1,
       password: MockElementSpecInterface2
+    },
+    'App Config 2': {
+      description: MockElementSpecInterface3,
+      is_admin: MockElementSpecInterface4
     }
   }
 };

@@ -12,7 +12,7 @@ import { SMBClass } from './smb.class';
  * @implements {IPTargetListInterface}
  */
 export class IPTargetListClass implements IPTargetListInterface {
-  _id: string;
+  _id?: string;
   name: string;
   protocol: string;
   ntlm: NTLMClass;

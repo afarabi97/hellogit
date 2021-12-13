@@ -9,7 +9,7 @@ import { SMBInterface } from './smb.interface';
  * @interface IPTargetListInterface
  */
 export interface IPTargetListInterface {
-  _id: string;
+  _id?: string;
   name: string;
   protocol: string;
   ntlm: NTLMInterface;

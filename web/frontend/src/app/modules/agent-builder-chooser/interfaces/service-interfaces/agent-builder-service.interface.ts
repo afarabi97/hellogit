@@ -6,6 +6,7 @@ import { AgentInstallerConfigurationInterface } from '../agent-installer-configu
 import { AgentTargetInterface } from '../agent-target.interface';
 import { AgentInterface } from '../agent.interface';
 import { HostInterface } from '../host.interface';
+import { IPTargetListInterface } from '../ip-target-list.interface';
 
 /**
  * Interface defines the agent builder service
@@ -19,7 +20,7 @@ export interface AgentBuilderServiceInterface {
   agent_delete_config(agent_configuration_id: string): Observable<AgentInstallerConfigurationClass[]>;
   agent_get_configs(): Observable<AgentInstallerConfigurationClass[]>;
   agent_get_ip_target_list(): Observable<IPTargetListClass[]>;
-  agent_save_ip_target_list(ip_target_list: IPTargetListClass): Observable<IPTargetListClass[]>;
+  agent_save_ip_target_list(ip_target_list: IPTargetListInterface): Observable<IPTargetListClass[]>;
   agent_add_host_to_ip_target_list(target_config_id: string, host: HostInterface): Observable<IPTargetListClass>;
   agent_remove_host_from_ip_target_list(target_config_id: string, host: HostClass): Observable<SuccessMessageClass>;
   agent_delete_ip_target_list(ip_target_list_name: string): Observable<IPTargetListClass[]>;

@@ -35,8 +35,6 @@ export class GenericDialogFactoryService<T = undefined> implements GenericDialog
     const mat_dialog_ref: MatDialogRef<GenericDialogComponent<T>, any> =
       this.mat_dialog_.open<GenericDialogComponent<T>, DialogDataInterface<T>>(GenericDialogComponent, assembled_mat_dialog_config);
 
-    mat_dialog_ref.afterClosed().pipe(first());
-
     return new GenericDialogService(mat_dialog_ref);
   }
 }

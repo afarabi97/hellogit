@@ -87,7 +87,7 @@
             class="material-icons" style="padding-right: 0.5em;">cloud_download</em>Download Installer
       </button>
       <button mat-raised-button id="app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-actions-button-details"
-              color="primary" [disabled]="config_selection ? false : true" (click)="showConfig(config_selection)">Details</button>
+              color="primary" [disabled]="config_selection && check_custom_packages(config_selection) ? false : true" (click)="showConfig(config_selection)">Details</button>
     </mat-card-actions>
   </mat-card>
   <br>

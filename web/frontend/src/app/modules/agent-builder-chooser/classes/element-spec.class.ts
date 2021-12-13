@@ -11,7 +11,7 @@ export class ElementSpecClass implements ElementSpecInterface {
   name: string;
   type: string;
   description?: string;
-  default_value?: string;
+  default_value?: string | boolean;
   required?: boolean;
   regexp?: string;
   error_message?: string;
