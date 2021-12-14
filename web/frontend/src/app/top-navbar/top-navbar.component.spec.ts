@@ -7,13 +7,14 @@ import { RouterModule } from '@angular/router';
 import { of as observableOf, of } from 'rxjs';
 
 import { MockDIPTimeClass, MockKitStatusClass } from '../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../static-data/functions/clean-dom.function';
 import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { DateTimeModule } from '../modules/date-time/date-time.module';
+import { NotificationsComponent } from '../modules/notifications/notifications.component';
 import { TestingModule } from '../modules/testing-modules/testing.module';
 import { InjectorModule } from '../modules/utilily-modules/injector.module';
 import { MaterialModule } from '../modules/utilily-modules/material.module';
-import { NotificationsComponent } from '../modules/notifications/notifications.component';
 import { CapitalizeFirstPipe } from '../pipes/capitalize-first.pipe';
 import { ApiService } from '../services/abstract/api.service';
 import { CookieService } from '../services/cookies.service';
@@ -22,14 +23,6 @@ import { ToolsService } from '../tools-form/services/tools.service';
 import { getSideNavigationButtons } from './functions/navbar.functions';
 import { NavGroupInterface } from './interfaces';
 import { TopNavbarComponent } from './top-navbar.component';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 const MockWebsocketBroadcast = {
   role: 'kit',
@@ -159,7 +152,7 @@ describe('TopNavbarComponent', () => {
 
   afterAll(() => {
     component.ngOnDestroy();
-    cleanStylesFromDOM();
+    remove_styles_from_dom();
   });
 
   it('should create TopNavbarComponent', () => {

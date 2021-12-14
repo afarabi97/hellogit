@@ -7,23 +7,16 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
 
 import { MockConfigMapClassLocalProvisionerConfig, MockKubernetesConfigClass } from '../../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import {
-    MockConfigMapInterfaceLocalProvisionerConfig,
-    MockKubernetesConfigInterface
+  MockConfigMapInterfaceLocalProvisionerConfig,
+  MockKubernetesConfigInterface
 } from '../../../../static-data/interface-objects';
 import { ConfigMapClass } from '../../classes';
 import { TestingModule } from '../testing-modules/testing.module';
 import { InjectorModule } from '../utilily-modules/injector.module';
 import { ConfigmapsComponent } from './config-map.component';
 import { ConfigMapModule } from './config-map.module';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 class MatDialogMock {
   // When the component calls this.dialog.open(...) we'll return an object
@@ -139,9 +132,7 @@ describe('ConfigmapsComponent', () => {
     MockConfigMapClassLocalProvisionerConfig.data = MockConfigMapInterfaceLocalProvisionerConfig.data;
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create ConfigmapsComponent', () => {
     expect(component).toBeTruthy();

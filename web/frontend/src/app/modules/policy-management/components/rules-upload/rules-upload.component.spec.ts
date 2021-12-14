@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 
 import { MockRuleSetClass } from '../../../../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { InjectorModule } from '../../../utilily-modules/injector.module';
 import { DialogDataInterface } from '../../interfaces';
@@ -35,14 +36,6 @@ const create_mock_file_list = (files: MockFile[]) => {
 
   return file_list;
 };
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 class MatDialogMock {
   close() {
@@ -132,9 +125,7 @@ describe('RulesUploadComponent', () => {
     spySetFileNameControl.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create RulesUploadComponent', () => {
     expect(component).toBeTruthy();

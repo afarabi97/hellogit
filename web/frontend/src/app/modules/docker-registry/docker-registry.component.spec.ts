@@ -2,17 +2,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { throwError } from 'rxjs';
 
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import { TestingModule } from '../testing-modules/testing.module';
 import { DockerRegistryComponent } from './docker-registry.component';
 import { DockerRegistryModule } from './docker-registry.module';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 describe('DockerRegistryComponent', () => {
   let component: DockerRegistryComponent;
@@ -56,9 +49,7 @@ describe('DockerRegistryComponent', () => {
     spyApiGetDockerRegistry.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create DockerRegistryComponent', () => {
     expect(component).toBeTruthy();

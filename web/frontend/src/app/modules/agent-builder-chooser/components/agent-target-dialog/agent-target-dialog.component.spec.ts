@@ -5,18 +5,11 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { of } from 'rxjs';
 
+import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { AgentBuilderChooserModule } from '../../agent-builder-chooser.module';
 import { SMB_PORT, WINRM_PORT, WINRM_PORT_SSL } from '../../constants/agent-builder-chooser.constant';
 import { AgentTargetDialogComponent } from './agent-target-dialog.component';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 class MatDialogRefMock {
   close() {
@@ -127,9 +120,7 @@ describe('AgentTargetDialogComponent', () => {
     spySetSMBFormGroup.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create AgentTargetDialogComponent', () => {
     expect(component).toBeTruthy();

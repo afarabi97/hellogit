@@ -7,6 +7,7 @@ import { of, Subject, throwError } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { MockRuleClass, MockRuleSetClass } from '../../../../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import {
   MockErrorMessageInterface,
   MockRuleInterface,
@@ -21,14 +22,6 @@ import { ADD, EDIT } from '../../constants/policy-management.constant';
 import { DialogDataInterface } from '../../interfaces';
 import { PolicyManagementModule } from '../../policy-management.module';
 import { RuleAddEditComponent } from './rule-add-edit.component';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 interface MockFile {
   name: string;
@@ -268,9 +261,7 @@ describe('RuleAddEditComponent', () => {
     spyApiValidateRule.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create RuleAddEditComponent', () => {
     expect(component).toBeTruthy();

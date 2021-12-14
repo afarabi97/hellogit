@@ -15,6 +15,7 @@ import {
   MockRuleSetClass,
   MockRuleSetForDeleteClass
 } from '../../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import {
   MockErrorMessageInterface,
   MockRuleInterface,
@@ -31,14 +32,6 @@ import { InjectorModule } from '../utilily-modules/injector.module';
 import { RulesGroupUploadInterface } from './interfaces';
 import { PolicyManagementComponent } from './policy-management.component';
 import { PolicyManagementModule } from './policy-management.module';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 interface MockFile {
   name: string;
@@ -254,9 +247,7 @@ describe('PolicyManagementComponent', () => {
     spyApiGetJobs.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create PolicyManagementComponent', () => {
     expect(component).toBeTruthy();

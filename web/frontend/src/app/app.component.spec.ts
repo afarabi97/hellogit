@@ -3,25 +3,18 @@ import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
+import { remove_styles_from_dom } from '../../static-data/functions/clean-dom.function';
 import { AppComponent } from './app.component';
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
+import { NotificationsComponent } from './modules/notifications/notifications.component';
 import { TestingModule } from './modules/testing-modules/testing.module';
 import { InjectorModule } from './modules/utilily-modules/injector.module';
 import { MaterialModule } from './modules/utilily-modules/material.module';
-import { NotificationsComponent } from './modules/notifications/notifications.component';
 import { ApiService } from './services/abstract/api.service';
 import { CookieService } from './services/cookies.service';
 import { ToolsService } from './tools-form/services/tools.service';
 import { NavBarService } from './top-navbar/services/navbar.service';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 describe('AppComponent', () => {
   let component: AppComponent;
@@ -62,7 +55,7 @@ describe('AppComponent', () => {
     fixture.detectChanges();
   });
 
-  afterAll(() => cleanStylesFromDOM());
+  afterAll(() => remove_styles_from_dom());
 
   it('should create AppComponent', () => {
     expect(component).toBeTruthy();

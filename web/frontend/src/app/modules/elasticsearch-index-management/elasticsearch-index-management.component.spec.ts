@@ -5,19 +5,12 @@ import { Title } from '@angular/platform-browser';
 import { throwError } from 'rxjs';
 
 import { MockErrorMessageClass } from '../../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import { MockIndexManagementOptionInterfaceDeleteIndices } from '../../../../static-data/interface-objects';
 import { MockClosedIndices } from '../../../../static-data/return-data';
 import { TestingModule } from '../testing-modules/testing.module';
 import { ElasticsearchIndexManagementComponent } from './elasticsearch-index-management.component';
 import { ElasticsearchIndexManagementModule } from './elasticsearch-index-management.module';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 describe('ElasticsearchIndexManagementComponent', () => {
   let component: ElasticsearchIndexManagementComponent;
@@ -105,9 +98,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
     spyApiGetAllIndices.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create ElasticsearchIndexManagementComponent', () => {
     expect(component).toBeTruthy();

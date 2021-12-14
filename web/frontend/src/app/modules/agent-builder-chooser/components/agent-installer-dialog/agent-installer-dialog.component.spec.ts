@@ -7,17 +7,18 @@ import { MatStepper } from '@angular/material/stepper';
 import { of, throwError } from 'rxjs';
 
 import {
-    MockAppConfigClass1,
-    MockAppConfigClass2,
-    MockAppConfigClassesArray,
-    MockEndgameSensorProfileClasses
+  MockAppConfigClass1,
+  MockAppConfigClass2,
+  MockAppConfigClassesArray,
+  MockEndgameSensorProfileClasses
 } from '../../../../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import {
-    MockElementSpecInterface1,
-    MockElementSpecInterface2,
-    MockElementSpecInterface3,
-    MockElementSpecInterface4,
-    MockErrorMessageInterface
+  MockElementSpecInterface1,
+  MockElementSpecInterface2,
+  MockElementSpecInterface3,
+  MockElementSpecInterface4,
+  MockErrorMessageInterface
 } from '../../../../../../static-data/interface-objects';
 import { ErrorMessageClass } from '../../../../classes';
 import { MatOptionInterface } from '../../../../interfaces';
@@ -26,14 +27,6 @@ import { AgentBuilderChooserModule } from '../../agent-builder-chooser.module';
 import { AppConfigClass, EndgameSensorProfileClass } from '../../classes';
 import { AgentInstallerDialogDataInterface, AppNameAppConfigPairInterface, EndgameLoginInterface } from '../../interfaces';
 import { AgentInstallerDialogComponent } from './agent-installer-dialog.component';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 class MatDialogRefMock {
   close() {
@@ -193,9 +186,7 @@ describe('AgentInstallerDialogComponent', () => {
     spyMatDialogRefClose.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create AgentInstallerDialogComponent', () => {
     expect(component).toBeTruthy();

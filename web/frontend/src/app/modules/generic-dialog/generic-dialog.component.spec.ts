@@ -2,17 +2,10 @@ import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import { DialogDataInterface } from '../../interfaces';
 import { GenericDialogComponent } from './generic-dialog.component';
 import { GenericDialogModule } from './generic-dialog.module';
-
-export function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 @Component({
   template: `
@@ -78,7 +71,7 @@ describe('GenericDialogComponent', () => {
     spyCheckVariableValueDefined.calls.reset();
   };
 
-  afterAll(() => cleanStylesFromDOM());
+  afterAll(() => remove_styles_from_dom());
 
   it('should create GenericDialogComponent', () => {
     expect(component).toBeTruthy();

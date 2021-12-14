@@ -1,22 +1,14 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { MaterialModule } from 'src/app/modules/utilily-modules/material.module';
-import { MatInputModule } from '@angular/material/input';
 
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import { MockConfirmDialogMatDialogDataInterface } from '../../../../static-data/interface-objects';
+import { MaterialModule } from '../../modules/utilily-modules/material.module';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
-import { FormsModule } from '@angular/forms';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 describe('ConfirmDialogComponent', () => {
   let component: ConfirmDialogComponent;
@@ -70,7 +62,7 @@ describe('ConfirmDialogComponent', () => {
     ngUnsubscribe$.next();
     ngUnsubscribe$.complete();
 
-    cleanStylesFromDOM();
+    remove_styles_from_dom();
   });
 
   it('should create ConfirmDialogComponent', () => {

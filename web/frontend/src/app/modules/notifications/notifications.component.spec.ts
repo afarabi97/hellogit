@@ -4,10 +4,11 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { of, throwError } from 'rxjs';
 
 import {
-  MockNotificationClassArray,
   MockNotificationClass_NotInArray,
-  MockNotificationClass_ZeekPendingInstall
+  MockNotificationClass_ZeekPendingInstall,
+  MockNotificationClassArray
 } from '../../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import { NotificationClass } from '../../classes';
 import { ACCENT_BUTTON_COLOR, PRIMARY_BUTTON_COLOR } from '../../constants/cvah.constants';
 import { TestingModule } from '../testing-modules/testing.module';
@@ -19,14 +20,6 @@ import {
 import { NotificationButtonInterface } from './interface/notification-button.interface';
 import { NotificationsComponent } from './notifications.component';
 import { NotificationsModule } from './notifications.module';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 describe('NotificationsComponent', () => {
   let component: NotificationsComponent;
@@ -116,9 +109,7 @@ describe('NotificationsComponent', () => {
     spyApiDeleteAllNotifications.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create NotificationsComponent', () => {
     expect(component).toBeTruthy();

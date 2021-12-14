@@ -3,16 +3,9 @@ import { FormControl } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatSelectChange } from '@angular/material/select';
 
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import { DateTimeComponent } from './date-time.component';
 import { DateTimeModule } from './date-time.module';
-
-export function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 describe('DateTimeComponent', () => {
   let component: DateTimeComponent;
@@ -70,7 +63,7 @@ describe('DateTimeComponent', () => {
     spyWriteValue.calls.reset();
   };
 
-  afterAll(() => cleanStylesFromDOM());
+  afterAll(() => remove_styles_from_dom());
 
   it('should create DateTimeComponent', () => {
     expect(component).toBeTruthy();

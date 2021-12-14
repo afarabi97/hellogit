@@ -1,15 +1,8 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
+import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { GenericDialogModule } from '../../generic-dialog.module';
 import { GenericButtonComponent } from './generic-dialog-button.component';
-
-export function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 describe('GenericButtonComponent', () => {
   let component: GenericButtonComponent;
@@ -32,7 +25,7 @@ describe('GenericButtonComponent', () => {
     fixture.detectChanges();
   });
 
-  afterAll(() => cleanStylesFromDOM());
+  afterAll(() => remove_styles_from_dom());
 
   it('should create GenericButtonComponent', () => {
     expect(component).toBeTruthy();

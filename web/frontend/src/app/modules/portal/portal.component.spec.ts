@@ -5,6 +5,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { of, throwError } from 'rxjs';
 
 import { MockUserPortalLinkClass } from '../../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import { MockUserPortalLinkInterface } from '../../../../static-data/interface-objects';
 import { UserPortalLinkClass } from '../../classes';
 import { CONFIRM_DIALOG_OPTION } from '../../constants/cvah.constants';
@@ -12,14 +13,6 @@ import { UserPortalLinkInterface } from '../../interfaces';
 import { TestingModule } from '../testing-modules/testing.module';
 import { PortalComponent } from './portal.component';
 import { PortalModule } from './portal.module';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 describe('PortalComponent', () => {
   let component: PortalComponent;
@@ -90,9 +83,7 @@ describe('PortalComponent', () => {
     spyApiRemoveUserPortal.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create PortalComponent', () => {
     expect(component).toBeTruthy();

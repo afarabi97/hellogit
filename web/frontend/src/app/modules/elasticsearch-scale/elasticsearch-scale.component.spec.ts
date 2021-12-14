@@ -4,29 +4,22 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
-import { CONFIRM_DIALOG_OPTION } from 'src/app/constants/cvah.constants';
-import { WebsocketService } from 'src/app/services/websocket.service';
+
 import {
   MockElasticsearchConfigurationClass,
   MockElasticsearchNodeClass,
   MockStatusNoneElasticsearchCheckClass,
   MockStatusPendingElasticsearchCheckClass,
   MockStatusUnknownElasticsearchCheckClass
-} from 'static-data/class-objects';
-import { MockElasticsearchNodeReturnInterface } from 'static-data/interface-objects';
-
+} from '../../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
+import { MockElasticsearchNodeReturnInterface } from '../../../../static-data/interface-objects';
+import { CONFIRM_DIALOG_OPTION } from '../../constants/cvah.constants';
+import { WebsocketService } from '../../services/websocket.service';
 import { TestingModule } from '../testing-modules/testing.module';
 import { InjectorModule } from '../utilily-modules/injector.module';
 import { ElasticsearchScaleComponent } from './elasticsearch-scale.component';
 import { ElasticsearchScaleModule } from './elasticsearch-scale.module';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 const MockWebsocketBoradcast = {
   status: 'COMPLETED'
@@ -138,9 +131,7 @@ describe('ElasticsearchScaleComponent', () => {
     spyApiCheckElastic.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create ElasticsearchScaleComponent', () => {
     expect(component).toBeTruthy();

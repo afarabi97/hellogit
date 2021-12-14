@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import {
   ConfirmActionConfigurationCloseAltActionFunctionTrueInterface,
   ConfirmActionConfigurationSaveAltActionFunctionTrueInterface,
@@ -13,14 +14,6 @@ import { ConfirmActionPopup } from '../../classes/ConfirmActionPopup';
 import { CLOSE_DEFAULT_TOOLTIP, SAVE_DEFAULT_TOOLTIP } from './constants/ngx-monaco-editor.constants';
 import { NGXMonacoTextEditorComponent } from './ngx-monaco-text-editor.component';
 import { NGXMonacoTextEditorModule } from './ngx-monaco-text-editor.module';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 class MatDialogMock {
   close() {
@@ -92,9 +85,7 @@ describe('NGXMonacoTextEditorComponent', () => {
     spyGetReturnText.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create NGXMonacoTextEditorComponent', () => {
     expect(component).toBeTruthy();

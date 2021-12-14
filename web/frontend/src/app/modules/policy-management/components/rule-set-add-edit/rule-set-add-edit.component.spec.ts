@@ -5,6 +5,7 @@ import { MatSelectChange } from '@angular/material/select';
 import { of, throwError } from 'rxjs';
 
 import { MockHostInfoClass, MockRuleSetClass } from '../../../../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { SortingService } from '../../../../services/sorting.service';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { InjectorModule } from '../../../utilily-modules/injector.module';
@@ -23,14 +24,6 @@ import {
 import { DialogDataInterface } from '../../interfaces';
 import { PolicyManagementModule } from '../../policy-management.module';
 import { RuleSetAddEditComponent } from './rule-set-add-edit.component';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 class MatDialogMock {
   close() {
@@ -162,9 +155,7 @@ describe('RuleSetAddEditComponent', () => {
     spyApiCatalogStatus.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create RuleSetAddEditComponent', () => {
     expect(component).toBeTruthy();

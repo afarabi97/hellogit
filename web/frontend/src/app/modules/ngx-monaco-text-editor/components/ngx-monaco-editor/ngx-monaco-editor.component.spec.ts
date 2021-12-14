@@ -3,19 +3,10 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSelectChange } from '@angular/material/select';
 
-import {
-  TextEditorConfigurationNoConfirmActionsInterface,
-} from '../../../../../../static-data/interface-objects';
+import { TextEditorConfigurationNoConfirmActionsInterface } from '../../../../../../static-data/interface-objects';
+import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { NGXMonacoTextEditorModule } from '../../ngx-monaco-text-editor.module';
 import { NGXMonacoEditorComponent } from './ngx-monaco-editor.component';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 describe('NGXMonacoEditorComponent', () => {
   let component: NGXMonacoEditorComponent;
@@ -106,9 +97,7 @@ describe('NGXMonacoEditorComponent', () => {
     spyGetReturnEditorText.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create NGXMonacoEditorComponent', () => {
     expect(component).toBeTruthy();

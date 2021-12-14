@@ -3,23 +3,16 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 
 import {
-    MockAgentInstallerConfigurationClass1,
-    MockAppConfigClass1,
-    MockAppConfigClassesArray
+  MockAgentInstallerConfigurationClass1,
+  MockAppConfigClass1,
+  MockAppConfigClassesArray
 } from '../../../../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { MockElementSpecInterface1 } from '../../../../../../static-data/interface-objects';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { AgentBuilderChooserModule } from '../../agent-builder-chooser.module';
 import { AgentDetailsDialogDataInterface } from '../../interfaces';
 import { AgentDetailsDialogComponent } from './agent-details-dialog.component';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 class MatDialogRefMock {
   close() {
@@ -73,9 +66,7 @@ describe('AgentDetailsDialogComponent', () => {
     spyClose.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create AgentDetailsDialogComponent', () => {
     expect(component).toBeTruthy();

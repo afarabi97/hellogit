@@ -4,18 +4,11 @@ import * as FileSaver from 'file-saver';
 import { of, throwError } from 'rxjs';
 
 import { MockGenericJobAndKeyClass, MockSystemVersionClass } from '../../../../static-data/class-objects';
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import { WebsocketService } from '../../services/websocket.service';
 import { TestingModule } from '../testing-modules/testing.module';
 import { PmoSupportComponent } from './pmo-support.component';
 import { PmoSupportModule } from './pmo-support.module';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 class MockSocket {
   getSocket() {
@@ -116,9 +109,7 @@ describe('PmoSupportComponent', () => {
     spyApiDownloadDiagnostics.calls.reset();
   };
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create PmoSupportComponent', () => {
     expect(component).toBeTruthy();

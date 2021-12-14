@@ -1,14 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
+import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import { PasswordMessageComponent } from './password-message.component';
-
-function cleanStylesFromDOM(): void {
-  const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-  const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
-  for (let i = 0; i < styles.length; i++) {
-    head.removeChild(styles[i]);
-  }
-}
 
 describe('PasswordMessageComponent', () => {
   let component: PasswordMessageComponent;
@@ -30,9 +23,7 @@ describe('PasswordMessageComponent', () => {
     fixture.detectChanges();
   });
 
-  afterAll(() => {
-    cleanStylesFromDOM();
-  });
+  afterAll(() => remove_styles_from_dom());
 
   it('should create PasswordMessageComponent', () => {
     expect(component).toBeTruthy();
