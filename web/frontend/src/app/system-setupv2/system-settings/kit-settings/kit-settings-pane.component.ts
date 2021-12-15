@@ -131,10 +131,10 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
       this.kitForm.get('is_gip').setValue(false);
     }
     if (!this.kitForm.get('upstream_ntp').value){
-      this.kitForm.get('upstream_ntp').setValue(null)
+      this.kitForm.get('upstream_ntp').setValue(null);
     }
     if (!this.kitForm.get('upstream_dns').value){
-      this.kitForm.get('upstream_dns').setValue(null)
+      this.kitForm.get('upstream_dns').setValue(null);
     }
 
     this.kitSettings = this.kitForm.getRawValue();

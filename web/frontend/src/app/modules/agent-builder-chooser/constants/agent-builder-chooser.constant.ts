@@ -3,10 +3,20 @@ import { ValidatorFn, Validators } from '@angular/forms';
 import { COMMON_VALIDATORS } from '../../../constants/cvah.constants';
 import { validateFromArray } from '../../../validators/generic-validators.validator';
 
+// Used for tab title and dialog titles
+export const AGENT_BUILDER_CHOOSER_TITLE: string = 'Windows Agent Deployer';
+export const INSTALL_WINDOWS_HOSTS: string = 'Install Windows hosts';
+export const UNINSTALL_WINDOWS_HOSTS: string = 'Uninstall Windows hosts';
+export const UNINSTALL_WINDOWS_HOST: string = 'Uninstall Windows host';
+export const REINSTALL_WINDOWS_HOST: string = 'Reinstall Windows host';
 export const DOMAIN_PASSWORD_LABEL: string = 'Domain Password';
 export const WINDOWS_AGENT_DETAILS: string = 'Windows Agent Details';
 export const WINDOWS_AGENT_INSTALLER: string = 'Windows Agent Installer';
 export const WINDOWS_AGENT_TARGET: string = 'Windows Agent Target';
+
+export const AGENT_INSTALLER_CONFIGURATION_MAT_TABLE_COLUMNS: string[] = [ 'select', 'config_name', 'install_custom', 'install_endgame', 'endgame_sensor_name', 'actions' ];
+export const IP_TARGET_CONFIGS_MAT_TABLE_COLUMNS: string[] = [ 'select', 'name', 'protocol', 'port', 'domain_name', 'actions' ];
+export const HOST_MAT_TABLE_COLUMNS: string[] = [ 'hostname', 'state', 'last_state_change', 'actions' ];
 
 // Used for FormGroup validation
 export const VALIDATORS_REQUIRED: ValidatorFn = Validators.compose([Validators.required]);

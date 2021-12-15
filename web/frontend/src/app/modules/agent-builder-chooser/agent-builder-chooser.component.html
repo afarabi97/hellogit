@@ -4,18 +4,18 @@
       <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
         <div>Step 1: Create a Windows installer configuration.</div>
         <button mat-raised-button id="app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-header-mat-card-title-button-add-installer-config"
-                color="primary" [disabled]="appConfigs ? false : true" (click)="addNewConfiguration()">Add Installer Config</button>
+                color="primary" [disabled]="app_configs ? false : true" (click)="new_agent_installer_configuration()">Add Installer Config</button>
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <table mat-table [dataSource]="configs" aria-describedby="Installer configuration table">
+      <table mat-table [dataSource]="agent_installer_configs_mat_table_data" aria-describedby="Installer configuration table">
         <!-- Select -->
         <ng-container matColumnDef="select">
           <th scope="col" mat-header-cell *matHeaderCellDef>Select</th>
           <td mat-cell *matCellDef="let config; index as i;"
               id="{{ 'app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-content-table-td-' + i + '-select' }}">
             <mat-radio-button id="{{ 'app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-content-table-td-' + i + '-select-mat-radio-button' }}"
-                              (change)="updateSelectedConfig(config)" [value]="i" name="configGroup"></mat-radio-button>
+                              (change)="update_selected_agent_installer_config(config)" [value]="i" name="configGroup"></mat-radio-button>
           </td>
         </ng-container>
         <!-- Name -->
@@ -66,15 +66,15 @@
           <td mat-cell *matCellDef="let config; let z = index;"
               id="{{ 'app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-content-table-td-' + z + '-actions' }}">
             <button mat-icon-button id="{{ 'app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-content-table-td-' + z + '-actions-button' }}"
-                    (click)="openConfirmDeleteConfig(config)">
+                    (click)="delete_agent_installer_configuration_confirm_dialog(config)">
               <em id="{{ 'app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-content-table-td-' + z + '-actions-button-em-delete' }}"
                   class="material-icons" style="color:red;">delete</em>
             </button>
           </td>
         </ng-container>
         <!-- Table Rows -->
-        <tr mat-header-row *matHeaderRowDef="columnsForInstallerConfigs"></tr>
-        <tr mat-row *matRowDef="let row; columns: columnsForInstallerConfigs; let j = index;"
+        <tr mat-header-row *matHeaderRowDef="agent_installer_configs_mat_table_columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: agent_installer_configs_mat_table_columns; let j = index;"
             id="{{ 'app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-content-table-tr-mat-row-' + j }}"></tr>
       </table>
       <mat-paginator id="app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-content-mat-paginator"
@@ -82,12 +82,12 @@
     </mat-card-content>
     <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
       <button mat-raised-button id="app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-actions-button-download-installer"
-              color="primary" (click)="downloadInstaller(config_selection)" [disabled]="config_selection ? is_downloading : true">
+              color="primary" (click)="download_agent_installer(agent_installer_configuration_selection)" [disabled]="agent_installer_configuration_selection ? is_downloading_agent_installer_configs : true">
         <em id="app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-actions-button-download-installer-em-cloud-download"
             class="material-icons" style="padding-right: 0.5em;">cloud_download</em>Download Installer
       </button>
       <button mat-raised-button id="app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-actions-button-details"
-              color="primary" [disabled]="config_selection && check_custom_packages(config_selection) ? false : true" (click)="showConfig(config_selection)">Details</button>
+              color="primary" [disabled]="agent_installer_configuration_selection && check_custom_packages(agent_installer_configuration_selection) ? false : true" (click)="show_agent_installer_configuration(agent_installer_configuration_selection)">Details</button>
     </mat-card-actions>
   </mat-card>
   <br>
@@ -96,18 +96,18 @@
       <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
         <div>Step 2 (optional): Add remote targets</div>
         <button mat-raised-button id="app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-header-mat-card-title-button-add-target-config"
-                color="primary" (click)="openAddNewTargetConfigModal()">Add Target Config</button>
+                color="primary" (click)="new_ip_target_list()">Add Target Config</button>
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <table mat-table #targetTable [dataSource]="targetConfigs" multiTemplateDataRows aria-describedby="Remote Targets Configuration Table">
+      <table mat-table #targetTable [dataSource]="ip_target_configs_mat_table_data" multiTemplateDataRows aria-describedby="Remote Targets Configuration Table">
         <!-- Select -->
         <ng-container matColumnDef="select">
           <th scope="col" mat-header-cell *matHeaderCellDef>Select</th>
           <td mat-cell *matCellDef="let target; dataIndex as i;"
               id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-select' }}">
             <mat-radio-button id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-select-mat-radio-button' }}'"
-                              (change)="updateSelectedTarget(target)" [value]="i" name="targetGroup"></mat-radio-button>
+                              (change)="update_selected_ip_target(target)" [value]="i" name="targetGroup"></mat-radio-button>
           </td>
         </ng-container>
         <!-- Name -->
@@ -115,10 +115,10 @@
           <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
           <td mat-cell *matCellDef="let target; dataIndex as i;"
               id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-name' }}">
-            <a id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-name-a' }}" (click)="toggleHostListExpansion(target)">
+            <a id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-name-a' }}" (click)="toggle_host_list_expansion(target)">
               <em id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-name-a-em' }}"
-                  class="material-icons">{{ target['state'].expanded ? 'expand_more' : 'chevron_right'}}</em>
-              <span id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-name-a-span' }}" style="vertical-align: super;">{{ target['config'].name }}</span>
+                  class="material-icons">{{ target.state.expanded ? 'expand_more' : 'chevron_right'}}</em>
+              <span id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-name-a-span' }}" style="vertical-align: super;">{{ target.config.name }}</span>
             </a>
           </td>
         </ng-container>
@@ -126,19 +126,19 @@
         <ng-container matColumnDef="protocol">
           <th scope="col" mat-header-cell *matHeaderCellDef>Protocol</th>
           <td mat-cell *matCellDef="let target; dataIndex as i;"
-              id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-protocol' }}">{{ target['config'].protocol }}</td>
+              id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-protocol' }}">{{ target.config.protocol }}</td>
         </ng-container>
         <!-- Port -->
         <ng-container matColumnDef="port">
           <th scope="col" mat-header-cell *matHeaderCellDef>Port</th>
           <td mat-cell *matCellDef="let target; dataIndex as i;"
-              id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-port' }}">{{ getPort(target['config']) }}</td>
+              id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-port' }}">{{ get_ip_target_list_port(target.config) }}</td>
         </ng-container>
         <!-- DNS Suffix -->
         <ng-container matColumnDef="domain_name">
           <th scope="col" mat-header-cell *matHeaderCellDef>DNS Suffix</th>
           <td mat-cell *matCellDef="let target; dataIndex as i;"
-              id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-dns-suffix' }}">{{ getDomainSuffix(target['config']) }}</td>
+              id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-dns-suffix' }}">{{ get_ip_target_list_domain_name(target.config) }}</td>
         </ng-container>
         <!-- Action -->
         <ng-container matColumnDef="actions">
@@ -146,7 +146,7 @@
           <td mat-cell *matCellDef="let target; dataIndex as i;"
               id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-action' }}">
             <button mat-icon-button id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-action-button' }}"
-                    (click)="openConfirmDeleteTarget(target['config'], i)">
+                    (click)="delete_ip_target_list_confirm_dialog(target.config, i)">
               <em id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-action-button-em-delete' }}"
                   class="material-icons" style="color:red;">delete</em>
             </button>
@@ -157,12 +157,12 @@
           <!-- Expanded Detail -->
           <td mat-cell *matCellDef="let target; dataIndex as i;"
               id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-expanded-detail' }}"
-              [attr.colspan]="columnsForTargetConfigs.length">
+              [attr.colspan]="ip_target_configs_mat_table_columns.length">
             <div>
               <button mat-raised-button id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-expanded-detail-div-button-add-window-hosts' }}"
-                      color="primary" style="margin-top: 10px;" (click)="openAddWindowsHostModal(target['config'], target['state']['hostList'])">Add Windows Hosts</button>
+                      color="primary" style="margin-top: 10px;" (click)="add_hosts_to_ip_target_list(target.config, target.state.host_list)">Add Windows Hosts</button>
 
-              <table mat-table #hostTable [dataSource]="getHostList(target['state']['hostList'], hostListPaginator)" aria-describedby="Remote targets host subtable">
+              <table mat-table #hostTable [dataSource]="set_host_list_paginator(target.state.host_list, hostListPaginator)" aria-describedby="Remote targets host subtable">
                 <!-- Hostname -->
                 <ng-container matColumnDef="hostname">
                   <th scope="row" mat-header-cell *matHeaderCellDef>Hostname</th>
@@ -189,7 +189,7 @@
                     <!-- The menu for this button is defined at the bottom of this html page. -->
                     <button mat-icon-button id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-expanded-detail-div-table-td-' + host_index + '-actions-button-menu' }}"
                             [matMenuTriggerFor]="menu"
-                            [matMenuTriggerData]="{ config: config_selection, target_config: target['config'], host_list: target['state']['hostList'], host: host, host_index: host_index,
+                            [matMenuTriggerData]="{ config: agent_installer_configuration_selection, target_config: target.config, host_list: target.state.host_list, host: host, host_index: host_index,
                                                     element_id: 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-expanded-detail-div-table-td-' + host_index + '-actions-button-menu' }"
                             (click)="$event.stopPropagation()">
                       <mat-icon id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-expanded-detail-div-table-td-' + host_index + '-actions-button-menu-mat-icon-more-vert' }}">more_vert</mat-icon>
@@ -197,8 +197,8 @@
                   </td>
                 </ng-container>
                 <!-- Table Rows -->
-                <tr mat-header-row *matHeaderRowDef="columnsForHosts"></tr>
-                <tr mat-row *matRowDef="let row; columns: columnsForHosts; let k = index;"
+                <tr mat-header-row *matHeaderRowDef="host_mat_table_columns"></tr>
+                <tr mat-row *matRowDef="let row; columns: host_mat_table_columns; let k = index;"
                     id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-td-' + i + '-expanded-detail-div-table-tr-mat-row-' + k }}"></tr>
               </table>
 
@@ -209,12 +209,12 @@
           </td>
         </ng-container>
         <!-- Table Rows -->
-        <tr mat-header-row *matHeaderRowDef="columnsForTargetConfigs"></tr>
-        <tr mat-row *matRowDef="let row; columns: columnsForTargetConfigs; let l = index;"
+        <tr mat-header-row *matHeaderRowDef="ip_target_configs_mat_table_columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: ip_target_configs_mat_table_columns; let l = index;"
             id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-tr-mat-row-' + l }}"></tr>
         <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; dataIndex as i;"
             id="{{ 'app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-table-tr-mat-row-expanded-detail-' + i }}"
-            [hidden]="!isHostListExpanded(row)"></tr>
+            [hidden]="!is_host_list_expanded(row)"></tr>
       </table>
       <mat-paginator id="app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-content-mat-paginator"
                      #targetConfigPaginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
@@ -223,12 +223,12 @@
 
     <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
       <button mat-raised-button id="app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-actions-button-deploy-installer"
-              color="primary" (click)="installAgents(config_selection, target_selection)" [disabled]="!(config_selection && target_selection)">
+              color="primary" (click)="agents_install(agent_installer_configuration_selection, ip_target_selection)" [disabled]="!(agent_installer_configuration_selection && ip_target_selection)">
         <em id="app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-actions-button-deploy-installer-em-cloud-upload"
             class="material-icons" style="padding-right: 0.5em;">cloud_upload</em>Deploy Installer
       </button>
       <button mat-raised-button id="app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-actions-button-batch-uninstall"
-              color="warn" [disabled]="!(config_selection && target_selection)" (click)="uninstallAgents(config_selection, target_selection)">
+              color="warn" [disabled]="!(agent_installer_configuration_selection && ip_target_selection)" (click)="agents_uninstall(agent_installer_configuration_selection, ip_target_selection)">
         <em id="app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-actions-button-batch-uninstall-em-delete-sweep"
             class="material-icons" style="padding-right: 0.5em;">delete_sweep</em>Batch Uninstall
       </button>
@@ -239,17 +239,17 @@
 <mat-menu #menu="matMenu">
   <ng-template matMenuContent let-config="config" let-target_config="target_config" let-host_list="host_list" let-host="host" let-host_index="host_index" let-element_id="element_id">
     <button mat-menu-item id="{{ element_id + '-button-reinstall-agent' }}"
-            [disabled]="config ? false : true" (click)="reinstallAgent(config, target_config, host)">
+            [disabled]="config ? false : true" (click)="agent_reinstall(config, target_config, host)">
       <mat-icon id="{{ element_id + '-button-reinstall-agent-mat-icon-sync' }}">sync</mat-icon><span>Reinstall Agent</span>
     </button>
 
     <button mat-menu-item id="{{ element_id + '-button-uninstall-agent' }}"
-            [disabled]="config ? false : true" (click)="uninstallAgent(config, target_config, host)">
+            [disabled]="config ? false : true" (click)="agent_uninstall(config, target_config, host)">
       <mat-icon id="{{ element_id + '-button-uninstall-agent-mat-icon-delete' }}">delete</mat-icon><span>Uninstall Agent</span>
     </button>
 
     <button mat-menu-item id="{{ element_id + '-button-remove-agent-entry' }}"
-            (click)="openRemoveHostModal(target_config, host_list, host, host_index)">
+            (click)="remove_hosts_from_ip_target_list(target_config, host_list, host, host_index)">
       <mat-icon id="{{ element_id + '-button-remove-agent-entry-mat-icon-delete-forever' }}">delete_forever</mat-icon><span>Remove Agent entry</span>
     </button>
   </ng-template>

@@ -24,7 +24,11 @@ import {
   VALIDATORS_IS_VALID_IP_FROM_ARRAY,
   VALIDATORS_REQUIRED_FROM_ARRAY
 } from '../../constants/agent-builder-chooser.constant';
-import { AgentInstallerDialogDataInterface, EndgameLoginInterface } from '../../interfaces';
+import {
+  AgentInstallerConfigurationInterface,
+  AgentInstallerDialogDataInterface,
+  EndgameLoginInterface
+} from '../../interfaces';
 import { EndgameService } from '../../services/endgame.service';
 
 /**
@@ -210,8 +214,20 @@ export class AgentInstallerDialogComponent implements OnInit {
    * @memberof AgentInstallerDialogComponent
    */
   submit(): void {
-    this.agent_installer_configuration_form_group.get('endgame_sensor_name').setValue(this.get_sensor_profile_name_());
-    this.mat_dialog_ref_.close(this.agent_installer_configuration_form_group);
+
+    if (ObjectUtilitiesClass.notUndefNull(this.agent_installer_configuration_form_group) && this.agent_installer_configuration_form_group.valid) {
+      this.agent_installer_configuration_form_group.get('endgame_sensor_name').setValue(this.get_sensor_profile_name_());
+      let form_data = this.agent_installer_configuration_form_group.getRawValue();
+      const endgame_options = form_data['endgame_options'];
+      delete form_data['endgame_options'];
+      const scratch = {...form_data, ...endgame_options};
+      form_data = scratch;
+
+      this.mat_dialog_ref_.close(form_data as AgentInstallerConfigurationInterface);
+    } else {
+      const message: string = `The form contains invalid entries. Please double check values and try again.`;
+      this.mat_snackbar_service_.displaySnackBar(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+    }
   }
 
   /**

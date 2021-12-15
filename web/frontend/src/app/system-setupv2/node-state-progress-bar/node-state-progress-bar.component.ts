@@ -112,13 +112,13 @@ export class NodeStateProgressBarComponent implements OnInit {
     // Close the previous dropdowns
     if (this.nodeMng.progressCircles){
       for (const progress of this.nodeMng.progressCircles.toArray()){
-        progress.closeDropDown()
+        progress.closeDropDown();
       }
     }
 
     if (this.mipMng.progressCircles){
       for (const progress of this.mipMng.progressCircles.toArray()){
-        progress.closeDropDown()
+        progress.closeDropDown();
       }
     }
 

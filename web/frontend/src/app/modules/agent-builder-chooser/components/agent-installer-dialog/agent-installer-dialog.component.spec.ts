@@ -7,6 +7,7 @@ import { MatStepper } from '@angular/material/stepper';
 import { of, throwError } from 'rxjs';
 
 import {
+  MockAgentInstallerConfigurationClass1,
   MockAppConfigClass1,
   MockAppConfigClass2,
   MockAppConfigClassesArray,
@@ -156,6 +157,7 @@ describe('AgentInstallerDialogComponent', () => {
 
     // spyOn mat_dialog_ref
     spyMatDialogRefClose = spyOn<any>(component['mat_dialog_ref_'], 'close').and.callThrough();
+
     // Detect changes
     fixture.detectChanges();
   });
@@ -427,6 +429,8 @@ describe('AgentInstallerDialogComponent', () => {
       it('should call get_sensor_profile_name_() from submit()', () => {
         reset();
 
+        component.agent_installer_configuration_form_group.get('config_name').setValue('fake config name');
+        component.agent_installer_configuration_form_group.get('install_endgame').setValue(true);
         component.submit();
 
         expect(component['get_sensor_profile_name_']).toHaveBeenCalled();
@@ -437,6 +441,8 @@ describe('AgentInstallerDialogComponent', () => {
 
         const return_value: string = component['get_sensor_profile_name_']();
 
+        component.agent_installer_configuration_form_group.get('config_name').setValue('fake config name');
+        component.agent_installer_configuration_form_group.get('install_endgame').setValue(true);
         component.submit();
 
         expect(component.agent_installer_configuration_form_group.get('endgame_sensor_name').value).toEqual(return_value);
@@ -445,9 +451,20 @@ describe('AgentInstallerDialogComponent', () => {
       it('should call mat_dialog_ref_.close() from submit()', () => {
         reset();
 
+        component.agent_installer_configuration_form_group.get('config_name').setValue('fake config name');
+        component.agent_installer_configuration_form_group.get('install_endgame').setValue(true);
         component.submit();
 
         expect(component['mat_dialog_ref_'].close).toHaveBeenCalled();
+      });
+
+      it('should call mat_snackbar_service_.displaySnackBar() from submit() when form is undefined or invalid', () => {
+        reset();
+
+        component.agent_installer_configuration_form_group = undefined;
+        component.submit();
+
+        expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
       });
     });
 

@@ -50,9 +50,9 @@ export class AddNodeDialogComponent implements OnInit {
     dialogRef.disableClose = true;
   }
 
-  ngOnInit(){
+  ngOnInit() {
     this.initializeForm();
-    }
+  }
 
   initializeForm() {
     this.updateNodeStatus();
@@ -188,8 +188,7 @@ export class AddNodeDialogComponent implements OnInit {
     this.deploymentOptions.push({text: 'Baremetal', value: 'Baremetal', disabled: false});
     if(this.kitStatus.esxi_settings_configured){
       this.deploymentOptions.push({text: 'Virtual Machine', value: 'Virtual', disabled: false});
-    }
-    else{
+    } else{
       this.deploymentOptions.push({text: 'Virtual Machine', value: 'Virtual', disabled: true});
     }
     if (event.value === 'Sensor'){

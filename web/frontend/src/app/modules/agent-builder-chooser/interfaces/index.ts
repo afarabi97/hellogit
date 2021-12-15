@@ -13,6 +13,7 @@ export * from './endgame-login.interface';
 export * from './endgame-sensor-profile.interface';
 export * from './host.interface';
 export * from './ip-target-list.interface';
+export * from './mat-table-row-ip-target-list.interface';
 export * from './ntlm.interface';
 export * from './package.interface';
 export * from './smb.interface';

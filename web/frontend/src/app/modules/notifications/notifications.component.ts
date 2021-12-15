@@ -266,14 +266,14 @@ export class NotificationsComponent implements OnInit {
    * @memberof NotificationsComponent
    */
   private set_notification_display_time_(notification: NotificationClass): NotificationClass {
-    const date = new Date();
-    const time_now_ = new Date(date.toUTCString());
-    const d1 = new Date(time_now_.toISOString());
-    const d2 = new Date(notification.timestamp + 'Z');
-    const timeDifference = d1.getTime() - d2.getTime();
-    const seconds = (timeDifference) / 1000;
+    const date: Date = new Date();
+    const time_now: Date = new Date(date.toUTCString());
+    const d1: Date = new Date(time_now.toISOString());
+    const d2: Date = new Date(notification.timestamp + 'Z');
+    const timeDifference: number = d1.getTime() - d2.getTime();
+    const seconds: number = (timeDifference) / 1000;
 
-    if (seconds < 60 ) {
+    if (seconds < 60) {
       notification.displayTime = 'Now';
     } else if (seconds >= 60 && seconds < 3600) {
       notification.displayTime = Math.floor(seconds / 60) + ' minute(s) ago';

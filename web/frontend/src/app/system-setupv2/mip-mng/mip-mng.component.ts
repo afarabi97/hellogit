@@ -21,17 +21,14 @@ const DIALOG_WIDTH = '800px';
   templateUrl: './mip-mng.component.html'
 })
 export class MipManagementComponent implements OnInit {
-
+  @ViewChildren('progressCircles') public progressCircles;
   mipsColumns = ['hostname', 'ip_address', 'deployment_type', 'state', 'actions'];
   mips: MIP[] = [];
   controllerMaintainer: boolean;
   ioConnection: any;
-
   isoSensorExists: boolean = false;
   mipSettings: Partial<MipSettings> = {};
   buttonisDisabled: boolean = true;
-
-  @ViewChildren('progressCircles') public progressCircles;
 
   constructor(public _WebsocketService:WebsocketService,
               private title: Title,

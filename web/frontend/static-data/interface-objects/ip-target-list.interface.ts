@@ -6,7 +6,7 @@ import { MockSMBInterface1, MockSMBInterface2 } from './smb.interface';
 export const MockIPTargetListInterface1: IPTargetListInterface = {
   _id: '5db3291789372679049120vb',
   name: 'Fake Target List 1',
-  protocol: 'fake protocol',
+  protocol: 'smb',
   ntlm: MockNTLMInterface1,
   smb: MockSMBInterface1,
   targets: MockHostInterfacesArray1
@@ -14,10 +14,18 @@ export const MockIPTargetListInterface1: IPTargetListInterface = {
 export const MockIPTargetListInterface2: IPTargetListInterface = {
   _id: '5db32912343726790498601b',
   name: 'Fake Target List 2',
-  protocol: 'fake protocol',
+  protocol: 'ntlm',
   ntlm: MockNTLMInterface2,
   smb: MockSMBInterface2,
   targets: MockHostInterfacesArray2
+};
+export const MockIPTargetListInterface3: IPTargetListInterface = {
+  _id: '5db32912343726790498601b',
+  name: 'Fake Target List 2',
+  protocol: 'ntlm',
+  ntlm: MockNTLMInterface2,
+  smb: MockSMBInterface2,
+  targets: undefined
 };
 export const MockIPTargetListInterfacesArray: IPTargetListInterface[] = [
   MockIPTargetListInterface1,

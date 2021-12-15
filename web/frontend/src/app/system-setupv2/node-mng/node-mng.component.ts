@@ -23,19 +23,17 @@ const DIALOG_WIDTH = '800px';
   templateUrl: './node-mng.component.html'
 })
 export class NodeManagementComponent implements OnInit {
+  @ViewChildren('progressCircles') public progressCircles;
   nodesColumns = ['hostname', 'ip_address', 'node_type', 'deployment_type', 'state', 'actions'];
   setupNodesColumns = ['hostname', 'node_type', 'state'];
   nodes: Node[] = [];
   controlPlaneNodes: any[] = [];
   controllerMaintainer: boolean;
-  public ioConnection: any;
-
+  ioConnection: any;
   isoSensorExists: boolean = false;
   kitStatus: Partial<KitStatus> = {};
   kitSettings: Partial<Settings> = {};
   buttonisDisabled: boolean = true;
-
-  @ViewChildren('progressCircles') public progressCircles;
 
   constructor(public _WebsocketService:WebsocketService,
               private title: Title,

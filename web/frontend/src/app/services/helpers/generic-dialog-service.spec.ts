@@ -91,7 +91,6 @@ describe('GenericDialogService', () => {
   let spyClose: jasmine.Spy<any>;
 
   // Test Data
-  const data: string[] = [ 'fake', 'strings', 'for', 'test' ];
   const new_fake_title: string = 'New Fake Title';
   const new_fake_context = { fake_context: 'new_fake_context' };
   let dialog_data: DialogDataInterface<any> = {
@@ -99,7 +98,6 @@ describe('GenericDialogService', () => {
     template: {} as TemplateRef<any>,
     context: FAKE_CONTEXT
   };
-  let mat_dialog_config: MatDialogConfig;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -124,32 +122,31 @@ describe('GenericDialogService', () => {
 
     // Set Test Data
     fixture = TestBed.createComponent(WrapperComponent);
+    fixture_generic_dialog_component = TestBed.createComponent(GenericDialogComponent);
+
+    // Detect changes
+    fixture.detectChanges();
+
+    // Need to call detect changes before template refs can be accessed
     wrapper_component = fixture.debugElement.componentInstance;
     fake_template_ref = wrapper_component.fake_template_ref;
     new_fake_template_ref = wrapper_component.new_fake_template_ref;
-    fixture_generic_dialog_component = TestBed.createComponent(GenericDialogComponent);
-    generic_dialog_component = fixture_generic_dialog_component.componentInstance;
+    generic_dialog_component = fixture_generic_dialog_component.debugElement.componentInstance;
     dialog_data = {
       title: FAKE_TITLE,
       template: fake_template_ref,
       context: FAKE_CONTEXT
     };
-    mat_dialog_config = {
-      width: '50vw',
-      height: '50vh',
-      panelClass: 'mat-dialog-container-override',
-      data: data
-    };
-    const MatDialogRefOverride = {
+    const mat_dialog_ref_override = {
       ...new DialogMockReturnOpen(),
       componentInstance: generic_dialog_component
     };
 
     // Need to override because data was not known before creation
-    TestBed.overrideProvider(MatDialog, { useValue: MatDialogRefOverride });
-    TestBed.overrideProvider(MatDialogRef, { useValue: MatDialogRefOverride });
+    TestBed.overrideProvider(MatDialog, { useValue: mat_dialog_ref_override });
+    TestBed.overrideProvider(MatDialogRef, { useValue: mat_dialog_ref_override });
     TestBed.overrideProvider(MAT_DIALOG_DATA, { useValue: dialog_data });
-    spyOn(TestBed.inject(MatDialog), 'open').and.returnValue(MatDialogRefOverride as any);
+    spyOn(TestBed.inject(MatDialog), 'open').and.returnValue(mat_dialog_ref_override as any);
 
     // Set Service
     service = wrapper_component.open_notification_dialog_window();
@@ -163,9 +160,6 @@ describe('GenericDialogService', () => {
     spyContextSet = spyOnProperty(service, 'context', 'set').and.callThrough();
     spyDialogRef = spyOn(service, 'dialog_ref').and.callThrough();
     spyClose = spyOn(service, 'close').and.callThrough();
-
-    // Detect changes
-    fixture.detectChanges();
   });
 
   const reset = () => {
@@ -177,6 +171,8 @@ describe('GenericDialogService', () => {
     spyContextSet.calls.reset();
     spyDialogRef.calls.reset();
     spyClose.calls.reset();
+
+    generic_dialog_component.mat_dialog_data.template = fake_template_ref;
   };
 
   it('should create GenericDialogService', () => {

@@ -34,8 +34,6 @@ export class IPTargetListClass implements IPTargetListInterface {
       this.smb = new SMBClass(ip_target_list_interface.smb);
       if (ObjectUtilitiesClass.notUndefNull(ip_target_list_interface.targets)) {
         this.targets = ip_target_list_interface.targets.map((h: HostInterface) => new HostClass(h, ip_target_list_interface._id));
-      } else {
-        this.targets = [];
       }
     } else {
       this._id = '';

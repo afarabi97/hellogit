@@ -37,7 +37,7 @@ export const MockAgentInstallerConfigurationInterface2: AgentInstallerConfigurat
   endgame_port: '443',
   endgame_user_name: 'Test',
   endgame_password: 'Password',
-  customPackages: {}
+  customPackages: null
 };
 export const MockAgentInstallerConfigurationInterface3: AgentInstallerConfigurationInterface = {
   _id: '3',
@@ -66,7 +66,7 @@ export const MockAgentInstallerConfigurationInterface4: AgentInstallerConfigurat
   endgame_port: '443',
   endgame_user_name: 'Test',
   endgame_password: 'Password',
-  customPackages: {}
+  customPackages: null
 };
 export const MockAgentInstallerConfigurationInterfacesArray: AgentInstallerConfigurationInterface[] = [
   MockAgentInstallerConfigurationInterface1,
