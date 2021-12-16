@@ -28,6 +28,7 @@ TIMER_START_THRESHOLD = 60
 TIMER_TIMEOUT_MINUTES = 30
 ELASIC_DISK_THRESHOLD_CHECK = 99
 NODE_DISK_THRESHOLD_CHECK = 99
+MAX_THRESHOLD_COUNT = 15
 
 PCAPS = ["2018-09-06-infection-traffic-from-password-protected-Word-doc.pcap", "2019-03-06-Flawed-Ammyy-traffic.pcap",
          "2019-05-01-password-protected-doc-infection-traffic.pcap", "2019-07-09-password-protected-Word-doc-pushes-Dridex.pcap",
@@ -55,6 +56,7 @@ class IntegrationTestsJob:
         self.nodes = nodes
         self._disk_pressure_job_completed = False
         self._timer_triggered = False
+        self._threshold_counter = 0
         self.runner = APITesterV2(self.ctrl_settings,
                                   self.kit_settings,
                                   nodes=self.nodes)
@@ -126,6 +128,32 @@ class IntegrationTestsJob:
 
         return True
 
+    async def _check_disk(self, hostname, disk, tokens, remote_shell):
+            threshold_exceeded = False
+            for x in range(0, 5):
+                print("Rechecking disk {} on {}".format(disk, hostname))
+                cmd = "df -h {}".format(disk)
+                cmd = cmd + "| sed -e /Filesystem/d | awk '{ print $5 }'"
+                results = remote_shell.run(cmd, hide=True).stdout.strip()
+                usage = results[0:-1]
+                if int(usage) > NODE_DISK_THRESHOLD_CHECK:
+                    threshold_exceeded = True
+                    print(f"Threshold exceeded waiting to recheck disk {disk} on {hostname}")
+                else:
+                    print(f"Resetting threshold counter")
+                    threshold_exceeded = False
+                    self._threshold_counter = 0
+                    return
+                await asyncio.sleep(2)
+
+            if threshold_exceeded:
+                print(f"Threshold exceeded raising NodeDiskFillup Exception for {disk} on {hostname}")
+                self._disk_pressure_job_completed = True
+                self._run_docker_cleanup()
+                self._clear_elastic_indexes()
+                raise NodeDiskFillup(f"Node {hostname} Filesystem: {tokens[0]} mounted on {tokens[5]} exceeded the {NODE_DISK_THRESHOLD_CHECK}% threshold. "
+                        f"Used space was {tokens[2]} with available space {tokens[3]}.")
+
     async def _check_node_disks_work(self, hostname: str, remote_shell: Connection):
         """
         df -h produces following sample output
@@ -158,8 +186,13 @@ class IntegrationTestsJob:
                 highest_disk_usage_info = line
 
             if disk_usage > NODE_DISK_THRESHOLD_CHECK:
-                raise NodeDiskFillup(f"Node {hostname} Filesystem: {tokens[0]} mounted on {tokens[5]} exceeded the {NODE_DISK_THRESHOLD_CHECK}% threshold. "
-                                     f"Used space was {tokens[2]} with available space {tokens[3]}.")
+                self._threshold_counter += 1
+                print(f"Increasing the threshold_counter {self._threshold_counter}")
+
+            if self._threshold_counter > MAX_THRESHOLD_COUNT:
+                print(f"Executing extra disk check")
+                await self._check_disk(hostname, tokens[5], tokens, remote_shell)
+
         print("Highest current disk usage: " + highest_disk_usage_info)
         await asyncio.sleep(20)
 
@@ -189,7 +222,8 @@ class IntegrationTestsJob:
                                  use_ssl=True,
                                  verify_certs=False,
                                  http_auth=('elastic', elastic_password),
-                                 scheme="https")
+                                 scheme="https",
+                                 timeout=30)
         while True:
             try:
                 print("Peforming elastic cluster checks")
@@ -304,6 +338,12 @@ class IntegrationTestsJob:
                                      ctrl_plane_ip) as client:
             client.run(cmd)
 
+    def _run_forcemerged(self) -> None:
+        try:
+            self._es.indices.forcemerge(params={"only_expunge_deletes": "true", "ignore_unavailable": "true"})
+        except Exception as e:
+            logging.exception(e)
+
     def _remove_index_blocks(self, index) -> None:
         try:
             self._es.indices.put_settings(index=index, body={"index.blocks.read_only_allow_delete": None})
@@ -322,6 +362,7 @@ class IntegrationTestsJob:
         result = self._es.cat.indices(params={"s": "store.size:desc", "h": "index"})
         indexes = result.split("\n")
         cold_log_index = "filebeat-external-cold-log-system"
+        self._remove_index_blocks(cold_log_index)
         self._es.indices.close(cold_log_index)
         self._es.indices.delete(cold_log_index)
         for i in range(0, len(indexes)):
@@ -354,6 +395,7 @@ class IntegrationTestsJob:
             results = self._es.indices.close(index=index)
             print("Deleting index " + index)
             results = self._es.indices.delete(index=index)
+        self._run_forcemerged()
 
     def run_disk_fillup_tests(self):
         try:

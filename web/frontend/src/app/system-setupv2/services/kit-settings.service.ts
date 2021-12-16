@@ -123,11 +123,22 @@ export class KitSettingsService {
 
   addNode(payload): Observable<Object> {
     const url = `/api/kit/node`;
-    payload['boot_drives'] = payload['boot_drives'].split(',');
-    payload['data_drives'] = payload['data_drives'].split(',');
-    if (!Array.isArray(payload['raid_drives'])) {
-      payload['raid_drives'] = payload['raid_drives'].split(',');
+    if ('boot_drives' in payload){
+      payload['boot_drives'] = payload['boot_drives'].split(',');
     }
+    if ('data_drives' in payload){
+      payload['data_drives'] = payload['data_drives'].split(',');
+    }
+    if ('os_raid' in payload){
+      if (payload['os_raid']){
+        if (!Array.isArray(payload['raid_drives'])) {
+          payload['raid_drives'] = payload['raid_drives'].split(',');
+        }
+      }else{
+        payload['raid_drives'] = []
+      }
+    }
+
     return this.http.post(url, payload).pipe();
   }
 

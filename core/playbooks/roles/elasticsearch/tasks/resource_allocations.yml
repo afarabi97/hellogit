@@ -7,8 +7,8 @@
     mdil: False
     elastic_node_count: "{{ groups['elastic_nodes']|length }}"
     watermark_low: "85%"
-    watermark_high: "90%"
-    watermark_flood_stage: "95%"
+    watermark_high: "87%"
+    watermark_flood_stage: "90%"
     watermark_interval: "30s"
 
 # - name: Multiple Masters if more than 2 servers are available

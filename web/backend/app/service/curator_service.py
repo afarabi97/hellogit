@@ -1,3 +1,4 @@
+from elasticsearch.client import Elasticsearch
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.connection_mngs import REDIS_CLIENT
 from app.utils.elastic import ElasticWrapper
@@ -34,6 +35,14 @@ def _remove_index_blocks(client, index) -> None:
     except Exception as e:
         rq_logger.exception(e)
 
+
+def _run_forcemerged(client: Elasticsearch) -> None:
+    try:
+        client.indices.forcemerge(params={"only_expunge_deletes": "true", "ignore_unavailable": "true"})
+    except Exception as e:
+        rq_logger.exception(e)
+
+
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def execute_curator(action, index_list, units, age):
     get_app_context().push()
@@ -43,6 +52,7 @@ def execute_curator(action, index_list, units, age):
     notification.post_to_websocket_api()
     client = ElasticWrapper(timeout=120)
     is_successfully = False
+    run_forcemerge = False
     for index in index_list:
         msg_action = "index management"
         if action == "CloseIndices":
@@ -61,6 +71,7 @@ def execute_curator(action, index_list, units, age):
             write_block_results = client.indices.put_settings(index=index, body={"index.blocks.read_only_allow_delete":True})
             results = client.indices.delete(index=index)
             if results['acknowledged']:
+                run_forcemerge = True
                 is_successfully = True
             _notification_inprogress(action)
         elif action == "CloseIndices":
@@ -92,4 +103,8 @@ def execute_curator(action, index_list, units, age):
     notification.set_message("%s %s job completed." % (_JOB_NAME.capitalize(), action))
     notification.set_status(NotificationCode.COMPLETED.name)
     notification.post_to_websocket_api()
+
+    if run_forcemerge:
+        _run_forcemerged(client)
+
     return True
