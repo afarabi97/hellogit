@@ -17,7 +17,7 @@ export const MockNotificationInterface_NotInArray: NotificationInterface = {
   message: "Installing Zeek on philpot-sensor3.philpot",
   role: "catalog",
   status: "IN_PROGRESS",
-  timestamp: "2021-10-20T00:37:18.054880",
+  timestamp: new Date("2021-10-20T00:37:18.054880"),
   _id: "616f64be02375abfe9724034"
 };
 export const MockNotificationInterface_ZeekPendingInstall: NotificationInterface = {
@@ -37,7 +37,7 @@ export const MockNotificationInterface_ZeekPendingInstall: NotificationInterface
   message: "Installing Zeek on philpot-sensor3.philpot",
   role: "catalog",
   status: "IN_PROGRESS",
-  timestamp: "2021-10-20T00:37:18.054880",
+  timestamp: new Date("2021-10-20T00:37:18.054880"),
   _id: "616f64be0d915abfe9724024"
 };
 export const MockNotificationInterface_ZeekDeployed: NotificationInterface = {
@@ -57,7 +57,7 @@ export const MockNotificationInterface_ZeekDeployed: NotificationInterface = {
   message: "",
   role: "catalog",
   status: "DEPLOYED",
-  timestamp: "2021-10-20T00:37:24.032513",
+  timestamp: new Date("2021-10-20T00:37:24.521931"),
   _id: "616f64c40d915ac15cff817d"
 };
 export const MockNotificationInterface_ZeekInstallComplete: NotificationInterface = {
@@ -77,7 +77,7 @@ export const MockNotificationInterface_ZeekInstallComplete: NotificationInterfac
   message: "Install completed.",
   role: "catalog",
   status: "COMPLETED",
-  timestamp: "2021-10-20T00:37:24.521931",
+  timestamp: new Date("2021-10-20T00:37:24.032513"),
   _id: "616f64c40d915abfe9724025"
 };
 export const MockNotificationInterfaceArray: NotificationInterface[] = [

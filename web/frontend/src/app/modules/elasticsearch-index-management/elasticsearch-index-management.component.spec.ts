@@ -36,7 +36,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
   let spyIndexcesReturnAction: jasmine.Spy<any>;
   let spyApiIndexManagement: jasmine.Spy<any>;
   let spyApiGetClosedIndices: jasmine.Spy<any>;
-  let spyApiGetOpenedIndices: jasmine.Spy<any>;
+  let spyApiGetAllIndices: jasmine.Spy<any>;
 
   // Test Error
   const mock_http_error_response: HttpErrorResponse = new HttpErrorResponse({
@@ -83,7 +83,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
     spyIndexcesReturnAction = spyOn<any>(component, 'indices_return_actions_').and.callThrough();
     spyApiIndexManagement = spyOn<any>(component, 'api_index_management_').and.callThrough();
     spyApiGetClosedIndices = spyOn<any>(component, 'api_get_closed_indices_').and.callThrough();
-    spyApiGetOpenedIndices = spyOn<any>(component, 'api_get_opened_indices_').and.callThrough();
+    spyApiGetAllIndices = spyOn<any>(component, 'api_get_all_indices_').and.callThrough();
 
     // Detect changes
     fixture.detectChanges();
@@ -102,7 +102,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
     spyIndexcesReturnAction.calls.reset();
     spyApiIndexManagement.calls.reset();
     spyApiGetClosedIndices.calls.reset();
-    spyApiGetOpenedIndices.calls.reset();
+    spyApiGetAllIndices.calls.reset();
   };
 
   afterAll(() => {
@@ -196,13 +196,13 @@ describe('ElasticsearchIndexManagementComponent', () => {
         expect(component['api_get_closed_indices_']).toHaveBeenCalled();
       });
 
-      it('should call api_get_opened_indices_() from next()', () => {
+      it('should call api_get_all_indices_() from next()', () => {
         reset();
 
         component.index_management_actions_form_group.get('action').setValue(close_indices);
         component.next();
 
-        expect(component['api_get_opened_indices_']).toHaveBeenCalled();
+        expect(component['api_get_all_indices_']).toHaveBeenCalled();
       });
 
       it('should call reset_form_() from next()', () => {
@@ -484,51 +484,51 @@ describe('ElasticsearchIndexManagementComponent', () => {
       });
     });
 
-    describe('private api_get_opened_indices_()', () => {
-      it('should call api_get_opened_indices_()', () => {
+    describe('private api_get_all_indices_()', () => {
+      it('should call api_get_all_indices_()', () => {
         reset();
 
-        component['api_get_opened_indices_']();
+        component['api_get_all_indices_']();
 
-        expect(component['api_get_opened_indices_']).toHaveBeenCalled();
+        expect(component['api_get_all_indices_']).toHaveBeenCalled();
       });
 
-      it('should call index_management_service_.get_opened_indices() from api_get_opened_indices_()', () => {
+      it('should call index_management_service_.get_all_indices() from api_get_all_indices_()', () => {
         reset();
 
-        component['api_get_opened_indices_']();
+        component['api_get_all_indices_']();
 
-        expect(component['index_management_service_'].get_opened_indices).toHaveBeenCalled();
+        expect(component['index_management_service_'].get_all_indices).toHaveBeenCalled();
       });
 
-      it('should call index_management_service_.get_opened_indices() and handle response and call indices_return_actions_()', () => {
+      it('should call index_management_service_.get_all_indices() and handle response and call indices_return_actions_()', () => {
         reset();
 
-        component['api_get_opened_indices_']();
+        component['api_get_all_indices_']();
 
         expect(component['indices_return_actions_']).toHaveBeenCalled();
       });
 
-      it('should call index_management_service_.get_opened_indices() and handle error response instanceof ErrorMessageClass', () => {
+      it('should call index_management_service_.get_all_indices() and handle error response instanceof ErrorMessageClass', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['index_management_service_'], 'get_opened_indices').and.returnValue(throwError(MockErrorMessageClass));
+        spyOn<any>(component['index_management_service_'], 'get_all_indices').and.returnValue(throwError(MockErrorMessageClass));
 
-        component['api_get_opened_indices_']();
+        component['api_get_all_indices_']();
 
         expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
       });
 
-      it('should call index_management_service_.get_opened_indices() and handle error response instanceof HttpErrorResponse', () => {
+      it('should call index_management_service_.get_all_indices() and handle error response instanceof HttpErrorResponse', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['index_management_service_'], 'get_opened_indices').and.returnValue(throwError(mock_http_error_response));
+        spyOn<any>(component['index_management_service_'], 'get_all_indices').and.returnValue(throwError(mock_http_error_response));
 
-        component['api_get_opened_indices_']();
+        component['api_get_all_indices_']();
 
         expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
       });

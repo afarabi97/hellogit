@@ -4,3 +4,5 @@ elasticsearch = {{ elastic_service_name }}.{{ kit_domain }}
 {% if node_type is defined %}
 node_type = {{ node_type}}
 {% endif %}
+disk_pressure_warning = 80
+disk_pressure_critical = 90

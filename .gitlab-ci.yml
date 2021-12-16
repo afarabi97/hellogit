@@ -53,6 +53,7 @@ variables:
   BUILD_FROM_RELEASE: "no"
   RUN_REMOTE_NODE: "no"
   RUN_INTEGRATION: "no"
+  RUN_DISK_TEST: "no"
   COMMUNITY_APPS: "no"
   RUN_CODE_CHECKS: "yes"
   RUN_POWER_FAILURE: "no"

@@ -5,8 +5,8 @@
         "min_age" : "0ms",
         "actions" : {
           "rollover" : {
-            "max_size" : "{{ index_rollover_size }}gb",
-            "max_age" : "365d"
+            "max_size" : "{{ default_index_rollover_size }}",
+            "max_age" : "{{ default_index_rollover_max_age }}"
           }
         }
       }

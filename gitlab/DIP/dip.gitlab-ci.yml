@@ -328,7 +328,7 @@ Disk Stress Test:
     python3 testing/pipeline/pipeline.py run-disk-fillup-tests
   only:
     variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_DISK_TEST == "yes" && $PIPELINE == "developer-all"
 
 Simulate Power Failure:
   stage: test-powerfailure

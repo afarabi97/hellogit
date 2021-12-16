@@ -168,7 +168,7 @@ class NodeSchema(Schema):
 
     @classmethod
     def validate_drive(cls, drives: List[str], label: str):
-        pattern = "^([a-z]{2,3}[0-9]{0,3})(,[a-z]{2,3}[0-9]{0,3})*$"
+        pattern = "^([a-z|0-9]{3,7})(,[a-z|0-9]{3,7})*$"
         errors = []
         for drive in drives:
             if not re.match(pattern, drive):

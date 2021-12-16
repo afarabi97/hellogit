@@ -234,6 +234,14 @@ class IntegrationTestsJob:
                 if self._disk_pressure_job_completed:
                     break
 
+    def _run_docker_cleanup(self):
+        with FabricConnectionWrapper(self.ctrl_settings.node.username,
+                                self.ctrl_settings.node.password,
+                                self.ctrl_settings.node.ipaddress) as shell:
+            shell.run("redis-cli FLUSHALL", shell=True, warn=True)
+            shell.run("systemctl restart rqworker@{1..20}", shell=True, warn=True)
+            shell.run("docker stop $(docker ps -qa)", shell=True, warn=True)
+
     async def _run_pcaps_on_sensors(self, node: NodeSettingsV2, password: str):
         with FabricConnectionWrapper(node.username,
                                      password,
@@ -296,29 +304,28 @@ class IntegrationTestsJob:
                                      ctrl_plane_ip) as client:
             client.run(cmd)
 
-    def _wait_for_task_to_complete(self, task_id: str, retries=20):
-        count = 0
-        while True:
-            task_result = self._es.tasks.get(task_id)
-            if task_result['completed']:
-                break
-            if count >= retries:
-                break
-            time.sleep(10)
-            count = count + 1
+    def _remove_index_blocks(self, index) -> None:
+        try:
+            self._es.indices.put_settings(index=index, body={"index.blocks.read_only_allow_delete": None})
+        except Exception as e:
+            logging.exception(e)
+        try:
+            self._es.indices.put_settings(index=index, body={"index.blocks.write": None})
+        except Exception as e:
+            logging.exception(e)
+        try:
+            self._es.indices.put_settings(index=index, body={"index.blocks.read": None})
+        except Exception as e:
+            logging.exception(e)
 
     def _clear_elastic_indexes(self):
         result = self._es.cat.indices(params={"s": "store.size:desc", "h": "index"})
         indexes = result.split("\n")
-        body = {
-            "query": {
-                "match_all": {}
-            }
-        }
         cold_log_index = "filebeat-external-cold-log-system"
+        self._es.indices.close(cold_log_index)
         self._es.indices.delete(cold_log_index)
         for i in range(0, len(indexes)):
-            index = indexes[i]
+            index = indexes[i] # type: str
 
             # Skip the index we deleted.
             if index == cold_log_index:
@@ -328,22 +335,32 @@ class IntegrationTestsJob:
             if index.startswith(".") or index == "" or index is None:
                 continue
 
-            print("Deleting docs out of " + index)
-            result = self._es.delete_by_query(index, body, params={"wait_for_completion": "false"})
-            task_id = result["task"]
-            self._wait_for_task_to_complete(task_id)
-            try:
-                self._es.indices.forcemerge(index, params={"max_num_segments": "1"})
-            except ConnectionTimeout as e:
-                # Ignore the connection timeout the force merge will still occur in this case in the background.
-                logging.exception(e)
+            # Skip arkime viewer indicies
+            if index.startswith(tuple(['files','hunt','lookups','dstats','fields','queries','sequence','stats','users'])):
+                continue
+
+            idx = self._es.indices.get(index=index)
+            aliases = idx[index]["aliases"]
+            self._remove_index_blocks(index)
+            if aliases:
+                is_write_index = False
+                alias_name = list(aliases.keys())[0]
+                if "is_write_index" in aliases[alias_name]:
+                    is_write_index = aliases[alias_name]["is_write_index"]
+                if is_write_index:
+                    print("Rolling over alias " + alias_name)
+                    self._es.indices.rollover(alias_name)
+            print("Closing index " + index)
+            results = self._es.indices.close(index=index)
+            print("Deleting index " + index)
+            results = self._es.indices.delete(index=index)
 
     def run_disk_fillup_tests(self):
         try:
             self._open_or_close_kubernetes_port_on_ctrl_plane(is_close=False)
             loop = asyncio.new_event_loop()
             loop.run_until_complete(self._do_disk_fill_up_work())
-
+            self._run_docker_cleanup()
             retries = 0
             while True:
                 print("Attempting to clear elastic indexes on retry number {}".format(retries))

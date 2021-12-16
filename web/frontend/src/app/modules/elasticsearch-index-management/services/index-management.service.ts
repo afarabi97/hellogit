@@ -1,13 +1,15 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
-import { EntityConfig } from '../../../interfaces';
+import { EntityConfig, SuccessMessageInterface } from '../../../interfaces';
 import { ApiService } from '../../../services/abstract/api.service';
 import { IndexManagementOptionInterface } from '../interfaces/index-management-option.interface';
 import { IndexManagementServiceInterface } from '../interfaces/services/index-management-service.interface';
+import { SuccessMessageClass } from '../../../classes';
+
 
 const entityConfig: EntityConfig = { entityPart: '', type: 'IndexManagementService' };
 
@@ -37,12 +39,13 @@ export class IndexManagementService extends ApiService<any> implements IndexMana
    * REST call to POST index management
    *
    * @param {IndexManagementOptionInterface} index_management_option
-   * @returns {(Observable<string>)}
+   * @returns {(Observable<SuccessMessageClass>)}
    * @memberof IndexManagementService
    */
-  index_management(index_management_option: IndexManagementOptionInterface): Observable<string> {
-    return this.httpClient_.post<string>(environment.INDEX_MANAGEMENT_SERVICE_INDEX_MANAGEMENT, index_management_option)
-      .pipe(catchError((error: HttpErrorResponse) => this.handleError('index management', error)));
+  index_management(index_management_option: IndexManagementOptionInterface): Observable<SuccessMessageClass> {
+    return this.httpClient_.post<SuccessMessageInterface>(environment.INDEX_MANAGEMENT_SERVICE_INDEX_MANAGEMENT, index_management_option)
+      .pipe(map((response: SuccessMessageInterface) => new SuccessMessageClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('index management', error)));
   }
 
   /**
@@ -62,8 +65,8 @@ export class IndexManagementService extends ApiService<any> implements IndexMana
    * @returns {(Observable<string[]>)}
    * @memberof IndexManagementService
    */
-  get_opened_indices(): Observable<string[]> {
-    return this.httpClient_.get<string[]>(environment.INDEX_MANAGEMENT_SERVICE_GET_OPENED_INDICES)
-      .pipe(catchError((error: HttpErrorResponse) => this.handleError('get opened indices', error)));
+   get_all_indices(): Observable<string[]> {
+    return this.httpClient_.get<string[]>(environment.INDEX_MANAGEMENT_SERVICE_GET_INDICES)
+      .pipe(catchError((error: HttpErrorResponse) => this.handleError('get indices', error)));
   }
 }

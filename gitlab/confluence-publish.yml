@@ -36,3 +36,5 @@ publish sonarqube results:
     - sonarqube back-end code base
     - sonarqube testing pipeline
   allow_failure: true
+  retry: 2
+  timeout: 5m

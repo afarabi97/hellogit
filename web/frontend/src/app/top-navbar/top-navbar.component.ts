@@ -13,6 +13,10 @@ import { getSideNavigationButtons } from './functions/navbar.functions';
 import { NavGroupInterface } from './interfaces';
 import { NavBarService } from './services/navbar.service';
 import { KitSettingsService } from '../system-setupv2/services/kit-settings.service';
+import { WebsocketService } from '../services/websocket.service';
+import { NotificationClass } from '../classes';
+import { MatSnackBarService } from '../services/mat-snackbar.service';
+import {  MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../constants/cvah.constants';
 
 /**
  * Component used for top navbar related functionality
@@ -59,7 +63,9 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
               private navBarService_: NavBarService,
               private userService_: UserService,
               private changeDetectorRef_: ChangeDetectorRef,
-              private kitSettingsSrv: KitSettingsService) {
+              private kitSettingsSrv: KitSettingsService,
+              private _WebsocketService: WebsocketService,
+              private mat_snackbar_service_: MatSnackBarService) {
     this.showLinkNames = true;
     this.kitStatus = false;
     this.controllerMaintainer = this.userService_.isControllerMaintainer();
@@ -74,6 +80,10 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildNavBar();
     this.getCurrentDipTime_();
+
+    this._WebsocketService.getSocket().on('disk-pressure', (message) => {
+      this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+    });
   }
 
   /**
@@ -96,6 +106,7 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   openNotifications(): void {
     this.notifications.open_notification_dialog_window();
   }
+
 
   /**
    * Used for toggling the sidenav open and close

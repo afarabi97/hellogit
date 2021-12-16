@@ -74,13 +74,14 @@ def get_elastic_fqdn(name='elasticsearch', namespace='default'):
 
     return fqdn, port
 
-def ElasticWrapper() -> Elasticsearch:
+def ElasticWrapper(timeout: int=30) -> Elasticsearch:
     password = get_elastic_password()
     elastic_fqdn, port = get_elastic_fqdn()
     return Elasticsearch(elastic_fqdn, scheme="https",
                            port=port, http_auth=('elastic', password),
                            use_ssl=True, verify_certs=True,
-                           ca_certs=CA_BUNDLE)
+                           ca_certs=CA_BUNDLE,
+                           timeout=timeout)
 
 
 class ElasticsearchManager:

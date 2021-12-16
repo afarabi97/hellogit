@@ -1,8 +1,10 @@
 import psutil
 
 class PsutilMetrics():
-    def __init__(self, hostname):
+    def __init__(self, hostname, disk_pressure_warning, disk_pressure_critical):
         self._hostname = hostname
+        self.disk_pressure_warning = disk_pressure_warning
+        self.disk_pressure_critical = disk_pressure_critical
 
     def _create_metric(self, name, value, etype, hostname=None):
         data = {
@@ -11,6 +13,12 @@ class PsutilMetrics():
           "type": etype,
           "hostname": hostname if hostname else self._hostname,
         }
+        if name == "data_usage" or name == "root_usage":
+            data["disk_pressure_warning"] = False
+            if int(value["percent"]) >= int(self.disk_pressure_warning):
+                data["disk_pressure_warning"] = True
+            if int(value["percent"]) >= int(self.disk_pressure_critical):
+                data["disk_pressure_critical"] = True
         return data
 
     def _virtual_memory(self):

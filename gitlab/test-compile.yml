@@ -15,3 +15,5 @@ compile front-end:
     ansible-playbook bootstrap/playbooks/site.yml --connection=local -i localhost, -t install_angular,build_frontend
   allow_failure: false
   extends: .analysis
+  retry: 2
+  timeout: 5m

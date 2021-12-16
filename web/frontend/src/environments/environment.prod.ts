@@ -23,9 +23,9 @@ export const environment = {
   COLD_LOG_INGEST_SERVICE_POST_WINLOGBEAT: `/api/coldlog/winlogbeat/install`,
   COLD_LOG_INGEST_SERVICE_GET_MODULE_INFO: `/api/coldlog/module/info`,
 
-  INDEX_MANAGEMENT_SERVICE_INDEX_MANAGEMENT: `/api/curator/index_management`,
-  INDEX_MANAGEMENT_SERVICE_GET_CLOSED_INDICES: `/api/curator/closed_indices`,
-  INDEX_MANAGEMENT_SERVICE_GET_OPENED_INDICES: `/api/curator/opened_indices`,
+  INDEX_MANAGEMENT_SERVICE_INDEX_MANAGEMENT: `/api/curator/process`,
+  INDEX_MANAGEMENT_SERVICE_GET_CLOSED_INDICES: `/api/curator/indices/closed`,
+  INDEX_MANAGEMENT_SERVICE_GET_INDICES: `/api/curator/indices`,
 
   ELASTICSEARCH_SERVICE_GET_ELASTIC_NODES: `/api/scale/elastic/nodes`,
   ELASTICSEARCH_SERVICE_POST_ELASTIC_NODES: `/api/scale/elastic`,

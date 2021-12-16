@@ -55,7 +55,7 @@
                               formControlName="index_list" multiple>
                     <mat-option *ngFor="let indice of indices; let j = index;"
                                 id="{{ 'cvah-elasticsearch-index-management-list-mat-option-' + j }}"
-                                [value]="indice">{{ indice }}</mat-option>
+                                [value]="indice.index">{{ indice.index }} {{ indice.size }}</mat-option>
                   </mat-select>
                 </mat-form-field>
                 <div fxLayout="row" fxLayoutAlign="end none" style="margin-top: 10px;" fxLayoutGap="10px">

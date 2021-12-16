@@ -152,7 +152,7 @@ sonarqube front-end code base:
       - web/frontend/frontend-scantime.txt
       - web/frontend/*.png
   retry: 2
-
+  timeout: 5m
 
 sonarqube back-end code base:
   tags:
@@ -183,7 +183,8 @@ sonarqube back-end code base:
       - web/backend/backend-sonarlink.txt
       - web/backend/backend-scantime.txt
       - web/backend/*.png
-
+  timeout: 5m
+  retry: 2
 
 sonarqube testing pipeline:
   tags:
@@ -214,3 +215,5 @@ sonarqube testing pipeline:
       - testing/pipeline/testing-sonarlink.txt
       - testing/pipeline/testing-scantime.txt
       - testing/pipeline/*.png
+  timeout: 5m
+  retry: 2

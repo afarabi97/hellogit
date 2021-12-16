@@ -6,6 +6,10 @@
     enable_ml: True
     mdil: False
     elastic_node_count: "{{ groups['elastic_nodes']|length }}"
+    watermark_low: "85%"
+    watermark_high: "90%"
+    watermark_flood_stage: "95%"
+    watermark_interval: "30s"
 
 # - name: Multiple Masters if more than 2 servers are available
 #   set_fact:
@@ -27,10 +31,6 @@
       ml_memory: 1
       ml_java_memory: 1
       ml_num_procs: "1000m"
-      watermark_low: "3gb"
-      watermark_high: "2gb"
-      watermark_flood_stage: "1gb"
-      watermark_interval: "30s"
 
   - name: Training Kit
     block:
@@ -73,10 +73,6 @@
       ml_memory: 64
       ml_java_memory: 24
       ml_num_procs: "8000m"
-      watermark_low: "100gb"
-      watermark_high: "75gb"
-      watermark_flood_stage: "50gb"
-      watermark_interval: "10s"
     when: kit_size == 4
   - name: R440 Common Node
     set_fact:
@@ -91,10 +87,6 @@
       ml_memory: 64
       ml_java_memory: 31
       ml_num_procs: "8000m"
-      watermark_low: "100gb"
-      watermark_high: "75gb"
-      watermark_flood_stage: "50gb"
-      watermark_interval: "10s"
     when: kit_size == 3
   - name: R440 Legacy Node
     set_fact:
@@ -109,10 +101,6 @@
       ml_memory: 64
       ml_java_memory: 31
       ml_num_procs: "6000m"
-      watermark_low: "100gb"
-      watermark_high: "75gb"
-      watermark_flood_stage: "50gb"
-      watermark_interval: "10s"
     when: kit_size == 2
   - name: CPT DL160
     set_fact:
@@ -153,10 +141,6 @@
       ml_java_memory: 1
       ml_num_procs: "2000m"
       ml_count: 2
-      watermark_low: "100gb"
-      watermark_high: "75gb"
-      watermark_flood_stage: "50gb"
-      watermark_interval: "10s"
   - name: GIP Gen1
     set_fact:
       master_memory: 24
@@ -170,13 +154,20 @@
       ml_java_memory: 31
       ml_num_procs: "8000m"
       ml_count: 4
-      watermark_low: "100gb"
-      watermark_high: "75gb"
-      watermark_flood_stage: "50gb"
-      watermark_interval: "10s"
     when: kit_size == 100
   when: is_gip
 
 - name: Set Index Rollover Size
   set_fact:
-    index_rollover_size: "{{ data_count * 50 }}"
+    default_index_rollover_size: "{{ data_count * 50 }}gb"
+    default_index_rollover_max_age: "365d"
+    metric_audit_rollover_size: "10gb"
+    metric_audit_rollover_max_age: "1d"
+    metric_audit_delete_min: "0m"
+
+- name: Set Index Rollover Size
+  set_fact:
+    metric_audit_rollover_size: "500mb"
+    metric_audit_rollover_max_age: "1d"
+    metric_audit_delete_min: "0m"
+  when: kit_size == 20 or kit_size == -1

@@ -35,6 +35,9 @@ from kubernetes.client.models.v1_pod_list import V1PodList
 from kubernetes.client.rest import ApiException
 from kubernetes.stream import stream
 from kubernetes.utils import parse_quantity
+from app.service.socket_service import NotificationMessage, NotificationCode, notify_disk_pressure
+from app.models.nodes import Node
+from app.utils.constants import NODE_TYPES
 
 T = TypeVar("T")
 
@@ -693,6 +696,34 @@ class Metrics(Resource):
             try:
                 mongo_metrics().find_one_and_replace({"hostname": document['hostname'], "name": document["name"], "type": document["type"]}, document, upsert=True)
                 replaced.append(document)
+                disk_pressure_warning = False
+                disk_pressure_critical = False
+                if "disk_pressure_warning" in document and document["disk_pressure_warning"]:
+                    disk_pressure_warning = True
+                if "disk_pressure_critical" in document and document["disk_pressure_critical"]:
+                    disk_pressure_critical = True
+
+                if disk_pressure_warning or disk_pressure_critical:
+                    node = Node.load_from_db_using_hostname(document['hostname']) # type: Node
+                    if disk_pressure_warning:
+                        disk_pressure_type = "warning"
+                    if disk_pressure_critical:
+                        disk_pressure_type = "critical"
+                    if node.node_type == NODE_TYPES.server.value:
+                        rem = 'Delete data from elastic immediately'
+                    if node.node_type == NODE_TYPES.sensor.value:
+                        rem = 'Delete data from /data immediately'
+                    disk_name = 'data'
+                    if document["name"] == "root_usage":
+                        disk_name = 'root'
+
+                    notification = NotificationMessage(role="nodes", action=NotificationCode.ERROR.name.capitalize(), application="disk-pressure")
+                    notification.set_status(status=NotificationCode.ERROR.name)
+                    notification.set_and_send("Disk pressure {} on {} for {} disk at {}%.  Action: {}".format(disk_pressure_type, document["hostname"], disk_name, document["value"]["percent"], rem))
+
+                    if disk_pressure_critical:
+                        notify_disk_pressure(notification.message)
+
             except Exception as e:
                 logger.exception(e)
                 status = 500

@@ -7,15 +7,18 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of as observableOf, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MockIndexManagementOptionInterfaceCloseIndices } from '../../../../../static-data/interface-objects';
-import { MockClosedIndices, MockIndexManagement, MockOpenedIndices } from '../../../../../static-data/return-data';
+import {
+  MockIndexManagementOptionInterfaceCloseIndices,
+  MockSuccessMessageInterface } from '../../../../../static-data/interface-objects';
+import { MockClosedIndices, MockOpenedIndices } from '../../../../../static-data/return-data';
 import { environment } from '../../../../environments/environment';
-import { ErrorMessageClass } from '../../../classes';
+import { ErrorMessageClass, SuccessMessageClass } from '../../../classes';
 import { ApiService } from '../../../services/abstract/api.service';
 import { InjectorModule } from '../../utilily-modules/injector.module';
 import { IndexManagementOptionInterface } from '../interfaces/index-management-option.interface';
 import { IndexManagementServiceInterface } from '../interfaces/services/index-management-service.interface';
 import { IndexManagementService } from './index-management.service';
+import { MockSuccessMessageClass } from '../../../../../static-data/class-objects';
 
 describe('IndexManagementService', () => {
   let service: IndexManagementService;
@@ -60,7 +63,7 @@ describe('IndexManagementService', () => {
     // Add method spies
     spyIndexManagement = spyOn(service, 'index_management').and.callThrough();
     spyGetClosedIndices = spyOn(service, 'get_closed_indices').and.callThrough();
-    spyGetOpenedIndices = spyOn(service, 'get_opened_indices').and.callThrough();
+    spyGetOpenedIndices = spyOn(service, 'get_all_indices').and.callThrough();
   });
 
   afterAll(() => {
@@ -91,8 +94,13 @@ describe('IndexManagementService', () => {
 
         service.index_management(MockIndexManagementOptionInterfaceCloseIndices)
           .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: string) => {
-            expect(response).toEqual(MockIndexManagement);
+          .subscribe((response: SuccessMessageClass) => {
+            const objectKeys: string[] = Object.keys(response);
+            objectKeys.forEach((key: string) => {
+              if (!(response[key] instanceof Array)) {
+                expect(response[key]).toEqual(MockSuccessMessageClass[key]);
+              }
+            });
             expect(service.index_management).toHaveBeenCalled();
           });
 
@@ -101,7 +109,7 @@ describe('IndexManagementService', () => {
 
         expect(xhrRequest.request.method).toEqual(postType);
 
-        xhrRequest.flush(MockIndexManagement);
+        xhrRequest.flush(MockSuccessMessageInterface);
 
         after();
       });
@@ -112,7 +120,7 @@ describe('IndexManagementService', () => {
         service.index_management(MockIndexManagementOptionInterfaceCloseIndices)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
-            (response: string) => {},
+            (response: SuccessMessageClass) => {},
             (error: ErrorMessageClass | HttpErrorResponse) => {
               if (error['error'] instanceof ErrorMessageClass) {
                 const objectKeys: string[] = Object.keys(error['error']);
@@ -185,18 +193,18 @@ describe('IndexManagementService', () => {
       });
     });
 
-    describe('REST get_opened_indices()', () => {
-      it('should call get_opened_indices()', () => {
+    describe('REST get_all_indices()', () => {
+      it('should call get_all_indices()', () => {
         reset();
 
-        service.get_opened_indices()
+        service.get_all_indices()
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: string[]) => {
             response.forEach((v: string, i: number) => expect(v).toEqual(MockOpenedIndices[i]));
-            expect(service.get_opened_indices).toHaveBeenCalled();
+            expect(service.get_all_indices).toHaveBeenCalled();
           });
 
-        const xhrURL: string = environment.INDEX_MANAGEMENT_SERVICE_GET_OPENED_INDICES;
+        const xhrURL: string = environment.INDEX_MANAGEMENT_SERVICE_GET_INDICES;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         expect(xhrRequest.request.method).toEqual(getType);
@@ -206,10 +214,10 @@ describe('IndexManagementService', () => {
         after();
       });
 
-      it('should call get_opened_indices() and handle error', () => {
+      it('should call get_all_indices() and handle error', () => {
         reset();
 
-        service.get_opened_indices()
+        service.get_all_indices()
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
             (response: string[]) => {},
@@ -223,10 +231,10 @@ describe('IndexManagementService', () => {
                 });
                 expect(error['error']).toContain(errorMessageRequest);
               }
-              expect(service.get_opened_indices).toHaveBeenCalled();
+              expect(service.get_all_indices).toHaveBeenCalled();
             });
 
-        const xhrURL: string = environment.INDEX_MANAGEMENT_SERVICE_GET_OPENED_INDICES;
+        const xhrURL: string = environment.INDEX_MANAGEMENT_SERVICE_GET_INDICES;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorRequest, mockErrorResponse);
@@ -241,26 +249,26 @@ describe('IndexManagementService', () => {
 export class IndexManagementServiceSpy implements IndexManagementServiceInterface {
 
   index_management = jasmine.createSpy('index_management').and.callFake(
-    (index_management_option: IndexManagementOptionInterface): Observable<string> => this.call_fake_index_management(index_management_option)
+    (index_management_option: IndexManagementOptionInterface): Observable<SuccessMessageClass> => this.call_fake_index_management(index_management_option)
   );
 
   get_closed_indices = jasmine.createSpy('get_closed_indices').and.callFake(
     (): Observable<string[]> => this.call_fake_get_closed_indices()
   );
 
-  get_opened_indices = jasmine.createSpy('get_opened_indices').and.callFake(
-    (): Observable<string[]> => this.call_fake_get_opened_indices()
+  get_all_indices = jasmine.createSpy('get_all_indices').and.callFake(
+    (): Observable<string[]> => this.call_fake_get_all_indices()
   );
 
-  call_fake_index_management(index_management_option: IndexManagementOptionInterface): Observable<string> {
-    return observableOf(MockIndexManagement);
+  call_fake_index_management(index_management_option: IndexManagementOptionInterface): Observable<SuccessMessageClass> {
+    return observableOf(MockSuccessMessageClass);
   }
 
   call_fake_get_closed_indices(): Observable<string[]> {
     return observableOf(MockClosedIndices);
   }
 
-  call_fake_get_opened_indices(): Observable<string[]> {
+  call_fake_get_all_indices(): Observable<string[]> {
     return observableOf(MockOpenedIndices);
   }
 }

@@ -23,15 +23,16 @@ def setupLogger(log_handle: Logger, max_bytes: int=1000000, backup_count: int=2)
 
 def main():
     setupLogger(logger)
-
     settings = configparser.ConfigParser()
     settings.read('metrics.ini')
 
     controller_hostname = settings['update-metrics']['controller']
     node_type = settings['update-metrics'].get('node_type')
+    disk_pressure_warning = settings['update-metrics']['disk_pressure_warning']
+    disk_pressure_critical = settings['update-metrics']['disk_pressure_critical']
     tfplenum = TFPlenum(controller_hostname)
     hostname = socket.gethostname()
-    psutil_metrics = PsutilMetrics(hostname)
+    psutil_metrics = PsutilMetrics(hostname, disk_pressure_warning, disk_pressure_critical)
 
     data = []
 

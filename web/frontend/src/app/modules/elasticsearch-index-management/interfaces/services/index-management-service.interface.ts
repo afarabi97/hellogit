@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import { SuccessMessageClass } from '../../../../classes';
 
 import { IndexManagementOptionInterface } from '../index-management-option.interface';
 
@@ -9,7 +10,7 @@ import { IndexManagementOptionInterface } from '../index-management-option.inter
  * @interface IndexManagementServiceInterface
  */
 export interface IndexManagementServiceInterface {
-    index_management(index_management_option: IndexManagementOptionInterface): Observable<string>;
+    index_management(index_management_option: IndexManagementOptionInterface): Observable<SuccessMessageClass>;
     get_closed_indices(): Observable<string[]>;
-    get_opened_indices(): Observable<string[]>;
+    get_all_indices(): Observable<string[]>;
 }

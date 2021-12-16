@@ -15,7 +15,7 @@ export class NotificationClass implements NotificationInterface {
   message: string;
   status: string;
   exception: string;
-  timestamp?: string;
+  timestamp?: Date;
   displayTime?: string;
   action?: string;
   application: string;

@@ -6,7 +6,7 @@ import { Title } from '@angular/platform-browser';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from 'src/app/constants/cvah.constants';
 
-import { ErrorMessageClass } from '../../classes';
+import { ErrorMessageClass, SuccessMessageClass } from '../../classes';
 import { MatOptionInterface } from '../../interfaces';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import {
@@ -42,7 +42,7 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
   // Used to retain user input for list
   index_management_list_form_group: FormGroup;
   // Used for passing indices to html
-  indices: string[];
+  indices: any[];
   // Used for turning ON / OFF html features
   is_editable: boolean;
   is_loading: boolean;
@@ -111,7 +111,7 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
         break;
       case 'CloseIndices':
         this.is_loading = true;
-        this.api_get_opened_indices_();
+        this.api_get_all_indices_();
         break;
       default:
         this.reset_form_();
@@ -190,7 +190,7 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
   /**
    * Used to perform set of actions for successful api calls
    * note: api_get_closed_indices_
-   *       api_get_opened_indices_
+   *       api_get_all_indices_
    *
    * @private
    * @param {string[]} response
@@ -213,9 +213,11 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
     this.index_management_service_.index_management(index_management_option)
       .pipe(untilDestroyed(this))
       .subscribe(
-        (response: string) => {
-          this.mat_snackbar_service_.displaySnackBar(response, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-          this.reset_form_();
+        (response: SuccessMessageClass) => {
+          if (response instanceof SuccessMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(response.success_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            this.reset_form_();
+          }
         },
         (error: ErrorMessageClass | HttpErrorResponse) => {
           if (error instanceof ErrorMessageClass) {
@@ -257,8 +259,8 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
    * @private
    * @memberof ElasticsearchIndexManagementComponent
    */
-  private api_get_opened_indices_(): void {
-    this.index_management_service_.get_opened_indices()
+  private api_get_all_indices_(): void {
+    this.index_management_service_.get_all_indices()
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: string[]) => {
@@ -269,7 +271,7 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
           if (error instanceof ErrorMessageClass) {
             this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           } else {
-            const message: string = 'getting opened indices';
+            const message: string = 'getting indices';
             this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           }
         });

@@ -46,6 +46,3 @@ AcceptEnv XMODIFIERS
 
 # override default of no subsystems
 Subsystem	sftp	/usr/libexec/openssh/sftp-server
-
-ClientAliveInterval 600
-ClientAliveCountMax 0
