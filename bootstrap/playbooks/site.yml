@@ -166,3 +166,22 @@
   tags:
     - stigs
     - rpm_setup
+
+- name: Remove yum.repo.d files
+  hosts: localhost
+  any_errors_fatal: true
+  tasks:
+    - name: Remove rpm-stable.repo file
+      file:
+        state: absent
+        path: /etc/yum.repos.d/rpm-stable.repo
+      ignore_errors: yes
+
+    - name: Remove rpm-dev.repo file
+      file:
+        state: absent
+        path: /etc/yum.repos.d/rpm-dev.repo
+      ignore_errors: yes
+  tags:
+    - never
+    - rpm_setup

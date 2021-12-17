@@ -111,6 +111,7 @@ class ControllerSetupJob:
                                      self.ctrl_settings.node.ipaddress) as client:
             source = "{}/rpm-{}.repo".format(TEMPLATES_DIR, self.ctrl_settings.rpm_build)
             dest = "/etc/yum.repos.d/rpm-{}.repo".format(self.ctrl_settings.rpm_build)
+            self._set_hostname(client)
             client.put(source, dest)
             client.run("yum clean all")
             client.run("yum install -y tfplenum-cli")

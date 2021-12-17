@@ -37,7 +37,8 @@ def _test_esxi_client(esxi_settings: EsxiSettingsForm) -> dict:
         service_instance = Connect(host=str(esxi_settings.ip_address),
                 user=str(esxi_settings.username),
                 pwd=str(esxi_settings.password),
-                sslContext=context)
+                sslContext=context,
+                connectionPoolTimeout=20)
         content = service_instance.RetrieveContent()
         vmware_data = {
             "datastores": None,
@@ -96,7 +97,7 @@ def _test_esxi_client(esxi_settings: EsxiSettingsForm) -> dict:
 
             return vmware_data, 200
     except vim.fault.HostConnectFault as exc:
-       logger.error(str(exc))
+       logger.exception(exc)
        return {"message": "404 Not Found Unable to connect to hostname or ip address."}, 404
     except vim.fault.InvalidLogin as exc:
        logger.error(str(exc))
