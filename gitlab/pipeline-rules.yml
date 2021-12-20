@@ -30,3 +30,27 @@
       - if: $PIPELINE == "developer-mip"
       - if: $EXPORT_DIP == "yes" && $PIPELINE == "minor-release"
       - if: $EXPORT_BOTH == "yes" && $PIPELINE == "minor-release"
+
+.setup-robot-script:
+  before_script:
+    - |
+      build_path=$(pwd)
+      echo "build_path: $build_path"
+      mkdir -p /usr/src/robot/tests /usr/src/robot/output
+      /bin/cp -rf testing/robotest/* /usr/src/robot/tests
+      pushd /usr/src/robot > /dev/null
+      echo $(pwd)
+      password=`echo "$CONTROLLER_PASSWORD" | base64 -d`
+      export JIRA_PASSWORD=`echo "$CONFLUENCE_PASSWORD" | base64 -d`
+      if [ "$NETWORK_BLOCK_INDEX" -eq 0 ]; then
+        controller_ip=$(awk -F"." '{print $1"."$2"."$3".64"}'<<<$NETWORK_ID)
+      elif [ "$NETWORK_BLOCK_INDEX" -eq 1 ]; then
+        controller_ip=$(awk -F"." '{print $1"."$2"."$3".128"}'<<<$NETWORK_ID)
+      elif [ "$NETWORK_BLOCK_INDEX" -eq 2 ]; then
+        controller_ip=$(awk -F"." '{print $1"."$2"."$3".192"}'<<<$NETWORK_ID)
+      fi
+      if [ "$PIPELINE" == "hw-developer-all" ]; then
+        controller_ip="$CONTROLLER_IPADDRESS"
+      fi
+      echo "$build_path $controller_ip controller.$KIT_DOMAIN"
+      echo "$controller_ip controller.$KIT_DOMAIN" >> /etc/hosts

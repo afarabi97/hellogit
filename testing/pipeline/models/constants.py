@@ -28,7 +28,6 @@ class SubCmd:
     test_server_repository_vm = 'test-server-repository-vm'
     build_server_for_export = 'build-server-for-export'
     run_stigs = 'run-stigs'
-    run_robot = 'run-robot'
     run_oscap_scans = 'run-oscap-scans'
 
     # run-catalog subcommands

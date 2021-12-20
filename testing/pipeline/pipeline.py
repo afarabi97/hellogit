@@ -14,7 +14,6 @@ from jobs.export import (ConfluenceExport, ControllerExport, GIPServiceExport,
 from jobs.gip_creation import GipCreationJob
 from jobs.minio import StandAloneMinIO
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
-from jobs.robot import RobotJob
 from jobs.manifest import VerifyManifestJob, BuildManifestJob
 from models.ctrl_setup import ControllerSetupSettings
 from models.kit import KitSettingsV2
@@ -28,7 +27,6 @@ from models.manifest import ManifestSettings
 from models.constants import SubCmd
 from models.gip_settings import GIPServiceSettings
 from models.rhel_repo_vm import RHELRepoSettings
-from models.robot import RobotSettings
 from models.minio import MinIOSettings
 from util.yaml_util import YamlManager
 from util.ansible_util import delete_vms
@@ -150,10 +148,6 @@ class Runner:
         build_server_for_export_parser.set_defaults(
             which=SubCmd.build_server_for_export)
 
-        robot_test_parser = subparsers.add_parser(SubCmd.run_robot, help="Apply Robot Tests To The System.")
-        RobotSettings.add_args(robot_test_parser)
-        robot_test_parser.set_defaults(which=SubCmd.run_robot)
-
         latest_code_parser = subparsers.add_parser(
             SubCmd.checkout_latest_code, help="Pulls the latest git commit of your branch.")
         RepoSettings.add_args(latest_code_parser)
@@ -246,13 +240,6 @@ class Runner:
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
                 job = OSCAPScanJob(ctrl_settings, kit_settings)
                 job.run_scan()
-
-            # ROBOT SETTINGS
-            elif args.which == SubCmd.run_robot:
-                robot_settings = RobotSettings()
-                robot_settings.from_namespace(args)
-                job = RobotJob(robot_settings)
-                job.run_robot()
 
             elif args.which == SubCmd.run_disk_fillup_tests:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()

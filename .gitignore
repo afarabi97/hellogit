@@ -86,3 +86,4 @@ values.yaml
 web/backend/.coverage
 web/backend/report.xml
 .envrc
+*.pseudo

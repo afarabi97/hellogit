@@ -10,3 +10,6 @@ ${locInterfaceSelection}         xpath=//*[contains(@id, "-div-mat-form-field-co
 ${locFirstInterfaceOption}       xpath=//*[contains(@id, "-div-mat-form-field-control-name-interface-mat-select-0")]
 ${locHeapSizeInput}              id=app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-0-div-div-2-div-mat-form-field-control-name-text-input
 ${locCatalogRunBtn}              id=app-catalog-page-div-mat-card-div-button-next-get-config
+${locSuriPcapCheckbox}           xpath=//mat-checkbox/label/div[//following::span[contains(text(),"Enable writing PCAPs")]]
+
+${locUninstalledAppCards}       xpath=//app-card[contains(@id, "app-chart-list-div-app-card")]//p[text()="Not Installed"]//ancestor::app-card

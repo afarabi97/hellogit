@@ -213,30 +213,9 @@ Hardware Simulate Power Failure:
     variables:
       - $RUN_POWER_FAILURE == "yes" && $PIPELINE == "hw-developer-all"
 
-Hardware CVAH Catalog PMO Apps:
-  stage: catalog
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/baremetal_pipeline.py run-catalog suricata
-    python3 testing/pipeline/baremetal_pipeline.py run-catalog arkime-viewer
-    python3 testing/pipeline/baremetal_pipeline.py run-catalog arkime-capture
-    python3 testing/pipeline/baremetal_pipeline.py run-catalog zeek
-    python3 testing/pipeline/baremetal_pipeline.py run-catalog logstash
-    python3 testing/pipeline/baremetal_pipeline.py run-catalog wikijs
-    python3 testing/pipeline/baremetal_pipeline.py run-catalog cortex
-    python3 testing/pipeline/baremetal_pipeline.py run-catalog misp
-    python3 testing/pipeline/baremetal_pipeline.py run-catalog hive
-    python3 testing/pipeline/baremetal_pipeline.py run-catalog rocketchat
-  retry: 2
-  only:
-    variables:
-      - $RUN_CATALOG == "yes" && $PIPELINE == "hw-developer-all"
 
 Hardware CVAH Catalog Community Apps:
-  stage: catalog
+  stage: robot-test-setup
   tags:
     - tfplenum-buildv2
   script: |
@@ -251,6 +230,7 @@ Hardware CVAH Catalog Community Apps:
   only:
     variables:
       - $RUN_CATALOG == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "hw-developer-all"
+      - $RUN_INTEGRATION == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "hw-developer-all"
 
 Verodin Automation:
   stage: verodin-test

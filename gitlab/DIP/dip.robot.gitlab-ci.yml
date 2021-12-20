@@ -1,30 +1,314 @@
-DIP Robot Tests:
-  stage: robot-test
+robot:sso_login:
+  stage: robot-test-sso
   tags:
-    - tfplenum-buildv2
+    - docker-runner
+  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  extends: .setup-robot-script
   script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    CONFLUENCE_PASSWORD_DECRYPTED=$(echo "$CONFLUENCE_PASSWORD" | base64 -d)
-    mkdir -p $PATHPWD/tests/dip_test_suite/
-    python3 testing/pipeline/pipeline.py run-robot \
-    --tfplenum-robot-container "docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4" \
-    --jira-username "$CONFLUENCE_USERNAME" \
-    --jira-password "$CONFLUENCE_PASSWORD_DECRYPTED" \
-    --jira-report $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-    --jira-project-version $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
-    --jira-project-key "$JIRA_PROJECT_KEY" \
-    --robot-browser $ROBOT_BROWSER \
-    --robot-category $ROBOT_REGRESSION_CATEGORY \
-    --domain "$KIT_DOMAIN" \
-    --kit-version "$TFPLENUM_EXPORT_VERSION" \
-    --pipeline "$PIPELINE"
+    python3 -m run.runner -c integration \
+      -t "000_initial_login/00_dipInitialSSOLogin" \
+      -r INTEGRATION \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE
+    /bin/cp -rf /usr/src/robot/output $build_path/
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  only:
+    variables:
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
+robot:catalog:
+  stage: robot-test-setup
+  tags:
+    - docker-runner
+  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c integration \
+      -t "010_install_catalog_apps/00_installPMOApps" \
+      -r INTEGRATION \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE
+    /bin/cp -rf /usr/src/robot/output $build_path/
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  needs: ["Sensor Setup","Service Setup"]
+  only:
+    variables:
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
+robot:rulesets:zeek_script:
+  stage: robot-test-setup
+  tags:
+    - docker-runner
+  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c integration \
+      -t "011_rulesets/00_dipZeekScriptRuleset" \
+      -r INTEGRATION \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE
+    /bin/cp -rf /usr/src/robot/output $build_path/
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  needs:
+    - job: "Sensor Setup"
+    - job: "Service Setup"
+    - job: robot:catalog
+      optional: true
+  only:
+    variables:
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
+robot:rulesets:zeek_signature:
+  stage: robot-test-setup
+  tags:
+    - docker-runner
+  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c integration \
+      -t "011_rulesets/00_dipZeekSignatureRuleset" \
+      -r INTEGRATION \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE
+    /bin/cp -rf /usr/src/robot/output $build_path/
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  needs:
+    - job: "Sensor Setup"
+    - job: "Service Setup"
+    - job: robot:catalog
+      optional: true
+  only:
+    variables:
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
+robot:rulesets:suricata:
+  stage: robot-test-setup
+  tags:
+    - docker-runner
+  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c integration \
+      -t "011_rulesets/00_dipSuricataRuleset" \
+      -r INTEGRATION \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE
+    /bin/cp -rf /usr/src/robot/output $build_path/
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  needs:
+    - job: "Sensor Setup"
+    - job: "Service Setup"
+    - job: robot:catalog
+      optional: true
+  only:
+    variables:
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
+robot:rulesets:sync:
+  stage: robot-test-setup
+  tags:
+    - docker-runner
+  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c integration \
+      -t "011_rulesets/01_dipSyncRulesets" \
+      -r INTEGRATION \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE
+    /bin/cp -rf /usr/src/robot/output $build_path/
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  needs:
+    - job: robot:rulesets:zeek_script
+    - job: robot:rulesets:zeek_signature
+    - job: robot:rulesets:suricata
+  only:
+    variables:
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
+robot:elastic:elastic:
+  stage: robot-test-elastic
+  tags:
+    - docker-runner
+  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c integration \
+      -t "012_elastic/00_dipElastic" \
+      -r INTEGRATION \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE
+    /bin/cp -rf /usr/src/robot/output $build_path/
   artifacts:
     untracked: true
     when: always
   allow_failure: true
-  timeout: 2h
+  needs:
+    - job: robot:rulesets:sync
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+
+robot:elastic:alerts:
+  stage: robot-test-elastic
+  tags:
+    - docker-runner
+  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c integration \
+      -t "012_elastic/00_dipAlerts" \
+      -r INTEGRATION \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE
+    /bin/cp -rf /usr/src/robot/output $build_path/
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  needs:
+    - job: robot:rulesets:sync
+  only:
+    variables:
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
+robot:cleanup:rulesets:
+  stage: robot-test-cleanup
+  tags:
+    - docker-runner
+  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  script: |
+    python3 -m run.runner -c integration \
+      -t "cleanup/00_dipCleanupRulesets" \
+      -r INTEGRATION \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE
+    /bin/cp -rf /usr/src/robot/output $build_path/
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: true
+  only:
+    variables:
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+
+robot:add_virtual_sensor:
+  stage: robot-test-setup
+  tags:
+    - docker-runner
+  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  script: |
+    python3 -m run.runner -c integration \
+      -t "013_sensors/00_addVirtualSensor" \
+      -r INTEGRATION \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE
+    /bin/cp -rf /usr/src/robot/output $build_path/
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: true
+  only:
+    variables:
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+
+robot:cleanup:virtual_sensor:
+  stage: robot-test-cleanup
+  tags:
+    - docker-runner
+  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  script: |
+    python3 -m run.runner -c integration \
+      -t "cleanup/01_dipRemoveSensor" \
+      -r INTEGRATION \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE
+    /bin/cp -rf /usr/src/robot/output $build_path/
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: true
+  needs:
+    - job: robot:add_virtual_sensor
+      optional: true
+  only:
+    variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"

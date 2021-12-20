@@ -9,6 +9,34 @@ ${SSO_FILE}                     /opt/sso-idp/sso_admin_password.txt
 #   inject count of ${first_element} into ${second_element} and wait ${wait_time}
 ${DEFUALT_REPLACEMENT_PATTERN}  ~
 
+# API URLS
+${API_CMD}                      /opt/tfplenum/.venv/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator"
+${API_HEADER_KEY}               Authorization
+${API_HEADER_VALUE}             Bearer {bearer_token}
+${API_BASE_URL}                 http://${host}/api{endpoint}
+
+# API Endpoints
+# ${current_user_endpoint}        /current_user
+# ${rulesets_endpoint}            /policy/ruleset
+# ${sensor_info_endpoint}         /policy/sensor/info
+
+# NESTING PREDICATE EXAMPLE
+# //section[.//h1[@id='hi']]
+
+# Not selecting direct children
+# //table['mat-table']//tbody//tr[contains(@class,'example-element-row')][.//td[contains(@id,'type') and contains(text(), 'Suricata')]]
+
+
+# //button[@id='cvah-policy-management-table-rule-set-td-1-actions-button-edit']/span/em
+
+# //table['mat-table']/td
+
+# //table['mat-table']//tbody//tr[contains(@class,'example-element-row')][.//td[contains(@id,'-is-enabled')]]
+
+# //table['mat-table']//tbody//tr[contains(@class,'example-element-row')]
+
+# //table['mat-table']//tbody//tr[contains(@class,'example-element-row')]/td[contains(@id,'-is-enabled')]
+
 
 # Pages start with a capital
 ${Portal}                       https://${host}/portal
@@ -16,7 +44,8 @@ ${Alerts}                       https://${host}/alerts
 ${Rulesets}                     https://${host}/rulesets
 ${PCAPs}                        https://${host}/pcaps
 ${NodeManagement}               https://${host}/node-mng
-
+${Health}                       https://${host}/health
+${Catalog}                      https://${host}/catalog
 
 
 # First Login Screen

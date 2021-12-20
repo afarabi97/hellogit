@@ -30,3 +30,16 @@
         validate_certs: no
         state: present
         snapshot_name: "{{ snapshot_name }}"
+
+    - name: "Power On VM After Snapshot"
+      vmware_guest_powerstate:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ node.hostname }}"
+        state: powered-on
+        validate_certs: False
+        state_change_timeout: 300
+      ignore_errors: yes
+      retries: 3
+      delay: 5

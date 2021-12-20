@@ -1,10 +1,14 @@
 *** Settings ***
 Resource    ../include/dipCommonVariables.resource
+Resource    ./dipCatalogKeywords.resource
 
 Library     SeleniumLibrary     15s    run_on_failure= Loggy.failure
 Library     SSHLibrary          15s
 Library     String
+Library     Collections
 Library     Loggy.py
+Library     TFPlenumLibrary.py
+
 
 *** Keywords ***
 Set DIP Kit Global Variables
@@ -13,11 +17,44 @@ Set DIP Kit Global Variables
     ${IS_BARE_METAL_KIT} =  Set Variable If  '${first_3_chars}' == 'hw-'  ${True}  ${False}
     Set Global Variable  ${IS_BARE_METAL_KIT}
 
+Generate Global API Auth Token
+    [Documentation]     Generates an API Token with the following roles: "controller-admin,controller-maintainer,operator"
+    log     Generating API Auth Token with roles (controller-admin, controller-maintainer, operator) and an expiration time of 1 hour
+
+    ${API_TOKEN}=  Execute Command    ${API_CMD}
+    log     Successfully Generated API Auth Token: ${API_TOKEN}
+    log     Setting Global Variable API_TOKEN
+    Set Global Variable  ${API_TOKEN}
+    log     Successfully Set Global Variable API_TOKEN
+
+    log     Setting Global API Header
+
+    log     Creating Empty Dictionary API_HEADER
+    ${API_HEADER}=    Create Dictionary
+
+    log     Constructing API Header Value
+    ${API_HEADER_VALUE}=    Format String   Bearer {bearer_token}   bearer_token=${API_TOKEN}
+    log     Successfully Constructed The API Header Value: ${API_HEADER_VALUE}
+
+    log     Setting The Value of The API Authentication Key (${API_HEADER_KEY}) to The API Header Value: ${API_HEADER_VALUE}
+    Set To Dictionary   ${API_HEADER}   ${API_HEADER_KEY}=${API_HEADER_VALUE}
+    Log Dictionary      ${API_HEADER}
+    log     Successfully Created API_HEADER
+    log     API Header: ${API_HEADER}
+
+
+    log     Lastly, Make API_HEADER a Global Variable
+    Set Global Variable  ${API_HEADER}
+    log     Successfully Set Global Variable API_HEADER
+
+    log     Successfully Generated Global API Auth Token!
+
 Open SSH Connection
     [Arguments]  ${host}  ${host_username}  ${host_password}
-    [Documentation]  Perform The Suite Setup Functionality of Setting The Log Level, And SSH'ing Into The Host
+    [Documentation]  Perform The Suite Setup Functionality of Setting The Log Level, And SSH'ing Into The Host, Generate Auth Token
     Open Connection     ${host}
     Login               ${host_username}  ${host_password}
+    Generate Global API Auth Token
 
 Runner Open Browser
     [Arguments]                ${host}  ${browser}
@@ -104,8 +141,13 @@ Close Browser and SSH Connection
     Close All Browsers
     Close All Connections
 
+Stay Or Go To ${page}
+    [Documentation]     Use this if you don't want to refresh the browser if you're already at the specified page
+
+
 Navigate To ${page}
-    log         "Navigating To ${page} Page"
+    log         "Navigating To: ${page} Page"
+
     IF          "${page}" == "Portal"
         Go To       ${Portal}
         lookFor         Portal
@@ -126,10 +168,16 @@ Navigate To ${page}
     ELSE IF     "${page}" == "Node Management"
         Go To           ${NodeManagement}
         lookFor         Node Management
-        whenVisible     ${locNodeMgmtTable}     timeout=60s     error=Node Management Page did not load within
+        whenVisible     ${locNodeMgmtTable}     timeout=60s     error=Node Management Page did not load within 60s
     ELSE IF     "${page}" == "Alerts"
         Go To    ${Alerts}
         lookFor  Hive Settings
+    ELSE IF     "${page}" == "Health"
+        Go To           ${Health}
+        lookFor         Managed Kits
+     ELSE IF     "${page}" == "Catalog"
+        Go To           ${Catalog}
+        lookFor         Catalog
     END
 
 Get Kibana Credentials
@@ -244,13 +292,42 @@ failTest
     Loggy.failure
     fail
 
+clickElements
+    [Arguments]     ${elements_locator}     ${timeout}=5s
+    log     Retrieving Elements using locator: ${elements_locator}
+    ${elements} =      Get Web Elements    ${elements_locator}
+    FOR  ${element}  IN  @{elements}
+        click   ${element}
+    END
+    log     Finished Clicking Elements Retrieved using locator: ${elements_locator}
+
+
 type
-    [Arguments]     ${element}      ${value}
+    [Arguments]     ${element}      ${value}        ${clear_before}=${FALSE}
+    log     Inputting Text Into Element: ${element}
     lookForElement  ${element}
+    IF      ${clear_before}
+        log     Clearing Text
+        ${previous_text}    Get Text    ${element}
+        log         Element ${element} Contained The Text: ${previous_text}
+        Clear Element Text      ${element}
+        log     Clear Element Text has been performed on Element ${element}
+    END
+    log     Inputting value ${value} into Element: ${element} now!
     click           ${element}
-    log     typeing the value ${value} into the element ${element} now!
     Input Text      ${element}      ${value}
     log     successfully typed the value ${value} into element ${element}!
+
+clearAndType
+    [Arguments]     ${element}      ${value}
+    lookForElement      ${element}
+    click               ${element}
+    ${previous_text}    Get Text    ${element}
+    log     Clearing Text | Element: ${element} | Previous Text: ${previous_text}
+    Clearing Element Text
+    lookForElement  ${element}
+    click           ${element}
+    Clv
 
 waitAndClick
     [Arguments]     ${element}
@@ -329,15 +406,15 @@ getItemFromLocCount
     ${desired_item}     Replace String  ${template_object}   ${DEFUALT_REPLACEMENT_PATTERN}  ${replace_with}
     [Return]            ${desired_item}
 
-inject
-    [Documentation]     Injects the text into the given object using default replacement pattern
-    ...                 Returns new object ${desired_item}
-    [Arguments]     ${template_object}      ${injection}
-    log                 Injecting the template object ${template_object} with string ${injection}!
-    ${desired_item}     Replace String  ${template_object}  ${DEFUALT_REPLACEMENT_PATTERN}  ${injection}
-    log                 Injection was successful
-    log                 The new item is ${desired_item}
-    [Return]            ${desired_item}
+# inject
+#     [Documentation]     Injects the text into the given object using default replacement pattern
+#     ...                 Returns new object ${desired_item}
+#     [Arguments]     ${template_object}      ${injection}    ${replacement_pattern}=${DEFUALT_REPLACEMENT_PATTERN}
+#     log                 Injecting the template object: ${template_object} with string: ${injection}, using replacement_pattern: ${replacement_pattern}!
+#     ${desired_item}     Replace String  ${template_object}  ${DEFUALT_REPLACEMENT_PATTERN}  ${injection}
+#     log                 Injection was successful
+#     log                 The new item is ${desired_item}
+#     [Return]            ${desired_item}
 
 
 # inject count of ${first_element} into ${second_element} and wait ${wait_time}
@@ -356,6 +433,13 @@ inject
 log
     [Arguments]     ${text}    ${isError}=False
     Loggy.loggy     ${text}    ${isError}
+
+logDict
+    [Arguments]     ${text}=""     ${dictionary}={}
+    Loggy.loggy     Logging Dictionary ${text}: ${dictionary}
+    FOR    ${key}    IN    @{dictionary}
+        log    ${key}=${dictionary}[${key}]
+    END
 
 shoot
     [Arguments]     ${name}
@@ -390,3 +474,125 @@ pause
     log     Sleeping for ${sleep_time}
     Sleep   ${sleep_time}       reason=${text}
     log     ${sleep_time} have passed! Done Sleeping!
+
+#########################
+# STATE MACHINE HELPERS #
+#########################
+# shouldExecuteStateChange
+#     [Arguments]         ${current_state}          ${target_state}       ${msg}=ruleset
+#     [Documentation]     Evaluates the state of an object. Return True if the object
+#     ...                 has reached the expected state and False if it has not.
+#     log         Evaluating current and target ${msg} states
+#     log         Current ${msg} State: ${current_state}
+#     log         Target ${msg} State: ${target_state}
+
+#     IF      '${current_state}' == '${target_state}'
+#         log       MATCHING Current and Target ${msg} States!
+#         Return From Keyword    ${fALSE}
+#     ELSE
+#         log       DIFFERENT Current and Target ${msg} States!
+#         Return From Keyword    ${False}
+#     END
+
+
+# shouldExecuteSensorsStateChange
+#     [Arguments]         ${current_state}          ${target_state}       ${msg}=ruleset_sensors
+#     [Documentation]     Evaluates the state of a rulesets sensors. Return True if the object
+#     ...                 has reached the expected state and False if it has not.
+#     ...                 If there are no sensors, they have none assigned. If target_state is
+#     ...                 True, Assign all Sensors
+#     ...                 False, Dissassociate all Sensors
+
+#     # 'zeek_script': {'ruleset_id': '6e9f4fe8fea74fe7ba21ad46f6868643', 'ruleset_name': 'Zeek Sample Scripts', 'ruleset_enabled': False, 'ruleset_sensors': [{'hostname': 'brandon-sensor3.clarke', 'mac': 'ba:d4:7c:40:16:ee', 'management_ip': '10.40.18.70'}], 'ruleset_state': 'Dirty'}
+#     log         Evaluating current and target ${msg} states
+#     log         Current ${msg} State: ${current_state}
+#     log         Target ${msg} State: ${target_state}
+
+
+#     # If target_state is True that means we want to enable all possible sensors
+#     # To determine if we need to do anything, compare all sensors to the list
+#     # of sensors currently assigned to the Ruleset
+
+#     # Get all sensors
+#     ${sensor_info_response}=    Get Sensor Info
+#     log         shouldExecuteSensorsStateChange - sensor_info_response: ${sensor_info_response}
+
+#     # ${current_state}
+
+#     # IF      '${current_state}' == '${target_state}'
+#     #     log       MATCHING Current and Target ${msg} States!
+#     #     Return From Keyword    ${fALSE}
+#     # ELSE
+#     #     log       DIFFERENT Current and Target ${msg} States!
+#     #     Return From Keyword    ${False}
+#     # END
+#     [Return]    ${False}
+
+
+# Get Sensors State
+#     ${response}=    Get Sensor Info
+#     {sensor_info_state}=    Create List
+
+#     log     Get The Sensors Info State
+#     FOR  ${item}  IN  @{response}
+#         log         Creating Local Ruleset Dictionary
+#         ${localRulesetDict}=        Create Dictionary
+#         Set To Dictionary   ${localRulesetDict}     ruleset_id=${item}[_id]
+#         Set To Dictionary   ${localRulesetDict}     ruleset_name=${item}[name]
+#         Set To Dictionary   ${localRulesetDict}     ruleset_enabled=${item}[isEnabled]
+#         Set To Dictionary   ${localRulesetDict}     ruleset_sensors=${item}[sensors]
+#         Set To Dictionary   ${localRulesetDict}     ruleset_state=${item}[state]
+#         IF      '${item}[appType]' == 'Suricata'
+#             log         Add Suricata to sensor_info_state
+#             Set To Dictionary   ${sensor_info_state}         suricata=&{localRulesetDict}
+#             log         Successfully Added Suricata to sensor_info_state
+
+#         ELSE IF     '${item}[appType]' == 'Zeek Scripts'
+#             log         Add Zeek Script to sensor_info_state
+#             Set To Dictionary   ${sensor_info_state}         zeek_script=&{localRulesetDict}
+#             log         Successfully Added Zeek Script to sensor_info_state
+
+#         ELSE IF     '${item}[appType]' == 'Zeek Signatures'
+#             log         Add Zeek Signature to sensor_info_state
+#             Set To Dictionary   ${sensor_info_state}         zeek_signature=&{localRulesetDict}
+#             log         Successfully Added Zeek Signature to sensor_info_state
+#         END
+#     END
+#     log         Successfully returning the rulesets state (sensor_info_state): ${sensor_info_state}
+#     [Return]    ${sensor_info_state}
+
+
+#########################
+# API REQUEST WRAPPERS  #
+#########################
+# API Get
+#     [Arguments]         ${endpoint}
+#     [Documentation]     Wrapper for GET Requests To Our API
+#     log     Executing A Get Request On API Endpoint: ${endpoint}
+#     ${url}=     Format String   ${API_BASE_URL}   endpoint=${endpoint}
+#     log     Retrieving Response From ${url}
+#     # ${response}=    Api.current user    ${host}
+#     ${response}=    GET   url=${url}    headers=${API_HEADER}
+#     log     Successfully Retrieved Response From API Endpoint: ${url}
+#     [Return]    ${response}
+
+
+# GET Current User
+#     ${response}=    API Get  ${current_user_endpoint}
+#     log             Get Current User Response JSON: ${response.json()}
+#     [Return]    ${response.json()}
+
+# GET Sensor Info
+#     ${response}=    API Get  ${sensor_info_endpoint}
+#     log             Get Sensor Info Response JSON: ${response.json()}
+#     [Return]    ${response.json()}
+
+# GET Rulesets
+#     ${response}=    API Get  ${rulesets_endpoint}
+#     log             Get Rulesets Response JSON: ${response.json()}
+#     [Return]    ${response.json()}
+
+
+
+
+

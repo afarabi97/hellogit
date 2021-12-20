@@ -2,7 +2,6 @@ import os
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 TESTING_DIR = PIPELINE_DIR + "/../"
-ROBOTEST_DIR = TESTING_DIR + "/robotest/"
 ROOT_DIR = TESTING_DIR + "/../"
 GIP_DIR = ROOT_DIR + "/gip/"
 MINIO_DIR = GIP_DIR + "/minio/"

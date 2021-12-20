@@ -262,30 +262,8 @@ Perform Security Scans:
     untracked: true
   allow_failure: true
 
-CVAH Catalog PMO Apps:
-  stage: catalog
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-catalog suricata
-    python3 testing/pipeline/pipeline.py run-catalog arkime-viewer
-    python3 testing/pipeline/pipeline.py run-catalog arkime-capture
-    python3 testing/pipeline/pipeline.py run-catalog zeek
-    python3 testing/pipeline/pipeline.py run-catalog logstash
-    python3 testing/pipeline/pipeline.py run-catalog wikijs
-    python3 testing/pipeline/pipeline.py run-catalog cortex
-    python3 testing/pipeline/pipeline.py run-catalog misp
-    python3 testing/pipeline/pipeline.py run-catalog hive
-    python3 testing/pipeline/pipeline.py run-catalog rocketchat
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-  retry: 2
-
 CVAH Catalog Community Apps:
-  stage: catalog
+  stage: robot-test-setup
   tags:
     - tfplenum-buildv2
   script: |
@@ -328,7 +306,8 @@ Disk Stress Test:
     python3 testing/pipeline/pipeline.py run-disk-fillup-tests
   only:
     variables:
-      - $RUN_DISK_TEST == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+  allow_failure: true
 
 Simulate Power Failure:
   stage: test-powerfailure
