@@ -336,7 +336,7 @@ class IntegrationTestsJob:
                 continue
 
             # Skip arkime viewer indicies
-            if index.startswith(tuple(['files','hunt','lookups','dstats','fields','queries','sequence','stats','users'])):
+            if index.startswith(tuple(['arkime_dstats', 'arkime_stats', 'arkime_hunts', 'arkime_fields', 'arkime_lookups', 'arkime_users', 'arkime_files', 'arkime_queries', 'arkime_sequence'])):
                 continue
 
             idx = self._es.indices.get(index=index)

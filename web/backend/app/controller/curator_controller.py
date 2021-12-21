@@ -9,7 +9,8 @@ from flask import Response, request
 from flask_restx import Namespace, Resource
 
 EXCLUDE_FILTER = ('^(.ml-config|.kibana|.monitoring|.watches|.apm|.triggered_watches|.security|.siem-signals|.security-tokens|'
-                '.geoip_databases|.tasks|.async-search|files|hunt|lookups|dstats|fields|queries|sequence|stats|users).*$')
+                '.geoip_databases|.tasks|.async-search|arkime_dstats|arkime_stats|arkime_hunts|arkime_fields|arkime_lookups|'
+                'arkime_users|arkime_files|arkime_queries|arkime_sequence).*$')
 DEFAULT_ERROR_MESSAGE_INDICES = { "error_message": "Something went wrong getting the Elasticsearch indices." }
 CURATOR_NS = Namespace("curator", description="Elasticsearch curator.")
 
