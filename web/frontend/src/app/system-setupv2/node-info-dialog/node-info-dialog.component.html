@@ -3,8 +3,8 @@
      fxLayout="column" fxLayoutAlign="start stretch"
      style="margin-right: 0px;padding-left: 44px; padding-right: 0px; overflow: unset;">
 
-    <div fxLayout="row" fxLayoutAlign="start stretch" >
-      <div fxLayoutAlign="start stretch" style="background-color: #222;" fxFlex="50">
+    <div fxLayout="row" fxLayoutAlign="start stretch">
+      <div fxLayoutAlign="start stretch" style="background-color: #222; overflow: auto;" fxFlex="<flex-grow> <flex-shrink>">
       <mat-list>
         <mat-list-item>
           <mat-icon mat-list-icon>computer</mat-icon>
@@ -40,9 +40,9 @@
         </mat-list-item>
       </mat-list>
     </div>
-    <div fxLayoutAlign="start stretch" style="background-color: #222; margin-left: 15px;" fxFlex="50">
+    <div fxLayoutAlign="start stretch" style="background-color: #222; margin-left: 15px; overflow: auto;" fxFlex="<flex-grow> <flex-shrink>">
       <mat-list>
-        <mat-list-item style="margin-top: 10px;" *ngFor="let iface of backingObj?.deviceFacts['interfaces']">
+        <mat-list-item style="height:auto;" *ngFor="let iface of backingObj?.deviceFacts['interfaces']">
           <mat-icon mat-list-icon>cloud</mat-icon>
           <h4 mat-line>{{ iface.name }}
             <div>{{iface.ip_address}}</div>

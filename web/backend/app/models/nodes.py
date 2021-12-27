@@ -60,10 +60,12 @@ def validate_mac_address_fn(value: str):
 
 
 def validate_hostname_fn(value: str):
-    pattern = "^[a-z]([a-z0-9-.]){4,51}$"
+    domain = value.split(".")[-1]
+    fqdn_length = len(domain) + 52
+    pattern = "^[a-z]([a-z0-9-.]){4,%s}$" % fqdn_length
     if not re.match(pattern, value):
-        raise ValidationError("Hostname must be alphanumeric, less than 51 characters. "
-                                " Special characters are not allowed with the exception of dashes (IE -).")
+        raise ValidationError("Hostname must be alphanumeric, less than {} characters. "
+                                " Special characters are not allowed with the exception of dashes (IE -).".format(fqdn_length))
 
 def _generate_inventory():
     _generate_nodes_inventory()

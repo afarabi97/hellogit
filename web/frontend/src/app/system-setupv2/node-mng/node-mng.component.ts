@@ -16,7 +16,7 @@ import { Job, KitStatus, Node, Settings } from '../models/kit';
 import { NodeInfoDialogComponent } from '../node-info-dialog/node-info-dialog.component';
 import { KitSettingsService } from '../services/kit-settings.service';
 
-const DIALOG_WIDTH = '800px';
+const DIALOG_WIDTH = '1000px';
 
 @Component({
   selector: 'app-node-mng',
