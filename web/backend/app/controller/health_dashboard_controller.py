@@ -1,38 +1,18 @@
 import time
 
-import requests
 import urllib3
 from app.common import ERROR_RESPONSE
 from app.middleware import login_required_roles
 from app.models.health import APP_NS, HEALTH_NS
+from app.service.health_service import client_session, get_kibana_ipaddress
+from app.utils.collections import mongo_kit_tokens, mongo_settings
 from app.utils.connection_mngs import KubernetesWrapper
 from app.utils.elastic import ElasticWrapper, get_elastic_password
 from app.utils.logging import logger
 from app.utils.utils import get_domain
 from flask import Response
 from flask_restx import Resource, fields
-from app.utils.collections import mongo_settings, mongo_kit_tokens
 
-
-def client_session(username: str, password: str) -> object:
-    with requests.Session() as session:
-        session.auth = (username, password)
-        session.timeout = 60
-    return session
-
-def get_kibana_ipaddress():
-    try:
-        with KubernetesWrapper() as api:
-            services = api.list_service_for_all_namespaces()
-            for service in services.items:
-                name = service.metadata.name
-                if service.status.load_balancer.ingress and name == "kibana":
-                    kibana_ip = service.status.load_balancer.ingress[0].ip
-                    return kibana_ip
-
-    except Exception as e:
-        logger.exception(e)
-    return ERROR_RESPONSE
 
 @HEALTH_NS.route('/dashboard/status')
 class HealthDashboardStatus(Resource):
@@ -58,6 +38,7 @@ class HealthDashboardStatus(Resource):
         except Exception as e:
             logger.exception(e)
         return ERROR_RESPONSE
+
 
 @HEALTH_NS.route('/remote/dashboard/status')
 class RemoteHealthDashboardStatus(Resource):
@@ -96,6 +77,7 @@ class RemoteHealthDashboardStatus(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
+
 @HEALTH_NS.route('/hostname')
 class Hostname(Resource):
     @HEALTH_NS.response(200, 'Hostname', fields.String())
@@ -133,6 +115,7 @@ class KibanaLoginInfo(Resource):
         except Exception as e:
             logger.exception(e)
         return ERROR_RESPONSE
+
 
 @APP_NS.route('/kibana/info/remote/<ipaddress>')
 class RemoteKibanaLoginInfo(Resource):

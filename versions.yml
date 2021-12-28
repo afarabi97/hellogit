@@ -114,7 +114,7 @@ helm_versions:
   chartmuseum: 2.12.0
   mattermost: 1.0.3
   misp: 1.0.3
-  netflow_filebeat: 1.0.0
+  netflow_filebeat: 1.0.1
   nifi: 1.0.3
   redmine: 1.0.4
   remote_health_agent: 1.0.1
