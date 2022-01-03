@@ -6,6 +6,13 @@
     name: "{{ setup_package_list }}"
     state: present
 
+- name: Install tfplenum-cli
+  dnf:
+    name: "https://{{ repo_uri }}/repository/tfplenum-stable/tfplenum-cli-{{ misc_versions.tfplenum_cli_version }}.rpm"
+    state: present
+    disable_gpg_check: yes
+  when: not rpm_install
+
 - import_tasks: max_log_size.yml
 - import_tasks: update_etc_hosts.yml
 - import_tasks: update_controller_interface.yml

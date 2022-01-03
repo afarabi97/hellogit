@@ -19,6 +19,7 @@ misc_versions:
   npm: "6.14.5"
   angular_cli: "10.2.0"
   docker_distribution: "2.6.2-2"
+  tfplenum_cli_version: 3.7.0-1.el8.x86_64
 
 docker_versions:
   rocketchat_version: 4.0.1
