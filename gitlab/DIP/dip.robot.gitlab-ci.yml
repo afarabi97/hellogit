@@ -46,7 +46,12 @@ robot:catalog:
     untracked: true
     when: always
   allow_failure: false
-  needs: ["Sensor Setup","Service Setup"]
+  needs:
+    - job: "Sensor Setup"
+      optional: true
+    - job: "Hardware Sensor Setup"
+      optional: true
+    - job: "Service Setup"
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
@@ -76,6 +81,9 @@ robot:rulesets:zeek_script:
   allow_failure: false
   needs:
     - job: "Sensor Setup"
+      optional: true
+    - job: "Hardware Sensor Setup"
+      optional: true
     - job: "Service Setup"
     - job: robot:catalog
       optional: true
@@ -108,6 +116,9 @@ robot:rulesets:zeek_signature:
   allow_failure: false
   needs:
     - job: "Sensor Setup"
+      optional: true
+    - job: "Hardware Sensor Setup"
+      optional: true
     - job: "Service Setup"
     - job: robot:catalog
       optional: true
@@ -140,6 +151,9 @@ robot:rulesets:suricata:
   allow_failure: false
   needs:
     - job: "Sensor Setup"
+      optional: true
+    - job: "Hardware Sensor Setup"
+      optional: true
     - job: "Service Setup"
     - job: robot:catalog
       optional: true
