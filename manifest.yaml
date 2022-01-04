@@ -2,9 +2,10 @@ MULTIBOOT:
 - app: exes
   src:
     - Repo/MULTIBOOT/exes/BIOS_XFN8X_WN64_2.11.2.EXE
-    - Repo/MULTIBOOT/exes/Precision_7720_1.18.1.exe
-    - Repo/MULTIBOOT/exes/Precision_7730_1.14.4.exe
-    - Repo/MULTIBOOT/exes/Precision_7750_1.6.2.exe
+    - Repo/MULTIBOOT/exes/M6800A26.exe
+    - Repo/MULTIBOOT/exes/Precision_7x20_1.22.0.exe
+    - Repo/MULTIBOOT/exes/Precision_7x30_1.18.2.exe
+    - Repo/MULTIBOOT/exes/Precision_7X50_1.11.1.exe
   dest: staging/v3.7/MULTIBOOT/exes
 
 - app: isos
@@ -157,36 +158,37 @@ CPT:
     - Repo/CPT/AppStore/Java Development Kit (JDK)/17.0.1
     - Repo/CPT/AppStore/JAVA Platform SE/17.0.1
     - Repo/CPT/AppStore/LDAPBrowser/4.5.19808
+    - Repo/CPT/AppStore/log2timeline
     - Repo/CPT/AppStore/Memoryze/3.0
     - Repo/CPT/AppStore/Microsoft Baseline Security Analyzer/2.1.1
     - Repo/CPT/AppStore/MSSQLScan/0.8.4
-    - Repo/CPT/AppStore/MySQL Client/8.0.17
+    - Repo/CPT/AppStore/MySQL Client/8.0.27.1
     - Repo/CPT/AppStore/MySQL Client Perl/4.050-3
-    - Repo/CPT/AppStore/MySQL Connector Python/8.0.17
+    - Repo/CPT/AppStore/MySQL Connector Python/8.0.27
     - Repo/CPT/AppStore/Netflow Realtime/10.8.0.5
     - Repo/CPT/AppStore/Netmon to Libpcap/2.1
     - Repo/CPT/AppStore/Nfsshell/09cdd52
-    - Repo/CPT/AppStore/Nipper Studio/2.9.0
+    - Repo/CPT/AppStore/Nipper Studio/2.12.1
     - Repo/CPT/AppStore/OpenVAS/10.0
-    - Repo/CPT/AppStore/openVPN/2.5.3
+    - Repo/CPT/AppStore/openVPN/2.10.0
     - Repo/CPT/AppStore/Pass-the-hash Toolkit/1.4
     - Repo/CPT/AppStore/PE.Explorer/1.99R6
     - Repo/CPT/AppStore/PEiD/0.95
     - Repo/CPT/AppStore/PhoneSweep/2_7
     - Repo/CPT/AppStore/Photon/2.0-304b817
-    - Repo/CPT/AppStore/PKI Certs/5.2
+    - Repo/CPT/AppStore/PKI Certs/5.5
     - Repo/CPT/AppStore/Powersploit/3.0
     - Repo/CPT/AppStore/Redline/2.0
-    - Repo/CPT/AppStore/RegRipper/2.8
+    - Repo/CPT/AppStore/RegRipper/3.0
     - Repo/CPT/AppStore/Secure Host Baseline/v2019
     - Repo/CPT/AppStore/Security Windows Credential Editor/1.42
-    - Repo/CPT/AppStore/SFTP_SCP Server/1.0.4.9
+    - Repo/CPT/AppStore/SFTP_SCP Server/2021.3.0.221
     - Repo/CPT/AppStore/Sid Tools/1.0
-    - Repo/CPT/AppStore/SMBMap/1.0.5
+    - Repo/CPT/AppStore/SMBMap/1.8.2
     - Repo/CPT/AppStore/sMime/5.509
     - Repo/CPT/AppStore/Snowflake/3.0.1
     - Repo/CPT/AppStore/Socat/2.0.0-b9
-    - Repo/CPT/AppStore/SQLMap/1.3.5-88
+    - Repo/CPT/AppStore/SQLMap/1.5.12-3
     - Repo/CPT/AppStore/SQLping3/3.0
     - Repo/CPT/AppStore/SQLplus/11.1.0.7
     - Repo/CPT/AppStore/TFTP Server/5.2-27.fc30
@@ -199,7 +201,7 @@ CPT:
     - Repo/Shared/AppStore/Elastic Stack/7.15.1
     - Repo/Shared/AppStore/Grassmarlin/3.3
     - Repo/Shared/AppStore/Metasponse/1.6.2.0
-    - Repo/Shared/AppStore/nfdump/1.6.17
+    - Repo/Shared/AppStore/nfdump/1.6.23
     - Repo/Shared/AppStore/notepad++/8.1.4
     - Repo/Shared/AppStore/PowerShell/7.1.4-1
     - Repo/Shared/AppStore/puTTY/0.76
@@ -337,7 +339,7 @@ MDT:
     - Repo/Shared/AppStore/Elastic Stack/7.15.1
     - Repo/Shared/AppStore/Grassmarlin/3.3
     - Repo/Shared/AppStore/Metasponse/1.6.2.0
-    - Repo/Shared/AppStore/nfDump/1.6.17
+    - Repo/Shared/AppStore/nfDump/1.6.23
     - Repo/Shared/AppStore/notepad++/8.1.4
     - Repo/Shared/AppStore/Powershell/7.1.4-1
     - Repo/Shared/AppStore/puTTY/0.76
