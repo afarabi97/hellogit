@@ -127,7 +127,7 @@
 	</system>
 	<interfaces>
 		<wan>
-			<if>vmx1</if>
+			<if>vmx2</if>
 			<descr><![CDATA[External]]></descr>
 			<spoofmac></spoofmac>
 			<alias-address></alias-address>
@@ -155,7 +155,7 @@
 		</opt2>
 		<opt3>
 			<descr><![CDATA[P2P]]></descr>
-			<if>vmx4</if>
+			<if>vmx1</if>
 			<spoofmac></spoofmac>
 			<enable></enable>
 			<ipaddr>10.20.139.2</ipaddr>
@@ -515,37 +515,6 @@
 				<time>1636652330</time>
 				<username><![CDATA[assessor@10.2.2.49 (Local Database)]]></username>
 			</updated>
-		</rule>
-		<rule>
-			<id></id>
-			<tracker>1623417269</tracker>
-			<type>pass</type>
-			<interface>wan</interface>
-			<ipprotocol>inet</ipprotocol>
-			<tag></tag>
-			<tagged></tagged>
-			<max></max>
-			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
-			<max-src-states></max-src-states>
-			<statetimeout></statetimeout>
-			<statetype><![CDATA[keep state]]></statetype>
-			<os></os>
-			<source>
-				<address>sil_networks</address>
-			</source>
-			<destination>
-				<any></any>
-			</destination>
-			<descr></descr>
-			<updated>
-				<time>1623417269</time>
-				<username><![CDATA[assessor@10.1.1.6 (Local Database)]]></username>
-			</updated>
-			<created>
-				<time>1623417269</time>
-				<username><![CDATA[assessor@10.1.1.6 (Local Database)]]></username>
-			</created>
 		</rule>
 		<rule>
 			<id></id>
@@ -1674,16 +1643,9 @@
 		<alias>
 			<name>Server1</name>
 			<type>host</type>
-			<address>10.20.137.40</address>
+			<address>server1.catwoman</address>
 			<descr></descr>
 			<detail><![CDATA[Entry added Fri, 13 Mar 2020 02:06:45 +0000]]></detail>
-		</alias>
-		<alias>
-			<name>sil_networks</name>
-			<type>network</type>
-			<address>10.10.0.0/16 10.1.1.0/24 10.40.0.0/16 10.30.0.0/16 10.2.2.0/24 10.4.4.0/24</address>
-			<descr></descr>
-			<detail><![CDATA[TPSA Local||PFS VPN Users||Developers Build Ranges||Breaking Point Test Range||Global Protect VPN Users||Global Protect VPN SIL Admins]]></detail>
 		</alias>
 		<alias>
 			<name>Switch_P2P</name>

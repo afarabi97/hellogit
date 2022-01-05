@@ -1690,7 +1690,30 @@
           <packet-handling>permit</packet-handling>
         </action>
       </rule>
-    </access-list>
+      <rule>
+        <seq-no>300</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.15</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.136.2</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+</access-list>
     <access-list>
       <name>P2P_IN</name>
       <role>ipv4</role>

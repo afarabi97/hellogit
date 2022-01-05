@@ -107,6 +107,10 @@ class DriveCreationJob:
         exes_files = self.multiboot_path + "/exes/*"
         self._remote_sudo_cmd(shell, "cp -v {} {}".format(exes_files, self.multi2_path))
 
+        # Dell OS10 files
+        dell_files = "/mnt/drive_creation/Repo/Firmware/Dell\\ 4112\\ Switch/OS10"
+        self._remote_sudo_cmd(shell, "cp -rv {} {}".format(dell_files, self.multi2_path))
+
         #Copy kickstart file to root of all Fat32 partitions.
         self._sudo_copy_to_drive_creation(shell,
                                           ROOT_DIR + "/infrastructure/ESXi/ks.cfg",

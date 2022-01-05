@@ -68,6 +68,7 @@ Export DIP Controller:
   only:
     variables:
       - $PIPELINE == "export-all"
+      - $PIPELINE == "export-controller-only"
 
 Export DIP MinIO:
   stage: export

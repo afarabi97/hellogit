@@ -79,6 +79,7 @@ Hash Master CPT Drive:
       - $PIPELINE == "export-all" && $CREATE_CPT_DRIVE == "yes"
       - $PIPELINE == "minor-release" && $CREATE_CPT_DRIVE == "yes"
       - $PIPELINE == "drive-only" && $CREATE_CPT_DRIVE == "yes"
+      - $PIPELINE == "export-controller-only" && $CREATE_CPT_DRIVE == "yes"
 
 Hash Master MDT Drive:
   stage: hashfiles
@@ -97,6 +98,7 @@ Hash Master MDT Drive:
       - $PIPELINE == "export-all" && $CREATE_MDT_DRIVE == "yes"
       - $PIPELINE == "minor-release" && $CREATE_MDT_DRIVE == "yes"
       - $PIPELINE == "drive-only" && $CREATE_MDT_DRIVE == "yes"
+      - $PIPELINE == "export-controller-only" && $CREATE_MDT_DRIVE == "yes"
 
 Hash Check Master CPT Drive:
   stage: checkhash
@@ -115,6 +117,7 @@ Hash Check Master CPT Drive:
       - $PIPELINE == "export-all" && $CREATE_CPT_DRIVE == "yes"
       - $PIPELINE == "minor-release" && $CREATE_CPT_DRIVE == "yes"
       - $PIPELINE == "drive-only" && $CREATE_CPT_DRIVE == "yes"
+      - $PIPELINE == "export-controller-only" && $CREATE_CPT_DRIVE == "yes"
 
 Hash Check Master MDT Drive:
   stage: checkhash
@@ -133,6 +136,7 @@ Hash Check Master MDT Drive:
       - $PIPELINE == "export-all" && $CREATE_MDT_DRIVE == "yes"
       - $PIPELINE == "minor-release" && $CREATE_MDT_DRIVE == "yes"
       - $PIPELINE == "drive-only" && $CREATE_MDT_DRIVE == "yes"
+      - $PIPELINE == "export-controller-only" && $CREATE_MDT_DRIVE == "yes"
 
 Create Master CPT Drive:
   stage: publish
@@ -152,6 +156,7 @@ Create Master CPT Drive:
       - $PIPELINE == "export-all" && $CREATE_CPT_DRIVE == "yes"
       - $PIPELINE == "minor-release" && $CREATE_CPT_DRIVE == "yes"
       - $PIPELINE == "drive-only" && $CREATE_CPT_DRIVE == "yes"
+      - $PIPELINE == "export-controller-only" && $CREATE_CPT_DRIVE == "yes"
 
 Create Master MDT Drive:
   stage: publish
@@ -171,6 +176,7 @@ Create Master MDT Drive:
       - $PIPELINE == "export-all" && $CREATE_MDT_DRIVE == "yes"
       - $PIPELINE == "minor-release" && $CREATE_MDT_DRIVE == "yes"
       - $PIPELINE == "drive-only" && $CREATE_MDT_DRIVE == "yes"
+      - $PIPELINE == "export-controller-only" && $CREATE_MDT_DRIVE == "yes"
 
 Create Master GIP Drive:
   stage: publish
