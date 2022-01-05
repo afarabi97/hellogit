@@ -85,9 +85,14 @@ class NodeSettingsV2(Model):
                     "pxe_type":self.pxe_type
                   }
 
+        if not self.os_raid:
+            ret_val["raid_drives"] = []
+
         if self.deployment_type == self.DEPLOYMENT_TYPES[1]: # Virtual
             ret_val["pxe_type"] = None
             ret_val["mac_address"] = None
+            ret_val["virtual_cpu"] = self.cpu
+            ret_val["virtual_mem"] = self.memory
 
         return ret_val
 
