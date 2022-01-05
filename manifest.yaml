@@ -265,6 +265,7 @@ CPT:
     - Repo/Firmware/Dell 7720
     - Repo/Firmware/Dell 7730
     - Repo/Firmware/Dell 7750
+    - Repo/Firmware/Dell M6800
     - Repo/Firmware/Dell R440
     - Repo/Firmware/HP DL160
     - Repo/Firmware/Supermicro x10 X10DRLi
