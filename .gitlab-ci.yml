@@ -221,6 +221,7 @@ stages:
   - security_scans
   - robot-test-setup
   - robot-test-elastic
+  - robot-test-regression
   - integration-test
   - disk-test
   - test-powerfailure

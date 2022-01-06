@@ -326,3 +326,28 @@ robot:cleanup:virtual_sensor:
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+
+robot:regression_testing:
+  stage: robot-test-regression
+  tags:
+    - docker-runner
+  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c regression \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE
+    /bin/cp -rf /usr/src/robot/output $build_path/
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  only:
+    variables:
+      - $RUN_ROBOT_TESTS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_ROBOT_TESTS == "yes" && $PIPELINE == "hw-developer-all"
