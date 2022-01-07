@@ -106,23 +106,22 @@ setup_package_list:
   - tcpreplay-4.3.4-1.el8
 
 helm_versions:
-  arkime: 1.0.2
-  arkime_viewer: 1.0.2
-  cortex: 1.0.3
-  logstash: 1.0.2
-  hive: 1.0.5
-  jcat_nifi: 1.0.2
-  chartmuseum: 2.12.0
-  mattermost: 1.0.3
-  misp: 1.0.3
-  netflow_filebeat: 1.0.1
-  nifi: 1.0.3
-  redmine: 1.0.4
-  remote_health_agent: 1.0.1
-  rocketchat: 1.1.17
-  suricata: 1.0.1
-  wikijs: 1.0.3
-  zeek: 1.1.2
+  arkime: 1.0.3
+  arkime_viewer: 1.0.3
+  cortex: 1.0.4
+  logstash: 1.0.3
+  hive: 1.0.6
+  jcat_nifi: 1.0.3
+  mattermost: 1.0.4
+  misp: 1.0.4
+  netflow_filebeat: 1.0.2
+  nifi: 1.0.4
+  redmine: 1.0.5
+  remote_health_agent: 1.0.2
+  rocketchat: 1.1.18
+  suricata: 1.0.2
+  wikijs: 1.0.4
+  zeek: 1.1.3
 
 other:
   rpm_common_requirements: "docker-ce, docker-distribution, tfplenum"
@@ -134,7 +133,6 @@ helm_packages:
   - logstash-{{ helm_versions.logstash }}.tgz
   - hive-{{ helm_versions.hive }}.tgz
   - jcat-nifi-{{ helm_versions.jcat_nifi }}.tgz
-  - chartmuseum-{{ helm_versions.chartmuseum }}.tgz
   - mattermost-{{ helm_versions.mattermost }}.tgz
   - misp-{{ helm_versions.misp }}.tgz
   - netflow-filebeat-{{ helm_versions.netflow_filebeat }}.tgz

@@ -22,10 +22,6 @@ from rq.decorators import job
 HELM_BINARY_PATH = "/usr/local/bin/helm"
 WORKING_DIR = "/root"
 _MESSAGETYPE_PREFIX = "catalog"
-_CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
-_PMO_SUPPORTED_CHARTS = ['cortex', 'hive', 'misp', 'logstash', 'arkime', 'arkime-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek', 'remote-health-agent']
-_SENSOR_APPLICATIONS = ['arkime', 'suricata', 'zeek']
-
 
 def _get_controller_ip() -> str:
     general_settings_configuration = GeneralSettingsForm.load_from_db() # type: Dict
@@ -100,7 +96,6 @@ def _get_logstash_nodes() -> list:
 def _get_chartmuseum_uri() -> str:
     return "https://localhost/chartmuseum"
 
-
 def get_node_type(hostname: str) -> str:
     """
     Get node type for a node
@@ -112,7 +107,6 @@ def get_node_type(hostname: str) -> str:
     if node:
         return node.node_type
     return None
-
 
 def get_nodes(details: bool=False) -> list:
     """
@@ -172,16 +166,25 @@ def execute_kubelet_cmd(cmd: str) -> bool:
 
     return False
 
-# def get_system_charts():
-#     # TODO THis is jacked and needs to be fixed
-#     ret_val = []
-#     for chart in glob.glob("/opt/tfplenum/charts"):
-#         ret_val.append(chart)
+def _check_chart_name(application: str) -> bool:
+    """
+    Gets charts and validates charts exists
 
-#     # CHARTS = '/opt/tfplenum/bootstrap/playbooks/group_vars/all/chartmuseum.yml'
-#     # with open(CHARTS) as file:
-#     #     charts = yaml.load(file, Loader=yaml.FullLoader)
-#     return charts['{}_charts'.format(system.lower())]
+    :return (bool): Return if command was successful
+    """
+    try:
+        uri = _get_chartmuseum_uri()
+        urllib3.disable_warnings()
+        response = requests.get(uri + "/api/charts/" + application, verify=False)
+        charts = json.loads(response.text)
+        chart = next((c for c in charts if c["name"] == application), None)
+        if chart:
+            return True
+
+    except Exception as exc:
+        logger.exception(exc)
+        print(str(exc))
+    return False
 
 def get_repo_charts() -> list:
     """
@@ -189,49 +192,52 @@ def get_repo_charts() -> list:
 
     : return (list): Returns a list of charts
     """
-    # system_charts = get_system_charts()
-    stdout, ret_code = run_command2(command="helm repo update", working_dir=WORKING_DIR, use_shell=True)
-    if ret_code == 0:
-        print("helm repo cache updated.")
-        logger.info("helm repo cache updated.")
+    _update_helm_charts()
     results = []
     try:
         uri = _get_chartmuseum_uri()
         urllib3.disable_warnings()
         response = requests.get(uri + "/api/charts", verify=False)
         charts = json.loads(response.text)
-        for key, value in charts.items():
-            application = key
-            if application not in _CHART_EXEMPTS and application:
+        for application, value in charts.items():
+            if application:
                 for chart in value:
-                    t_chart = {}
-                    t_chart["application"] = application
-                    t_chart["version"] = chart["version"]
-                    t_chart["appVersion"] = chart["appVersion"]
-                    t_chart["description"] = chart["description"]
-                    t_chart["pmoSupported"] = (application in _PMO_SUPPORTED_CHARTS)
-                    t_chart["isSensorApp"] = (application  in _SENSOR_APPLICATIONS)
-                    results.append(t_chart)
+                    if chart.get("annotations"):
+                        t_chart = {}
+                        t_chart["application"] = application
+                        t_chart["version"] = chart["version"]
+                        t_chart["appVersion"] = chart["appVersion"]
+                        t_chart["description"] = chart["description"]
+                        t_chart["pmoSupported"] = _to_bool(chart["annotations"]["pmoSupported"])
+                        t_chart["isSensorApp"] = _to_bool(chart["annotations"]["isSensorApp"])
+                        results.append(t_chart)
     except Exception as exc:
         logger.exception(exc)
         print(str(exc))
     return results
 
+def _to_bool(flag: str) -> bool:
+    if flag.lower() == "true":
+        return True
+    return False
 
 def _inspect_chart(application: str) -> dict:
     chart = {}
+    if not _check_chart_name(application):
+        return chart
     stdout, ret_code = run_command2(command="helm inspect chart chartmuseum/" + application, working_dir=WORKING_DIR, use_shell=True)
     if ret_code == 0 and stdout != '':
         chart = yaml.full_load(stdout.strip())
     return chart
 
-def _inspect_readme(application: str):
+def _inspect_readme(application: str) -> dict:
     appconfig = {}
+    if not _check_chart_name(application):
+        return appconfig
     stdout, ret_code = run_command2(command="helm inspect readme chartmuseum/" + application, working_dir=WORKING_DIR, use_shell=True)
     if ret_code == 0 and stdout != '':
         appconfig = yaml.full_load(stdout.strip())
     return appconfig
-
 
 def _build_chart_info(application: str, chart: dict, appconfig: dict) -> dict:
     info = {}
@@ -244,7 +250,6 @@ def _build_chart_info(application: str, chart: dict, appconfig: dict) -> dict:
     info["node_affinity"] = appconfig.get("node_affinity","Server - Any")
     info["devDependent"] = appconfig.get("devDependent", None)
     return info
-
 
 def chart_info(application: str) -> dict:
     chart = None
@@ -259,10 +264,12 @@ def chart_info(application: str) -> dict:
         print("ERROR: " + str(exc))
     return None
 
-def get_helm_list(application: str=None) -> dict:
+def get_helm_list(application: str=None) -> list:
     chart_releases = None
     cmd = "helm list --all -o json"
     if application:
+        if not _check_chart_name(application):
+            return []
         cmd = "helm list --all -o json --filter='" + application + "$'"
     stdout, ret_code = run_command2(command=cmd,
     working_dir=WORKING_DIR, use_shell=True)
@@ -270,7 +277,6 @@ def get_helm_list(application: str=None) -> dict:
     if ret_code == 0 and stdout != '':
         chart_releases = json.loads(stdout.strip())
     return chart_releases
-
 
 def get_app_state(application: str, namespace: str, nodes: List[Node]=None, chart_releases: List=None) -> list:
     if not nodes:
@@ -311,6 +317,8 @@ def get_app_state(application: str, namespace: str, nodes: List[Node]=None, char
 def get_values(application) -> dict:
     values = {}
     raw_values = None
+    if not _check_chart_name(application):
+        return values
     stdout, ret_code = run_command2(command="helm inspect values chartmuseum/" + application, working_dir=WORKING_DIR, use_shell=True)
     if ret_code == 0 and stdout != '':
         try:
@@ -351,7 +359,7 @@ def generate_values(application: str, namespace: str, configs: list=None) -> lis
             values['controller_ipaddress'] = _get_controller_ip()
     except Exception as exec:
         logger.exception(exec)
-    if configs:
+    if configs and values:
         l_values = []
         for config in configs:
             for node_hostname, value in config.items():
@@ -367,7 +375,6 @@ def generate_values(application: str, namespace: str, configs: list=None) -> lis
     if values:
         return values
     return []
-
 
 def _write_values(deployment_name: str, value_items: dict) -> str:
     timestr = strftime("%Y%m%d-%H%M%S")
@@ -386,11 +393,15 @@ def _build_values(values: dict):
 
     return deployment_name, value_items
 
-
 def _purge_helm_app_on_failure(deployment_name: str, namespace: str):
     cmd = "helm uninstall {} --namespace {}".format(deployment_name, namespace)
     run_command2(command=cmd, use_shell=True, working_dir=WORKING_DIR)
 
+def _update_helm_charts():
+    stdout, ret_code = run_command2(command="helm repo update", working_dir=WORKING_DIR, use_shell=True)
+    if ret_code == 0:
+        print("helm repo cache updated.")
+        logger.info("helm repo cache updated.")
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def install_helm_apps (application: str, namespace: str, node_affinity: str, values: list, task_id=None):
@@ -466,6 +477,8 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
 def install_helm_command (deployment_name: str, application: str, node: str, namespace: str, value_items: dict):
     get_app_context().push()
     response = []
+    if not _check_chart_name(application):
+        return response
     tpath = _write_values(deployment_name, value_items)
     stdout, _ = run_command2(command="helm repo update", working_dir=WORKING_DIR, use_shell=True)
     rq_logger.debug(stdout)

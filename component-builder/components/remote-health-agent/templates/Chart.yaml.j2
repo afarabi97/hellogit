@@ -5,3 +5,6 @@ version: {{ component["helm_version"] }}
 appVersion: {{ component["app_version"] }}
 description: Remote health agent pushes health data to central controller
 details: This chart will install an agent on remote kits that will push data to a central controller
+annotations:
+  pmoSupported: true
+  isSensorApp: false

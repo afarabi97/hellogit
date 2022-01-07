@@ -5,4 +5,6 @@ version: {{ component["helm_version"] }}
 appVersion: {{ component["app_version"] }}
 description: Mattermost is a chat and file sharing platform
 details: This chart will install the mattermost application
-
+annotations:
+  pmoSupported: false
+  isSensorApp: false
