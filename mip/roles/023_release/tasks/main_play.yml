@@ -5,9 +5,9 @@
   register: commit_hash
   delegate_to: localhost
 
-- name: Copy MDT cvah-release file to etc
+- name: Copy {{ operator_type }} cvah-release file to etc
   template:
-    src: mdt.j2
+    src: release.j2
     dest: /etc/cvah-release
     owner: root
     group: root

@@ -107,27 +107,17 @@
     - MDT
     - CPT
 
-- name: CPT release file and notes
+- name: Release file and notes
   hosts:
     - mips
     - localhost
   gather_facts: yes
   any_errors_fatal: true
   roles:
-    - 023_CPT_release
+    - 023_release
   tags:
-    - CPT_release
+    - release
     - CPT
-
-- name: MDT release file and notes
-  hosts:
-    - mips
-  gather_facts: yes
-  any_errors_fatal: true
-  roles:
-    - 024_MDT_release
-  tags:
-    - MDT_release
     - MDT
 
 - name: Changing firewall settings

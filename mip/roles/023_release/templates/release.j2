@@ -1,0 +1,8 @@
+CVA/H Weapon System {{ mip_version }}
+Mobile Interceptor Platform (MIP) v{{ mip_version }} {{ operator_type }} Release
+{% if commit_hash.stdout %}
+MIP Controller Commit Hash: {{ commit_hash.stdout }}
+{% else %}
+MIP Controller Commit Hash: RPM Build
+{% endif %}
+MIP Build Date: {{ ansible_date_time.iso8601 }}
