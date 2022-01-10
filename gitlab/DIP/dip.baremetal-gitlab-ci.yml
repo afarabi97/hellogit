@@ -30,12 +30,11 @@ Setup Hardware Controller:
     --domain \"$KIT_DOMAIN\"
     --redfish-user \"$REDFISH_USER\"
     --redfish-password \"$REDFISH_PASSWORD\"
-    --monitoring-interface \"$MONITORING_INTERFACE\"
+    --monitoring-interfaces \"$MONITORING_INTERFACE\"
     --management-password \"$MANAGEMENT_PASSWORD\"
     --mp-external-ip \"$MP_EXTERNAL_IP\"
     --pfsense-ip \"$PFSENSE_IP\"
     --switch-ip \"$SWITCH_IP\"
-    --monitoring-interface \"$MONITORING_INTERFACE\"
     --run-remote-node \"$RUN_REMOTE_NODE\"
     --build-from-release \"$BUILD_FROM_RELEASE\"
     --rpm-build \"$RPM_BUILD\""
@@ -144,7 +143,7 @@ Hardware Sensor Setup:
     --start-index 1 \
     --pxe-type "$PXE_TYPE" \
     --idrac-ip-addresses $SENSOR_OOB \
-    --monitoring-interface $MONITORING_INTERFACE
+    --monitoring-interfaces $MONITORING_INTERFACE
   artifacts:
     untracked: true
   only:

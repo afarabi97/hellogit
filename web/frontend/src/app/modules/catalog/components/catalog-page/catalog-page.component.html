@@ -110,7 +110,7 @@
                                           >
                                 <mat-option *ngFor="let interface of sensorint.deviceFacts.potential_monitor_interfaces; let n = index;"
                                             id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select-' + n }}"
-                                            [value]="interface">{{interface}}<mat-icon matSuffix *ngIf="checkInterface(sensorint.hostname, interface)" matTooltip="{{ interface }} interface is disconnected" color="warn">warning</mat-icon>
+                                            [value]="interface" [disabled]="checkInterface(sensorint.hostname, interface)">{{interface}}<mat-icon matSuffix *ngIf="checkInterface(sensorint.hostname, interface)" matTooltip="{{ interface }} interface is disconnected" color="warn">warning</mat-icon>
                                 </mat-option>
                               </mat-select>
                             </mat-form-field>

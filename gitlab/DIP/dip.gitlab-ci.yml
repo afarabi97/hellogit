@@ -184,7 +184,7 @@ Sensor Setup:
     --num-nodes $NUM_SENSORS \
     --os-raid "$VM_RAID" \
     --dns-servers $DNS_SERVERS \
-    --monitoring-interface $MONITORING_INTERFACE
+    --monitoring-interfaces $MONITORING_INTERFACE
   retry: 2
   artifacts:
     untracked: true

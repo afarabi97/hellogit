@@ -97,6 +97,7 @@ class IntegrationTestsJob:
         control_node = get_control_plane_node(self.nodes)
         wait_for_pods_to_be_alive(control_node, 30)
         self.runner.update_ruleset("suricata")
+        self.runner.update_ruleset("zeek")
 
         self._replay_pcaps()
         _clean_up(wait = 0)

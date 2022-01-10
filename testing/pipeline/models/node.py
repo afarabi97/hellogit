@@ -144,7 +144,7 @@ class NodeSettingsV2(Model):
         self.mac_address = str(RandMac(MAC_BASE)).strip("'")
         self.dns_servers = namespace.dns_servers
         self.sensing_mac = str(RandMac(MAC_BASE)).strip("'")
-        self.monitoring_interfaces = namespace.monitoring_interface
+        self.monitoring_interfaces = namespace.monitoring_interfaces
 
         try:
             self.memory = int(namespace.memory)
@@ -191,7 +191,7 @@ class NodeSettingsV2(Model):
         parser.add_argument('--start-index', type=int, dest="start_index", required=True,
                             help="The index of the server or sensor.", default=1)
         parser.add_argument('--num-nodes', type=int, dest="num_nodes", required=True)
-        parser.add_argument('--monitoring-interface', dest='monitoring_interface', required=False, \
+        parser.add_argument('--monitoring-interfaces', dest='monitoring_interfaces', required=False, \
                              default=["ens224"], nargs="+", help="The monitoring interfaces for the sensors.")
 
 
@@ -320,7 +320,7 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
         self.index = self.start_index + index
         self.dns_servers = namespace.dns_servers
         self.node_type = namespace.node_type
-        self.monitoring_interfaces = namespace.monitoring_interface
+        self.monitoring_interfaces = namespace.monitoring_interfaces
         self.deployment_type = namespace.deployment_type
         self.idrac_ip_address = idrac_ip_address
         self.redfish_user = namespace.redfish_user
@@ -355,7 +355,7 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
                             help="The index of the server or sensor.", default=1)
         parser.add_argument('--pxe-type', dest='pxe_type', required=False, choices=["UEFI", "BIOS"],
                             help="Sets the PXE type of the nodes being kickstarted.", default= "UEFI")
-        parser.add_argument('--monitoring-interface', dest='monitoring_interface', required=False, \
+        parser.add_argument('--monitoring-interfaces', dest='monitoring_interfaces', required=False, \
                              default=["ens224"], nargs="+", help="The monitoring interfaces for the sensors.")
         parser.add_argument("--mip-ip-address", dest="mip_ip_address", nargs="+",
                             help="IP address of mips being built (IP address for each MIP needs to be preconfigured)", required=False)
