@@ -165,7 +165,7 @@ class DriveCreationJob:
     def _rsync_data_files(self, shell: Connection):
         print("Copying files to Data partition...")
         self._remote_sudo_cmd(shell,
-                              "rsync -azhSW --numeric-ids --info=progress2 {} {}".
+                              "rsync -avh --numeric-ids --info=progress2 {} {}".
                               format(self.rsync_source, self.xfs_data_path))
         self._remote_sudo_cmd(shell, "sync")
 
