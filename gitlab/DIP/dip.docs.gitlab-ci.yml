@@ -70,6 +70,30 @@ DIP User Documents:
       - $PIPELINE == "export-all"
 
 
+DIP Appendix Documents:
+  stage: docs
+  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "DIP User Documents - Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    run-export export-single-page-pdf \
+    --username "$CONFLUENCE_USERNAME" \
+    --password "$CONFLUENCE_PASSWORD" \
+    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/" \
+    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
+    --export-version "$TFPLENUM_EXPORT_VERSION" \
+    --page-titles "$DIP_CONFLUENCE_APPENDIX_DOCS"
+  retry: 2
+  only:
+    variables:
+      - $PIPELINE == "export-docs"
+      - $PIPELINE == "export-all"
+
+
 DIP Maintenance Documents:
   stage: docs
   needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
