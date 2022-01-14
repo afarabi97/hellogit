@@ -127,6 +127,9 @@ def create_rule_from_file(path: Path, rule_set: Dict, ignore_errors:bool=False, 
                     ret_val.append(create_rule_srv_wrapper(rule_set, filename, partial_rule.getvalue(), ignore_errors=ignore_errors, by_pass_validation=by_pass_validation))
                     partial_rule = StringIO()
                     count += 1
+        if partial_rule.tell() > 0:
+            filename = _get_file_name(path.name, count)
+            ret_val.append(create_rule_srv_wrapper(rule_set, filename, partial_rule.getvalue(), ignore_errors=ignore_errors, by_pass_validation=by_pass_validation))
         return ret_val
     else:
         with path.open() as f:
