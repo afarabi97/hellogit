@@ -19,18 +19,6 @@ Test Teardown       Close All Browsers
 
 
 *** Test Cases ***
-Perform Initial SSO for DIP Controller
-    [Tags]  THISISCVAH-7528
-    [Documentation]  Grabs the SSO administrator password from the user's controller and performs initial SSO.
-    ...              Logs into the DIP controller, accepts banner page, and updates the password when prompted.
-    Open SSH Connection  ${HOST}  ${HOST_USERNAME}  ${HOST_PASSWORD}
-    ${sso_pword} =  Execute Command  cat ${SSO_FILE}  # Retrieves the SSO password from the text file
-    Close Connection
-    Runner Open Browser  ${HOST}  ${BROWSER}
-    Log In To DIP Controller  ${SSO_ADMIN_USERNAME}  ${sso_pword}
-    Accept DoD Banner
-    Update Password
-
 Verify Correct System Name And Version Number
     [Tags]  THISISCVAH-8225
     [Documentation]  Test to check that controller has correct system name and version number.

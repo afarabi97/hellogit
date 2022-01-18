@@ -21,8 +21,8 @@ robot:sso_login:
   allow_failure: false
   only:
     variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+      - ($RUN_INTEGRATION == "yes" || $RUN_REGRESSION == "yes") && $PIPELINE == "developer-all"
+      - ($RUN_INTEGRATION == "yes" || $RUN_REGRESSION == "yes") && $PIPELINE == "hw-developer-all"
   retry: 2
 
 robot:catalog:
@@ -50,6 +50,8 @@ robot:catalog:
     - job: "Sensor Setup"
       optional: true
     - job: "Hardware Sensor Setup"
+      optional: true
+    - job: "robot:regression_testing"
       optional: true
     - job: "Service Setup"
   only:
@@ -122,6 +124,8 @@ robot:rulesets:zeek_signature:
     - job: "Service Setup"
     - job: robot:catalog
       optional: true
+    - job: "robot:regression_testing"
+      optional: true
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
@@ -157,6 +161,8 @@ robot:rulesets:suricata:
     - job: "Service Setup"
     - job: robot:catalog
       optional: true
+    - job: "robot:regression_testing"
+      optional: true
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
@@ -188,6 +194,8 @@ robot:rulesets:sync:
     - job: robot:rulesets:zeek_script
     - job: robot:rulesets:zeek_signature
     - job: robot:rulesets:suricata
+    - job: "robot:regression_testing"
+      optional: true
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
@@ -349,5 +357,5 @@ robot:regression_testing:
   allow_failure: false
   only:
     variables:
-      - $RUN_ROBOT_TESTS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_ROBOT_TESTS == "yes" && $PIPELINE == "hw-developer-all"
+      - $RUN_REGRESSION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"

@@ -59,7 +59,7 @@ class ConfiguredIfaces(Resource):
                 _add_to_set(sensor_hostname, suricata_values, ifaces)
 
             return list(ifaces)
-        return { 'error_message': 'Failed to to list iface names configured withg either zeek or suricata' }, 500
+        return { 'error_message': 'Failed to to list iface names configured with either zeek or suricata' }, 500
 
 
 @CATALOG_NS.route('/install')

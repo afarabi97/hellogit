@@ -116,7 +116,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "export $(cat /etc/thehive/application.env | xargs) && /opt/thehive/entrypoint --no-config"
+        - "sleep 120;export $(cat /etc/thehive/application.env | xargs) && /opt/thehive/entrypoint --no-config"
         env:
         - name: APPLICATION_SECRET
           valueFrom:

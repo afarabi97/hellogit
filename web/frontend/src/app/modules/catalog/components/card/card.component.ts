@@ -29,8 +29,8 @@ export class CardComponent {
    * @returns {string}
    * @memberof CardComponent
    */
-  generateUniqueHTMLID(passedID: string): string {
-    return ObjectUtilitiesClass.notUndefNull(this.uniqueHTMLID) ? `${this.uniqueHTMLID}-${passedID}` : passedID;
+   generateUniqueHTMLID(passedID: string): string {
+    return ObjectUtilitiesClass.notUndefNull(this.uniqueHTMLID) ? `${this.uniqueHTMLID}-${passedID}` : passedID;
   }
 
   /**

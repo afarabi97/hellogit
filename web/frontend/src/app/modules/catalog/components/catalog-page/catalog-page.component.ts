@@ -437,6 +437,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       case 'uninstall':
         this.serverAny();
         this.addDeploymentName();
+        catalog_helm_action.process = this.processFormGroup.getRawValue() as ProcessFromFormGroupInterface;
         this._CatalogService.catalog_uninstall(catalog_helm_action)
           .subscribe(_data => this.snackBar.open(`${this.chart.id} Uninstall Queued`, 'OK', { duration: 5000 }));
         break;
@@ -480,7 +481,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   addDeploymentName() {
-    this.processFormGroup.getRawValue().selectedNodes.map(nodes => {
+    this.processFormGroup.getRawValue().selectedNodes.map((nodes: NodeClass) => {
       this.statuses.map( value => {
         if(value.hostname === nodes.hostname || value.hostname === null) {
           nodes.deployment_name = value.deployment_name;

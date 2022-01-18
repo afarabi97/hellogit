@@ -55,7 +55,7 @@ class NotificationMessage(object):
         self.exception = ""
         self.message = ""
         self.status = ""
-        self.data = {}
+        self.data = []
 
     def set_message(self, message: str) -> None:
         self.message = message
@@ -73,7 +73,7 @@ class NotificationMessage(object):
         if exception is not None:
             self.exception = str(exception)
 
-    def set_additional_data(self, data: dict) -> None:
+    def set_additional_data(self, data: list) -> None:
         self.data = data
 
     def to_json(self):

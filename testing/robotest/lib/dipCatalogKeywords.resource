@@ -10,7 +10,7 @@ Install/Uninstall Every App
     Set Selenium Speed  0.5s
     Navigate To Catalog
 
-    ${skip_apps} =  Create List  Arkime-viewer  Remote-health-agent
+    ${skip_apps} =  Create List  Arkime-viewer  Remote-health-agent  Hive  Misp
     Wait Until Element Is Visible  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
     ${app_name_count} =  Get Element Count  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
     FOR  ${index}  IN RANGE  ${app_name_count}
@@ -20,6 +20,13 @@ Install/Uninstall Every App
         ...  AND  Install App  ${app_name}
         ...  AND  Uninstall App  ${app_name}
         ...  AND  Uninstall App  Arkime-viewer
+        ...  ELSE IF  '${app_name}' == 'Cortex'
+        ...  Run Keywords  Install App  ${app_name}
+        ...  AND  Install App  Misp
+        ...  AND  Install App  Hive
+        ...  AND  Uninstall App  Hive
+        ...  AND  Uninstall App  Misp
+        ...  AND  Uninstall App  ${app_name}
         ...  ELSE IF  $app_name not in $skip_apps
         ...  Run Keywords  Install App  ${app_name}
         ...  AND  Uninstall App  ${app_name}

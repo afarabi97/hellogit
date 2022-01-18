@@ -79,10 +79,10 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.ioConnection = this._WebsocketService.onBroadcast()
     .subscribe((message: NotificationClass) => {
       if(message.role === "catalog") {
-        if(message.data !== {}) {
+        if(message.data) {
           this.charts.map( chart => {
             if( chart.application === message.application.toLowerCase()) {
-              chart.nodes = message.data;
+                chart.nodes = message.data;
             }
           });
         }

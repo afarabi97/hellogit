@@ -10,7 +10,7 @@ Install/Uninstall Every App
     Clear Preexisting Notifications  ${locCatalogNotificationTypeBtn}
     Wait Until Element Is Visible  ${locCatalogPageNavIcon}
     Click Element  ${locCatalogPageNavIcon}
-    ${skip_apps} =  Create List  Arkime-viewer  Remote-health-agent
+    ${skip_apps} =  Create List  Arkime-viewer  Remote-health-agent  Hive  Misp
     Wait Until Element Is Visible  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
     ${app_name_count} =  Get Element Count  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
     FOR  ${index}  IN RANGE  ${app_name_count}
@@ -20,6 +20,13 @@ Install/Uninstall Every App
             Install App  ${app_name}
             Uninstall App  ${app_name}
             Uninstall App  Arkime-viewer
+        ELSE IF  '${app_name}' == 'Cortex'
+            Install App  ${app_name}
+            Install App  Misp
+            Install App  Hive
+            Uninstall App  Hive
+            Uninstall App  Misp
+            Uninstall App  ${app_name}
         ELSE IF  $app_name not in $skip_apps
             Install App  ${app_name}
             Uninstall App  ${app_name}

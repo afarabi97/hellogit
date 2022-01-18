@@ -33,6 +33,7 @@ def get_app_credentials(app: str, user_key: str, pass_key: str):
     return "??/??"
 
 def _append_portal_link(name: str, kit_domain: str, ip: str = None):
+    logins = ''
     if name == "arkime":
         logins = get_app_credentials('arkime-viewer','username','password')
     elif name == "hive":
@@ -52,8 +53,6 @@ def _append_portal_link(name: str, kit_domain: str, ip: str = None):
         logins = get_app_credentials('mattermost','admin_user','admin_pass')
     elif name == "rocketchat":
         logins = get_app_credentials('rocketchat','admin_user','admin_pass')
-    elif name == "nifi":
-        logins = ''
     fip = HTTPS_STR + ip
     dns = HTTPS_STR + name + "." + kit_domain
     return {'ip': fip, 'dns': dns, 'logins': logins}
@@ -83,6 +82,7 @@ def get_portal_links():
                     if _is_discluded(name):
                         continue
                     portal_links.append(_append_portal_link(name, kit_domain, svc_ip))
-    except Exception:
+    except Exception as e:
+        print(str(e))
         pass
     return portal_links

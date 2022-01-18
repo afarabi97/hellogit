@@ -60,7 +60,7 @@ variables:
   RUN_SECURITY_SCANS: "yes"
   UPDATE_CODE: "yes"
   IS_CLEANUP: "no"
-  RUN_ROBOT_TESTS: "yes"
+  RUN_REGRESSION: "no"
   MINIO_USE_TLS: "no"
   # Creates multiboot partition on full drives, when doing a minor release make sure this is set to no
   CREATE_MULTIBOOT: "yes"
@@ -220,9 +220,9 @@ stages:
   - deploy-kit
   - node-setup
   - security_scans
+  - robot-test-regression
   - robot-test-setup
   - robot-test-elastic
-  - robot-test-regression
   - integration-test
   - disk-test
   - test-powerfailure

@@ -527,7 +527,7 @@ def install_helm_command (deployment_name: str, application: str, node: str, nam
     return response
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
-def delete_helm_apps (application: str, nodes: List, namespace: str="default"):
+def delete_helm_apps (application: str, namespace: str, nodes: List):
     get_app_context().push()
     # Send Update Notification to websocket
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.UNINSTALLING.name.capitalize(), application=application.capitalize())
