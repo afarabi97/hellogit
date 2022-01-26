@@ -2,11 +2,11 @@
 Resource    ../include/dipCommonVariables.resource
 Resource    ./dipCatalogKeywords.resource
 
-Library     SeleniumLibrary     15s    run_on_failure= Loggy.failure
+Library     Loggy.py            ${CATEGORY}    WITH NAME    loggy_obj
+Library     SeleniumLibrary     15s    run_on_failure= loggy_obj.failure
 Library     SSHLibrary          15s
 Library     String
 Library     Collections
-Library     Loggy.py
 Library     TFPlenumLibrary.py
 
 
@@ -289,7 +289,7 @@ click
     log     Clicked element: ${element}
 
 failTest
-    Loggy.failure
+    loggy_obj.failure
     fail
 
 clickElements
@@ -432,11 +432,11 @@ getItemFromLocCount
 
 log
     [Arguments]     ${text}    ${isError}=False
-    Loggy.loggy     ${text}    ${isError}
+    loggy_obj.loggy     ${text}    ${isError}
 
 logDict
     [Arguments]     ${text}=""     ${dictionary}={}
-    Loggy.loggy     Logging Dictionary ${text}: ${dictionary}
+    loggy_obj.loggy     Logging Dictionary ${text}: ${dictionary}
     FOR    ${key}    IN    @{dictionary}
         log    ${key}=${dictionary}[${key}]
     END

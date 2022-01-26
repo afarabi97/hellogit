@@ -9,27 +9,28 @@ Install/Uninstall Every App
     ...              and the Health page. The app is then immediately uninstalled.
     Set Selenium Speed  0.5s
     Navigate To Catalog
-
+    log     Installing all applications on Catalog page
     ${skip_apps} =  Create List  Arkime-viewer  Remote-health-agent  Hive  Misp
     Wait Until Element Is Visible  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
     ${app_name_count} =  Get Element Count  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
     FOR  ${index}  IN RANGE  ${app_name_count}
         ${app_name} =  Get Text  id=app-chart-list-${index}-app-card-div-div-div-h3-chart-application
-        Run Keyword If  '${app_name}' == 'Arkime'
-        ...  Run Keywords  Install App  Arkime-viewer
-        ...  AND  Install App  ${app_name}
-        ...  AND  Uninstall App  ${app_name}
-        ...  AND  Uninstall App  Arkime-viewer
-        ...  ELSE IF  '${app_name}' == 'Cortex'
-        ...  Run Keywords  Install App  ${app_name}
-        ...  AND  Install App  Misp
-        ...  AND  Install App  Hive
-        ...  AND  Uninstall App  Hive
-        ...  AND  Uninstall App  Misp
-        ...  AND  Uninstall App  ${app_name}
-        ...  ELSE IF  $app_name not in $skip_apps
-        ...  Run Keywords  Install App  ${app_name}
-        ...  AND  Uninstall App  ${app_name}
+        IF  '${app_name}' == 'Arkime'
+            Install App  Arkime-viewer
+            Install App  ${app_name}
+            Uninstall App  ${app_name}
+            Uninstall App  Arkime-viewer
+        ELSE IF  '${app_name}' == 'Cortex'
+            Install App  ${app_name}
+            Install App  Misp
+            Install App  Hive
+            Uninstall App  Hive
+            Uninstall App  Misp
+            Uninstall App  ${app_name}
+        ELSE IF  $app_name not in $skip_apps
+            Install App  ${app_name}
+            Uninstall App  ${app_name}
+        END
     END
 
 Install Every App

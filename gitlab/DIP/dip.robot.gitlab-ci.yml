@@ -7,7 +7,7 @@ robot:sso_login:
   script: |
     python3 -m run.runner -c integration \
       -t "000_initial_login/00_dipInitialSSOLogin" \
-      -r INTEGRATION \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
@@ -349,13 +349,15 @@ robot:regression_testing:
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
       -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
-      -v PIPELINE:$PIPELINE
+      -v PIPELINE:$PIPELINE \
+      -v CATEGORY:regression
     /bin/cp -rf /usr/src/robot/output $build_path/
   artifacts:
     untracked: true
     when: always
-  allow_failure: false
+  allow_failure: true
   only:
     variables:
       - $RUN_REGRESSION == "yes" && $PIPELINE == "developer-all"
       - $RUN_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2

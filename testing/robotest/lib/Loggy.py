@@ -7,7 +7,7 @@ class Loggy:
     ROBOT_LISTENER_API_VERSION = 2
     ROBOT_LIBRARY_SCOPE = "GLOBAL"
 
-    def __init__(self):
+    def __init__(self, category):
         self.ROBOT_LIBRARY_LISTENER = self
         self.keywords = []
         self.testname = "default test name"
@@ -21,7 +21,7 @@ class Loggy:
         self.COLOR_ENDC = "\033[0m"
         self.COLOR_BOLD = "\033[1m"
         self.COLOR_UNDERLINE = "\033[4m"
-        self.test_case_list = self._generate_test_case_list("tests/integration")
+        self.test_case_list = self._generate_test_case_list(f"tests/{category}")
 
     def _generate_test_case_list(self, *keyword_relpaths):
         local_test_case_list: list[str] = []

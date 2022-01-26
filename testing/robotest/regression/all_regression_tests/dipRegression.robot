@@ -5,32 +5,33 @@ Documentation          Test suite for the virtual DIP controller. The following 
 ...                    Notice how connections are handled as part of the suite setup and
 ...                    teardown. This saves some time when executing several test cases.
 
-Resource    ./lib_regression/dipCommonKeywords.resource
-Resource    ./lib_regression/dipCatalogKeywords.resource
-Resource    ./include_regression/dipCatalogVariables.resource
+Resource    ../../lib/dipCommonKeywords.resource
+Resource    ../../lib/dipCatalogKeywords.resource
 
-Library     SeleniumLibrary     15s    run_on_failure=NONE
+Library     SeleniumLibrary     15s
 Library     SSHLibrary          15s
 Library     String
 
 
-Test Setup          Set DIP Kit Global Variables
-Test Teardown       Close All Browsers
+Suite Setup       Open SSH Connection      ${HOST}                ${HOST_USERNAME}                ${HOST_PASSWORD}
+Test Setup        Run Keywords             Runner Open Browser    ${HOST}                         ${BROWSER}
+                  ...                      AND                    Set DIP Kit Global Variables
+                  ...                      AND                    Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
+Test Teardown     Close Browser
+Suite Teardown    Close All Connections
 
 
 *** Test Cases ***
-Verify Correct System Name And Version Number
+Verify Correct System Version Number
     [Tags]  THISISCVAH-8225
     [Documentation]  Test to check that controller has correct system name and version number.
     ...              Also checks that the Service Now web address is correct.
     Runner Open Browser  ${HOST}  ${BROWSER}
-    Log In To DIP Controller  ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
-    Click Element  ${locExpandSideNavIcon}
-    Element Should Contain  ${locSystemName}  TFPLENUM Controller
-
+    Login Into DIP Controller  ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
+    log     Verifying the version number listed on the Support page
     Wait Until Element Is Visible  ${locSupportPageNavIcon}
     Click Element  ${locSupportPageNavIcon}
-    Sleep  2s  # Version number loads slightly after the element loads onto the page
+    Sleep  2s  reason=Version number loads slightly after the element loads onto the page
     Element Should Contain  ${locSystemVersionNumber}  ${KIT_VERSION}
     Element Should Contain  ${locServiceNowURL}  https://afdco.servicenowservices.com/sp
 
@@ -38,5 +39,5 @@ Install And Uninstall Apps From Catalog Page
     [Tags]  THISISCVAH-10181
     [Documentation]  Check functionality of the Catalog page by installing and uninstalling PMO supported apps.
     Runner Open Browser  ${HOST}  ${BROWSER}
-    Log In To DIP Controller  ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
+    Login Into DIP Controller  ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
     Install/Uninstall Every App

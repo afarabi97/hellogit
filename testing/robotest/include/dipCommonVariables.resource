@@ -1,4 +1,5 @@
 *** Variables ***
+${CATEGORY}                     integration  # default test category
 ${SSO_ADMIN_USERNAME}           admin
 ${NEW_SSO_ADMIN_PASSWORD}       1qaz2wsx!QAZ@WSX
 ${KIBANA_USERNAME}              elastic
