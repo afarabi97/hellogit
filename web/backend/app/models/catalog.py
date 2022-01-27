@@ -125,7 +125,7 @@ class SavedHelmValuesModel(Model):
                 "https://tfplenum-es-data-3.tfplenum-es-data.default.svc.cluster.local:9200"
             ],
             "filebeat_image_name": "beats/filebeat",
-            "filebeat_image_tag": "7.15.1",
+            "filebeat_image_tag": "7.16.2",
             "home_net": [
                 "192.168.0.0/24"
             ],

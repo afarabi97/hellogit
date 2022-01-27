@@ -62,9 +62,10 @@ filebeat_pipeline_all: filebeat-all_modules
 external_template_defaults:
   index_patterns:
     - "{{ filebeat_external_name }}-*"
-  settings:
-    index:
-      lifecycle:
-        name: "{{ filebeat_external_name }}"
-        rollover_alias: "{{ filebeat_external_name }}"
-      default_pipeline: "{{ filebeat_pipeline_all }}"
+  template:
+    settings:
+      index:
+        lifecycle:
+          name: "{{ filebeat_external_name }}"
+          rollover_alias: "{{ filebeat_external_name }}"
+        default_pipeline: "{{ filebeat_pipeline_all }}"

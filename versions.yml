@@ -34,11 +34,11 @@ docker_versions:
   metallb_version: "v0.10.3"
   arkime_version: "3.1.0"
   suricata_version: "6.0.0"
-  elastic_7_version: "7.15.1"
+  elastic_7_version: "7.16.2"
   hive_cortex_version: 3.1.1-1
   hive_version: 4.1.9-1
   cassandra_version: 4.0.1
-  elastic_operator: 1.8.0
+  elastic_operator: 1.9.1
   redmine_version: "4.2.1"
   nifi_version: 1.12.1
   mariadb_version: 10.6.3

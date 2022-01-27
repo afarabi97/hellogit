@@ -1,7 +1,7 @@
 export const GenerateValues: Object[] = [
   {
     server: {
-      elastic_image: 'elasticsearch/elasticsearch:7.15.1',
+      elastic_image: 'elasticsearch/elasticsearch:7.16.2',
       cortex_image: 'tfplenum/cortex:3.1.1-1',
       python_image: 'tfplenum/python:3.9.0',
       cortex_port: 9001,

@@ -84,14 +84,14 @@ export const MockChartInterfaceJCATNIFI: ChartInterface = {
 export const MockChartInterfaceLogstash: ChartInterface = {
   application: 'logstash',
   version: '1.0.2',
-  appVersion: '7.15.1',
+  appVersion: '7.16.2',
   description: 'Logstash is an open source, server-side data processing pipeline that ingests data from a multitude of sources simultaneously, transforms it, and then sends it to your favorite stash.',
   pmoSupported: true,
   isSensorApp: false,
   nodes: [
     {
       application: 'logstash',
-      appVersion: '7.15.1',
+      appVersion: '7.16.2',
       status: 'DEPLOYED',
       deployment_name: 'logstash',
       hostname: 'server',

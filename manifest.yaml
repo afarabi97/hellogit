@@ -198,7 +198,7 @@ CPT:
     - Repo/CPT/AppStore/Winexe/1.0
     - Repo/CPT/AppStore/Winfingerprint/0.6.2
     - Repo/CPT/AppStore/Wininterrogate/0.1.5
-    - Repo/Shared/AppStore/Elastic Stack/7.15.1
+    - Repo/Shared/AppStore/Elastic Stack/7.16.2
     - Repo/Shared/AppStore/Grassmarlin/3.3
     - Repo/Shared/AppStore/Metasponse/1.6.2.0
     - Repo/Shared/AppStore/nfdump/1.6.23
@@ -337,7 +337,7 @@ MDT:
     - Repo/MDT/AppStore/Powershell Community Extensions/3.3.2
     - Repo/MDT/AppStore/Powershell Remote Registry (PSRR)/3.0
     - Repo/MDT/AppStore/SCAP Compliance Checker/4.2
-    - Repo/Shared/AppStore/Elastic Stack/7.15.1
+    - Repo/Shared/AppStore/Elastic Stack/7.16.2
     - Repo/Shared/AppStore/Grassmarlin/3.3
     - Repo/Shared/AppStore/Metasponse/1.6.2.0
     - Repo/Shared/AppStore/nfDump/1.6.23

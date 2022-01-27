@@ -19,7 +19,7 @@ decorator==4.4.0
 dnspython==1.16.0
 docker==4.1.0
 docutils==0.14
-elasticsearch==7.11.0
+elasticsearch==7.16.2
 eventlet==0.24.1
 fabric==2.4.0
 Flask-Cors==3.0.6
