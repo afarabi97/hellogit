@@ -83,60 +83,6 @@ def _print_unavailable_ips(available_ip_addresses: List[str]):
     print("END Unavailable IPS")
 
 
-def _is_valid_ip_block(available_ip_addresses: List[str], index: int) -> bool:
-    """
-    Ensures that the /28 IP blocks ip are all available.
-    If a given /28 blocks IP address has been taken by some other node on the network,
-    the block gets thrown out.
-
-    :param available_ip_addresses: A list of unused IP on the subnet.
-    :param index:
-    """
-    cached_octet = None
-    for i, ip in enumerate(available_ip_addresses[index:]):
-        pos = ip.rfind('.') + 1
-        last_octet = int(ip[pos:])
-        if cached_octet is None:
-            cached_octet = last_octet
-        else:
-            if (cached_octet + 1) == last_octet:
-                cached_octet = last_octet
-            else:
-                return False
-
-        if i == 31:
-            break
-    return True
-
-
-def _get_ip_blocks(cidr: int) -> List[int]:
-    """
-    Gets IP blocks based on CIDR notation.
-    It only accept /24 through /26 subnet ranges.
-
-    It returns an array of the start of each IP /27 block.
-
-    :param cidr: The network cidr
-
-    :return: [1, 32, 64 ...]
-    """
-    cidr_to_host_mapping = {24: 254, 25: 126, 26: 62}
-    count = 0
-    number_of_hosts = cidr_to_host_mapping[cidr]
-    valid_ip_blocks = []
-    for i in range(number_of_hosts):
-        count += 1
-        if count == 1:
-            if i == 0:
-                valid_ip_blocks.append(i + 1)
-            else:
-                valid_ip_blocks.append(i)
-
-        if count == 32:
-            count = 0
-    return valid_ip_blocks
-
-
 def netmask_to_cidr(netmask: str) -> int:
     '''
     Converts a standards netmask to the associated CIDR notation.

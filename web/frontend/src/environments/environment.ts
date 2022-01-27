@@ -52,14 +52,8 @@ export const environment = {
 
   USER_SERVICE_CURRENT_USER: `/api/current_user`,
 
-  ARCHIVE_SERVICE_ARCHIVE_FORM: `/api/archive_form`,
-  ARCHIVE_SERVICE_ARCHIVE_DELETE: `/api/delete_archive/`,
-  ARCHIVE_SERVICE_ARCHIVE_RESTORE: `/api/restore_archived`,
-  ARCHIVE_SERVICE_ARCHIVE_GET: `/api/get_archived/`,
-
-  KICKSTART_SERVICE_GET_AVAILABLE_IP_BLOCKS: `/api/available-ip-blocks`,
-  KICKSTART_SERVICE_GET_IP_BLOCKS: `/api/ip-blocks/`,
   KICKSTART_SERVICE_GET_UNUSED_IP_ADDRESSES: `/api/unused-ip-addrs`,
+  KICKSTART_SERVICE_GET_USED_IP_ADDRESSES: `/api/used-ip-addrs`,
   KICKSTART_SERVICE_GENERATE_KICKSTART_INVENTORY: `/api/generate_kickstart_inventory`,
   KICKSTART_SERVICE_GENERATE_MIP_KICKSTART_INVENTORY: `/api/generate_mip_kickstart_inventory`,
   KICKSTART_SERVICE_GET_KICKSTART_FORM: `/api/get_kickstart_form`,

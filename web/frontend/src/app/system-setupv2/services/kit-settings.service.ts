@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class KitSettingsService {
               private snackbarWrapper: SnackbarWrapper) { }
 
   getUnusedIPAddresses(mng_ip: string, netmask: string): Observable<Object> {
-    const url = `/api/unused-ip-addrs/${mng_ip}/${netmask}`;
+    const url = `${environment.KICKSTART_SERVICE_GET_UNUSED_IP_ADDRESSES}/${mng_ip}/${netmask}`;
     return this.http.get(url)
       .pipe(
         catchError(this.snackbarWrapper.handleError())
@@ -22,7 +23,7 @@ export class KitSettingsService {
   }
 
   getUsedIPAddresses(mng_ip: string, netmask: string): Observable<Object> {
-    const url = `/api/used-ip-addrs/${mng_ip}/${netmask}`;
+    const url = `${environment.KICKSTART_SERVICE_GET_USED_IP_ADDRESSES}/${mng_ip}/${netmask}`;
     return this.http.get(url)
       .pipe(
         catchError(this.snackbarWrapper.handleError())

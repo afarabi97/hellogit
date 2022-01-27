@@ -40,6 +40,7 @@ from kubernetes.client.rest import ApiException
 from paramiko.ssh_exception import AuthenticationException
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
+from werkzeug.security import safe_join
 
 _JOB_NAME = "tools"
 
@@ -129,29 +130,30 @@ class UpdateDocs(Resource):
         if 'upload_file' not in request.files:
             return {"error_message": "Failed to upload file. No file was found in the request."}, 400
 
+        if Path(request.files['upload_file'].filename).suffix != '.zip':
+            return {"error_message": "Failed to upload file. Files must end with the .zip extension."}, 400
+
         if 'space_name' not in request.form or request.form['space_name'] is None or request.form['space_name'] == "":
             return {"error_message": "Space name is required."}, 400
 
+        if '\x00' in request.form['space_name']:
+            return {"error_message": "Invalid space name: The null character is prohibited."}, 400
+
         with tempfile.TemporaryDirectory() as upload_path: # type: str
-            incoming_file = request.files['upload_file']
-            filename = secure_filename(incoming_file.filename)
-            space_name = request.form['space_name']
+            tmp_archive_path = upload_path + '/' + secure_filename(request.files['upload_file'].filename)
+            request.files['upload_file'].save(tmp_archive_path)
 
-            pos = filename.rfind('.') + 1
-            if filename[pos:] != 'zip':
-                return {"error_message": "Failed to upload file. Files must end with the .zip extension."}, 400
+            new_docs_path = safe_join("/var/www/html/docs", request.form['space_name'])
+            if new_docs_path is None:
+                return {"error_message": "The Space Name passed in is of an invalid value that cannot be safely joined."}, 400
 
-            abs_save_path = str(upload_path) + '/' + filename
-            incoming_file.save(abs_save_path)
+            shutil.rmtree(new_docs_path, ignore_errors=True)
+            Path(new_docs_path).mkdir(parents=True, exist_ok=False)
 
-            extracted_path = "/var/www/html/docs/" + space_name
-            shutil.rmtree(extracted_path, ignore_errors=True)
-            Path(extracted_path).mkdir(parents=True, exist_ok=False)
+            with zipfile.ZipFile(tmp_archive_path) as zip_ref:
+                zip_ref.extractall(new_docs_path)
 
-            with zipfile.ZipFile(abs_save_path) as zip_ref:
-                zip_ref.extractall(extracted_path)
-
-            return {"success_message": "Successfully updated confluence documentation!"}
+        return {"success_message": "Successfully updated confluence documentation!"}
 
 
 def validate_es_license_json(license: dict) -> bool:

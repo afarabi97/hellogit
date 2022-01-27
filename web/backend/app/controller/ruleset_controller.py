@@ -735,7 +735,7 @@ class TestRuleAgainstPCAP(Resource):
     @operator_required
     def post(self) -> Response:
         payload = request.get_json()
-        pcap_name = payload["pcap_name"]
+        pcap_name = secure_filename(payload["pcap_name"])
         rule_content = payload['rule_content']
         rule_type = payload['ruleType']
 
