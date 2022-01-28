@@ -17,6 +17,7 @@ export class FormControlClass implements FormControlInterface {
   name: string;
   trueValue?: string;
   type: string;
+  dependent_app?: string;
 
   /**
    * Creates an instance of FormControlClass.
@@ -34,5 +35,6 @@ export class FormControlClass implements FormControlInterface {
     this.required = form_control_interface.required;
     this.trueValue = form_control_interface.trueValue;
     this.type = form_control_interface.type;
+    this.dependent_app = form_control_interface.dependent_app;
   }
 }

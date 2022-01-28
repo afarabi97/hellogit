@@ -21,8 +21,6 @@ CORTEX_INTEGRATION=os.getenv('CORTEX_INTEGRATION',default='')
 ORG_NAME=os.environ['ORG_NAME']
 VERIFY="/etc/ssl/certs/container/ca.crt"
 
-
-
 class MISPSetup:
     def __init__(self):
         print("Running MISP Setup Script")
@@ -192,10 +190,22 @@ class MISPSetup:
             print("Setup Exception: " + str(e))
             return False
 
+    def get_misp_analyzer(self):
+        url = CORTEX_URI + "/analyzerdefinition"
+        analyzers =  requests.get(url=url, auth=HTTPBasicAuth(ORG_ADMIN_USERNAME, ORG_ADMIN_PASSWORD), verify=VERIFY, headers=cortex_headers)
+
+        for analyzer in analyzers.json():
+            if analyzer['name'].lower() == "misp":
+                return analyzer['id']
+
+        print("MISP analyzer does not exist within Cortex")
+        sys.exit(1)
+
     def enable_cortex_misp_analyzer(self):
         print("Enabling MISP Analyzer for Cortex")
+        misp_analyzer = self.get_misp_analyzer()
         data = {
-          "name": "MISP_2_0",
+          "name": "{}".format(misp_analyzer),
           "configuration": {
             "name": [
               "MISP Local"
@@ -219,7 +229,7 @@ class MISPSetup:
           "jobCache": 10,
           "jobTimeout": 30
         }
-        url = CORTEX_URI + "/organization/analyzer/MISP_2_0"
+        url = CORTEX_URI + "/organization/analyzer/{}".format(misp_analyzer)
         return requests.post(url=url, json=data, auth=HTTPBasicAuth(ORG_ADMIN_USERNAME, ORG_ADMIN_PASSWORD), verify=VERIFY, headers=cortex_headers)
 
     def get_cortex_api(self):

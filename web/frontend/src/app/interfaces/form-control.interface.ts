@@ -14,4 +14,5 @@ export interface FormControlInterface {
   name: string;
   trueValue?: string;
   type: string;
+  dependent_app?: string;
 }

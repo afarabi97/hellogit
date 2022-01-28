@@ -50,7 +50,9 @@ class ChartInfoFormCtrlModel(Model):
                                              be performed on client side other than a required check if that is set to true."),
         "name": fields.String(example="external_net", description="Name of the formcontrol."),
         "error_message": fields.String(example="Enter a valid IP in a bracket array (EX: [\"192.168.0.0/24\"] or [\"any\"]) with the brackets.",
-                                        description="The error message returned on the client side if the user entered an invalid regex value.")
+                                        description="The error message returned on the client side if the user entered an invalid regex value."),
+        "dependent_app": fields.String(example="cortex",
+                                        description="The application required prior to deploying current chart.")
     })
 
 

@@ -56,4 +56,61 @@
       msg: "Failed it appears cortex pod status is {{ item.stdout }}"
     with_items: "{{ pod_status.results }}"
   when: app_deployed
+
+- name: Get MISP analyzer facts
+  uri:
+    url: "{{ cortex_uri }}/analyzer?range=all&sort=%2Bname"
+    return_content: yes
+    validate_certs: no
+    user: "{{ cortex_username }}"
+    password: "{{ cortex_password }}"
+    force_basic_auth: yes
+    status_code: 200
+  register: misp_analyzer
+  until: misp_analyzer.status == 200
+  retries: 10
+  delay: 5
+  ignore_errors: yes
+
+- name: Set MISP analyzer url
+  set_fact:
+    cortex_run_analyzer_url: "{{ cortex_uri }}/analyzer/{{ misp_analyzer.json[0].id }}/run"
+
+- name: Run MISP analyzer
+  uri:
+    url: "{{ cortex_run_analyzer_url }}"
+    return_content: yes
+    validate_certs: no
+    user: "{{ cortex_username }}"
+    password: "{{ cortex_password }}"
+    force_basic_auth: yes
+    status_code: 200
+    body: '{"data": "8.8.8.8", "attributes": {"dataType": "ip", "tlp": 2, "pap": 2 }}'
+    method: POST
+    body_format: json
+  register: run_analyzer
+  ignore_errors: yes
+
+- name: Test | MISP analyzer
+  assert:
+    that: run_analyzer.status == 200
+    msg: "MISP analyzer did not load properly"
+
+- name: Check if MISP analyzer job was successful
+  uri:
+    url: "{{ cortex_uri }}/job/_search?range=0-50&sort=-createdAt"
+    return_content: yes
+    validate_certs: no
+    user: "{{ cortex_username }}"
+    password: "{{ cortex_password }}"
+    force_basic_auth: yes
+    status_code: 200
+    body: '{"query":{}}'
+    method: POST
+    body_format: json
+  register: job
+  until: job.json[0].status == "Success"
+  retries: 10
+  delay: 5
+  ignore_errors: yes
 ...
