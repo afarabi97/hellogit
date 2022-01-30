@@ -8,11 +8,8 @@ from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
 from models.kit import KitSettingsV2, KitSettingsDef
 from models.gip_settings import GIPServiceSettings
 from models.node import NodeSettingsV2, HardwareNodeSettingsV2, load_control_plane_nodes_from_mongo
-from models.catalog import (CatalogSettings, ArkimeCaptureSettings,
-                            ArkimeViewerSettings, ZeekSettings,
-                            LogstashSettings, SuricataSettings,
-                            WikijsSettings, MispSettings, HiveSettings,
-                            RocketchatSettings, CortexSettings, MattermostSettings,
+from models.catalog import (CatalogSettings,
+                            MattermostSettings,
                             RedmineSettings, NifiSettings, JcatNifiSettings, NetflowFilebeatSettings)
 from models.rhel_repo_vm import RHELRepoSettings
 from models.minio import MinIOSettings
@@ -37,17 +34,7 @@ class YamlManager:
             cls.yaml.register_class(VCenterSettings)
             cls.yaml.register_class(ESXiSettings)
             cls.yaml.register_class(RepoSettings)
-            cls.yaml.register_class(SuricataSettings)
             cls.yaml.register_class(CatalogSettings)
-            cls.yaml.register_class(ArkimeCaptureSettings)
-            cls.yaml.register_class(ArkimeViewerSettings)
-            cls.yaml.register_class(ZeekSettings)
-            cls.yaml.register_class(LogstashSettings)
-            cls.yaml.register_class(WikijsSettings)
-            cls.yaml.register_class(MispSettings)
-            cls.yaml.register_class(HiveSettings)
-            cls.yaml.register_class(CortexSettings)
-            cls.yaml.register_class(RocketchatSettings)
             cls.yaml.register_class(MattermostSettings)
             cls.yaml.register_class(NifiSettings)
             cls.yaml.register_class(JcatNifiSettings)

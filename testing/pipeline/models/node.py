@@ -2,7 +2,7 @@ import copy
 import logging
 
 from argparse import Namespace, ArgumentParser
-from os import name
+from os import name, system
 from models import Model
 from models import kit
 from models.kit import KitSettingsV2
@@ -50,8 +50,15 @@ class NodeSettingsV2(Model):
         self.vm_prefix = ''
         self.memory = 0
         self.cpu = 0
-        self.monitoring_interfaces = ["ens224"]
         self.device_facts = {}
+
+    def get_monitoring_interfaces_from_mongo(self) -> List[str]:
+        with MongoConnectionManager(self.kit_settings.settings.controller_interface) as mongo:
+            results = mongo.mongo_catalog_saved_values.find({"values.node_hostname": self.hostname})
+            for result in results:
+                if result['values']['interfaces']:
+                    return result['values']['interfaces']
+        return []
 
     def is_sensor(self) -> bool:
         return self.node_type.lower() == "sensor"
@@ -144,7 +151,6 @@ class NodeSettingsV2(Model):
         self.mac_address = str(RandMac(MAC_BASE)).strip("'")
         self.dns_servers = namespace.dns_servers
         self.sensing_mac = str(RandMac(MAC_BASE)).strip("'")
-        self.monitoring_interfaces = namespace.monitoring_interfaces
 
         try:
             self.memory = int(namespace.memory)
@@ -191,8 +197,6 @@ class NodeSettingsV2(Model):
         parser.add_argument('--start-index', type=int, dest="start_index", required=True,
                             help="The index of the server or sensor.", default=1)
         parser.add_argument('--num-nodes', type=int, dest="num_nodes", required=True)
-        parser.add_argument('--monitoring-interfaces', dest='monitoring_interfaces', required=False, \
-                             default=["ens224"], nargs="+", help="The monitoring interfaces for the sensors.")
 
 
 class HardwareNodeSettingsV2(NodeSettingsV2):
@@ -245,8 +249,8 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
                 return ret_val
 
             except Exception as e:
-                print('ERROR: Check connection to MIPs!')
-                print(e)
+                logging.error('ERROR: Check connection to MIPs!')
+                logging.exception(e)
 
         else:
             try:
@@ -263,7 +267,7 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
 
             except Exception as e:
                 logging.error("Idrac IP address must have a value")
-                logging.error(e)
+                logging.exception(e)
 
     @classmethod
     def _generate_mip_hostname(cls, hw_type, num, namespace : Namespace, ctrl_settings: HwControllerSetupSettings) -> str:
@@ -309,8 +313,10 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
         instance.sockets = len(system_info['processors'])
         instance.vcpus = system_info['vcpus']
         instance.cores = system_info['cores']
-        instance.raid_controller_health = system_info['raid']['status']['Health']
-        instance.raid_storage_tb = system_info['raid']['terabytes']
+        if 'raid' in system_info:
+            instance.raid_controller_health = system_info['raid']['status']['Health']
+            instance.raid_storage_tb = system_info['raid']['terabytes']
+
         instance.serial = system_info['serial']
         instance.sku = system_info['sku']
         instance.mac_address = system_info['pxe_mac']
@@ -320,7 +326,6 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
         self.index = self.start_index + index
         self.dns_servers = namespace.dns_servers
         self.node_type = namespace.node_type
-        self.monitoring_interfaces = namespace.monitoring_interfaces
         self.deployment_type = namespace.deployment_type
         self.idrac_ip_address = idrac_ip_address
         self.redfish_user = namespace.redfish_user
@@ -331,6 +336,11 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
         self.set_idrac_values(self)
         self.mip_ip_address = namespace.mip_ip_address
         self.short_hash = namespace.short_hash
+        self.data_drives = namespace.data_drives
+        self.boot_drives = namespace.boot_drives
+        if namespace.mac_overrides[0] != 'nothing':
+            if len(namespace.mac_overrides) > 0 and index < len(namespace.mac_overrides):
+                self.mac_address = namespace.mac_overrides[index]
 
     def from_mongo(self, obj: Dict, redfish_username: str, redfish_password: str):
         super().from_mongo(obj)
@@ -355,11 +365,12 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
                             help="The index of the server or sensor.", default=1)
         parser.add_argument('--pxe-type', dest='pxe_type', required=False, choices=["UEFI", "BIOS"],
                             help="Sets the PXE type of the nodes being kickstarted.", default= "UEFI")
-        parser.add_argument('--monitoring-interfaces', dest='monitoring_interfaces', required=False, \
-                             default=["ens224"], nargs="+", help="The monitoring interfaces for the sensors.")
         parser.add_argument("--mip-ip-address", dest="mip_ip_address", nargs="+",
                             help="IP address of mips being built (IP address for each MIP needs to be preconfigured)", required=False)
         parser.add_argument('--short-hash', dest='short_hash', help="short commit hash", default="null")
+        parser.add_argument('--boot-drives', dest='boot_drives', default=['sda'], nargs="+", help="Sets the os drive device name.  This can be found in /dev/")
+        parser.add_argument('--data-drives', dest='data_drives', default=['sdb'],  nargs="+", help="Sets the data drive device name.  This can be found in /dev/")
+        parser.add_argument('--mac-overrides', dest='mac_overrides', default=['nothing'],  nargs="+", help="Overrides the MACs based on the node index.")
 
 def load_control_plane_nodes_from_mongo(ctrl_settings: Union[ControllerSetupSettings, HwControllerSetupSettings],
                                        kit_settings: KitSettingsV2) -> List[NodeSettingsV2]:

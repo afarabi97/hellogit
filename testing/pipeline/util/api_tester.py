@@ -14,10 +14,7 @@ from typing import Union, List, Dict
 
 from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
 from models.kit import KitSettingsV2
-from models.catalog import (ArkimeCaptureSettings, ArkimeViewerSettings, ZeekSettings, SuricataSettings,
-                            WikijsSettings, MispSettings, HiveSettings, CortexSettings, RocketchatSettings, CatalogSettings,
-                            MattermostSettings, NifiSettings, JcatNifiSettings, RedmineSettings, NetflowFilebeatSettings)
-
+from models.catalog import CatalogSettings
 from models.node import NodeSettingsV2
 from util.kubernetes_util import wait_for_jobs_to_complete, wait_for_deployments_to_ready
 from util.connection_mngs import FabricConnectionWrapper
@@ -218,21 +215,10 @@ class CatalogPayloadGenerator:
             self._device_facts_map[node.ip_address] = node.device_facts
 
     def _get_deployment_name(self, role:str, node: NodeSettingsV2) -> str:
-        if role == 'suricata':
-            suricata_settings = self._catalog_settings.suricata_settings.get(node.hostname) # type: SuricataSettings
-            return suricata_settings.deployment_name
-        elif role == 'arkime-viewer':
+        if role == 'arkime-viewer':
             return self._catalog_settings.arkime_viewer_settings.deployment_name
-        elif role == 'arkime':
-            arkime_capture_settings = self._catalog_settings.arkime_capture_settings.get(node.hostname) # type: ArkimeCaptureSettings
-            return arkime_capture_settings.deployment_name
-        elif role == 'zeek':
-            zeek_settings = self._catalog_settings.zeek_settings.get(node.hostname) # type: ZeekSettings
-            return zeek_settings.deployment_name
         elif role == 'logstash':
             return self._catalog_settings.logstash_settings.deployment_name
-        elif role == 'wikijs':
-            return self._catalog_settings.wikijs_settings.deployment_name # type: WikijsSettings
         elif role == 'misp':
             return self._catalog_settings.misp_settings.deployment_name
         elif role == 'hive':
@@ -427,7 +413,6 @@ class APITesterV2:
             mongo_manager.mongo_node.delete_one({"hostname": node.hostname})
 
         payload = node.to_node_api_payload()
-        print(payload)
         response_dict = post_request(self._url.format("/api/kit/node"), payload)
         wait_for_job_to_finish("Adding node", self._url.format("/api/jobs/" + response_dict['job_id']), 60)
 
@@ -469,54 +454,6 @@ class APITesterV2:
     def run_kit_deploy(self):
         response_dict = get_request(self._url.format("/api/kit/deploy"))
         wait_for_job_to_finish("Kit Deploy", self._url.format("/api/jobs/" + response_dict['job_id']), 60)
-
-    def install_logstash(self) -> None:
-        payload = self._catalog_payload_generator.generate("logstash", INSTALL, SERVER_ANY)
-        self.install_app(payload)
-
-    def install_suricata(self) -> None:
-        payload = self._catalog_payload_generator.generate("suricata", INSTALL, SENSOR)
-        self.install_app(payload)
-
-    def reinstall_suricata(self) -> None:
-        payload = self._catalog_payload_generator.generate("suricata", REINSTALL, SENSOR)
-        self.install_app(payload)
-
-    def install_arkime_viewer(self):
-        payload = self._catalog_payload_generator.generate("arkime-viewer", INSTALL, SERVER_ANY)
-        self.install_app(payload)
-
-    def install_arkime_capture(self):
-        payload = self._catalog_payload_generator.generate("arkime", INSTALL, SENSOR)
-        self.install_app(payload)
-
-    def install_zeek(self):
-        payload = self._catalog_payload_generator.generate("zeek", INSTALL, SENSOR)
-        self.install_app(payload)
-
-    def install_wikijs(self) -> None:
-        payload = self._catalog_payload_generator.generate("wikijs", INSTALL, SERVER_ANY)
-        self.install_app(payload)
-
-    def reinstall_wikijs(self) -> None:
-        payload = self._catalog_payload_generator.generate("wikijs", REINSTALL, SERVER_ANY)
-        self.install_app(payload)
-
-    def install_misp(self) -> None:
-        payload = self._catalog_payload_generator.generate("misp", INSTALL, SERVER_ANY)
-        self.install_app(payload)
-
-    def install_hive(self):
-        payload = self._catalog_payload_generator.generate("hive", INSTALL, SERVER_ANY)
-        self.install_app(payload)
-
-    def install_cortex(self):
-        payload = self._catalog_payload_generator.generate("cortex", INSTALL, SERVER_ANY)
-        self.install_app(payload)
-
-    def install_rocketchat(self):
-        payload = self._catalog_payload_generator.generate("rocketchat", INSTALL, SERVER_ANY)
-        self.install_app(payload)
 
     def install_mattermost(self):
         payload = self._catalog_payload_generator.generate("mattermost", INSTALL, SERVER_ANY)

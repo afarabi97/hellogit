@@ -67,11 +67,12 @@ class IntegrationTestsJob:
         REPLAY_PACAP_URL = 'https://{}/api/policy/pcap/replay'.format(self.ctrl_settings.node.ipaddress)
         for node in self.nodes: # type: NodeSettingsV2
             if node.is_sensor():
+                monitoring_ifaces = node.get_monitoring_interfaces_from_mongo()
                 payloads = [
-                    {"pcap":"dns-dnskey.trace", "sensor_ip": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
-                    {"pcap":"get.trace", "sensor_ip": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
-                    {"pcap":"smb1_transaction_request.pcap", "sensor_ip": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
-                    {"pcap":"wannacry.pcap", "sensor_ip": node.ip_address, "ifaces": node.monitoring_interfaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    {"pcap":"dns-dnskey.trace", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    {"pcap":"get.trace", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    {"pcap":"smb1_transaction_request.pcap", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    {"pcap":"wannacry.pcap", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
                 ]
                 for payload in payloads:
                     response = requests.post(REPLAY_PACAP_URL, json=payload, verify=root_ca, headers=headers)
@@ -286,7 +287,7 @@ class IntegrationTestsJob:
                 for pcap in PCAPS:
                     shell.run(f"curl -o {pcap} http://controller/pcaps/{pcap}")
 
-                monitoring_iface = node.monitoring_interfaces[0]
+                monitoring_iface = node.get_monitoring_interfaces_from_mongo()[0]
                 while True:
                     shell.run(f"tcpreplay --mbps=1000 -i {monitoring_iface} --loop=1 *.pcap")
                     await self._check_node_disks(node.hostname, shell)

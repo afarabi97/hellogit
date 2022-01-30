@@ -377,6 +377,8 @@ robot:add_virtual_sensor:
     untracked: true
     when: always
   allow_failure: true
+  needs:
+    - job: robot:rulesets:sync
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"

@@ -183,8 +183,7 @@ Sensor Setup:
     --start-index $START_INDEX \
     --num-nodes $NUM_SENSORS \
     --os-raid "$VM_RAID" \
-    --dns-servers $DNS_SERVERS \
-    --monitoring-interfaces $MONITORING_INTERFACE
+    --dns-servers $DNS_SERVERS
   retry: 2
   artifacts:
     untracked: true

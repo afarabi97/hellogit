@@ -42,7 +42,6 @@ class NodeSettings(Model):
         self.domain = ''
         self.os_raid = False
         self.boot_mode = 'BIOS'
-        self.monitoring_interfaces = ["ens224"]
         self.service_node = False
         self.pipeline = ''
         self.commit_hash = ''
@@ -186,7 +185,6 @@ class HwNodeSettings(Model):
         self.redfish_user = ''
         self.redfish_password = ''
         self.os_raid = False
-        self.monitoring_interfaces = ''
         self.network_id = ''
         self.network_block_index = 0
         self.ctrl_owner = ""
@@ -218,7 +216,6 @@ class HwNodeSettings(Model):
         self.template = namespace.template
         self.release_ova = namespace.release_ova
         self.redfish_user = namespace.redfish_user
-        self.monitoring_interfaces = namespace.monitoring_interfaces
         self.build_from_release = namespace.build_from_release == "yes"
         if self.node_type == 'mip':
             self.network_id = namespace.network_id
@@ -244,7 +241,6 @@ class HwNodeSettings(Model):
         parser.add_argument("--domain", dest="domain", help="The domain for the kit", default="lan")
         parser.add_argument("--redfish-password", dest="redfish_password", help="The redfish password")
         parser.add_argument("--redfish-user", dest="redfish_user", help="The redfish username", default="root")
-        parser.add_argument("--monitoring-interfaces", dest="monitoring_interfaces", nargs= "+", help="sensor monitoring interface")
         parser.add_argument("--network-id", dest="network_id", help="The network ID the application will be selecting IPs from.")
         parser.add_argument("--network-block-index", dest="network_block_index", help="The network block index to use. If left as default it will default to 1 which uses 64 as the last octet. [64, 128, 192]",
                             default=0, choices=range(0, 3), type=int)

@@ -1,8 +1,4 @@
-#from future import standard_library
-#import redfish
-#standard_library.install_aliases()
 import logging
-import sys
 import requests
 import json
 from requests.structures import CaseInsensitiveDict
@@ -20,6 +16,7 @@ HEADERS = {
 
 TOKEN_LOOKUP = {}
 
+
 def server_info(ip, token):
     h = HEADERS.copy()
     h['x-auth-token'] = token
@@ -31,7 +28,7 @@ def server_info(ip, token):
     system_url = systems.json()['Members'][0]['@odata.id']
     resp = requests.get(host + system_url, headers=h, verify=False)
     system_data = resp.json()
-    #print(system_data)
+
     info = {
         'pxe_mac': get_pxe_mac(ip, token),
         'sku': system_data['SKU'],
@@ -64,14 +61,16 @@ def server_info(ip, token):
     controllers = requests.get(host + system_data['SimpleStorage']['@odata.id'],
         headers=h, verify=False).json()
     raid_members = [x for x in controllers['Members'] if 'RAID' in x['@odata.id']]
-    raid_url = raid_members[0]['@odata.id']
-    raid_data = requests.get(host+raid_url, headers=h, verify=False).json()
-    capacity_bytes = sum([d['CapacityBytes'] for d in raid_data['Devices'] \
-        if d['CapacityBytes'] is not None])
-    info['raid'] = {
-        'status': raid_data['Status'],
-        'terabytes': round(capacity_bytes / (10 ** 12), 2)
-    }
+
+    if len(raid_members) > 0:
+        raid_url = raid_members[0]['@odata.id']
+        raid_data = requests.get(host+raid_url, headers=h, verify=False).json()
+        capacity_bytes = sum([d['CapacityBytes'] for d in raid_data['Devices'] \
+            if d['CapacityBytes'] is not None])
+        info['raid'] = {
+            'status': raid_data['Status'],
+            'terabytes': round(capacity_bytes / (10 ** 12), 2)
+        }
     return info
 
 
@@ -82,13 +81,9 @@ def logout(token):
     session_url = TOKEN_LOOKUP[token]['session_url']
     resp = requests.delete(session_url, headers=h, verify=False)
 
+
 @retry(count=10, time_to_sleep_between_retries=300)
-def get_token(ip, username, password):
-    headers = {
-        'OData-Version': '4.0',
-        'Content-type': 'application/json',
-        'Accept': 'application/json'
-    }
+def get_token(ip: str, username: str, password: str) -> str:
     host = "https://{}".format(ip)
     url = "{}/redfish/v1/".format(host)
 
@@ -119,8 +114,7 @@ def get_token(ip, username, password):
         raise Exception("Invalid login for redfish.")
     return token
 
-def set_pxe_boot(ip, token):
-
+def set_pxe_boot(ip: str, token: str, pxe_type: str):
     h = HEADERS.copy()
     h['x-auth-token'] = token
 
@@ -131,73 +125,31 @@ def set_pxe_boot(ip, token):
     system_url = systems.json()['Members'][0]['@odata.id']
     #supermicro needs trailing slashes
     system_url = system_url if system_url[-1] == '/' else system_url + '/'
-
-    resp = requests.get(host + system_url, headers=h, verify=False)
-    data = resp.json()
-
-    manufacturer = data['Manufacturer']
-
-    boot = data.get('Boot') or {}
-    uefi = 'UefiTargetBootSourceOverride' in boot
-    boot_mode = 'UEFI' if uefi else 'BIOS'
-    boot_set = False
-    error_message = ''
-
-    if manufacturer[0:2] == 'HP':
-        h['Cookie'] = "sessionKey={}".format(token)
-
-        boot_order_url = host + "/json/boot_order"
-        resp = requests.get(boot_order_url,
-            headers=h, verify=False
-        )
-
-        boot_devices = resp.json()['boot_devices']
-        pxe_port = None
-        for data in boot_devices:
-            if 'Slot 1 Port 1' in data['device'] and \
-                'IPv4' in data['device']:
-                pxe_port = data
-                break
-
-        if not pxe_port:
-            raise Exception("Could not find Slot 1 Port 1 (IPv4) for HP Server")
-
-        payload = {
-            "method":"set_one_time_boot",
-            "device":"UEFI Target",
-            "uefi_device": pxe_port['device'],
-            "uefi_device_id": pxe_port['id'],
-            "session_key": token
+    bios_url = system_url
+    payload = {
+        "Boot": {
+            "BootSourceOverrideEnabled": "Once",
+            "BootSourceOverrideTarget": "Pxe"
         }
+    }
 
-        resp = requests.post(boot_order_url,
-            data=json.dumps(payload),
-            headers=h, verify=False
-        )
-        boot_set = resp.status_code == 200
-        error_message = resp.text or ''
+    payload["Boot"]["BootSourceOverrideMode"] = "Legacy"
+    if pxe_type.lower() == "uefi":
+        payload["Boot"]["BootSourceOverrideMode"] = "UEFI"
 
-    else:
-        bios_url = system_url
-        payload = {
-            "Boot": {
-                "BootSourceOverrideEnabled": "Once",
-                "BootSourceOverrideTarget": "Pxe",
-            }
-        }
-        resp = requests.patch(host + bios_url,
-            headers=h, verify=False,
-            data=json.dumps(payload))
-        boot_set = resp.status_code == 200
+    resp = requests.patch(host + bios_url,
+                          headers=h, verify=False,
+                          data=json.dumps(payload))
 
-    if boot_set:
-        print("Boot mode: {}".format(boot_mode))
-        return boot_mode
-    else:
-        print(data.get('Manufacturer'))
-        print(resp.__dict__)
-        print(boot_mode)
-        raise Exception("Error setting boot order for {} : {}".format(ip, error_message))
+    boot_set = resp.status_code == 200
+    if not boot_set:
+        if resp.status_code == 400:
+            resp_dict = resp.json()
+            if resp_dict['error'] and resp_dict['error']['@Message.ExtendedInfo'] and len(resp_dict['error']['@Message.ExtendedInfo']) > 0:
+                for msg in resp_dict['error']['@Message.ExtendedInfo']:
+                    if msg['Message'] and 'Pending configuration values are already committed' in msg['Message']:
+                        return
+        raise Exception("Error setting boot order for {}".format(ip))
 
 
 def get_pxe_mac(ip, token):
@@ -239,27 +191,6 @@ def get_pxe_mac(ip, token):
 
         return pxe_mac
 
-    elif manufacturer[0:2] == 'HP':
-        # HP
-        oem = data['Oem']
-        hp = oem['Hp']
-        links = hp['Links']
-        network_adapters = links['NetworkAdapters']
-        for adapter in network_adapters:
-            net_link = network_adapters['@odata.id']
-            net_link = "{}{}".format(host, net_link)
-            resp = requests.get(net_link, headers=h, verify=False)
-            data = resp.json()
-            members = data['Members']
-
-            adapter1 = members[1]
-            nic_url = "{}{}".format(host, adapter1['@odata.id'])
-            nic = requests.get(nic_url, headers=h, verify=False)
-            nic = nic.json()
-
-            pxe_mac = nic['PhysicalPorts'][0]['MacAddress']
-            return pxe_mac
-
     elif 'EthernetInterfaces' in data:
         # Dell
         interfaces_url = data.get('EthernetInterfaces').get('@odata.id')
@@ -276,6 +207,8 @@ def get_pxe_mac(ip, token):
             name = nic['@odata.id']
             state = nic['Status']['State']
             if state == 'Enabled':
+                # TODO this is grabbing the incorrect MAC address.
+                # Also OS and Data drives are not set correctly.
                 pxe_mac = nic['MACAddress']
                 return pxe_mac
 
@@ -297,7 +230,11 @@ def restart_server(ip, token):
 
     actions = system_data['Actions']
     reset_action = actions['#ComputerSystem.Reset']
-    reset_options = reset_action['ResetType@Redfish.AllowableValues']
+
+    reset_options = {}
+    if 'ResetType@Redfish.AllowableValues' in reset_action:
+        reset_options = reset_action['ResetType@Redfish.AllowableValues']
+
     reset_target = reset_action['target']
 
     if power_state == 'Off':
@@ -359,85 +296,3 @@ def power_off(ip, token):
         print(data)
         print(reset_options)
         raise Exception("Error restarting {}".format(ip))
-
-
-def power_on(ip, token):
-    pass
-
-
-
-def connection_manager(ip, username, password):
-    import redfish
-    from future import standard_library
-    standard_library.install_aliases()
-
-    url = "https://{}/redfish/v1/".format(ip)
-    remote_mgmt = redfish.connect(url,
-                                  username,
-                                  password,
-                                  verify_cert=False,
-                                  enforceSSL=False)
-
-    return remote_mgmt
-
-
-def example():
-    import os
-    from argparse import ArgumentParser
-
-    parser = ArgumentParser()
-    parser.add_argument("-p", "--pxe", dest="pxe", action='store_true', default=False)
-    args = parser.parse_args()
-    pxe = args.pxe
-
-    USER_NAME = "root"
-    PASSWORD = os.getenv('REDFISH_PWD')
-    ips = [
-        #'172.16.22.25', # HP DL-160
-        #'172.16.22.21', # supermicro
-        '172.16.22.41', # R440
-        '172.16.22.42', # R440
-        '172.16.22.43', # R440
-        '172.16.22.44', # R440
-        '172.16.22.45', # R440
-        '172.16.22.46', # R440
-        '172.16.22.47', # R440
-        #'172.16.22.47', # R440
-    ]
-    for ip in ips:
-        token = get_token(ip, USER_NAME, PASSWORD)
-        print("Getting MAC")
-        mac = get_pxe_mac(ip, token)
-        print("{} - {}".format(ip, mac))
-        if pxe:
-            print("Setting boot order")
-            result = set_pxe_boot(ip, token)
-            print("Restarting server")
-            result = restart_server(ip, token)
-        logout(token)
-    sys.exit(0)
-
-
-def example2():
-    ip = ""
-    USER_NAME = "root"
-    PASSWORD = ""
-    remote_mgmt = connection_manager(ip, USER_NAME, PASSWORD)
-    network_adapters = remote_mgmt.Systems.systems_dict['1'] \
-                .network_adapters_collection \
-                .network_adapters_dict
-
-    print( network_adapters['1'].get_mac() )
-    print( network_adapters['2'].get_mac() )
-    print("Redfish API version : {} \n".format(remote_mgmt.get_api_version()))
-    print("UUID : {} \n".format(remote_mgmt.Root.get_api_UUID()))
-    print("System 1 :\n")
-    print("Bios version : {}\n".format(
-        remote_mgmt.Systems.systems_dict["1"].get_bios_version()))
-    print("System 2 :\n")
-    print("Serial Number : {}\n".format(
-        remote_mgmt.Systems.systems_dict["1"].get_parameter("SerialNumber")))
-
-
-if __name__ == '__main__':
-    example()

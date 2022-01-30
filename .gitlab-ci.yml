@@ -106,6 +106,15 @@ variables:
   MP_EXTERNAL_IP: ""
   PFSENSE_IP: ""
   SWITCH_IP: ""
+  BOOT_DRIVE: "sda"
+  DATA_DRIVE: "sdb"
+
+  SENSOR_BOOT_DRIVE: "sda"
+  SENSOR_DATA_DRIVE: "sdb"
+
+  SERVER_MACADDRESS_OVERRIDES: "nothing"
+  SENSOR_MACADDRESS_OVERRIDES: "nothing"
+
 
   #Master Drive Creation Variables
   MASTER_DRIVE_CREATION_USERNAME: "drive_creator"

@@ -205,6 +205,7 @@ Install App
     ...                         click  ${locSuriPcapCheckbox}
     ...  AND  shoot  InstallConfigOverviewPage
     ...  AND  click  ${locInterfaceSelection}
+    ...  AND  Sleep  10s
     ...  AND  click  ${locInterfaceOptionConnected}
     ...  AND  Press Keys  None  TAB
     ...  AND  Wait Until Element Is Enabled  ${next_btn_list[1]}

@@ -420,4 +420,20 @@
       include_tasks: "{{ tfplenum_opt_dir }}/rhel8-stigs/rhel8-playbook-stig.yml"
   tags:
     - stigs
+
+- name: Misc stuff on all nodes
+  hosts:
+    - localhost
+    - servers
+    - sensors
+  gather_facts: no
+  any_errors_fatal: false
+  tasks:
+    - name: Enable tab completion
+      lineinfile:
+        path: /root/.bashrc
+        regexp: '^source <(kubectl'
+        line: 'source <(kubectl completion bash)'
+      ignore_errors: yes
+
 ...
