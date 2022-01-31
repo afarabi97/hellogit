@@ -55,8 +55,8 @@ class NetworkInterfaceModel(Model):
         self.link_up = link_up
 
 
-class InitalDeviceStatesModel(Model):
-    DTO = TOOLS_NS.model('InitalDeviceStates', {
+class InitialDeviceStatesModel(Model):
+    DTO = TOOLS_NS.model('InitialDeviceStates', {
         "node": fields.String(example="sensor1.lan",
                               description="The FQDN or hostname of the node."),
         "interfaces": fields.List(fields.Nested(NetworkInterfaceModel.DTO))

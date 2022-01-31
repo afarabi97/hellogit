@@ -25,7 +25,7 @@ from app.models.settings.kit_settings import KitSettingsForm
 from app.models.tools import (
     COMMON_TOOLS_RETURNS,
     TOOLS_NS,
-    InitalDeviceStatesModel,
+    InitialDeviceStatesModel,
     NetworkDeviceStateModel,
     NetworkInterfaceModel,
     NewPasswordModel,
@@ -415,7 +415,7 @@ class ChangeStateOfRemoteNetworkDevice(Resource):
 
 @TOOLS_NS.route("/monitoring-interfaces")
 class MonitoringInterfaces(Resource):
-    @TOOLS_NS.response(200, "InitalDeviceStates", [InitalDeviceStatesModel.DTO])
+    @TOOLS_NS.response(200, "InitialDeviceStates", [InitialDeviceStatesModel.DTO])
     @TOOLS_NS.doc(
         description="Retrieves a list of node hostnames with their associated network interfaces."
     )
@@ -437,7 +437,7 @@ class MonitoringInterfaces(Resource):
 
         result = []
         for hostname, interfaces in nodes.items():
-            inital_states = InitalDeviceStatesModel(hostname)
+            inital_states = InitialDeviceStatesModel(hostname)
             for interface in interfaces:
                 device = RemoteNetworkDevice(hostname, interface)
                 try:
@@ -456,7 +456,7 @@ class MonitoringInterfaces(Resource):
 
 @TOOLS_NS.route("/ifaces/<hostname>")
 class AllIfaces(Resource):
-    @TOOLS_NS.response(200, "InitalDeviceStates", [NetworkInterfaceModel.DTO])
+    @TOOLS_NS.response(200, "InitialDeviceStates", [NetworkInterfaceModel.DTO])
     @TOOLS_NS.doc(
         description="Retrieves a list of network interfaces with their states."
     )
