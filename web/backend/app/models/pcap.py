@@ -1,14 +1,20 @@
 from app.models import Model
-from scapy.utils import  PcapNgReader
+from scapy.utils import  PcapReader
 from scapy.error import Scapy_Exception
+from werkzeug.utils import secure_filename
 
 class PcapModel(Model):
 
     @staticmethod
     def validate_file(pcap_file) -> bool:
         try:
-            PcapNgReader(pcap_file)
+            is_valid_pcap = isinstance(PcapReader(pcap_file), PcapReader)
+            return is_valid_pcap
         except Scapy_Exception as err:
             return False
-        else:
-            return True
+
+    @staticmethod
+    def get_secure_filename(filename):
+        if not filename.endswith('.pcap'):
+            return secure_filename(f"{filename}.pcap")
+        return secure_filename(filename)

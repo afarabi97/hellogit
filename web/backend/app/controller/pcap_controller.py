@@ -17,7 +17,7 @@ from app.utils.utils import hash_file
 from flask import Response, request
 from flask_restx import Resource
 from werkzeug.datastructures import FileStorage
-from werkzeug.utils import secure_filename
+
 
 
 @POLICY_NS.route('/pcaps')
@@ -61,11 +61,7 @@ class PcapCtrl(Resource):
             pcap_dir.mkdir(parents=True, exist_ok=True)
 
         pcap_file = request.files['upload_file']
-        filename = secure_filename(pcap_file.filename)
-
-        pos = filename.rfind('.') + 1
-        if filename[pos:] != 'pcap':
-            return {"error_message": "Failed to upload file. Files must end with the .pcap extension."}, 400
+        filename = PcapModel.get_secure_filename(pcap_file.filename)
 
         abs_save_path = str(pcap_dir) + '/' + filename
         pcap_file.save(abs_save_path)

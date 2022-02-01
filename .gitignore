@@ -89,3 +89,4 @@ web/backend/report.xml
 *.pseudo
 pytestdebug.log
 pytest_bdd_logs.log
+web/backend/unit_test_results.xml
