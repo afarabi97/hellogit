@@ -39,6 +39,7 @@ MIP Setup Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$MIP_CONFLUENCE_SETUP_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "export-docs"
@@ -61,6 +62,7 @@ MIP User Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$MIP_CONFLUENCE_USER_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "export-docs"
@@ -83,6 +85,7 @@ MIP Maintenance Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$MIP_CONFLUENCE_MAIN_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "export-docs"
@@ -105,6 +108,7 @@ MIP TroubleShooting Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$MIP_CONFLUENCE_TROUBLE_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "export-docs"

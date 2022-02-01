@@ -40,6 +40,7 @@ DIP Setup Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$DIP_CONFLUENCE_SETUP_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "export-docs"
@@ -64,6 +65,7 @@ DIP User Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$DIP_CONFLUENCE_USER_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "export-docs"
@@ -88,6 +90,7 @@ DIP Appendix Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$DIP_CONFLUENCE_APPENDIX_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "export-docs"
@@ -112,6 +115,7 @@ DIP Maintenance Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$DIP_CONFLUENCE_MAIN_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "export-docs"
@@ -136,6 +140,7 @@ DIP TroubleShooting Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$DIP_CONFLUENCE_TROUBLE_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "export-docs"
@@ -158,6 +163,7 @@ CPT VDD Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$CPT_CONFLUENCE_VDD_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "export-docs"
@@ -180,6 +186,7 @@ MDT VDD Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$MDT_CONFLUENCE_VDD_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "export-docs"
@@ -205,6 +212,7 @@ Minor Release VDD Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$CONFLUENCE_VDD_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "minor-release"
@@ -228,6 +236,7 @@ Supplemental Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$CONFLUENCE_SUP_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "minor-release"
