@@ -29,7 +29,7 @@ def Remove_Bash_History():
 
 
 def Clean_History():
-    if note Check_Root_User():
+    if not Check_Root_User():
         print("You must be ROOT to run this script.")
     else:
         Remove_Bash_History()
