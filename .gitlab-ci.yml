@@ -10,6 +10,7 @@ variables:
   NETWORK_BLOCK_INDEX: 0
   MINIO_NETWORK_BLOCK_INDEX: 1
   RHEL_NETWORK_BLOCK_INDEX: 2
+  EXPORT_PERFORM_CHECKSUM: "yes"
 
   # Common varibles used across multiple pipelines
   DNS_SERVERS: "10.10.101.248 10.10.101.11 10.10.101.12"

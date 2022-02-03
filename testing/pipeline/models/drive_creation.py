@@ -34,9 +34,8 @@ class DriveCreationSettings(DriveCreationHashSettings):
         Make sure that the root drive
         """
         with FabricConnectionWrapper(self.username, self.password, self.ipaddress) as shell:
-            result = shell.sudo('cat /proc/mounts | grep "/dev/sd.* / ext4"', shell=True)
-            root_drive = result.stdout[0:len("/dev/sda")]
-            print(root_drive)
+            result = shell.sudo("grep ' / ' /proc/mounts", shell=True)
+            root_drive = result.stdout[0:len(self.external_drive)]
             if root_drive in self.external_drive or root_drive == self.external_drive:
                 raise Exception("External drive cannot be set to the OS root drive! This would wipe out the OS on the drive creation server. \
                                  Change the MASTER_DRIVE_CREATION_EXTERNAL_CPT_DRIVE or MASTER_DRIVE_CREATION_EXTERNAL_MDT_DRIVE or \

@@ -17,7 +17,7 @@ MULTIBOOT:
 
 - app: img
   src:
-    - Repo/MULTIBOOT/img/2.0/MULTIBOOT.img
+    - Repo/MULTIBOOT/img/3.0/MULTIBOOT.img
   dest: staging/v3.7/MULTIBOOT
 
 CPT:

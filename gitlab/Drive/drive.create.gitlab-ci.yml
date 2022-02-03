@@ -78,7 +78,7 @@ Hash Master CPT Drive:
     variables:
       - $PIPELINE == "export-all" && $CREATE_CPT_DRIVE == "yes"
       - $PIPELINE == "minor-release" && $CREATE_CPT_DRIVE == "yes"
-      - $PIPELINE == "drive-only" && $CREATE_CPT_DRIVE == "yes"
+      - $PIPELINE == "drive-only" && $CREATE_CPT_DRIVE == "yes" && $EXPORT_PERFORM_CHECKSUM == "yes"
       - $PIPELINE == "export-controller-only" && $CREATE_CPT_DRIVE == "yes"
 
 Hash Master MDT Drive:
@@ -97,7 +97,7 @@ Hash Master MDT Drive:
     variables:
       - $PIPELINE == "export-all" && $CREATE_MDT_DRIVE == "yes"
       - $PIPELINE == "minor-release" && $CREATE_MDT_DRIVE == "yes"
-      - $PIPELINE == "drive-only" && $CREATE_MDT_DRIVE == "yes"
+      - $PIPELINE == "drive-only" && $CREATE_MDT_DRIVE == "yes" && $EXPORT_PERFORM_CHECKSUM == "yes"
       - $PIPELINE == "export-controller-only" && $CREATE_MDT_DRIVE == "yes"
 
 Hash Check Master CPT Drive:
