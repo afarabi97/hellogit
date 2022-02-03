@@ -1,9 +1,11 @@
 from decimal import Decimal
-import requests
 from typing import Dict, Iterable, List, Optional, TypeVar
 
+import requests
+from app.common import ERROR_RESPONSE
 from app.utils.collections import mongo_metrics
 from app.utils.connection_mngs import KubernetesWrapper, objectify
+from app.utils.elastic import ElasticWrapper
 from app.utils.logging import logger
 from kubernetes.client.models.v1_event_list import V1EventList
 from kubernetes.client.models.v1_node import V1Node
@@ -13,8 +15,8 @@ from kubernetes.client.models.v1_pod import V1Pod
 from kubernetes.client.models.v1_pod_condition import V1PodCondition
 from kubernetes.client.models.v1_pod_list import V1PodList
 from kubernetes.client.rest import ApiException
+from kubernetes.stream import stream
 from kubernetes.utils import parse_quantity
-from app.common import ERROR_RESPONSE
 
 T = TypeVar("T")
 
@@ -316,7 +318,7 @@ def get_pods_status() -> List[dict]:
 
         return _pod_metrics
 
-def create_body(sensor_hostname: str) -> dict:
+def _create_body(sensor_hostname: str) -> dict:
     body =  {
             "size": 0,
             "query": {
@@ -343,9 +345,9 @@ def create_body(sensor_hostname: str) -> dict:
                         "field": "zeek.stats.packets.dropped"
                     }
                 },
-                    "zeek_total_pkts_processed": {
+                    "zeek_total_pkts_received": {
                     "sum": {
-                        "field": "zeek.stats.packets.processed"
+                        "field": "zeek.stats.packets.received"
                     }
                 }
             }
@@ -371,3 +373,64 @@ def get_kibana_ipaddress():
     except Exception as e:
         logger.exception(e)
     return ERROR_RESPONSE
+
+def get_zeek_stats(sensor: str) -> dict:
+    client = ElasticWrapper()
+    sensor_hostname = sensor
+    stats = client.search(body=_create_body(sensor_hostname),
+                        index='filebeat-zeek*',
+                        doc_type=None,
+                        params=None,
+                        headers=None,
+                        request_timeout=20)
+    return stats
+
+def get_k8s_app_nodes(app: str) -> list:
+    nodes = []
+    with KubernetesWrapper() as kube_apiv1:
+        k8s_obj = kube_apiv1.list_namespaced_pod("default", label_selector=f"component={app}").items
+
+        if k8s_obj:
+            for v1_pod_obj in k8s_obj:
+                nodes.append({'node_name':v1_pod_obj.spec.node_name, 'pod_name':v1_pod_obj.metadata.name})
+
+    return nodes
+
+def _exec_command(command: str) -> list:
+    exec_command = [ '/bin/sh', '-c', command ]
+    return exec_command
+
+def get_suricata_stats(node) -> tuple:
+
+    with KubernetesWrapper() as kube_apiv1:
+        packets_command = "cat /var/log/suricata/stats.log | grep capture.kernel_packets | awk '{print $5}' | sort -n | tail -n 1"
+        drops_command = "cat /var/log/suricata/stats.log | grep capture.kernel_drops | awk '{print $5}' | sort -n | tail -n 1"
+
+        total_packets = stream(kube_apiv1.connect_get_namespaced_pod_exec,
+                                node['pod_name'],
+                                'default',
+                                command=_exec_command(packets_command),
+                                stderr=True, stdin=False,
+                                stdout=True, tty=False)
+
+        total_dropped = stream(kube_apiv1.connect_get_namespaced_pod_exec,
+                                node['pod_name'],
+                                'default',
+                                command=_exec_command(drops_command),
+                                stderr=True, stdin=False,
+                                stdout=True, tty=False)
+
+        total_packets_parsed = int(total_packets) if total_packets else 0
+        total_dropped_parsed = int(total_dropped) if total_dropped else 0
+
+    return total_packets_parsed, total_dropped_parsed
+
+def get_sensors() -> list:
+    sensors = []
+    with KubernetesWrapper() as kube_apiv1:
+                node_info = kube_apiv1.list_node().items
+                for node in node_info:
+                    if node.metadata.labels['role'] == 'sensor':
+                        sensors.append(node.metadata.name)
+
+    return sensors

@@ -14,8 +14,9 @@ from app.models.kubernetes import (KUBERNETES_NS, KubernetesNodeMetricsModel,
                                    NodeOrPodStatusModel, PodLogsModel)
 from app.models.nodes import Node
 from app.models.settings.esxi_settings import EsxiSettingsForm
-from app.service.health_service import (create_body, get_nodes_status,
-                                        get_pods_status)
+from app.service.health_service import (get_k8s_app_nodes, get_nodes_status,
+                                        get_pods_status, get_suricata_stats,
+                                        get_zeek_stats)
 from app.service.job_service import run_command
 from app.service.socket_service import (NotificationCode, NotificationMessage,
                                         notify_disk_pressure)
@@ -236,37 +237,26 @@ class ZeekPackets(Resource):
 
     @APP_NS.response(200, 'Zeek Packets')
     def get(self) -> Response:
-        app_stats = []
-        sensors = []
-        client = ElasticWrapper()
+        zeek_stats = []
 
         try:
-            with KubernetesWrapper() as kube_apiv1:
-                node_info = kube_apiv1.list_node().items
-                for node in node_info:
-                    if node.metadata.labels['role'] == 'sensor':
-                        sensors.append(node.metadata.name)
+            nodes = get_k8s_app_nodes("zeek")
+            if nodes:
+                for sensor in nodes:
+                    stats = get_zeek_stats(sensor['node_name'])
 
-            for sensor in sensors:
-                sensor_hostname = sensor
-                stats = client.search(body=create_body(sensor_hostname),
-                                    index='filebeat-zeek*',
-                                    doc_type=None,
-                                    params=None,
-                                    headers=None,
-                                    request_timeout=20)
+                    if(stats['hits']['total']['value'] > 0 ):
+                        packets_dropped = int(round(stats['aggregations']['zeek_total_pkts_dropped']['value']))
+                        packets_received = int(round(stats['aggregations']['zeek_total_pkts_received']['value']))
+                        percent_dropped = packets_dropped / packets_received * 100 if packets_received > 0 else 0
+                        zeek_stats.append({
+                                        'app': 'zeek',
+                                        'node_name': sensor['node_name'],
+                                        'packets_received': packets_received,
+                                        'packets_dropped': round(percent_dropped, 2)
+                                        })
 
-                if(stats['hits']['total']['value'] > 0 ):
-
-                    zeek_stats = {
-                                    'app': 'zeek',
-                                    'node_name': sensor,
-                                    'packets_dropped':int(round(stats['aggregations']['zeek_total_pkts_dropped']['value'])),
-                                    'packets_processed': int(round(stats['aggregations']['zeek_total_pkts_processed']['value']))
-                                }
-                    app_stats.append(zeek_stats)
-
-            return app_stats
+            return zeek_stats
 
         except Exception as e:
             logger.exception(e)
@@ -275,51 +265,25 @@ class ZeekPackets(Resource):
 
 @APP_NS.route('/suricata/packets')
 class SuricataPackets(Resource):
-    def exec_command(self, command: str) -> list:
-        exec_command = [ '/bin/sh', '-c', command ]
-        return exec_command
 
     @APP_NS.response(200, 'Suricata Packets')
     def get(self) -> Response:
-        packets_command = "cat /var/log/suricata/stats.log | grep capture.kernel_packets | tail -n 1 | awk '{print $5}'"
-        drops_command = "cat /var/log/suricata/stats.log | grep capture.kernel_drops | tail -n 1 | awk '{print $5}'"
+        suricata_stats = []
 
         try:
-            with KubernetesWrapper() as kube_apiv1:
-                nodes = []
-                suricata_stats = []
-
-                k8s_obj = kube_apiv1.list_namespaced_pod("default", label_selector="component=suricata").items
-
-                if k8s_obj:
-                    for v1_pod_obj in k8s_obj:
-                        nodes.append({'node_name':v1_pod_obj.spec.node_name, 'pod_name':v1_pod_obj.metadata.name})
-
-                    for node in nodes:
-                        node_name = node['node_name']
-                        total_packets = stream(kube_apiv1.connect_get_namespaced_pod_exec,
-                                        node['pod_name'],
-                                        'default',
-                                        command=self.exec_command(packets_command),
-                                        stderr=True, stdin=False,
-                                        stdout=True, tty=False)
-
-                        total_dropped = stream(kube_apiv1.connect_get_namespaced_pod_exec,
-                                        node['pod_name'],
-                                        'default',
-                                        command=self.exec_command(drops_command),
-                                        stderr=True, stdin=False,
-                                        stdout=True, tty=False)
-
-                        if(total_dropped == ''):
-                            total_dropped = "0"
-
-                        suricata_stats.append({
-                                                'app':'suricata',
-                                                'node_name': node_name,
-                                                'packets_processed': int(total_packets),
-                                                'packets_dropped': int(total_dropped)
-                                            })
+            nodes = get_k8s_app_nodes("suricata")
+            if nodes:
+                for node in nodes:
+                    node_name = node['node_name']
+                    total_packets, total_dropped = get_suricata_stats(node)
+                    print(total_packets, total_dropped)
+                    percent_dropped = total_dropped / total_packets * 100 if total_packets > 0 else 0
+                    suricata_stats.append({
+                                            'app':'suricata',
+                                            'node_name': node_name,
+                                            'packets_received': total_packets,
+                                            'packets_dropped': round(percent_dropped, 2)
+                                        })
             return suricata_stats
 
         except Exception as e:

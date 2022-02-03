@@ -97,12 +97,12 @@
                   <td mat-cell *matCellDef="let app_data;">{{ app_data.app }}</td>
                 </ng-container>
                 <ng-container matColumnDef="total_packets_dropped">
-                  <th scope="col" mat-header-cell *matHeaderCellDef>Total Packets Dropped</th>
-                  <td mat-cell *matCellDef="let app_data;"> {{ app_data.packets_dropped }}</td>
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Packets Dropped</th>
+                  <td mat-cell *matCellDef="let app_data;"> {{ app_data.packets_dropped }}%</td>
                 </ng-container>
                 <ng-container matColumnDef="total_packets">
-                  <th scope="col" mat-header-cell *matHeaderCellDef>Total Packets</th>
-                  <td mat-cell *matCellDef="let app_data;">{{ app_data.packets_processed }}</td>
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Packets</th>
+                  <td mat-cell *matCellDef="let app_data;">{{ app_data.packets_received }}</td>
                 </ng-container>
                 <tr mat-header-row *matHeaderRowDef="columns_for_sensor_inner_table; sticky: true" class="col-header"></tr>
                 <tr mat-row *matRowDef="let row; columns: columns_for_sensor_inner_table;"></tr>

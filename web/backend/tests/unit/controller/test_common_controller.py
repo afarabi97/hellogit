@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 
 def test_used_ip_address(client, mocker):
@@ -11,7 +11,6 @@ def test_used_ip_address(client, mocker):
     results = client.get(f"/api/used-ip-addrs/{ip_or_network_id}/{netmask}")
     assert 200 == results.status_code
     assert len(results.json) > 0
-
 
 def test_used_ip_address_failure_cases(client):
     # Test invalid netmask
