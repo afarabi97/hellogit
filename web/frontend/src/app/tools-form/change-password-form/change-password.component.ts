@@ -103,7 +103,7 @@ export class ChangePasswordFormComponent implements OnInit {
         } else if (error.status === 403) {
           this.displaySnackBar('Authentication failure. Check the ssh key on the controller.');
         } else {
-          this.displaySnackBar('An unknown error occured.');
+          this.displaySnackBar('An unknown error occurred.');
         }
       }
     );

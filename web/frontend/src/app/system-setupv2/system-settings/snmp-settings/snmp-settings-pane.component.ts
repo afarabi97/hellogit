@@ -31,7 +31,7 @@ export class SNMPSettingsPaneComponent implements OnInit, OnChanges {
           }
         },
         error => {
-          this.snackbar_wrapper.showSnackBar('An error has occured: ' + error.status + '-' + error.statusText, -1, 'Dismiss');
+          this.snackbar_wrapper.showSnackBar('An error has occurred: ' + error.status + '-' + error.statusText, -1, 'Dismiss');
           this.create_form_group();
         }
       );

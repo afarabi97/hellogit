@@ -117,7 +117,7 @@ class ChangeKitPassword(Resource):
                                 "error_message": "Password has already been used. You must try another password."
                             }, 409
                         else:
-                            return {"error_message": "An unknown error occured."}, 500
+                            return {"error_message": "An unknown error occurred."}, 500
 
             except AuthenticationException:
                 return node.to_dict(), 403

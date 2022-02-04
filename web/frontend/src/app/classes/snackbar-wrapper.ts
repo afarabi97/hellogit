@@ -37,7 +37,7 @@ export class SnackbarWrapper {
       } else if (error.error && error.error.error_message){
         this.showSnackBar(error.error.error_message, -1, 'Dismiss');
       } else {
-        this.showSnackBar('An error has occured: ' + error.status + '-' + error.statusText, -1, 'Dismiss');
+        this.showSnackBar('An error has occurred: ' + error.status + '-' + error.statusText, -1, 'Dismiss');
       }
 
       // Let the app keep running by returning an empty result.

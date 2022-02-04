@@ -172,10 +172,10 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
       } else if (httpErrorResponse.error && httpErrorResponse.error['message']) {
         this.matSnackBarService.displaySnackBar(httpErrorResponse.error['message']);
       } else{
-        this.matSnackBarService.displaySnackBar(`An error has occured: ${httpErrorResponse.status}-${httpErrorResponse.statusText}`, matSnackBarConfiguration);
+        this.matSnackBarService.displaySnackBar(`An error has occurred: ${httpErrorResponse.status}-${httpErrorResponse.statusText}`, matSnackBarConfiguration);
       }
     } else {
-      this.matSnackBarService.displaySnackBar(`An error has occured: ${operation}`, matSnackBarConfiguration);
+      this.matSnackBarService.displaySnackBar(`An error has occurred: ${operation}`, matSnackBarConfiguration);
     }
 
     return throwError(httpErrorResponse);
@@ -200,7 +200,7 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
     } else if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse.message)) {
       this.matSnackBarService.displaySnackBar(httpErrorResponse.message, matSnackBarConfiguration);
     } else {
-      this.matSnackBarService.displaySnackBar(`An error has occured: ${operation}`, matSnackBarConfiguration);
+      this.matSnackBarService.displaySnackBar(`An error has occurred: ${operation}`, matSnackBarConfiguration);
     }
     this.handleErrorConsole(httpErrorResponse);
 
