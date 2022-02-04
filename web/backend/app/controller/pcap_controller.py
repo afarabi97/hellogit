@@ -9,6 +9,7 @@ from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE,
 from app.models.nodes import Node
 from app.models.ruleset import POLICY_NS, PCAPMetadata, PCAPReplayModel
 from app.models.settings.kit_settings import KitSettingsForm
+from app.models.pcap import PcapModel
 from app.service.pcap_service import (replay_pcap_using_preserve_timestamp,
                                       replay_pcap_using_tcpreplay)
 from app.utils.constants import DATE_FORMAT_STR, NODE_TYPES, PCAP_UPLOAD_DIR
@@ -52,6 +53,8 @@ class PcapCtrl(Resource):
     def post(self) -> Response:
         if 'upload_file' not in request.files:
             return {"error_message": "Failed to upload file. No file was found in the request."}, 400
+        if not PcapModel.validate_file(request.files['upload_file']):
+            return {"error_message": "Failed to upload file. Not a valid pcap file."}, 422
 
         pcap_dir = Path(PCAP_UPLOAD_DIR)
         if not pcap_dir.exists():

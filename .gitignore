@@ -87,3 +87,5 @@ web/backend/.coverage
 web/backend/report.xml
 .envrc
 *.pseudo
+pytestdebug.log
+pytest_bdd_logs.log

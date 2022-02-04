@@ -21,7 +21,7 @@ class Loggy:
         self.COLOR_ENDC = "\033[0m"
         self.COLOR_BOLD = "\033[1m"
         self.COLOR_UNDERLINE = "\033[4m"
-        self.test_case_list = self._generate_test_case_list(f"tests/{category}")
+        self.test_case_list = self._generate_test_case_list("tests/integration", "tests/regression")
 
     def _generate_test_case_list(self, *keyword_relpaths):
         local_test_case_list: list[str] = []
