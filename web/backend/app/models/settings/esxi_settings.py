@@ -22,13 +22,15 @@ from marshmallow import post_load
 
 JINJA_ENV = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR)),
-    autoescape=select_autoescape(['html', 'xml'])
+    autoescape=select_autoescape(["html", "xml"]),
 )
 
+
 def _generate_esxi_inventory():
-    esxi_settings = EsxiSettingsForm.load_from_db() # type: EsxiSettingsForm
+    esxi_settings = EsxiSettingsForm.load_from_db()  # type: EsxiSettingsForm
     esxi_settings_generator = EsxiSettingsInventoryGenerator(esxi_settings)
     esxi_settings_generator.generate()
+
 
 class EsxiSettingsSchema(Schema):
     _id = marsh_fields.Str()
@@ -49,25 +51,76 @@ class EsxiSettingsSchema(Schema):
 
 class EsxiSettingsForm(SettingsBase):
     schema = EsxiSettingsSchema()
-    DTO = SETINGS_NS.model('EsxiSettingsForm', {
-        'ip_address': fields.String(example="10.40.12.145", required=True, description="The IP Address of the Esxi Server."),
-        'username': fields.String(example="root", required=True,
-                                                  description="The username for the esxi login.", default="root"),
-        'password': fields.String(required=True, example="mypassword1!Afoobar", description="The password for the esxi login."),
-        'datastore': fields.String(required=False, example="datastore1", description="The datastore for the esxi server.", default="datastore1"),
-        'folder': fields.String(required=False, example="Folder", description="The folder name for the vm when using vcenter.", default=None),
-        'vcenter': fields.Boolean(required=False, description="If True settings display VCenter block.", default=False),
-        'datacenter': fields.String(required=False, example="Datacenter", description="The vcenter datacenter name.", default=None),
-        'portgroup': fields.String(required=False, example="Internal", description="The domain of the kit.", default="Internal"),
-        'cluster': fields.String(required=False, example="Cluster",
-                                        description="The vcenter cluster name.", default=None),
-    })
+    DTO = SETINGS_NS.model(
+        "EsxiSettingsForm",
+        {
+            "ip_address": fields.String(
+                example="10.40.12.145",
+                required=True,
+                description="The IP Address of the Esxi Server.",
+            ),
+            "username": fields.String(
+                example="root",
+                required=True,
+                description="The username for the esxi login.",
+                default="root",
+            ),
+            "password": fields.String(
+                required=True,
+                example="mypassword1!Afoobar",
+                description="The password for the esxi login.",
+            ),
+            "datastore": fields.String(
+                required=False,
+                example="datastore1",
+                description="The datastore for the esxi server.",
+                default="datastore1",
+            ),
+            "folder": fields.String(
+                required=False,
+                example="Folder",
+                description="The folder name for the vm when using vcenter.",
+                default=None,
+            ),
+            "vcenter": fields.Boolean(
+                required=False,
+                description="If True settings display VCenter block.",
+                default=False,
+            ),
+            "datacenter": fields.String(
+                required=False,
+                example="Datacenter",
+                description="The vcenter datacenter name.",
+                default=None,
+            ),
+            "portgroup": fields.String(
+                required=False,
+                example="Internal",
+                description="The domain of the kit.",
+                default="Internal",
+            ),
+            "cluster": fields.String(
+                required=False,
+                example="Cluster",
+                description="The vcenter cluster name.",
+                default=None,
+            ),
+        },
+    )
 
-    def __init__(self, ip_address: IPv4Address,
-                 username: str, password: str,
-                 datastore: str="datastore1", portgroup: str="Internal",
-                 datacenter: str=None, folder: str=None,
-                 _id: str=None, cluster: str=None, vcenter: bool=False):
+    def __init__(
+        self,
+        ip_address: IPv4Address,
+        username: str,
+        password: str,
+        datastore: str = "datastore1",
+        portgroup: str = "Internal",
+        datacenter: str = None,
+        folder: str = None,
+        _id: str = None,
+        cluster: str = None,
+        vcenter: bool = False,
+    ):
         self._id = _id or ESXI_SETTINGS_ID
         self.ip_address = ip_address
         self.username = username
@@ -80,7 +133,7 @@ class EsxiSettingsForm(SettingsBase):
         self.cluster = cluster
 
     @classmethod
-    def load_from_db(cls, query: Dict={"_id": ESXI_SETTINGS_ID}) -> Model:
+    def load_from_db(cls, query: Dict = {"_id": ESXI_SETTINGS_ID}) -> Model:
         mongo_document = mongo_settings().find_one(query)
         if mongo_document:
             esxi_settings = cls.schema.load(mongo_document, partial=("nodes",))
@@ -97,9 +150,9 @@ class EsxiSettingsForm(SettingsBase):
         self.password = encode_password(self.password)
 
         esxi_settings = self.schema.dump(self)
-        mongo_settings().find_one_and_replace({"_id": ESXI_SETTINGS_ID},
-                                                      esxi_settings,
-                                                      upsert=True)  # type: InsertOneResult
+        mongo_settings().find_one_and_replace(
+            {"_id": ESXI_SETTINGS_ID}, esxi_settings, upsert=True
+        )  # type: InsertOneResult
         self.password = decode_password(self.password)
         _generate_esxi_inventory()
 
@@ -110,6 +163,7 @@ class EsxiSettingsForm(SettingsBase):
             ret_val["folder"] = "/ha-datacenter/vm"
         return ret_val
 
+
 class EsxiSettingsInventoryGenerator:
     """
     The Esxi Inventory generator class.
@@ -118,17 +172,18 @@ class EsxiSettingsInventoryGenerator:
     def __init__(self, esxi_settings):
         self._template_ctx = esxi_settings.to_dict()
 
-
     def generate(self) -> None:
         """
         Generates the Kickstart inventory file in
         :return:
         """
-        template = JINJA_ENV.get_template('esxi.yml')
+        template = JINJA_ENV.get_template("esxi.yml")
         esxi_template = template.render(template_ctx=self._template_ctx)
 
-        if not os.path.exists(str(CORE_DIR / 'playbooks/inventory')):
-            os.makedirs(str(CORE_DIR / 'playbooks/inventory'))
+        if not os.path.exists(str(CORE_DIR / "playbooks/inventory")):
+            os.makedirs(str(CORE_DIR / "playbooks/inventory"))
 
-        with open(str(CORE_DIR / 'playbooks/inventory/esxi.yml'), "w") as kit_settings_file:
+        with open(
+            str(CORE_DIR / "playbooks/inventory/esxi.yml"), "w"
+        ) as kit_settings_file:
             kit_settings_file.write(esxi_template)

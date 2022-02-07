@@ -14,24 +14,26 @@ from flask import Response
 from flask_restx import Resource, fields
 
 
-@HEALTH_NS.route('/dashboard/status')
+@HEALTH_NS.route("/dashboard/status")
 class HealthDashboardStatus(Resource):
-    @HEALTH_NS.response(200, 'Dashboard Status')
+    @HEALTH_NS.response(200, "Dashboard Status")
     def get(self) -> Response:
         status = []
         elastic_status = {}
         try:
             client = ElasticWrapper()
             response = client.cluster.health()
-            elastic_status['elasticsearch_status'] = response['status']
+            elastic_status["elasticsearch_status"] = response["status"]
 
             kibana_ipaddress = get_kibana_ipaddress()
             elastic_password = get_elastic_password()
-            urllib3.disable_warnings( urllib3.exceptions.InsecureRequestWarning )
-            session = client_session('elastic', elastic_password)
-            request = session.get("https://{}/api/status".format(kibana_ipaddress), verify=False)
-            kibana_status = request.json()['status']['overall']['state']
-            elastic_status['kibana_status'] = kibana_status
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            session = client_session("elastic", elastic_password)
+            request = session.get(
+                "https://{}/api/status".format(kibana_ipaddress), verify=False
+            )
+            kibana_status = request.json()["status"]["overall"]["state"]
+            elastic_status["kibana_status"] = kibana_status
             status.append(elastic_status)
             return status
 
@@ -40,9 +42,9 @@ class HealthDashboardStatus(Resource):
         return ERROR_RESPONSE
 
 
-@HEALTH_NS.route('/remote/dashboard/status')
+@HEALTH_NS.route("/remote/dashboard/status")
 class RemoteHealthDashboardStatus(Resource):
-    @HEALTH_NS.response(200, 'Remote Dashboard Status')
+    @HEALTH_NS.response(200, "Remote Dashboard Status")
     def get(self) -> Response:
         try:
             response = []
@@ -55,22 +57,28 @@ class RemoteHealthDashboardStatus(Resource):
             for data in response:
                 if data.get("timestamp", 0) > (time.time() - 30):
                     dashboard_status = {}
-                    dashboard_status['ipaddress'] = data['ipaddress']
-                    dashboard_status['token'] = data['token']
-                    dashboard_status['kit_token_id'] = data['kit_token_id']
-                    dashboard_status['elasticsearch_status'] = data['dashboard_status'][0]['elasticsearch_status']
-                    dashboard_status['kibana_status'] = data['dashboard_status'][0]['kibana_status']
-                    dashboard_status['hostname'] = data['hostname']
+                    dashboard_status["ipaddress"] = data["ipaddress"]
+                    dashboard_status["token"] = data["token"]
+                    dashboard_status["kit_token_id"] = data["kit_token_id"]
+                    dashboard_status["elasticsearch_status"] = data["dashboard_status"][
+                        0
+                    ]["elasticsearch_status"]
+                    dashboard_status["kibana_status"] = data["dashboard_status"][0][
+                        "kibana_status"
+                    ]
+                    dashboard_status["hostname"] = data["hostname"]
                     dashboard_summary.append(dashboard_status)
                 else:
-                    dashboard_summary.append({
-                        "ipaddress": data["ipaddress"],
-                        "elasticsearch_status": None,
-                        "token": None,
-                        "kit_token_id": None,
-                        "kibana_status": None,
-                        "hostname": None
-                    })
+                    dashboard_summary.append(
+                        {
+                            "ipaddress": data["ipaddress"],
+                            "elasticsearch_status": None,
+                            "token": None,
+                            "kit_token_id": None,
+                            "kibana_status": None,
+                            "hostname": None,
+                        }
+                    )
             return dashboard_summary
 
         except Exception as e:
@@ -78,22 +86,22 @@ class RemoteHealthDashboardStatus(Resource):
         return ERROR_RESPONSE
 
 
-@HEALTH_NS.route('/hostname')
+@HEALTH_NS.route("/hostname")
 class Hostname(Resource):
-    @HEALTH_NS.response(200, 'Hostname', fields.String())
+    @HEALTH_NS.response(200, "Hostname", fields.String())
     def get(self) -> Response:
         try:
             response = mongo_settings().find_one({"_id": "general_settings_form"})
-            hostname = "controller.{}".format(response['domain'])
+            hostname = "controller.{}".format(response["domain"])
             return hostname
         except Exception as e:
             logger.exception(e)
         return ERROR_RESPONSE
 
 
-@APP_NS.route('/kibana/info')
+@APP_NS.route("/kibana/info")
 class KibanaLoginInfo(Resource):
-    @APP_NS.response(200, 'Kibana Login Info')
+    @APP_NS.response(200, "Kibana Login Info")
     def get(self) -> Response:
         try:
             kibana_info = {}
@@ -107,9 +115,11 @@ class KibanaLoginInfo(Resource):
                     name = service.metadata.name
                     if name == "kibana":
                         svc_ip = service.status.load_balancer.ingress[0].ip
-                        kibana_info['DNS'] = "https://{}.{}".format(name, kit_domain)
-                        kibana_info['IP Address'] = "https://{}".format(svc_ip)
-                        kibana_info['Username/Password'] = 'elastic/{}'.format(elastic_password)
+                        kibana_info["DNS"] = "https://{}.{}".format(name, kit_domain)
+                        kibana_info["IP Address"] = "https://{}".format(svc_ip)
+                        kibana_info["Username/Password"] = "elastic/{}".format(
+                            elastic_password
+                        )
             return kibana_info
 
         except Exception as e:
@@ -117,13 +127,13 @@ class KibanaLoginInfo(Resource):
         return ERROR_RESPONSE
 
 
-@APP_NS.route('/kibana/info/remote/<ipaddress>')
+@APP_NS.route("/kibana/info/remote/<ipaddress>")
 class RemoteKibanaLoginInfo(Resource):
-    @APP_NS.response(200, 'Kibana Login')
-    def get(self, ipaddress:str) -> Response:
+    @APP_NS.response(200, "Kibana Login")
+    def get(self, ipaddress: str) -> Response:
         try:
             response = mongo_kit_tokens().find_one({"ipaddress": ipaddress})
-            kibana_info = response['kibana_info']
+            kibana_info = response["kibana_info"]
             return kibana_info
 
         except Exception as e:

@@ -1,7 +1,9 @@
 import re
+from typing import Dict
+
 from app.models import Model
 from marshmallow import ValidationError
-from typing import Dict
+
 
 def has_consecutive_chars(password: str) -> bool:
     """
@@ -22,6 +24,7 @@ def has_consecutive_chars(password: str) -> bool:
                 same = 1
                 cached = character
     return False
+
 
 def validate_password_stigs(value: str) -> None:
     """
@@ -47,14 +50,16 @@ def validate_password_stigs(value: str) -> None:
         errors.append("The password must have at least 8 unique characters.")
 
     if has_consecutive_chars(value):
-        errors.append("The password must not have 3 consecutive characters that are the same.")
+        errors.append(
+            "The password must not have 3 consecutive characters that are the same."
+        )
 
     if len(errors) > 0:
         raise ValidationError(errors)
 
-class SettingsBase(Model):
 
+class SettingsBase(Model):
     @classmethod
     def load_from_request(cls, payload: Dict) -> Model:
-        new_kickstart = cls.schema.load(payload) # type: KitSettingsForm
+        new_kickstart = cls.schema.load(payload)  # type: KitSettingsForm
         return new_kickstart

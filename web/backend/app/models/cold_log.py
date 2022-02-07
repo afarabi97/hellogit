@@ -1,12 +1,12 @@
 import json
-from app.models import Model
-from app.utils.constants import WINDOWS_COLD_LOG_CONFIG_ID
-from werkzeug.utils import secure_filename
-from werkzeug.datastructures import ImmutableMultiDict
-from werkzeug.datastructures import FileStorage
 from typing import Dict
-from flask_restx import Namespace
+
+from app.models import Model
 from app.utils.collections import mongo_configurations
+from app.utils.constants import WINDOWS_COLD_LOG_CONFIG_ID
+from flask_restx import Namespace
+from werkzeug.datastructures import FileStorage, ImmutableMultiDict
+from werkzeug.utils import secure_filename
 
 COLDLOG_NS = Namespace("coldlog", description="Cold log service operations.")
 

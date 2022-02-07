@@ -1,16 +1,19 @@
-from elasticsearch.client import Elasticsearch
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.connection_mngs import REDIS_CLIENT
 from app.utils.elastic import ElasticWrapper
 from app.utils.logging import rq_logger
 from app.utils.utils import get_app_context
+from elasticsearch.client import Elasticsearch
 from rq.decorators import job
 
 _JOB_NAME = "curator"
 
+
 def _notification_inprogress(action):
     notification = NotificationMessage(role=_JOB_NAME)
-    notification.set_message("%s %s job in progress." % (_JOB_NAME.capitalize(), action))
+    notification.set_message(
+        "%s %s job in progress." % (_JOB_NAME.capitalize(), action)
+    )
     notification.set_status(NotificationCode.IN_PROGRESS.name)
     notification.post_to_websocket_api()
 
@@ -21,9 +24,12 @@ def _empty_index(msg: str) -> None:
     notification.set_status(NotificationCode.COMPLETED.name)
     notification.post_to_websocket_api()
 
+
 def _remove_index_blocks(client, index) -> None:
     try:
-        client.indices.put_settings(index=index, body={"index.blocks.read_only_allow_delete": None})
+        client.indices.put_settings(
+            index=index, body={"index.blocks.read_only_allow_delete": None}
+        )
     except Exception as e:
         rq_logger.exception(e)
     try:
@@ -38,12 +44,14 @@ def _remove_index_blocks(client, index) -> None:
 
 def _run_forcemerged(client: Elasticsearch) -> None:
     try:
-        client.indices.forcemerge(params={"only_expunge_deletes": "true", "ignore_unavailable": "true"})
+        client.indices.forcemerge(
+            params={"only_expunge_deletes": "true", "ignore_unavailable": "true"}
+        )
     except Exception as e:
         rq_logger.exception(e)
 
 
-@job('default', connection=REDIS_CLIENT, timeout="30m")
+@job("default", connection=REDIS_CLIENT, timeout="30m")
 def execute_curator(action, index_list, units, age):
     get_app_context().push()
     notification = NotificationMessage(role=_JOB_NAME)
@@ -63,14 +71,20 @@ def execute_curator(action, index_list, units, age):
             msg_action == "clean_optimize"
 
         # Default to a failed message
-        notification_msg = "%s failed to %s %s index" % (_JOB_NAME.capitalize(), msg_action, index)
+        notification_msg = "%s failed to %s %s index" % (
+            _JOB_NAME.capitalize(),
+            msg_action,
+            index,
+        )
 
         results = None
         _remove_index_blocks(client, index)
         if action == "DeleteIndices":
-            write_block_results = client.indices.put_settings(index=index, body={"index.blocks.read_only_allow_delete":True})
+            write_block_results = client.indices.put_settings(
+                index=index, body={"index.blocks.read_only_allow_delete": True}
+            )
             results = client.indices.delete(index=index)
-            if results['acknowledged']:
+            if results["acknowledged"]:
                 run_forcemerge = True
                 is_successfully = True
             _notification_inprogress(action)
@@ -85,11 +99,15 @@ def execute_curator(action, index_list, units, age):
                 if is_write_index:
                     client.indices.rollover(alias_name)
             results = client.indices.close(index=index)
-            if results['acknowledged']:
+            if results["acknowledged"]:
                 is_successfully = True
 
         if is_successfully:
-            notification_msg = "%s successfully %s %s index." % (_JOB_NAME.capitalize(), msg_action, index)
+            notification_msg = "%s successfully %s %s index." % (
+                _JOB_NAME.capitalize(),
+                msg_action,
+                index,
+            )
             notification.set_message(notification_msg)
             notification.set_status(NotificationCode.IN_PROGRESS.name)
             notification.post_to_websocket_api()

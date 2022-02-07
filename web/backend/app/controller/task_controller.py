@@ -4,8 +4,8 @@ from app.middleware import controller_admin_required
 from app.models.common import (COMMON_ERROR_MESSAGE, BackgroundJob, JobID,
                                WorkerModel)
 from app.models.nodes import NodeJob
-from app.utils.connection_mngs import REDIS_CLIENT, REDIS_QUEUE
 from app.utils.collections import mongo_console
+from app.utils.connection_mngs import REDIS_CLIENT, REDIS_QUEUE
 from app.utils.utils import kill_child_processes
 from flask import Response
 from flask_restx import Namespace, Resource

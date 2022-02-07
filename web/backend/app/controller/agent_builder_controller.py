@@ -16,9 +16,10 @@ from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
 from app.service.agent_service import (build_agent_if_not_exists,
                                        perform_agent_reinstall)
 from app.service.job_service import run_command2
+from app.utils.collections import (mongo_windows_installer_configs,
+                                   mongo_windows_target_lists)
 from app.utils.constants import (AGENT_PKGS_DIR, AGENT_UPLOAD_DIR,
                                  TARGET_STATES, TEMPLATE_DIR)
-from app.utils.collections import mongo_windows_installer_configs, mongo_windows_target_lists
 from app.utils.logging import logger
 from app.utils.utils import encode_password, fix_hostname, sanitize_dictionary
 from bson import ObjectId

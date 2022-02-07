@@ -13,7 +13,8 @@ from flask_restx import Namespace, Resource
 
 PORTAL_NS = Namespace("portal", description="Portal related operations.")
 
-@PORTAL_NS.route('/links')
+
+@PORTAL_NS.route("/links")
 class PortalLinks(Resource):
     def get(self) -> Response:
         """
@@ -26,9 +27,12 @@ class PortalLinks(Resource):
 
 def get_user_links():
     user_links = mongo_user_links().find({})
-    return cursor_to_json_response(user_links, fields = ['name', 'url', 'description'], sort_field = 'name')
+    return cursor_to_json_response(
+        user_links, fields=["name", "url", "description"], sort_field="name"
+    )
 
-@PORTAL_NS.route('/user/links')
+
+@PORTAL_NS.route("/user/links")
 class UserLinks(Resource):
     def get(self) -> Response:
         """
@@ -45,13 +49,14 @@ class UserLinks(Resource):
         one.
         """
         link_data = request.get_json()
-        matches = mongo_user_links().find({'name': link_data['name']}).count()
-        matches += mongo_user_links().find({'url': link_data['url']}).count()
+        matches = mongo_user_links().find({"name": link_data["name"]}).count()
+        matches += mongo_user_links().find({"url": link_data["url"]}).count()
         if matches == 0:
             mongo_user_links().insert_one(link_data)
         return get_user_links()
 
-@PORTAL_NS.route('/user/links/<link_id>')
+
+@PORTAL_NS.route("/user/links/<link_id>")
 class DelUserLinks(Resource):
     @operator_required
     def delete(self, link_id: str) -> Response:
@@ -61,5 +66,5 @@ class DelUserLinks(Resource):
         :return: flask.Response containing all user link data, with the specified
         link removed.
         """
-        mongo_user_links().delete_one({'_id': ObjectId(link_id)})
+        mongo_user_links().delete_one({"_id": ObjectId(link_id)})
         return get_user_links()

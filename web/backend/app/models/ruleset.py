@@ -1,8 +1,8 @@
-from app.models import Model
-from flask_restx import fields, Namespace
+from typing import Dict, List
 
-from app.utils.constants import  RULESET_STATES, RULE_TYPES
-from typing import List, Dict
+from app.models import Model
+from app.utils.constants import RULE_TYPES, RULESET_STATES
+from flask_restx import Namespace, fields
 
 POLICY_NS = Namespace('policy', description="Policy management related operations for Suricata and Zeek.")
 

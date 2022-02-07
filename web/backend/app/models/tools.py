@@ -1,5 +1,5 @@
 from app.models import Model
-from flask_restx import fields, Namespace
+from flask_restx import Namespace, fields
 
 TOOLS_NS = Namespace("tools", description="Tools page related operations.")
 

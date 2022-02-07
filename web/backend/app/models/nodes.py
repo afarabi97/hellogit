@@ -12,10 +12,10 @@ from app.calculations import (get_sensors_from_list, get_servers_from_list,
                               server_and_sensor_count)
 from app.models import Model, PostValidationError
 from app.models.device_facts import DeviceFacts
+from app.utils.collections import mongo_jobs, mongo_node
 from app.utils.constants import (CORE_DIR, DEPLOYMENT_TYPES, JOB_CREATE,
                                  JOB_DEPLOY, JOB_PROVISION, JOB_REMOVE,
                                  MIP_DIR, NODE_TYPES, TEMPLATE_DIR)
-from app.utils.collections import mongo_jobs, mongo_node
 from flask_restx import Namespace, fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from marshmallow import Schema, ValidationError

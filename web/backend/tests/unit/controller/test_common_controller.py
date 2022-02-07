@@ -12,6 +12,7 @@ def test_used_ip_address(client, mocker):
     assert 200 == results.status_code
     assert len(results.json) > 0
 
+
 def test_used_ip_address_failure_cases(client):
     # Test invalid netmask
     ip_or_network_id = "10.40.12.0"

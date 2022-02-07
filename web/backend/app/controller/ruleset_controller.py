@@ -16,11 +16,11 @@ from app.models.ruleset import (POLICY_NS, RuleModel, RuleSetModel,
                                 TestAgainstPcap)
 from app.service.job_service import run_command2
 from app.service.rulesync_service import perform_rulesync
+from app.utils.collections import mongo_rule, mongo_ruleset
 from app.utils.constants import (DATE_FORMAT_STR, PCAP_UPLOAD_DIR, RULE_TYPES,
                                  RULESET_STATES, SURICATA_IMAGE_VERSION,
                                  ZEEK_IMAGE_VERSION, ZEEK_INTEL_PATH,
                                  ZEEK_SCRIPT_DIR, ZEEK_SIG_PATH)
-from app.utils.collections import mongo_rule, mongo_ruleset
 from app.utils.logging import logger
 from app.utils.utils import zip_folder
 from flask import Response, request, send_file

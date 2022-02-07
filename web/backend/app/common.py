@@ -2,10 +2,11 @@
 Module that has commonly shared things between controller modules.
 You can put constants or shared functions in this module.
 """
-from flask import Response
-from typing import List
 import json
+from typing import List
+
 from bson import ObjectId
+from flask import Response
 
 OK_RESPONSE = Response()
 OK_RESPONSE.status_code = 200
@@ -32,6 +33,7 @@ class JSONEncoder(json.JSONEncoder):
             return str(o)
         return json.JSONEncoder.default(self, o)
 
+
 def cursor_to_json(csr, fields: List[str] = None, sort_field: str = None) -> List:
     """
     Take a cursor returned from a MongoDB search and convert
@@ -50,13 +52,16 @@ def cursor_to_json(csr, fields: List[str] = None, sort_field: str = None) -> Lis
                 new_record[field] = record[field]
         else:
             new_record = record
-        new_record['_id'] = str(record['_id'])
+        new_record["_id"] = str(record["_id"])
         records.append(new_record)
     if sort_field:
-        records.sort(key = lambda r : r[sort_field].upper())
+        records.sort(key=lambda r: r[sort_field].upper())
     return records
 
-def cursor_to_json_response(csr, fields: List[str] = None, sort_field: str = None) -> Response:
+
+def cursor_to_json_response(
+    csr, fields: List[str] = None, sort_field: str = None
+) -> Response:
     """
     Take a cursor returned from a MongoDB search and convert
     it to an API response containing the data.

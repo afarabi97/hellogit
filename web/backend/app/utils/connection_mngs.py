@@ -27,7 +27,7 @@ REDIS_QUEUE = Queue(connection=REDIS_CLIENT)
 SCHEDULER = Scheduler(connection=REDIS_CLIENT)
 
 KUBEDIR = "/root/.kube"
-USERNAME = 'root'
+USERNAME = "root"
 CONNECTION_TIMEOUT = 20
 
 
@@ -64,13 +64,14 @@ def objectify(some_dict: Dict) -> Dict:
     return some_dict
 
 
-class FabricConnection():
-
-    def __init__(self,
-                 ip_address: str,
-                 password: str = None,
-                 username: str = USERNAME,
-                 use_ssh_key: bool=False):
+class FabricConnection:
+    def __init__(
+        self,
+        ip_address: str,
+        password: str = None,
+        username: str = USERNAME,
+        use_ssh_key: bool = False,
+    ):
         self._connection = None  # type: Connection
         self._ip_address = ip_address
         self._password = password
@@ -78,24 +79,32 @@ class FabricConnection():
         self._use_ssh_key = use_ssh_key
 
     def _set_root_password(self) -> str:
-        kit_settings =  mongo_settings().find_one({"_id": KIT_SETTINGS_ID})
+        kit_settings = mongo_settings().find_one({"_id": KIT_SETTINGS_ID})
         self._password = decode_password(kit_settings["password"])
 
     def _establish_fabric_connection(self) -> None:
         if self._use_ssh_key:
-            self._connection = Connection(self._ip_address,
-                                          user=self._username,
-                                          connect_timeout=CONNECTION_TIMEOUT,
-                                          connect_kwargs={'key_filename': ['/root/.ssh/id_rsa'],
-                                                          'allow_agent': False,
-                                                          'look_for_keys': False})
+            self._connection = Connection(
+                self._ip_address,
+                user=self._username,
+                connect_timeout=CONNECTION_TIMEOUT,
+                connect_kwargs={
+                    "key_filename": ["/root/.ssh/id_rsa"],
+                    "allow_agent": False,
+                    "look_for_keys": False,
+                },
+            )
         else:
-            self._connection = Connection(self._ip_address,
-                                          user=self._username,
-                                          connect_timeout=CONNECTION_TIMEOUT,
-                                          connect_kwargs={'password': self._password,
-                                                          'allow_agent': False,
-                                                          'look_for_keys': False})
+            self._connection = Connection(
+                self._ip_address,
+                user=self._username,
+                connect_timeout=CONNECTION_TIMEOUT,
+                connect_kwargs={
+                    "password": self._password,
+                    "allow_agent": False,
+                    "look_for_keys": False,
+                },
+            )
 
     def __enter__(self):
         if not self._password:
@@ -109,8 +118,7 @@ class FabricConnection():
             self._connection.close()
 
 
-class KubernetesWrapper():
-
+class KubernetesWrapper:
     def __init__(self):
 
         config.load_kube_config()
@@ -130,7 +138,6 @@ class KubernetesWrapper():
 
 
 class KubernetesWrapper2(KubernetesWrapper):
-
     def __init__(self):
 
         super().__init__()
@@ -154,7 +161,6 @@ class KubernetesWrapper2(KubernetesWrapper):
 
 
 class FabricConnectionManager:
-
     def __init__(self, username: str, password: str, ipaddress: str):
         """
         Initializes the fabric connection manager.
@@ -171,14 +177,18 @@ class FabricConnectionManager:
 
     def _establish_fabric_connection(self) -> None:
         if not self._connection:
-            config = Config(overrides={'sudo': {'password': self._password}})
-            self._connection = Connection(self._ipaddress,
-                                          config=config,
-                                          user=self._username,
-                                          connect_timeout=CONNECTION_TIMEOUT,
-                                          connect_kwargs={'password': self._password,
-                                                          'allow_agent': False,
-                                                          'look_for_keys': False})
+            config = Config(overrides={"sudo": {"password": self._password}})
+            self._connection = Connection(
+                self._ipaddress,
+                config=config,
+                user=self._username,
+                connect_timeout=CONNECTION_TIMEOUT,
+                connect_kwargs={
+                    "password": self._password,
+                    "allow_agent": False,
+                    "look_for_keys": False,
+                },
+            )
 
     @property
     def connection(self):
@@ -197,11 +207,10 @@ class FabricConnectionManager:
 
 
 class KubernetesSecret:
-
     def __init__(self, response: V1Secret):
-        self.ca_certificate = b64decode(response.data['ca.crt']).decode('utf-8')
-        self.tls_certificate = b64decode(response.data['tls.crt']).decode('utf-8')
-        self.tls_key = b64decode(response.data['tls.key']).decode('utf-8')
+        self.ca_certificate = b64decode(response.data["ca.crt"]).decode("utf-8")
+        self.tls_certificate = b64decode(response.data["tls.crt"]).decode("utf-8")
+        self.tls_key = b64decode(response.data["tls.key"]).decode("utf-8")
 
     def __str__(self):
         ret_val = self.ca_certificate
@@ -224,9 +233,9 @@ class KubernetesSecret:
         tls_key.write_text(self.tls_key)
 
 
-def get_kubernetes_secret(secret_name: str,
-                          namespace: str="default",
-                          retries:int=3) -> KubernetesSecret:
+def get_kubernetes_secret(
+    secret_name: str, namespace: str = "default", retries: int = 3
+) -> KubernetesSecret:
     while retries != 0:
         try:
             with KubernetesWrapper2() as api:
@@ -241,12 +250,13 @@ def get_kubernetes_secret(secret_name: str,
         retries -= 1
 
 
-
 class SSHFailure(Exception):
     """Base class for exceptions in this module."""
+
     pass
 
-class SSHClient():
+
+class SSHClient:
     """
     Represents an SSH connection to a remote server
 
@@ -256,7 +266,9 @@ class SSHClient():
 
     client = None  # type: SSHClient
 
-    def __init__(self, hostname: str, username: str=None, password: str=None, port=22) -> None:
+    def __init__(
+        self, hostname: str, username: str = None, password: str = None, port=22
+    ) -> None:
         """
         Initializes a new SSH connection
 
@@ -271,13 +283,15 @@ class SSHClient():
             self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             save_stderr = sys.stdout
             if username and password:
-                self.client.connect(hostname, port=port, username=username, password=password)
+                self.client.connect(
+                    hostname, port=port, username=username, password=password
+                )
             else:
                 self.client.connect(hostname, port=port)
             sys.stderr = save_stderr
 
         except Exception as e:
-            logger.error('Connection Failed')
+            logger.error("Connection Failed")
             logger.error(e)
             self.client.close()
 
@@ -292,14 +306,18 @@ class SSHClient():
 
         # Change into the working directory if it is specified
         if working_directory is not None:
-            stdin, stdout, stderr = self.client.exec_command("cd " + working_directory + ";" + command)
+            stdin, stdout, stderr = self.client.exec_command(
+                "cd " + working_directory + ";" + command
+            )
         else:
             stdin, stdout, stderr = self.client.exec_command(command)
 
         return (stdout.read(), stderr.read())
 
     @staticmethod
-    def test_connection(hostname: str, username: str=None, password: str=None, port=22, timeout=5) -> bool:
+    def test_connection(
+        hostname: str, username: str = None, password: str = None, port=22, timeout=5
+    ) -> bool:
         """
         Tests whether a server is responding to SSH connections
 
@@ -313,11 +331,17 @@ class SSHClient():
 
         try:
             logger.info("I AM HERE")
-            client = paramiko.SSHClient() # type: SSHClient
+            client = paramiko.SSHClient()  # type: SSHClient
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             save_stderr = sys.stdout
             if username and password:
-                client.connect(hostname=hostname, username=username, password=password, port=port, timeout=timeout)
+                client.connect(
+                    hostname=hostname,
+                    username=username,
+                    password=password,
+                    port=port,
+                    timeout=timeout,
+                )
             else:
                 client.connect(hostname=hostname, port=port, timeout=timeout)
             sys.stderr = save_stderr

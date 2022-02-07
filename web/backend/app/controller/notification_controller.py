@@ -1,10 +1,10 @@
+import pymongo
 from app.common import OK_RESPONSE, JSONEncoder
 from app.middleware import controller_maintainer_required
 from app.utils.collections import mongo_notifications
 from bson import ObjectId
 from flask import Response
 from flask_restx import Namespace, Resource
-import pymongo
 
 NOTIFICATIONS_NS = Namespace("notifications", description="Notifications for CVAH UI.")
 NUMBER_OF_NOTIFICATION_ITEMS = 30

@@ -1,8 +1,9 @@
 
 import logging
-from logging.handlers import RotatingFileHandler
 from logging import Logger
-from app.utils.constants import TFPLENUM_LOG_FILENAME, REDIS_QUEUE_LOG_FILENAME
+from logging.handlers import RotatingFileHandler
+
+from app.utils.constants import REDIS_QUEUE_LOG_FILENAME, TFPLENUM_LOG_FILENAME
 
 logger = logging.getLogger('tfplenum_logger')
 rq_logger = logging.getLogger('rq.worker')

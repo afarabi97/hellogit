@@ -5,7 +5,7 @@ import subprocess
 from typing import Dict, List
 
 from app.models import Model
-from flask_restx import fields, Namespace
+from flask_restx import Namespace, fields
 
 DEVICE_FACTS_NS = Namespace("facts", description="Device facts related operations.")
 

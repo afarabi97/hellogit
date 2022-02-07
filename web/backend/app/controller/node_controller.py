@@ -9,16 +9,16 @@ from app.models.settings.kit_settings import (GeneralSettingsForm,
                                               KitSettingsForm)
 from app.models.settings.mip_settings import MipSettingsForm
 from app.service.catalog_service import delete_helm_apps, get_node_apps
-from app.service.job_service import check_gather_device_facts_job, cancel_job
+from app.service.job_service import cancel_job, check_gather_device_facts_job
 from app.service.node_service import (execute, gather_device_facts,
                                       get_all_nodes_with_jobs, refresh_kit,
                                       send_notification,
                                       update_device_facts_job)
 from app.service.vpn_service import VpnService
+from app.utils.collections import mongo_catalog_saved_values, mongo_node
 from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_CREATE,
                                  JOB_DEPLOY, JOB_PROVISION, JOB_REMOVE,
                                  MAC_BASE, NODE_TYPES, PXE_TYPES)
-from app.utils.collections import mongo_catalog_saved_values, mongo_node
 from flask import Response, send_file
 from flask_restx import Resource
 from marshmallow.exceptions import ValidationError

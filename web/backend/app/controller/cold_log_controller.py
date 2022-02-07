@@ -2,24 +2,21 @@ import os
 import shutil
 import zipfile
 
-from app.models.cold_log import (COLDLOG_NS, ColdLogUploadModel,
-                                 WinlogbeatInstallModel)
-from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE,
-                               JobID)
-from app.service.cold_log_service import (install_winlogbeat_srv,
-                                          process_cold_logs)
+from app.models.cold_log import COLDLOG_NS, ColdLogUploadModel, WinlogbeatInstallModel
+from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE, JobID
+from app.service.cold_log_service import install_winlogbeat_srv, process_cold_logs
 from app.utils.constants import ColdLogModules
 from app.utils.utils import TfplenumTempDir
 from flask import Response, request
 from flask_restx import Resource
 
 
-@COLDLOG_NS.route('/upload')
+@COLDLOG_NS.route("/upload")
 class ColdLogUpload(Resource):
     @COLDLOG_NS.doc(description="Upload zip or individual files for coldlog ingest.")
-    @COLDLOG_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
-    @COLDLOG_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
-    @COLDLOG_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @COLDLOG_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
+    @COLDLOG_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @COLDLOG_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     def post(self) -> Response:
         """
         Supports the uploading of zip files or individual files.
@@ -28,20 +25,24 @@ class ColdLogUpload(Resource):
         """
         model = ColdLogUploadModel()
         model.from_request(request.files, request.form)
-        if 'upload_file' not in request.files:
-            return {"error_message": "Failed to upload file. No file was found in the request."}, 400
+        if "upload_file" not in request.files:
+            return {
+                "error_message": "Failed to upload file. No file was found in the request."
+            }, 400
 
         if model.is_windows():
             win_model = WinlogbeatInstallModel()
             try:
                 win_model.initalize_from_mongo()
             except ValueError:
-                return {"error_message": "Failed to upload Windows file because Winlogbeat has not been setup for cold log ingest."}, 500
+                return {
+                    "error_message": "Failed to upload Windows file because Winlogbeat has not been setup for cold log ingest."
+                }, 500
 
         new_dir = TfplenumTempDir()
         tmpdirname = new_dir.file_path_str
         try:
-            abs_save_path = tmpdirname + '/' + model.filename
+            abs_save_path = tmpdirname + "/" + model.filename
             model.upload_file.save(abs_save_path)
 
             logs = []

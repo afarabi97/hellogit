@@ -1,10 +1,14 @@
 from flask import Blueprint
 from flask_restx import Api
 
-api_blueprint = Blueprint('api', __name__)
+api_blueprint = Blueprint("api", __name__)
 
-api = Api(api_blueprint, version='1.0', title='TFPlenum Backend API',
-    description='TFPlenums API documentation', doc="/docs"
+api = Api(
+    api_blueprint,
+    version="1.0",
+    title="TFPlenum Backend API",
+    description="TFPlenums API documentation",
+    doc="/docs",
 )
 
 from app.models.alerts import ALERTS_NS, HIVE_NS
@@ -20,15 +24,32 @@ from app.models.ruleset import POLICY_NS
 from app.models.scale import SCALE_NS
 from app.models.settings.general_settings import SETINGS_NS
 
-from . import (agent_builder_controller, alerts_controller, catalog_controller,
-               cold_log_controller, common_controller, configmap_controller,
-               curator_controller, diagnostics_controller, health_controller,
-               health_dashboard_controller, kit_controller,
-               kit_tokens_controller, mip_controller, node_controller,
-               notification_controller, pcap_controller, portal_controller,
-               registry_controller, ruleset_controller, scale_controller,
-               settings_controller, task_controller, tools_controller,
-               version_controller)
+from . import (
+    agent_builder_controller,
+    alerts_controller,
+    catalog_controller,
+    cold_log_controller,
+    common_controller,
+    configmap_controller,
+    curator_controller,
+    diagnostics_controller,
+    health_controller,
+    health_dashboard_controller,
+    kit_controller,
+    kit_tokens_controller,
+    mip_controller,
+    node_controller,
+    notification_controller,
+    pcap_controller,
+    portal_controller,
+    registry_controller,
+    ruleset_controller,
+    scale_controller,
+    settings_controller,
+    task_controller,
+    tools_controller,
+    version_controller,
+)
 from .agent_builder_controller import AGENT_NS
 from .curator_controller import CURATOR_NS
 from .diagnostics_controller import DIAGNOSTICS_NS

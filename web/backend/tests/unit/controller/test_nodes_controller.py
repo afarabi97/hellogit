@@ -1,6 +1,6 @@
-from tests.unit.static_data import get_node_expected
-from tests.unit.static_data import nodes_collection, jobs_collection
-from app.utils.collections import get_collection, Collections
+from app.utils.collections import Collections, get_collection
+from tests.unit.static_data import (get_node_expected, jobs_collection,
+                                    nodes_collection)
 
 
 def test_node(client):

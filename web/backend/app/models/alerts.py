@@ -1,8 +1,8 @@
 from typing import Dict
 
 from app.models import Model
-from app.utils.constants import HIVE_ID
 from app.utils.collections import mongo_hive_settings
+from app.utils.constants import HIVE_ID
 from flask_restx import Namespace, fields
 from marshmallow import Schema, ValidationError
 from marshmallow import fields as marsh_fields

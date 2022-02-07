@@ -15,7 +15,6 @@ from flask_restx import Resource
 
 @KIT_SETUP_NS.route("/status")
 class KitStatusCtrl(Resource):
-
     @KIT_SETUP_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @KIT_SETUP_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     def get(self) -> Response:
@@ -27,16 +26,18 @@ class KitStatusCtrl(Resource):
             return {"error_message": "DBModelNotFound."}, 400
         return {"error_message": "Unknown error."}, 500
 
+
 @KIT_SETUP_NS.route("/deploy")
 class KitCtrl(Resource):
-
     def _execute_kit_job(self) -> Dict:
         nodes = Node.load_all_servers_sensors_from_db()
-        job = execute.delay(node=nodes, exec_type=DEPLOYMENT_JOBS.base_kit, stage=JOB_DEPLOY)
+        job = execute.delay(
+            node=nodes, exec_type=DEPLOYMENT_JOBS.base_kit, stage=JOB_DEPLOY
+        )
         return JobID(job).to_dict()
 
-    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
-    @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @KIT_SETUP_NS.response(200, "JobID Model", JobID.DTO)
+    @KIT_SETUP_NS.response(400, "Error Model", COMMON_ERROR_DTO)
     @controller_admin_required
     def get(self) -> Response:
         return self._execute_kit_job()

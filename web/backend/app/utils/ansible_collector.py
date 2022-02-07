@@ -15,18 +15,15 @@ class CallbackModule(CallbackBase):
         super(CallbackModule, self).__init__()
         self.start_timestamp = time.time()
         self.run_time_sec = 0
-        self.__result_list = defaultdict(lambda:
-                                         {
-                                             "ok": [],
-                                             "unreachable": [],
-                                             "skipped": [],
-                                             "failed": []
-                                         }
-                                         )
+        self.__result_list = defaultdict(
+            lambda: {"ok": [], "unreachable": [], "skipped": [], "failed": []}
+        )
         self.__summary = {}
 
     def v2_runner_on_failed(self, result, ignore_errors=False):
-        print("{} failed with msg {}".format(result._host.get_name(), str(result._result)))
+        print(
+            "{} failed with msg {}".format(result._host.get_name(), str(result._result))
+        )
         self.__result_list[result._host.get_name()]["failed"].append(result._result)
 
     def v2_runner_on_ok(self, result):
@@ -36,8 +33,14 @@ class CallbackModule(CallbackBase):
         self.__result_list[result._host.get_name()]["skipped"].append(result._result)
 
     def v2_runner_on_unreachable(self, result):
-        print("{} unreachable with msg: {}".format(result._host.get_name(), str(result._result)))
-        self.__result_list[result._host.get_name()]["unreachable"].append(result._result)
+        print(
+            "{} unreachable with msg: {}".format(
+                result._host.get_name(), str(result._result)
+            )
+        )
+        self.__result_list[result._host.get_name()]["unreachable"].append(
+            result._result
+        )
 
     def v2_playbook_on_stats(self, stats):
         self.run_time_sec = time.time() - self.start_timestamp

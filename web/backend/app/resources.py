@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+
 def convert_gib_to_mib(gib: float) -> float:
     return gib * 1024
 
@@ -41,7 +42,6 @@ def cal_percentage_of_total(total: float, percentage: int) -> float:
 
 
 class StoragePool:
-
     def __init__(self, nodes: List[Dict]):
         self._nodes = nodes
         self._pool_capacity = self._set_storage_capacity()
@@ -52,21 +52,21 @@ class StoragePool:
     def _set_storage_capacity(self):
         ret_val = 0
         for node in self._nodes:
-            device_facts = node['deviceFacts']
-            for disk in device_facts['disks']:
-                for name in node['es_drives']:
-                    if disk['name'] == name:
-                        ret_val += convert_gb_to_kb(disk['size_gb'])
+            device_facts = node["deviceFacts"]
+            for disk in device_facts["disks"]:
+                for name in node["es_drives"]:
+                    if disk["name"] == name:
+                        ret_val += convert_gb_to_kb(disk["size_gb"])
         return ret_val
 
     def add_reservation(self, name: str, kb: int):
-        self._reservations.append({'name': name, 'size': kb})
+        self._reservations.append({"name": name, "size": kb})
         self._set_storage_allocatable()
 
     def _set_storage_allocatable(self):
         storage_allocatable = self._pool_capacity
         for reservation in self._reservations:
-            storage_allocatable -= reservation['size']
+            storage_allocatable -= reservation["size"]
 
         self._pool_allocatable = storage_allocatable
 
@@ -88,9 +88,11 @@ class StoragePool:
 class NodeResources:
     def __init__(self, node: Dict):
         self._node = node
-        self._device_facts = node['deviceFacts']
+        self._device_facts = node["deviceFacts"]
         self._cpu_capacity = self._device_facts["cpus_available"] * 1000
-        self._memory_capacity = convert_gib_to_kib(self._device_facts["memory_available"])
+        self._memory_capacity = convert_gib_to_kib(
+            self._device_facts["memory_available"]
+        )
         self._storage_capacity = self._cal_storage_capacity()
         self._memory_allocatable = self._memory_capacity
         self._cpu_allocatable = self._cpu_capacity
@@ -108,13 +110,14 @@ class NodeResources:
         self.add_reservation(self._system_pod_reservation)
 
     def __str__(self) -> str:
-        return ("Reservations: " + str(self._reservations) + "\n"
-                "Length: " + str(len(self._reservations)) + "\n"
-                "cpu_capacity: " + str(self.cpu_capacity) + "\n"
-                "mem_capacity: " + str(self.mem_capacity) + "\n"
-                "cpu_allocatable: " + str(self.cpu_allocatable) + "\n"
-                "mem_allocatable: " + str(self.mem_allocatable) + "\n"
-               )
+        return (
+            "Reservations: " + str(self._reservations) + "\n"
+            "Length: " + str(len(self._reservations)) + "\n"
+            "cpu_capacity: " + str(self.cpu_capacity) + "\n"
+            "mem_capacity: " + str(self.mem_capacity) + "\n"
+            "cpu_allocatable: " + str(self.cpu_allocatable) + "\n"
+            "mem_allocatable: " + str(self.mem_allocatable) + "\n"
+        )
 
     def _create_os_reservation(self) -> Dict:
         cpu_reserve = int(cal_percentage_of_total(self._cpu_capacity, 10))
@@ -125,7 +128,7 @@ class NodeResources:
         if mem_reserve > convert_gib_to_kib(1):
             mem_reserve = convert_gib_to_kib(1)
 
-        return {'type': 'system', 'cpu': cpu_reserve, 'memory': mem_reserve}
+        return {"type": "system", "cpu": cpu_reserve, "memory": mem_reserve}
 
     def _create_kube_reservation(self) -> Dict:
         cpu_reserve = int(cal_percentage_of_total(self._cpu_capacity, 5))
@@ -136,7 +139,7 @@ class NodeResources:
         if mem_reserve > convert_gib_to_kib(1):
             mem_reserve = convert_gib_to_kib(1)
 
-        return {'type': 'kube', 'cpu': cpu_reserve, 'memory': mem_reserve}
+        return {"type": "kube", "cpu": cpu_reserve, "memory": mem_reserve}
 
     def _create_system_pod_reservation(self) -> Dict:
         cpu_reserve = int(cal_percentage_of_total(self._cpu_capacity, 10))
@@ -148,7 +151,7 @@ class NodeResources:
         if mem_reserve < mem_minimum:
             mem_reserve = mem_minimum
 
-        return {'type': 'sys-pod', 'cpu': cpu_reserve, 'memory': mem_reserve}
+        return {"type": "sys-pod", "cpu": cpu_reserve, "memory": mem_reserve}
 
     def _cal_storage_capacity(self) -> int:
         """
@@ -157,11 +160,11 @@ class NodeResources:
         :return: KB for pcap stroage
         """
         ret_val = 0
-        for disk in self._device_facts['disks']:
+        for disk in self._device_facts["disks"]:
             try:
-                for name in self._node['pcap_drives']:
-                    if disk['name'] == name:
-                        ret_val += disk['size_gb']
+                for name in self._node["pcap_drives"]:
+                    if disk["name"] == name:
+                        ret_val += disk["size_gb"]
             except KeyError:
                 break
         return convert_gb_to_kb(ret_val)
@@ -169,14 +172,14 @@ class NodeResources:
     def _set_memory_allocatable(self):
         mem_allocatable = self._memory_capacity
         for reservation in self._reservations:
-            mem_allocatable -= reservation['memory']
+            mem_allocatable -= reservation["memory"]
 
         self._memory_allocatable = mem_allocatable
 
     def _set_cpu_allocatable(self):
         cpu_allocatable = self._cpu_capacity
         for reservation in self._reservations:
-            cpu_allocatable -= reservation['cpu']
+            cpu_allocatable -= reservation["cpu"]
 
         self._cpu_allocatable = cpu_allocatable
 
@@ -239,11 +242,13 @@ class NodeResources:
         Returns the default reservations needed for each node
         for the inventory file.
         """
-        return {'sys_cpu_reserve': self._operating_system_reservation['cpu'],
-                'sys_mem_reserve': int(self._operating_system_reservation['memory']),
-                'kube_cpu_reserve': self._kube_reservation['cpu'],
-                'kube_mem_reserve': int(self._kube_reservation['memory'])
+        return {
+            "sys_cpu_reserve": self._operating_system_reservation["cpu"],
+            "sys_mem_reserve": int(self._operating_system_reservation["memory"]),
+            "kube_cpu_reserve": self._kube_reservation["cpu"],
+            "kube_mem_reserve": int(self._kube_reservation["memory"]),
         }
+
 
 class NodeResourcePool:
     def __init__(self, nodes: List[Dict]):

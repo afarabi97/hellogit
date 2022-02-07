@@ -1,6 +1,7 @@
 import shutil
 from pathlib import Path
 from typing import Dict, List
+from uuid import uuid4
 
 from app.models.cold_log import ColdLogUploadModel, WinlogbeatInstallModel
 from app.service.job_service import AsyncJob, run_command2
@@ -17,8 +18,6 @@ from app.utils.tfwinrm_util import (
 from app.utils.utils import TfplenumTempDir, get_app_context, zip_package
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from rq.decorators import job
-from uuid import uuid4
-
 
 JOB_NAME = "process_logs"
 INSTALL_WINLOGBEAT_JOB_NAME = "winlogbeat_install"

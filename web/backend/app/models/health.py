@@ -1,5 +1,5 @@
 from app.models import Model
-from flask_restx import fields, Namespace
+from flask_restx import Namespace, fields
 
 APP_NS = Namespace("app", description="Health page related operations.")
 HEALTH_NS = Namespace("health", description="Health page related operations.")

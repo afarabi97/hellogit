@@ -13,8 +13,8 @@ from app.models.settings.general_settings import (SETINGS_NS,
                                                   GeneralSettingsForm)
 from app.models.settings.settings_base import (SettingsBase,
                                                validate_password_stigs)
-from app.utils.constants import CORE_DIR, KIT_SETTINGS_ID, TEMPLATE_DIR
 from app.utils.collections import mongo_settings
+from app.utils.constants import CORE_DIR, KIT_SETTINGS_ID, TEMPLATE_DIR
 from app.utils.utils import decode_password, encode_password
 from flask_restx import fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape

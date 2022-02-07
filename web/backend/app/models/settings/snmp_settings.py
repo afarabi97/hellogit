@@ -5,8 +5,8 @@ from typing import Dict, Optional
 
 from app.models import DBModelNotFound, Model
 from app.models.nodes import KIT_SETUP_NS
-from app.utils.constants import CORE_DIR, SNMP_SETTINGS_ID, TEMPLATE_DIR
 from app.utils.collections import mongo_settings
+from app.utils.constants import CORE_DIR, SNMP_SETTINGS_ID, TEMPLATE_DIR
 from flask_restx import fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from marshmallow import Schema

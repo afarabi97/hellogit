@@ -21,6 +21,7 @@ ELASTIC_OP_NAME = "tfplenum"
 ELASTIC_OP_PLURAL = "elasticsearches"
 KUBE_CONFIG_LOCATION = "/root/.kube/config"
 
+
 def get_es_nodes():
     nodes = None
     if not os.path.exists(KUBE_CONFIG_LOCATION):
@@ -29,12 +30,13 @@ def get_es_nodes():
         if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
             config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
         elastic = ElasticWrapper()
-        nodes = elastic.cat.nodes(format='json')
+        nodes = elastic.cat.nodes(format="json")
         return nodes
     except Exception as exec:
         traceback.print_exc()
         logger.exception(exec)
         return None
+
 
 def parse_nodes(nodes):
     mdil = 0
@@ -61,7 +63,8 @@ def parse_nodes(nodes):
         if master == 0 and data == 0:
             master = mdil
 
-    return { "master": master, "data": data, "ml": machine_learning, "ingest": ingest}
+    return {"master": master, "data": data, "ml": machine_learning, "ingest": ingest}
+
 
 def get_namespaced_custom_object_status() -> str:
     notification = NotificationMessage(role=_JOB_NAME)
@@ -71,11 +74,13 @@ def get_namespaced_custom_object_status() -> str:
         if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
             config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
         api = client.CustomObjectsApi()
-        resp = api.get_namespaced_custom_object_status(group=ELASTIC_OP_GROUP,
-                                                       version=ELASTIC_OP_VERSION,
-                                                       plural=ELASTIC_OP_PLURAL,
-                                                       namespace=ELASTIC_OP_NAMESPACE,
-                                                       name=ELASTIC_OP_NAME)
+        resp = api.get_namespaced_custom_object_status(
+            group=ELASTIC_OP_GROUP,
+            version=ELASTIC_OP_VERSION,
+            plural=ELASTIC_OP_PLURAL,
+            namespace=ELASTIC_OP_NAMESPACE,
+            name=ELASTIC_OP_NAME,
+        )
 
         return resp
     except Exception as exec:
@@ -84,6 +89,7 @@ def get_namespaced_custom_object_status() -> str:
         notification.set_message(str(exec))
         notification.post_to_websocket_api()
         return "Unknown"
+
 
 def es_cluster_status() -> str:
     notification = NotificationMessage(role=_JOB_NAME)
@@ -115,13 +121,15 @@ def es_cluster_status() -> str:
             es_node_count = parse_nodes(nodes)
 
         resp = get_namespaced_custom_object_status()
-        if (es_node_count
-                and es_node_count["master"] ==  deploy_master_count
-                and es_node_count["data"] == deploy_data_count
-                and es_node_count["ml"] == deploy_ml_count
-                and es_node_count["ingest"] == deploy_ingest_count
-                and resp["status"]["phase"] == "Ready"
-                and resp["status"]["availableNodes"] == deploy_total_count):
+        if (
+            es_node_count
+            and es_node_count["master"] == deploy_master_count
+            and es_node_count["data"] == deploy_data_count
+            and es_node_count["ml"] == deploy_ml_count
+            and es_node_count["ingest"] == deploy_ingest_count
+            and resp["status"]["phase"] == "Ready"
+            and resp["status"]["availableNodes"] == deploy_total_count
+        ):
             return resp["status"]["phase"]
 
         if resp is None:
@@ -138,7 +146,7 @@ def es_cluster_status() -> str:
         return "Unknown"
 
 
-@job('default', connection=REDIS_CLIENT, timeout="30m")
+@job("default", connection=REDIS_CLIENT, timeout="30m")
 def check_scale_status(application: str):
     get_app_context().push()
     notification = NotificationMessage(role=_JOB_NAME)
@@ -157,7 +165,9 @@ def check_scale_status(application: str):
             status = es_cluster_status()
             if status not in ["Ready", previous_status]:
                 notification = NotificationMessage(role=_JOB_NAME)
-                notification.set_message("{} scaling is {}.".format(application, status))
+                notification.set_message(
+                    "{} scaling is {}.".format(application, status)
+                )
                 notification.set_status(NotificationCode.IN_PROGRESS.name)
                 notification.post_to_websocket_api()
 
@@ -166,7 +176,9 @@ def check_scale_status(application: str):
             previous_status = status
             sleep(5)
         notification = NotificationMessage(role=_JOB_NAME)
-        notification.set_message("{} scaling completed successfully.".format(application))
+        notification.set_message(
+            "{} scaling completed successfully.".format(application)
+        )
         notification.set_status(NotificationCode.COMPLETED.name)
         notification.post_to_websocket_api()
 
@@ -178,9 +190,10 @@ def check_scale_status(application: str):
         notification.set_status(NotificationCode.ERROR.name)
         notification.post_to_websocket_api()
 
+
 def get_allowable_scale_count():
     ureg = UnitRegistry()
-    ureg.load_definitions('/opt/tfplenum/web/backend/app/utils/kubernetes_units')
+    ureg.load_definitions("/opt/tfplenum/web/backend/app/utils/kubernetes_units")
     data = {}
     request = []
     Q_ = ureg.Quantity
@@ -201,19 +214,27 @@ def get_allowable_scale_count():
             for n in node_sets:
                 for c in n["podTemplate"]["spec"]["containers"]:
                     if n["name"] == "master":
-                        master_memory_request = Q_(c["resources"]["requests"]["memory"]).to(ureg.Mi)
+                        master_memory_request = Q_(
+                            c["resources"]["requests"]["memory"]
+                        ).to(ureg.Mi)
                         master_cpu_request = Q_(c["resources"]["requests"]["cpu"])
                         master_count = n["count"]
                     if n["name"] == "data":
-                        data_memory_request = Q_(c["resources"]["requests"]["memory"]).to(ureg.Mi)
+                        data_memory_request = Q_(
+                            c["resources"]["requests"]["memory"]
+                        ).to(ureg.Mi)
                         data_cpu_request = Q_(c["resources"]["requests"]["cpu"])
                         data_count = n["count"]
                     if n["name"] == "ml":
-                        ml_memory_request = Q_(c["resources"]["requests"]["memory"]).to(ureg.Mi)
+                        ml_memory_request = Q_(c["resources"]["requests"]["memory"]).to(
+                            ureg.Mi
+                        )
                         ml_cpu_request = Q_(c["resources"]["requests"]["cpu"])
                         ml_count = n["count"]
                     if n["name"] == "ingest":
-                        ingest_memory_request = Q_(c["resources"]["requests"]["memory"]).to(ureg.Mi)
+                        ingest_memory_request = Q_(
+                            c["resources"]["requests"]["memory"]
+                        ).to(ureg.Mi)
                         ingest_cpu_request = Q_(c["resources"]["requests"]["cpu"])
                         ingest_count = n["count"]
 
@@ -227,57 +248,61 @@ def get_allowable_scale_count():
             if key == "role" and value == "server":
                 server_node_count += 1
 
-                stats          = {}
-                node_name      = node.metadata.name
-                allocatable    = node.status.allocatable
-                max_pods       = int(int(allocatable["pods"]) * 1.5)
+                stats = {}
+                node_name = node.metadata.name
+                allocatable = node.status.allocatable
+                max_pods = int(int(allocatable["pods"]) * 1.5)
 
                 stats["cpu_alloc"] = Q_(allocatable["cpu"])
                 stats["mem_alloc"] = Q_(allocatable["memory"]).to(ureg.Mi)
 
-                field_selector = ("status.phase!=Succeeded,status.phase!=Failed," +
-                          "spec.nodeName=" + node_name)
+                field_selector = (
+                    "status.phase!=Succeeded,status.phase!=Failed,"
+                    + "spec.nodeName="
+                    + node_name
+                )
 
-                pods = v1.list_pod_for_all_namespaces(limit=max_pods,
-                                                   field_selector=field_selector).items
+                pods = v1.list_pod_for_all_namespaces(
+                    limit=max_pods, field_selector=field_selector
+                ).items
                 # compute the allocated resources
-                cpureqs,cpulmts,memreqs,memlmts = [], [], [], []
+                cpureqs, cpulmts, memreqs, memlmts = [], [], [], []
                 for pod in pods:
                     for container in pod.spec.containers:
-                        res  = container.resources
+                        res = container.resources
                         reqs = defaultdict(lambda: 0, res.requests or {})
                         lmts = defaultdict(lambda: 0, res.limits or {})
 
                         if reqs["cpu"] == "1" or reqs["cpu"] == 1:
-                            cpureqs.append(Q_('1000m'))
+                            cpureqs.append(Q_("1000m"))
                         elif reqs["cpu"] == 0 or reqs["cpu"] == "0":
-                            cpureqs.append(Q_('0m'))
+                            cpureqs.append(Q_("0m"))
                         else:
                             cpureqs.append(Q_(reqs["cpu"]))
                         memreqs.append(Q_(reqs["memory"]).to(ureg.Mi))
                         if lmts["cpu"] == "1" or lmts["cpu"] == 1:
-                            cpulmts.append(Q_('1000m'))
+                            cpulmts.append(Q_("1000m"))
                         elif lmts["cpu"] == 0 or lmts["cpu"] == "0":
-                            cpulmts.append(Q_('0m'))
+                            cpulmts.append(Q_("0m"))
                         else:
                             cpulmts.append(Q_(lmts["cpu"]))
                         memlmts.append(Q_(lmts["memory"]).to(ureg.Mi))
 
-                stats["cpu_req"]     = sum(cpureqs)
-                stats["cpu_lmt"]     = sum(cpulmts)
-                stats["cpu_req_per"] = (stats["cpu_req"] / stats["cpu_alloc"] * 100)
-                stats["cpu_lmt_per"] = (stats["cpu_lmt"] / stats["cpu_alloc"] * 100)
+                stats["cpu_req"] = sum(cpureqs)
+                stats["cpu_lmt"] = sum(cpulmts)
+                stats["cpu_req_per"] = stats["cpu_req"] / stats["cpu_alloc"] * 100
+                stats["cpu_lmt_per"] = stats["cpu_lmt"] / stats["cpu_alloc"] * 100
 
-                stats["mem_req"]     = sum(memreqs)
-                stats["mem_lmt"]     = sum(memlmts)
-                stats["mem_req_per"] = (stats["mem_req"] / stats["mem_alloc"] * 100)
-                stats["mem_lmt_per"] = (stats["mem_lmt"] / stats["mem_alloc"] * 100)
+                stats["mem_req"] = sum(memreqs)
+                stats["mem_lmt"] = sum(memlmts)
+                stats["mem_req_per"] = stats["mem_req"] / stats["mem_alloc"] * 100
+                stats["mem_lmt_per"] = stats["mem_lmt"] / stats["mem_alloc"] * 100
 
-                stats["cpu_remaining"] =  stats["cpu_alloc"] - stats["cpu_req"]
-                stats["mem_remaining"] =  stats["mem_alloc"] - stats["mem_req"]
+                stats["cpu_remaining"] = stats["cpu_alloc"] - stats["cpu_req"]
+                stats["mem_remaining"] = stats["mem_alloc"] - stats["mem_req"]
 
                 data[node_name] = stats
-                request.append({ node_name: data[node_name]})
+                request.append({node_name: data[node_name]})
 
     max_total_masters = 3
     max_total_data = 0
@@ -319,8 +344,10 @@ def get_allowable_scale_count():
                 else:
                     max_total_ingest = ingest_count + ingest_min
 
-    return { "max_scale_count_master": max_total_masters,
-            "max_scale_count_data": max_total_data,
-            "max_scale_count_ml": max_total_ml,
-            "max_scale_count_ingest": max_total_ingest,
-            "server_node_count": server_node_count }
+    return {
+        "max_scale_count_master": max_total_masters,
+        "max_scale_count_data": max_total_data,
+        "max_scale_count_ml": max_total_ml,
+        "max_scale_count_ingest": max_total_ingest,
+        "server_node_count": server_node_count,
+    }

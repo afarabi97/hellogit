@@ -9,13 +9,13 @@ from typing import Dict, List
 
 from app.models import Model
 from app.models.settings.settings_base import SettingsBase
+from app.utils.collections import mongo_settings
 from app.utils.constants import CORE_DIR, GENERAL_SETTINGS_ID, TEMPLATE_DIR
 from flask_restx import Namespace, fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from marshmallow import Schema, ValidationError
 from marshmallow import fields as marsh_fields
 from marshmallow import post_load, validates
-from app.utils.collections import mongo_settings
 
 JINJA_ENV = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR)),

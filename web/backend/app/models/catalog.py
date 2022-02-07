@@ -1,6 +1,6 @@
 from app.models import Model
 from app.models.nodes import Node
-from flask_restx import fields, Namespace
+from flask_restx import Namespace, fields
 
 CATALOG_NS = Namespace("catalog", description="Catalog related operations used for installing HELM charts on the Kubernetes cluster.")
 

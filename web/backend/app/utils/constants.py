@@ -7,24 +7,24 @@ from typing import Dict
 
 
 SHARED_DIR = Path(__file__).parent  # type: Path
-CORE_DIR = SHARED_DIR / '../../../../core'
-STIGS_DIR = SHARED_DIR / '../../../../rhel8-stigs'
-PLAYBOOK_DIR = CORE_DIR / 'playbooks'
-WEB_DIR = SHARED_DIR / '../../../'
-TESTING_DIR = SHARED_DIR / '../../../../testing'
-UPGRADES_DIR = SHARED_DIR / '../../../../upgrades'
-AGENT_PKGS_DIR = SHARED_DIR / '../../../../agent_pkgs'
-MIP_DIR = SHARED_DIR / '../../../../mip'
-TEMPLATE_DIR = SHARED_DIR / '../templates'  # type: Path
-SCRIPTS_DIR = SHARED_DIR / '../../../../scripts'
-PROJECT_ROOT_DIR = SHARED_DIR / '../../../..'
+CORE_DIR = SHARED_DIR / "../../../../core"
+STIGS_DIR = SHARED_DIR / "../../../../rhel8-stigs"
+PLAYBOOK_DIR = CORE_DIR / "playbooks"
+WEB_DIR = SHARED_DIR / "../../../"
+TESTING_DIR = SHARED_DIR / "../../../../testing"
+UPGRADES_DIR = SHARED_DIR / "../../../../upgrades"
+AGENT_PKGS_DIR = SHARED_DIR / "../../../../agent_pkgs"
+MIP_DIR = SHARED_DIR / "../../../../mip"
+TEMPLATE_DIR = SHARED_DIR / "../templates"  # type: Path
+SCRIPTS_DIR = SHARED_DIR / "../../../../scripts"
+PROJECT_ROOT_DIR = SHARED_DIR / "../../../.."
 
 TFPLENUM_LOG_FILENAME = "/var/log/tfplenum/tfplenum.log"
 REDIS_QUEUE_LOG_FILENAME = "/var/log/tfplenum/rq.log"
 
 KIT_ID = "kit_form"
 MIP_CONFIG_ID = "mip_config"
-PORTAL_ID = 'portal_links'
+PORTAL_ID = "portal_links"
 HIVE_ID = "HIVE_SETTINGS"
 GENERAL_SETTINGS_ID = "general_settings_form"
 ESXI_SETTINGS_ID = "esxi_settings_form"
@@ -33,7 +33,7 @@ MIP_SETTINGS_ID = "mip_settings_form"
 SNMP_SETTINGS_ID = "snmp_settings_form"
 WINDOWS_COLD_LOG_CONFIG_ID = "windows_cold_log_config"
 ELK_SNAPSHOT_STATE = "elk_snapshot"
-DATE_FORMAT_STR = '%Y-%m-%d %H:%M:%S'
+DATE_FORMAT_STR = "%Y-%m-%d %H:%M:%S"
 
 RULESET_STATES = ("Created", "Dirty", "Synced", "Error")
 RULE_TYPES = ("Suricata", "Zeek Scripts", "Zeek Intel", "Zeek Signatures")
@@ -55,7 +55,8 @@ SURICATA_RULESET_LOC = "/opt/tfplenum/suricata/rules/suricata.rules"
 BRO_CUSTOM_DIR = "/opt/tfplenum/zeek/scripts/"
 CA_BUNDLE = "/etc/pki/tls/certs/ca-bundle.crt"
 
-REDIS = 'redis://'
+REDIS = "redis://"
+
 
 class NODE_TYPES(Enum):
     server = "Server"
@@ -64,10 +65,12 @@ class NODE_TYPES(Enum):
     service_node = "Service"
     mip = "MIP"
 
+
 class DEPLOYMENT_TYPES(Enum):
     baremetal = "Baremetal"
     virtual = "Virtual"
     iso = "Iso"
+
 
 class DEPLOYMENT_JOBS(Enum):
     base_kit = "Base kit"
@@ -84,11 +87,11 @@ class DEPLOYMENT_JOBS(Enum):
     gather_device_facts = "Gather Device Facts"
 
 
-
 class TARGET_STATES(Enum):
     uninstalled = "Uninstalled"
     installed = "Installed"
     error = "Error"
+
 
 # Roles
 OPERATOR_ROLE = "operator"
@@ -106,6 +109,7 @@ JOB_REMOVE = "remove"
 MAC_BASE = "00:1b:ea:00:00:00"
 CONTROLLER_INTERFACE_NAME = "br0"
 
+
 class PXE_TYPES(Enum):
     uefi = "UEFI"
     bios = "BIOS"
@@ -114,31 +118,27 @@ class PXE_TYPES(Enum):
 
 
 class FileSet:
-    def __init__(self, value: str, name: str, tooltip: str=""):
+    def __init__(self, value: str, name: str, tooltip: str = ""):
         self.value = value
-        self.name = name # The display name on the UI
+        self.name = name  # The display name on the UI
         self.tooltip = tooltip
 
     def to_dict(self):
-        return {"value": self.value,
-                "name": self.name,
-                "tooltip": self.tooltip}
+        return {"value": self.value, "name": self.name, "tooltip": self.tooltip}
 
 
 class FilebeatModule:
     def __init__(self, value: str, name: str):
         self.value = value
-        self.name = name # The display name on the UI
-        self.filesets = [] # type: FileSet
+        self.name = name  # The display name on the UI
+        self.filesets = []  # type: FileSet
 
-    def appendFileset(self, value: str, name: str, tooltip: str=""):
+    def appendFileset(self, value: str, name: str, tooltip: str = ""):
         self.filesets.append(FileSet(value, name, tooltip))
 
     def to_dict(self):
         fileset_l = [i.to_dict() for i in self.filesets]
-        return {"value": self.value,
-                "name": self.name,
-                "filesets": fileset_l}
+        return {"value": self.value, "name": self.name, "filesets": fileset_l}
 
 
 class ColdLogModules:
@@ -158,8 +158,12 @@ class ColdLogModules:
 
     @classmethod
     def _initalize(cls):
-        cls.APACHE.appendFileset("error", "Error logs", "Normally found in /var/log/httpd folder.")
-        cls.APACHE.appendFileset("access", "Access logs", "Normally found in /var/log/httpd folder.")
+        cls.APACHE.appendFileset(
+            "error", "Error logs", "Normally found in /var/log/httpd folder."
+        )
+        cls.APACHE.appendFileset(
+            "access", "Access logs", "Normally found in /var/log/httpd folder."
+        )
 
         cls.AWS.appendFileset("ec2", "EC2 logs")
         cls.AWS.appendFileset("elb", "ELB logs")
@@ -200,5 +204,6 @@ class ColdLogModules:
                 ret_val.append(cls.__dict__[key].to_dict())
 
         return ret_val
+
 
 ColdLogModules._initalize()

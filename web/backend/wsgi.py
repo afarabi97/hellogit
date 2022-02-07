@@ -5,7 +5,7 @@ import argparse
 import os
 
 from app import create_app
-from app.utils.constants import REDIS, CA_BUNDLE
+from app.utils.constants import CA_BUNDLE, REDIS
 from flask_socketio import SocketIO
 
 os.environ['REQUESTS_CA_BUNDLE'] = CA_BUNDLE

@@ -3,6 +3,7 @@ from scapy.utils import  PcapReader
 from scapy.error import Scapy_Exception
 from werkzeug.utils import secure_filename
 
+
 class PcapModel(Model):
 
     @staticmethod

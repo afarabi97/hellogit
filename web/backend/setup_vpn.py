@@ -1,7 +1,8 @@
-import requests
-from requests import Response
 from argparse import ArgumentParser
+
+import requests
 import urllib3
+from requests import Response
 
 urllib3.disable_warnings()
 

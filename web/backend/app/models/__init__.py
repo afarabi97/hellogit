@@ -4,9 +4,8 @@ Contains the main Model base class that all models will inherit from.
 Additionally, this base module contains all teh custom exceptions
 """
 
-import json
 import base64
-
+import json
 from argparse import Namespace
 from ipaddress import IPv4Address
 from typing import Dict, List
@@ -16,6 +15,7 @@ class DBModelNotFound(Exception):
     """
     This should be raised in instances where a mongo lookup did not find the the object.
     """
+
     pass
 
 
@@ -24,6 +24,7 @@ class PostValidationError(Exception):
     This should be raised in instances where additional validation is done that marshmallow
     did not catch.
     """
+
     def __init__(self):
         self.errors_msgs = []
 
@@ -35,7 +36,6 @@ class PostValidationError(Exception):
 
 
 class Model:
-
     def _handle_lists(self, key: str) -> List:
         a_list = []
         for item in self.__dict__[key]:
@@ -90,8 +90,8 @@ class Model:
 
     def b64decode_string(self, some_str: str):
         ret_val = base64.b64decode(some_str.encode())
-        return ret_val.decode('utf-8')
+        return ret_val.decode("utf-8")
 
     def b64encode_string(self, some_str: str) -> str:
         ret_val = base64.b64encode(some_str.encode("utf-8"))
-        return ret_val.decode('utf-8')
+        return ret_val.decode("utf-8")

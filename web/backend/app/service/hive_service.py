@@ -6,9 +6,8 @@ from app.utils.logging import logger
 from app.utils.utils import get_domain
 from thehive4py.api import TheHiveApi
 from thehive4py.auth import BearerAuth
-from thehive4py.exceptions import CustomFieldException
+from thehive4py.exceptions import CaseException, CustomFieldException
 from thehive4py.models import Case, CustomField, Version
-from thehive4py.exceptions import CaseException
 
 
 class HiveFailureError(Exception):

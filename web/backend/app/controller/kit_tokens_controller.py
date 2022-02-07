@@ -1,7 +1,6 @@
 import subprocess
 
-from app.common import (CONFLICT_RESPONSE, ERROR_RESPONSE, NO_CONTENT,
-                        NOTFOUND_RESPONSE)
+from app.common import CONFLICT_RESPONSE, ERROR_RESPONSE, NO_CONTENT, NOTFOUND_RESPONSE
 from app.middleware import login_required_roles
 from app.models.kit_tokens import TOKEN_NS, kit_token, kit_token_list
 from app.utils.collections import mongo_kit_tokens
@@ -12,16 +11,22 @@ from flask_restx import Resource
 
 
 def generate_api_key(ipaddress: str):
-    api_gen_cmd = '/opt/tfplenum/.venv/bin/python3 /opt/sso-idp/gen_api_token.py --uid {} --roles "metrics" --displayName "Metrics Token" --exp 9999'.format(ipaddress)
-    proc = subprocess.Popen(api_gen_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    api_gen_cmd = '/opt/tfplenum/.venv/bin/python3 /opt/sso-idp/gen_api_token.py --uid {} --roles "metrics" --displayName "Metrics Token" --exp 9999'.format(
+        ipaddress
+    )
+    proc = subprocess.Popen(
+        api_gen_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+    )
     stdout, _ = proc.communicate()
-    return stdout.decode('utf-8').strip()
+    return stdout.decode("utf-8").strip()
 
-@TOKEN_NS.route('')
+
+@TOKEN_NS.route("")
 class KitTokens(Resource):
-
-    @TOKEN_NS.response(200, 'Kit Token list', kit_token_list)
-    @login_required_roles(['controller-admin','controller-maintainer'], all_roles_req=False)
+    @TOKEN_NS.response(200, "Kit Token list", kit_token_list)
+    @login_required_roles(
+        ["controller-admin", "controller-maintainer"], all_roles_req=False
+    )
     def get(self) -> Response:
         try:
             response = []
@@ -34,9 +39,11 @@ class KitTokens(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
-    @TOKEN_NS.response(200, 'Kit Token', kit_token)
+    @TOKEN_NS.response(200, "Kit Token", kit_token)
     @TOKEN_NS.expect(kit_token, validate=True)
-    @login_required_roles(['controller-admin','controller-maintainer'], all_roles_req=False)
+    @login_required_roles(
+        ["controller-admin", "controller-maintainer"], all_roles_req=False
+    )
     def post(self) -> Response:
         try:
             data = request.get_json()
@@ -58,11 +65,13 @@ class KitTokens(Resource):
             logger.exception(e)
         return ERROR_RESPONSE
 
-@TOKEN_NS.route('/<kit_token_id>')
-class KitTokens(Resource):
 
+@TOKEN_NS.route("/<kit_token_id>")
+class KitTokens(Resource):
     @TOKEN_NS.response(204, "")
-    @login_required_roles(['controller-admin','controller-maintainer'], all_roles_req=False)
+    @login_required_roles(
+        ["controller-admin", "controller-maintainer"], all_roles_req=False
+    )
     def delete(self, kit_token_id) -> Response:
         try:
             document = mongo_kit_tokens().delete_one({"_id": ObjectId(kit_token_id)})
