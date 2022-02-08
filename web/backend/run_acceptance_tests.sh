@@ -1,9 +1,9 @@
 #!/bin/bash
 # Usage: run_acceptance_tests
-pushd /opt/tfplenum/web/backend > /dev/null
+pushd web/backend > /dev/null
 if [[ $1 == "coverage" ]]
 then
-    coverage="-p pytest_cov --cov=app tests/unit/"
+    coverage="-p pytest_cov --cov=app"
 fi
-exec pytest -ra -x --pdb --durations-min=10.0 --junitxml=unit_test_results.xml -W ignore::DeprecationWarning $coverage tests/acceptance/
+exec python3 -m pytest --durations=1 --durations-min=600.0 --junitxml=test_results.xml --gherkin-terminal-reporter -W ignore::DeprecationWarning $coverage tests/acceptance/
 popd > /dev/null

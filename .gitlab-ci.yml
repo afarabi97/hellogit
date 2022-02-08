@@ -200,7 +200,7 @@ variables:
   ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION: Unscheduled
 
 stages:
-  - test-compile
+  - test
   - code-analysis
   - publish-to-confluence
   - clean-staging-env
@@ -276,7 +276,7 @@ stages:
 
 include:
   - local: gitlab/pipeline-rules.yml
-  - local: gitlab/test-compile.yml
+  - local: gitlab/test.yml
   - local: gitlab/code-analysis.yml
   - local: gitlab/confluence-publish.yml
   - local: gitlab/DIP/dip.gitlab-ci.yml

@@ -1,0 +1,54 @@
+Acceptance Testing:
+  stage: test
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
+    chmod +x web/backend/run_acceptance_tests.sh
+    web/backend/run_acceptance_tests.sh
+  allow_failure: false
+  artifacts:
+    paths:
+      - "web/backend/*.xml"
+    reports:
+      junit: "web/backend/*.xml"
+  image: docker.nexus.sil.lab/tfplenum/code-checker:1.3
+  tags:
+    - docker-runner
+
+Back-End Unit Testing:
+  stage: test
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
+    web/backend/run_unit_tests.sh
+  allow_failure: false
+  artifacts:
+    paths:
+      - "web/backend/*.xml"
+    reports:
+      junit: "web/backend/*.xml"
+  image: docker.nexus.sil.lab/tfplenum/code-checker:1.3
+  tags:
+    - docker-runner
+
+compile front-end:
+  cache:
+    key: "compile-frontend-end"
+    paths:
+      - web/frontend/node_modules
+      - web/frontend/src/assets/fonts
+  image: docker.nexus.sil.lab/tfplenum/code-checker:1.1
+  tags:
+    - docker-runner
+  stage: test
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
+    ansible-playbook bootstrap/playbooks/site.yml --connection=local -i localhost, -t install_angular,build_frontend
+  allow_failure: false
+  extends: .analysis
+  retry: 2
+  timeout: 5m
