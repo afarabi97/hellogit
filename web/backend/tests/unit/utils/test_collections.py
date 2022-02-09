@@ -17,6 +17,12 @@ def test_should_return_nodes_collection(client):
     assert isinstance(collection, Collection)
 
 
+def test_should_return_ruleset_collection(client):
+    collection = get_collection(Collections.RULESET)
+    assert collection.name == "ruleset"
+    assert isinstance(collection, Collection)
+
+
 def test_should_not_return_made_up_collection(client):
     """
     To assert that an error is raised, use the context manager and pytest.raises.

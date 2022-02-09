@@ -873,3 +873,16 @@ suricata_saved_values = {
       "deployment_name":"sensor1-suricata"
    }
 }
+ruleset_collection = [
+    {
+        "_id": "0d336cd7d36648d7a7f0c379a6115ef2",
+        "name": "test",
+        "clearance": "Unclassified",
+        "sensors": [],
+        "appType": "Suricata",
+        "isEnabled": "true",
+        "state": "Created",
+        "createdDate": "2022-02-02 05:29:15",
+        "lastModifiedDate": "2022-02-02 05:29:15"
+    },
+]

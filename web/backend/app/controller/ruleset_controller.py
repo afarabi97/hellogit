@@ -146,6 +146,7 @@ class UploadRule(Resource):
 
         by_pass_validation = rule_set.get('byPassValidation', False)
         rule_set = mongo_ruleset().find_one({'_id': rule_set['_id']})
+        rule_or_rules = []
         if rule_set:
             rule_set_file = request.files['upload_file']
             filename = secure_filename(rule_set_file.filename)
@@ -161,7 +162,9 @@ class UploadRule(Resource):
                             Path(abs_save_path), rule_set, by_pass_validation=by_pass_validation)
                 except InvalidRuleSyntax as e:
                     logger.error(str(e))
-                    return {"error_message": str(e)}, 400
+                    errormsg = "Error loading rulesets: Duplicate or invalid rulesets detected: "
+                    loglocationmsg = "see /var/log/tfplenum/tfplenum.log for more detail"
+                    return {"error_message": errormsg + loglocationmsg}, 422
                 except ProhibitedExecFunc as e:
                     return {"error_message": str(e)}, 403
         if rule_or_rules:

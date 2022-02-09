@@ -1,5 +1,5 @@
 import os
-
+import json
 import pytest
 from app.utils.collections import Collections, get_collection
 from tests.unit.static_data import (zeek_prohibited_rule, zeek_rule,
@@ -14,6 +14,21 @@ ZEEK_FILE_LINES = [
     b"\t{\n"
 ]
 ZEEK_FILE_NAME = "ruleset.zeek"
+VALID_SURICATA_RULES_BYTES = b'alert ip [1.189.88.67] any -> $HOME_NET any (msg:"ET 3CORESec Poor Reputation IP group 1"; reference:url,blacklist.3coresec.net/lists/et-open.txt; threshold: type limit, track by_src, seconds 3600, count 1; classtype:misc-attack; sid:2525000; rev:390; metadata:affected_product Any, attack_target Any, deployment Perimeter, tag 3CORESec, signature_severity Major, created_at 2020_07_20, updated_at 2022_01_14;)\n'
+INVALID_SYNTAX_SURICATA_RULES_BYTES = b'alert tip [1.189.88.67] any -> $HOME_NET any (msg:"ET 3CORESec Poor Reputation IP group 1";)\n'
+ruleset_collection = [
+    {
+        "_id": "0d336cd7d36648d7a7f0c379a6115ef2",
+        "name": "test",
+        "clearance": "Unclassified",
+        "sensors": [],
+        "appType": "Suricata",
+        "isEnabled": "true",
+        "state": "Created",
+        "createdDate": "2022-02-02 05:29:15",
+        "lastModifiedDate": "2022-02-02 05:29:15"
+    },
+]
 
 
 def binary_line_generator(lines):
@@ -95,7 +110,7 @@ def test_rule_upload_broken(ruleset_client, ruleset_file, mocker):
 
     #Test upload bad file
     response = ruleset_client.post(RULE_UPLOAD_ENDPOINT, data=payload, content_type=RULE_UPLOAD_CONTENT_TYPE)
-    assert 400 == response.status_code
+    assert 422 == response.status_code
     assert "error_message" in response.json
 
 
@@ -164,3 +179,44 @@ def test_validate_rule(ruleset_client, mocker):
     results = ruleset_client.post("/api/policy/rule/validate", json=zeek_rule)
     assert 500 == results.status_code
     assert "error_message" in results.json
+
+
+def test_ruleset(client):
+    get_collection(Collections.RULESET).insert_many(ruleset_collection)
+    results = client.get("/api/policy/ruleset")
+    assert ruleset_collection == results.get_json()
+
+
+def test_duplicate_rule_error_msg(tmp_path, client):
+    upload_file_name = "test_duplicate_rules_file.txt"
+    get_collection(Collections.RULESET).insert_many(ruleset_collection)
+    rules_file = os.path.join(tmp_path, upload_file_name)
+    with open(rules_file, "wb") as f:
+        f.write(VALID_SURICATA_RULES_BYTES)
+        f.write(VALID_SURICATA_RULES_BYTES)
+    rulesfile = open(rules_file, 'rb')
+    payload = {"upload_file": (rulesfile, upload_file_name), 
+               "ruleSetForm": json.dumps({"_id": "0d336cd7d36648d7a7f0c379a6115ef2"})}
+    results = client.post("/api/policy/rule/upload", data=payload,
+                            content_type="multipart/form-data")
+    errormsg = "Error loading rulesets: Duplicate or invalid rulesets detected: "
+    loglocationmsg = "see /var/log/tfplenum/tfplenum.log for more detail"
+    assert 422 == results.status_code
+    assert errormsg + loglocationmsg == results.json["error_message"]
+
+
+def test_invalid_syntax_rule_error_msg(tmp_path, client):
+    upload_file_name = "test_duplicate_rules_file.txt"
+    get_collection(Collections.RULESET).insert_many(ruleset_collection)
+    rules_file = os.path.join(tmp_path, upload_file_name)
+    with open(rules_file, "wb") as f:
+        f.write(INVALID_SYNTAX_SURICATA_RULES_BYTES)
+    rulesfile = open(rules_file, 'rb')
+    payload = {"upload_file": (rulesfile, upload_file_name), 
+               "ruleSetForm": json.dumps({"_id": "0d336cd7d36648d7a7f0c379a6115ef2"})}
+    results = client.post("/api/policy/rule/upload", data=payload,
+                            content_type="multipart/form-data")
+    errormsg = "Error loading rulesets: Duplicate or invalid rulesets detected: "
+    loglocationmsg = "see /var/log/tfplenum/tfplenum.log for more detail"
+    assert 422 == results.status_code
+    assert errormsg + loglocationmsg == results.json["error_message"]
