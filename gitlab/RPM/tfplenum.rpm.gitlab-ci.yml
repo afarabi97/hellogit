@@ -7,16 +7,16 @@ image: docker.nexus.sil.lab/tfplenum/pipeline-builder:1.3
 
 .default_tfplenum_repo_rpm_rules:
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+    - if: "$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/"
       when: always
-    - if: '$CI_COMMIT_TAG =~ /.*-tfplenum-repo$/'
+    - if: "$CI_COMMIT_TAG =~ /.*-tfplenum-repo$/"
       when: always
 
 .default_tfplenum_rpm_rules:
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+    - if: "$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/"
       when: always
-    - if: '$CI_COMMIT_TAG =~ /.*-tfplenum$/'
+    - if: "$CI_COMMIT_TAG =~ /.*-tfplenum$/"
       when: always
 
 build frontend:
@@ -26,14 +26,14 @@ build frontend:
     paths:
       - web/frontend/node_modules
       - web/frontend/src/assets/fonts
-  image: docker.nexus.sil.lab/tfplenum/code-checker:1.1
+  image: $LATEST_CODE_CHECKER_IMAGE
   tags:
     - docker-runner
   stage: build-frontend
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    ansible-playbook bootstrap/playbooks/site.yml --connection=local -i localhost, -t install_angular,build_frontend
+    $HOME/.local/bin/ansible-playbook bootstrap/playbooks/site.yml --connection=local -i localhost, -t install_angular,build_frontend
   allow_failure: false
   artifacts:
     paths:

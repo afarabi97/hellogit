@@ -12,7 +12,7 @@ Acceptance Testing:
       - "web/backend/*.xml"
     reports:
       junit: "web/backend/*.xml"
-  image: docker.nexus.sil.lab/tfplenum/code-checker:1.3
+  image: $LATEST_CODE_CHECKER_IMAGE
   tags:
     - docker-runner
 
@@ -29,7 +29,7 @@ Back-End Unit Testing:
       - "web/backend/*.xml"
     reports:
       junit: "web/backend/*.xml"
-  image: docker.nexus.sil.lab/tfplenum/code-checker:1.3
+  image: $LATEST_CODE_CHECKER_IMAGE
   tags:
     - docker-runner
 
@@ -39,7 +39,7 @@ compile front-end:
     paths:
       - web/frontend/node_modules
       - web/frontend/src/assets/fonts
-  image: docker.nexus.sil.lab/tfplenum/code-checker:1.1
+  image: $LATEST_CODE_CHECKER_IMAGE
   tags:
     - docker-runner
   stage: test
@@ -47,7 +47,7 @@ compile front-end:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
-    ansible-playbook bootstrap/playbooks/site.yml --connection=local -i localhost, -t install_angular,build_frontend
+    $HOME/.local/bin/ansible-playbook bootstrap/playbooks/site.yml --connection=local -i localhost, -t install_angular,build_frontend
   allow_failure: false
   extends: .analysis
   retry: 2

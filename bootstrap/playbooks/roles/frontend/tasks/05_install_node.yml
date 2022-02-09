@@ -8,6 +8,7 @@
   get_url:
     url: "{{ tfplenum_raw_group_repo }}/{{ misc_versions.node_version }}/node-{{ misc_versions.node_version }}-linux-x64.tar.xz"
     dest: "{{ web_install_dir }}"
+    validate_certs: no
   when: not node_tar.stat.exists
 
 - name: node | Extract

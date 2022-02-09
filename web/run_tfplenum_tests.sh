@@ -1,12 +1,16 @@
 #!/bin/bash
-# Usage: run_backend_tests
-#   [--from-code-checker] [--with-coverage] [--no-fail-on-first-error] [--with-debugger]
-pushd /opt/tfplenum/web/backend > /dev/null || exit
+# Usage: run_tfplenum_tests.sh
+#   [-T|--test-type] (acceptance|unit) [-S|--test-section] (backend|frontend) [--from-code-checker] [--with-coverage] [--no-fail-on-first-error] [--with-debugger]
 
 FROM_CODE_CHECKER="pytest -ra"        # default: False
 FAIL_ON_FIRST_ERROR="-x"    # default: True
 WITH_DEBUGGER=""            # default: False
 TEST_TYPE="acceptance"      # default: acceptance
+TEST_RESULTS_FILE="${TEST_TYPE}_test_results.xml"
+TEST_RESULTS_OUTPUT="--junitxml=${TEST_RESULTS_FILE}_test_results.xml"
+TEST_SECTION="backend"      # default: backend
+TEST_WORKING_DIR="/opt/tfplenum/web/${TEST_SECTION}"
+
 
 POSITIONAL=()
 while [[ $# -gt 0 ]]; do
@@ -42,7 +46,26 @@ while [[ $# -gt 0 ]]; do
             if [ "$2" == "acceptance" ] || [ "$2" == "unit" ];
             then
                 TEST_TYPE="${2}"
+                TEST_RESULTS_FILE="${TEST_TYPE}_test_results.xml"
+                TEST_RESULTS_OUTPUT="--junitxml=${TEST_RESULTS_FILE}"
                 echo "Running ${TEST_TYPE} Tests"
+                echo "Outputting results to $TEST_RESULTS_FILE"
+                shift
+                shift
+            else
+                echo "You must specify a test type of either \"acceptance\" or \"unit\""
+                exit 1
+            fi
+        ;;
+
+        -S|--test-section)
+            TEST_SECTION="${2}"
+            if [ "$2" == "backend" ] || [ "$2" == "frontend" ];
+            then
+                TEST_SECTION="${2}"
+                TEST_WORKING_DIR="/opt/tfplenum/web/${TEST_SECTION}"
+                echo "Running ${TEST_TYPE} Tests"
+                echo "Outputting results to $TEST_RESULTS_FILE"
                 shift
                 shift
             else
@@ -52,7 +75,7 @@ while [[ $# -gt 0 ]]; do
         ;;
 
         -h|--help)
-            echo -e "\nUsage: run_backend_tests.sh -T (acceptance|unit) [--from-code-checker] [--with-coverage] [--no-fail-on-first-error] [--with-debugger]\n"
+            echo -e "\nUsage: ./run_tfplenum_tests.sh -T (acceptance|unit) -S (backend|frontend) [--from-code-checker] [--with-coverage] [--no-fail-on-first-error] [--with-debugger]\n"
             exit 0
         ;;
         *)    # unknown option
@@ -60,6 +83,6 @@ while [[ $# -gt 0 ]]; do
             shift # past argument
     esac
 done
-
-$FROM_CODE_CHECKER $FAIL_ON_FIRST_ERROR $WITH_DEBUGGER --durations-min=10.0 --junitxml=unit_test_results.xml -W ignore::DeprecationWarning $COVERAGE tests/$TEST_TYPE/
-pushd /opt/tfplenum/web/backend > /dev/null || exit
+pushd "${TEST_WORKING_DIR}" > /dev/null || exit
+$FROM_CODE_CHECKER $FAIL_ON_FIRST_ERROR $WITH_DEBUGGER --durations-min=10.0 $TEST_RESULTS_OUTPUT -W ignore::DeprecationWarning $COVERAGE tests/$TEST_TYPE/
+popd > /dev/null || exit
