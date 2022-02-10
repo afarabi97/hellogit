@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { Title } from '@angular/platform-browser';
 
@@ -15,12 +15,11 @@ import { Node } from '../../system-setupv2/models/kit';
   templateUrl: './catalog.component.html',
   styleUrls: ['./catalog.component.scss']
 })
-export class CatalogComponent implements OnInit, OnDestroy {
+export class CatalogComponent implements OnInit {
   @ViewChild('pmoElement')  public pmoElement: MatSlideToggle;
   @ViewChild('commElement') public commElement: MatSlideToggle;
   charts: any;
   filteredCharts: ChartClass[];
-  ioConnection: any;
   showCharts = { 'pmo': true, 'comm': false };
   hasSensors: boolean;
   nodes: Node[];
@@ -60,38 +59,31 @@ export class CatalogComponent implements OnInit, OnDestroy {
         this.showCharts['comm'] = true;
       }
     }
-    this._CatalogService.get_all_application_statuses().subscribe(data => {
-      this.charts = data;
+    this.api_get_all_application_statuses_();
 
-      this.kitSettingsSrv.getNodes().subscribe((nodes: Node[]) => {
-        this.nodes = nodes;
-        for (const node of this.nodes){
-          if (node.node_type.toLowerCase() === "sensor"){
-            this.hasSensors = true;
+    this._WebsocketService.onBroadcast()
+      .subscribe((message: NotificationClass) => {
+        if (message.role === 'catalog') {
+          if(message.data) {
+            this.charts.map( chart => {
+              if (chart.application === message.application.toLowerCase()) {
+                chart.nodes = message.data;
+              }
+            });
+          }
+        } else if (message.role === 'nodes') {
+          if (((message.status === 'COMPLETED') && (message.message.includes('Remove Node'))) ||
+              ((message.status === 'COMPLETED') && (message.message.includes('Create Virtual Machine'))) ||
+              ((message.status === 'COMPLETED') && (message.message.includes('Provision Virtual Machine'))) ||
+              ((message.status === 'COMPLETED') && (message.message.includes('Add Node')))) {
+            this.charts = [];
+            this.filteredCharts = [];
+            this.is_loading = false;
+            this.hasSensors = false;
+            this.api_get_all_application_statuses_();
           }
         }
-        this.is_loading = true;
-        this.filterCharts();
       });
-
-    });
-
-    this.ioConnection = this._WebsocketService.onBroadcast()
-    .subscribe((message: NotificationClass) => {
-      if(message.role === "catalog") {
-        if(message.data) {
-          this.charts.map( chart => {
-            if( chart.application === message.application.toLowerCase()) {
-                chart.nodes = message.data;
-            }
-          });
-        }
-      }
-    });
-  }
-
-  ngOnDestroy() {
-    this.ioConnection.unsubscribe();
   }
 
   pmoToggle(event: MatSlideToggle){
@@ -153,5 +145,22 @@ export class CatalogComponent implements OnInit, OnDestroy {
   private updateCookie() {
     this.cookieService.set('chartFilter', JSON.stringify(this.showCharts));
   }
-}
 
+  private api_get_all_application_statuses_(): void {
+    this._CatalogService.get_all_application_statuses().subscribe(data => {
+      this.charts = data;
+
+      this.kitSettingsSrv.getNodes().subscribe((nodes: Node[]) => {
+        this.nodes = nodes;
+        for (const node of this.nodes){
+          if (node.node_type.toLowerCase() === "sensor"){
+            this.hasSensors = true;
+          }
+        }
+        this.is_loading = true;
+        this.filterCharts();
+      });
+
+    });
+  }
+}
