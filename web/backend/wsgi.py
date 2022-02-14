@@ -21,11 +21,13 @@ debug = False
 if args and args.debug:
     debug = True
     os.environ['IS_DEBUG_SERVER'] = "yes"
-    socketio.run(app, host='0.0.0.0', port=5001, debug=debug) # type: SocketIO
+    socketio.run(app, host='0.0.0.0', port=5001, debug=debug)  # type: SocketIO
+
 
 @socketio.on('connect')
 def connect():
     print('Client connected')
+
 
 @socketio.on('disconnect')
 def disconnect():

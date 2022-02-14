@@ -1,6 +1,7 @@
 import datetime
-from app.utils.elastic import ElasticWrapper
 import socket
+
+from app.utils.elastic import ElasticWrapper
 
 SNMP_QUERY = {
     "query": {
@@ -24,7 +25,8 @@ def status():
         return sorted(
             filter(
                 lambda y: y,
-                map(lambda x: transform(x["_source"]), response["hits"]["hits"]),
+                map(lambda x: transform(x["_source"]),
+                    response["hits"]["hits"]),
             ),
             key=lambda z: socket.inet_aton(z["host"]),
         )
@@ -407,7 +409,8 @@ def cisco_switch(data):
         ],
         "interfaces": list(map(lambda x: if_table_row(x), data["ifTable"])),
         "switchInfo": list(
-            map(lambda x: csw_switch_info_table_row(x), data["cswSwitchInfoTable"])
+            map(lambda x: csw_switch_info_table_row(
+                x), data["cswSwitchInfoTable"])
         ),
         "fans": list(
             map(
@@ -445,16 +448,20 @@ def dell_m630(data):
             "iso.org.dod.internet.private.enterprises.674.10892.5.2.5.0"
         ],
         "processors": list(
-            map(lambda x: processor_device_table_row(x), data["processorDeviceTable"])
+            map(lambda x: processor_device_table_row(
+                x), data["processorDeviceTable"])
         ),
         "memory": list(
-            map(lambda x: memory_device_table_row(x), data["memoryDeviceTable"])
+            map(lambda x: memory_device_table_row(
+                x), data["memoryDeviceTable"])
         ),
         "disks": list(
-            map(lambda x: physical_disk_table_row(x), data["physicalDiskTable"])
+            map(lambda x: physical_disk_table_row(
+                x), data["physicalDiskTable"])
         ),
         "temperature": list(
-            map(lambda x: temperature_probe_table_row(x), data["temperatureProbeTable"])
+            map(lambda x: temperature_probe_table_row(
+                x), data["temperatureProbeTable"])
         ),
         "interfaces": list(map(lambda x: if_table_row(x), data["ifTable"])),
     }

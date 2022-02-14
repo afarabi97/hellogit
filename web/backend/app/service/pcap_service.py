@@ -9,18 +9,11 @@ from uuid import uuid4
 from app.models.ruleset import PCAPReplayModel
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
-from app.utils.connection_mngs import (
-    REDIS_CLIENT,
-    FabricConnectionManager,
-    KubernetesWrapper,
-)
-from app.utils.constants import (
-    ARKIME_IMAGE_VERSION,
-    PCAP_UPLOAD_DIR,
-    SURICATA_IMAGE_VERSION,
-    SURICATA_RULESET_LOC,
-    ZEEK_IMAGE_VERSION,
-)
+from app.utils.connection_mngs import (REDIS_CLIENT, FabricConnectionManager,
+                                       KubernetesWrapper)
+from app.utils.constants import (ARKIME_IMAGE_VERSION, PCAP_UPLOAD_DIR,
+                                 SURICATA_IMAGE_VERSION, SURICATA_RULESET_LOC,
+                                 ZEEK_IMAGE_VERSION)
 from app.utils.elastic import get_elastic_service_ip
 from app.utils.logging import rq_logger
 from app.utils.utils import get_app_context
@@ -53,11 +46,13 @@ def replay_pcap_using_tcpreplay(payload: Dict, root_password: str):
             remote_pcap = "/tmp/{}".format(replay.pcap)
             ssh_con.put(str(pcap_file), remote_pcap)
             for iface in replay.ifaces:
-                ssh_con.run("tcpreplay --mbps=100 -i {} {}".format(iface, remote_pcap))
+                ssh_con.run(
+                    "tcpreplay --mbps=100 -i {} {}".format(iface, remote_pcap))
             ssh_con.run("rm -f {}".format(remote_pcap))
 
         notification.set_status(status=NotificationCode.COMPLETED.name)
-        notification.set_message("Completed tcpreplay of {}.".format(replay.pcap))
+        notification.set_message(
+            "Completed tcpreplay of {}.".format(replay.pcap))
         notification.post_to_websocket_api()
     except Exception as e:
         traceback.print_exc()
@@ -143,7 +138,8 @@ class SuricataReplayer:
                 break
 
         if line_index_to_change == -1:
-            raise Exception("The configuration file is missing expected runmode.")
+            raise Exception(
+                "The configuration file is missing expected runmode.")
 
         lines[line_index_to_change] = "runmode: single\n"
         with open(self.suricata_config, "w") as fhandle:
@@ -177,7 +173,8 @@ class SuricataReplayer:
 
     def execute(self, pcap: Path):
         if not self._is_installed():
-            rq_logger.warn("Skipping, Suricata is not installed on the target sensors")
+            rq_logger.warn(
+                "Skipping, Suricata is not installed on the target sensors")
             return
 
         self.tmp_dir = "/root/" + str(uuid4())[0:6]
@@ -279,7 +276,8 @@ class ZeekReplayer:
 
     def execute(self, pcap: Path):
         if not self._is_installed():
-            rq_logger.warn("Skipping, Zeek is not installed on the target sensors")
+            rq_logger.warn(
+                "Skipping, Zeek is not installed on the target sensors")
             return
 
         self.tmp_dir = "/root/" + str(uuid4())[0:6]
@@ -341,7 +339,8 @@ class ArkimeReplayer:
             for secret in secrets.items:  # type: V1Secret
                 if secret.metadata.name == secret_name:
                     with Path(self.ca_crt).open("w") as fp:
-                        fp.write(str(base64.b64decode(secret.data["ca.crt"]), "UTF-8"))
+                        fp.write(str(base64.b64decode(
+                            secret.data["ca.crt"]), "UTF-8"))
                     break
 
     def run_arkime_docker_cmd(self, pcap: Path):
@@ -378,7 +377,8 @@ class ArkimeReplayer:
                 break
 
         if line_index_to_change == -1:
-            raise Exception("The configuration file is missing expected elasticsearch.")
+            raise Exception(
+                "The configuration file is missing expected elasticsearch.")
 
         lines[
             line_index_to_change
@@ -394,7 +394,8 @@ class ArkimeReplayer:
 
     def execute(self, pcap: Path):
         if not self._is_installed():
-            rq_logger.warn("Skipping, Arkime is not installed on the target sensor.")
+            rq_logger.warn(
+                "Skipping, Arkime is not installed on the target sensor.")
             return
 
         self.tmp_dir = "/root/" + str(uuid4())[0:6]
@@ -442,7 +443,8 @@ def replay_pcap_using_preserve_timestamp(payload: Dict, root_password: str):
         arkime_replayer.execute(pcap)
 
         notification.set_status(status=NotificationCode.COMPLETED.name)
-        notification.set_message("Completed tcpreplay of {}.".format(replay.pcap))
+        notification.set_message(
+            "Completed tcpreplay of {}.".format(replay.pcap))
         notification.post_to_websocket_api()
     except Exception as e:
         rq_logger.exception(e)

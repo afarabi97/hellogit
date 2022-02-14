@@ -22,15 +22,19 @@ class CallbackModule(CallbackBase):
 
     def v2_runner_on_failed(self, result, ignore_errors=False):
         print(
-            "{} failed with msg {}".format(result._host.get_name(), str(result._result))
+            "{} failed with msg {}".format(
+                result._host.get_name(), str(result._result))
         )
-        self.__result_list[result._host.get_name()]["failed"].append(result._result)
+        self.__result_list[result._host.get_name()]["failed"].append(
+            result._result)
 
     def v2_runner_on_ok(self, result):
-        self.__result_list[result._host.get_name()]["ok"].append(result._result)
+        self.__result_list[result._host.get_name()]["ok"].append(
+            result._result)
 
     def v2_runner_on_skipped(self, result):
-        self.__result_list[result._host.get_name()]["skipped"].append(result._result)
+        self.__result_list[result._host.get_name()]["skipped"].append(
+            result._result)
 
     def v2_runner_on_unreachable(self, result):
         print(

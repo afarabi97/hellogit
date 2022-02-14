@@ -91,7 +91,8 @@ def execute_win_playbook(
 
     inventory = InventoryManager(loader=loader, sources=(inventory_file,))
     variable_manager = VariableManager(
-        loader=loader, inventory=inventory, version_info=CLI.version_info(gitinfo=False)
+        loader=loader, inventory=inventory, version_info=CLI.version_info(
+            gitinfo=False)
     )
     variable_manager._extra_vars = extra_vars
     pbex = PlaybookExecutor(
@@ -318,7 +319,8 @@ class WindowsConnectionManager:
 
         if protocol not in WINRM_PROTOCOLS:
             raise ValueError(
-                "Not a valid protocol please use one of " + str(WINRM_PROTOCOLS)
+                "Not a valid protocol please use one of " +
+                str(WINRM_PROTOCOLS)
             )
 
         if protocol == WINRM_PROTOCOLS[3]:

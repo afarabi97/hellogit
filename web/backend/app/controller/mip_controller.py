@@ -4,14 +4,8 @@ from app.models.common import JobID
 from app.models.nodes import KIT_SETUP_NS, Node
 from app.models.settings.kit_settings import GeneralSettingsForm
 from app.service.node_service import execute, send_notification
-from app.utils.constants import (
-    DEPLOYMENT_JOBS,
-    DEPLOYMENT_TYPES,
-    JOB_CREATE,
-    MAC_BASE,
-    NODE_TYPES,
-    PXE_TYPES,
-)
+from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_CREATE,
+                                 MAC_BASE, NODE_TYPES, PXE_TYPES)
 from flask import Response
 from flask_restx import Resource
 from randmac import RandMac
@@ -26,7 +20,8 @@ class MipCtrl(Resource):
         return JobID(job).to_dict()
 
     def _execute_create_virtual_job(self, node: Node) -> Dict:
-        job = execute.delay(node=node, exec_type=DEPLOYMENT_JOBS.create_virtual)
+        job = execute.delay(
+            node=node, exec_type=DEPLOYMENT_JOBS.create_virtual)
         return JobID(job).to_dict()
 
     def post(self) -> Response:

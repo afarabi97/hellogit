@@ -17,6 +17,7 @@ from rq.registry import (DeferredJobRegistry, FailedJobRegistry,
 
 JOB_NS = Namespace('jobs', description="Job Queue related operations.")
 
+
 def transform_jobs(job_objects: List[Job]):
     ret_val = []
     for job in job_objects:
@@ -24,6 +25,7 @@ def transform_jobs(job_objects: List[Job]):
             ret_val.append(BackgroundJob(job).to_dict())
 
     return ret_val
+
 
 def get_all_jobs() -> List[Job]:
     finished_registry = FinishedJobRegistry('default', connection=REDIS_CLIENT)
@@ -68,7 +70,7 @@ class RedisJob(Resource):
     @JOB_NS.response(200, 'BackgroundJob', JobID.DTO)
     @controller_admin_required
     def delete(self, job_id: str):
-        job_obj = NodeJob.load_jobs_by_job_id(job_id) # type: NodeJob
+        job_obj = NodeJob.load_jobs_by_job_id(job_id)  # type: NodeJob
         if job_obj:
             job_obj.set_error("Job killed by User")
 
@@ -97,7 +99,7 @@ class RedisJobRetry(Resource):
         try:
             job = Job.fetch(job_id, connection=REDIS_CLIENT)
             job.requeue()
-            job_obj = NodeJob.load_jobs_by_job_id(job_id) # type: NodeJob
+            job_obj = NodeJob.load_jobs_by_job_id(job_id)  # type: NodeJob
             if job_obj:
                 job_obj.set_inprogress(job_id)
             return JobID(job).to_dict()
@@ -135,6 +137,7 @@ class RedisJobsByProcess(Resource):
                 jobs.append(job)
         return transform_jobs(jobs)
 
+
 @JOB_NS.route('/log/<job_id>')
 class Jobs(Resource):
     def get(self, job_id: str) -> Response:
@@ -143,6 +146,6 @@ class Jobs(Resource):
 
         :param job_name: The name of the job (EX: Kickstart or Kit)
         """
-        job_list =  {"jobid": job_id}
+        job_list = {"jobid": job_id}
         logs = list(mongo_console().find(job_list, {'_id': False}))
         return logs, 200

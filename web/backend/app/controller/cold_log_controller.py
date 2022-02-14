@@ -2,9 +2,12 @@ import os
 import shutil
 import zipfile
 
-from app.models.cold_log import COLDLOG_NS, ColdLogUploadModel, WinlogbeatInstallModel
-from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE, JobID
-from app.service.cold_log_service import install_winlogbeat_srv, process_cold_logs
+from app.models.cold_log import (COLDLOG_NS, ColdLogUploadModel,
+                                 WinlogbeatInstallModel)
+from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE,
+                               JobID)
+from app.service.cold_log_service import (install_winlogbeat_srv,
+                                          process_cold_logs)
 from app.utils.constants import ColdLogModules
 from app.utils.utils import TfplenumTempDir
 from flask import Response, request

@@ -11,21 +11,15 @@ from pprint import PrettyPrinter
 from typing import Dict, List, Union
 
 import requests
-from app.service.socket_service import (
-    NotificationCode,
-    NotificationMessage,
-    notify_page_refresh,
-)
+from app.service.socket_service import (NotificationCode, NotificationMessage,
+                                        notify_page_refresh)
 from app.utils.collections import mongo_windows_target_lists
 from app.utils.connection_mngs import REDIS_CLIENT, get_kubernetes_secret
-from app.utils.constants import (
-    AGENT_PKGS_DIR,
-    AGENT_UPLOAD_DIR,
-    DATE_FORMAT_STR,
-    TARGET_STATES,
-)
+from app.utils.constants import (AGENT_PKGS_DIR, AGENT_UPLOAD_DIR,
+                                 DATE_FORMAT_STR, TARGET_STATES)
 from app.utils.logging import rq_logger
-from app.utils.tfwinrm_util import WindowsConnectionManager, WinrmCommandFailure
+from app.utils.tfwinrm_util import (WindowsConnectionManager,
+                                    WinrmCommandFailure)
 from app.utils.utils import decode_password, get_app_context, zip_package
 from bson import ObjectId
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -90,7 +84,8 @@ class EndgameAgentPuller:
 
         resp = self._session.post(
             url,
-            json={"username": self._endgame_user, "password": self._endgame_pass},
+            json={"username": self._endgame_user,
+                  "password": self._endgame_pass},
             headers=self._content_header,
             verify=False,
         )
@@ -108,7 +103,8 @@ class EndgameAgentPuller:
         auth_token = self._authenticate()
 
         auth_header = {"Authorization": "JWT {}".format(auth_token)}
-        self._session.headers = self._merge_dicts(self._content_header, auth_header)
+        self._session.headers = self._merge_dicts(
+            self._content_header, auth_header)
         sensor_data = self._get_sensor_configuration()
 
         # Download the Windows sensor software and save it to a file.
@@ -126,14 +122,16 @@ class AgentBuilder:
         self._payload = payload
         self._installer_config = payload["installer_config"]
         self._install_endgame = self._installer_config["install_endgame"]
-        self._output_folder = "/var/www/html/agents/" + self._installer_config["_id"]
+        self._output_folder = "/var/www/html/agents/" + \
+            self._installer_config["_id"]
         self._zip_path = self._output_folder + "/agent.zip"
         Path(self._output_folder).mkdir(parents=True, exist_ok=True)
 
     def _create_config(self, template_path: Path, template_ctx: Dict):
         if not template_path.exists() or not template_path.is_file():
             raise ValueError(
-                "The template passed in does not exists {}.".format(str(template_path))
+                "The template passed in does not exists {}.".format(
+                    str(template_path))
             )
 
         pos = str(template_path).rfind("/")
@@ -173,10 +171,12 @@ class AgentBuilder:
             self._installer_config["endgame_sensor_id"], folder_to_copy
         )
         self._create_config(
-            AGENT_PKGS_DIR / "endgame/templates/install.ps1", {"api_token": api_token}
+            AGENT_PKGS_DIR /
+            "endgame/templates/install.ps1", {"api_token": api_token}
         )
         self._create_config(
-            AGENT_PKGS_DIR / "endgame/templates/uninstall.ps1", {"api_token": api_token}
+            AGENT_PKGS_DIR /
+            "endgame/templates/uninstall.ps1", {"api_token": api_token}
         )
         self._copy_package(folder_to_copy, dst_folder)
 
@@ -219,7 +219,8 @@ class AgentBuilder:
         kubernetes_dir = pkg_folder / "kubernetes"
         folder_to_copy = str(pkg_folder)
         self._process_templates_dir(tpl_dir, tpl_context)
-        self._process_kubernetes_dir(kubernetes_dir, application_name, folder_to_copy)
+        self._process_kubernetes_dir(
+            kubernetes_dir, application_name, folder_to_copy)
         self._copy_package(folder_to_copy, str(dst_folder))
 
     def _package_generic_all(self, dst_folder: Path):
@@ -230,7 +231,8 @@ class AgentBuilder:
                 if package:
                     folder = package["folder"]
                     pkg_folder = AGENT_PKGS_DIR / folder
-                    self._package_generic(pkg_folder, dst_folder, tpl_context, folder)
+                    self._package_generic(
+                        pkg_folder, dst_folder, tpl_context, folder)
 
     def build_agent(self) -> str:
         # if not Path(self._zip_path).exists():
@@ -275,7 +277,8 @@ class WinRunner:
         self._installer_config = configs["installer_config"]
         self._credentials = configs["windows_domain_creds"]
         self._agent_folder_name = self._installer_config["_id"]
-        self._agent_dir = Path(AGENT_UPLOAD_DIR + "/" + self._agent_folder_name)
+        self._agent_dir = Path(AGENT_UPLOAD_DIR + "/" +
+                               self._agent_folder_name)
         self._hostname_or_ip = hostname_or_ip
         self._installer = None
         self._winapi = None
@@ -340,7 +343,8 @@ class WinRunner:
             for host in self._hostname_or_ip:
                 self._update_single_host_state(host, new_state, dt_string)
         else:
-            self._update_single_host_state(self._hostname_or_ip, new_state, dt_string)
+            self._update_single_host_state(
+                self._hostname_or_ip, new_state, dt_string)
 
     def _set_installer(self):
         self._installer = self._agent_dir / "agent.zip"
@@ -367,7 +371,8 @@ class WinRunner:
         build_agent_if_not_exists(self._payload)
 
     def _move_agent_installer(self) -> None:
-        self._winapi.push_file(str(self._installer), "C:\\" + self._installer.name)
+        self._winapi.push_file(str(self._installer),
+                               "C:\\" + self._installer.name)
 
     def notify_failure(
         self, action: str, host: str, err_msg: str, ansible_error: str = None
@@ -537,7 +542,8 @@ class WinRunner:
                     for host in self._hostname_or_ip:
                         self._winapi.pull_file(
                             "C:\\tfplenum_agent\\endgame\\install.log",
-                            "/var/log/tfplenum/endgame_install_{}.log".format(host),
+                            "/var/log/tfplenum/endgame_install_{}.log".format(
+                                host),
                         )
                 finally:
                     self._winapi.cleanup_smb_command_operations()
@@ -556,12 +562,14 @@ class WinRunner:
                 self.notify_ansible_failure(self._hostname_or_ip, ansible_err)
             else:
                 self.notify_failure(
-                    self._action, str(self._hostname_or_ip), "", str(ansible_err)
+                    self._action, str(
+                        self._hostname_or_ip), "", str(ansible_err)
                 )
                 self._update_windows_host_state(TARGET_STATES.error.value)
         except Exception as e:
             rq_logger.exception(e)
-            self.notify_failure(self._action, str(self._hostname_or_ip), str(e))
+            self.notify_failure(self._action, str(
+                self._hostname_or_ip), str(e))
             self._update_windows_host_state(TARGET_STATES.error.value)
         return 0
 

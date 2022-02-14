@@ -156,7 +156,8 @@ def get_node_apps(node_hostname: str) -> list:
     deployed_apps = []
     if node.node_type == NODE_TYPES.sensor.value:
         saved_values = list(
-            mongo_catalog_saved_values().find({"values.node_hostname": node.hostname})
+            mongo_catalog_saved_values().find(
+                {"values.node_hostname": node.hostname})
         )
         for val in saved_values:
             deployed_apps.append(
@@ -170,7 +171,8 @@ def get_node_apps(node_hostname: str) -> list:
         or node.node_type == NODE_TYPES.server.value
     ):
         saved_values = list(
-            mongo_catalog_saved_values().find({"values.node_hostname": "server"})
+            mongo_catalog_saved_values().find(
+                {"values.node_hostname": "server"})
         )
         field_selector = "spec.nodeName={}".format(node.hostname)
         for val in saved_values:
@@ -222,7 +224,8 @@ def _check_chart_name(application: str) -> bool:
     try:
         uri = _get_chartmuseum_uri()
         urllib3.disable_warnings()
-        response = requests.get(uri + "/api/charts/" + application, verify=False)
+        response = requests.get(uri + "/api/charts/" +
+                                application, verify=False)
         charts = json.loads(response.text)
         chart = next((c for c in charts if c["name"] == application), None)
         if chart:
@@ -354,7 +357,8 @@ def get_app_state(
 ) -> list:
     if not nodes:
         nodes = Node.load_dip_nodes_from_db()  # type: List[Node]
-    saved_values = list(mongo_catalog_saved_values().find({"application": application}))
+    saved_values = list(mongo_catalog_saved_values().find(
+        {"application": application}))
     deployed_apps = []
     try:
         if not chart_releases:
@@ -383,7 +387,8 @@ def get_app_state(
             if values:
                 node_hostname = values.get("node_hostname", None)
             if node_hostname:
-                cnode = [tnode for tnode in nodes if tnode.hostname == node_hostname]
+                cnode = [
+                    tnode for tnode in nodes if tnode.hostname == node_hostname]
                 node["hostname"] = node_hostname
                 if cnode:
                     node["node_type"] = cnode[0].node_type
@@ -429,7 +434,8 @@ def generate_values(application: str, namespace: str, configs: list = None) -> l
         if "auth_base" in values:
             values["auth_base"] = get_auth_base()
         if "elastic_ingest_nodes" in values:
-            values["elastic_ingest_nodes"] = _get_elastic_nodes(node_type="ingest")
+            values["elastic_ingest_nodes"] = _get_elastic_nodes(
+                node_type="ingest")
             if (
                 values["elastic_ingest_nodes"] is None
                 or len(values["elastic_ingest_nodes"]) == 0
@@ -568,7 +574,8 @@ def install_helm_apps(
                 )
                 while True:
                     sleep(0.25)
-                    data = get_app_state(application=application, namespace=namespace)
+                    data = get_app_state(
+                        application=application, namespace=namespace)
                     if (
                         len(
                             list(
@@ -583,7 +590,8 @@ def install_helm_apps(
                         break
                 # Send Update Notification to websocket
                 notification.set_exception(exception=None)
-                notification.set_status(status=NotificationCode.IN_PROGRESS.name)
+                notification.set_status(
+                    status=NotificationCode.IN_PROGRESS.name)
                 notification.set_additional_data(data=data)
                 notification.post_to_websocket_api()
             except Exception as exc:
@@ -592,7 +600,8 @@ def install_helm_apps(
                 notification.set_status(status=NotificationCode.ERROR.name)
                 notification.set_exception(exception=exc)
                 notification.set_additional_data(
-                    data=get_app_state(application=application, namespace=namespace)
+                    data=get_app_state(
+                        application=application, namespace=namespace)
                 )
                 notification.post_to_websocket_api()
                 _purge_helm_app_on_failure(deployment_name, namespace)
@@ -603,7 +612,8 @@ def install_helm_apps(
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_exception(exception=err)
             notification.set_additional_data(
-                data=get_app_state(application=application, namespace=namespace)
+                data=get_app_state(application=application,
+                                   namespace=namespace)
             )
             notification.post_to_websocket_api()
     # Send Update Notification to websocket
@@ -784,9 +794,11 @@ def delete_helm_apps(application: str, namespace: str, nodes: List):
                     ):
                         break
                 # Send Update Notification to websocket
-                notification.set_status(status=NotificationCode.IN_PROGRESS.name)
+                notification.set_status(
+                    status=NotificationCode.IN_PROGRESS.name)
                 notification.set_additional_data(
-                    data=get_app_state(application=application, namespace=namespace)
+                    data=get_app_state(
+                        application=application, namespace=namespace)
                 )
                 notification.post_to_websocket_api()
                 response.append(results)
@@ -796,7 +808,8 @@ def delete_helm_apps(application: str, namespace: str, nodes: List):
                 notification.set_status(status=NotificationCode.ERROR.name)
                 notification.set_exception(exception=exc)
                 notification.set_additional_data(
-                    data=get_app_state(application=application, namespace=namespace)
+                    data=get_app_state(
+                        application=application, namespace=namespace)
                 )
                 notification.post_to_websocket_api()
         else:
@@ -806,7 +819,8 @@ def delete_helm_apps(application: str, namespace: str, nodes: List):
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_exception(exception=err)
             notification.set_additional_data(
-                data=get_app_state(application=application, namespace=namespace)
+                data=get_app_state(application=application,
+                                   namespace=namespace)
             )
             notification.post_to_websocket_api()
 
@@ -850,7 +864,8 @@ def delete_helm_command(
         application=application.capitalize(),
     )
     if ret_code == 0 and stdout != "":
-        mongo_catalog_saved_values().delete_one({"deployment_name": deployment_name})
+        mongo_catalog_saved_values().delete_one(
+            {"deployment_name": deployment_name})
         # Send Update Notification to websocket
         if node is not None:
             message = "%s %s on %s" % (

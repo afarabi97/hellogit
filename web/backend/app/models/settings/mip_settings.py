@@ -27,8 +27,9 @@ JINJA_ENV = Environment(
 
 
 def _generate_mip_settings_inventory():
-    mip_settings = MipSettingsForm.load_from_db() # type: MipSettingsForm
-    mip_config_generator = MIPSettingsInventoryGenerator(mip_settings.to_dict())
+    mip_settings = MipSettingsForm.load_from_db()  # type: MipSettingsForm
+    mip_config_generator = MIPSettingsInventoryGenerator(
+        mip_settings.to_dict())
     mip_config_generator.generate()
 
 
@@ -62,13 +63,13 @@ class MipSettingsForm(SettingsBase):
         'password': fields.String(required=True, example="mypassword1!Afoobar", description="The root and ssh password for all the MIPs in the kit."),
         'user_password': fields.String(required=True, example="mypassword1!Afoobar", description="The user and ssh password for all the MIPs in the kit."),
         'luks_password': fields.String(required=True, example="mypassword1!Afoobar", description="The drive encryption password for all the MIPs in the kit."),
-        'operator_type': fields.String(required= True, description="Either CPT or MDT")
+        'operator_type': fields.String(required=True, description="Either CPT or MDT")
     })
 
     def __init__(self, password: str,
                  user_password: str,
                  luks_password: str,
-                 operator_type: str, _id: str=None):
+                 operator_type: str, _id: str = None):
         self._id = _id or MIP_SETTINGS_ID
         self.password = password
         self.user_password = user_password
@@ -76,13 +77,15 @@ class MipSettingsForm(SettingsBase):
         self.operator_type = operator_type
 
     @classmethod
-    def load_combined_from_db(cls, query: Dict={"_id": MIP_SETTINGS_ID}) -> dict:
+    def load_combined_from_db(cls, query: Dict = {"_id": MIP_SETTINGS_ID}) -> dict:
         mongo_document = mongo_settings().find_one(query)
         if mongo_document:
             mip_settings = cls.schema.load(mongo_document, partial=("nodes",))
             mip_settings.password = decode_password(mip_settings.password)
-            mip_settings.user_password = decode_password(mip_settings.user_password)
-            mip_settings.luks_password = decode_password(mip_settings.luks_password)
+            mip_settings.user_password = decode_password(
+                mip_settings.user_password)
+            mip_settings.luks_password = decode_password(
+                mip_settings.luks_password)
             general_dict = GeneralSettingsForm.load_from_db().to_dict()
             mip_dict = cls.schema.dump(mip_settings)
             general_dict.update(mip_dict)
@@ -91,13 +94,15 @@ class MipSettingsForm(SettingsBase):
         raise DBModelNotFound("MIP Settings has not been saved yet.")
 
     @classmethod
-    def load_from_db(cls, query: Dict={"_id": MIP_SETTINGS_ID}) -> Model:
+    def load_from_db(cls, query: Dict = {"_id": MIP_SETTINGS_ID}) -> Model:
         mongo_document = mongo_settings().find_one(query)
         if mongo_document:
             mip_settings = cls.schema.load(mongo_document, partial=("nodes",))
             mip_settings.password = decode_password(mip_settings.password)
-            mip_settings.user_password = decode_password(mip_settings.user_password)
-            mip_settings.luks_password = decode_password(mip_settings.luks_password)
+            mip_settings.user_password = decode_password(
+                mip_settings.user_password)
+            mip_settings.luks_password = decode_password(
+                mip_settings.luks_password)
             return mip_settings
         return None
 
@@ -107,8 +112,8 @@ class MipSettingsForm(SettingsBase):
         self.luks_password = encode_password(self.luks_password)
         mip_settings = self.schema.dump(self)
         mongo_settings().find_one_and_replace({"_id": MIP_SETTINGS_ID},
-                                                      mip_settings,
-                                                      upsert=True)  # type: InsertOneResult
+                                              mip_settings,
+                                              upsert=True)  # type: InsertOneResult
         _generate_mip_settings_inventory()
 
 

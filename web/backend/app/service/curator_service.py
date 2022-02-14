@@ -33,11 +33,13 @@ def _remove_index_blocks(client, index) -> None:
     except Exception as e:
         rq_logger.exception(e)
     try:
-        client.indices.put_settings(index=index, body={"index.blocks.write": None})
+        client.indices.put_settings(
+            index=index, body={"index.blocks.write": None})
     except Exception as e:
         rq_logger.exception(e)
     try:
-        client.indices.put_settings(index=index, body={"index.blocks.read": None})
+        client.indices.put_settings(
+            index=index, body={"index.blocks.read": None})
     except Exception as e:
         rq_logger.exception(e)
 
@@ -45,7 +47,8 @@ def _remove_index_blocks(client, index) -> None:
 def _run_forcemerged(client: Elasticsearch) -> None:
     try:
         client.indices.forcemerge(
-            params={"only_expunge_deletes": "true", "ignore_unavailable": "true"}
+            params={"only_expunge_deletes": "true",
+                    "ignore_unavailable": "true"}
         )
     except Exception as e:
         rq_logger.exception(e)
@@ -55,7 +58,8 @@ def _run_forcemerged(client: Elasticsearch) -> None:
 def execute_curator(action, index_list, units, age):
     get_app_context().push()
     notification = NotificationMessage(role=_JOB_NAME)
-    notification.set_message("%s %s job started." % (_JOB_NAME.capitalize(), action))
+    notification.set_message("%s %s job started." %
+                             (_JOB_NAME.capitalize(), action))
     notification.set_status(NotificationCode.STARTED.name)
     notification.post_to_websocket_api()
     client = ElasticWrapper(timeout=120)
@@ -118,7 +122,8 @@ def execute_curator(action, index_list, units, age):
             notification.post_to_websocket_api()
 
     notification = NotificationMessage(role=_JOB_NAME)
-    notification.set_message("%s %s job completed." % (_JOB_NAME.capitalize(), action))
+    notification.set_message("%s %s job completed." %
+                             (_JOB_NAME.capitalize(), action))
     notification.set_status(NotificationCode.COMPLETED.name)
     notification.post_to_websocket_api()
 

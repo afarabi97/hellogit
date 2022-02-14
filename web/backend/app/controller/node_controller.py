@@ -35,13 +35,15 @@ class NodesCtrl(Resource):
         try:
             return get_all_nodes_with_jobs()
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }, 400
+            return {"error_message": "DBModelNotFound."}, 400
+
 
 @KIT_SETUP_NS.route("/node/<hostname>")
 class NodeCtrl(Resource):
 
     def _remove_node(self, node: Node) -> Dict:
-        job = execute.delay(node=node, stage=JOB_REMOVE, exec_type=DEPLOYMENT_JOBS.remove_node)
+        job = execute.delay(node=node, stage=JOB_REMOVE,
+                            exec_type=DEPLOYMENT_JOBS.remove_node)
         return JobID(job).to_dict()
 
     @KIT_SETUP_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
@@ -50,12 +52,13 @@ class NodeCtrl(Resource):
     @controller_admin_required
     def get(self, hostname: str) -> Response:
         try:
-            node = Node.load_from_db_using_hostname_with_jobs(hostname) # type: dict
+            node = Node.load_from_db_using_hostname_with_jobs(
+                hostname)  # type: dict
             if node:
                 return node
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }, 400
-        return { "error_message": "Unknown error" }, 500
+            return {"error_message": "DBModelNotFound."}, 400
+        return {"error_message": "Unknown error"}, 500
 
     @KIT_SETUP_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @KIT_SETUP_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
@@ -63,31 +66,34 @@ class NodeCtrl(Resource):
     def delete(self, hostname: str) -> Response:
         delete_node = False
         try:
-            node = Node.load_from_db_using_hostname(hostname) # type: Node
+            node = Node.load_from_db_using_hostname(hostname)  # type: Node
             if node:
                 node_dict = node.to_dict()
                 delete_node = True
                 if node.node_type != NODE_TYPES.mip.value:
-                    deploy_job = NodeJob.load_job_by_node(node, JOB_DEPLOY) # type: NodeJob
+                    deploy_job = NodeJob.load_job_by_node(
+                        node, JOB_DEPLOY)  # type: NodeJob
                     if node.deployment_type == DEPLOYMENT_TYPES.virtual.value or \
-                      (deploy_job and (deploy_job.inprogress or deploy_job.complete or deploy_job.error)):
+                            (deploy_job and (deploy_job.inprogress or deploy_job.complete or deploy_job.error)):
                         installed_apps = get_node_apps(node.hostname)
                         for inst_app in installed_apps:
-                           node_dict["deployment_name"] = inst_app["deployment_name"]
-                           nodes = [node_dict]
-                           delete_helm_apps.delay(application=inst_app["deployment_name"], nodes=nodes)
+                            node_dict["deployment_name"] = inst_app["deployment_name"]
+                            nodes = [node_dict]
+                            delete_helm_apps.delay(
+                                application=inst_app["deployment_name"], nodes=nodes)
                         # Remove node will delete this
                         delete_node = False
                         return self._remove_node(node), 200
 
                 if delete_node:
-                   node.delete()
-                   send_notification()
-                   return node.to_dict(), 200
+                    node.delete()
+                    send_notification()
+                    return node.to_dict(), 200
 
         except DBModelNotFound:
-           return { "error_message": "DBModelNotFound." }, 400
-        return { "error_message": "Node not found." }, 500
+            return {"error_message": "DBModelNotFound."}, 400
+        return {"error_message": "Node not found."}, 500
+
 
 @KIT_SETUP_NS.route("/node/<hostname>/update")
 class NodeUpdateFactsCtrl(Resource):
@@ -97,30 +103,31 @@ class NodeUpdateFactsCtrl(Resource):
     def put(self, hostname) -> Response:
         try:
             settings = None
-            node = Node.load_from_db_using_hostname(hostname) # type: Node
+            node = Node.load_from_db_using_hostname(hostname)  # type: Node
             if node.node_type != NODE_TYPES.mip.value:
-                settings = KitSettingsForm.load_from_db() # type: KitSettingsForm
+                settings = KitSettingsForm.load_from_db()  # type: KitSettingsForm
             if node.node_type == NODE_TYPES.mip.value:
-                settings = MipSettingsForm.load_from_db() # type: MipSettingsForm
+                settings = MipSettingsForm.load_from_db()  # type: MipSettingsForm
             if settings:
                 update_device_facts_job.delay(node, settings)
                 return "Update node facts started", 200
         except Exception as exc:
-            return {" error_message": str(exc) }, 400
-        return { "error_message": "Unknown error" }, 500
+            return {" error_message": str(exc)}, 400
+        return {"error_message": "Unknown error"}, 500
 
 
 @KIT_SETUP_NS.route("/node")
 class NewNodeCtrl(Resource):
 
     def _execute_kickstart_profile_job(self, node: Node) -> Dict:
-        job = execute.delay(node=node, exec_type=DEPLOYMENT_JOBS.kickstart_profiles)
+        job = execute.delay(
+            node=node, exec_type=DEPLOYMENT_JOBS.kickstart_profiles)
         return JobID(job).to_dict()
 
     def _execute_create_virtual_job(self, node: Node) -> Dict:
-        job = execute.delay(node=node, exec_type=DEPLOYMENT_JOBS.create_virtual)
+        job = execute.delay(
+            node=node, exec_type=DEPLOYMENT_JOBS.create_virtual)
         return JobID(job).to_dict()
-
 
     @KIT_SETUP_NS.expect(Node.DTO)
     @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
@@ -128,8 +135,9 @@ class NewNodeCtrl(Resource):
     @controller_admin_required
     def post(self) -> Response:
         try:
-            settings = GeneralSettingsForm.load_from_db() # type: Dict
-            node = Node.load_node_from_request(KIT_SETUP_NS.payload) # type: Node
+            settings = GeneralSettingsForm.load_from_db()  # type: Dict
+            node = Node.load_node_from_request(
+                KIT_SETUP_NS.payload)  # type: Node
             if not node.hostname.endswith(settings.domain):
                 node.hostname = "{}.{}".format(node.hostname, settings.domain)
             if node.deployment_type == DEPLOYMENT_TYPES.virtual.value:
@@ -142,7 +150,7 @@ class NewNodeCtrl(Resource):
             send_notification()
 
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }, 400
+            return {"error_message": "DBModelNotFound."}, 400
         except PostValidationError as e:
             return {"post_validation": e.errors_msgs}, 400
 
@@ -160,7 +168,7 @@ class NodeVpnCtrl(Resource):
     @login_required_roles(['controller-node-state'], True)
     def post(self, hostname: str) -> Response:
         try:
-            node = Node.load_from_db_using_hostname(hostname) # type: Node
+            node = Node.load_from_db_using_hostname(hostname)  # type: Node
             payload = KIT_SETUP_NS.payload
             if payload and node:
                 if "vpn_status" in payload:
@@ -169,9 +177,9 @@ class NodeVpnCtrl(Resource):
                 send_notification()
             return "Updated", 200
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }, 400
+            return {"error_message": "DBModelNotFound."}, 400
         except ValueError:
-            return { "error_message": "Invalid State." }, 400
+            return {"error_message": "Invalid State."}, 400
 
 
 @KIT_SETUP_NS.route("/node/<hostname>/status")
@@ -188,10 +196,11 @@ class NodeStateCtrl(Resource):
         job_provision = False
         job_deploy = False
         try:
-            node = Node.load_from_db_using_hostname(hostname) # type: Node
+            node = Node.load_from_db_using_hostname(hostname)  # type: Node
             payload = KIT_SETUP_NS.payload
             if payload and node:
-                job = NodeJob.load_job_by_node(node=node, job_name=payload["name"]) # type: NodeJob
+                job = NodeJob.load_job_by_node(
+                    node=node, job_name=payload["name"])  # type: NodeJob
                 if "error" in payload and payload["error"]:
                     job_error = True
                 elif "complete" in payload and payload["complete"]:
@@ -207,9 +216,11 @@ class NodeStateCtrl(Resource):
                         job_deploy = True
                 if job:
                     if job_provision and job_inprogress and job.inprogress:
-                        job_id = check_gather_device_facts_job(node) # type: str
+                        job_id = check_gather_device_facts_job(
+                            node)  # type: str
                         if job_id:
-                            txt = "Provision job {} cancelled by another job.  Check node status on node management page.".format(job_id)
+                            txt = "Provision job {} cancelled by another job.  Check node status on node management page.".format(
+                                job_id)
                             cancel_job(job_id, txt)
                     job.set_job_state()
                     if job_error:
@@ -221,18 +232,18 @@ class NodeStateCtrl(Resource):
                         job.set_complete()
                     if job_inprogress:
                         if job_provision:
-                            settings = KitSettingsForm.load_from_db() # type: KitSettingsForm
+                            settings = KitSettingsForm.load_from_db()  # type: KitSettingsForm
                             if node.node_type == NODE_TYPES.mip.value:
-                                settings = MipSettingsForm.load_from_db() # type: MipSettingsForm
+                                settings = MipSettingsForm.load_from_db()  # type: MipSettingsForm
                             gather_device_facts.delay(node, settings)
                         else:
                             job.set_inprogress()
                     send_notification()
-            return { "success_message": "Updated" }
+            return {"success_message": "Updated"}
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }, 400
+            return {"error_message": "DBModelNotFound."}, 400
         except ValueError:
-            return { "error_message": "Invalid state" }, 400
+            return {"error_message": "Invalid state"}, 400
 
 
 @KIT_SETUP_NS.route("/node/<hostname>/deploy")
@@ -250,16 +261,17 @@ class NodeCtrlRebuild(Resource):
     def post(self, hostname: str) -> Response:
         job_id = None
         try:
-            kit_settings = KitSettingsForm.load_from_db() # type: KitSettingsForm
-            node = Node.load_from_db_using_hostname(hostname) # type: Node
+            kit_settings = KitSettingsForm.load_from_db()  # type: KitSettingsForm
+            node = Node.load_from_db_using_hostname(hostname)  # type: Node
             if node and kit_settings:
                 job_id = gather_device_facts.delay(node, kit_settings)
                 return JobID(job_id).to_dict(), 200
             # Alert websocket to update the table
             send_notification()
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }, 400
-        return { "error_message": "Unable to start deployment for {}".format(hostname) }, 500
+            return {"error_message": "DBModelNotFound."}, 400
+        return {"error_message": "Unable to start deployment for {}".format(hostname)}, 500
+
 
 @KIT_SETUP_NS.route("/node/<hostname>/generate-vpn")
 class GenerateVpnConfigCtrl(Resource):
@@ -269,20 +281,22 @@ class GenerateVpnConfigCtrl(Resource):
     def get(self, hostname: str) -> Response:
         try:
             results = []
-            node = Node.load_from_db_using_hostname(hostname) # type: Node
-            settings = GeneralSettingsForm.load_from_db() # type: Dict
-            vpn_service = VpnService(node, settings) # type: VpnService
+            node = Node.load_from_db_using_hostname(hostname)  # type: Node
+            settings = GeneralSettingsForm.load_from_db()  # type: Dict
+            vpn_service = VpnService(node, settings)  # type: VpnService
             filename = vpn_service.generate_config()
             if filename:
                 return send_file(filename, mimetype="text/plain")
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }, 400
+            return {"error_message": "DBModelNotFound."}, 400
+
 
 @KIT_SETUP_NS.route("/control-plane")
 class ControlPlaneCtrl(Resource):
 
     def _execute_control_plane_job(self, node: Node) -> Dict:
-        job = execute.delay(node=node, exec_type=DEPLOYMENT_JOBS.setup_control_plane)
+        job = execute.delay(
+            node=node, exec_type=DEPLOYMENT_JOBS.setup_control_plane)
         return JobID(job).to_dict()
 
     @KIT_SETUP_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
@@ -290,10 +304,10 @@ class ControlPlaneCtrl(Resource):
     def get(self) -> Response:
         try:
             results = []
-            nodes = Node.load_control_plane_from_db() # type: Node
+            nodes = Node.load_control_plane_from_db()  # type: Node
             for node in nodes:
                 job_list = []
-                jobs = NodeJob.load_jobs_by_node(node) # type: NodeJob
+                jobs = NodeJob.load_jobs_by_node(node)  # type: NodeJob
                 for job in jobs:
                     job_list.append(job.to_dict())
                 node_json = node.to_dict()
@@ -301,8 +315,7 @@ class ControlPlaneCtrl(Resource):
                 results.append(node_json)
             return results
         except DBModelNotFound:
-            return { "error_message": "DBModelNotFound." }, 400
-
+            return {"error_message": "DBModelNotFound."}, 400
 
     @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
     @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
@@ -311,7 +324,7 @@ class ControlPlaneCtrl(Resource):
         try:
             mongo_catalog_saved_values().delete_many({})
             mongo_node().delete_many({})
-            settings = GeneralSettingsForm.load_from_db() # type: Dict
+            settings = GeneralSettingsForm.load_from_db()  # type: Dict
 
             control_plane = {
                 "hostname": "control-plane",
@@ -324,7 +337,7 @@ class ControlPlaneCtrl(Resource):
                 "boot_drives": ["sda"],
                 "data_drives": ["sdb"]
             }
-            node = Node.load_node_from_request(control_plane) # type: Node
+            node = Node.load_node_from_request(control_plane)  # type: Node
             if not node.hostname.endswith(settings.domain):
                 node.hostname = "{}.{}".format(node.hostname, settings.domain)
             node.create()
@@ -333,7 +346,7 @@ class ControlPlaneCtrl(Resource):
             send_notification()
 
         except ValidationError as e:
-            return { "error_message": e.normalized_messages() }, 400
+            return {"error_message": e.normalized_messages()}, 400
         except PostValidationError as e:
             return {"post_validation": e.errors_msgs}
         except DBModelNotFound as e:
@@ -346,11 +359,12 @@ class ControlPlaneCtrl(Resource):
 class KitRefresh(Resource):
 
     def _refresh_kit(self, new_nodes: List[Node], control_plane: List[Node]):
-        job = refresh_kit.delay(nodes=new_nodes, new_control_plane=control_plane)
+        job = refresh_kit.delay(
+            nodes=new_nodes, new_control_plane=control_plane)
         return JobID(job).to_dict()
 
     def post(self) -> Response:
-        cp = Node.load_control_plane_from_db() # type: List[Node]
-        nodes = Node.load_all_servers_sensors_from_db() # type: List[Node]
+        cp = Node.load_control_plane_from_db()  # type: List[Node]
+        nodes = Node.load_all_servers_sensors_from_db()  # type: List[Node]
 
         return self._refresh_kit(new_nodes=nodes, control_plane=cp)

@@ -33,7 +33,8 @@ class Diagnostics(Resource):
         archive_file_name = log["log"].split()[1]
         archive = Path(DOWNLOAD_DIR).joinpath(archive_file_name)
         if archive.exists():
-            response = send_file(str(archive), attachment_filename="diagnostics.tar.gz")
+            response = send_file(
+                str(archive), attachment_filename="diagnostics.tar.gz")
             return response
         else:
             return NOTFOUND_RESPONSE

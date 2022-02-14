@@ -20,13 +20,15 @@ class ControllerInfo(Resource):
         interface = netifaces.ifaddresses(CONTROLLER_INTERFACE_NAME)
         interface_info = list(interface[netifaces.AF_INET])[0]
         controller_ip = interface_info["addr"]
-        gateway_ip, interface = netifaces.gateways()["default"][netifaces.AF_INET]
+        gateway_ip, interface = netifaces.gateways()[
+            "default"][netifaces.AF_INET]
         ip_address = ipaddress.ip_network(
             "{}/{}".format(controller_ip, interface_info["netmask"]), strict=False
         )
         cidr_ranges = {}
         for x in ip_address.subnets(new_prefix=27):
-            cidr_ranges[format(x[0])] = {"first": format(x[0]), "last": format(x[-1])}
+            cidr_ranges[format(x[0])] = {"first": format(
+                x[0]), "last": format(x[-1])}
         filtered = filter(
             lambda x: ipaddress.ip_address(gateway_ip) not in x
             and ipaddress.ip_address(controller_ip) not in x,

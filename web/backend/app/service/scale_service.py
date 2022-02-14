@@ -193,7 +193,8 @@ def check_scale_status(application: str):
 
 def get_allowable_scale_count():
     ureg = UnitRegistry()
-    ureg.load_definitions("/opt/tfplenum/web/backend/app/utils/kubernetes_units")
+    ureg.load_definitions(
+        "/opt/tfplenum/web/backend/app/utils/kubernetes_units")
     data = {}
     request = []
     Q_ = ureg.Quantity
@@ -217,13 +218,15 @@ def get_allowable_scale_count():
                         master_memory_request = Q_(
                             c["resources"]["requests"]["memory"]
                         ).to(ureg.Mi)
-                        master_cpu_request = Q_(c["resources"]["requests"]["cpu"])
+                        master_cpu_request = Q_(
+                            c["resources"]["requests"]["cpu"])
                         master_count = n["count"]
                     if n["name"] == "data":
                         data_memory_request = Q_(
                             c["resources"]["requests"]["memory"]
                         ).to(ureg.Mi)
-                        data_cpu_request = Q_(c["resources"]["requests"]["cpu"])
+                        data_cpu_request = Q_(
+                            c["resources"]["requests"]["cpu"])
                         data_count = n["count"]
                     if n["name"] == "ml":
                         ml_memory_request = Q_(c["resources"]["requests"]["memory"]).to(
@@ -235,7 +238,8 @@ def get_allowable_scale_count():
                         ingest_memory_request = Q_(
                             c["resources"]["requests"]["memory"]
                         ).to(ureg.Mi)
-                        ingest_cpu_request = Q_(c["resources"]["requests"]["cpu"])
+                        ingest_cpu_request = Q_(
+                            c["resources"]["requests"]["cpu"])
                         ingest_count = n["count"]
 
     if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
@@ -290,13 +294,17 @@ def get_allowable_scale_count():
 
                 stats["cpu_req"] = sum(cpureqs)
                 stats["cpu_lmt"] = sum(cpulmts)
-                stats["cpu_req_per"] = stats["cpu_req"] / stats["cpu_alloc"] * 100
-                stats["cpu_lmt_per"] = stats["cpu_lmt"] / stats["cpu_alloc"] * 100
+                stats["cpu_req_per"] = stats["cpu_req"] / \
+                    stats["cpu_alloc"] * 100
+                stats["cpu_lmt_per"] = stats["cpu_lmt"] / \
+                    stats["cpu_alloc"] * 100
 
                 stats["mem_req"] = sum(memreqs)
                 stats["mem_lmt"] = sum(memlmts)
-                stats["mem_req_per"] = stats["mem_req"] / stats["mem_alloc"] * 100
-                stats["mem_lmt_per"] = stats["mem_lmt"] / stats["mem_alloc"] * 100
+                stats["mem_req_per"] = stats["mem_req"] / \
+                    stats["mem_alloc"] * 100
+                stats["mem_lmt_per"] = stats["mem_lmt"] / \
+                    stats["mem_alloc"] * 100
 
                 stats["cpu_remaining"] = stats["cpu_alloc"] - stats["cpu_req"]
                 stats["mem_remaining"] = stats["mem_alloc"] - stats["mem_req"]
@@ -312,8 +320,10 @@ def get_allowable_scale_count():
     for i in request:
         for key, value in i.items():
             if data_count > 0:
-                es_data_cpu_av = int((value["cpu_remaining"] / data_cpu_request))
-                es_data_mem_av = int((value["mem_remaining"] / data_memory_request))
+                es_data_cpu_av = int(
+                    (value["cpu_remaining"] / data_cpu_request))
+                es_data_mem_av = int(
+                    (value["mem_remaining"] / data_memory_request))
                 data_min = min([es_data_cpu_av, es_data_mem_av])
                 if data_min >= MAX_PER_NODE:
                     max_total_data = max_total_data + MAX_PER_NODE
@@ -324,7 +334,8 @@ def get_allowable_scale_count():
 
             if ml_count > 0:
                 es_ml_cpu_av = int((value["cpu_remaining"] / ml_cpu_request))
-                es_ml_mem_av = int((value["mem_remaining"] / ml_memory_request))
+                es_ml_mem_av = int(
+                    (value["mem_remaining"] / ml_memory_request))
                 ml_min = min([es_ml_cpu_av, es_ml_mem_av])
                 if ml_min >= MAX_PER_NODE:
                     max_total_ml = max_total_ml + MAX_PER_NODE
@@ -334,8 +345,10 @@ def get_allowable_scale_count():
                     max_total_ml = ml_count + ml_min
 
             if ingest_count > 0:
-                es_ingest_cpu_av = int((value["cpu_remaining"] / ingest_cpu_request))
-                es_ingest_mem_av = int((value["mem_remaining"] / ingest_memory_request))
+                es_ingest_cpu_av = int(
+                    (value["cpu_remaining"] / ingest_cpu_request))
+                es_ingest_mem_av = int(
+                    (value["mem_remaining"] / ingest_memory_request))
                 ingest_min = min([es_ingest_cpu_av, es_ingest_mem_av])
                 if ingest_min >= MAX_PER_NODE:
                     max_total_ingest = max_total_ingest + MAX_PER_NODE

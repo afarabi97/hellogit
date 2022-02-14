@@ -154,7 +154,8 @@ def wait_for_elastic_cluster_ready(minutes=10):
         if phase == "Ready" and health == "green" and available_nodes == total_nodes:
             check_cluster_status = False
         elif future_time <= datetime.utcnow():
-            raise Timeout("The Elastic cluster took longer to start than expected.")
+            raise Timeout(
+                "The Elastic cluster took longer to start than expected.")
         else:
             sleep(10)
 

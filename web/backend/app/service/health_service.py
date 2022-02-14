@@ -206,8 +206,10 @@ def get_node_hostname(node: V1Node) -> str:
 
 
 def get_storage(hostname: str) -> Optional[list]:
-    root_usage = mongo_metrics().find_one({"hostname": hostname, "name": "root_usage"})
-    data_usage = mongo_metrics().find_one({"hostname": hostname, "name": "data_usage"})
+    root_usage = mongo_metrics().find_one(
+        {"hostname": hostname, "name": "root_usage"})
+    data_usage = mongo_metrics().find_one(
+        {"hostname": hostname, "name": "data_usage"})
     storage = []
     if root_usage:
         storage.append(
@@ -365,7 +367,8 @@ def get_pod_metrics(pod: V1Pod) -> dict:
 
 def get_nodes_status() -> List[dict]:
     with KubernetesWrapper() as kube_apiv1:
-        pods = kube_apiv1.list_pod_for_all_namespaces(watch=False)  # type: V1PodList
+        pods = kube_apiv1.list_pod_for_all_namespaces(
+            watch=False)  # type: V1PodList
         nodes = kube_apiv1.list_node()  # type: V1NodeList
 
         _node_metrics = list(
@@ -385,7 +388,8 @@ def get_nodes_status() -> List[dict]:
 
 def get_pods_status() -> List[dict]:
     with KubernetesWrapper() as kube_apiv1:
-        pods = kube_apiv1.list_pod_for_all_namespaces(watch=False)  # type: V1PodList
+        pods = kube_apiv1.list_pod_for_all_namespaces(
+            watch=False)  # type: V1PodList
 
         _pod_metrics = list(map(lambda pod: get_pod_metrics(pod), pods.items))
 

@@ -4,12 +4,9 @@ import yaml
 from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.middleware import controller_maintainer_required
 from app.models.scale import SCALE_NS, read, update
-from app.service.scale_service import (
-    es_cluster_status,
-    get_allowable_scale_count,
-    get_es_nodes,
-    parse_nodes,
-)
+from app.service.scale_service import (es_cluster_status,
+                                       get_allowable_scale_count, get_es_nodes,
+                                       parse_nodes)
 from app.utils.logging import logger
 from flask import Response, request
 from flask_restx.resource import Resource
@@ -46,7 +43,8 @@ class ScaleElastic(Resource):
                 get_new_count_from_payload(request.get_json(), "master"),
             )
             scale(
-                deployment, "ml", get_new_count_from_payload(request.get_json(), "ml")
+                deployment, "ml", get_new_count_from_payload(
+                    request.get_json(), "ml")
             )
             scale(
                 deployment,

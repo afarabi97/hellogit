@@ -1,6 +1,7 @@
 import subprocess
 
-from app.common import CONFLICT_RESPONSE, ERROR_RESPONSE, NO_CONTENT, NOTFOUND_RESPONSE
+from app.common import (CONFLICT_RESPONSE, ERROR_RESPONSE, NO_CONTENT,
+                        NOTFOUND_RESPONSE)
 from app.middleware import login_required_roles
 from app.models.kit_tokens import TOKEN_NS, kit_token, kit_token_list
 from app.utils.collections import mongo_kit_tokens
@@ -74,7 +75,8 @@ class KitTokens(Resource):
     )
     def delete(self, kit_token_id) -> Response:
         try:
-            document = mongo_kit_tokens().delete_one({"_id": ObjectId(kit_token_id)})
+            document = mongo_kit_tokens().delete_one(
+                {"_id": ObjectId(kit_token_id)})
             if document.deleted_count == 0:
                 return NOTFOUND_RESPONSE
             else:

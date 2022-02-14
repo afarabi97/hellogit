@@ -56,7 +56,7 @@ class ColdLogsProcessor:
 
     def __init__(self,
                  model: ColdLogUploadModel,
-                 elk_username: str="elastic"):
+                 elk_username: str = "elastic"):
 
         self._send_to_logstash = model.send_to_logstash
         self._elk_password = ""
@@ -86,34 +86,38 @@ class ColdLogsProcessor:
             "index": "",
             "send_to_logstash": self._send_to_logstash
         }
-        self._log_files = None # type: List
-        self._log_names = None # type: List
+        self._log_files = None  # type: List
+        self._log_names = None  # type: List
 
     def _generate_certs_if_not_exists(self, cert_location: str):
         if (not Path(cert_location).exists()
-            or not Path(cert_location).is_file()):
-            sout, ret_val = run_command2("/opt/tfplenum/scripts/retrieve_beats_certs.py")
+                or not Path(cert_location).is_file()):
+            sout, ret_val = run_command2(
+                "/opt/tfplenum/scripts/retrieve_beats_certs.py")
             if ret_val != 0:
-                raise ColdLogParseFailure("Failed to run /opt/tfplenum/scripts/retrieve_beats_certs.py with error {}".format(sout))
+                raise ColdLogParseFailure(
+                    "Failed to run /opt/tfplenum/scripts/retrieve_beats_certs.py with error {}".format(sout))
 
     def _set_winlogbeat_index(self):
-        self._template_ctx["index"] = "winlogbeat-external-{}".format(self._index_suffix)
+        self._template_ctx["index"] = "winlogbeat-external-{}".format(
+            self._index_suffix)
 
     def _set_filebeat_index(self):
-        self._template_ctx["index"] = "filebeat-external-{}-{}".format(self._index_suffix, self._module)
+        self._template_ctx["index"] = "filebeat-external-{}-{}".format(
+            self._index_suffix, self._module)
 
     def _remove_lifecyle_settings_from_index(self):
         index = self._template_ctx["index"]
         client = ElasticWrapper()
         body = {
-            "index":{
+            "index": {
                 "lifecycle": {
                     "name": "",
                     "rollover_alias": ""
                 }
             }
         }
-        result = client.indices.put_settings(body, index=index) # type: Dict
+        result = client.indices.put_settings(body, index=index)  # type: Dict
         if not result['acknowledged']:
             raise ElasticUpdateError("Removing lifecyle policy failed.")
 
@@ -139,8 +143,10 @@ class ColdLogsProcessor:
             cert_location = "/opt/tfplenum/scripts/winlogbeat-agent-certificate/ca.crt"
             self._generate_certs_if_not_exists(cert_location)
             shutil.copy2(cert_location, tmp_directory + '/')
-            shutil.copy2("/opt/tfplenum/scripts/winlogbeat-agent-certificate/tls.crt", tmp_directory + '/')
-            shutil.copy2("/opt/tfplenum/scripts/winlogbeat-agent-certificate/tls.key", tmp_directory + '/')
+            shutil.copy2(
+                "/opt/tfplenum/scripts/winlogbeat-agent-certificate/tls.crt", tmp_directory + '/')
+            shutil.copy2(
+                "/opt/tfplenum/scripts/winlogbeat-agent-certificate/tls.key", tmp_directory + '/')
 
     def _generate_winlogbeat_template(self, tmp_directory: str):
         template = self.JINJA_ENV.get_template('winlogbeat.yml')
@@ -180,7 +186,8 @@ class ColdLogsProcessor:
             zip_package(zip_path, tmp_directory, "/coldlog")
             model = WinlogbeatInstallModel()
             model.initalize_from_mongo()
-            ret_val = configure_and_run_winlogbeat_for_cold_log_ingest(model, zip_path, tmp_directory)
+            ret_val = configure_and_run_winlogbeat_for_cold_log_ingest(
+                model, zip_path, tmp_directory)
             if _has_failures(ret_val):
                 return 1
             self._remove_lifecyle_settings_from_index()
@@ -207,9 +214,10 @@ class ColdLogsProcessor:
         if (self._module == ColdLogModules.APACHE.value
             or self._module == ColdLogModules.AUDITD.value
             or self._module == ColdLogModules.SURICATA.value
-            or self._module == ColdLogModules.SYSTEM.value):
+                or self._module == ColdLogModules.SYSTEM.value):
 
-            module_section = module_section + ("-M \"{module}.{fileset}.var.paths=['/tmp/logs/*']\" ")
+            module_section = module_section + \
+                ("-M \"{module}.{fileset}.var.paths=['/tmp/logs/*']\" ")
         elif (self._module == ColdLogModules.AZURE.value
               or self._module == ColdLogModules.AWS.value
               or self._module == ColdLogModules.BLUECOAT.value
@@ -219,9 +227,11 @@ class ColdLogsProcessor:
               or self._module == ColdLogModules.PALOALTO.value
               or self._module == ColdLogModules.SNORT.value):
             input_override = '-M "{module}.{fileset}.var.input=file" '
-            module_section = module_section + input_override + "-M \"{module}.{fileset}.var.paths=['/tmp/logs/*']\" "
+            module_section = module_section + input_override + \
+                "-M \"{module}.{fileset}.var.paths=['/tmp/logs/*']\" "
         else:
-            raise ValueError("Unsupported module: {} and fileset: {} was passed in.".format(module, fileset))
+            raise ValueError(
+                "Unsupported module: {} and fileset: {} was passed in.".format(module, fileset))
 
         module_section += enable_and_eof_close
         return module_section.format(module=module, fileset=fileset)
@@ -230,7 +240,8 @@ class ColdLogsProcessor:
         mount_section = ("-v {tmp_dir}/filebeat.yml:/usr/share/filebeat/filebeat.yml "
                          "-v {logs_dir}:/tmp/logs/ ").format(tmp_dir=tmp_dir, logs_dir=logs_dir)
         if self._cold_log_model.send_to_logstash:
-            self._generate_certs_if_not_exists("/opt/tfplenum/scripts/filebeat-agent-certificate/ca.crt")
+            self._generate_certs_if_not_exists(
+                "/opt/tfplenum/scripts/filebeat-agent-certificate/ca.crt")
             mount_section = mount_section + ("-v /opt/tfplenum/scripts/filebeat-agent-certificate/ca.crt:/usr/share/filebeat/ca.crt "
                                              "-v /opt/tfplenum/scripts/filebeat-agent-certificate/tls.crt:/usr/share/filebeat/tls.crt "
                                              "-v /opt/tfplenum/scripts/filebeat-agent-certificate/tls.key:/usr/share/filebeat/tls.key ")
@@ -247,13 +258,15 @@ class ColdLogsProcessor:
             logs_directory = tmp_directory + "/log"
             Path(logs_directory).mkdir(exist_ok=True)
             self._copy_logs_to_dir(logs_directory)
-            mount_section = self._get_volume_mount_section(tmp_directory, logs_directory)
+            mount_section = self._get_volume_mount_section(
+                tmp_directory, logs_directory)
             module_section = self._get_module_specific_params(module, fileset)
-            container_section = "localhost:5000/beats/filebeat:{} -e ".format(BEATS_IMAGE_VERSIONS)
+            container_section = "localhost:5000/beats/filebeat:{} -e ".format(
+                BEATS_IMAGE_VERSIONS)
             run_cmd = ("docker run --rm --name " + container_name + " " +
-                        mount_section +
-                        container_section +
-                        module_section)
+                       mount_section +
+                       container_section +
+                       module_section)
 
             rq_logger.debug(run_cmd)
             job = AsyncJob(JOB_NAME.capitalize(), "", run_cmd, use_shell=True)
@@ -284,11 +297,13 @@ def process_cold_logs(model_dict: Dict,
 
         ret_val = 1
         if model.is_linux():
-            ret_val, container_name = logs_processor.process_linux_logs(logs, model)
+            ret_val, container_name = logs_processor.process_linux_logs(
+                logs, model)
         elif model.is_windows():
             ret_val = logs_processor.process_windows_event_logs(logs)
         else:
-            raise ValueError("Invalid system type {} was passed in.".format(model.system_type))
+            raise ValueError(
+                "Invalid system type {} was passed in.".format(model.system_type))
 
         msg = "{} successfully completed.".format(desc)
         if ret_val != 0:
@@ -331,7 +346,8 @@ def install_winlogbeat_srv():
         ret_val = install_winlogbeat_for_cold_log_ingest(model)
         msg = "{} successfully completed.".format(desc)
         if _has_failures(ret_val):
-            msg = "{} job failed. Check celery logs in /var/log/celery/ for more details.".format(desc)
+            msg = "{} job failed. Check celery logs in /var/log/celery/ for more details.".format(
+                desc)
             notification.set_message(msg)
             notification.set_status(NotificationCode.ERROR.name)
             notification.post_to_websocket_api()

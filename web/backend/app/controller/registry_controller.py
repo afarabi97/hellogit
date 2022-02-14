@@ -17,7 +17,8 @@ def get_docker_repo_tags(repo: str) -> List[str]:
 
 
 def get_imageid_and_size(repo: str, tag: str) -> Tuple[str, float]:
-    url = "http://localhost:5000/v2/{repo}/manifests/{tag}".format(repo=repo, tag=tag)
+    url = "http://localhost:5000/v2/{repo}/manifests/{tag}".format(
+        repo=repo, tag=tag)
     headers = {"Accept": "application/vnd.docker.distribution.manifest.v2+json"}
     response = requests.get(url, headers=headers)  # type: Response
     if response.status_code == 200:
@@ -52,7 +53,8 @@ class DockerRegistry(Resource):
                     metadata = []
                     if tags:
                         for tag in tags:
-                            image_id, image_size = get_imageid_and_size(repo, tag)
+                            image_id, image_size = get_imageid_and_size(
+                                repo, tag)
                             metadata.append(
                                 {
                                     "tag": tag,

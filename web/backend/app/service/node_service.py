@@ -2,32 +2,20 @@ from datetime import datetime, timedelta
 from time import sleep
 from typing import Dict, List, Union
 
-from app.models.device_facts import DeviceFacts, create_device_facts_from_ansible_setup
+from app.models.device_facts import (DeviceFacts,
+                                     create_device_facts_from_ansible_setup)
 from app.models.nodes import Command, Node, NodeJob, NodeSchema
 from app.models.settings.esxi_settings import EsxiSettingsForm
 from app.models.settings.general_settings import GeneralSettingsForm
 from app.models.settings.kit_settings import KitSettingsForm
 from app.models.settings.mip_settings import MipSettingsForm
 from app.service.job_service import AsyncJob
-from app.service.socket_service import (
-    NotificationCode,
-    NotificationMessage,
-    log_to_console,
-    notify_node_management,
-)
+from app.service.socket_service import (NotificationCode, NotificationMessage,
+                                        log_to_console, notify_node_management)
 from app.utils.connection_mngs import REDIS_CLIENT
-from app.utils.constants import (
-    CORE_DIR,
-    DEPLOYMENT_JOBS,
-    DEPLOYMENT_TYPES,
-    JOB_CREATE,
-    JOB_DEPLOY,
-    JOB_PROVISION,
-    JOB_REMOVE,
-    LOG_PATH,
-    MIP_DIR,
-    NODE_TYPES,
-)
+from app.utils.constants import (CORE_DIR, DEPLOYMENT_JOBS, DEPLOYMENT_TYPES,
+                                 JOB_CREATE, JOB_DEPLOY, JOB_PROVISION,
+                                 JOB_REMOVE, LOG_PATH, MIP_DIR, NODE_TYPES)
 from app.utils.logging import rq_logger
 from app.utils.utils import get_app_context
 from rq import get_current_job
@@ -247,7 +235,8 @@ def gather_device_facts(node: Node, settings: Union[KitSettingsForm, MipSettings
                         str(datetime.now()), node.hostname
                     )
                     rq_logger.info(log_text)
-                    log_to_console(_JOB_NAME_NOTIFICATION, job.id, log_text, "green")
+                    log_to_console(_JOB_NAME_NOTIFICATION,
+                                   job.id, log_text, "green")
 
                 if node.node_type == NODE_TYPES.mip.value:
                     execute.delay(
@@ -302,7 +291,8 @@ def gather_device_facts(node: Node, settings: Union[KitSettingsForm, MipSettings
                 str(datetime.now()), node.hostname
             )
             log_to_console(_JOB_NAME_NOTIFICATION, job.id, msg, "red")
-            notification.set_and_send(message=msg, status=NotificationCode.ERROR.name)
+            notification.set_and_send(
+                message=msg, status=NotificationCode.ERROR.name)
         if node_job:
             node_job.set_error(message=msg)
         raise
@@ -465,7 +455,8 @@ class NodeService:
                 self.exec_type.value, self.stage, self.node.hostname
             )
             update_job(self.node, self.stage, self.handle_success.__name__)
-        notification.set_and_send(message=msg, status=NotificationCode.COMPLETED.name)
+        notification.set_and_send(
+            message=msg, status=NotificationCode.COMPLETED.name)
         if self.exec_type == DEPLOYMENT_JOBS.setup_control_plane:
             if self.stage == JOB_CREATE:
                 execute.delay(
@@ -508,11 +499,13 @@ class NodeService:
                 self.exec_type.value, self.stage, self.node.hostname
             )
             update_job(self.node, self.stage, self.handle_failure.__name__)
-        notification.set_and_send(message=msg, status=NotificationCode.ERROR.name)
+        notification.set_and_send(
+            message=msg, status=NotificationCode.ERROR.name)
 
     def job_update(self, single_node: Node) -> None:
         if self.stage == JOB_REMOVE:
-            NodeJob.create_remove_node_job(node=single_node, job_id=self.job_id)
+            NodeJob.create_remove_node_job(
+                node=single_node, job_id=self.job_id)
         else:
             node_job = NodeJob.load_job_by_node(
                 node=single_node, job_name=self.stage
@@ -555,7 +548,8 @@ def execute(
             )
         else:
             msg = "{} {} job started.".format(exec_type.value, stage)
-        notification.set_and_send(message=msg, status=NotificationCode.STARTED.name)
+        notification.set_and_send(
+            message=msg, status=NotificationCode.STARTED.name)
 
         cmd = node_service.get_cmd()
 
@@ -616,7 +610,8 @@ def refresh_kit(nodes: List[Node], new_control_plane: List[Node]):
 
     for node in nodes:
         if node.node_type == NODE_TYPES.sensor.value:
-            results.append(execute(node=node, exec_type=DEPLOYMENT_JOBS.remove_node))
+            results.append(
+                execute(node=node, exec_type=DEPLOYMENT_JOBS.remove_node))
         else:
             node.delete()
             node.create()
@@ -628,7 +623,8 @@ def refresh_kit(nodes: List[Node], new_control_plane: List[Node]):
                 )
             elif node.deployment_type == DEPLOYMENT_TYPES.virtual.value:
                 results.append(
-                    execute.delay(exec_type=DEPLOYMENT_JOBS.create_virtual, node=node)
+                    execute.delay(
+                        exec_type=DEPLOYMENT_JOBS.create_virtual, node=node)
                 )
 
     results.append(
@@ -638,4 +634,5 @@ def refresh_kit(nodes: List[Node], new_control_plane: List[Node]):
     )
 
     msg = "All refresh jobs started."
-    notification.set_and_send(message=msg, status=NotificationCode.COMPLETED.name)
+    notification.set_and_send(
+        message=msg, status=NotificationCode.COMPLETED.name)

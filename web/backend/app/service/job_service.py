@@ -66,7 +66,8 @@ class AsyncJob:
         self._job_name = job_name
         self._job_id = job_id
         if not output_fn:
-            raise ValueError("An asynchronous job requires an output function.")
+            raise ValueError(
+                "An asynchronous job requires an output function.")
         self._output_fn = output_fn
         self._command = command
         self._working_dir = working_dir
@@ -126,7 +127,8 @@ def run_command2(
 
 def check_gather_device_facts_job(node: Node) -> str:
     all_jobs = StartedJobRegistry(connection=REDIS_CLIENT).get_job_ids()
-    started_jobs = Job.fetch_many(all_jobs, connection=REDIS_CLIENT)  # type: List[Job]
+    started_jobs = Job.fetch_many(
+        all_jobs, connection=REDIS_CLIENT)  # type: List[Job]
     for job in started_jobs:
         if (
             "node_id" in job.meta

@@ -14,35 +14,24 @@ import yaml
 from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.middleware import controller_maintainer_required
 from app.models import scale
-from app.models.common import (
-    COMMON_ERROR_MESSAGE,
-    COMMON_SUCCESS_MESSAGE,
-    CurrentTimeMdl,
-    JobID,
-)
+from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE,
+                               CurrentTimeMdl, JobID)
 from app.models.nodes import Node
 from app.models.settings.kit_settings import KitSettingsForm
-from app.models.tools import (
-    COMMON_TOOLS_RETURNS,
-    TOOLS_NS,
-    InitialDeviceStatesModel,
-    NetworkDeviceStateModel,
-    NetworkInterfaceModel,
-    NewPasswordModel,
-)
-from app.service.elastic_service import (
-    Timeout,
-    apply_es_deploy,
-    check_elastic_license,
-    get_elasticsearch_license,
-    setup_s3_repository,
-    wait_for_elastic_cluster_ready,
-)
+from app.models.tools import (COMMON_TOOLS_RETURNS, TOOLS_NS,
+                              InitialDeviceStatesModel,
+                              NetworkDeviceStateModel, NetworkInterfaceModel,
+                              NewPasswordModel)
+from app.service.elastic_service import (Timeout, apply_es_deploy,
+                                         check_elastic_license,
+                                         get_elasticsearch_license,
+                                         setup_s3_repository,
+                                         wait_for_elastic_cluster_ready)
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
+from app.utils.collections import mongo_catalog_saved_values
 from app.utils.connection_mngs import FabricConnection, KubernetesWrapper
 from app.utils.constants import TFPLENUM_CONFIGS_PATH
-from app.utils.collections import mongo_catalog_saved_values
 from app.utils.logging import logger
 from fabric.runners import Result
 from flask import Response, request
@@ -51,8 +40,8 @@ from kubernetes.client.models.v1_service_list import V1ServiceList
 from kubernetes.client.rest import ApiException
 from paramiko.ssh_exception import AuthenticationException
 from werkzeug.datastructures import FileStorage
-from werkzeug.utils import secure_filename
 from werkzeug.security import safe_join
+from werkzeug.utils import secure_filename
 
 _JOB_NAME = "tools"
 
@@ -75,9 +64,10 @@ class CurrentTime(Resource):
 
         pos = timezone_stdout.find(":")
         pos2 = timezone_stdout.find("(", pos)
-        timezone = timezone_stdout[pos + 2 : pos2 - 1]
+        timezone = timezone_stdout[pos + 2: pos2 - 1]
 
-        date_stdout, ret_val = run_command2('date +"%m-%d-%Y %H:%M:%S"', use_shell=True)
+        date_stdout, ret_val = run_command2(
+            'date +"%m-%d-%Y %H:%M:%S"', use_shell=True)
         if ret_val != 0:
             return ERROR_RESPONSE
 
@@ -113,7 +103,8 @@ class ChangeKitPassword(Resource):
             try:
                 with FabricConnection(str(node.ip_address), use_ssh_key=True) as shell:
                     result = shell.run(
-                        "echo '{}' | passwd --stdin root".format(model.root_password),
+                        "echo '{}' | passwd --stdin root".format(
+                            model.root_password),
                         warn=True,
                     )  # type: Result
 
@@ -188,7 +179,8 @@ class UpdateDocs(Resource):
             )
             request.files["upload_file"].save(tmp_archive_path)
 
-            new_docs_path = safe_join("/var/www/html/docs", request.form["space_name"])
+            new_docs_path = safe_join(
+                "/var/www/html/docs", request.form["space_name"])
             if new_docs_path is None:
                 return {
                     "error_message": "The Space Name passed in is of an invalid value that cannot be safely joined."
@@ -235,7 +227,8 @@ class ElasticLicense(Resource):
         ):
             return {"error_message": "File is not valid Elastic license"}, 400
         if (
-            datetime.fromtimestamp(license["license"]["expiry_date_in_millis"] / 1000)
+            datetime.fromtimestamp(
+                license["license"]["expiry_date_in_millis"] / 1000)
             < datetime.now()
         ):
             return {"error_message": "Elastic license has expired"}, 400
@@ -245,7 +238,8 @@ class ElasticLicense(Resource):
 
         json_string = json.dumps(license, separators=(",", ":"))
         license_prefix = "eck-license"
-        secret_name = "{}-{}".format(license_prefix, datetime.now().strftime("%s"))
+        secret_name = "{}-{}".format(license_prefix,
+                                     datetime.now().strftime("%s"))
         namespace = "elastic-system"
         body = kubernetes.client.V1Secret()
         body.api_version = "v1"
@@ -317,7 +311,8 @@ class KubernetesError(Exception):
 
 def retrieve_service_ip_address(service_name: str) -> str:
     with KubernetesWrapper() as kube_apiv1:
-        svcs = kube_apiv1.list_namespaced_service("default")  # type: V1ServiceList
+        svcs = kube_apiv1.list_namespaced_service(
+            "default")  # type: V1ServiceList
         for svc in svcs.items:  # type: V1Service
             if svc.metadata.name == service_name:
                 return svc.status.load_balancer.ingress[0].ip
@@ -338,7 +333,8 @@ class RemoteNetworkDevice(object):
 
     def set_up(self):
         with FabricConnection(self._node) as shell:
-            result = shell.run("bash -c 'ip link set {} up'".format(self._device))
+            result = shell.run(
+                "bash -c 'ip link set {} up'".format(self._device))
             link_up = self._is_link_up(shell)
             if result.return_code == 0:
                 return NetworkDeviceStateModel(
@@ -349,7 +345,8 @@ class RemoteNetworkDevice(object):
 
     def down(self):
         with FabricConnection(self._node) as shell:
-            result = shell.run("bash -c 'ip link set {} down'".format(self._device))
+            result = shell.run(
+                "bash -c 'ip link set {} down'".format(self._device))
             link_up = self._is_link_up(shell)
             if result.return_code == 0:
                 return NetworkDeviceStateModel(
@@ -360,7 +357,8 @@ class RemoteNetworkDevice(object):
 
     def get_state(self):
         with FabricConnection(self._node) as shell:
-            result = shell.run("bash -c 'ip address show {} up'".format(self._device))
+            result = shell.run(
+                "bash -c 'ip address show {} up'".format(self._device))
             link_up = self._is_link_up(shell)
             if result.return_code == 0:
                 if result.stdout == "":
@@ -424,7 +422,8 @@ class MonitoringInterfaces(Resource):
         applications = ["arkime", "zeek", "suricata"]
 
         documents = list(
-            mongo_catalog_saved_values().find({"application": {"$in": applications}})
+            mongo_catalog_saved_values().find(
+                {"application": {"$in": applications}})
         )
         for document in documents:
             hostname = document["values"]["node_hostname"]
@@ -448,7 +447,8 @@ class MonitoringInterfaces(Resource):
                         NetworkInterfaceModel(interface, state, link_up)
                     )
                 except KeyError:
-                    inital_states.add_interface(NetworkInterfaceModel(interface))
+                    inital_states.add_interface(
+                        NetworkInterfaceModel(interface))
             result.append(inital_states.to_dict())
 
         return result
@@ -485,7 +485,8 @@ class ElasticDeploy(Resource):
         Save Elastic deploy yaml into mongo
         """
         notification = NotificationMessage(role=_JOB_NAME)
-        deploy_path = "{}/elasticsearch/deploy.yml".format(TFPLENUM_CONFIGS_PATH)
+        deploy_path = "{}/elasticsearch/deploy.yml".format(
+            TFPLENUM_CONFIGS_PATH)
         override = request.args.get("override", default=False, type=bool)
 
         try:
@@ -541,5 +542,6 @@ class ElasticSnapshot(Resource):
         else:
             repository_settings = request.get_json()
             elasticsearch_ip = retrieve_service_ip_address("elasticsearch")
-            job = setup_s3_repository.delay(elasticsearch_ip, repository_settings)
+            job = setup_s3_repository.delay(
+                elasticsearch_ip, repository_settings)
             return JobID(job).to_dict(), 200

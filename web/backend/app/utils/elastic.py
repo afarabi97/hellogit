@@ -120,7 +120,8 @@ class ElasticsearchManager:
 
         :return: {'acknowledged': True}
         """
-        ret_val = self._snapper.create_repository(repository=repo_name, body=snap_body)
+        ret_val = self._snapper.create_repository(
+            repository=repo_name, body=snap_body)
         return ret_val
 
     def get_repository(self, repo_name: str = default_repo) -> Dict:

@@ -37,7 +37,8 @@ def cal_percentage_of_total(total: float, percentage: int) -> float:
         return 0
 
     if percentage > 100 or percentage < 0:
-        raise ValueError("Percentage can not be larger than 100 or less than 0")
+        raise ValueError(
+            "Percentage can not be larger than 100 or less than 0")
     return (percentage / 100) * total
 
 

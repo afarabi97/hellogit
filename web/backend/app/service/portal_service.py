@@ -91,7 +91,8 @@ def get_portal_links():
                     svc_ip = service.status.load_balancer.ingress[0].ip
                     if _is_discluded(name):
                         continue
-                    portal_links.append(_append_portal_link(name, kit_domain, svc_ip))
+                    portal_links.append(
+                        _append_portal_link(name, kit_domain, svc_ip))
     except Exception as e:
         print(str(e))
         pass

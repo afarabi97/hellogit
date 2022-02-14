@@ -27,10 +27,13 @@ JINJA_ENV = Environment(
     autoescape=select_autoescape(['html', 'xml'])
 )
 
+
 def _generate_kit_settings_inventory():
-    kit_settings = KitSettingsForm.load_from_db() # type: KitSettingsForm
-    kit_settings_generator = KitSettingsInventoryGenerator(kit_settings.to_dict())
+    kit_settings = KitSettingsForm.load_from_db()  # type: KitSettingsForm
+    kit_settings_generator = KitSettingsInventoryGenerator(
+        kit_settings.to_dict())
     kit_settings_generator.generate()
+
 
 class KitSettingsSchema(Schema):
     _id = marsh_fields.Str()
@@ -58,20 +61,20 @@ class KitSettingsForm(SettingsBase):
                                                   description="The /27 IP Address block that will be used. EX: 10.40.12.64 - 95"),
         'password': fields.String(required=True, example="mypassword1!Afoobar", description="The root and ssh password for all the nodes in the kit."),
         'upstream_dns': fields.String(required=False, example="10.10.101.11",
-                                        description="This is the upstream DNS server that the controller uses for additional DNS lookups that are not on Kit."),
+                                      description="This is the upstream DNS server that the controller uses for additional DNS lookups that are not on Kit."),
         'upstream_ntp': fields.String(required=False, example="10.10.101.11",
-                                        description="This is the upstream NTP server where the controller will get its time from."),
+                                      description="This is the upstream NTP server where the controller will get its time from."),
         'is_gip': fields.Boolean(required=True, example=True,
-                                        description="Setting determines whether kit type is GIP."),
+                                 description="Setting determines whether kit type is GIP."),
         'job_id': fields.String(required=False, description="The latest job that ran for Kit settings."),
         'job_completed': fields.Boolean(required=False, description="If kit settings job completed"),
     })
 
     def __init__(self, kubernetes_services_cidr: IPv4Address, password: str,
-                 job_completed: bool=False,
-                 upstream_dns: IPv4Address=IPv4Address("0.0.0.0"),
-                 upstream_ntp: IPv4Address=IPv4Address("0.0.0.0"),
-                 is_gip: bool=False, _id: str=None, job_id: str=''):
+                 job_completed: bool = False,
+                 upstream_dns: IPv4Address = IPv4Address("0.0.0.0"),
+                 upstream_ntp: IPv4Address = IPv4Address("0.0.0.0"),
+                 is_gip: bool = False, _id: str = None, job_id: str = ''):
         self._id = _id or KIT_SETTINGS_ID
         self.kubernetes_services_cidr = kubernetes_services_cidr
         self.password = password
@@ -82,7 +85,7 @@ class KitSettingsForm(SettingsBase):
         self.job_completed = job_completed
 
     @classmethod
-    def load_combined_from_db(cls, query: Dict={"_id": KIT_SETTINGS_ID}) -> dict:
+    def load_combined_from_db(cls, query: Dict = {"_id": KIT_SETTINGS_ID}) -> dict:
         mongo_document = mongo_settings().find_one(query)
         if mongo_document:
             kit_settings = cls.schema.load(mongo_document)
@@ -95,7 +98,7 @@ class KitSettingsForm(SettingsBase):
         raise DBModelNotFound("Kit Settings has not been saved yet.")
 
     @classmethod
-    def load_from_db(cls, query: Dict={"_id": KIT_SETTINGS_ID}) -> Model:
+    def load_from_db(cls, query: Dict = {"_id": KIT_SETTINGS_ID}) -> Model:
         mongo_document = mongo_settings().find_one(query)
         if mongo_document:
             kit_settings = cls.schema.load(mongo_document)
@@ -113,11 +116,12 @@ class KitSettingsForm(SettingsBase):
 
         kit_settings = self.schema.dump(self)
         mongo_settings().find_one_and_replace({"_id": KIT_SETTINGS_ID},
-                                                      kit_settings,
-                                                      upsert=True)  # type: InsertOneResult
+                                              kit_settings,
+                                              upsert=True)  # type: InsertOneResult
         self.password = decode_password(self.password)
         _generate_kit_settings_inventory()
         _generate_inventory()
+
 
 class KitSettingsInventoryGenerator:
     """
@@ -127,9 +131,9 @@ class KitSettingsInventoryGenerator:
     def __init__(self, kit_settings):
         self._template_ctx = kit_settings
 
-
     def _set_kubernetes_cidr(self):
-        cidr = ip_network("{}/27".format(self._template_ctx['kubernetes_services_cidr']))
+        cidr = ip_network(
+            "{}/27".format(self._template_ctx['kubernetes_services_cidr']))
         self._template_ctx['kubernetes_svc_first_ip'] = cidr[0]
         self._template_ctx['kubernetes_svc_last_ip'] = cidr[-1]
 
@@ -147,7 +151,7 @@ class KitSettingsInventoryGenerator:
         :return:
         """
         self._set_kubernetes_cidr()
-        #self._set_raid()
+        # self._set_raid()
         template = JINJA_ENV.get_template('kit_settings.yml')
         kickstart_template = template.render(template_ctx=self._template_ctx)
 

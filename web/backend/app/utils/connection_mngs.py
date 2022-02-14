@@ -208,8 +208,10 @@ class FabricConnectionManager:
 
 class KubernetesSecret:
     def __init__(self, response: V1Secret):
-        self.ca_certificate = b64decode(response.data["ca.crt"]).decode("utf-8")
-        self.tls_certificate = b64decode(response.data["tls.crt"]).decode("utf-8")
+        self.ca_certificate = b64decode(
+            response.data["ca.crt"]).decode("utf-8")
+        self.tls_certificate = b64decode(
+            response.data["tls.crt"]).decode("utf-8")
         self.tls_key = b64decode(response.data["tls.key"]).decode("utf-8")
 
     def __str__(self):

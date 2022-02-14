@@ -9,22 +9,23 @@ from marshmallow import fields as marsh_fields
 from marshmallow import post_load, validates
 
 ALERTS_NS = Namespace("alerts",
-                    description="Alerts related operations that allow operators to display or Acknowledge or Escalate alert events that come in.")
+                      description="Alerts related operations that allow operators to display or Acknowledge or Escalate alert events that come in.")
 
 HIVE_NS = Namespace("hive", description="Hive related webhook operations.")
+
 
 class AlertsModel(Model):
     DTO = ALERTS_NS.model('AlertModel', {
         "count": fields.String(example="200",
-                             description="Number of alerts in this group."),
+                               description="Number of alerts in this group."),
         "event.category": fields.String(example="network",
-                             description="The cataegory of the event."),
+                                        description="The cataegory of the event."),
         "event.kind": fields.String(example="alert",
-                             description="The kind of event such as alert or signal"),
+                                    description="The kind of event such as alert or signal"),
         "rule.name": fields.String(example="ET CHAT IRC USER command",
-                             description="The rule name either from suricata or detections."),
+                                   description="The rule name either from suricata or detections."),
         "additionalGroupByFields": fields.String(
-                                     description="Additional Group By Fields")
+            description="Additional Group By Fields")
     })
 
 
@@ -42,19 +43,19 @@ class HiveForm(Model):
 
 class AlertFormModel(Model):
     DTO = ALERTS_NS.model('AlertFormModel', {
-    "acknowledged": fields.Boolean(example=False,
-                                   description="Search attribute for returning acknowledged alerts."),
-    "escalated": fields.Boolean(example=False,
-                                description="Search attribute for returning escalated alerts."),
-    "showClosed": fields.Boolean(example=False,
-                                 description="When set to true, will display only closed Alerts."),
-    "timeInterval": fields.String(example="hours",
-                                  description="Time selection interval such as days, hours, minutes."),
-    "timeAmount": fields.String(example="24",
-                             description="Time amount such as 24"),
-    "performEscalation": fields.Boolean(example=False,
-                             description="Perform escalation to hive."),
-    "hiveForm": fields.Nested(HiveForm.DTO)
+        "acknowledged": fields.Boolean(example=False,
+                                       description="Search attribute for returning acknowledged alerts."),
+        "escalated": fields.Boolean(example=False,
+                                    description="Search attribute for returning escalated alerts."),
+        "showClosed": fields.Boolean(example=False,
+                                     description="When set to true, will display only closed Alerts."),
+        "timeInterval": fields.String(example="hours",
+                                      description="Time selection interval such as days, hours, minutes."),
+        "timeAmount": fields.String(example="24",
+                                    description="Time amount such as 24"),
+        "performEscalation": fields.Boolean(example=False,
+                                            description="Perform escalation to hive."),
+        "hiveForm": fields.Nested(HiveForm.DTO)
     })
 
 
@@ -67,9 +68,10 @@ class UpdateAlertsModel(Model):
         "event.kind": fields.String(example="alert",
                                     description="The kind of event such as alert or signal"),
         "rule.name": fields.String(example="ET CHAT IRC USER command",
-                                  description="The rule name either from suricata or detections."),
+                                   description="The rule name either from suricata or detections."),
         "form": fields.Nested(AlertFormModel.DTO)
     })
+
 
 class HiveSchema(Schema):
     _id = marsh_fields.Str()
@@ -83,12 +85,14 @@ class HiveSchema(Schema):
     @validates("admin_api_key")
     def validate_admin_hive_api_key(self, value: str):
         if len(value) != 32:
-            raise ValidationError("The admin API key you passed in does not match the appropriate string size of 32.")
+            raise ValidationError(
+                "The admin API key you passed in does not match the appropriate string size of 32.")
 
     @validates("org_admin_api_key")
     def validate_org_admin_hive_api_key(self, value: str):
         if len(value) != 32:
-            raise ValidationError("The org_admin API key you passed in does not match the appropriate string size of 32.")
+            raise ValidationError(
+                "The org_admin API key you passed in does not match the appropriate string size of 32.")
 
 
 class HiveSettingsModel(Model):
@@ -102,7 +106,7 @@ class HiveSettingsModel(Model):
                                            description="The API key needed in order to create Hive cases.")
     })
 
-    def __init__(self, admin_api_key: str, org_admin_api_key: str, _id: str=HIVE_ID):
+    def __init__(self, admin_api_key: str, org_admin_api_key: str, _id: str = HIVE_ID):
         if admin_api_key:
             self.admin_api_key = admin_api_key
         else:
@@ -117,12 +121,13 @@ class HiveSettingsModel(Model):
 
     @classmethod
     def load_from_request(cls, payload: Dict) -> Model:
-        new_kit = cls.schema.load(payload) # type: HiveSettingsModel
+        new_kit = cls.schema.load(payload)  # type: HiveSettingsModel
         return new_kit
 
     def save_to_db(self):
         serialized = self.schema.dump(self)
-        mongo_hive_settings().find_one_and_replace({"_id": HIVE_ID}, serialized, upsert=True)
+        mongo_hive_settings().find_one_and_replace(
+            {"_id": HIVE_ID}, serialized, upsert=True)
 
     @classmethod
     def load_from_db(cls) -> Model:

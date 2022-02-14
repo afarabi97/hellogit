@@ -14,5 +14,6 @@ kit_token = TOKEN_NS.model(
 )
 
 kit_token_list = TOKEN_NS.schema_model(
-    "KitTokenList", {"type": "array", "items": {"$ref": "#/definitions/KitToken"}}
+    "KitTokenList", {"type": "array", "items": {
+        "$ref": "#/definitions/KitToken"}}
 )

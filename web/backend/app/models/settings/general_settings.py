@@ -24,10 +24,12 @@ JINJA_ENV = Environment(
 
 SETINGS_NS = Namespace('settings', description="Kit setup related operations.")
 
+
 def _generate_general_settings_inventory():
-    settings = GeneralSettingsForm.load_from_db() # type: GeneralSettingsForm
+    settings = GeneralSettingsForm.load_from_db()  # type: GeneralSettingsForm
     config_generator = GeneralSettingsInventoryGenerator(settings.to_dict())
     config_generator.generate()
+
 
 class GeneralSettingsSchema(Schema):
     _id = marsh_fields.Str()
@@ -66,8 +68,8 @@ class GeneralSettingsForm(SettingsBase):
     def __init__(self, controller_interface: IPv4Address,
                  netmask: IPv4Address, gateway: IPv4Address,
                  domain: str,  dhcp_range: IPv4Address,
-                 job_completed: bool=False,
-                 _id: str=None, job_id: str=''):
+                 job_completed: bool = False,
+                 _id: str = None, job_id: str = ''):
         self._id = _id or GENERAL_SETTINGS_ID
         self.controller_interface = controller_interface
         self.netmask = netmask
@@ -78,10 +80,11 @@ class GeneralSettingsForm(SettingsBase):
         self.job_completed = job_completed
 
     @classmethod
-    def load_from_db(cls, query: Dict={"_id": GENERAL_SETTINGS_ID}) -> Model:
+    def load_from_db(cls, query: Dict = {"_id": GENERAL_SETTINGS_ID}) -> Model:
         mongo_document = mongo_settings().find_one(query)
         if mongo_document:
-            general_settings = cls.schema.load(mongo_document, partial=("nodes",))
+            general_settings = cls.schema.load(
+                mongo_document, partial=("nodes",))
             return general_settings
         return None
 
@@ -93,9 +96,10 @@ class GeneralSettingsForm(SettingsBase):
         """
         general_settings = self.schema.dump(self)
         mongo_settings().find_one_and_replace({"_id": GENERAL_SETTINGS_ID},
-                                                      general_settings,
-                                                      upsert=True)  # type: InsertOneResult
+                                              general_settings,
+                                              upsert=True)  # type: InsertOneResult
         _generate_general_settings_inventory()
+
 
 class GeneralSettingsInventoryGenerator:
     def __init__(self, mip_settings: dict):

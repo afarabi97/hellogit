@@ -1,7 +1,8 @@
 from app.models import Model
 from flask_restx import Namespace, fields
 
-KUBERNETES_NS = Namespace("kubernetes", description="Kubernetes related operations.")
+KUBERNETES_NS = Namespace(
+    "kubernetes", description="Kubernetes related operations.")
 
 
 class DockerImageMetadataModel(Model):
@@ -45,7 +46,8 @@ class DockerImageModel(Model):
 class KubernetesNodeMetricsModel(Model):
     storage_fields = KUBERNETES_NS.model(
         "KubernetesNodeMetricsStorage",
-        {"name": fields.Integer(), "free": fields.Integer(), "percent": fields.Float()},
+        {"name": fields.Integer(), "free": fields.Integer(),
+         "percent": fields.Float()},
     )
     memory_fields = KUBERNETES_NS.model(
         "KubernetesNodeMetricsMemory",

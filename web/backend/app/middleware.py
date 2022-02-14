@@ -1,14 +1,14 @@
-from werkzeug.wrappers import Request, Response
+import glob
+import os
 from functools import wraps
+
+import jwt
+import yaml
 from app.common import FORBIDDEN_RESPONSE
-from app.utils.constants import (
-    OPERATOR_ROLE,
-    CONTROLLER_ADMIN_ROLE,
-    REALM_ADMIN_ROLE,
-    CONTROLLER_MAINTAINER_ROLE,
-    WEB_DIR,
-)
-import jwt, os, glob, yaml
+from app.utils.constants import (CONTROLLER_ADMIN_ROLE,
+                                 CONTROLLER_MAINTAINER_ROLE, OPERATOR_ROLE,
+                                 REALM_ADMIN_ROLE, WEB_DIR)
+from werkzeug.wrappers import Request, Response
 
 JWT_DIR = "/opt/sso-idp/jwt/"
 MIME_TYPE = "text/plain"
@@ -163,7 +163,8 @@ class AuthMiddleware:
             Auth.set_current_user(user)
             return self.app(environ, start_response)
 
-        res = Response("Authorization failed", mimetype="text/plain", status=401)
+        res = Response("Authorization failed",
+                       mimetype="text/plain", status=401)
         return res(environ, start_response)
 
 
@@ -263,7 +264,8 @@ def login_required_roles(roles, all_roles_req=False):
         @wraps(f)
         def wrapper(*args, **kwargs):
             if (all_roles_req and not all(elem in Auth.roles for elem in roles)) or (
-                not all_roles_req and not any(elem in Auth.roles for elem in roles)
+                not all_roles_req and not any(
+                    elem in Auth.roles for elem in roles)
             ):
                 return FORBIDDEN_RESPONSE
             return f(*args, **kwargs)

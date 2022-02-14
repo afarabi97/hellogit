@@ -91,7 +91,8 @@ class Hostname(Resource):
     @HEALTH_NS.response(200, "Hostname", fields.String())
     def get(self) -> Response:
         try:
-            response = mongo_settings().find_one({"_id": "general_settings_form"})
+            response = mongo_settings().find_one(
+                {"_id": "general_settings_form"})
             hostname = "controller.{}".format(response["domain"])
             return hostname
         except Exception as e:
@@ -115,7 +116,8 @@ class KibanaLoginInfo(Resource):
                     name = service.metadata.name
                     if name == "kibana":
                         svc_ip = service.status.load_balancer.ingress[0].ip
-                        kibana_info["DNS"] = "https://{}.{}".format(name, kit_domain)
+                        kibana_info["DNS"] = "https://{}.{}".format(
+                            name, kit_domain)
                         kibana_info["IP Address"] = "https://{}".format(svc_ip)
                         kibana_info["Username/Password"] = "elastic/{}".format(
                             elastic_password

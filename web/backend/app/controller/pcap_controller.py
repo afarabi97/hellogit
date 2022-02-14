@@ -19,7 +19,6 @@ from flask_restx import Resource
 from werkzeug.datastructures import FileStorage
 
 
-
 @POLICY_NS.route('/pcaps')
 class PcapsCtrl(Resource):
 
@@ -41,6 +40,7 @@ class PcapsCtrl(Resource):
 upload_parser = POLICY_NS.parser()
 upload_parser.add_argument('upload_file', location='files',
                            type=FileStorage, required=True)
+
 
 @POLICY_NS.route('/pcap/upload')
 class PcapCtrl(Resource):
@@ -92,11 +92,13 @@ class ReplayPcapCtrl(Resource):
     @operator_required
     def post(self) -> Response:
         payload = request.get_json()
-        kit_settings = KitSettingsForm.load_from_db() #type: Dict
+        kit_settings = KitSettingsForm.load_from_db()  # type: Dict
         if payload['preserve_timestamp']:
-            job = replay_pcap_using_preserve_timestamp.delay(payload, kit_settings.password)
+            job = replay_pcap_using_preserve_timestamp.delay(
+                payload, kit_settings.password)
         else:
-            job = replay_pcap_using_tcpreplay.delay(payload, kit_settings.password)
+            job = replay_pcap_using_tcpreplay.delay(
+                payload, kit_settings.password)
 
         return JobID(job).to_dict(), 200
 
@@ -105,7 +107,7 @@ class ReplayPcapCtrl(Resource):
 class SensorInfo(Resource):
     def get(self) -> Response:
         ret_val = []
-        kit_nodes = Node.load_all_from_db() # type: List[Node]
+        kit_nodes = Node.load_all_from_db()  # type: List[Node]
 
         for node in kit_nodes:
             if node.node_type == NODE_TYPES.sensor.value:

@@ -74,7 +74,8 @@ class NotificationMessage(object):
                 self.status = status
                 return
         raise ValueError(
-            "The %s passed is does not match on of %s." % (status, str(valid_names))
+            "The %s passed is does not match on of %s." % (
+                status, str(valid_names))
         )
 
     def set_exception(self, exception: Exception) -> None:

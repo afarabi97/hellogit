@@ -4,15 +4,11 @@ Main module for handling all of the config map REST calls.
 from collections import OrderedDict
 from typing import Dict, List
 
-from app.models.alerts import (
-    ALERTS_NS,
-    HIVE_NS,
-    AlertsModel,
-    HiveSettingsModel,
-    UpdateAlertsModel,
-)
+from app.models.alerts import (ALERTS_NS, HIVE_NS, AlertsModel,
+                               HiveSettingsModel, UpdateAlertsModel)
 from app.models.common import COMMON_ERROR_DTO1
-from app.service.hive_service import HiveFailureError, HiveService, configure_webhook
+from app.service.hive_service import (HiveFailureError, HiveService,
+                                      configure_webhook)
 from app.utils.elastic import ElasticWrapper
 from elasticsearch.exceptions import ConnectionTimeout, RequestError
 from flask import Response, request
@@ -68,7 +64,8 @@ def build_query_clause(
 
     signal_not_match = {"match": {"signal.original_event.kind": "alert"}}
 
-    must_clause = [{"range": {"@timestamp": {"gte": start_time, "lte": end_time}}}]
+    must_clause = [
+        {"range": {"@timestamp": {"gte": start_time, "lte": end_time}}}]
 
     must_not_clause = []
     if show_closed == "yes":
@@ -156,7 +153,8 @@ class AlertsFieldsCtrl(Resource):
     @ALERTS_NS.response(
         200,
         "AlertFields",
-        [fields.String(example="event.module", description="Field name from index.")],
+        [fields.String(example="event.module",
+                       description="Field name from index.")],
     )
     def get(self) -> Response:
         elastic = ElasticWrapper()
@@ -169,7 +167,8 @@ class AlertsFieldsCtrl(Resource):
             "tls.*,tracing.*,url.*,user.*,user_agent.*,vlan.*,vulnerability.*"
         )
         index_list = [
-            {"index": "filebeat-suricata-*", "fields": default_fields + ",suricata.*"},
+            {"index": "filebeat-suricata-*",
+                "fields": default_fields + ",suricata.*"},
             {"index": "filebeat-zeek-*", "fields": default_fields + ",zeek.*"},
             {"index": ".siem-signals-default", "fields": "signal.rule.name"},
         ]
@@ -185,7 +184,8 @@ class AlertsFieldsCtrl(Resource):
                 if payload and len(list(payload.keys())) > 0:
                     ind_name = list(payload.keys())[0]
                     if ind_name and "mappings" in payload[ind_name]:
-                        fields.extend(list(payload[ind_name]["mappings"].keys()))
+                        fields.extend(
+                            list(payload[ind_name]["mappings"].keys()))
         unique_fields = list(OrderedDict.fromkeys(fields))
         unique_fields.sort()
         return unique_fields, 200
@@ -273,11 +273,13 @@ class AlertsCtrlv2(Resource):
         aggs = {}
         for index, field in enumerate(fields):
             if index == 0:
-                aggs["aggs"] = {field: {"terms": {"field": field, "size": 100}}}
+                aggs["aggs"] = {
+                    field: {"terms": {"field": field, "size": 100}}}
                 continue
 
             aggs_ref = self._get_aggs_nested(aggs, fields[0:index])
-            aggs_ref["aggs"] = {field: {"terms": {"field": field, "size": 100}}}
+            aggs_ref["aggs"] = {
+                field: {"terms": {"field": field, "size": 100}}}
 
         return aggs
 
@@ -340,7 +342,8 @@ class AlertsCtrlv2(Resource):
         for search_kind in self._SEARCH_KINDS:
             if search_kind == "signal":
                 if "rule.name" in fields_ary:
-                    fields_ary[fields_ary.index("rule.name")] = "signal.rule.name"
+                    fields_ary[fields_ary.index(
+                        "rule.name")] = "signal.rule.name"
                 search_index = SIGNAL_INDEX
             body = self._constuct_aggs(fields_ary)
             body["size"] = 0
@@ -618,7 +621,8 @@ class HiveSettingsCtrl(Resource):
     @ALERTS_NS.expect(HiveSettingsModel.DTO)
     def post(self) -> Response:
         try:
-            hive_settings = HiveSettingsModel.load_from_request(ALERTS_NS.payload)
+            hive_settings = HiveSettingsModel.load_from_request(
+                ALERTS_NS.payload)
             hive_settings.save_to_db()
             configure_webhook(hive_settings.admin_api_key)
             elastic = ElasticWrapper()

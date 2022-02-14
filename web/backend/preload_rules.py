@@ -70,7 +70,8 @@ class PreloadRuleSets:
             if ruleset["name"] == "Zeek Sample Scripts":
                 zeek_ruleset_id = ruleset["_id"]
         pathlist = Path(SCRIPT_DIR + "/rules/rules").glob("**/*.rules")
-        zeek_pathlist = Path(SCRIPT_DIR + "/rules/zeek_samples").glob("**/*.zeek")
+        zeek_pathlist = Path(
+            SCRIPT_DIR + "/rules/zeek_samples").glob("**/*.zeek")
         self.upload(pathlist, ruleset_id)
         self.upload(zeek_pathlist, zeek_ruleset_id)
         return
@@ -104,7 +105,8 @@ class PreloadRuleSets:
                 ruleset["name"] == "Emerging Threats"
                 or ruleset["name"] == "Zeek Sample Scripts"
             ):
-                uri = "https://localhost/api/policy/ruleset/{}".format(ruleset["_id"])
+                uri = "https://localhost/api/policy/ruleset/{}".format(
+                    ruleset["_id"])
                 resp = requests.delete(uri, headers=self.headers, verify=False)
                 if resp.status_code == 200:
                     print("Ruleset {} deleted.".format(ruleset["name"]))

@@ -13,6 +13,7 @@ VALID_PCAP_FILE_NO_EXTENSION_NAME = "valid_pcap_no_extension"
 VALID_PCAPNG_FILE_NAME = "valid_pcapng_file.pcap"
 VALID_PCAP_FILE_NAME = "valid_pcap_file.pcap"
 
+
 def write_pcap_to_file(file, data):
     with open(file, "wb") as fp:
         fp.write(data)
@@ -22,16 +23,21 @@ def write_pcap_to_file(file, data):
 @pytest.fixture
 def pcap_dict(tmp_path):
     """This fixture mocks a fake pcap file."""
-    invalid_pcap_file = write_pcap_to_file(os.path.join(tmp_path, INVALID_PCAP_FILE_NAME), INVALID_PCAP_BYTES)
-    valid_pcap_no_extension = write_pcap_to_file(os.path.join(tmp_path, VALID_PCAP_FILE_NO_EXTENSION_NAME), REGULAR_PCAP_BYTES)
-    valid_pcapng_file = write_pcap_to_file(os.path.join(tmp_path, VALID_PCAPNG_FILE_NAME), PCAP_NEXT_GEN_BYTES)
-    valid_pcap_file = write_pcap_to_file(os.path.join(tmp_path, VALID_PCAP_FILE_NAME), REGULAR_PCAP_BYTES)
+    invalid_pcap_file = write_pcap_to_file(os.path.join(
+        tmp_path, INVALID_PCAP_FILE_NAME), INVALID_PCAP_BYTES)
+    valid_pcap_no_extension = write_pcap_to_file(os.path.join(
+        tmp_path, VALID_PCAP_FILE_NO_EXTENSION_NAME), REGULAR_PCAP_BYTES)
+    valid_pcapng_file = write_pcap_to_file(os.path.join(
+        tmp_path, VALID_PCAPNG_FILE_NAME), PCAP_NEXT_GEN_BYTES)
+    valid_pcap_file = write_pcap_to_file(os.path.join(
+        tmp_path, VALID_PCAP_FILE_NAME), REGULAR_PCAP_BYTES)
     return {
         "invalid_pcap_file": {"file": invalid_pcap_file, "name": INVALID_PCAP_FILE_NAME, "expected_name": INVALID_PCAP_FILE_NAME},
         "valid_pcap_no_extension": {"file": valid_pcap_no_extension, "name": VALID_PCAP_FILE_NO_EXTENSION_NAME, "expected_name": f"{VALID_PCAP_FILE_NO_EXTENSION_NAME}.pcap"},
         "valid_pcapng_file": {"file": valid_pcapng_file, "name": VALID_PCAPNG_FILE_NAME, "expected_name": VALID_PCAPNG_FILE_NAME},
         "valid_pcap_file": {"file": valid_pcap_file, "name": VALID_PCAP_FILE_NAME, "expected_name": VALID_PCAP_FILE_NAME}
     }
+
 
 def test_invalid_pcap_file(pcap_dict):
     """Tests the validate_file function against a fake pcap."""
@@ -43,6 +49,7 @@ def test_invalid_pcap_file(pcap_dict):
     assert file_name == obj["expected_name"]
     assert valid is False
 
+
 def test_valid_pcap_no_extension(pcap_dict):
     """Tests the validate_file function against a fake pcap."""
     obj = pcap_dict["valid_pcap_no_extension"]
@@ -53,6 +60,7 @@ def test_valid_pcap_no_extension(pcap_dict):
     assert file_name == obj["expected_name"]
     assert valid is True
 
+
 def test_valid_pcapng_file(pcap_dict):
     """Tests the validate_file function against a fake pcap."""
     obj = pcap_dict["valid_pcapng_file"]
@@ -62,6 +70,7 @@ def test_valid_pcapng_file(pcap_dict):
     file_name = PcapModel.get_secure_filename(pcap_name)
     assert file_name == obj["expected_name"]
     assert valid is False
+
 
 def test_valid_pcap_file(pcap_dict):
     """Tests the validate_file function against a fake pcap."""

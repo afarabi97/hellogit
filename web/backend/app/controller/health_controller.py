@@ -2,7 +2,6 @@
 Main module for handling all of the Kit Configuration REST calls.
 """
 import time
-
 # Type annotations
 from typing import Dict, List
 
@@ -10,28 +9,17 @@ import requests
 from app.common import ERROR_RESPONSE, NO_CONTENT
 from app.middleware import login_required_roles
 from app.models.health import APP_NS, HEALTH_NS, DatastoreModel
-from app.models.kubernetes import (
-    KUBERNETES_NS,
-    KubernetesNodeMetricsModel,
-    KubernetesPodMetricsModel,
-    NodeOrPodStatusModel,
-    PodLogsModel,
-)
+from app.models.kubernetes import (KUBERNETES_NS, KubernetesNodeMetricsModel,
+                                   KubernetesPodMetricsModel,
+                                   NodeOrPodStatusModel, PodLogsModel)
 from app.models.nodes import Node
 from app.models.settings.esxi_settings import EsxiSettingsForm
-from app.service.health_service import (
-    get_k8s_app_nodes,
-    get_nodes_status,
-    get_pods_status,
-    get_suricata_stats,
-    get_zeek_stats,
-)
+from app.service.health_service import (get_k8s_app_nodes, get_nodes_status,
+                                        get_pods_status, get_suricata_stats,
+                                        get_zeek_stats)
 from app.service.job_service import run_command
-from app.service.socket_service import (
-    NotificationCode,
-    NotificationMessage,
-    notify_disk_pressure,
-)
+from app.service.socket_service import (NotificationCode, NotificationMessage,
+                                        notify_disk_pressure)
 from app.utils import snmp
 from app.utils.collections import mongo_kit_tokens, mongo_metrics
 from app.utils.connection_mngs import KubernetesWrapper
@@ -66,7 +54,8 @@ class PodLogsCtrl(Resource):
     def get(self, pod_name: str, namespace: str) -> Response:
         logs = []
         with KubernetesWrapper() as kube_apiv1:
-            pod = kube_apiv1.read_namespaced_pod(pod_name, namespace)  # type: V1PodList
+            pod = kube_apiv1.read_namespaced_pod(
+                pod_name, namespace)  # type: V1PodList
             pod = pod.to_dict()
             containers = []
             if (

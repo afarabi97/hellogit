@@ -9,7 +9,8 @@ from app.middleware import controller_admin_required
 from app.models import DBModelNotFound, PostValidationError
 from app.models.common import COMMON_ERROR_DTO, COMMON_MESSAGE, JobID
 from app.models.settings.esxi_settings import EsxiSettingsForm
-from app.models.settings.general_settings import SETINGS_NS, GeneralSettingsForm
+from app.models.settings.general_settings import (SETINGS_NS,
+                                                  GeneralSettingsForm)
 from app.models.settings.kit_settings import KitSettingsForm
 from app.models.settings.mip_settings import MipSettingsForm
 from app.models.settings.snmp_settings import SNMPSettingsForm
@@ -154,7 +155,8 @@ class GeneralSettings(Resource):
     def post(self) -> Response:
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
-            general_settings = GeneralSettingsForm.load_from_request(SETINGS_NS.payload)
+            general_settings = GeneralSettingsForm.load_from_request(
+                SETINGS_NS.payload)
             general_settings.save_to_db()
             notification.set_and_send(
                 message="General Settings Saved", status=NotificationCode.COMPLETED.name
@@ -181,7 +183,8 @@ class GeneralSettings(Resource):
 @SETINGS_NS.route("/kit")
 class KitSettings(Resource):
     def _execute_job(self) -> Dict:
-        job = execute.delay(exec_type=DEPLOYMENT_JOBS.setup_controller_kit_settings)
+        job = execute.delay(
+            exec_type=DEPLOYMENT_JOBS.setup_controller_kit_settings)
         return JobID(job).to_dict()
 
     @SETINGS_NS.response(200, "KitSettingsForm Model", KitSettingsForm.DTO)
@@ -221,7 +224,8 @@ class KitSettings(Resource):
     def post(self) -> Response:
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
-            kit_settings = KitSettingsForm.load_from_request(SETINGS_NS.payload)
+            kit_settings = KitSettingsForm.load_from_request(
+                SETINGS_NS.payload)
             kit_settings.save_to_db()
             notification.set_and_send(
                 message="Kit Settings Saved", status=NotificationCode.COMPLETED.name
@@ -263,7 +267,8 @@ class MipSettings(Resource):
     def post(self) -> Response:
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
-            mip_settings = MipSettingsForm.load_from_request(SETINGS_NS.payload)
+            mip_settings = MipSettingsForm.load_from_request(
+                SETINGS_NS.payload)
             mip_settings.save_to_db()
             notification.set_and_send(
                 message="MIP Settings Saved", status=NotificationCode.COMPLETED.name
@@ -305,7 +310,8 @@ class EsxiSettings(Resource):
     def post(self) -> Response:
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
-            esxi_settings = EsxiSettingsForm.load_from_request(SETINGS_NS.payload)
+            esxi_settings = EsxiSettingsForm.load_from_request(
+                SETINGS_NS.payload)
             esxi_settings.save_to_db()
             notification.set_and_send(
                 message="VMware Settings Saved", status=NotificationCode.COMPLETED.name
@@ -345,7 +351,8 @@ class EsxiSettingsTest(Resource):
     @controller_admin_required
     def post(self) -> Response:
         try:
-            esxi_settings = EsxiSettingsForm.load_from_request(SETINGS_NS.payload)
+            esxi_settings = EsxiSettingsForm.load_from_request(
+                SETINGS_NS.payload)
         except ValidationError as e:
             return e.normalized_messages(), 400
         except PostValidationError as e:
@@ -375,7 +382,8 @@ class SNMPSettings(Resource):
     def put(self) -> Response:
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
-            snmp_settings = SNMPSettingsForm.load_from_request(SETINGS_NS.payload)
+            snmp_settings = SNMPSettingsForm.load_from_request(
+                SETINGS_NS.payload)
             snmp_settings.save_to_db()
             notification.set_and_send(
                 message="SNMP Settings Saved", status=NotificationCode.COMPLETED.name

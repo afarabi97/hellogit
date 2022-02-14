@@ -42,7 +42,7 @@ def _add_to_set(sensor_hostname: str, values: List, out_ifaces: Set):
 @CATALOG_NS.route('/configured-ifaces/<sensor_hostname>')
 class ConfiguredIfaces(Resource):
 
-    @CATALOG_NS.response(200, 'A list of iface names that are configured with either zeek or suricata.', \
+    @CATALOG_NS.response(200, 'A list of iface names that are configured with either zeek or suricata.',
                          [fields.String(example="ens192")])
     @CATALOG_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     def get(self, sensor_hostname: str) -> Response:
@@ -58,7 +58,7 @@ class ConfiguredIfaces(Resource):
                 _add_to_set(sensor_hostname, suricata_values, ifaces)
 
             return list(ifaces)
-        return { 'error_message': 'Failed to to list iface names configured with either zeek or suricata' }, 500
+        return {'error_message': 'Failed to to list iface names configured with either zeek or suricata'}, 500
 
 
 @CATALOG_NS.route('/install')
@@ -83,7 +83,7 @@ class HELMInstallCtrl(Resource):
             return JobID(job).to_dict(), 200
 
         logger.error("Executing /api/catalog/install has failed.")
-        return { 'error_=message': 'Failed to install catalog application using helm' }, 500
+        return {'error_=message': 'Failed to install catalog application using helm'}, 500
 
 
 @CATALOG_NS.route('/uninstall')
@@ -107,7 +107,7 @@ class HELMDeleteCtrl(Resource):
             return JobID(job).to_dict()
 
         logger.error("Executing /api/catalog/uninstall has failed.")
-        return { 'error_message': 'Failed to uninstall catalog application using helm' }, 500
+        return {'error_message': 'Failed to uninstall catalog application using helm'}, 500
 
 
 @CATALOG_NS.route('/reinstall')
@@ -133,7 +133,7 @@ class HELMReinstallCtrl(Resource):
             return JobID(job).to_dict()
 
         logger.error("Executing /api/catalog/reinstall has failed.")
-        return { 'error_message': 'Failed to reinstall catalog application using helm' }, 500
+        return {'error_message': 'Failed to reinstall catalog application using helm'}, 500
 
 
 @CATALOG_NS.route('/generate_values')
@@ -183,10 +183,11 @@ class ChartsCtrl(Resource):
     def get(self) -> Response:
         ret_val = []
         charts = _get_all_charts()
-        nodes = Node.load_dip_nodes_from_db() # type: List[Node]
+        nodes = Node.load_dip_nodes_from_db()  # type: List[Node]
         chart_releases = get_helm_list()
         for chart in charts:
-            chart["nodes"] = get_app_state(chart['application'], NAMESPACE, nodes=nodes, chart_releases=chart_releases)
+            chart["nodes"] = get_app_state(
+                chart['application'], NAMESPACE, nodes=nodes, chart_releases=chart_releases)
             ret_val.append(chart)
         return ret_val
 
@@ -215,8 +216,8 @@ class NodeDetails(Resource):
 @CATALOG_NS.route('/<node_hostname>/apps')
 class CatalogAppsCtrl(Resource):
 
-    @CATALOG_NS.response(200, 'A list of charts installed on a target host.', \
-                         [fields.String(example="suricata",description="Chart ID/ Names installed")])
+    @CATALOG_NS.response(200, 'A list of charts installed on a target host.',
+                         [fields.String(example="suricata", description="Chart ID/ Names installed")])
     def get(self, node_hostname: str) -> Response:
         results = get_node_apps(node_hostname)
         return results

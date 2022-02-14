@@ -1,6 +1,6 @@
 from app.models import Model
-from scapy.utils import  PcapReader
 from scapy.error import Scapy_Exception
+from scapy.utils import PcapReader
 from werkzeug.utils import secure_filename
 
 

@@ -7,7 +7,9 @@ from typing import Dict, List
 from app.models import Model
 from flask_restx import Namespace, fields
 
-DEVICE_FACTS_NS = Namespace("facts", description="Device facts related operations.")
+DEVICE_FACTS_NS = Namespace(
+    "facts", description="Device facts related operations.")
+
 
 class Disk(Model):
     """
@@ -56,7 +58,7 @@ class Disk(Model):
 
     def __str__(self):
         return "Disk: %s Size GB: %.2f Size TB: %.2f  HasRoot: %r Disk Rotation: %d" % (
-                self.name, self.size_gb, self.size_tb, self.has_root, self.disk_rotation)
+            self.name, self.size_gb, self.size_tb, self.has_root, self.disk_rotation)
 
 
 class Interface(Model):
@@ -80,7 +82,6 @@ class Interface(Model):
 
     def __str__(self):
         return "Interface: %s Ip: %s Mac: %s Speed: %d" % (self.name, self.ip_address, self.mac_address, self.speed)
-
 
 
 class DefaultIpv4Settings(Model):
@@ -142,8 +143,9 @@ class DeviceFacts(Model):
         self.management_ip = management_ip
 
         if json_object is not None:
-            self.product_name=json_object['ansible_facts']['ansible_product_name']
-            self.default_ipv4_settings = DefaultIpv4Settings(json_object['ansible_facts']['ansible_default_ipv4'])
+            self.product_name = json_object['ansible_facts']['ansible_product_name']
+            self.default_ipv4_settings = DefaultIpv4Settings(
+                json_object['ansible_facts']['ansible_default_ipv4'])
             self._transform(json_object)
 
     def set_memory(self, memory_mb: int) -> None:
@@ -194,8 +196,10 @@ class DeviceFacts(Model):
 
     def marshal(self):
         node = self
-        setattr(node, 'interfaces', json.dumps([interface.__dict__ for interface in node.interfaces]))
-        setattr(node, 'disks', json.dumps([disk.__dict__ for disk in node.disks]))
+        setattr(node, 'interfaces', json.dumps(
+            [interface.__dict__ for interface in node.interfaces]))
+        setattr(node, 'disks', json.dumps(
+            [disk.__dict__ for disk in node.disks]))
         return self.__dict__
 
     def _transform(self, json_object: Dict):
@@ -213,7 +217,7 @@ class DeviceFacts(Model):
         for i, k in ansible_devices.items():
             # We only want logical volume disks
             if k['removable'] != "1" and ((len(k['holders']) > 0 and len(k['partitions']) == 0) or
-            (len(k['holders']) == 0 and len([a for a,b in k['partitions'].items() if len(b['holders']) > 0]) > 0)):
+                                          (len(k['holders']) == 0 and len([a for a, b in k['partitions'].items() if len(b['holders']) > 0]) > 0)):
                 disk = Disk(i)
                 disk.set_size(k['size'])
                 disk.disk_rotation = k['rotational']
@@ -237,7 +241,8 @@ class DeviceFacts(Model):
             ip = ""
             mac = ""
             # Do not return interfaces with veth, cni, docker or flannel
-            exclude = ["veth", "cni", "docker", "flannel", "virbr0", "lo", "cali", "tunl"]
+            exclude = ["veth", "cni", "docker",
+                       "flannel", "virbr0", "lo", "cali", "tunl"]
             if not any([special in i for special in exclude]):
                 name = "ansible_" + i
                 interface = json_object['ansible_facts'][name]
@@ -259,20 +264,24 @@ class DeviceFacts(Model):
                 # Use the established reverse dictionaries to get our partition
                 part_val = disk_links.get(i['uuid'])
 
-                found_disk = next((x for x in disks if x.name == part_val), None)
+                found_disk = next(
+                    (x for x in disks if x.name == part_val), None)
                 if found_disk is not None:
                     found_disk.has_root = True
 
                 master_part_val = master_links.get(part_val)
                 top_part_val = partition_links.get(part_val)
-                found_disk = next((x for x in disks if x.name == top_part_val), None)
+                found_disk = next(
+                    (x for x in disks if x.name == top_part_val), None)
                 if found_disk is not None:
                     found_disk.has_root = True
-                found_disk = next((x for x in disks if x.name == master_part_val), None)
+                found_disk = next(
+                    (x for x in disks if x.name == master_part_val), None)
                 if found_disk is not None:
                     found_disk.has_root = True
                 top_part_val = partition_links.get(master_part_val)
-                found_disk = next((x for x in disks if x.name == top_part_val), None)
+                found_disk = next(
+                    (x for x in disks if x.name == top_part_val), None)
                 if found_disk is not None:
                     found_disk.has_root = True
 
@@ -296,7 +305,7 @@ class DeviceFacts(Model):
                 self.potential_monitor_interfaces.append(interface.name)
 
 
-def create_device_facts_from_ansible_setup(host: str, password: str=None) -> DeviceFacts:
+def create_device_facts_from_ansible_setup(host: str, password: str = None) -> DeviceFacts:
     """
     Function opens ansible process to run setup on specified server and returns a json object
 
@@ -306,11 +315,13 @@ def create_device_facts_from_ansible_setup(host: str, password: str=None) -> Dev
     :return: Json object from ansible setup output
     """
     # Disable ssh host key checking
-    os.environ['ANSIBLE_SSH_ARGS'] = " ".join(["-o", "ControlMaster=auto", "-o", "ControlPersist=60s", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no"])
+    os.environ['ANSIBLE_SSH_ARGS'] = " ".join(
+        ["-o", "ControlMaster=auto", "-o", "ControlPersist=60s", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no"])
     ip_address = socket.gethostbyname(host)
 
     # The following runs ansible setup module on the target node
-    ansible_command = ["ansible", "all", "-m", "setup", "-e", f"ansible_ssh_pass={password}", "-i", f"{ip_address},"]
+    ansible_command = ["ansible", "all", "-m", "setup", "-e",
+                       f"ansible_ssh_pass={password}", "-i", f"{ip_address},"]
     if ip_address == "127.0.0.1":
         ansible_command = ["ansible", ip_address, "-m", "setup"]
 

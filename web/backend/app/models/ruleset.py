@@ -4,7 +4,9 @@ from app.models import Model
 from app.utils.constants import RULE_TYPES, RULESET_STATES
 from flask_restx import Namespace, fields
 
-POLICY_NS = Namespace('policy', description="Policy management related operations for Suricata and Zeek.")
+POLICY_NS = Namespace(
+    'policy', description="Policy management related operations for Suricata and Zeek.")
+
 
 class SimpleSensor(Model):
     DTO = POLICY_NS.model('SimpleSensor', {
@@ -39,6 +41,8 @@ class RuleSetModel(Model):
 {"rulesetID":67820,"ruleToAdd":
 {"ruleName":"Test","rule":"test","isEnabled":true,"_id":"","byPassValidation":true}}
 """
+
+
 class RuleModel(Model):
     DTO = POLICY_NS.model('Rule', {
         '_id': fields.Integer(example=3421),

@@ -13,7 +13,9 @@ from marshmallow import Schema
 from marshmallow import fields as marsh_fields
 from marshmallow import post_load, pre_dump
 
-JINJA_ENV = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)), autoescape=select_autoescape(["html", "xml"]))
+JINJA_ENV = Environment(loader=FileSystemLoader(
+    str(TEMPLATE_DIR)), autoescape=select_autoescape(["html", "xml"]))
+
 
 class SNMPSettingsSchema(Schema):
     security_name = marsh_fields.Str(required=True)
@@ -28,8 +30,10 @@ class SNMPSettingsSchema(Schema):
 
     @pre_dump
     def encode_fields(self, data, **kwargs):
-        data["auth_pass"] = base64.b64encode(data["auth_pass"].encode('utf-8')).decode("utf-8")
-        data["priv_pass"] = base64.b64encode(data["priv_pass"].encode('utf-8')).decode("utf-8")
+        data["auth_pass"] = base64.b64encode(
+            data["auth_pass"].encode('utf-8')).decode("utf-8")
+        data["priv_pass"] = base64.b64encode(
+            data["priv_pass"].encode('utf-8')).decode("utf-8")
         return data
 
 
@@ -49,7 +53,8 @@ class SNMPSettingsForm(Model):
 
     @classmethod
     def load_from_db(cls) -> Optional["SNMPSettingsForm"]:
-        document = mongo_settings().find_one({"_id": SNMP_SETTINGS_ID}, {"_id": False})
+        document = mongo_settings().find_one(
+            {"_id": SNMP_SETTINGS_ID}, {"_id": False})
 
         if document:
             return cls(**cls.schema.load(document))
@@ -61,14 +66,16 @@ class SNMPSettingsForm(Model):
         return cls(**cls.schema.load(payload))
 
     def save_to_db(self):
-        mongo_settings().find_one_and_replace({"_id": SNMP_SETTINGS_ID}, self.schema.dump(self.to_dict()), upsert=True)
+        mongo_settings().find_one_and_replace(
+            {"_id": SNMP_SETTINGS_ID}, self.schema.dump(self.to_dict()), upsert=True)
         SNMPSettingsInventoryGenerator(self).generate()
 
 
 class SNMPSettingsInventoryGenerator:
     def __init__(self, settings):
         self._template_ctx = settings.to_dict()
-        self._template_ctx["x"] = socket.gethostbyname(socket.gethostname()).split('.')[1]
+        self._template_ctx["x"] = socket.gethostbyname(
+            socket.gethostname()).split('.')[1]
         with open("/root/myfile", "w") as myfile:
             myfile.write(str(self._template_ctx))
 

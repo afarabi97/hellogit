@@ -16,10 +16,12 @@ def bounce_pods(associated_pods: List):
     notification = NotificationMessage(role=_JOB_NAME)
     for pod in associated_pods:
         notification.set_status(status=NotificationCode.STARTED.name)
-        notification.set_message("Started pod bounce for {}.".format(pod["podName"]))
+        notification.set_message(
+            "Started pod bounce for {}.".format(pod["podName"]))
         notification.post_to_websocket_api()
         stdout, ret_code = run_command2(
-            "kubectl delete pod {} -n {}".format(pod["podName"], pod["namespace"])
+            "kubectl delete pod {} -n {}".format(
+                pod["podName"], pod["namespace"])
         )
 
         try:

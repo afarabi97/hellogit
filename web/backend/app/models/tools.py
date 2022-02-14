@@ -5,8 +5,8 @@ TOOLS_NS = Namespace("tools", description="Tools page related operations.")
 
 COMMON_TOOLS_RETURNS = TOOLS_NS.model('Spaces', {
     "spaces": fields.List(fields.String(example="THISISCVAH"),
-                        example=["THISISCVAH", "TACTICS"],
-                        description="The confluence space names or an arbitrary name.")
+                          example=["THISISCVAH", "TACTICS"],
+                          description="The confluence space names or an arbitrary name.")
 })
 
 
@@ -25,7 +25,7 @@ class NetworkDeviceStateModel(Model):
         "node": fields.String(example="sensor1.lan",
                               description="The FQDN or hostname of the node."),
         "device": fields.String(example="ens192",
-                               description="The name of the network interface card (NIC)."),
+                                description="The name of the network interface card (NIC)."),
         "state": fields.String(example="up",
                                description="The state the NIC is in.  It can be in an up or down state."),
         "link_up": fields.Boolean(example="True if link is up",
@@ -49,7 +49,7 @@ class NetworkInterfaceModel(Model):
                                   description="The link state the NIC is in.  The value determines whether or not the interface is actually plugged in.")
     })
 
-    def __init__(self, device: str, state: str=None, link_up: bool=False):
+    def __init__(self, device: str, state: str = None, link_up: bool = False):
         self.name = device
         self.state = state
         self.link_up = link_up

@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 
 COLDLOG_NS = Namespace("coldlog", description="Cold log service operations.")
 
+
 class ColdLogUploadModel(Model):
 
     def __init__(self):
@@ -18,7 +19,7 @@ class ColdLogUploadModel(Model):
         self.fileset = ""
         self.index_suffix = ""
         self.filename = ""
-        self.upload_file = None # type: FileStorage
+        self.upload_file = None  # type: FileStorage
         self.send_to_logstash = False
 
     def from_request(self,
@@ -86,15 +87,17 @@ class WinlogbeatInstallModel(Model):
         payload = self.to_dict()
         payload["_id"] = WINDOWS_COLD_LOG_CONFIG_ID
         mongo_configurations().find_one_and_replace({"_id": WINDOWS_COLD_LOG_CONFIG_ID},
-                                                           payload,
-                                                           upsert=True)
+                                                    payload,
+                                                    upsert=True)
 
     def is_configured(self) -> bool:
-        ret_val = mongo_configurations().find_one({"_id": WINDOWS_COLD_LOG_CONFIG_ID})
+        ret_val = mongo_configurations().find_one(
+            {"_id": WINDOWS_COLD_LOG_CONFIG_ID})
         return ret_val != None
 
     def initalize_from_mongo(self):
-        ret_val = mongo_configurations().find_one({"_id": WINDOWS_COLD_LOG_CONFIG_ID})
+        ret_val = mongo_configurations().find_one(
+            {"_id": WINDOWS_COLD_LOG_CONFIG_ID})
         if ret_val:
             self.windows_host = ret_val["windows_host"]
             self.winrm_port = ret_val["winrm_port"]
@@ -103,4 +106,5 @@ class WinlogbeatInstallModel(Model):
             self.winrm_transport = ret_val["winrm_transport"]
             self.winrm_scheme = ret_val["winrm_scheme"]
         else:
-            raise ValueError("The {} configuration was not created or does not exist.".format(WINDOWS_COLD_LOG_CONFIG_ID))
+            raise ValueError("The {} configuration was not created or does not exist.".format(
+                WINDOWS_COLD_LOG_CONFIG_ID))

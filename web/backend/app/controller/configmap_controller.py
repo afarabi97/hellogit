@@ -5,7 +5,8 @@ from typing import List, Union
 
 from app.middleware import controller_maintainer_required
 from app.models.common import COMMON_ERROR_MESSAGE
-from app.models.kubernetes import KUBERNETES_NS, AssociatedPodModel, ConfigMapSave
+from app.models.kubernetes import (KUBERNETES_NS, AssociatedPodModel,
+                                   ConfigMapSave)
 from app.service.configmap_service import bounce_pods
 from app.utils.connection_mngs import KitFormNotFound, KubernetesWrapper
 from app.utils.logging import logger
@@ -24,7 +25,8 @@ def get_config_maps_tags(repo: str) -> List[str]:
 
 
 def get_imageid_and_size(repo: str, tag: str) -> Union[str, float]:
-    url = "http://localhost:5000/v2/{repo}/manifests/{tag}".format(repo=repo, tag=tag)
+    url = "http://localhost:5000/v2/{repo}/manifests/{tag}".format(
+        repo=repo, tag=tag)
     headers = {"Accept": "application/vnd.docker.distribution.manifest.v2+json"}
     response = request.get(url, headers=headers)  # type: Response
     if response.status_code == 200:

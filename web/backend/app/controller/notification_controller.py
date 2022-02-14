@@ -6,7 +6,8 @@ from bson import ObjectId
 from flask import Response
 from flask_restx import Namespace, Resource
 
-NOTIFICATIONS_NS = Namespace("notifications", description="Notifications for CVAH UI.")
+NOTIFICATIONS_NS = Namespace(
+    "notifications", description="Notifications for CVAH UI.")
 NUMBER_OF_NOTIFICATION_ITEMS = 30
 
 
@@ -23,9 +24,9 @@ class Notifications(Resource):
             filter_obj = {"role": role}
 
         notifications = list(mongo_notifications().find(filter_obj)
-                            .sort("timestamp", pymongo.DESCENDING)
-                            .skip(int(offset))
-                            .limit(NUMBER_OF_NOTIFICATION_ITEMS))
+                             .sort("timestamp", pymongo.DESCENDING)
+                             .skip(int(offset))
+                             .limit(NUMBER_OF_NOTIFICATION_ITEMS))
 
         for notification in notifications:
             notification["_id"] = str(notification["_id"])
