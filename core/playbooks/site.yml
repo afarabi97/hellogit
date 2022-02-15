@@ -76,13 +76,6 @@
           msg:
             - "Total Memory: {{ total_mem_gb }}GBs"
             - "Num of CPUs: {{ ansible_processor_vcpus }}"
-      - name: Training Kit
-        set_fact:
-          kit_size: 20
-          kit_size_name: "Training Kit"
-          cacheable: yes
-        when:
-          - deployment_type == "Virtual"
       # Specific Hardware Kits Below
       - name: MDT DL160 Node Kit Size
         set_fact:
@@ -92,7 +85,6 @@
         when:
           - ansible_processor_vcpus >= 30
           - total_mem_gb >= 60
-          - deployment_type == "Baremetal"
       - name: CPT DL160 Node Kit Size
         set_fact:
           kit_size: 1
@@ -101,7 +93,6 @@
         when:
           - ansible_processor_vcpus >= 30
           - total_mem_gb >= 500
-          - deployment_type == "Baremetal"
       - name: R440 Legacy Node Kit Size
         set_fact:
           kit_size: 2
@@ -110,7 +101,6 @@
         when:
           - ansible_processor_vcpus == 48
           - total_mem_gb >= 500
-          - deployment_type == "Baremetal"
       - name: R440 Common Node Kit Size
         set_fact:
           kit_size: 3
@@ -119,7 +109,6 @@
         when:
           - ansible_processor_vcpus == 64
           - total_mem_gb >= 500
-          - deployment_type == "Baremetal"
       - name: Small Form Factor
         set_fact:
           kit_size: 4
@@ -128,7 +117,6 @@
         when:
           - ansible_processor_vcpus == 128
           - total_mem_gb >= 500
-          - deployment_type == "Baremetal"
       when:
           - not is_gip
           - inventory_hostname in groups['elastic_nodes']

@@ -32,31 +32,6 @@
       ml_java_memory: 1
       ml_num_procs: "1000m"
 
-  - name: Training Kit
-    block:
-    - set_fact:
-        server_total_mem_gb: "{{ hostvars[groups['elastic_nodes'][0]]['total_mem_gb'] }}"
-        server_vcpus: "{{ hostvars[groups['elastic_nodes'][0]]['ansible_processor_vcpus'] }}"
-    - name: Set Memory
-      set_fact:
-        server_jvm_memory: >-
-          {% if ((server_total_mem_gb|int * 0.5) * 0.5) > 31 %}31{% else %}{{ ((server_total_mem_gb|int * 0.5) * 0.5) |round|int }}{% endif %}
-        server_cpu: "{{ (server_vcpus|int * 0.5) | int }}"
-    - name: Set Kit Resources
-      set_fact:
-        mdil: true
-        master_count: "{{ elastic_node_count }}"
-        master_num_procs: "{{ (server_cpu * 1000) | int }}m"
-        master_memory: "{{ server_jvm_memory|int * 2 }}"
-        master_java_memory: "{{ server_jvm_memory }}"
-    - name: Debug - MDIL Count, CPU, Memory, and JVM
-      debug:
-        msg:
-          - "MDIL Count: {{ master_count }}"
-          - "CPU: {{ master_num_procs }}"
-          - "Memory: {{ master_memory }}"
-          - "JVM: {{ master_java_memory }}"
-    when: kit_size == 20
   - name: Small Form Factor
     set_fact:
       master_memory: 15

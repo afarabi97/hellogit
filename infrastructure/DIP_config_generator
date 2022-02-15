@@ -52,6 +52,19 @@ def write_firewall_config(global_kit_id, domain, folder):
     with open(SCRIPT_DIR + folder + "/firewall.xml", "w") as conf:
         conf.write(configuration)
 
+def write_virtual_firewall_config(global_kit_id, domain, folder):
+    a, b = decode(global_kit_id)
+    with open(SCRIPT_DIR + "Firewall/firewall.base.virtual.xml", "r") as conf:
+       configuration = conf.read()
+    configuration = configuration.replace("10.40.192", f"10.{a}.{b}") # Management
+    configuration = configuration.replace("10.40.193", f"10.{a}.{b+1}") # Internal Port
+    configuration = configuration.replace("10.40.194", f"10.{a}.{b+2}") # DMZ Port
+    configuration = configuration.replace(".virtual", ".{}".format(domain))
+    configuration = configuration.replace("<domain>virtual</domain>", f"<domain>{domain}</domain>")
+    with open(folder + "/virtual_firewall.xml", "w") as conf:
+        conf.write(configuration)
+
+
 def decode(global_kit_id: str):
     if not validate(global_kit_id):
        raise ValueError("Invalid Global Kit ID. Please refer to documentation for correct input.")
@@ -84,6 +97,7 @@ def prompts():
             print("3 - Create auxiliary (secondary) DELL Switch configuration")
             print("4 - Create Firewall, and Switch configuration")
             print("5 - Create Firewall, Switch and Auxiliary Switch configuration")
+            print("6 - Create Virtual Firewall configuration")
             print()
             choice = int(input("Please make a selection: "))
             if choice == 1:
@@ -96,6 +110,8 @@ def prompts():
                 config = ["firewall", "switch"]
             elif choice == 5:
                 config = ["firewall", "switch", "aux-switch"]
+            elif choice == 6:
+                config = ["virtual_firewall"]
             else:
                 print("Invalid selection. Please try again.")
                 continue
@@ -150,6 +166,15 @@ def main():
             write_aux_switch_config(global_kit_id, folder)
         if "firewall" in config:
             write_firewall_config(global_kit_id, domain, folder)
+        if "virtual_firewall" in config:
+            """
+            10.40.50.0 /24 -EXT
+            10.40.192.0
+            10.40.193.0
+            10.40.194.0
+            10.40.195.0
+            """
+            write_virtual_firewall_config(global_kit_id, domain, folder)
     except ValueError as e:
         print(str(e))
 
