@@ -92,7 +92,7 @@ extra_packages:
   - shibboleth-3.2.2-3.1
   - sshpass-1.06-9.el8
   - pkcs11-helper-1.22-7.el8
-  - tcpreplay-4.3.4-1.el8
+  - tcpreplay-4.4.0-1.el8
   - xmltooling-schemas-3.2.0-1.1
 
 setup_package_list:
@@ -103,25 +103,25 @@ setup_package_list:
   - rsync-3.1.3-7.el8
   - scap-security-guide-0.1.48-7.el8
   - tcpdump-4.9.2-6.el8
-  - tcpreplay-4.3.4-1.el8
+  - tcpreplay-4.4.0-1.el8
 
 helm_versions:
   arkime: 1.0.3
   arkime_viewer: 1.0.3
-  cortex: 1.0.4
-  logstash: 1.0.3
+  cortex: 1.0.5
+  logstash: 1.0.4
   hive: 1.0.6
   jcat_nifi: 1.0.3
   mattermost: 1.0.4
-  misp: 1.0.4
+  misp: 1.0.5
   netflow_filebeat: 1.0.2
   nifi: 1.0.4
   redmine: 1.0.5
   remote_health_agent: 1.0.2
   rocketchat: 1.1.18
-  suricata: 1.0.2
+  suricata: 1.0.3
   wikijs: 1.0.4
-  zeek: 1.1.3
+  zeek: 1.1.4
 
 other:
   rpm_common_requirements: "docker-ce, docker-distribution, tfplenum"

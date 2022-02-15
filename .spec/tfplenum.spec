@@ -3,7 +3,7 @@ Version:    %{rpm_version}
 Release:    %{release_inc}%{?dist}
 Summary:    The tfplenum web package contains all the production delivery code as well as all the python virtual environment packages.
 License:    Property of US government
-Requires:   tfplenum-repo, python36, python36-devel, krb5-devel, krb5-workstation, gcc, policycoreutils-python-utils
+Requires:   tfplenum-repo, python36, python36-devel, krb5-devel, krb5-workstation, gcc, policycoreutils-python-utils, nmap
 
 %define tf_folder /opt/tfplenum
 %define html_folder /var/www/html
@@ -15,6 +15,7 @@ Requires:   tfplenum-repo, python36, python36-devel, krb5-devel, krb5-workstatio
 %define scripts_folder %{tf_folder}/scripts
 %define infrastructure_folder %{tf_folder}/infrastructure
 %define web_folder %{tf_folder}/web
+%define component_folder %{tf_folder}/component-builder
 %define offlinerepo %{html_folder}/offlinerepo
 %define local_pypi %{offlinerepo}/pip/simple
 %define pip_env %{tf_folder}/.venv
@@ -60,6 +61,7 @@ This is the main tfplenum RPM package for updating the code.
 %install
 mkdir -p %{buildroot}%{web_folder}/backend/
 mkdir -p %{buildroot}%{web_folder}/frontend/
+mkdir -p %{buildroot}%{component_folder}
 mkdir -p %{buildroot}%{web_folder}/setup/
 mkdir -p %{buildroot}%{core_folder}
 mkdir -p %{buildroot}%{bootstrap_folder}
@@ -80,6 +82,7 @@ mkdir -p %{buildroot}%{ansible_etc}
 cp -rf %{current_dir}/core/* %{buildroot}%{core_folder}
 cp -rf %{current_dir}/web/backend/* %{buildroot}%{web_folder}/backend/
 cp -rf %{current_dir}/web/frontend/* %{buildroot}%{web_folder}/frontend/
+cp -rf %{current_dir}/component-builder/* %{buildroot}%{component_folder}
 cp -rf %{current_dir}/web/setup/* %{buildroot}%{web_folder}/setup/
 cp -rf %{current_dir}/bootstrap/* %{buildroot}%{bootstrap_folder}
 cp -rf %{current_dir}/testing/* %{buildroot}%{testing_folder}
@@ -212,6 +215,7 @@ fi
 %files
 %{web_folder}/backend/*
 %{web_folder}/frontend/*
+%{component_folder}/*
 %{web_folder}/setup/*
 %{core_folder}/*
 %{bootstrap_folder}/*
