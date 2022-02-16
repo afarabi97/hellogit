@@ -11,5 +11,9 @@ ${locFirstInterfaceOption}       xpath=//*[contains(@id, "-div-mat-form-field-co
 ${locHeapSizeInput}              id=app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-0-div-div-2-div-mat-form-field-control-name-text-input
 ${locCatalogRunBtn}              id=app-catalog-page-div-mat-card-div-button-next-get-config
 ${locSuriPcapCheckbox}           xpath=//mat-checkbox/label/div[//following::span[contains(text(),"Enable writing PCAPs")]]
-${locUninstalledAppCards}       xpath=//app-card[contains(@id, "app-chart-list-div-app-card")]//p[text()="Not Installed"]//ancestor::app-card
+${locUninstalledAppCards}        xpath=//app-card[contains(@id, "app-chart-list-div-app-card")]//p[text()="Not Installed"]//ancestor::app-card
 ${locInterfaceOptionConnected}    xpath=//mat-option[contains(@id, "-div-mat-form-field-control-name-interface-mat-select")][./span['mat-option-text'][not(mat-icon)]]
+
+@{INDEPENDENT_APP_LIST}                     Logstash          Suricata           Zeek         Rocketchat         Wikijs
+@{ARKIME_DEPENDENT_APP_LIST}                Arkime-viewer    Arkime
+@{CORTEX_MISP_HIVE_DEPENDENT_APP_LIST}      Cortex    Misp    Hive

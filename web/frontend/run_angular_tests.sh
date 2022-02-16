@@ -13,7 +13,7 @@ function run_cmd {
 }
 
 IS_CHROM_SETUP=/etc/chrome_setup
-
+#
 if [ ! -f "$IS_CHROM_SETUP" ]; then
 
     mkdir ~/repos_backup

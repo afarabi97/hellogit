@@ -1,10 +1,10 @@
-import { AppInterface } from '../interfaces';
+import { AppInterface } from "../interfaces";
 
 /**
  * Class defines the App
  *
  * @export
- * @class AppClass
+ * @class AppClass er
  * @implements {AppInterface}
  */
 export class AppClass implements AppInterface {

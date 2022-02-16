@@ -1,9 +1,7 @@
-from typing import Optional, AnyStr
 from robot.libraries.BuiltIn import BuiltIn
 from robot.api import logger
 import requests
 from robot.api.deco import library, keyword
-
 
 
 @library(scope="SUITE", version="0.1")
@@ -11,8 +9,9 @@ class TFPlenumLibrary:
     CURRENT_USER_ENDPOINT = "/current_user"
     RULESETS_ENDPOINT = "/policy/ruleset"
     SENSOR_INFO_ENDPOINT = "/policy/sensor/info"
-    ZEEK_CHART_STATUS_ENDPOINT = '/catalog/chart/zeek/status'
+    ZEEK_CHART_STATUS_ENDPOINT = "/catalog/chart/zeek/status"
     SURICATA_CHART_STATUS_ENDPOINT = "/catalog/chart/suricata/status"
+    EVERY_CHART_STATUS_ENDPOINT = "/catalog/charts/status"
 
     def __init__(self):
         self.COLOR_HEADER = "\033[95m"
@@ -48,9 +47,11 @@ class TFPlenumLibrary:
         if len(injections) > 1:
             rcount = 1
         for injection in injections:
-            ret_string = ret_string.replace(replacement_pattern, injection, rcount)
+            ret_string = ret_string.replace(
+                replacement_pattern, injection, rcount)
         print("TFPlenum Library | inject | Injection was successful!")
-        print(f"TFPlenum Library | inject | The new string is {ret_string}\n\n")
+        print(
+            f"TFPlenum Library | inject | The new string is {ret_string}\n\n")
         return ret_string
 
     @staticmethod
@@ -81,12 +82,16 @@ class TFPlenumLibrary:
         if not self.ruleset_machine or not use_cached:
             ruleset_response = self.api_get_rulesets(jsonify=False)
             # sensors_response = self.api_get_sensor_info(jsonify=False)
-            zeek_response = self.api_get_deployed_sensors(self.ZEEK_CHART_STATUS_ENDPOINT, jsonify=False)
-            suricata_response = self.api_get_deployed_sensors(self.SURICATA_CHART_STATUS_ENDPOINT, jsonify=False)
+            zeek_response = self.api_get_deployed_sensors(
+                self.ZEEK_CHART_STATUS_ENDPOINT, jsonify=False
+            )
+            suricata_response = self.api_get_deployed_sensors(
+                self.SURICATA_CHART_STATUS_ENDPOINT, jsonify=False
+            )
             self.ruleset_machine = RulesetMachine(
                 response_object=ruleset_response,
                 zeek_response_object=zeek_response,
-                suricata_response_object=suricata_response
+                suricata_response_object=suricata_response,
             )
             return self.ruleset_machine
         return self.ruleset_machine
@@ -107,7 +112,8 @@ class TFPlenumLibrary:
         logger.console("Does Ruleset Exist\n_____________\n")
         exists = False
 
-        logger.console(f"type(self.ruleset_machine): {type(self.ruleset_machine)}")
+        logger.console(
+            f"type(self.ruleset_machine): {type(self.ruleset_machine)}")
         logger.console(
             f"type(self.ruleset_machine.rulesets_state): {self.ruleset_machine.rulesets_state}"
         )
@@ -116,15 +122,72 @@ class TFPlenumLibrary:
         return exists
 
     @keyword()
-    def is_ruleset_field_synchronized(self, ruleset_type_key: str, key: str, target_state):
+    def is_ruleset_field_synchronized(
+        self, ruleset_type_key: str, key: str, target_state
+    ):
         machine = self.get_rulesets_state_machine()
         is_synchronized, ret_target_state = machine.is_state_synchronized(
             ruleset_type_key, key, target_state
         )
-        result = {"synced_state": is_synchronized, "target_state": ret_target_state}
+        result = {"synced_state": is_synchronized,
+                  "target_state": ret_target_state}
         return is_synchronized, result
 
+    @keyword()
+    def check_catalog_applications_for_state(self, *applications, expected_state="DEPLOYED"):
+        """
+        check_catalog_applications_for_state Use the api to check if the applications have reached the expected state
+
+        Use the api to check if the applications have reached the expected state
+        We evaluate only the applications that robot is trying to install
+        This should run only once after you try install each app in the applications list
+
+
+        # [full_app_item for full_app_item in json_response if full_app_item['nodes']]
+        # [full_app_item for full_app_item in json_response if full_app_item['nodes']
+        #     for n in full_app_item['nodes'] if n['status'] == 'DEPLOYED']
+        # pending_applications = [full_app_item for full_app_item in json_response if full_app_item['nodes']
+        #                         for n in full_app_item['nodes'] if n['status'] == 'PENDING INSTALL' and n['application'] in application_strings]
+        # empty_applications = [full_app_item for full_app_item in json_response if full_app_item['nodes'] == [
+        # ] and full_app_item['application'] in application_strings]
+        # response_info_dict = {"status": False,
+        #                       "deployed": deployed_applications}
+        # Catastrophic failure because we tried to install but it didn't even attempt to install
+        # if len(empty_applications) > 0:
+        #     empty_app_names = [app_names['application'] for app_names in pending_applications]
+        #     BuiltIn().fatal_error(msg=f"Installation has failed for the following applications: {empty_app_names}")
+        # There are still some applications that have not deployed
+        # if len([app['application'] for app in deployed_applications if app['application'] not in application_strings]) > 0:
+        #     return response_info_dict
+        # elif len(pending_applications) > 0:
+        #     # There are still some applications that have not deployed
+        #     return response_info_dict
+        # else:
+        #     response_info_dict['status'] = True
+        #     return response_info_dict
+
+        Args:
+            expected_state (str, optional): _description_. Defaults to "DEPLOYED".
+
+        Returns:
+            dict: {status:bool, verified_applications:list}
+        """
+        assert expected_state == "DEPLOYED" or "PENDING INSTALL" or "NONE"
+        assert applications
+        application_strings = [x.lower() for x in applications]
+        response = self.api_get_chart_statuses(jsonify=False)
+        json_response = response.json()
+
+        verified_applications = [full_app_item for full_app_item in json_response if full_app_item['nodes']
+                                 for n in full_app_item['nodes'] if n['status'] == str(expected_state) and n['application'] in application_strings]
+
+        if len(verified_applications) < len(application_strings) or len(verified_applications) > len(application_strings):
+            return {"status": False, "verified": verified_applications}
+        else:
+            return {"status": True, "verified": verified_applications}
+
     # API Calls (not to be used in robot tests directly)
+
     def api_get_current_user(self, jsonify=True):
         return self.execute_request(self.CURRENT_USER_ENDPOINT, jsonify=jsonify)
 
@@ -136,6 +199,9 @@ class TFPlenumLibrary:
 
     def api_get_deployed_sensors(self, endpoint, jsonify=True):
         return self.execute_request(endpoint, jsonify=jsonify)
+
+    def api_get_chart_statuses(self, jsonify=True):
+        return self.execute_request(self.EVERY_CHART_STATUS_ENDPOINT, jsonify=jsonify)
 
     def execute_request(self, endpoint, request_type="GET", payload={}, jsonify=True):
         self._tfplenum_lib_test_setup()
@@ -176,16 +242,22 @@ class TFPlenumLibrary:
         log_message = f"{log_header} | {self.COLOR_WARNING} {msg} {self.COLOR_HEADER}{self.COLOR_ENDC}"
         logger.console(log_message)
 
+
 class RulesetMachine:
     ZEEK_SCRIPTS_APP_TYPE = "Zeek Scripts"
     ZEEK_SIGNATURES_APP_TYPE = "Zeek Signatures"
     SURICATA_APP_TYPE = "Suricata"
 
-    def __init__(self, response_object, zeek_response_object=None, suricata_response_object=None):
-        self.rulesets_state = self._populate(response_object, zeek_response_object, suricata_response_object)
+    def __init__(
+        self, response_object, zeek_response_object=None, suricata_response_object=None
+    ):
+        self.rulesets_state = self._populate(
+            response_object, zeek_response_object, suricata_response_object
+        )
 
     def get(self, key, default: dict = {}):
-        logger.console(f"Retrieving the underlying ruleset_state for key: {key}")
+        logger.console(
+            f"Retrieving the underlying ruleset_state for key: {key}")
         return self.rulesets_state.get(key, default)
 
     def is_state_synchronized(self, ruleset_type, key, target_state):
@@ -194,11 +266,13 @@ class RulesetMachine:
         ret_target_state = target_state
 
         if ruleset:  # There is a ruleset with that type
-            logger.console(f"\nThere is a ruleset with that type:  key {key}\n")
+            logger.console(
+                f"\nThere is a ruleset with that type:  key {key}\n")
             val = ruleset.get(key)
 
             if key == "ruleset_state":
-                logger.console(f"\n\nINSIDE OF IF KEY == RULESET_STATE: key: {key}")
+                logger.console(
+                    f"\n\nINSIDE OF IF KEY == RULESET_STATE: key: {key}")
                 # The state can be either ("Dirty", "Created", "Synced" or a List object)
                 # isSynchronized = is_ruleset_state_field_synced(val, target_state)
                 val_type = type(val).__name__
@@ -238,21 +312,25 @@ class RulesetMachine:
                     ret_target_state,
                 ) = self._is_ruleset_sensors_field_synced(
                     ruleset["ruleset_deployed_sensors"],
-                    assigned_sensors=val, assign=target_state
+                    assigned_sensors=val,
+                    assign=target_state,
                 )
         else:  # Ruleset Type Does not exist
             logger.console("NO RULESET WITH THAT TYPE EXISTS")
 
             if key == "ruleset_sensors":
 
-
                 # True = You DO want sensors Assigned
                 # False = You DO NOT want sensors Assigned
-                available_sensors = self._get_all_available_sensors_by_type(ruleset_type)
+                available_sensors = self._get_all_available_sensors_by_type(
+                    ruleset_type
+                )
 
-                (isSynchronized, ret_target_state) = self._is_ruleset_sensors_field_synced(
-                    available_sensors,
-                    assigned_sensors=[], assign=target_state
+                (
+                    isSynchronized,
+                    ret_target_state,
+                ) = self._is_ruleset_sensors_field_synced(
+                    available_sensors, assigned_sensors=[], assign=target_state
                 )
 
             elif key == "ruleset_enabled" and target_state:
@@ -266,7 +344,9 @@ class RulesetMachine:
                 isSynchronized = False
         return isSynchronized, ret_target_state
 
-    def _is_ruleset_sensors_field_synced(self, available_sensors, assigned_sensors, assign):
+    def _is_ruleset_sensors_field_synced(
+        self, available_sensors, assigned_sensors, assign
+    ):
         # TODO: Actually do some sensor calculation instead of count
         isSynchronized = True
         unsynced_sensors = []
@@ -358,14 +438,20 @@ class RulesetMachine:
 
     def _get_all_available_sensors_by_type(self, ruleset_type_key) -> list:
         ret_sensors = []
-        ruleset_type = ruleset_type_key.split('_')[0]
-        all_deployed_sensors= self.rulesets_state.get("all_deployed_sensors")
+        ruleset_type = ruleset_type_key.split("_")[0]
+        all_deployed_sensors = self.rulesets_state.get("all_deployed_sensors")
 
         if all_deployed_sensors:
-            ret_sensors = [x for x in all_deployed_sensors if x["application"].lower() == ruleset_type.lower()]
+            ret_sensors = [
+                x
+                for x in all_deployed_sensors
+                if x["application"].lower() == ruleset_type.lower()
+            ]
         return ret_sensors
 
-    def _populate(self, response_object, zeek_response_object=None, suricata_response_object=None) -> dict:
+    def _populate(
+        self, response_object, zeek_response_object=None, suricata_response_object=None
+    ) -> dict:
         """_populate Internal method that populates the machines underlying dictionary
 
         Given a valid json ruleset response and an optional sensor info response from the api
@@ -384,7 +470,8 @@ class RulesetMachine:
             [type]: [description]
         """
         rulesets_state = {}
-        rulesets_state["all_deployed_sensors"] = []     # This is updated for each appType
+        # This is updated for each appType
+        rulesets_state["all_deployed_sensors"] = []
 
         for item in response_object.json():
             ruleset_dict = {
@@ -395,18 +482,27 @@ class RulesetMachine:
                 "ruleset_enabled": item["isEnabled"],
                 "ruleset_sensors": item["sensors"],
                 "ruleset_state": item["state"],
-                "ruleset_deployed_sensors": []
+                "ruleset_deployed_sensors": [],
             }
-            if (item["appType"] == self.SURICATA_APP_TYPE
-                and suricata_response_object):
-                    ruleset_dict["ruleset_deployed_sensors"] = self._populate_deployed_sensors(suricata_response_object)
-                    rulesets_state["all_deployed_sensors"].extend(ruleset_dict["ruleset_deployed_sensors"])
+            if item["appType"] == self.SURICATA_APP_TYPE and suricata_response_object:
+                ruleset_dict[
+                    "ruleset_deployed_sensors"
+                ] = self._populate_deployed_sensors(suricata_response_object)
+                rulesets_state["all_deployed_sensors"].extend(
+                    ruleset_dict["ruleset_deployed_sensors"]
+                )
 
-            if (item["appType"] == self.ZEEK_SCRIPTS_APP_TYPE
+            if (
+                item["appType"] == self.ZEEK_SCRIPTS_APP_TYPE
                 or item["appType"] == self.ZEEK_SIGNATURES_APP_TYPE
-                and zeek_response_object):
-                    ruleset_dict["ruleset_deployed_sensors"] = self._populate_deployed_sensors(zeek_response_object)
-                    rulesets_state["all_deployed_sensors"].extend(ruleset_dict["ruleset_deployed_sensors"])
+                and zeek_response_object
+            ):
+                ruleset_dict[
+                    "ruleset_deployed_sensors"
+                ] = self._populate_deployed_sensors(zeek_response_object)
+                rulesets_state["all_deployed_sensors"].extend(
+                    ruleset_dict["ruleset_deployed_sensors"]
+                )
             if (
                 item["appType"] == self.SURICATA_APP_TYPE
                 and item["name"] == "Emerging Threats"
@@ -430,9 +526,18 @@ class RulesetMachine:
         if response_object:
             for item in response_object.json():
                 if item["status"] == "DEPLOYED" and item["node_type"] == "Sensor":
-                    logger.console(f'Adding Sensor: {item["hostname"]} to deployed_sensors')
-                    deployed_sensors.append({"application":item["application"],"hostname": item["hostname"]})
-            logger.console(f"_populate_deployed_sensors | deployed_sensors: {deployed_sensors}")
+                    logger.console(
+                        f'Adding Sensor: {item["hostname"]} to deployed_sensors'
+                    )
+                    deployed_sensors.append(
+                        {
+                            "application": item["application"],
+                            "hostname": item["hostname"],
+                        }
+                    )
+            logger.console(
+                f"_populate_deployed_sensors | deployed_sensors: {deployed_sensors}"
+            )
         return deployed_sensors
 
     def __str__(self):

@@ -14,9 +14,9 @@ Test Teardown     Close Browser
 Suite Teardown    Close All Connections
 
 *** Test Cases ***
-Install PMO Applications - Logstash Suricata Zeek Rocketchat And Wikijs
+Install PMO Application - Cortex Misp And Hive
     [Tags]                       THISISCVAH-10181
     [Documentation]              Check functionality of the Catalog
     ...                          page by installing  PMO supported apps
     Set Selenium Speed            0.5s
-    Install Independent Apps      Logstash    Suricata    Zeek    Rocketchat  Wikijs
+    Install Dependent Apps        Cortex    Misp    Hive

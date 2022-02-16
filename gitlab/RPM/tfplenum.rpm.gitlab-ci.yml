@@ -33,7 +33,7 @@ build frontend:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    $HOME/.local/bin/ansible-playbook bootstrap/playbooks/site.yml --connection=local -i localhost, -t install_angular,build_frontend
+    ansible-playbook bootstrap/playbooks/site.yml --connection=local -i localhost, -t install_angular,build_frontend
   allow_failure: false
   artifacts:
     paths:

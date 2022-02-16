@@ -53,16 +53,90 @@ Install Every App
     END
 
 Install Multiple Apps
-    [Arguments]  @{application_list}
-    [Documentation]  Installs one or many apps from Catalog page.
+    [Arguments]  @{application_list}    ${asynchronous}=${TRUE}    ${retry}=60x    ${retry_interval}=10s    ${SKIP_ALL_VERIFICATION}=${FALSE}
+    [Documentation]  Installs one or many apps from Catalog page. If the applications
+    ...              are installed with the asynchronous flag set to ${TRUE}, each app
+    ...              install is not confirmed until all apps have attempted to install
+    ...              If the asynchronous flag is set to ${FALSE} the applications will
+    ...              be installed in the exact order they are listed. Verification
+    ...              will take place upon each application installation.
+    ...              Set SKIP_ALL_VERIFICATION to handle verification on your own.
     Set Selenium Speed  0.5s
     log     Installing the following applications:
     FOR  ${appname}  IN  @{application_list}
         log     \t- ${appname}
     END
     FOR  ${application}  IN  @{application_list}
-        Install App  ${application}
+        Install App  ${application}    ${asynchronous}
     END
+
+    IF    '${asynchronous}' == 'True' and '${SKIP_ALL_VERIFICATION}' == 'False'
+        log     Starting Asynchronous Bulk Verification Of The Installed Applications
+        log     The API Will Be Requested ${retry} times every ${retry_interval}.
+        log     If the applications are not installed after the number of requests are met, the test will be marked as failing
+        Wait Until Keyword Succeeds    ${retry}    ${retry_interval}    Verify Applications Have Installed    @{application_list}
+    END
+
+Perform Fast Install Of Catalog Apps
+    [Arguments]          ${install_cortex_misp_hive}=${TRUE}    ${install_arkime}=${TRUE}
+    [Documentation]      Installs independent apps before dependent ones. Verifies that
+    ...                  the independent apps have successfully installed at the very end
+    ...                  Set the boolean values for each dependent package to false to skip
+    ...                  their installation.
+    Set Selenium Speed  0.5s
+    log     Perform Fast Install Of Catalog Apps
+    log    Installation of independent applications will happen first
+    log    Verification for independent applications will be done last
+
+    # Install Independent Apps First
+    Install Multiple Apps    @{INDEPENDENT_APP_LIST}    asynchronous=${TRUE}        SKIP_ALL_VERIFICATION=${TRUE}
+
+    # Install Cortex Misp and Hive in that order
+    IF    '${install_cortex_misp_hive}' == 'True'
+        log     Starting Asynchronous Bulk Verification Of The Installed Applications
+        Install Multiple Apps    @{CORTEX_MISP_HIVE_DEPENDENT_APP_LIST}    asynchronous=${FALSE}
+    END
+
+    # Install Arkime and the dependent application in the correct order
+    IF    '${install_arkime}' == 'True'
+        log    Installating Arkime and all of its dependents
+        Install Multiple Apps    @{ARKIME_DEPENDENT_APP_LIST}    asynchronous=${FALSE}
+    END
+
+    # Perform the install verification of the independent applications since we skipped the verification at first
+    # After waiting on the dependent applications to finish installing, we should already be installed so decrease
+    # the verification time to 20x every 10s which is down from the normal 60x every 20s
+    Wait Until Keyword Succeeds    20x    10s    Verify Applications Have Installed    @{INDEPENDENT_APP_LIST}
+
+    log    All Specified Catalog Applications Have Been Successfully Installed!
+
+
+
+
+Install Dependent Apps
+    [Arguments]      @{application_list}
+    Set Selenium Speed  0.5s
+    log    Installing Apps Which Are Dependent In Respect To One Another
+    Install Multiple Apps    @{application_list}    asynchronous=${FALSE}
+
+Install Independent Apps
+    [Arguments]      @{application_list}
+    Set Selenium Speed  0.5s
+    log    Installing Apps Which Are Independent In Respect To One Another
+    Install Multiple Apps    @{application_list}    asynchronous=${TRUE}
+
+Verify Applications Have Installed
+    [Arguments]  @{application_list}
+    log     Verify Applications Have Installed
+    &{response_info_dict}=      Check Catalog Applications For State    @{application_list}    expected_state=DEPLOYED
+    log    \nThe result for response_info_dict.status:\t ${response_info_dict.status}
+    log    The result for response_info_dict.verified:\t ${response_info_dict.verified} \n
+    IF      '${response_info_dict.status}' == 'False'
+        log    Not Every Application Has Been Succesfully Installed
+        log    Catalog Apps Successfully Verified To Have State ${expected_state}:\t ${response_info_dict.verified}
+    END
+
+    Should Be Equal    '${response_info_dict.status}'    'True'    msg=Each Application(s) State Must Be Verified    values=True    ignore_case=True    formatter=str
 
 Uninstall Multiple Apps
     [Arguments]  @{application_list}
@@ -72,11 +146,30 @@ Uninstall Multiple Apps
         Uninstall App  ${application}
     END
 
+Is App Already Installed
+    [Arguments]    ${application_name}
+    [Documentation]  Checks to see if the app is already installed
+
+    @{one_app_list}=    Create List    ${application_name}
+    &{response_info_dict}=      Check Catalog Applications For State    @{one_app_list}    expected_state=DEPLOYED
+    IF      '${response_info_dict.status}' == 'True'
+        log    ${application_name} Is Already Installed
+        Return From Keyword    ${TRUE}
+    END
+    log    ${application_name} Is Not Installed
+    Return From Keyword    ${FALSE}
+
 Install App
-    [Arguments]  ${application_name}
+    [Arguments]  ${application_name}    ${asynchronous}=${FALSE}
     [Documentation]  Downloads specified app from Catalog page
+    ${already_installed} =    Is App Already Installed    ${application_name}
+    IF  '${already_installed}' == 'True'
+        Return From Keyword
+    END
+
     log     Installing App: ${application_name}
     Navigate To Catalog
+    reload
 
     ${index} =  Find App index  ${application_name}
 
@@ -85,11 +178,10 @@ Install App
     ${app_status_text} =  Get Text  ${app_card_status}
     ${app_status_text} =  Fetch From Right  ${app_status_text}  :
     ${app_status_text} =  Strip String  ${app_status_text}
-    IF  '${app_status_text}' == 'DEPLOYED'
-        log     ${application_name} has already been deployed
-        Return From Keyword
-    END
-    # Return From Keyword If  '${app_status_text}' == 'DEPLOYED'  # App is already installed
+    # IF  '${app_status_text}' == 'DEPLOYED'
+    #     log     ${application_name} has already been deployed
+    #     Return From Keyword
+    # END
 
     ${config_app_button} =  Set Variable  id=app-chart-list-${index}-app-card-div-div-div-button-configure-application
     lookForElement  ${config_app_button}
@@ -130,15 +222,24 @@ Install App
     ...  AND  lookFor  Enable Edit
     ...  AND  click  ${next_btn_list[2]}  # Run btn
     Sleep  10s
-    Verify App Has Been Installed  ${application_name}  ${index}
+    Verify App Has Been Installed  ${application_name}    ${asynchronous}
 
 Verify App Has Been Installed
-    [Arguments]  ${application_name}  ${index}
+    [Arguments]  ${application_name}    ${asynchronous}=${FALSE}
     [Documentation]  Checks if specified app was sucessfully installed on kit
-    log     Verify App Has Been Installed ${application_name} index: ${index}
-    Wait Until Keyword Succeeds  5x  5s  Check App Card Status  ${index}  DEPLOYED
-    Check Notifications For App  ${application_name}
-    Check Health Page For App  ${application_name}
+    IF  '${asynchronous}' == 'True'
+        log    Verify App Has Been Installed ${application_name}
+        log    asynchronous is TRUE
+        log    Skipping Individual Verification
+    ELSE
+        log    Verify App Has Been Installed ${application_name}
+        log    Asynchronous is FALSE
+        log    Starting Individual Verification
+        @{one_app_list}=    Create List    ${application_name}
+        Wait Until Keyword Succeeds  60x  10s  Verify Applications Have Installed    @{one_app_list}
+        # Check Notifications For App  ${application_name}
+        # Check Health Page For App  ${application_name}
+    END
 
 Check App Card Status
     [Arguments]  ${index}  ${expected_status}

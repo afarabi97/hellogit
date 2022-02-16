@@ -1,8 +1,7 @@
 #!/bin/bash
 # Usage: run_tfplenum_tests.sh
-#   [-T|--test-type] (acceptance|unit) [-S|--test-section] (backend|frontend) [--from-code-checker] [--with-coverage] [--no-fail-on-first-error] [--with-debugger]
+#   [-T|--test-type] (acceptance|unit) [-S|--test-section] (backend|frontend) [--with-coverage] [--no-fail-on-first-error] [--with-debugger]
 
-FROM_CODE_CHECKER="pytest -ra"        # default: False
 FAIL_ON_FIRST_ERROR="-x"    # default: True
 WITH_DEBUGGER=""            # default: False
 TEST_TYPE="acceptance"      # default: acceptance
@@ -15,13 +14,6 @@ TEST_WORKING_DIR="/opt/tfplenum/web/${TEST_SECTION}"
 POSITIONAL=()
 while [[ $# -gt 0 ]]; do
     key="$1"
-
-    case $key in
-        --from-code-checker)
-            echo "Running from docker": "${1}"
-            FROM_CODE_CHECKER="/usr/bin/python3 -m pytest -ra"
-            shift # shift once since flags have no values
-        ;;
 
         --with-coverage)
             echo "Adding coverage": "${1}"
@@ -83,6 +75,6 @@ while [[ $# -gt 0 ]]; do
             shift # past argument
     esac
 done
-pushd "${TEST_WORKING_DIR}" > /dev/null || exit
-$FROM_CODE_CHECKER $FAIL_ON_FIRST_ERROR $WITH_DEBUGGER --durations-min=10.0 $TEST_RESULTS_OUTPUT -W ignore::DeprecationWarning $COVERAGE tests/$TEST_TYPE/
+pushd "${TEST_WORKING_DIR}" > /dev/null || exitf
+pytest -ra $FAIL_ON_FIRST_ERROR $WITH_DEBUGGER --durations-min=10.0 $TEST_RESULTS_OUTPUT -W ignore::DeprecationWarning $COVERAGE tests/$TEST_TYPE/
 popd > /dev/null || exit

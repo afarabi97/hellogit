@@ -5,7 +5,6 @@ from werkzeug.utils import secure_filename
 
 
 class PcapModel(Model):
-
     @staticmethod
     def validate_file(pcap_file) -> bool:
         try:
@@ -16,6 +15,6 @@ class PcapModel(Model):
 
     @staticmethod
     def get_secure_filename(filename):
-        if not filename.endswith('.pcap'):
+        if not filename.endswith(".pcap"):
             return secure_filename(f"{filename}.pcap")
         return secure_filename(filename)
