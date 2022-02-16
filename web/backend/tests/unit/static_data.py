@@ -1,3 +1,5 @@
+from bson import ObjectId
+
 nodes_collection = [
     {
         "_id": "4585aba685d443888c93ca9ba7832919",
@@ -815,3 +817,59 @@ zeek_rule_update = {"_id": "1408f54e2f994d639030dc4d04601efe",
                     "rule_set_id": "ffb76d57576245e2b1466b9368b2a119",
                     "createdDate": "2022-02-21 22:16:06",
                     "lastModifiedDate": "2022-02-22 14:33:46"}
+
+suricata_saved_values = {
+   "_id": ObjectId("620d6baf498bd5227703528c"),
+   "application":"suricata",
+   "deployment_name":"sensor1-suricata",
+   "values":{
+      "kibana_fqdn":"kibana.default.svc.cluster.local",
+      "kibana_port":443,
+      "elastic_ingest_nodes":[
+         "https://tfplenum-es-data-0.tfplenum-es-data.default.svc.cluster.local:9200",
+         "https://tfplenum-es-data-1.tfplenum-es-data.default.svc.cluster.local:9200",
+         "https://tfplenum-es-data-2.tfplenum-es-data.default.svc.cluster.local:9200",
+         "https://tfplenum-es-data-3.tfplenum-es-data.default.svc.cluster.local:9200",
+         "https://tfplenum-es-data-4.tfplenum-es-data.default.svc.cluster.local:9200",
+         "https://tfplenum-es-data-5.tfplenum-es-data.default.svc.cluster.local:9200",
+         "https://tfplenum-es-data-6.tfplenum-es-data.default.svc.cluster.local:9200",
+         "https://tfplenum-es-data-7.tfplenum-es-data.default.svc.cluster.local:9200",
+         "https://tfplenum-es-data-8.tfplenum-es-data.default.svc.cluster.local:9200"
+      ],
+      "logstash_nodes":[
+
+      ],
+      "suricata_directory":"/opt/tfplenum/suricata",
+      "suricata_threads":"8",
+      "home_net":[
+         "any"
+      ],
+      "external_net":"",
+      "interfaces":[
+         "ens3f1"
+      ],
+      "image_name":"tfplenum/suricata",
+      "image_tag":"6.0.0",
+      "cpu_request":1000,
+      "affinity_hostname":"sensor1.deadshot",
+      "suricata_log_path":"/data/suricata",
+      "filebeat_image_name":"beats/filebeat",
+      "filebeat_image_tag":"7.16.2",
+      "pcapEnabled":False,
+      "fpc_path":"/data/pcap",
+      "flow":False,
+      "shards":9,
+      "hard_disk_drive":True,
+      "use_logstash":False,
+      "log_types":[
+         "alert",
+         "http",
+         "dns",
+         "tls",
+         "flow",
+         "other"
+      ],
+      "node_hostname":"sensor1.deadshot",
+      "deployment_name":"sensor1-suricata"
+   }
+}

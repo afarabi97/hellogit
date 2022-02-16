@@ -19,7 +19,7 @@ function run_cmd {
 
 pushd / > /dev/null
 # runs python pylint checking
-run_cmd pylint --exit-zero --ignore=tests --rcfile=$PATH_PWD/pylint.rc\
+run_cmd /usr/local/bin/pylint --exit-zero --ignore=tests --rcfile=$PATH_PWD/pylint.rc\
   $PATH_PWD/web/backend/*.py $PATH_PWD/web/backend/**/*.py\
   --msg-template="'{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'" > $PATH_PWD/web/backend/pylint-backend.txt
 # TODO - Add Unit Test Section python backend

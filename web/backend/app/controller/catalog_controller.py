@@ -54,9 +54,11 @@ class ConfiguredIfaces(Resource):
         if zeek_values and len(zeek_values) > 0:
             _add_to_set(sensor_hostname, zeek_values, ifaces)
 
-            if suricata_values and len(suricata_values) > 0:
-                _add_to_set(sensor_hostname, suricata_values, ifaces)
+        if suricata_values and len(suricata_values) > 0:
+            _add_to_set(sensor_hostname, suricata_values, ifaces)
 
+        ret_val = list(ifaces)
+        if len(ret_val) > 0:
             return list(ifaces)
         return {'error_message': 'Failed to to list iface names configured with either zeek or suricata'}, 500
 
