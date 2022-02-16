@@ -168,6 +168,11 @@
 			<gateway>Core_Switch_P2P</gateway>
 			<descr><![CDATA[INTERNAL Network]]></descr>
 		</route>
+		<route>
+			<network>10.20.136.0/25</network>
+			<gateway>Core_Switch_P2P</gateway>
+			<descr><![CDATA[MGMT NETWORK ROUTE]]></descr>
+		</route>
 	</staticroutes>
 	<dhcpd>
 		<lan>
