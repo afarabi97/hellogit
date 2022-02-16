@@ -51,11 +51,11 @@ variables:
   VM_RAID: "no"
   BUILD_FROM_RELEASE: "no"
   RUN_REMOTE_NODE: "no"
-  RUN_INTEGRATION: "no"
+  RUN_INTEGRATION: "yes"
   RUN_DISK_TEST: "no"
-  COMMUNITY_APPS: "no"
+  COMMUNITY_APPS: "yes"
   RUN_CODE_CHECKS: "yes"
-  RUN_POWER_FAILURE: "no"
+  RUN_POWER_FAILURE: "yes"
   RUN_BREAKINGPOINT: "no"
   RUN_SECURITY_SCANS: "yes"
   UPDATE_CODE: "yes"
@@ -222,6 +222,7 @@ stages:
   - server-setup
   - deploy-kit
   - node-setup
+  - acceptance
   - security_scans
   - robot-test-regression
   - robot-test-setup
@@ -283,6 +284,7 @@ include:
   - local: gitlab/code-analysis.yml
   - local: gitlab/confluence-publish.yml
   - local: gitlab/DIP/dip.gitlab-ci.yml
+  - local: gitlab/DIP/dip.acceptance.gitlab-ci.yml
   - local: gitlab/DIP/dip.export.gitlab-ci.yml
   - local: gitlab/DIP/dip.manifest.gitlab-ci.yml
   - local: gitlab/DIP/dip.docs.gitlab-ci.yml

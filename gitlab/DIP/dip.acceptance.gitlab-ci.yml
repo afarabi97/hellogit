@@ -1,0 +1,18 @@
+Acceptance Testing:
+  stage: acceptance
+  tags:
+    - docker-runner
+  image: $LATEST_CODE_CHECKER_IMAGE
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
+    chmod +x web/backend/run_acceptance_tests.sh
+    web/backend/run_acceptance_tests.sh
+  allow_failure: false
+  artifacts:
+    paths:
+      - "web/backend/*.xml"
+    reports:
+      junit: "web/backend/*.xml"
+  extends: .all-and-mip
