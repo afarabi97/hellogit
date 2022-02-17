@@ -112,12 +112,13 @@ nvidia_driver: NVIDIA_Quadro_RHEL82_440_64.tar.gz
 amd_driver: amdgpu-pro-20.10-1101037-rhel-8.1.tar.xz
 
 #Third Party Software
-burpsuite_file: burpsuite_pro_linux_v2021_8_1.sh
-chrome_file: google-chrome-stable_current_x86_64_92.0.4515.131.rpm
-gitkraken_file: gitkraken-amd64_7.7.2.rpm
-nexpose_file: Rapid7Setup-Linux64_6.6.97.bin
-vmware_file: VMware-Workstation-Full-16.1.2-17966106.x86_64.bundle
-vscode_file: code-1.59.0-1628120127.el8.x86_64.rpm
+burpsuite_file: burpsuite_pro_linux_v2021_8_4.sh
+chrome_file: google-chrome-stable_current_x86_64_94.0.4606.71.rpm
+gitkraken_file: gitkraken-amd64_8.1.0.rpm
+nexpose_file: Rapid7Setup-Linux64_6.6.106.bin
+vmware_file: VMware-Workstation-Full-16.2.0-18760230.x86_64.bundle
+vscode_file: code-1.59.1-1629375274.el8.x86_64.rpm
+
 # Redhat Microcode Software
 microcode_file: microcode_ctl-20210608-1.el8.x86_64.rpm
 
@@ -127,3 +128,4 @@ software:
 cpt_software:
   - "{{ web_server }}/{{ nexpose_file }}"
   - "{{ web_server }}/{{ burpsuite_file }}"
+
