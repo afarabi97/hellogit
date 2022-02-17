@@ -13,13 +13,6 @@ REGULAR_PCAP_BYTES = b'\xd4\xc3\xb2\xa1\x02\x00\x04\x00\x00\x00\x00\x00\x00\x00\
 PCAP_NEXT_GEN_BYTES = b'\n\r\r\n\xc0\x00\x00\x00M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff'
 INVALID_PCAP_BYTES = b'<html><script>alert(TESTING_ALERT_MESSAGE)</script></b></html>\n'
 
-
-def write_pcap_file(pcap_file, file_data):
-    with open(pcap_file, "wb") as f:
-        f.write(file_data)
-    return pcap_file
-
-
 @given(parsers.parse("I have a {file_type} file that is {valid_or_invalid} and named {upload_file_name}"), target_fixture="pcap_file")
 def given_this_file(tmp_path, file_type, valid_or_invalid, upload_file_name):
     pcap_file = os.path.join(tmp_path, upload_file_name)

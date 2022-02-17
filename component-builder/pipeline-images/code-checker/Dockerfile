@@ -32,3 +32,5 @@ RUN rm -rf /usr/local/google-chrome-stable_current_x86_64.rpm && \
     rm -rf /usr/local/firefox-76.0.tar.bz2
 
 RUN echo PATH=$PATH:$HOME/.local/bin | tee -a $HOME/.bash_profile $HOME/.bashrc && source ~/.bashrc
+
+ENV PATH $PATH:/root/.local/bin

@@ -1,5 +1,6 @@
 from app.models import Model
 from flask_restx import Namespace, fields
+from rq.exceptions import NoSuchJobError
 from rq.job import Job, JobStatus
 from rq.worker import Worker
 
@@ -160,8 +161,6 @@ class WorkerModel(Model):
         "name": fields.String(required=True, example="6a4c8acca21447c4abbf37314fd71165", description="The name of the worker."),
         "hostname": fields.String(required=True, example="controller.lan", description="The hostname where the worker is running."),
         "pid": fields.Integer(required=True, example=30725, description="The process ID of the running worker."),
-        "queues": fields.List(fields.String(required=True), required=True, example=['default'],
-                              description="The queues this worker is grabbing jobs off of."),
         "state": fields.String(required=True, example="idle", description="The state of the worker."),
         "last_heartbeat": fields.String(required=True, example="2020-10-06 19:19:07.123298", description="Last date time the worker checked the queue for work."),
         "birth_date": fields.String(required=True, example="2020-10-06 18:58:52.046694", description="The last date time the worker either rebooted or started."),
@@ -178,15 +177,17 @@ class WorkerModel(Model):
         self.name = worker.name
         self.hostname = worker.hostname
         self.pid = worker.pid
-        self.queues = [queue.name for queue in worker.queues]
         self.state = worker.state
         self.last_heartbeat = str(worker.last_heartbeat)
         self.birth_date = str(worker.birth_date)
         self.successful_job_count = worker.successful_job_count
         self.failed_job_count = worker.failed_job_count
         self.total_working_time = worker.total_working_time
-        current_job = worker.get_current_job()
-        if current_job:
-            self.current_job = BackgroundJob(current_job)
-        else:
+        try:
+            current_job = worker.get_current_job()
+            if current_job:
+                self.current_job = BackgroundJob(current_job)
+            else:
+                self.current_job = None
+        except NoSuchJobError:
             self.current_job = None

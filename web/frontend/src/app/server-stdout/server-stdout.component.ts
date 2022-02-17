@@ -98,7 +98,13 @@ export class ServerStdoutComponent implements OnInit {
   }
 
   killJob() {
-    this.stdoutService.killJob(this.jobId).subscribe();
+    this.stdoutService.killJob(this.jobId).subscribe( data => {
+      this.snackBar.displaySnackBar(`Deleted job ${data['job_id']}`)
+    },
+      err => {
+        this.snackBar.displaySnackBar(err.error['error_message']);
+      }
+    );
   }
 
   pauseScroll() {
@@ -109,8 +115,8 @@ export class ServerStdoutComponent implements OnInit {
     this.stdoutService.retryJob(this.jobId).subscribe(data => {
       console.log(data);
     }, err => {
-      if (err && err.error && err.error['message']){
-        this.snackBar.displaySnackBar(err.error['message']);
+      if (err && err.error && err.error['error_message']){
+        this.snackBar.displaySnackBar(err.error['error_message']);
       } else {
         console.error(err);
         this.snackBar.displaySnackBar('Failed for an unknown reason.');

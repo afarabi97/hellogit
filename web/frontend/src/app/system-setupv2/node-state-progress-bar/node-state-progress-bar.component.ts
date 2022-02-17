@@ -84,8 +84,8 @@ export class NodeStateProgressBarComponent implements OnInit {
         }
       },
       (err) => {
-        if (err && err.error && err.error['message']) {
-          this.matSnackBarService.displaySnackBar(err.error['message']);
+        if (err && err.error && err.error['error_message']) {
+          this.matSnackBarService.displaySnackBar(err.error['error_message']);
         } else {
           console.error(err);
           this.matSnackBarService.displaySnackBar(

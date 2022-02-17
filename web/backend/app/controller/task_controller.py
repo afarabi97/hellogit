@@ -4,43 +4,18 @@ from app.middleware import controller_admin_required
 from app.models.common import (COMMON_ERROR_MESSAGE, BackgroundJob, JobID,
                                WorkerModel)
 from app.models.nodes import NodeJob
+from app.service.job_service import delete_job, get_all_jobs, transform_jobs
 from app.utils.collections import mongo_console
 from app.utils.connection_mngs import REDIS_CLIENT, REDIS_QUEUE
-from app.utils.utils import kill_child_processes
 from flask import Response
 from flask_restx import Namespace, Resource
 from rq import Worker
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
-from rq.registry import (DeferredJobRegistry, FailedJobRegistry,
-                         FinishedJobRegistry, StartedJobRegistry)
 
 JOB_NS = Namespace('jobs', description="Job Queue related operations.")
 
-
-def transform_jobs(job_objects: List[Job]):
-    ret_val = []
-    for job in job_objects:
-        if job:
-            ret_val.append(BackgroundJob(job).to_dict())
-
-    return ret_val
-
-
-def get_all_jobs() -> List[Job]:
-    finished_registry = FinishedJobRegistry('default', connection=REDIS_CLIENT)
-    started_registry = StartedJobRegistry('default', connection=REDIS_CLIENT)
-    failed_registery = FailedJobRegistry('default', connection=REDIS_CLIENT)
-    waiting_registery = DeferredJobRegistry('default', connection=REDIS_CLIENT)
-
-    all_jobs = waiting_registery.get_job_ids()
-    all_jobs += started_registry.get_job_ids()
-    all_jobs += finished_registry.get_job_ids()
-    all_jobs += failed_registery.get_job_ids()
-
-    return Job.fetch_many(all_jobs, connection=REDIS_CLIENT)
-
-
+#Endpoint for developer debugging
 @JOB_NS.route('/workers')
 class RedisWorker(Resource):
 
@@ -70,22 +45,14 @@ class RedisJob(Resource):
     @JOB_NS.response(200, 'BackgroundJob', JobID.DTO)
     @controller_admin_required
     def delete(self, job_id: str):
-        job_obj = NodeJob.load_jobs_by_job_id(job_id)  # type: NodeJob
-        if job_obj:
-            job_obj.set_error("Job killed by User")
-
-        workers = Worker.all(queue=REDIS_QUEUE)
-        for worker in workers:
-            job = worker.get_current_job()
-            if job and job_id == job.get_id():
-                kill_child_processes(worker.pid)
-                job.delete()
-                return JobID(job).to_dict()
-
-        job = Job.fetch(job_id, connection=REDIS_CLIENT)
-        job.delete()
-        return JobID(job).to_dict()
-
+        try:
+            job = Job.fetch(job_id, connection=REDIS_CLIENT)
+            if job:
+                return delete_job(job_id)
+            else:
+                return {"error_message": "Job does not exist."}
+        except NoSuchJobError:
+                return {"error_message": "Job does not exist."}, 404
 
 @JOB_NS.route('/<job_id>/retry')
 @JOB_NS.doc(params={'job_id': "A background job's job_id"})
@@ -104,7 +71,7 @@ class RedisJobRetry(Resource):
                 job_obj.set_inprogress(job_id)
             return JobID(job).to_dict()
         except NoSuchJobError:
-            return {"error_message": "The passed in job ID no longer exists on the redis queue.  It is possible that something erased it."}, 400
+            return {"error_message": "The passed in job ID no longer exists on the redis queue. It is possible that something erased it."}, 400
 
 
 @JOB_NS.route('')

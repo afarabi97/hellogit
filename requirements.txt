@@ -22,6 +22,7 @@ docutils==0.14
 elasticsearch==7.16.2
 eventlet==0.24.1
 fabric==2.4.0
+fakeredis==1.7.1
 Flask-Cors==3.0.6
 Flask-PyMongo==2.3.0
 flask-restx==0.3.0

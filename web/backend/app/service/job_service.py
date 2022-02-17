@@ -3,7 +3,7 @@ import shlex
 import subprocess
 from typing import Callable, List, Tuple
 
-from app.models.common import JobID
+from app.models.common import BackgroundJob, JobID, WorkerModel
 from app.models.nodes import Node, NodeJob
 from app.service.socket_service import log_to_console
 from app.utils.connection_mngs import REDIS_CLIENT, REDIS_QUEUE
@@ -13,7 +13,8 @@ from app.utils.utils import kill_child_processes
 from rq import Worker
 from rq.command import send_stop_job_command
 from rq.job import Job
-from rq.registry import StartedJobRegistry
+from rq.registry import (DeferredJobRegistry, FailedJobRegistry,
+                         FinishedJobRegistry, StartedJobRegistry)
 
 
 def _open_proc(command: str, working_dir: str = None, use_shell: bool = False):
@@ -146,18 +147,40 @@ def cancel_job(job_id, txt):
 
 
 def delete_job(job_id):
-    job_obj = NodeJob.load_jobs_by_job_id(job_id)  # type: NodeJob
+    job_obj = NodeJob.load_jobs_by_job_id(job_id) # type: NodeJob
     if job_obj:
         job_obj.set_error("Job killed by User")
 
-    workers = Worker.all(queue=REDIS_QUEUE)
+    workers = [WorkerModel(worker) for worker in Worker.all(queue=REDIS_QUEUE)]
     for worker in workers:
-        job = worker.get_current_job()
-        if job and job_id == job.get_id():
+        if worker.current_job and job_id == worker.current_job.job_id:
             kill_child_processes(worker.pid)
+            job = Job.fetch(job_id, connection=REDIS_CLIENT)
             job.delete()
             return JobID(job).to_dict()
 
     job = Job.fetch(job_id, connection=REDIS_CLIENT)
     job.delete()
     return JobID(job).to_dict()
+
+def transform_jobs(job_objects: List[Job]):
+    ret_val = []
+    for job in job_objects:
+        if job:
+            ret_val.append(BackgroundJob(job).to_dict())
+
+    return ret_val
+
+def get_all_jobs() -> List[Job]:
+    finished_registry = FinishedJobRegistry('default', connection=REDIS_CLIENT)
+    started_registry = StartedJobRegistry('default', connection=REDIS_CLIENT)
+    failed_registery = FailedJobRegistry('default', connection=REDIS_CLIENT)
+    waiting_registery = DeferredJobRegistry('default', connection=REDIS_CLIENT)
+
+    all_jobs = waiting_registery.get_job_ids()
+    all_jobs += started_registry.get_job_ids()
+    all_jobs += finished_registry.get_job_ids()
+    all_jobs += failed_registery.get_job_ids()
+
+    return Job.fetch_many(all_jobs, connection=REDIS_CLIENT)
+

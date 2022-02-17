@@ -114,7 +114,7 @@ helm_versions:
   jcat_nifi: 1.0.3
   mattermost: 1.0.4
   misp: 1.0.5
-  netflow_filebeat: 1.0.2
+  netflow_filebeat: 1.0.3
   nifi: 1.0.4
   redmine: 1.0.5
   remote_health_agent: 1.0.2
