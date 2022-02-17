@@ -1,8 +1,3 @@
-import {
-  NgxMatDatetimePickerModule,
-  NgxMatNativeDateModule,
-  NgxMatTimepickerModule
-} from '@angular-material-components/datetime-picker';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -144,9 +139,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     MaterialModule,
     BrowserAnimationsModule,
     FlexLayoutModule,
-    NgxMatTimepickerModule,
-    NgxMatDatetimePickerModule,
-    NgxMatNativeDateModule,
     AppRoutingModule,
     AgentBuilderChooserModule,
     CatalogModule,
