@@ -12,8 +12,8 @@ export const MockChartInterfaceArkime: ChartInterface = {
       application: 'arkime',
       appVersion: '3.1.0',
       status: 'DEPLOYED',
-      deployment_name: 'philpot-sensor3-arkime',
-      hostname: 'philpot-sensor3.philpot',
+      deployment_name: 'fake-sensor3-arkime',
+      hostname: 'fake-sensor3.fake',
       node_type: 'Sensor'
     }
   ]
@@ -192,8 +192,8 @@ export const MockChartInterfaceSuricata: ChartInterface = {
       application: 'suricata',
       appVersion: '6.0.0',
       status: 'DEPLOYED',
-      deployment_name: 'philpot-sensor3-suricata',
-      hostname: 'philpot-sensor3.philpot',
+      deployment_name: 'fake-sensor3-suricata',
+      hostname: 'fake-sensor3.fake',
       node_type: 'Sensor'
     }
   ]
@@ -228,8 +228,44 @@ export const MockChartInterfaceZeek: ChartInterface = {
       application: 'zeek',
       appVersion: '4.0.3',
       status: 'DEPLOYED',
-      deployment_name: 'philpot-sensor3-zeek',
-      hostname: 'philpot-sensor3.philpot',
+      deployment_name: 'fake-sensor3-zeek',
+      hostname: 'fake-sensor3.fake',
+      node_type: 'Sensor'
+    }
+  ]
+};
+export const MockChartInterfaceZeekFailed: ChartInterface = {
+  application: 'zeek',
+  version: '1.1.2',
+  appVersion: '4.0.3',
+  description: 'Zeek 4.0.3 with Filebeat (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know.',
+  pmoSupported: true,
+  isSensorApp: true,
+  nodes: [
+    {
+      application: 'zeek',
+      appVersion: '4.0.3',
+      status: 'failed',
+      deployment_name: 'fake-sensor3-zeek',
+      hostname: 'fake-sensor3.fake',
+      node_type: 'Sensor'
+    }
+  ]
+};
+export const MockChartInterfaceZeekUninstalling: ChartInterface = {
+  application: 'zeek',
+  version: '1.1.2',
+  appVersion: '4.0.3',
+  description: 'Zeek 4.0.3 with Filebeat (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know.',
+  pmoSupported: true,
+  isSensorApp: true,
+  nodes: [
+    {
+      application: 'zeek',
+      appVersion: '4.0.3',
+      status: 'uninstalling',
+      deployment_name: 'fake-sensor3-zeek',
+      hostname: 'fake-sensor3.fake',
       node_type: 'Sensor'
     }
   ]

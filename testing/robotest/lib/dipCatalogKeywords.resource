@@ -1,6 +1,7 @@
 *** Settings ***
 Resource    ../include/dipCommonVariables.resource
 Resource    ../include/dipCatalogVariables.resource
+Variables    ../include/element_ids_frontend.py
 
 
 *** Keywords ***
@@ -11,10 +12,10 @@ Install/Uninstall Every App
     Navigate To Catalog
     log     Installing all applications on Catalog page
     ${skip_apps} =  Create List  Arkime-viewer  Remote-health-agent  Hive  Misp
-    Wait Until Element Is Visible  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
-    ${app_name_count} =  Get Element Count  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
+    Wait Until Element Is Visible  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
+    ${app_name_count} =  Get Element Count  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
     FOR  ${index}  IN RANGE  ${app_name_count}
-        ${app_name} =  Get Text  id=app-chart-list-${index}-app-card-div-div-div-h3-chart-application
+        ${app_name} =  Get Text  id=cvah-chart-list-${index}-cvah-application-card-div-div-div-h3-chart-application
         IF  '${app_name}' == 'Arkime'
             Install App  Arkime-viewer
             Install App  ${app_name}
@@ -41,10 +42,10 @@ Install Every App
 
 
     ${skip_apps} =  Create List  Arkime-viewer  Remote-health-agent
-    Wait Until Element Is Visible  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
-    ${app_name_count} =  Get Element Count  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
+    Wait Until Element Is Visible  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
+    ${app_name_count} =  Get Element Count  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
     FOR  ${index}  IN RANGE  ${app_name_count}
-        ${app_name} =  Get Text  id=app-chart-list-${index}-app-card-div-div-div-h3-chart-application
+        ${app_name} =  Get Text  id=cvah-chart-list-${index}-cvah-application-card-div-div-div-h3-chart-application
         Run Keyword If  '${app_name}' == 'Arkime'
         ...  Run Keywords  Install App  Arkime-viewer
         ...  AND  Install App  ${app_name}
@@ -179,7 +180,7 @@ Install App
 
     ${index} =  Find App index  ${application_name}
 
-    ${app_card_status} =  Set Variable  xpath=//*[@id="app-chart-list-div-app-card-${index}"]/div/div[2]/div[1]/div[2]
+    ${app_card_status} =  Set Variable  xpath=//*[@id="cvah-chart-list-div-cvah-application-card-${index}"]/div/div[2]/div[1]/div[2]
     lookForElement  ${app_card_status}
     ${app_status_text} =  Get Text  ${app_card_status}
     ${app_status_text} =  Fetch From Right  ${app_status_text}  :
@@ -189,7 +190,7 @@ Install App
     #     Return From Keyword
     # END
 
-    ${config_app_button} =  Set Variable  id=app-chart-list-${index}-app-card-div-div-div-button-configure-application
+    ${config_app_button} =  Set Variable  id=cvah-chart-list-${index}-cvah-application-card-div-div-div-button-configure-application
     lookForElement  ${config_app_button}
     Click Button  ${config_app_button}
     lookForElement  ${locSelectProcessDropdown}
@@ -197,14 +198,13 @@ Install App
     Wait Until Element Is Visible  ${locInstallButton}
     click  ${locInstallButton}
     Wait Until Element Contains  ${locSelectProcessDropdown}  Install
-    ${next_btn_list} =   Get WebElements  id=app-catalog-page-div-mat-card-div-button-next-get-config
     Run Keyword if  '${application_name}' == 'Arkime' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
     ...  Run Keywords  click  ${locNodeSelection}
     ...  AND  lookForElement  xpath=//span[text()="${sensor_name}"]
     ...  AND  click  xpath=//span[text()="${sensor_name}"]
     ...  AND  Press Keys  None  TAB
-    ...  AND  Wait Until Element Is Enabled  ${next_btn_list[0]}
-    ...  AND  Click Button  ${next_btn_list[0]}  # Next btn
+    ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}
+    ...  AND  Click Button  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}  # Next btn
     ...  AND  Run Keyword if  '${application_name}' == 'Arkime' and ${IS_BARE_METAL_KIT} is ${False}
     ...                        type  ${locMemLimitInput}  6Gi  # If virtual kit decrease memory limit from 20Gi to 6Gi
     ...  AND  Run Keyword if  '${application_name}' == 'Suricata'
@@ -214,20 +214,20 @@ Install App
     ...  AND  Sleep  10s
     ...  AND  click  ${locInterfaceOptionConnected}
     ...  AND  Press Keys  None  TAB
-    ...  AND  Wait Until Element Is Enabled  ${next_btn_list[1]}
-    ...  AND  Click Button  ${next_btn_list[1]}  # Next btn
-    ...  AND  lookFor  Enable Edit
-    ...  AND  Click Button  ${next_btn_list[2]}  # Run btn
+    ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
+    ...  AND  Click Button  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
+    ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
+    ...  AND  Click Button  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
     ...  ELSE
-    ...  Run Keywords  Wait Until Element Is Enabled  ${next_btn_list[0]}
-    ...  AND  Click Button  ${next_btn_list[0]}  # Next btn
+    ...  Run Keywords  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}
+    ...  AND  Click Button  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}  # Next btn
     ...  AND  Run Keyword if  '${application_name}' == 'Logstash' and ${IS_BARE_METAL_KIT} is ${False}
     ...                        type  ${locHeapSizeInput}  4  # If virtual kit decrease heap_size from 12 to 4
     ...  AND  lookFor  server
-    ...  AND  Wait Until Element Is Enabled  ${next_btn_list[1]}
-    ...  AND  click  ${next_btn_list[1]}  # Next btn
-    ...  AND  lookFor  Enable Edit
-    ...  AND  click  ${next_btn_list[2]}  # Run btn
+    ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
+    ...  AND  click  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
+    ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
+    ...  AND  click  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
     Sleep  10s
     Verify App Has Been Installed  ${application_name}    ${asynchronous}
 
@@ -254,10 +254,10 @@ Check App Card Status
     [Documentation]  Visual confirmation on the Catalog Page that the app is installed
     log     Check App Card Status
     Navigate To Catalog
-    ${application_card} =  Set Variable  id=app-chart-list-div-app-card-${index}
+    ${application_card} =  Set Variable  id=cvah-chart-list-div-cvah-application-card-${index}
     lookForElement  ${application_card}
     Wait Until Element Contains  ${application_card}  ${expected_status}  2m
-    ${app_card_circle} =  Set Variable  id=app-chart-list-${index}-app-card-div-div-div-button
+    ${app_card_circle} =  Set Variable  id=cvah-chart-list-${index}-cvah-application-card-div-div-div-button
     ${circle_color} =  Set Variable If  '${expected_status}' == 'DEPLOYED'  rgb(30, 185, 128)
     ...  '${expected_status}' == 'Not Installed'  white
     Element Attribute Value Should Be  ${app_card_circle}  style  background-color: ${circle_color};
@@ -309,14 +309,14 @@ Uninstall App
     Navigate To Catalog
     ${index} =  Find App index  ${application_name}
 
-    ${app_card_status} =  Set Variable  xpath=//*[@id="app-chart-list-div-app-card-${index}"]/div/div[2]/div[1]/div[2]
+    ${app_card_status} =  Set Variable  xpath=//*[@id="cvah-chart-list-div-cvah-application-card-${index}"]/div/div[2]/div[1]/div[2]
     lookForElement  ${app_card_status}
     ${app_status_text} =  Get Text  ${app_card_status}
     ${app_status_text} =  Fetch From Right  ${app_status_text}  :
     ${app_status_text} =  Strip String  ${app_status_text}
     Return From Keyword If  '${app_status_text}' == 'Not Installed'  # App does not need to be uninstalled
 
-    ${config_app_button} =  Set Variable  id=app-chart-list-${index}-app-card-div-div-div-button-configure-application
+    ${config_app_button} =  Set Variable  id=cvah-chart-list-${index}-cvah-application-card-div-div-div-button-configure-application
     lookForElement  ${config_app_button}
     Click Button  ${config_app_button}
     Run Keyword If  '${application_name}' == 'Arkime'
@@ -331,8 +331,8 @@ Uninstall App
     ...  Run Keywords  click  ${locNodeSelection}
     ...  AND  click  ${locFirstNodeOption}
     ...  AND  Press Keys  None  TAB
-    Click Button  ${locCatalogRunBtn}
-    ${application_card} =  Set Variable  id=app-chart-list-div-app-card-${index}
+    Click Button  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_RUN}
+    ${application_card} =  Set Variable  id=cvah-chart-list-div-cvah-application-card-${index}
     Wait Until Keyword Succeeds  5x  5s  Check App Card Status  ${index}  Not Installed
     click  ${locNotificationsNavIcon}
     Wait Until Element Contains  ${locTopNotification}  COMPLETED Uninstalling ${application_name}  10m
@@ -347,10 +347,10 @@ Clean Up Catalog Page
     lookFor    Portal
     Navigate To Catalog
 
-    Wait Until Element Is Visible  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
-    ${app_name_count} =  Get Element Count  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
+    Wait Until Element Is Visible  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
+    ${app_name_count} =  Get Element Count  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
     FOR  ${index}  IN RANGE  ${app_name_count}
-        ${app_name} =  Get Text  id=app-chart-list-${index}-app-card-div-div-div-h3-chart-application
+        ${app_name} =  Get Text  id=cvah-chart-list-${index}-cvah-application-card-div-div-div-h3-chart-application
         Uninstall App  ${app_name}
     END
     Close Browser
@@ -359,8 +359,8 @@ Find App index
     [Arguments]  ${application_name}
     [Documentation]  Locates and returns index of application based on name supplied in argument.
     log     Find App Index ${application_name}
-    Wait Until Element Is Visible  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
-    ${app_name_elements} =  Get WebElements  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
+    Wait Until Element Is Visible  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
+    ${app_name_elements} =  Get WebElements  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
     ${index} =  Set Variable  ${0}
     FOR  ${element}  IN  @{app_name_elements}
         ${app_name} =  Get Text  ${element}

@@ -1,8 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { Component, ViewChild } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { of, throwError } from 'rxjs';
 
@@ -18,15 +19,11 @@ import {
   MockIPTargetListClass2,
   MockIPTargetListClass3,
   MockIPTargetListClassesArray,
-  MockStatusClass_LogstashDeployedError,
+  MockStatusClassLogstashDeployedError,
   MockWindowsCredentialsClass
 } from '../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
-import {
-  MockAgentInstallerConfigurationInterface1,
-  MockErrorMessageInterface,
-  MockIPTargetListInterface1
-} from '../../../../static-data/interface-objects';
+import { MockErrorMessageInterface } from '../../../../static-data/interface-objects';
 import { ErrorMessageClass } from '../../classes';
 import { CANCEL_DIALOG_OPTION, CONFIRM_DIALOG_OPTION } from '../../constants/cvah.constants';
 import { ApiService } from '../../services/abstract/api.service';
@@ -35,9 +32,29 @@ import { TestingModule } from '../testing-modules/testing.module';
 import { InjectorModule } from '../utilily-modules/injector.module';
 import { AgentBuilderChooserComponent } from './agent-builder-chooser.component';
 import { AgentBuilderChooserModule } from './agent-builder-chooser.module';
-import { AppConfigClass, HostClass } from './classes';
+import { AppConfigClass, HostClass, IPTargetListClass } from './classes';
+import { INSTALL, REINSTALL, UNINSTALL, UNINSTALLS } from './constants/agent-builder-chooser.constant';
 import { AgentInterface, AgentTargetInterface, MatTableRowIPTargetListInterface } from './interfaces';
 
+@Component({
+  template: `
+    <table mat-table [dataSource]="data" aria-describedby="IP Target List">
+      <ng-container matColumnDef="select">
+        <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let config; let z = index;">{{ config.name }}</td>
+      </ng-container>
+      <!-- Table Rows -->
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns; let j = index;"></tr>
+    </table>
+    <mat-paginator #tablePaginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+  `,
+})
+class WrapperComponent {
+  @ViewChild('tablePaginator') table_paginator: MatPaginator;
+  columns: string[] = [ 'name' ];
+  data: MatTableDataSource<IPTargetListClass> = new MatTableDataSource<IPTargetListClass>(MockIPTargetListClassesArray);
+}
 interface MockFile {
   name: string;
   body: string;
@@ -68,6 +85,8 @@ class MockSocket {
 describe('AgentBuilderChooserComponent', () => {
   let component: AgentBuilderChooserComponent;
   let fixture: ComponentFixture<AgentBuilderChooserComponent>;
+  let wrapper_component: WrapperComponent;
+  let wrapper_fixture: ComponentFixture<WrapperComponent>;
 
   // Setup spy references
   let spyNGOnInit: jasmine.Spy<any>;
@@ -97,6 +116,7 @@ describe('AgentBuilderChooserComponent', () => {
   let spySetAgentInstallerConfigurationMatTableData: jasmine.Spy<any>;
   let spySetIPTargetMatTableData: jasmine.Spy<any>;
   let spyGetCredentials: jasmine.Spy<any>;
+  let spyPerformAgentAction: jasmine.Spy<any>;
   let spyUpdateIPTargetsListTargets: jasmine.Spy<any>;
   let spyWebsocketGetSocketOnRefresh: jasmine.Spy<any>;
   let spyApiGetChartStatus: jasmine.Spy<any>;
@@ -129,8 +149,8 @@ describe('AgentBuilderChooserComponent', () => {
     statusText: 'Internal Server Error',
     url: 'http://fake-url'
   });
-  const host_list: MatTableDataSource<HostClass> = new MatTableDataSource(MockHostClassesArray1);
-  const host_list_paginator: MatPaginator = new Object() as MatPaginator;
+  const host_list: MatTableDataSource<HostClass> = new MatTableDataSource<HostClass>(MockHostClassesArray1);
+  let host_list_paginator: MatPaginator;
   const mat_table_row_ip_target_list: MatTableRowIPTargetListInterface = {
     config: MockIPTargetListClass1,
     state: {
@@ -154,13 +174,28 @@ describe('AgentBuilderChooserComponent', () => {
     user_name: new FormControl('fakeuser1'),
     password: new FormControl('password')
   });
+  const agent_interface: AgentInterface = {
+    installer_config: MockAgentInstallerConfigurationClass1,
+    target_config: MockIPTargetListClass1,
+    windows_domain_creds: undefined
+  };
+  const agent_target_interface: AgentTargetInterface = {
+    installer_config: MockAgentInstallerConfigurationClass1,
+    target_config: MockIPTargetListClass1,
+    windows_domain_creds: undefined,
+    target: MockHostClass1
+  };
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         InjectorModule,
         AgentBuilderChooserModule,
-        TestingModule
+        TestingModule,
+        MatPaginatorModule
+      ],
+      declarations: [
+        WrapperComponent
       ],
       providers: [
         ApiService,
@@ -173,6 +208,8 @@ describe('AgentBuilderChooserComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(AgentBuilderChooserComponent);
     component = fixture.componentInstance;
+    wrapper_fixture = TestBed.createComponent(WrapperComponent);
+    wrapper_component = wrapper_fixture.componentInstance;
 
     // Add method spies
     spyNGOnInit = spyOn(component, 'ngOnInit').and.callThrough();
@@ -201,9 +238,8 @@ describe('AgentBuilderChooserComponent', () => {
     spyIsHostIndexZero = spyOn<any>(component, 'is_host_index_zero_').and.callThrough();
     spySetAgentInstallerConfigurationMatTableData = spyOn<any>(component, 'set_agent_installer_configuration_mat_table_data_').and.callThrough();
     spySetIPTargetMatTableData = spyOn<any>(component, 'set_ip_target_config_mat_table_data_').and.callThrough();
-    spyGetCredentials = spyOn<any>(component, 'get_credentials_').and.callFake((title: string, instructions: string, callback) => {
-      callback(MockWindowsCredentialsClass);
-    });
+    spyGetCredentials = spyOn<any>(component, 'get_credentials_').and.callThrough();
+    spyPerformAgentAction = spyOn<any>(component, 'perform_agent_action_').and.callThrough();
     spyUpdateIPTargetsListTargets = spyOn<any>(component, 'update_ip_targets_list_targets_').and.callThrough();
     spyWebsocketGetSocketOnRefresh = spyOn<any>(component, 'websocket_get_socket_on_refresh').and.callThrough();
     spyApiGetChartStatus = spyOn<any>(component, 'api_get_chart_status_').and.callThrough();
@@ -221,6 +257,9 @@ describe('AgentBuilderChooserComponent', () => {
     spyApiAgentUninstall = spyOn<any>(component, 'api_agent_uninstall_').and.callThrough();
     spyApiAgentReinstall = spyOn<any>(component, 'api_agent_reinstall_').and.callThrough();
     spyApiGetAppConfigs = spyOn<any>(component, 'api_get_app_configs_').and.callThrough();
+
+    // Set Data
+    host_list_paginator = wrapper_component.table_paginator;
 
     // Detect changes
     fixture.detectChanges();
@@ -254,6 +293,7 @@ describe('AgentBuilderChooserComponent', () => {
     spySetAgentInstallerConfigurationMatTableData.calls.reset();
     spySetIPTargetMatTableData.calls.reset();
     spyGetCredentials.calls.reset();
+    spyPerformAgentAction.calls.reset();
     spyUpdateIPTargetsListTargets.calls.reset();
     spyWebsocketGetSocketOnRefresh.calls.reset();
     spyApiGetChartStatus.calls.reset();
@@ -464,14 +504,6 @@ describe('AgentBuilderChooserComponent', () => {
         expect(component.set_host_list_paginator).toHaveBeenCalled();
       });
 
-      it('should call set_host_list_paginator() and set host list mat table data source paginator', () => {
-        reset();
-
-        component.set_host_list_paginator(host_list, host_list_paginator);
-
-        expect(host_list.paginator).toBeDefined();
-      });
-
       it('should call set_host_list_paginator() and return host list mat table data source', () => {
         reset();
 
@@ -528,28 +560,12 @@ describe('AgentBuilderChooserComponent', () => {
         expect(component.agents_install).toHaveBeenCalled();
       });
 
-      it('should call dialog_message_() from agents_install()', () => {
-        reset();
-
-        component.agents_install(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1);
-
-        expect(component['dialog_message_']).toHaveBeenCalled();
-      });
-
       it('should call get_credentials_() from agents_install()', () => {
         reset();
 
         component.agents_install(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1);
 
         expect(component['get_credentials_']).toHaveBeenCalled();
-      });
-
-      it('should call api_agents_install_() from agents_install()', () => {
-        reset();
-
-        component.agents_install(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1);
-
-        expect(component['api_agents_install_']).toHaveBeenCalled();
       });
     });
 
@@ -562,28 +578,12 @@ describe('AgentBuilderChooserComponent', () => {
         expect(component.agents_uninstall).toHaveBeenCalled();
       });
 
-      it('should call dialog_message_() from agents_uninstall()', () => {
-        reset();
-
-        component.agents_uninstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1);
-
-        expect(component['dialog_message_']).toHaveBeenCalled();
-      });
-
       it('should call get_credentials_() from agents_uninstall()', () => {
         reset();
 
         component.agents_uninstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1);
 
         expect(component['get_credentials_']).toHaveBeenCalled();
-      });
-
-      it('should call api_agents_uninstall_() from agents_uninstall()', () => {
-        reset();
-
-        component.agents_uninstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1);
-
-        expect(component['api_agents_uninstall_']).toHaveBeenCalled();
       });
     });
 
@@ -596,28 +596,12 @@ describe('AgentBuilderChooserComponent', () => {
         expect(component.agent_uninstall).toHaveBeenCalled();
       });
 
-      it('should call dialog_message_() from agent_uninstall()', () => {
-        reset();
-
-        component.agent_uninstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1, MockHostClass1);
-
-        expect(component['dialog_message_']).toHaveBeenCalled();
-      });
-
       it('should call get_credentials_() from agent_uninstall()', () => {
         reset();
 
         component.agent_uninstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1, MockHostClass1);
 
         expect(component['get_credentials_']).toHaveBeenCalled();
-      });
-
-      it('should call api_agent_uninstall_() from agent_uninstall()', () => {
-        reset();
-
-        component.agent_uninstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1, MockHostClass1);
-
-        expect(component['api_agent_uninstall_']).toHaveBeenCalled();
       });
     });
 
@@ -630,28 +614,12 @@ describe('AgentBuilderChooserComponent', () => {
         expect(component.agent_reinstall).toHaveBeenCalled();
       });
 
-      it('should call dialog_message_() from agent_reinstall()', () => {
-        reset();
-
-        component.agent_reinstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1, MockHostClass1);
-
-        expect(component['dialog_message_']).toHaveBeenCalled();
-      });
-
       it('should call get_credentials_() from agent_reinstall()', () => {
         reset();
 
         component.agent_reinstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1, MockHostClass1);
 
         expect(component['get_credentials_']).toHaveBeenCalled();
-      });
-
-      it('should call api_agent_reinstall_() from agent_reinstall()', () => {
-        reset();
-
-        component.agent_reinstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1, MockHostClass1);
-
-        expect(component['api_agent_reinstall_']).toHaveBeenCalled();
       });
     });
 
@@ -728,7 +696,7 @@ describe('AgentBuilderChooserComponent', () => {
       it('should call api_agent_save_config_() after mat dialog ref closed from within new_agent_installer_configuration()', () => {
         reset();
 
-        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(MockAgentInstallerConfigurationInterface1) } as MatDialogRef<typeof component>);
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(MockAgentInstallerConfigurationClass1) } as MatDialogRef<typeof component>);
 
         component.app_configs = MockAppConfigClassesArray;
         component.new_agent_installer_configuration();
@@ -739,7 +707,7 @@ describe('AgentBuilderChooserComponent', () => {
       it('should not call api_agent_save_config_() after mat dialog ref closed from within new_agent_installer_configuration()', () => {
         reset();
 
-        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.app_configs = MockAppConfigClassesArray;
         component.new_agent_installer_configuration();
@@ -760,7 +728,7 @@ describe('AgentBuilderChooserComponent', () => {
       it('should call api_agent_save_ip_target_list_() after mat dialog ref closed from within new_ip_target_list()', () => {
         reset();
 
-        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(MockIPTargetListInterface1) } as MatDialogRef<typeof component>);
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(MockIPTargetListClass1) } as MatDialogRef<typeof component>);
 
         component.new_ip_target_list();
 
@@ -770,7 +738,7 @@ describe('AgentBuilderChooserComponent', () => {
       it('should not call api_agent_save_ip_target_list_() after mat dialog ref closed from within new_ip_target_list()', () => {
         reset();
 
-        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.new_ip_target_list();
 
@@ -948,7 +916,7 @@ describe('AgentBuilderChooserComponent', () => {
         expect(component['is_host_index_zero_']).toHaveBeenCalled();
       });
 
-      it('should call is_host_index_zero_() and return true', () => {
+      it('should call is_host_index_zero_() and return true if', () => {
         reset();
 
         const return_value: boolean = component['is_host_index_zero_'](MockHostClass1, 0, MockHostClassesArray1);
@@ -960,6 +928,14 @@ describe('AgentBuilderChooserComponent', () => {
         reset();
 
         const return_value: boolean = component['is_host_index_zero_'](MockHostClass1, 1, MockHostClassesArray1);
+
+        expect(return_value).toBeFalse();
+      });
+
+      it('should call is_host_index_zero_() and return false if host undefined', () => {
+        reset();
+
+        const return_value: boolean = component['is_host_index_zero_'](undefined, 1, MockHostClassesArray1);
 
         expect(return_value).toBeFalse();
       });
@@ -1035,21 +1011,65 @@ describe('AgentBuilderChooserComponent', () => {
 
     describe('private get_credentials_()', () => {
       it('should call get_credentials_()', () => {
-        // Allows respy to change default spy created in spy service
-        jasmine.getEnv().allowRespy(true);
-        spyGetCredentials = spyOn<any>(component, 'get_credentials_').and.callThrough();
-
         reset();
 
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(mock_windows_credentials_form_group) } as MatDialogRef<typeof component>);
 
-        component['get_credentials_']('title', 'instructions');
+        component['get_credentials_']('title', 'instructions', INSTALL, agent_interface);
 
         expect(component['get_credentials_']).toHaveBeenCalled();
+      });
 
-        spyGetCredentials = spyOn<any>(component, 'get_credentials_').and.callFake((title: string, instructions: string, callback) => {
-          callback(MockWindowsCredentialsClass);
-        });
+      it('should call perform_agent_action_() after mat dialog ref closed from within get_credentials_()', () => {
+        reset();
+
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(mock_windows_credentials_form_group) } as MatDialogRef<typeof component>);
+
+        component['get_credentials_']('title', 'instructions', INSTALL, agent_interface);
+
+        expect(component['perform_agent_action_']).toHaveBeenCalled();
+      });
+    });
+
+    describe('private perform_agent_action_()', () => {
+      it('should call perform_agent_action_()', () => {
+        reset();
+
+        component['perform_agent_action_'](INSTALL, agent_interface);
+
+        expect(component['perform_agent_action_']).toHaveBeenCalled();
+      });
+
+      it('should call api_agents_install_() from perform_agent_action_()', () => {
+        reset();
+
+        component['perform_agent_action_'](INSTALL, agent_interface);
+
+        expect(component['api_agents_install_']).toHaveBeenCalled();
+      });
+
+      it('should call api_agent_reinstall_() from perform_agent_action_()', () => {
+        reset();
+
+        component['perform_agent_action_'](REINSTALL, agent_target_interface);
+
+        expect(component['api_agent_reinstall_']).toHaveBeenCalled();
+      });
+
+      it('should call api_agent_uninstall_() from perform_agent_action_()', () => {
+        reset();
+
+        component['perform_agent_action_'](UNINSTALL, agent_target_interface);
+
+        expect(component['api_agent_uninstall_']).toHaveBeenCalled();
+      });
+
+      it('should call api_agents_uninstall_() from perform_agent_action_()', () => {
+        reset();
+
+        component['perform_agent_action_'](UNINSTALLS, agent_interface);
+
+        expect(component['api_agents_uninstall_']).toHaveBeenCalled();
       });
     });
 
@@ -1096,7 +1116,7 @@ describe('AgentBuilderChooserComponent', () => {
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['catalog_service_'], 'get_chart_statuses').and.returnValue(of([MockStatusClass_LogstashDeployedError]));
+        spyOn<any>(component['catalog_service_'], 'get_chart_statuses').and.returnValue(of([MockStatusClassLogstashDeployedError]));
 
         component['api_get_chart_status_']();
 

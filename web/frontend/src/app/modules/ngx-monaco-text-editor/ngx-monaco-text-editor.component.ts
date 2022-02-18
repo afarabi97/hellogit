@@ -5,7 +5,12 @@ import { Subject } from 'rxjs';
 import { ObjectUtilitiesClass } from '../../classes';
 import { ConfirmActionPopup } from '../../classes/ConfirmActionPopup';
 import { TextEditorConfigurationInterface } from '../../interfaces';
-import { CLOSE_DEFAULT_TOOLTIP, SAVE_DEFAULT_TOOLTIP } from './constants/ngx-monaco-editor.constants';
+import {
+  CLOSE_BUTTON_TEXT,
+  CLOSE_DEFAULT_TOOLTIP,
+  SAVE_BUTTON_TEXT,
+  SAVE_DEFAULT_TOOLTIP
+} from './constants/ngx-monaco-editor.constants';
 
 /**
  * Component used for displaying ngx code editor within the browser
@@ -33,6 +38,8 @@ export class NGXMonacoTextEditorComponent {
   // Used for displaying title above editor
   // note: if value not passed the title will not be shown
   title: string;
+  // Used for disabling action button until text changes made
+  text_changed_: boolean;
   // Used for triggering return text from child component
   get_return_text$: Subject<void> = new Subject<void>();
 
@@ -52,6 +59,7 @@ export class NGXMonacoTextEditorComponent {
     this.text = mat_dialog_data_.text;
     this.use_language = mat_dialog_data_.use_language;
     this.title = mat_dialog_data_.title;
+    this.text_changed_ = false;
   }
 
   /**
@@ -65,12 +73,36 @@ export class NGXMonacoTextEditorComponent {
   }
 
   /**
-   * Used for returning the confirm title as a tooltip for save button
+   * Used for returning the action button text or default save
+   *
+   * @return {*}  {string}
+   * @memberof NGXMonacoTextEditorComponent
+   */
+  get_action_button_text(): string {
+    return ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.confirm_save) &&
+           ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.confirm_save.confirmButtonText) ?
+             this.mat_dialog_data_.confirm_save.confirmButtonText : SAVE_BUTTON_TEXT;
+  }
+
+  /**
+   * Used for returning the non-action button text or default close
+   *
+   * @return {*}  {string}
+   * @memberof NGXMonacoTextEditorComponent
+   */
+  get_non_action_button_text(): string {
+    return ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.confirm_close) &&
+           ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.confirm_close.confirmButtonText) ?
+             this.mat_dialog_data_.confirm_close.confirmButtonText : CLOSE_BUTTON_TEXT;
+  }
+
+  /**
+   * Used for returning the confirm title as a tooltip for action button
    *
    * @returns {string}
    * @memberof NGXMonacoTextEditorComponent
    */
-  get_save_tooltip(): string {
+  get_action_tooltip(): string {
     if (ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.confirm_save) &&
         ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.confirm_save.title)) {
       return this.mat_dialog_data_.confirm_save.title;
@@ -80,12 +112,12 @@ export class NGXMonacoTextEditorComponent {
   }
 
   /**
-   * Used for returning the confirm title as a tooltip for close button
+   * Used for returning the confirm title as a tooltip for non action button
    *
    * @returns {string}
    * @memberof NGXMonacoTextEditorComponent
    */
-  get_close_tooltip(): string {
+  get_non_action_tooltip(): string {
     if (ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.confirm_close) &&
         ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.confirm_close.title)) {
       return this.mat_dialog_data_.confirm_close.title;
@@ -101,7 +133,20 @@ export class NGXMonacoTextEditorComponent {
    * @memberof NGXMonacoTextEditorComponent
    */
   get_disabled_save(): boolean {
-    return ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.disable_save) ? this.mat_dialog_data_.disable_save : false;
+    return ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.disable_save) ?
+             this.mat_dialog_data_.disable_save : !this.text_changed_;
+  }
+
+  /**
+   * Used for setting the text_changed variable to disable action button
+   * if no text has changed and
+   * if disabled action not set by default.
+   *
+   * @param {string} event
+   * @memberof NGXMonacoTextEditorComponent
+   */
+  set_text_changed(event: string): void {
+    this.text_changed_ = event !== this.text;
   }
 
   /**
@@ -109,7 +154,7 @@ export class NGXMonacoTextEditorComponent {
    *
    * @memberof NGXMonacoTextEditorComponent
    */
-  save_click(): void {
+  action_click(): void {
     if (ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.confirm_save)) {
       const return_general_function: () => void = () => this.get_return_text_();
       this.confirm_action_dialog_.confirmAction(
@@ -142,7 +187,7 @@ export class NGXMonacoTextEditorComponent {
    *
    * @memberof NGXMonacoTextEditorComponent
    */
-  close_click(): void {
+  non_action_click(): void {
     if (ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.disable_save) &&
         !this.mat_dialog_data_.disable_save &&
         ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.confirm_close)) {

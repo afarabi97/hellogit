@@ -1,0 +1,30 @@
+<div class="project-card" (mouseenter)="mouseenter_hover_card()" (mouseleave)="mouseleave_hover_card()">
+  <div class="card-header">
+    <cvah-node-background [zoomed]="hovered" [color]="hover_color"></cvah-node-background>
+    <div>
+      <h3 id="{{  generate_unique_html_id( 'cvah-application-card-div-div-div-h3-chart-application' ) }}"
+          style="color:white">{{ chart.application | capitalizeFirst }}</h3>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="body" *ngIf="hovered" id="{{  generate_unique_html_id( 'cvah-application-card-div-div-chart-description' ) }}">{{ chart.description }}</div>
+    <div class="body" *ngIf="!hovered">
+      <div class="supportedLabel" *ngIf="chart.pmoSupported">PMO Supported Application</div>
+      <div class="supportedLabel2" *ngIf="!chart.pmoSupported">Community Application</div>
+      <div *ngIf="chart?.nodes?.length !== 0" style="margin-top:10px;">
+        <div *ngFor="let node of chart.nodes; let i = index;"
+             id="{{  generate_unique_html_id( 'cvah-application-card-div-div-div-div-' + i + '-node-info' ) }}"
+             [style.color]="get_status_color(node)">{{ node.hostname ? node.hostname : node.deployment_name }}: &nbsp; {{ node.status }}</div>
+      </div>
+      <div *ngIf="chart?.nodes?.length === 0">
+        <p style="color:white">Not Installed</p>
+      </div>
+    </div>
+    <div div fxLayout="row" fxLayoutAlign="space-between center">
+      <button mat-raised-button id="{{  generate_unique_html_id( 'cvah-application-card-div-div-div-button-configure-application' ) }}"
+              color="accent" (click)="card_select(chart)">Configure Application</button>
+      <button mat-mini-fab id="{{  generate_unique_html_id( 'cvah-application-card-div-div-div-button' ) }}"
+              [style.background-color]="get_background_color()"></button>
+    </div>
+  </div>
+</div>

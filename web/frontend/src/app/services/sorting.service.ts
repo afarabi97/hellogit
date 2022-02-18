@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ChartClass } from '../classes';
 
 @Injectable({
   providedIn: 'root'
@@ -45,6 +46,18 @@ export class SortingService {
     b = b['name'];
 
     return naturalSort(a, b);
+  }
+
+  /**
+   * Used for sorting charts by application
+   *
+   * @param {ChartClass} a
+   * @param {ChartClass} b
+   * @return {*}  {*}
+   * @memberof SortingService
+   */
+  chart_application_alphanum(a: ChartClass, b: ChartClass): any {
+    return naturalSort(a.application, b.application);
   }
 }
 

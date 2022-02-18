@@ -253,7 +253,7 @@ Wait And Validate Kibana Hits
 Find Portal App Index
     [Arguments]  ${application_name}
     [Documentation]  Locates and returns index of application based on name supplied in argument.
-    # Wait Until Element Is Visible  xpath=//*[contains(@id, "-app-card-div-div-div-h3-chart-application")]
+    # Wait Until Element Is Visible  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
     Navigate To Portal
     ${app_name_elements} =  Get WebElements  xpath=//*[contains(@id, "-dns")]
     log     Contains DNS: ${app_name_elements}

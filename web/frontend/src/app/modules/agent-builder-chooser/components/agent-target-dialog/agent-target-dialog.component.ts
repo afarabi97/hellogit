@@ -5,13 +5,14 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 
 import { ObjectUtilitiesClass } from '../../../../classes';
+import { IPTargetListClass } from '../../classes';
 import {
   DNS_INSTRUCTIONS,
   SMB_PORT,
   VALIDATORS_REQUIRED,
   VALIDATORS_REQUIRED_FROM_ARRAY,
   WINRM_PORT,
-  WINRM_PORT_SSL,
+  WINRM_PORT_SSL
 } from '../../constants/agent-builder-chooser.constant';
 import { IPTargetListInterface } from '../../interfaces';
 
@@ -145,7 +146,7 @@ export class AgentTargetDialogComponent implements OnInit {
       ntlm: this.ntlm_form_group.value,
       smb: this.smb_form_group.value
     };
-    this.mat_dialog_ref_.close(ip_target_list);
+    this.mat_dialog_ref_.close(new IPTargetListClass(ip_target_list));
   }
 
   /**

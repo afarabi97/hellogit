@@ -11,6 +11,7 @@ export * from './form-control.class';
 export * from './generic-job-and-key.class';
 export * from './host-info.class';
 export * from './host-info-redac.class';
+export * from './iface-state.class';
 export * from './interfaces.class';
 export * from './job.class';
 export * from './kit-form.class';

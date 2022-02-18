@@ -166,7 +166,7 @@ sonar-scan back-end code base:
     echo "Current working directory is $(pwd)"
     PATH_PWD=$(pwd)
     echo "TASK [pylint / pytest-cov: back-end] *******************************************"
-    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD $LATEST_CODE_CHECKER_IMAGE $PATH_PWD/web/setup/pylint_pytest_backend.sh
+    docker run -e PATH_PWD=/opt/tfplenum --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD $LATEST_CODE_CHECKER_IMAGE $PATH_PWD/web/setup/pylint_pytest_backend.sh
     echo "TASK [sonar-scanner: back-end code-base ingestion] **************************************"
     sonar-scanner \
       -Dsonar.qualitygate.wait=true \

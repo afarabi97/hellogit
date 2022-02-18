@@ -197,12 +197,11 @@ APP_ARCHIVE_DIALOG__BUTTON_SAVE = 'app-archive-dialog-mat-dialog-actions-button-
 
 
 # These are for card.component.html
-# TODO app-chart-list-app-card-*-app-card-div-div-node-background # node-background (internal)
-# TODO app-chart-list-app-card-*-app-card-div-div-div-h3-chart-application # h3
-# TODO app-chart-list-app-card-*-app-card-div-div-chart-description # div
-# TODO app-chart-list-app-card-*-app-card-div-div-div-div-*-node-info # div
-# TODO app-chart-list-app-card-*-app-card-div-div-div-button-configure-application # button
-# TODO app-chart-list-app-card-*-app-card-div-div-div-button # button
+# TODO cvah-chart-list-cvah-application-card-*-cvah-application-card-div-div-div-h3-chart-application # h3
+# TODO cvah-chart-list-cvah-application-card-*-cvah-application-card-div-div-chart-description # div
+# TODO cvah-chart-list-cvah-application-card-*-cvah-application-card-div-div-div-div-*-node-info # div
+# TODO cvah-chart-list-cvah-application-card-*-cvah-application-card-div-div-div-button-configure-application # button
+# TODO cvah-chart-list-cvah-application-card-*-cvah-application-card-div-div-div-button # button
 
 
 # These are for configmap-editor.component.html
@@ -258,60 +257,63 @@ APP_CHANGE_PASSWORD_FORM__BUTTON_CHANGE_PASSWORD = 'app-change-password-form-mat
 
 
 # These are for chart-list.component.html
-# TODO app-chart-list-div-app-card-* # app-card (internal)
+# TODO cvah-chart-list-div-cvah-application-card-* # cvah-application-card (internal)
 
 
 # These are for catalog.component.html
-APP_CATALOG__MAT_SLIDE_TOGGLE_PMO_APPLICATIONS = 'app-catalog-div-section-div-mat-slide-toggle-pmo-applications' # mat-slide-toggle
-APP_CATALOG__MAT_SLIDE_TOGGLE_COMMUNITY_APPLICATIONS = 'app-catalog-div-section-div-mat-slide-toggle-community-applications' # mat-slide-toggle
-APP_CATALOG__APP_CHART_LIST = 'app-catalog-div-section-div-app-chart-list' # app-chart-list (internal)
-APP_CATALOG__MAT_PROGRESS_BAR = 'app-catalog-div-section-div-mat-progress-bar' # mat-progress-bar
+CVAH_CATALOG__MAT_PROGRESS_BAR = 'cvah-catalog-mat-progress-bar' # mat-progress-bar
+CVAH_CATALOG__MAT_SLIDE_TOGGLE_PMO_APPLICATIONS = 'cvah-catalog-slide-toggle-pmo-applications' # mat-slide-toggle
+CVAH_CATALOG__MAT_SLIDE_TOGGLE_COMMUNITY_APPLICATIONS = 'cvah-catalog-slide-toggle-community-applications' # mat-slide-toggle
 
 
 # These are for catalog-page.component.html
-APP_CATALOG_PAGE__CHART_ID = 'app-catalog-page-div-mat-card-div-div-h2-chart-id' # h2
-APP_CATALOG_PAGE__MAT_STEP_INFORMATION = 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-information' # mat-step
-APP_CATALOG_PAGE__INFORMATION_DESCRIPTION = 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-information-form-div-description' # div
-APP_CATALOG_PAGE__INFORMATION_APP_VERSION = 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-information-form-div-app-version' # div
-APP_CATALOG_PAGE__INFORMATION_TYPE = 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-information-form-div-type' # div
-APP_CATALOG_PAGE__INFORMATION_VERSION = 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-information-form-div-version' # div
-APP_CATALOG_PAGE__MAT_STEP_PROCESS_FORM_GROUP = 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group' # mat-step
-APP_CATALOG_PAGE__PROCESS_FORM_GROUP_MAT_FORM_FIELD_PROCESS = 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-mat-form-field-process' # mat-form-field
-APP_CATALOG_PAGE__PROCESS_FORM_GROUP_PROCESS_MAT_SELECT = 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-mat-form-field-process-mat-select' # mat-select
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-mat-form-field-process-mat-select-mat-option-* # mat-option
-APP_CATALOG_PAGE__PROCESS_FORM_GROUP_MAT_FORM_FIELD_NODE = 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node' # mat-form-field
-APP_CATALOG_PAGE__PROCESS_FORM_GROUP_NODE_MAT_SELECT = 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select' # mat-select
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select-mat-option-* # mat-option
-APP_CATALOG_PAGE__MAT_STEP_CONFIGURATION_OVERVIEW = 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview' # mat-step
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-h4-hostname # h4
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-mat-form-field-deployment-name # mat-form-field
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-mat-form-field-deployment-name-input # input
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-form-field-control-name-text # mat-form-field
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-form-field-control-name-text-input # input
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-form-field-control-name-text-mat-error # mat-error
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-checkbox-checkbox # mat-checkbox
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-checkbox-cortex-checkbox # mat-checkbox
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-checkbox-misp-checkbox # mat-checkbox
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-mat-form-field-control-name-text-list # mat-form-field
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-mat-form-field-control-name-text-list-input # input
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-mat-form-field-control-name-text-list-mat-error # mat-error
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-*-div-mat-form-field-control-name-interface # mat-form-field
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-*-div-mat-form-field-control-name-interface-mat-label # mat-label
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-*-div-mat-form-field-control-name-interface-mat-select # mat-select
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-*-div-mat-form-field-control-name-interface-mat-select-* # mat-option
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-form-field-control-name-kafka # mat-form-field
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-form-field-control-name-kafka-input # input
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-form-field-control-name-kafka-mat-error # mat-error
-APP_CATALOG_PAGE__MAT_STEP_VALUES_FILE_OVERVIEW = 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview' # mat-step
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview-form-div-*-h4-deployment-name # h4
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview-form-div-*-mat-checkbox-enable-edit # mat-checkbox
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview-form-div-*-mat-form-field-deployment-name # mat-form-field
-# TODO app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview-form-div-*-mat-form-field-deployment-name-textarea # textarea
-APP_CATALOG_PAGE__BUTTON_BACK = 'app-catalog-page-div-mat-card-div-button-back' # button
-APP_CATALOG_PAGE__BUTTON_NEXT = 'app-catalog-page-div-mat-card-div-button-next' # button
-APP_CATALOG_PAGE__BUTTON_NEXT_GET_CONFIG = 'app-catalog-page-div-mat-card-div-button-next-get-config' #  # button
-APP_CATALOG_PAGE__BUTTON_NEXT_GET_VALUES = 'app-catalog-page-div-mat-card-div-button-next-get-values' # button
-APP_CATALOG_PAGE__BUTTON_RUN = 'app-catalog-page-div-mat-card-div-button-run' # button
+CVAH_CATALOG_PAGE__CHART_ID = 'cvah-catalog-page-div-mat-card-div-div-h2-chart-id' # h2
+CVAH_CATALOG_PAGE__MAT_STEP_INFORMATION = 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-information' # mat-step
+CVAH_CATALOG_PAGE__INFORMATION_DESCRIPTION = 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-information-form-div-description' # div
+CVAH_CATALOG_PAGE__INFORMATION_APP_VERSION = 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-information-form-div-app-version' # div
+CVAH_CATALOG_PAGE__INFORMATION_TYPE = 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-information-form-div-type' # div
+CVAH_CATALOG_PAGE__INFORMATION_VERSION = 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-information-form-div-version' # div
+CVAH_CATALOG_PAGE__MAT_STEP_PROCESS_FORM_GROUP = 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group' # mat-step
+CVAH_CATALOG_PAGE__PROCESS_FORM_GROUP_MAT_FORM_FIELD_PROCESS = 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-mat-form-field-process' # mat-form-field
+CVAH_CATALOG_PAGE__PROCESS_FORM_GROUP_PROCESS_MAT_SELECT = 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-mat-form-field-process-mat-select' # mat-select
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-mat-form-field-process-mat-select-mat-option-* # mat-option
+CVAH_CATALOG_PAGE__PROCESS_FORM_GROUP_MAT_FORM_FIELD_NODE = 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node' # mat-form-field
+CVAH_CATALOG_PAGE__PROCESS_FORM_GROUP_NODE_MAT_SELECT = 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select' # mat-select
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select-mat-option-* # mat-option
+CVAH_CATALOG_PAGE__MAT_STEP_CONFIGURATION_OVERVIEW = 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview' # mat-step
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-h4-hostname # h4
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-mat-form-field-deployment-name # mat-form-field
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-mat-form-field-deployment-name-input # input
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-form-field-control-name-text # mat-form-field
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-form-field-control-name-text-input # input
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-form-field-control-name-text-mat-error # mat-error
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-checkbox-checkbox # mat-checkbox
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-checkbox-cortex-checkbox # mat-checkbox
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-checkbox-misp-checkbox # mat-checkbox
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-mat-form-field-control-name-text-list # mat-form-field
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-mat-form-field-control-name-text-list-input # input
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-mat-form-field-control-name-text-list-mat-error # mat-error
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-*-div-mat-form-field-control-name-interface # mat-form-field
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-*-div-mat-form-field-control-name-interface-mat-label # mat-label
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-*-div-mat-form-field-control-name-interface-mat-select # mat-select
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-div-*-div-mat-form-field-control-name-interface-mat-select-* # mat-option
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-form-field-control-name-kafka # mat-form-field
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-form-field-control-name-kafka-input # input
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-*-div-div-*-div-mat-form-field-control-name-kafka-mat-error # mat-error
+CVAH_CATALOG_PAGE__MAT_STEP_VALUES_FILE_OVERVIEW = 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview' # mat-step
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview-form-div-*-h4-deployment-name # h4
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview-form-div-*-mat-checkbox-enable-edit # mat-checkbox
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview-form-div-*-mat-form-field-deployment-name # mat-form-field
+# TODO cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview-form-div-*-mat-form-field-deployment-name-textarea # textarea
+CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_CANCEL = 'cvah-catalog-page-process-step-button-cancel' #  # button
+CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT = 'cvah-catalog-page-process-step-button-next' #  # button
+CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_RUN = 'cvah-catalog-page-process-step-button-run' #  # button
+CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_CANCEL = 'cvah-catalog-page-config-step-button-cancel' #  # button
+CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_BACK = 'cvah-catalog-page-config-step-button-back' # button
+CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT = 'cvah-catalog-page-config-step-button-next' #  # button
+CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_CANCEL = 'cvah-catalog-page-values-step-button-cancel' #  # button
+CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_BACK = 'cvah-catalog-page-values-step-button-back' # button
+CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN = 'cvah-catalog-page-values-step-button-run' # button
 
 
 # These are for confirm-dailog.component.html

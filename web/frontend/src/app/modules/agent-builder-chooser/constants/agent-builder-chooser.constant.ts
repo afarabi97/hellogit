@@ -13,6 +13,10 @@ export const DOMAIN_PASSWORD_LABEL: string = 'Domain Password';
 export const WINDOWS_AGENT_DETAILS: string = 'Windows Agent Details';
 export const WINDOWS_AGENT_INSTALLER: string = 'Windows Agent Installer';
 export const WINDOWS_AGENT_TARGET: string = 'Windows Agent Target';
+export const INSTALL: string = 'install';
+export const UNINSTALL: string = 'uninstall';
+export const UNINSTALLS: string = 'uninstalls';
+export const REINSTALL: string = 'reinstall';
 
 export const AGENT_INSTALLER_CONFIGURATION_MAT_TABLE_COLUMNS: string[] = [ 'select', 'config_name', 'install_custom', 'install_endgame', 'endgame_sensor_name', 'actions' ];
 export const IP_TARGET_CONFIGS_MAT_TABLE_COLUMNS: string[] = [ 'select', 'name', 'protocol', 'port', 'domain_name', 'actions' ];

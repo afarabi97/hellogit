@@ -35,7 +35,8 @@ export abstract class ObjectUtilitiesClass {
     return passed_array.every((v: any) => v instanceof class_name);
   }
 
-  /** Used to see if data is inluded as enum value
+  /**
+   * Used to see if data is inluded as enum value
    *
    * @static
    * @template T
@@ -45,8 +46,34 @@ export abstract class ObjectUtilitiesClass {
    * @memberof ObjectUtilitiesClass
    */
   static is_included_in_enum<T extends string, TEnumValue extends string>(enum_variable: { [key in T]: TEnumValue }): (value: string) => value is TEnumValue {
-    const enumValues = Object.values(enum_variable);
+    const enumValues: unknown[] = Object.values(enum_variable);
 
   	return (value: string): value is TEnumValue => enumValues.includes(value);
+  }
+
+  /**
+   * Used for returning object key value
+   *
+   * @static
+   * @param {Object} object
+   * @param {string} key
+   * @return {*}  {*}
+   * @memberof ObjectUtilitiesClass
+   */
+  static return_object_key_value(object: Object, key: string): any {
+    return object.hasOwnProperty(key) ? object[key] : null;
+  }
+
+  /**
+   * Used for returning a deep copy of an object
+   *
+   * @static
+   * @template T
+   * @param {T} object_to_copy
+   * @return {*}  {T}
+   * @memberof ObjectUtilitiesClass
+   */
+  static create_deep_copy<T>(object_to_copy: T): T {
+    return (JSON.parse(JSON.stringify(object_to_copy)));
   }
 }

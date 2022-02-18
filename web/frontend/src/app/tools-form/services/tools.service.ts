@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
+import { IFACEStateClass } from '../../classes';
 import { EntityConfig } from '../../interfaces';
 import { ApiService } from '../../services/abstract/api.service';
 
@@ -111,7 +112,7 @@ export class ToolsService extends ApiService<any> {
                            .pipe(catchError((err: any) => this.handleError('monitoring-interfaces', err)));
   }
 
-  getIfaceStates(hostname: string): Observable<Object> {
+  get_iface_states(hostname: string): Observable<IFACEStateClass[]> {
     const url = `/api/tools/ifaces/${hostname}`;
     return this.httpClient_.get(url).pipe(catchError((err: any) => this.handleError('interfaces', err)));
   }

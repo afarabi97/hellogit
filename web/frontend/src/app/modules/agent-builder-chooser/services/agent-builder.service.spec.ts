@@ -8,6 +8,7 @@ import { Observable, of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import {
+  MockAgentInstallerConfigurationClass1,
   MockAgentInstallerConfigurationClassesArray,
   MockAppConfigClassesArray,
   MockHostClass1,
@@ -26,7 +27,6 @@ import {
   MockHostInterface1,
   MockHostInterface2,
   MockIPTargetListInterface1,
-  MockIPTargetListInterface2,
   MockIPTargetListInterfacesArray,
   MockSuccessMessageInterface
 } from '../../../../../static-data/interface-objects';
@@ -220,7 +220,7 @@ describe('AgentBuilderService', () => {
       it('should call agent_save_config() and return agent installer configuration class array', () => {
         reset();
 
-        service.agent_save_config(MockAgentInstallerConfigurationInterface1)
+        service.agent_save_config(MockAgentInstallerConfigurationClass1)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: AgentInstallerConfigurationClass[]) => {
             const objectKeys: string[] = Object.keys(response[0]);
@@ -246,7 +246,7 @@ describe('AgentBuilderService', () => {
       it('should call agent_save_config() and handle error message error', () => {
         reset();
 
-        service.agent_save_config(MockAgentInstallerConfigurationInterface1)
+        service.agent_save_config(MockAgentInstallerConfigurationClass1)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: AgentInstallerConfigurationClass[]) => {},
             (error: ErrorMessageClass | HttpErrorResponse) => {
@@ -441,7 +441,7 @@ describe('AgentBuilderService', () => {
       it('should call agent_save_ip_target_list() and return ip target list class array', () => {
         reset();
 
-        service.agent_save_ip_target_list(MockIPTargetListInterface1)
+        service.agent_save_ip_target_list(MockIPTargetListClass1)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: IPTargetListClass[]) => {
             const objectKeys: string[] = Object.keys(response[0]);
@@ -467,7 +467,7 @@ describe('AgentBuilderService', () => {
       it('should call agent_save_ip_target_list() and handle error', () => {
         reset();
 
-        service.agent_save_ip_target_list(MockIPTargetListInterface2)
+        service.agent_save_ip_target_list(MockIPTargetListClass2)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
             (response: IPTargetListClass[]) => {},
@@ -1029,7 +1029,7 @@ export class AgentBuilderServiceSpy implements AgentBuilderServiceInterface {
   );
 
   agent_save_config = jasmine.createSpy('agent_save_config').and.callFake(
-    (agent_installer_configuration: AgentInstallerConfigurationInterface): Observable<AgentInstallerConfigurationClass[]> => this.call_fake_agent_save_config(agent_installer_configuration)
+    (agent_installer_configuration: AgentInstallerConfigurationClass): Observable<AgentInstallerConfigurationClass[]> => this.call_fake_agent_save_config(agent_installer_configuration)
   );
 
   agent_delete_config = jasmine.createSpy('agent_delete_config').and.callFake(
@@ -1090,7 +1090,7 @@ export class AgentBuilderServiceSpy implements AgentBuilderServiceInterface {
     return of(create_mock_blob(mock_file));
   }
 
-  call_fake_agent_save_config(agent_installer_configuration: AgentInstallerConfigurationInterface): Observable<AgentInstallerConfigurationClass[]> {
+  call_fake_agent_save_config(agent_installer_configuration: AgentInstallerConfigurationClass): Observable<AgentInstallerConfigurationClass[]> {
     const agent_installer_configurations: AgentInstallerConfigurationClass[] = MockAgentInstallerConfigurationClassesArray.map((aic: AgentInstallerConfigurationInterface) => new AgentInstallerConfigurationClass(aic));
     agent_installer_configurations.push(new AgentInstallerConfigurationClass(agent_installer_configuration));
 

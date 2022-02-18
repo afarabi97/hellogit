@@ -106,7 +106,7 @@ class HELMDeleteCtrl(Resource):
         if process == "uninstall":
             job = delete_helm_apps.delay(
                 application=application, namespace=NAMESPACE, nodes=nodes)  # type: Response
-            return JobID(job).to_dict()
+            return JobID(job).to_dict(), 200
 
         logger.error("Executing /api/catalog/uninstall has failed.")
         return {'error_message': 'Failed to uninstall catalog application using helm'}, 500
@@ -132,7 +132,7 @@ class HELMReinstallCtrl(Resource):
         if process == "reinstall":
             job = reinstall_helm_apps.delay(application=application, namespace=NAMESPACE, nodes=nodes,
                                             node_affinity=node_affinity, values=values)
-            return JobID(job).to_dict()
+            return JobID(job).to_dict(), 200
 
         logger.error("Executing /api/catalog/reinstall has failed.")
         return {'error_message': 'Failed to reinstall catalog application using helm'}, 500

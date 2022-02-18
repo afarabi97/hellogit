@@ -37,6 +37,10 @@
     padding-right: 16px;
   }
 
+  .mat-expansion-panel-body {
+    padding: 0 16px 16px !important;
+  }
+
   mat-dialog-container{
     background-color: map-get($theme, first-elevation-dark-background) !important;
 

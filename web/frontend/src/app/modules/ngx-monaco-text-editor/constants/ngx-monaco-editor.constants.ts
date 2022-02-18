@@ -82,3 +82,5 @@ export const WORDWRAP: SelectOptionInterface[] = [
 // Tooltip messages
 export const SAVE_DEFAULT_TOOLTIP: string = 'Save and close text editor window';
 export const CLOSE_DEFAULT_TOOLTIP: string = 'Close text editor window without saving';
+export const SAVE_BUTTON_TEXT: string = 'Save';
+export const CLOSE_BUTTON_TEXT: string = 'Close';

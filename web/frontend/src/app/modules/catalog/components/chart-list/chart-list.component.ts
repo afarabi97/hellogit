@@ -1,29 +1,33 @@
-import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, HostBinding, Input } from '@angular/core';
 
 import { ChartClass } from '../../../../classes';
+import { HOST_BINDING_CLASS_CHART_LIST_COMPONENT } from '../../constants/catalog.constants';
 
+/**
+ * Component used for displaying a card for catalog app chart list
+ *
+ * @export
+ * @class ChartListComponent
+ */
 @Component({
-  selector: 'app-chart-list',
+  selector: 'cvah-chart-list',
   templateUrl: './chart-list.component.html',
-  styleUrls: ['./chart-list.component.scss'],
-  host: {
-    'class': 'app-chart-list'
-  }
+  styleUrls: [
+    './chart-list.component.scss'
+  ]
 })
-export class ChartListComponent{
+export class ChartListComponent {
+  // Chart List passed from parent component
   @Input() charts: ChartClass[];
-
-  constructor(private router: Router) { }
+  // Used for setting the host binding class
+  @HostBinding('class') private chart_list_component_class_: string;
 
   /**
-   * opens the card and passes the data do
+   * Creates an instance of ChartListComponent.
    *
-   * @param {ChartClass} chart
    * @memberof ChartListComponent
    */
-  onSelectCard(chart: ChartClass) {
-    this.router.navigate([`/application/${chart.application}`]);
+  constructor() {
+    this.chart_list_component_class_ = HOST_BINDING_CLASS_CHART_LIST_COMPONENT;
   }
-
 }

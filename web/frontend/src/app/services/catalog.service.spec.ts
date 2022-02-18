@@ -4,16 +4,19 @@ import { Injectable } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Observable, of as observableOf, Subject } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import {
   MockAppClassArray,
   MockChartClassArray,
   MockChartInfoClassArkime,
+  MockChartInfoClassArkimeViewerReinstallorUninstall,
   MockGenericJobAndKeyClass,
   MockNodeClassArray,
+  MockNodeServerClass,
   MockSavedValueClassArkime,
+  MockSavedValueClassArkimeViewer,
   MockStatusClassArkimeViewer
 } from '../../../static-data/class-objects';
 import {
@@ -24,11 +27,11 @@ import {
   MockChartInterfaceArray,
   MockGenerateRoleInterfaceSensor,
   MockGenericJobAndKeyInterface,
-  MockNodeInterfaceArray,
+  MockNodeServerInterface,
   MockSavedValueInterfaceArkime,
   MockStatusInterfaceArkimeViewer
 } from '../../../static-data/interface-objects';
-import { GenerateValues } from '../../../static-data/return-data';
+import { GenerateValuesFileSensor, GenerateValuesFileServer } from '../../../static-data/return-data';
 import { environment } from '../../environments/environment';
 import {
   AppClass,
@@ -50,7 +53,7 @@ describe('CatalogService', () => {
   let httpMock: HttpTestingController;
 
   // Setup spy references
-  let spyGetKitNodes: jasmine.Spy<any>;
+  let spyGetCatalogNodes: jasmine.Spy<any>;
   let spyGetChartInfo: jasmine.Spy<any>;
   let spyGetChartStatuses: jasmine.Spy<any>;
   let spyGetSavedValues: jasmine.Spy<any>;
@@ -94,7 +97,7 @@ describe('CatalogService', () => {
     httpMock = TestBed.inject(HttpTestingController);
 
     // Add method spies
-    spyGetKitNodes = spyOn(service, 'get_kit_nodes').and.callThrough();
+    spyGetCatalogNodes = spyOn(service, 'get_catalog_nodes').and.callThrough();
     spyGetChartInfo = spyOn(service, 'get_chart_info').and.callThrough();
     spyGetChartStatuses = spyOn(service, 'get_chart_statuses').and.callThrough();
     spyGetSavedValues = spyOn(service, 'get_saved_values').and.callThrough();
@@ -114,7 +117,7 @@ describe('CatalogService', () => {
   const reset = () => {
     ngUnsubscribe$.next();
 
-    spyGetKitNodes.calls.reset();
+    spyGetCatalogNodes.calls.reset();
     spyGetChartInfo.calls.reset();
     spyGetChartStatuses.calls.reset();
     spyGetSavedValues.calls.reset();
@@ -135,16 +138,21 @@ describe('CatalogService', () => {
 
   describe('CatalogService methods', () => {
 
-    describe('REST get_kit_nodes()', () => {
-      it('should call get_kit_nodes()', () => {
+    describe('REST get_catalog_nodes()', () => {
+      it('should call get_catalog_nodes()', () => {
         reset();
 
-        service.get_kit_nodes()
+        service.get_catalog_nodes()
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: NodeClass[]) => {
-            const objectKeys: string[] = Object.keys(response);
-            objectKeys.forEach((key: string) => expect(response[key]).toEqual(MockNodeClassArray[key]));
-            expect(service.get_kit_nodes).toHaveBeenCalled();
+            const objectKeys: string[] = Object.keys(response[0]);
+            objectKeys.forEach((key: string) => {
+              if (!(response[0][key] instanceof Array)) {
+                expect(response[0][key]).toEqual(MockNodeServerClass[key]);
+              }
+            });
+
+            expect(service.get_catalog_nodes).toHaveBeenCalled();
           });
 
         const xhrURL: string = environment.CATALOG_SERVICE_NODES;
@@ -152,21 +160,21 @@ describe('CatalogService', () => {
 
         expect(xhrRequest.request.method).toEqual(getType);
 
-        xhrRequest.flush(MockNodeInterfaceArray);
+        xhrRequest.flush([MockNodeServerInterface]);
 
         after();
       });
 
-      it('should call get_kit_nodes() and handle error', () => {
+      it('should call get_catalog_nodes() and handle error', () => {
         reset();
 
-        service.get_kit_nodes()
+        service.get_catalog_nodes()
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
             (response: NodeClass[]) => {},
             (error: HttpErrorResponse) => {
               expect(error.error).toContain(errorRequest);
-              expect(service.get_kit_nodes).toHaveBeenCalled();
+              expect(service.get_catalog_nodes).toHaveBeenCalled();
             });
 
         const xhrURL: string = environment.CATALOG_SERVICE_NODES;
@@ -424,7 +432,7 @@ describe('CatalogService', () => {
             const objectKeys: string[] = Object.keys(response[0]);
             objectKeys.forEach((key: string) => {
               if (!(response[0][key] instanceof Array)) {
-                expect(response[0][key]).toEqual(GenerateValues[0][key]);
+                expect(response[0][key]).toEqual(GenerateValuesFileServer[0][key]);
               }
             });
 
@@ -436,7 +444,7 @@ describe('CatalogService', () => {
 
         expect(xhrRequest.request.method).toEqual(postType);
 
-        xhrRequest.flush(GenerateValues);
+        xhrRequest.flush(GenerateValuesFileServer);
 
         after();
       });
@@ -701,7 +709,7 @@ describe('CatalogService', () => {
 @Injectable()
 export class CatalogServiceSpy implements CatalogServiceInterface {
 
-  get_kit_nodes = jasmine.createSpy('get_kit_nodes').and.callFake(
+  get_catalog_nodes = jasmine.createSpy('get_catalog_nodes').and.callFake(
     (): Observable<NodeClass[]> => this.call_fake_get_catalog_nodes()
   );
 
@@ -742,42 +750,42 @@ export class CatalogServiceSpy implements CatalogServiceInterface {
   );
 
   call_fake_get_catalog_nodes(): Observable<NodeClass[]> {
-    return observableOf(MockNodeClassArray);
+    return of(MockNodeClassArray);
   }
 
   call_fake_get_chart_info(path_value: string): Observable<ChartInfoClass> {
-    return observableOf(MockChartInfoClassArkime);
+    return of(MockChartInfoClassArkimeViewerReinstallorUninstall);
   }
 
   call_fake_get_chart_statuses(path_value: string): Observable<StatusClass[]> {
-    return observableOf(MockStatusClassArkimeViewer);
+    return of(MockStatusClassArkimeViewer);
   }
 
   call_fake_get_saved_values(path_value: string): Observable<SavedValueClass[]> {
-    return observableOf(MockSavedValueClassArkime);
+    return of(MockSavedValueClassArkimeViewer);
   }
 
   call_fake_get_installed_apps(path_value: string): Observable<AppClass[]> {
-    return observableOf(MockAppClassArray);
+    return of(MockAppClassArray);
   }
 
   call_fake_get_all_application_statuses(): Observable<ChartClass[]> {
-    return observableOf(MockChartClassArray);
+    return of(MockChartClassArray);
   }
 
   call_fake_generate_values_file(generate_values_file: GenerateFileInterface): Observable<Object[]> {
-    return observableOf([MockGenerateRoleInterfaceSensor]);
+    return of(GenerateValuesFileSensor);
   }
 
   call_fake_catalog_install(catalog_helm_action: CatalogHelmActionInterface): Observable<GenericJobAndKeyClass> {
-    return observableOf(MockGenericJobAndKeyClass);
+    return of(MockGenericJobAndKeyClass);
   }
 
   call_fake_catalog_reinstall(catalog_helm_action: CatalogHelmActionInterface): Observable<GenericJobAndKeyClass> {
-    return observableOf(MockGenericJobAndKeyClass);
+    return of(MockGenericJobAndKeyClass);
   }
 
   call_fake_catalog_uninstall(catalog_helm_action: CatalogHelmActionInterface): Observable<GenericJobAndKeyClass> {
-    return observableOf(MockGenericJobAndKeyClass);
+    return of(MockGenericJobAndKeyClass);
   }
 }

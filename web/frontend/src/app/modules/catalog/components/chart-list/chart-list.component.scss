@@ -6,14 +6,6 @@ $list-item-content-height: 200px;
   width: 500px;
   padding-top: 2.5em;
 
-  &:hover {
-    transform: scale(1.02);
-  }
-
-  &:active {
-    transform: scale(0.88);
-  }
-
   &-content {
     width: 100%;
     height: $list-item-content-height;

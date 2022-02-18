@@ -2,13 +2,13 @@
 <div mat-dialog-content>
   <cvah-ngx-monaco-editor [show_options]="show_options" [is_read_only]="is_read_only" [text]="text"
                           [use_language]="use_language" [return_editor_text$]="get_return_text$"
-                          (editor_text)="save($event)">
+                          (editor_text)="save($event)" (keyup_text)="set_text_changed($event)">
   </cvah-ngx-monaco-editor>
 </div>
 <div mat-dialog-actions class="editor-action-buttons">
   <button mat-raised-button id="cvah-ngx-monaco-text-editor-button-save"
-          matTooltip="{{ get_save_tooltip() }}" color="primary"
-          [disabled]="get_disabled_save()" (click)="save_click()">Save</button>
+          matTooltip="{{ get_action_tooltip() }}" color="primary"
+          [disabled]="get_disabled_save()" (click)="action_click()">{{ get_action_button_text() }}</button>
   <button mat-raised-button id="cvah-ngx-monaco-text-editor-button-close"
-          matTooltip="{{ get_close_tooltip() }}" (click)="close_click()">Close</button>
+          matTooltip="{{ get_non_action_tooltip() }}" (click)="non_action_click()">{{ get_non_action_button_text() }}</button>
 </div>

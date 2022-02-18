@@ -1,51 +1,57 @@
 <div fxLayout="column" fxLayoutAlign="start center" style="height: 100vh;" fxLayoutGap="10px">
   <div fxLayout="column" fxLayoutAlign="center center">
-    <h2 id="app-catalog-page-div-mat-card-div-div-h2-chart-id">{{ chart?.id | capitalizeFirst }} (v{{ chart?.appVersion }})</h2>
+    <h2 id="cvah-catalog-page-div-mat-card-div-div-h2-chart-id">{{ chart_info?.id | capitalizeFirst }} (v{{ chart_info?.appVersion }})</h2>
   </div>
   <div fxLayout="column" fxLayoutAlign="center stretch" style="width: 100%;">
-    <mat-horizontal-stepper #stepper linear="true" style="margin-left: 10px; margin-right: 10px;" (selectionChange)="selectionChange($event)">
+    <mat-horizontal-stepper [linear]="is_linear" style="margin-left: 10px; margin-right: 10px;" (selectionChange)="selection_change_stepper($event)">
       <!-- Process -->
-      <mat-step *ngIf="processFormGroup" id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group"
-                [stepControl]="processFormGroup">
-        <form [formGroup]="processFormGroup">
+      <mat-step *ngIf="check_form_group(process_form_group)" id="cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group"
+                [stepControl]="process_form_group">
+        <form [formGroup]="process_form_group">
           <ng-template matStepLabel>Process</ng-template>
           <h5>Process Selection</h5>
           <!-- Process Selection -->
-          <mat-form-field id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-mat-form-field-process" class="mat-form-field">
+          <mat-form-field id="cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-mat-form-field-process" class="mat-form-field">
             <mat-label>Select A Process</mat-label>
-            <mat-select id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-mat-form-field-process-mat-select" formControlName="selectedProcess" (selectionChange)="selectProcessChange()">
-              <mat-option *ngFor="let process of processList; let i = index;"
-                          id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-mat-form-field-process-mat-select-mat-option-' + i }}" [value]="process.process">{{process.name}}</mat-option>
+            <mat-select id="cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-mat-form-field-process-mat-select"
+                        formControlName="selectedProcess" (selectionChange)="selection_change_process()">
+              <mat-option *ngFor="let process of process_list; let i = index;"
+                          id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-mat-form-field-process-mat-select-mat-option-' + i }}"
+                          [value]="process.process">{{ process.name }}</mat-option>
             </mat-select>
           </mat-form-field>
-          <div *ngIf="chart?.node_affinity !== serverAnyValue">
+          <div *ngIf="chart_info?.node_affinity !== server_any_value">
             <h5>Node Selection</h5>
             <!-- Node Selection -->
-            <mat-form-field id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node">
+            <mat-form-field id="cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node">
               <mat-label>Select A Node</mat-label>
-              <mat-select id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select"
+              <mat-select id="cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select"
                           formControlName="selectedNodes" multiple required>
-                <mat-option *ngFor="let node of filterByInput(processFormGroup.value.selectedProcess); let j = index;"
-                            id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select-mat-option-' + j }}"
-                            [value]="node">{{node.hostname}}</mat-option>
+                <mat-option *ngFor="let node of filter_nodes_by_process(process_form_group.value.selectedProcess); let j = index;"
+                            id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select-mat-option-' + j }}"
+                            [value]="node">{{ node.hostname }}</mat-option>
               </mat-select>
             </mat-form-field>
           </div>
         </form>
         <div fxLayout="row" fxLayoutAlign="space-between none" style="margin-top: 10px;">
-          <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-cancel" (click)="navigateToCatalog()">Cancel</button>
-          <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;" (click)="stepper.next();getInterfaceDetails();"
-                  *ngIf="processFormGroup.value.selectedProcess !== 'uninstall'" [disabled]="processFormGroup.invalid">Next</button>
-          <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;"
-                  *ngIf="processFormGroup.value.selectedProcess === 'uninstall'" (click)="runChart()" [disabled]="processFormGroup.invalid">Run</button>
+          <button mat-raised-button id="cvah-catalog-page-process-step-button-cancel" (click)="navigate_to_catalog()">Cancel</button>
+          <button mat-raised-button matStepperNext *ngIf="process_form_group.value.selectedProcess !== 'uninstall'"
+                  id="cvah-catalog-page-process-step-button-next" color="primary"
+                  style="margin-right: 10px;" (click)="get_iface_states();"
+                  [disabled]="process_form_group.invalid">Next</button>
+          <button mat-raised-button *ngIf="process_form_group.value.selectedProcess === 'uninstall'"
+                  id="cvah-catalog-page-process-step-button-run" color="primary"
+                  style="margin-right: 10px;" (click)="run_chart_action()" [disabled]="process_form_group.invalid">Run</button>
         </div>
       </mat-step>
         <!-- Configuration Overview -->
-        <mat-step id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview" >
+        <mat-step *ngIf="check_form_group(config_form_group)" id="cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview"
+                  [stepControl]="config_form_group">
           <ng-template matStepLabel>Configuration Overview</ng-template>
-          <form *ngIf="isReady">
+          <form *ngIf="is_config_ready()" [formGroup]="config_form_group">
             <mat-accordion multi="true">
-              <mat-expansion-panel *ngFor="let sensor of processFormGroup.value.selectedNodes; let k = index;" expanded="true" style="background-color: #5555;" [formGroup]="configFormGroup">
+              <mat-expansion-panel *ngFor="let sensor of process_form_group.value.selectedNodes; let k = index;" expanded="true" style="background-color: #5555;">
                 <mat-expansion-panel-header>
                     <mat-panel-title> {{ sensor.hostname }} </mat-panel-title>
                 </mat-expansion-panel-header>
@@ -53,82 +59,81 @@
                   <!-- Deployment Name-->
                   <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" formGroupName="{{sensor.hostname}}">
                     <!-- Deployment Name -->
-                    <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-mat-form-field-deployment-name' }}">
-                      <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-mat-form-field-deployment-name-input' }}"
-                            formControlName="deployment_name" placeholder="Deployment Name" required>
+                    <mat-form-field id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-mat-form-field-deployment-name' }}">
+                      <input matInput id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-mat-form-field-deployment-name-input' }}"
+                             formControlName="deployment_name" placeholder="Deployment Name" required>
                     </mat-form-field>
                   </div>
-                  <div *ngIf="chart?.formControls">
-                    <div *ngFor="let control of chart.formControls; let l = index;" [ngSwitch]="control?.type" formGroupName="{{sensor.hostname}}">
+                  <div *ngIf="chart_info?.formControls">
+                    <div *ngFor="let control of chart_info.formControls; let l = index;" [ngSwitch]="control?.type" formGroupName="{{sensor.hostname}}">
                       <!-- Text Input -->
                       <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'textinput'">
-                        <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text' }}">
-                          <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-input' }}"
-                                matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" [placeholder]="createInputPlacehoder(control?.name)" [required]="control?.required">
-                          <mat-error *ngIf="isInvalidForm(sensor, control)"
-                                    id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-mat-error' }}">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
+                        <mat-form-field id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text' }}">
+                          <input matInput id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-input' }}"
+                                 matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" [placeholder]="get_label_or_placeholder(control?.name)" [required]="control?.required">
+                          <mat-error *ngIf="is_form_control_invalid(sensor, control)"
+                                     id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-mat-error' }}">{{ get_error_message(control) }}</mat-error>
                         </mat-form-field>
                       </div>
                        <!-- textbox -->
                       <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'textbox'">
                         <mat-form-field appearance="fill">
                           <mat-label>{{ control.name }}</mat-label>
-                          <textarea matInput  matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required" type="text" rows="10"></textarea>
+                          <textarea matInput matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required" type="text" rows="10"></textarea>
                         </mat-form-field>
                       </div>
                       <!-- checkbox -->
                       <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'checkbox'">
-                        <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-checkbox' }}"
-                                      formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
-                                      matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
+                        <mat-checkbox id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-checkbox' }}"
+                                      formControlName="{{control.name}}" [checked]="checkbox_value(sensor, control)" (change)="checkbox_set_value(sensor, control)"
+                                      matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{ control?.description }}</mat-checkbox>
                       </div>
                       <!-- service-node-checkbox -->
                       <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'service-node-checkbox'" >
-                        <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-service-node-checkbox' }}"
-                                formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
-                                matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required" >{{control?.description}}</mat-checkbox>
+                        <mat-checkbox id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-service-node-checkbox' }}"
+                                formControlName="{{control.name}}" [checked]="checkbox_value(sensor, control)" (change)="checkbox_set_value(sensor, control)"
+                                matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required" >{{ control?.description }}</mat-checkbox>
                       </div>
                       <!-- Text Input List -->
                       <div class="stepper__body__selection" *ngSwitchCase="'textinputlist'" fxLayout="column" fxLayoutAlign="center none">
                         <div fxLayout="column" fxLayoutAlign="start center">
-                          <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list' }}" style="width: 100%;">
-                            <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list-input' }}"
-                                  matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" [placeholder]="createInputPlacehoder(control?.name)" [required]="control?.required">
-                            <mat-error *ngIf="isInvalidForm(sensor, control)"
-                                      id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
+                          <mat-form-field id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list' }}" style="width: 100%;">
+                            <input matInput id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list-input' }}"
+                                  matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" [placeholder]="get_label_or_placeholder(control?.name)" [required]="control?.required">
+                            <mat-error *ngIf="is_form_control_invalid(sensor, control)"
+                                      id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list-mat-error' }}">{{ get_error_message(control) }}</mat-error>
                           </mat-form-field>
                         </div>
                       </div>
                       <!-- Interface -->
                       <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'interface'">
-                        <div *ngFor="let sensorint of nodeList; let m = index;">
-                          <div *ngIf="sensorint === sensor">
+                        <div *ngFor="let node of node_list; let m = index;">
+                          <div *ngIf="node === sensor">
                             <mat-form-field>
-                              <mat-label>{{ createInputPlacehoder(control?.name) }}</mat-label>
-                              <mat-select id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select' }}"
-                                          formControlName="{{control.name}}" multiple required
-                                          >
-                                <mat-option *ngFor="let interface of sensorint.deviceFacts.potential_monitor_interfaces; let n = index;"
-                                            id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select-' + n }}"
-                                            [value]="interface" [disabled]="checkInterface(sensorint.hostname, interface)">{{interface}}<mat-icon matSuffix *ngIf="checkInterface(sensorint.hostname, interface)" matTooltip="{{ interface }} interface is disconnected" color="warn">warning</mat-icon>
+                              <mat-label>{{ get_label_or_placeholder(control?.name) }}</mat-label>
+                              <mat-select id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select' }}"
+                                          formControlName="{{control.name}}" multiple required>
+                                <mat-option *ngFor="let interface of node.deviceFacts.potential_monitor_interfaces; let n = index;"
+                                            id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select-' + n }}"
+                                            [value]="interface" [disabled]="check_interface(node.hostname, interface)">{{ interface }}<mat-icon matSuffix *ngIf="check_interface(node.hostname, interface)" matTooltip="{{ interface }} interface is disconnected" color="warn">warning</mat-icon>
                                 </mat-option>
                               </mat-select>
                             </mat-form-field>
-                            <button mat-icon-button
-                                matTooltip="Refresh Interfaces" color="primary"
-                                (click)="getInterfaceDetails()">
+                            <button mat-icon-button matTooltip="Refresh Interfaces"
+                                    color="primary"
+                                    (click)="get_iface_states()">
                                 <em class="material-icons">refresh</em>
-                              </button>
+                            </button>
                           </div>
                         </div>
                       </div>
                       <!-- Kafka -->
                       <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'kafka-cluster-cluster'">
-                        <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka' }}">
-                          <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka-input' }}"
+                        <mat-form-field id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka' }}">
+                          <input matInput id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka-input' }}"
                                 matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
-                          <mat-error *ngIf="isInvalidForm(sensor, control)"
-                                    id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
+                          <mat-error *ngIf="is_form_control_invalid(sensor, control)"
+                                    id="{{ 'cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka-mat-error' }}">{{get_error_message(control)}}</mat-error>
                         </mat-form-field>
                       </div>
                       <!-- Suricata -->
@@ -137,7 +142,7 @@
                           <mat-label>Suricata List</mat-label>
                           <mat-select formControlName="{{control.name}}" multiple required>
                             <mat-option *ngFor="let log of control.default_value; let i = index"
-                                        [value]="log">{{log}}</mat-option>
+                                        [value]="log">{{ log }}</mat-option>
                           </mat-select>
                         </mat-form-field>
                       </div>
@@ -147,7 +152,7 @@
                           <mat-label>Zeek List</mat-label>
                           <mat-select formControlName="{{control.name}}" multiple required>
                             <mat-option *ngFor="let log of control.default_value; let i = index"
-                                        [value]="log">{{log}}</mat-option>
+                                        [value]="log">{{ log }}</mat-option>
                           </mat-select>
                         </mat-form-field>
                       </div>
@@ -158,43 +163,40 @@
             </mat-accordion>
           </form>
           <div fxLayout="row" fxLayoutAlign="space-between none" style="margin-top: 10px;">
-            <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-cancel" (click)="navigateToCatalog()">Cancel</button>
+            <button mat-raised-button id="cvah-catalog-page-config-step-button-cancel" (click)="navigate_to_catalog()">Cancel</button>
             <div>
-              <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-back"
-                      color="warn" style="margin-right: 10px;" (click)="goBack(stepper)">Back</button>
-              <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;"
-                      (click)="getValues(stepper)" [disabled]="configFormGroup.invalid">Next</button>
+              <button mat-raised-button matStepperPrevious id="cvah-catalog-page-config-step-button-back"
+                      color="warn" style="margin-right: 10px;">Back</button>
+              <button mat-raised-button matStepperNext id="cvah-catalog-page-config-step-button-next" color="primary" style="margin-right: 10px;"
+                      [disabled]="config_form_group.invalid">Next</button>
             </div>
           </div>
         </mat-step>
         <!-- Values File Overview -->
-        <mat-step id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview">
-          <ng-template matStepLabel>Values File Overview </ng-template>
-          <form *ngIf="isAdvance">
+        <mat-step id="cvah-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview"
+                  [stepControl]="value_form_group">
+          <ng-template matStepLabel>Values File Overview</ng-template>
+          <form *ngIf="check_form_group(value_form_group)" [formGroup]="value_form_group">
             <mat-accordion multi="true">
-              <mat-expansion-panel *ngFor="let sensor of processFormGroup.value.selectedNodes; let o = index;" [formGroup]="valueFormGroup" expanded="true" style="background-color: #5555;">
+              <mat-expansion-panel *ngFor="let node of process_form_group.value.selectedNodes; let o = index;" expanded="true" style="background-color: #5555;">
                 <mat-expansion-panel-header>
-                    <mat-panel-title> {{ sensor?.deployment_name }} </mat-panel-title>
+                  <mat-panel-title>{{ node?.deployment_name }}</mat-panel-title>
                 </mat-expansion-panel-header>
-                <section>
-                  <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview-form-div-' + o + '-mat-checkbox-enable-edit' }}"
-                                (click)="AdvanceConfiguration(sensor)">Enable Edit</mat-checkbox>
-                  <!-- Deployment Name Textarea -->
-                  <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview-form-div-' + o + '-mat-form-field-deployment-name' }}" class="text-area">
-                    <textarea matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-values-file-overview-form-div-' + o + '-mat-form-field-deployment-name-textarea' }}"
-                              formControlName="{{sensor.deployment_name}}" style="width:100%; min-height: 150px; height: 300px" placeholder="Edit Values File"></textarea>
-                  </mat-form-field>
+                <section fxLayout="column" fxLayoutGap="20px" style="height: 660px;">
+                  <button mat-raised-button fxFlex="none" id="cvah-catalog-page-advanced-configuration"
+                          color="accent" style="margin-right: 10px;" (click)="open_text_editor(node)">Advanced Configuration</button>
+                  <cvah-ngx-monaco-editor fxFlex [text]="get_value_form_group_json_object(node)" [use_language]="'json'"></cvah-ngx-monaco-editor>
                 </section>
               </mat-expansion-panel>
             </mat-accordion>
           </form>
           <div fxLayout="row" fxLayoutAlign="space-between none" style="margin-top: 10px;">
-            <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-cancel" (click)="navigateToCatalog()">Cancel</button>
+            <button mat-raised-button id="cvah-catalog-page-values-step-button-cancel" (click)="navigate_to_catalog()">Cancel</button>
             <div>
-              <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-back"
-                      color="warn" style="margin-right: 10px;" (click)="goBack(stepper)">Back</button>
-              <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;"
-                      (click)="runChart()" [disabled]="valueFormGroup.invalid">Run</button>
+              <button mat-raised-button matStepperPrevious id="cvah-catalog-page-values-step-button-back"
+                      color="warn" style="margin-right: 10px;">Back</button>
+              <button mat-raised-button id="cvah-catalog-page-values-step-button-run" color="primary" style="margin-right: 10px;"
+                      (click)="run_chart_action()" [disabled]="value_form_group.invalid">Run</button>
             </div>
           </div>
         </mat-step>

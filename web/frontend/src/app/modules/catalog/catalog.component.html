@@ -4,22 +4,21 @@
       <mat-card-title>Catalog</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div *ngIf="!is_loading">
-        <mat-progress-bar id="app-catalog-div-section-div-mat-progress-bar"
+      <div *ngIf="is_loading">
+        <mat-progress-bar id="cvah-catalog-mat-progress-bar"
                           mode="indeterminate" style="margin-top: 80px"></mat-progress-bar>
       </div>
-      <div *ngIf="is_loading" fxLayout="row" fxLayoutAlign="space-around center">
-        <mat-slide-toggle #pmoElement id="app-catalog-div-section-div-mat-slide-toggle-pmo-applications"
-                          (change)="pmoToggle($event)" [checked]="showCharts['pmo']"
+      <div *ngIf="!is_loading" fxLayout="row" fxLayoutAlign="space-around center">
+        <mat-slide-toggle id="cvah-catalog-slide-toggle-pmo-applications"
+                          [(ngModel)]="show_charts.pmo" (change)="filter_charts()"
                           color="primary" style="margin-right:43px; margin-bottom: 15px;">PMO Supported Applications</mat-slide-toggle>
-        <mat-slide-toggle #commElement id="app-catalog-div-section-div-mat-slide-toggle-community-applications"
-                          (change)="communityToggle($event)" [checked]="showCharts['comm']"
+        <mat-slide-toggle id="cvah-catalog-slide-toggle-community-applications"
+                          [(ngModel)]="show_charts.community" (change)="filter_charts()"
                           color="accent">Community Applications</mat-slide-toggle>
       </div>
-      <div *ngIf="is_loading">
-        <app-chart-list id="app-catalog-div-section-div-app-chart-list"
-                        class="charts__gallery__content" fxLayout="row" fxLayoutAlign="space-evenly center"
-                        [charts]="filteredCharts"></app-chart-list>
+      <div *ngIf="!is_loading">
+        <cvah-chart-list class="charts__gallery__content" fxLayout="row" fxLayoutAlign="space-evenly center"
+                         [charts]="filtered_charts"></cvah-chart-list>
       </div>
     </mat-card-content>
   </mat-card>

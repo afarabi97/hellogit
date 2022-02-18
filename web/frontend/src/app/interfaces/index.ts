@@ -27,6 +27,7 @@ export * from './form-control.interface';
 export * from './generate-file.interface';
 export * from './generic-job-and-key.interface';
 export * from './host-info.interface';
+export * from './iface-state.interface';
 export * from './interfaces.interface';
 export * from './job.interface';
 export * from './key-string-value-string-pair.interface';

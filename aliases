@@ -43,12 +43,12 @@ function run_tfplenum_docker_test () {
         esac
     done
     if [[ "${bname}" == "tfplenum" ]]; then
-        docker run --rm --volume="$PWD"/web/:/opt/tfplenum/web/ -it docker.nexus.sil.lab/tfplenum/code-checker:1.3 /bin/bash -c "pushd /opt/tfplenum/web/ && ./run_tfplenum_tests.sh -T $TEST_TYPE -S $TEST_SECTION --from-code-checker --with-coverage"
+        docker run --rm --volume="$PWD"/web/:/opt/tfplenum/web/ -it docker.nexus.sil.lab/tfplenum/code-checker:1.6 /bin/bash -c "pushd /opt/tfplenum/web/ && ./run_tfplenum_tests.sh -T $TEST_TYPE -S $TEST_SECTION --from-code-checker --with-coverage"
     else
         # This will try to switch to the root directory and run again. If the root directory doesn't exit it exits
         echo "Assuming we're on the controller, not a local development environment"
         echo "This is best ran from the root tfplenum directory"
-        pushd /opt/tfplenum/ > /dev/null && docker run --rm --volume="$PWD"/web:/opt/tfplenum/web/ -it docker.nexus.sil.lab/tfplenum/code-checker:1.3 /bin/bash -c "pushd /opt/tfplenum/web/ && ./run_tfplenum_tests.sh -T $TEST_TYPE -S $TEST_SECTION --from-code-checker --with-coverage"
+        pushd /opt/tfplenum/ > /dev/null && docker run --rm --volume="$PWD"/web:/opt/tfplenum/web/ -it docker.nexus.sil.lab/tfplenum/code-checker:1.6 /bin/bash -c "pushd /opt/tfplenum/web/ && ./run_tfplenum_tests.sh -T $TEST_TYPE -S $TEST_SECTION --from-code-checker --with-coverage"
     fi
 }
 alias run_backend_docker_unit_tests='run_tfplenum_docker_test -S backend -T unit'

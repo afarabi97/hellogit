@@ -7,14 +7,14 @@ export const MockNotificationInterface_NotInArray: NotificationInterface = {
     0: {
       application: "zeek",
       appVersion: "4.0.3",
-      deployment_name: "philpot-sensor3-zeek",
-      hostname: "philpot-sensor3.philpot",
+      deployment_name: "fake-sensor3-zeek",
+      hostname: "fake-sensor3.fake",
       node_type: "Sensor",
       status: "PENDING INSTALL"
     }
   },
   exception: "",
-  message: "Installing Zeek on philpot-sensor3.philpot",
+  message: "Installing Zeek on fake-sensor3.fake",
   role: "catalog",
   status: "IN_PROGRESS",
   timestamp: new Date("2021-10-20T00:37:18.054880"),
@@ -27,14 +27,14 @@ export const MockNotificationInterface_ZeekPendingInstall: NotificationInterface
     0: {
       application: "zeek",
       appVersion: "4.0.3",
-      deployment_name: "philpot-sensor3-zeek",
-      hostname: "philpot-sensor3.philpot",
+      deployment_name: "fake-sensor3-zeek",
+      hostname: "fake-sensor3.fake",
       node_type: "Sensor",
       status: "PENDING INSTALL"
     }
   },
   exception: "",
-  message: "Installing Zeek on philpot-sensor3.philpot",
+  message: "Installing Zeek on fake-sensor3.fake",
   role: "catalog",
   status: "IN_PROGRESS",
   timestamp: new Date("2021-10-20T00:37:18.054880"),
@@ -47,8 +47,8 @@ export const MockNotificationInterface_ZeekDeployed: NotificationInterface = {
     0: {
       appVersion: "4.0.3",
       application: "zeek",
-      deployment_name: "philpot-sensor3-zeek",
-      hostname: "philpot-sensor3.philpot",
+      deployment_name: "fake-sensor3-zeek",
+      hostname: "fake-sensor3.fake",
       node_type: "Sensor",
       status: "DEPLOYED"
     }
@@ -67,8 +67,8 @@ export const MockNotificationInterface_ZeekInstallComplete: NotificationInterfac
     0: {
       appVersion: "4.0.3",
       application: "zeek",
-      deployment_name: "philpot-sensor3-zeek",
-      hostname: "philpot-sensor3.philpot",
+      deployment_name: "fake-sensor3-zeek",
+      hostname: "fake-sensor3.fake",
       node_type: "Sensor",
       status: "DEPLOYED"
     }

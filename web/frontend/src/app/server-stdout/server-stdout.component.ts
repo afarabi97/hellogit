@@ -99,7 +99,7 @@ export class ServerStdoutComponent implements OnInit {
 
   killJob() {
     this.stdoutService.killJob(this.jobId).subscribe( data => {
-      this.snackBar.displaySnackBar(`Deleted job ${data['job_id']}`)
+      this.snackBar.displaySnackBar(`Deleted job ${data['job_id']}`);
     },
       err => {
         this.snackBar.displaySnackBar(err.error['error_message']);

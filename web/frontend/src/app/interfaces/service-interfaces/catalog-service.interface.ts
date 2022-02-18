@@ -19,7 +19,7 @@ import { GenerateFileInterface } from '../generate-file.interface';
  * @interface CatalogServiceInterface
  */
 export interface CatalogServiceInterface {
-  get_kit_nodes(): Observable<NodeClass[]>;
+  get_catalog_nodes(): Observable<NodeClass[]>;
   get_chart_info(path_value: string): Observable<ChartInfoClass>;
   get_chart_statuses(path_value: string): Observable<StatusClass[]>;
   get_saved_values(path_value: string): Observable<SavedValueClass[]>;

@@ -147,6 +147,8 @@ describe('NGXMonacoEditorComponent', () => {
         reset();
 
         const simple_changes: SimpleChanges = new Object() as SimpleChanges;
+        const text_simple_change: SimpleChange = new SimpleChange(undefined, 'current text', true);
+        simple_changes['text'] = text_simple_change;
 
         component.ngOnChanges(simple_changes);
 

@@ -45,13 +45,17 @@ import {
   AGENT_INSTALLER_CONFIGURATION_MAT_TABLE_COLUMNS,
   DOMAIN_PASSWORD_LABEL,
   HOST_MAT_TABLE_COLUMNS,
+  INSTALL,
   INSTALL_WINDOWS_HOSTS,
   IP_TARGET_CONFIGS_MAT_TABLE_COLUMNS,
   LOGSTASH_NO_DATA_MESSAGE,
   LOGSTASH_NOT_DEPLOYED_STATE_MESSAGE,
+  REINSTALL,
   REINSTALL_WINDOWS_HOST,
+  UNINSTALL,
   UNINSTALL_WINDOWS_HOST,
-  UNINSTALL_WINDOWS_HOSTS
+  UNINSTALL_WINDOWS_HOSTS,
+  UNINSTALLS
 } from './constants/agent-builder-chooser.constant';
 import {
   AgentDetailsDialogDataInterface,
@@ -204,7 +208,10 @@ export class AgentBuilderChooserComponent implements OnInit {
   set_host_list_paginator(host_list: MatTableDataSource<HostClass>, paginator: MatPaginator): MatTableDataSource<HostClass> {
     /* istanbul ignore else */
     if (!ObjectUtilitiesClass.notUndefNull(host_list.paginator)) {
-      host_list.paginator = paginator;
+      /* istanbul ignore else */
+      if (ObjectUtilitiesClass.notUndefNull(paginator)) {
+        host_list.paginator = paginator;
+      }
     }
 
     return host_list;
@@ -255,16 +262,14 @@ export class AgentBuilderChooserComponent implements OnInit {
    * @memberof AgentBuilderChooserComponent
    */
   agents_install(agent_installer_configuration_selection: AgentInstallerConfigurationClass, ip_target_list_selection: IPTargetListClass): void {
-    const message: string = this.dialog_message_('install');
+    const message: string = this.dialog_message_(INSTALL);
+    const agent_interface: AgentInterface = {
+      installer_config: agent_installer_configuration_selection,
+      target_config: ip_target_list_selection,
+      windows_domain_creds: undefined
+    };
 
-    this.get_credentials_(INSTALL_WINDOWS_HOSTS, message, credentials => {
-      const agent_interface: AgentInterface = {
-        installer_config: agent_installer_configuration_selection,
-        target_config: ip_target_list_selection,
-        windows_domain_creds: credentials
-      };
-      this.api_agents_install_(agent_interface);
-    });
+    this.get_credentials_(INSTALL_WINDOWS_HOSTS, message, INSTALL, agent_interface);
   }
 
   /**
@@ -275,16 +280,14 @@ export class AgentBuilderChooserComponent implements OnInit {
    * @memberof AgentBuilderChooserComponent
    */
   agents_uninstall(agent_installer_configuration_selection: AgentInstallerConfigurationClass, ip_target_list_selection: IPTargetListClass): void {
-    const message: string = this.dialog_message_('uninstall');
+    const message: string = this.dialog_message_(UNINSTALLS);
+    const agent_interface: AgentInterface = {
+      installer_config: agent_installer_configuration_selection,
+      target_config: ip_target_list_selection,
+      windows_domain_creds: undefined
+    };
 
-    this.get_credentials_(UNINSTALL_WINDOWS_HOSTS, message, credentials => {
-      const agent_interface: AgentInterface = {
-        installer_config: agent_installer_configuration_selection,
-        target_config: ip_target_list_selection,
-        windows_domain_creds: credentials
-      };
-      this.api_agents_uninstall_(agent_interface);
-    });
+    this.get_credentials_(UNINSTALL_WINDOWS_HOSTS, message, UNINSTALLS, agent_interface);
   }
 
   /**
@@ -297,17 +300,15 @@ export class AgentBuilderChooserComponent implements OnInit {
    */
   agent_uninstall(agent_installer_configuration_selection: AgentInstallerConfigurationClass, ip_target_list_selection: IPTargetListClass, host: HostClass): void {
     const title: string = `${UNINSTALL_WINDOWS_HOST} ${host.hostname}`;
-    const message: string = this.dialog_message_('uninstall', host.hostname);
+    const message: string = this.dialog_message_(UNINSTALL, host.hostname);
+    const agent_target: AgentTargetInterface = {
+      installer_config: agent_installer_configuration_selection,
+      target_config: ip_target_list_selection,
+      windows_domain_creds: undefined,
+      target: host
+    };
 
-    this.get_credentials_(title, message, credentials => {
-      const agent_target: AgentTargetInterface = {
-        installer_config: agent_installer_configuration_selection,
-        target_config: ip_target_list_selection,
-        windows_domain_creds: credentials,
-        target: host
-      };
-      this.api_agent_uninstall_(agent_target);
-    });
+    this.get_credentials_(title, message, UNINSTALL, agent_target);
   }
 
   /**
@@ -320,17 +321,15 @@ export class AgentBuilderChooserComponent implements OnInit {
    */
   agent_reinstall(agent_installer_configuration_selection: AgentInstallerConfigurationClass, ip_target_list_selection: IPTargetListClass, host: HostClass): void {
     const title: string = `${REINSTALL_WINDOWS_HOST} ${host.hostname}`;
-    const message: string = this.dialog_message_('reinstall', host.hostname);
+    const message: string = this.dialog_message_(REINSTALL, host.hostname);
+    const agent_target: AgentTargetInterface = {
+      installer_config: agent_installer_configuration_selection,
+      target_config: ip_target_list_selection,
+      windows_domain_creds: undefined,
+      target: host
+    };
 
-    this.get_credentials_(title, message, credentials => {
-      const agent_target: AgentTargetInterface = {
-        installer_config: agent_installer_configuration_selection,
-        target_config: ip_target_list_selection,
-        windows_domain_creds: credentials,
-        target: host
-      };
-      this.api_agent_reinstall_(agent_target);
-    });
+    this.get_credentials_(title, message, REINSTALL, agent_target);
   }
 
   /**
@@ -411,9 +410,10 @@ export class AgentBuilderChooserComponent implements OnInit {
     mat_dialog_ref.afterClosed()
       .pipe(untilDestroyed(this))
       .subscribe(
-        (response: AgentInstallerConfigurationInterface) => {
+        (response: AgentInstallerConfigurationClass) => {
           /* istanbul ignore else */
-          if (ObjectUtilitiesClass.notUndefNull(response)) {
+          if (ObjectUtilitiesClass.notUndefNull(response) &&
+              response instanceof AgentInstallerConfigurationClass) {
             this.api_agent_save_config_(response);
           }
         });
@@ -433,9 +433,10 @@ export class AgentBuilderChooserComponent implements OnInit {
     mat_dialog_ref.afterClosed()
       .pipe(untilDestroyed(this))
       .subscribe(
-        (response: IPTargetListInterface) => {
+        (response: IPTargetListClass) => {
           /* istanbul ignore else */
-          if (ObjectUtilitiesClass.notUndefNull(response)) {
+          if (ObjectUtilitiesClass.notUndefNull(response) &&
+              response instanceof IPTargetListClass) {
             this.api_agent_save_ip_target_list_(response);
           }
         });
@@ -580,7 +581,15 @@ export class AgentBuilderChooserComponent implements OnInit {
    * @memberof AgentBuilderChooserComponent
    */
   private is_host_index_zero_(host: HostClass, host_index: number, hosts: HostClass[]): boolean {
-    const index_from_hosts: number = hosts.findIndex((h: HostClass) => h.hostname.toLowerCase() === host.hostname.toLowerCase());
+    const index_from_hosts: number = hosts.findIndex((h: HostClass) => {
+      if (ObjectUtilitiesClass.notUndefNull(h.hostname) &&
+          ObjectUtilitiesClass.notUndefNull(host) &&
+          ObjectUtilitiesClass.notUndefNull(host.hostname)) {
+        return h.hostname.toLowerCase() === host.hostname.toLowerCase();
+      } else {
+        return false;
+      }
+    });
 
     return index_from_hosts === host_index;
   }
@@ -627,15 +636,16 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   /**
-   * Used for gathering windows credentials and returning data through callback function
+   * Used for gathering windows credentials and and setting the data and passing to agent action method
    *
    * @private
    * @param {string} title
    * @param {string} instructions
-   * @param {(credentials: WindowsCredentialsClass) => void} [callback=function(): void {}]
+   * @param {string} action
+   * @param {(AgentInterface | AgentTargetInterface)} [agent_api_interface]
    * @memberof AgentBuilderChooserComponent
    */
-  private get_credentials_(title: string, instructions: string, callback: (credentials: WindowsCredentialsClass) => void = function(): void {}): void {
+  private get_credentials_(title: string, instructions: string, action: string, agent_api_interface: AgentInterface | AgentTargetInterface): void {
     const userNameFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
     userNameFormControlConfig.label = 'Domain username';
     userNameFormControlConfig.formState = '';
@@ -669,9 +679,37 @@ export class AgentBuilderChooserComponent implements OnInit {
           /* istanbul ignore else */
           if (ObjectUtilitiesClass.notUndefNull(response) && response.valid) {
             const credentials: WindowsCredentialsClass = new WindowsCredentialsClass(response.getRawValue());
-            return callback(credentials);
+            agent_api_interface.windows_domain_creds = credentials;
+            this.perform_agent_action_(action, agent_api_interface);
           }
         });
+  }
+
+  /**
+   * Used for calling agent actions mapped to an api call
+   *
+   * @private
+   * @param {string} action
+   * @param {(AgentInterface | AgentTargetInterface)} [agent_api_interface]
+   * @memberof AgentBuilderChooserComponent
+   */
+  private perform_agent_action_(action: string, agent_api_interface: AgentInterface | AgentTargetInterface):void {
+    switch(action) {
+      case 'install':
+        this.api_agents_install_(agent_api_interface);
+        break;
+      case 'reinstall':
+        this.api_agent_reinstall_(agent_api_interface as AgentTargetInterface);
+        break;
+      case 'uninstall':
+        this.api_agent_uninstall_(agent_api_interface as AgentTargetInterface);
+        break;
+      case 'uninstalls':
+        this.api_agents_uninstall_(agent_api_interface);
+        break;
+      default:
+        break;
+    }
   }
 
   /**
@@ -764,7 +802,7 @@ export class AgentBuilderChooserComponent implements OnInit {
    * @param {AgentInstallerConfigurationInterface} agent_installer_configuration
    * @memberof AgentBuilderChooserComponent
    */
-  private api_agent_save_config_(agent_installer_configuration: AgentInstallerConfigurationInterface): void {
+  private api_agent_save_config_(agent_installer_configuration: AgentInstallerConfigurationClass): void {
     this.agent_builder_service_.agent_save_config(agent_installer_configuration)
       .pipe(untilDestroyed(this))
       .subscribe(
@@ -869,7 +907,7 @@ export class AgentBuilderChooserComponent implements OnInit {
    * @param {IPTargetListInterface} ip_target_list
    * @memberof AgentBuilderChooserComponent
    */
-  private api_agent_save_ip_target_list_(ip_target_list: IPTargetListInterface): void {
+  private api_agent_save_ip_target_list_(ip_target_list: IPTargetListClass): void {
     this.agent_builder_service_.agent_save_ip_target_list(ip_target_list)
       .pipe(untilDestroyed(this))
       .subscribe(

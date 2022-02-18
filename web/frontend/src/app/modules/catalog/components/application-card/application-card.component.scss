@@ -1,10 +1,10 @@
 .supportedLabel {
-  color: #1eb980;
+  color: #1EB980;
   font-weight: bold;
 }
 
 .supportedLabel2 {
-  color: lightblue;
+  color: #6FA8DC;
   font-weight: bold;
 }
 
@@ -25,7 +25,7 @@
   background: linear-gradient(to right,#2f2f2f 0,#444444 100%);
   overflow: hidden;
   position: relative;
-  color: white;
+  color: #FFFFFF;
 }
 .project-card .card-header > div {
   display: flex;
@@ -45,27 +45,7 @@
 }
 .project-card .card-body {
   padding: 20px;
-  color: white;
-}
-
-@-webkit-keyframes zoom-out-and-in {
-  0%,
-  100% {
-    transform:scale(1);
-  }
-  80% {
-    transform:scale(.95);
-  }
-}
-
-@keyframes zoom-out-and-in {
-  0%,
-  100% {
-    transform:scale(1);
-  }
-  80% {
-    transform:scale(.95);
-  }
+  color: #FFFFFF;
 }
 
 .body {

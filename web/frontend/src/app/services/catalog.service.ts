@@ -59,7 +59,7 @@ export class CatalogService extends ApiService<any> implements CatalogServiceInt
    * @returns {Observable<NodeClass[]>}
    * @memberof KitService
    */
-  get_kit_nodes(): Observable<NodeClass[]> {
+  get_catalog_nodes(): Observable<NodeClass[]> {
     return this.httpClient_.get<NodeInterface[]>(environment.CATALOG_SERVICE_NODES)
       .pipe(map((response: NodeInterface[]) => response.map((n: NodeInterface) => new NodeClass(n))),
             catchError((error: HttpErrorResponse) => this.handleError('get catalog nodes', error)));
@@ -140,12 +140,12 @@ export class CatalogService extends ApiService<any> implements CatalogServiceInt
   /**
    * REST call to POST generate values file
    *
-   * @param {GenerateFileInterface} generate_values_file
+   * @param {GenerateFileInterface} generate_file
    * @returns {Observable<Object>}
    * @memberof CatalogService
    */
-  generate_values_file(generate_values_file: GenerateFileInterface): Observable<Object[]> {
-    return this.httpClient_.post<Object[]>(environment.CATALOG_SERVICE_GENERATE_VALUES, generate_values_file, HTTP_OPTIONS)
+  generate_values_file(generate_file: GenerateFileInterface): Observable<Object[]> {
+    return this.httpClient_.post<Object[]>(environment.CATALOG_SERVICE_GENERATE_VALUES, generate_file, HTTP_OPTIONS)
       .pipe(catchError((error: HttpErrorResponse) => this.handleError('generate values file', error)));
   }
 

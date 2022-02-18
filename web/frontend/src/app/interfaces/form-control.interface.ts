@@ -5,14 +5,14 @@
  * @interface FormControlInterface
  */
 export interface FormControlInterface {
-  default_value?: string;
+  default_value?: string | boolean | string[];
+  dependent_app?: string;
   description?: string;
   error_message?: string;
-  falseValue?: string;
+  falseValue?: boolean | string;
   regexp?: string;
   required?: boolean;
   name: string;
-  trueValue?: string;
+  trueValue?: boolean | string;
   type: string;
-  dependent_app?: string;
 }

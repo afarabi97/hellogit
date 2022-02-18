@@ -101,7 +101,7 @@ export class NGXMonacoEditorComponent implements OnInit, OnChanges {
     this.selected_theme = 'vs-dark';
     this.selected_word_wrap = 'off';
     this.show_options = false;
-    this.is_read_only = false;
+    this.is_read_only = true;
   }
 
   /**
@@ -146,7 +146,8 @@ export class NGXMonacoEditorComponent implements OnInit, OnChanges {
     const text_simple_change: SimpleChange = changes['text'];
     const is_read_only_simple_change: SimpleChange = changes['is_read_only'];
     if (ObjectUtilitiesClass.notUndefNull(text_simple_change) &&
-        text_simple_change.currentValue !== text_simple_change.previousValue) {
+        text_simple_change.currentValue !== text_simple_change.previousValue &&
+        typeof text_simple_change.currentValue === 'string') {
       this.text1 = this.text;
       this.text2 = this.text;
     } else if (ObjectUtilitiesClass.notUndefNull(is_read_only_simple_change) &&

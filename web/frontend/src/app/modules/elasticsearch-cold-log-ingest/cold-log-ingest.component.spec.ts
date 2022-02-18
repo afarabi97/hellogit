@@ -11,7 +11,7 @@ import {
   MockErrorMessageClass,
   MockFilebeatModuleClassApache,
   MockFilebeatModuleClassWindowsEventLogs,
-  MockStatusClass_LogstashDeployed,
+  MockStatusClassLogstashDeployed,
   MockWinlogbeatConfigurationClass,
   MockWinlogbeatConfigurationClassDefault
 } from '../../../../static-data/class-objects';
@@ -155,7 +155,7 @@ describe('ColdLogIngestComponent', () => {
     // Set spyon service until implemented later
     // Allows respy to change default spy created in spy service
     jasmine.getEnv().allowRespy(true);
-    spyOn<any>(component['catalog_service_'], 'get_chart_statuses').and.returnValue(of([MockStatusClass_LogstashDeployed]));
+    spyOn<any>(component['catalog_service_'], 'get_chart_statuses').and.returnValue(of([MockStatusClassLogstashDeployed]));
 
     // Detect changes
     fixture.detectChanges();

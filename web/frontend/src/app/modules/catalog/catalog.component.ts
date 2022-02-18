@@ -1,166 +1,244 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { NotificationClass, ChartClass } from '../../classes';
-import { CookieService } from '../../services/cookies.service';
-import { WebsocketService } from '../../services/websocket.service';
+import { ChartClass, NodeClass, NotificationClass, ObjectUtilitiesClass } from '../../classes';
+import {
+  MAT_SNACKBAR_CONFIGURATION_60000_DUR,
+  WEBSOCKET_MESSAGE_MESSAGE_ADD_NODE,
+  WEBSOCKET_MESSAGE_MESSAGE_CREATE_VIRTUAL_MACHINE,
+  WEBSOCKET_MESSAGE_MESSAGE_PROVISION_VIRTUAL_MACHINE,
+  WEBSOCKET_MESSAGE_MESSAGE_REMOVE_NODE,
+  WEBSOCKET_MESSAGE_ROLE_CATALOG,
+  WEBSOCKET_MESSAGE_ROLE_NODE
+} from '../../constants/cvah.constants';
 import { CatalogService } from '../../services/catalog.service';
-import { KitSettingsService } from '../../system-setupv2/services/kit-settings.service';
-import { Node } from '../../system-setupv2/models/kit';
+import { CookieService } from '../../services/cookies.service';
+import { MatSnackBarService } from '../../services/mat-snackbar.service';
+import { SortingService } from '../../services/sorting.service';
+import { WebsocketService } from '../../services/websocket.service';
+import {
+  CATALOG_TITLE,
+  COMPLETED,
+  DEFAULT_SHOW_CHART,
+  SENSOR_VALUE,
+  SHOW_CHART_COOKIE_NAME
+} from './constants/catalog.constants';
+import { ShowChartsInterface } from './interfaces';
 
-
+/**
+ * Used for displaying catalog apps that are able to be installed
+ *
+ * @export
+ * @class CatalogComponent
+ * @implements {OnInit}
+ */
+@UntilDestroy({ checkProperties: true })
 @Component({
-  selector: 'app-catalog',
+  selector: 'cvah-catalog',
   templateUrl: './catalog.component.html',
-  styleUrls: ['./catalog.component.scss']
+  styleUrls: [
+    './catalog.component.scss'
+  ]
 })
 export class CatalogComponent implements OnInit {
-  @ViewChild('pmoElement')  public pmoElement: MatSlideToggle;
-  @ViewChild('commElement') public commElement: MatSlideToggle;
-  charts: any;
-  filteredCharts: ChartClass[];
-  showCharts = { 'pmo': true, 'comm': false };
-  hasSensors: boolean;
-  nodes: Node[];
+  // Used for displaying the loading progress bar until data
+  // has returned from api calls
   is_loading: boolean;
+  // Used for passing charts that have been filtered based on criteria specified by user
+  filtered_charts: ChartClass[];
+  // Used for data binding user selection to show / hide PMO and community charts
+  show_charts: ShowChartsInterface;
+  // Used for filtering out apps that need a sensor
+  private has_sensors_: boolean;
+  // Used for holding the charts response from the backend
+  private charts_: ChartClass[];
 
-  /**
-   *Creates an instance of CatalogComponent.
-   * @param {CatalogService} _CatalogService
-   * @memberof CatalogComponent
-   * @param {WebsocketService} _WebsocketService
-   */
-   constructor(public _CatalogService: CatalogService,
-               private titleSvc: Title,
-               public _WebsocketService: WebsocketService,
-               private cookieService: CookieService,
-               private kitSettingsSrv: KitSettingsService) {
-    this.is_loading = false;
+   /**
+    * Creates an instance of CatalogComponent.
+    *
+    * @param {Title} title_
+    * @param {CatalogService} catalog_service_
+    * @param {CookieService} cookie_service_
+    * @param {MatSnackBarService} mat_snackbar_service_
+    * @param {SortingService} sorting_service_
+    * @param {WebsocketService} websocket_service_
+    * @memberof CatalogComponent
+    */
+   constructor(private title_: Title,
+               private catalog_service_: CatalogService,
+               private cookie_service_: CookieService,
+               private mat_snackbar_service_: MatSnackBarService,
+               private sorting_service_: SortingService,
+               private websocket_service_: WebsocketService) {
+    this.is_loading = true;
+    this.has_sensors_ = false;
   }
 
   /**
-   * Gets all the charts
+   * Used for setting up subscriptions
    *
    * @memberof CatalogComponent
    */
-  ngOnInit() {
-    this.titleSvc.setTitle("Catalog");
-    this.hasSensors = false;
-    this.nodes = [];
-    if(this.cookieService.get('chartFilter') !== '') {
-      const show = JSON.parse(this.cookieService.get('chartFilter'));
-      this.showCharts['pmo'] = false;
-      this.showCharts['comm'] = false;
-      if(show['pmo']) {
-        this.showCharts['pmo'] = true;
-      }
-      if(show['comm']) {
-        this.showCharts['comm'] = true;
-      }
-    }
+  ngOnInit(): void {
+    this.title_.setTitle(CATALOG_TITLE);
+    this.cookie_get_();
+    this.setup_websocket_onbroadcast_();
     this.api_get_all_application_statuses_();
+  }
 
-    this._WebsocketService.onBroadcast()
+  /**
+   * Used for filter charts
+   *
+   * @memberof CatalogComponent
+   */
+  filter_charts(): void {
+    this.filtered_charts = this.filter_pmo_applications_(this.show_charts.pmo)
+                               .concat(this.filter_community_applications_(this.show_charts.community))
+                               .sort(this.sorting_service_.chart_application_alphanum);
+    this.filter_sensor_applications_();
+    this.cookie_set_();
+  }
+
+  /**
+   * Used for filtering pmo charts
+   *
+   * @private
+   * @param {boolean} show_pmo
+   * @return {*}  {ChartClass[]}
+   * @memberof CatalogComponent
+   */
+  private filter_pmo_applications_(show_pmo: boolean): ChartClass[] {
+    return show_pmo ? this.charts_.filter((chart: ChartClass) => chart.pmoSupported) : [];
+  }
+
+  /**
+   * Used for filtering community charts
+   *
+   * @private
+   * @param {boolean} show_community
+   * @return {*}  {ChartClass[]}
+   * @memberof CatalogComponent
+   */
+  private filter_community_applications_(show_community: boolean): ChartClass[] {
+    return show_community ? this.charts_.filter((chart: ChartClass) => !chart.pmoSupported) : [];
+  }
+
+  /**
+   * Used for filtering sensor charts
+   *
+   * @private
+   * @memberof CatalogComponent
+   */
+  private filter_sensor_applications_(): void {
+    /* istanbul ignore else */
+    if (!this.has_sensors_) {
+      this.filtered_charts = this.filtered_charts.filter((chart: ChartClass) => !chart.isSensorApp);
+    }
+  }
+
+  /**
+   * Used for making call to get show_charts cookie
+   *
+   * @private
+   * @memberof CatalogComponent
+   */
+  private cookie_get_(): void {
+    const cookie: string = this.cookie_service_.get(SHOW_CHART_COOKIE_NAME);
+    this.show_charts = (cookie !== '') ? JSON.parse(cookie) : ObjectUtilitiesClass.create_deep_copy(DEFAULT_SHOW_CHART);
+  }
+
+  /**
+   * Used for setting show sharts cookie
+   *
+   * @private
+   * @memberof CatalogComponent
+   */
+  private cookie_set_(): void {
+    this.cookie_service_.set(SHOW_CHART_COOKIE_NAME, JSON.stringify(this.show_charts));
+  }
+
+  /**
+   * Used for setting up websocket on broadcast to recieve chart updates
+   *
+   * @private
+   * @memberof CatalogComponent
+   */
+  private setup_websocket_onbroadcast_(): void {
+    this.websocket_service_.onBroadcast()
+      .pipe(untilDestroyed(this))
       .subscribe((message: NotificationClass) => {
-        if (message.role === 'catalog') {
-          if(message.data) {
-            this.charts.map( chart => {
+        if (message.role === WEBSOCKET_MESSAGE_ROLE_CATALOG) {
+          /* istanbul ignore else */
+          if (ObjectUtilitiesClass.notUndefNull(message.data) &&
+              ObjectUtilitiesClass.notUndefNull(this.charts_)) {
+            this.charts_.forEach((chart: ChartClass) => {
+              /* istanbul ignore else */
               if (chart.application === message.application.toLowerCase()) {
-                chart.nodes = message.data;
+                chart.nodes = (Object.keys(message.data).length > 0) ? [ message.data[0] ] : [];
               }
             });
           }
-        } else if (message.role === 'nodes') {
-          if (((message.status === 'COMPLETED') && (message.message.includes('Remove Node'))) ||
-              ((message.status === 'COMPLETED') && (message.message.includes('Create Virtual Machine'))) ||
-              ((message.status === 'COMPLETED') && (message.message.includes('Provision Virtual Machine'))) ||
-              ((message.status === 'COMPLETED') && (message.message.includes('Add Node')))) {
-            this.charts = [];
-            this.filteredCharts = [];
-            this.is_loading = false;
-            this.hasSensors = false;
+        } else if (message.role === WEBSOCKET_MESSAGE_ROLE_NODE) {
+          /* istanbul ignore else */
+          if (((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_REMOVE_NODE))) ||
+              ((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_CREATE_VIRTUAL_MACHINE))) ||
+              ((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_PROVISION_VIRTUAL_MACHINE))) ||
+              ((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_ADD_NODE)))) {
+            this.is_loading = true;
+            this.filtered_charts = [];
+            this.charts_ = [];
+            this.has_sensors_ = false;
             this.api_get_all_application_statuses_();
           }
         }
       });
   }
 
-  pmoToggle(event: MatSlideToggle){
-    this.showCharts['pmo'] = event.checked;
-    this.filterCharts();
-  }
-
-  communityToggle(event: MatSlideToggle){
-    this.showCharts['comm'] = event.checked;
-    this.filterCharts();
-  }
-
-  filterCharts() {
-    this.filteredCharts = this.filterPMOApplications(this.showCharts['pmo'])
-      .concat(this.filterCommunityApplications(this.showCharts['comm'])
-    ).sort((a, b) => a.application.localeCompare(b.application));
-
-    this.filterSensorApplications();
-    this.updateCookie();
-  }
-
-  private filterPMOApplications(isChecked: boolean): ChartClass[] {
-    let filteredCharts = [] as ChartClass[];
-    if (isChecked){
-      filteredCharts = this.charts.filter((obj,index,ary) => {
-        if (obj.pmoSupported){
-          return true;
-        }
-        return false;
-      });
-    }
-    return filteredCharts;
-  }
-
-  private filterCommunityApplications(isChecked: boolean): ChartClass[] {
-    let filteredCharts = [] as ChartClass[];
-    if (isChecked){
-      filteredCharts = this.charts.filter((obj,index,ary) => {
-        if (obj.pmoSupported){
-          return false;
-        }
-        return true;
-      });
-    }
-    return filteredCharts;
-  }
-
-  private filterSensorApplications() {
-    if (!this.hasSensors){
-      this.filteredCharts = this.filteredCharts.filter((obj,index,ary) => {
-        if (obj.isSensorApp){
-          return false;
-        }
-        return true;
-      });
-    }
-  }
-
-  private updateCookie() {
-    this.cookieService.set('chartFilter', JSON.stringify(this.showCharts));
-  }
-
+  /**
+   * Used for making api rest call to get all application statuses
+   *
+   * @private
+   * @memberof CatalogComponent
+   */
   private api_get_all_application_statuses_(): void {
-    this._CatalogService.get_all_application_statuses().subscribe(data => {
-      this.charts = data;
+    this.catalog_service_.get_all_application_statuses()
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: ChartClass[]) => {
+          this.charts_ = response;
+          this.api_get_catalog_nodes_();
+        },
+        (error: HttpErrorResponse) => {
+          const message: string = 'getting application statuses';
+          this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        });
+  }
 
-      this.kitSettingsSrv.getNodes().subscribe((nodes: Node[]) => {
-        this.nodes = nodes;
-        for (const node of this.nodes){
-          if (node.node_type.toLowerCase() === "sensor"){
-            this.hasSensors = true;
-          }
-        }
-        this.is_loading = true;
-        this.filterCharts();
-      });
-
-    });
+  /**
+   * Used for making api rest call to get catalog nodes
+   *
+   * @private
+   * @memberof CatalogComponent
+   */
+  private api_get_catalog_nodes_(): void {
+    this.catalog_service_.get_catalog_nodes()
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: NodeClass[]) => {
+          response.forEach((node: NodeClass) => {
+            /* istanbul ignore else */
+            if (node.node_type === SENSOR_VALUE) {
+              this.has_sensors_ = true;
+            }
+          });
+          this.is_loading = false;
+          this.filter_charts();
+        },
+        (error: HttpErrorResponse) => {
+          const message: string = 'getting catalog nodes';
+          this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        });
   }
 }

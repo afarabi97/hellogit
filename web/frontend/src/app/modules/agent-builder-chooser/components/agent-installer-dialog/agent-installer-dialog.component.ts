@@ -18,7 +18,7 @@ import { ErrorMessageClass, ObjectUtilitiesClass } from '../../../../classes';
 import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../../../constants/cvah.constants';
 import { MatOptionInterface } from '../../../../interfaces';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
-import { AppConfigClass, ElementSpecClass, EndgameSensorProfileClass } from '../../classes';
+import { AgentInstallerConfigurationClass, AppConfigClass, ElementSpecClass, EndgameSensorProfileClass } from '../../classes';
 import {
   FORM_ELEMENTS,
   VALIDATORS_IS_VALID_IP_FROM_ARRAY,
@@ -214,7 +214,6 @@ export class AgentInstallerDialogComponent implements OnInit {
    * @memberof AgentInstallerDialogComponent
    */
   submit(): void {
-
     if (ObjectUtilitiesClass.notUndefNull(this.agent_installer_configuration_form_group) && this.agent_installer_configuration_form_group.valid) {
       this.agent_installer_configuration_form_group.get('endgame_sensor_name').setValue(this.get_sensor_profile_name_());
       let form_data = this.agent_installer_configuration_form_group.getRawValue();
@@ -223,7 +222,7 @@ export class AgentInstallerDialogComponent implements OnInit {
       const scratch = {...form_data, ...endgame_options};
       form_data = scratch;
 
-      this.mat_dialog_ref_.close(form_data as AgentInstallerConfigurationInterface);
+      this.mat_dialog_ref_.close(new AgentInstallerConfigurationClass(form_data as AgentInstallerConfigurationInterface));
     } else {
       const message: string = `The form contains invalid entries. Please double check values and try again.`;
       this.mat_snackbar_service_.displaySnackBar(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);

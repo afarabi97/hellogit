@@ -26,9 +26,12 @@ export const DIALOG_WIDTH_500PX: string = '500px';
 export const DIALOG_WIDTH_800PX: string = '800px';
 export const DIALOG_MAX_HEIGHT_800PX: string = '800px';
 export const CONFIRM_DIALOG_OPTION: string = 'Confirm';
+export const CONTINUE_DIALOG_OPTION: string = 'Continue';
 export const SUBMIT_DIALOG_OPTION: string = 'Submit';
 export const CANCEL_DIALOG_OPTION: string = 'Cancel';
+export const TAKE_ME_BACK_DIALOG_OPTION: string = 'Take Me Back';
 export const MAT_SNACKBAR_ACTION_LABEL_CLOSE: string = 'Close';
+export const MAT_SNACKBAR_ACTION_LABEL_OK: string = 'OK';
 export const MAT_SNACKBAR_ACTION_LABEL_DISMISS: string = 'Dismiss';
 
 // Service Constants
@@ -44,6 +47,10 @@ export const MAT_SNACKBAR_CONFIGURATION_3000_DUR: MatSnackbarConfigurationClass 
 export const MAT_SNACKBAR_CONFIGURATION_60000_DUR: MatSnackbarConfigurationClass = {
   timeInMS: 60000,
   actionLabel: MAT_SNACKBAR_ACTION_LABEL_CLOSE
+};
+export const MAT_SNACKBAR_CONFIGURATION_60000_DUR_OK: MatSnackbarConfigurationClass = {
+  timeInMS: 60000,
+  actionLabel: MAT_SNACKBAR_ACTION_LABEL_OK
 };
 
 //Feedback
@@ -93,3 +100,11 @@ export const COMMON_VALIDATORS = {
 };
 export const PXE_TYPES: string[] = ['BIOS', 'UEFI'];
 export const MIP_PXE_TYPES: string[] = ['SCSI/SATA/USB', 'NVMe'];
+
+// Websocket
+export const WEBSOCKET_MESSAGE_ROLE_CATALOG: string = 'catalog';
+export const WEBSOCKET_MESSAGE_ROLE_NODE: string = 'node';
+export const WEBSOCKET_MESSAGE_MESSAGE_REMOVE_NODE: string = 'Remove Node';
+export const WEBSOCKET_MESSAGE_MESSAGE_ADD_NODE: string = 'Add Node';
+export const WEBSOCKET_MESSAGE_MESSAGE_CREATE_VIRTUAL_MACHINE: string = 'Create Virtual Machine';
+export const WEBSOCKET_MESSAGE_MESSAGE_PROVISION_VIRTUAL_MACHINE: string = 'Provision Virtual Machine';

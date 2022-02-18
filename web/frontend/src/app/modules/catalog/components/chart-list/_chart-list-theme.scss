@@ -1,5 +1,5 @@
 @mixin chart-list-theme($theme) {
-  .app-chart-list {
+  .cvah-chart-list {
     list-item {
       border-radius: map-get($theme, border-radius);
       background-color: map-get($theme, background-light);

@@ -8,16 +8,16 @@ import { FormControlInterface } from '../interfaces';
  * @implements {FormControlInterface}
  */
 export class FormControlClass implements FormControlInterface {
-  default_value?: string;
+  default_value?: string | boolean | string[];
+  dependent_app?: string;
   description?: string;
   error_message?: string;
-  falseValue?: string;
+  falseValue?: boolean | string;
   regexp?: string;
   required?: boolean;
   name: string;
-  trueValue?: string;
+  trueValue?: boolean | string;
   type: string;
-  dependent_app?: string;
 
   /**
    * Creates an instance of FormControlClass.
@@ -27,6 +27,7 @@ export class FormControlClass implements FormControlInterface {
    */
   constructor(form_control_interface: FormControlInterface) {
     this.default_value = form_control_interface.default_value;
+    this.dependent_app = form_control_interface.dependent_app;
     this.description = form_control_interface.description;
     this.error_message = form_control_interface.error_message;
     this.falseValue = form_control_interface.falseValue;
@@ -35,6 +36,5 @@ export class FormControlClass implements FormControlInterface {
     this.required = form_control_interface.required;
     this.trueValue = form_control_interface.trueValue;
     this.type = form_control_interface.type;
-    this.dependent_app = form_control_interface.dependent_app;
   }
 }

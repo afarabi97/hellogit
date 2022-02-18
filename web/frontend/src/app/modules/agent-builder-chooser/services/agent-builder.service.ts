@@ -57,11 +57,11 @@ export class AgentBuilderService extends ApiService<any> implements AgentBuilder
   /**
    * REST call to POST agent save config
    *
-   * @param {AgentInstallerConfigurationInterface} agent_installer_configuration
+   * @param {AgentInstallerConfigurationClass} agent_installer_configuration
    * @returns {Observable<AgentInstallerConfigurationClass[]>}
    * @memberof AgentBuilderService
    */
-  agent_save_config(agent_installer_configuration: AgentInstallerConfigurationInterface): Observable<AgentInstallerConfigurationClass[]> {
+  agent_save_config(agent_installer_configuration: AgentInstallerConfigurationClass): Observable<AgentInstallerConfigurationClass[]> {
     return this.httpClient_.post<AgentInstallerConfigurationInterface[]>(environment.AGENT_BUILDER_SERVICE_AGENT_CONFIG, agent_installer_configuration)
       .pipe(map((response: AgentInstallerConfigurationInterface[]) => response.map((aic: AgentInstallerConfigurationInterface) => new AgentInstallerConfigurationClass(aic))),
             catchError((error: HttpErrorResponse) => this.handleError('agent save config', error)));
@@ -109,11 +109,11 @@ export class AgentBuilderService extends ApiService<any> implements AgentBuilder
   /**
    * REST call to POST agent save ip target list
    *
-   * @param {IPTargetListInterface} ip_target_list
+   * @param {IPTargetListClass} ip_target_list
    * @returns {Observable<IPTargetListClass[]>}
    * @memberof AgentBuilderService
    */
-  agent_save_ip_target_list(ip_target_list: IPTargetListInterface): Observable<IPTargetListClass[]> {
+  agent_save_ip_target_list(ip_target_list: IPTargetListClass): Observable<IPTargetListClass[]> {
     return this.httpClient_.post<IPTargetListInterface[]>(environment.AGENT_BUILDER_SERVICE_AGENT_TARGETS, ip_target_list)
       .pipe(map((response: IPTargetListInterface[]) => response.map((iptl: IPTargetListInterface) => new IPTargetListClass(iptl))),
             catchError((error: HttpErrorResponse) => this.handleError('agent save ip taget list', error)));

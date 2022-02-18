@@ -7,21 +7,19 @@ import { MatStepper } from '@angular/material/stepper';
 import { of, throwError } from 'rxjs';
 
 import {
-  MockAgentInstallerConfigurationClass1,
   MockAppConfigClass1,
   MockAppConfigClass2,
   MockAppConfigClassesArray,
-  MockEndgameSensorProfileClasses
+  MockEndgameSensorProfileClasses,
+  MockErrorMessageClass
 } from '../../../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import {
   MockElementSpecInterface1,
   MockElementSpecInterface2,
   MockElementSpecInterface3,
-  MockElementSpecInterface4,
-  MockErrorMessageInterface
+  MockElementSpecInterface4
 } from '../../../../../../static-data/interface-objects';
-import { ErrorMessageClass } from '../../../../classes';
 import { MatOptionInterface } from '../../../../interfaces';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { AgentBuilderChooserModule } from '../../agent-builder-chooser.module';
@@ -813,7 +811,7 @@ describe('AgentInstallerDialogComponent', () => {
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['endgame_service_'], 'endgame_sensor_profiles').and.returnValue(throwError(new ErrorMessageClass(MockErrorMessageInterface)));
+        spyOn<any>(component['endgame_service_'], 'endgame_sensor_profiles').and.returnValue(throwError(MockErrorMessageClass));
 
         component['api_endgame_sensor_profiles_'](mat_stepper, endgame_login);
 

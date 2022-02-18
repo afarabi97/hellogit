@@ -15,7 +15,9 @@ import {
   MockChartInterfaceRocketchat,
   MockChartInterfaceSuricata,
   MockChartInterfaceWikiJs,
-  MockChartInterfaceZeek
+  MockChartInterfaceZeek,
+  MockChartInterfaceZeekFailed,
+  MockChartInterfaceZeekUninstalling
 } from '../interface-objects';
 
 export const MockChartClassArkime: ChartClass = new ChartClass(MockChartInterfaceArkime);
@@ -34,6 +36,8 @@ export const MockChartClassRocketchat: ChartClass = new ChartClass(MockChartInte
 export const MockChartClassSuricata: ChartClass = new ChartClass(MockChartInterfaceSuricata);
 export const MockChartClassWikiJs: ChartClass = new ChartClass(MockChartInterfaceWikiJs);
 export const MockChartClassZeek: ChartClass = new ChartClass(MockChartInterfaceZeek);
+export const MockChartClassZeekFailed: ChartClass = new ChartClass(MockChartInterfaceZeekFailed);
+export const MockChartClassZeekUninstalling: ChartClass = new ChartClass(MockChartInterfaceZeekUninstalling);
 export const MockChartClassArray: ChartClass[] = [
   MockChartClassArkime,
   MockChartClassArkimeViewer,
