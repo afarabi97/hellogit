@@ -555,6 +555,9 @@ export class RuleAddEditComponent implements OnInit {
             const message: string = 'Validation failed for testing against PCAP. \
                                      Please make sure you have selected a PCAP and your rules validate.';
             this.mat_snackbar_service_.displaySnackBar(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else if (error.status === 403) {
+            const message: string = 'exec module prohibited';
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           } else if (ObjectUtilitiesClass.notUndefNull(error['error']) &&
                      typeof error['error'] === 'string' &&
                      error['error'].length !== 0) {

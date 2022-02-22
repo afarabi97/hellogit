@@ -5,6 +5,7 @@
     checksum: "sha256:{{ iso_rhel_checksum }}"
     url: "{{ iso_rhel_url_labrepo }}"
     dest: "{{ iso_rhel_path }}"
+    timeout: 20
 
 # Verify ISO
 - name: check if RHEL iso exists

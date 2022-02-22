@@ -8,6 +8,7 @@
   get_url:
     url: "{{ item }}"
     dest: "{{ web_root }}/testfiles"
+    timeout: 20
   with_items:
     - "{{ tfplenum_repo }}/testfiles/apache.zip"
     - "{{ tfplenum_repo }}/testfiles/audit_logs.zip"

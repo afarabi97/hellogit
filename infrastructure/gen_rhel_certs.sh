@@ -15,6 +15,9 @@ key=`ls $cert_dir | grep key`
 nexus_server='nexus.sil.lab'
 nexus_path='/app/new_combined_keystore.p12'
 
+#Remove old certs
+rm -f $cert_dir/*
+
 # Test redhat cdn with current entitlement cert and key
 # If this does not return a 200 then we assume the entitlement certs are invalid
 if [ $(curl -LI -k --cert $cert_dir/$cert --key $cert_dir/$key https://cdn.redhat.com/content/dist/rhel8/8/x86_64/codeready-builder/os/repodata/repomd.xml -o /dev/null -w '%{http_code}\n' -s) != "200" ]; then

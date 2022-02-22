@@ -16,6 +16,7 @@
   get_url:
     url: "{{ mip_repo }}/{{ item.src }}"
     dest: "{{ item.dest }}"
+    timeout: 20
   loop:
     - { "src": "vmware/{{ vmware_file }}", "dest": "{{ web_root }}/MIP/" }
     - { "src": "vscode/{{ vscode_file }}", "dest": "{{ extras_dir }}/Packages" }

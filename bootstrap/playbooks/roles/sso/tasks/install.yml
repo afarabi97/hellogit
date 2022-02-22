@@ -217,6 +217,7 @@
     url: https://{{ ansible_controller }}/auth/realms/{{ realm_name }}/protocol/saml/descriptor
     dest: "{{ sso_dir }}/idp.metadata.xml"
     validate_certs: no
+    timeout: 20
 
 - import_tasks: setup_x509.yml
 

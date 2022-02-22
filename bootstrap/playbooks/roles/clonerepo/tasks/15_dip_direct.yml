@@ -5,6 +5,7 @@
     url: "{{ item.url }}/{{ item.name }}"
     dest: "{{ item.dest }}"
     mode: "{{ item.mode }}"
+    timeout: 20
   with_items:
     - "{{ direct_download_package_names }}"
 

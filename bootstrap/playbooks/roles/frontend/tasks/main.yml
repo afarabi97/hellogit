@@ -9,6 +9,7 @@
     url: "{{ item.url }}"
     dest: "{{ item.dest }}/"
     validate_certs: no
+    timeout: 20
   with_items:
   - { url: "{{ tfplenum_repo }}/icons/material-icons-outlined.woff2",  dest: "{{ web_install_dir }}/frontend/src/assets/fonts" }
   - { url: "{{ tfplenum_repo }}/icons/material-icons.woff2",  dest: "{{ web_install_dir }}/frontend/src/assets/fonts" }
