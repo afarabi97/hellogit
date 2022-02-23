@@ -50,7 +50,7 @@ export class ReplayPcapDialogComponent implements OnInit {
     this.pcapForm = this.formBuilder.group({
       pcap: new FormControl(this.pcap_name),
       sensor_ip: new FormControl(undefined, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
-      preserve_timestamp: new FormControl(true),
+      preserve_timestamp: new FormControl({value: true, disabled: true}),
       ifaces: new FormControl(undefined)
     });
 
@@ -63,8 +63,9 @@ export class ReplayPcapDialogComponent implements OnInit {
 
   preserveTimestamp(event: MatCheckboxChange){
     if (event.checked){
-      this.pcapForm.get('ifaces').setValidators(null);
+      this.pcapForm.get('ifaces').disable();
     } else {
+      this.pcapForm.get('ifaces').enable();
       this.pcapForm.get('ifaces').setValidators(Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]));
     }
   }
@@ -89,6 +90,7 @@ export class ReplayPcapDialogComponent implements OnInit {
 
   changeIfaceValues(event: MatSelectChange){
     let hostname = '';
+    this.pcapForm.get('preserve_timestamp').enable();
     for (const sensor of this.selectableSensors){
       if (sensor.management_ip === event.value){
         hostname = sensor.hostname;
