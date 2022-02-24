@@ -334,6 +334,7 @@ robot:cleanup:rulesets:
   tags:
     - docker-runner
   image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  extends: .setup-robot-script
   script: |
     python3 -m run.runner -c integration \
       -t "cleanup/00_dipCleanupRulesets" \
@@ -353,12 +354,14 @@ robot:cleanup:rulesets:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
 
 robot:add_virtual_sensor:
   stage: robot-test-setup
   tags:
     - docker-runner
   image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  extends: .setup-robot-script
   script: |
     python3 -m run.runner -c integration \
       -t "013_sensors/00_addVirtualSensor" \
@@ -383,6 +386,7 @@ robot:cleanup:virtual_sensor:
   tags:
     - docker-runner
   image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  extends: .setup-robot-script
   script: |
     python3 -m run.runner -c integration \
       -t "cleanup/01_dipRemoveSensor" \
