@@ -26,19 +26,19 @@
     state: absent
     validate_certs: no
 
-- set_fact:
+- set_fact: # noqa unnamed-task
     networks:
     - name: "{{ esxi.portgroup }}"
       mac: "{{ hostvars[node].mac }}"
 
-- set_fact:
+- set_fact: # noqa unnamed-task
     networks:
     - name: "{{ esxi.portgroup }}"
       mac: "{{ hostvars[node].mac }}"
     - name: "{{ esxi.portgroup }}"
   when: hostvars[node].node_type == "Sensor"
 
-- set_fact:
+- set_fact: # noqa unnamed-task
     disks:
     - size_gb: "{{ default_root_disk_size }}"
       type: thin
@@ -48,7 +48,7 @@
       datastore: "{{ esxi.datastore }}"
   when: hostvars[node].node_type == "Control-Plane"
 
-- set_fact:
+- set_fact: # noqa unnamed-task
     disks:
     - size_gb: "{{ hostvars[node].virtual_os_size }}"
       type: thin
@@ -58,7 +58,7 @@
       datastore: "{{ esxi.datastore }}"
   when: hostvars[node].node_type == "Server" or hostvars[node].node_type == "Sensor" or hostvars[node].node_type == "Service"
 
-- set_fact:
+- set_fact: # noqa unnamed-task
     disks:
     - size_gb: "{{ hostvars[node].virtual_os_size }}"
       type: thin

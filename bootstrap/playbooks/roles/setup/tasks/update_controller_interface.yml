@@ -48,7 +48,8 @@
   set_fact:
      management_interface: "{{ ansible_default_ipv4.interface }}"
 
-- debug:
+- name: Debug - Master Server Interface
+  debug:
     msg: "master server interface: {{ management_interface }}"
 
 - block:

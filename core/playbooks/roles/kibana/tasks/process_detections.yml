@@ -22,7 +22,7 @@
   retries: 10
   delay: 5
 
-- name:
+- name: Enable Payload
   set_fact:
     enable_payload: "{{ enable_payload + [ payload ] }}"
   vars:

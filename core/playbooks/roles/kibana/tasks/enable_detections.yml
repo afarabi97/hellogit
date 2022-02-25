@@ -97,9 +97,10 @@
   retries: 10
   delay: 5
 
-- set_fact:
+- set_fact: # noqa unnamed-task
     per_page: 25
-- set_fact:
+
+- set_fact: # noqa unnamed-task
     number_of_pages: "{{ (detections.json.total / per_page) | round | int }}"
 
 - name: Process Detections

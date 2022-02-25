@@ -2,7 +2,8 @@
 ###########  Install Docker Distribution ##############
 #######################################################
 ---
-- import_role:
+- name: rhel_repo
+  import_role:
     name: rhel_repo
     tasks_from: add_repo
   when: not rpm_install
@@ -12,7 +13,8 @@
     name: docker-distribution
     state: installed
 
-- import_role:
+- name: rhel_repo
+  import_role:
     name: rhel_repo
     tasks_from: remove_nexus_repos
   when: not rpm_install

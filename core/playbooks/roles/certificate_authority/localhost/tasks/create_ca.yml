@@ -37,8 +37,8 @@
     create_ca: false
   when: "ca_cert_info and ca_key_info and ca_cert_info.public_key == ca_key_info.public_key and ca_cert_info.valid_at.one_year"
   ignore_errors: yes
-
-- debug:
+- name: Debug - CA crt and key Files
+  debug:
     msg: "CA crt and key files exist and not with expiration window ({{ min_ca_life }} days).  Using previous CA"
   when: "not create_ca"
 

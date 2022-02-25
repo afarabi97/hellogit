@@ -30,7 +30,7 @@
   command: /usr/bin/dbus-run-session gio set "{{ user_desktop }}/{{ vmware_desktop_app }}" 'metadata::trusted' true
   register: result
   changed_when: result.rc == 0
-  failed_when:  result.rc > 0
+  failed_when: result.rc > 0
 
 - name: Change vmware desktop permissions
   file:
@@ -39,8 +39,8 @@
     group: "{{ user }}"
     mode: '0774'
 
-- name: Check if the vmware-USBArbitrator service failed.
-  command: "systemctl show -p SubState --value  vmware-USBArbitrator"
+- name: Check if the vmware-USBArbitrator service failed. # noqa command-instead-of-module
+  command: "systemctl show -p SubState --value vmware-USBArbitrator"
   register: result
   changed_when: no
   when: ansible_virtualization_role == "guest"

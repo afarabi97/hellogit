@@ -71,7 +71,8 @@
       - name: Memory to GB
         set_fact:
           total_mem_gb: "{{ (ansible_memtotal_mb/1024)|round|int }}"
-      - debug:
+      - name: Debug - Total Memory and Num CPUs
+        debug:
           msg:
             - "Total Memory: {{ total_mem_gb }}GBs"
             - "Num of CPUs: {{ ansible_processor_vcpus }}"
@@ -137,7 +138,8 @@
         kit_size_name: "{{ hostvars[groups['elastic_nodes'][0]]['kit_size_name'] }}"
         cacheable: yes
       when: inventory_hostname == "localhost"
-    - debug:
+    - name: Debug - Kit Size
+      debug:
         msg: "Kit size: {{ kit_size_name }} ({{ kit_size }})"
 
 - name: Common Setup
@@ -177,26 +179,11 @@
     - name: OpenVPN pre_tasks
       setup:
   tasks:
-    - import_role:
+    - name: openvpn/client
+      import_role:
         name: openvpn/client
   tags:
     - openvpn
-
-# - name: API Mesh
-#   hosts:
-#     - control_planes
-#   gather_facts: no
-#   any_errors_fatal: true
-#   pre_tasks:
-#     - name: Run gather facts
-#       setup:
-#   tasks:
-#     - import_role:
-#         name: api_mesh
-#       when: enable_kube_ha
-#   tags:
-#     - api-mesh
-#     - kubernetes
 
 - name: Setup CRI-O
   hosts:
@@ -236,7 +223,8 @@
     - name: Install cert manager pre_tasks
       setup:
   tasks:
-    - import_role:
+    - name: certificate_authority/localhost
+      import_role:
         name: certificate_authority/localhost
         tasks_from: cert_manager
   tags:
@@ -328,7 +316,8 @@
   hosts: localhost
   any_errors_fatal: true
   tasks:
-    - include_role:
+    - name: snmp
+      include_role:
         name: snmp
       when: is_gip
   tags:
@@ -343,7 +332,8 @@
     - name: Deploy Arkime pre_tasks
       setup:
   tasks:
-    - import_role:
+    - name: arkime
+      import_role:
         name: arkime
   tags:
     - arkime
@@ -376,7 +366,8 @@
   gather_facts: no
   any_errors_fatal: true
   tasks:
-    - import_role:
+    - name: elasticsearch
+      import_role:
         name: elasticsearch
         tasks_from: filebeat_setup
   tags:
@@ -387,7 +378,8 @@
   gather_facts: no
   any_errors_fatal: true
   tasks:
-    - import_role:
+    - name: elasticsearch
+      import_role:
         name: elasticsearch
         tasks_from: winlogbeat_setup
   tags:

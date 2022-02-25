@@ -51,12 +51,12 @@
 
   - name: Set Hardware URLs
     vars:
-      oct: "{{ansible_default_ipv4.address.split('.')[1]}}"
+      oct: "{{ ansible_default_ipv4.address.split('.')[1] }}"
     set_fact:
       hardware_url:
-        - "10.{{oct}}.2.67 SANManagement"
-        - "10.{{oct}}.2.68 SANNic1"
-        - "10.{{oct}}.2.69 SANNic2"
+        - "10.{{ oct }}.2.67 SANManagement"
+        - "10.{{ oct }}.2.68 SANNic1"
+        - "10.{{ oct }}.2.69 SANNic2"
 
   - name: Add Hardware devices to Host
     blockinfile:

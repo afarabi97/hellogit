@@ -14,7 +14,8 @@
   delay: 5
   ignore_errors: yes
 
-- debug:
+- name: Debug - Elasticsearch Health Result
+  debug:
     msg: "{{ elasticsearch_health_result }}"
 
 - name: Test | Elasticsearch cluster should be not be red

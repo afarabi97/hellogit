@@ -1,15 +1,17 @@
 ---
 
-- set_fact:
+- set_fact: # noqa unnamed-task
     all_groups: "{{ groups['servers']|default([]) + groups['sensors']|default([]) + groups['control_plane']|default([]) + groups['mips']|default([]) }}"
 
-- set_fact:
+- set_fact: # noqa unnamed-task
     dip_nodes: "{{ node }}"
   when: node is defined and node in all_groups and hostvars[node].node_type != "MIP"
-- set_fact:
+
+- set_fact: # noqa unnamed-task
     mip_nodes: "{{ node }}"
   when: node is defined and node in all_groups and hostvars[node].node_type == "MIP"
-- set_fact:
+
+- set_fact: # noqa unnamed-task
     dip_nodes: "{{ groups['servers']|default([]) + groups['sensors']|default([]) + groups['control_plane']|default([]) }}"
     mip_nodes: "{{ groups['mips']|default([]) }}"
   when: node is not defined

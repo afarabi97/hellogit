@@ -35,7 +35,7 @@
     src: files/chartmuseum.service
     dest: /etc/systemd/system/chartmuseum.service
 
-- name:
+- name: Chartmuseum Service
   systemd:
     state: restarted
     daemon_reload: yes
@@ -62,4 +62,5 @@
 - name: Add helm repo if it does not exist
   command: helm repo add chartmuseum https://controller/chartmuseum --cert-file /etc/ssl/certs/apache-selfsigned.crt
   register: helmret
-  failed_when: "helmret.rc != 0"
+  changed_when: helmret.rc == 0
+  failed_when: helmret.rc != 0

@@ -11,13 +11,13 @@
   register: elasticsearch_result
   ignore_errors: yes
 
-- debug:
+- name: Debug Elasticsearch Result
+  debug:
     msg: "{{ elasticsearch_result }}"
 
 - name: Test | Elastichsearch service and port
   assert:
     that:  elasticsearch_result.status == 200
     msg: "Elasticsearch responded with {{ elasticsearch_result.status }} status code instead of 200."
-
 
 ...

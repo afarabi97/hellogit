@@ -47,7 +47,7 @@
   tags:
     - load-ml
 
-- name: Create roles
+- name: Create roles # noqa no-jinja-nesting
   uri:
     method: POST
     url: "{{ elastic_url }}/_security/role/{{ item }}"
@@ -72,10 +72,12 @@
   set_fact:
     logstash_monitor_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
 
-- debug:
+- name: Debug - Logstash Password
+  debug:
     msg: "{{ logstash_password }}"
 
-- debug:
+- name: Debug - Logstash Monitor Password
+  debug:
     msg: "{{ logstash_monitor_password }}"
 
 - name: Create logstash user secret
@@ -87,7 +89,7 @@
     - { secret: tfplenum-logstash-user, user: "logstash_internal", password: "{{ logstash_password }}" }
     - { secret: tfplenum-logstash-monitor-user, user: "logstash_monitor", password: "{{ logstash_monitor_password }}" }
 
-- name: Create users
+- name: Create users # noqa no-jinja-nesting
   uri:
     method: POST
     url: "{{ elastic_url }}/_security/user/{{ item }}"
@@ -133,7 +135,7 @@
     headers:
       Authorization: "Bearer {{ hostvars['localhost']['admin_api_key'] }}"
 
-- name: Load SAML Role Mappings
+- name: Load SAML Role Mappings # noqa no-jinja-nesting
   uri:
     url: "{{ elastic_url }}/_security/role_mapping/saml1-{{ item }}"
     method: PUT

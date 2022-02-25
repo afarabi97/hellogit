@@ -1,5 +1,6 @@
 ---
-- import_role:
+- name: rhel_repo
+  import_role:
     name: rhel_repo
     tasks_from: add_repo
   when: not rpm_install
@@ -10,7 +11,8 @@
     state: present
     enablerepo: nexus-yum-proxy
 
-- import_role:
+- name: rhel_repo
+  import_role:
     name: rhel_repo
     tasks_from: remove_nexus_repos
   when: not rpm_install

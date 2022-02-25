@@ -1,5 +1,6 @@
 ---
-- import_role:
+- name: rhel_repo
+  import_role:
     name: rhel_repo
     tasks_from: add_repo
   when: not rpm_install
@@ -19,7 +20,8 @@
     enablerepo: nexus-yum-proxy
     disablerepo: rhel-8-for-x86_64-appstream-rpms
 
-- import_role:
+- name: rhel_repo
+  import_role:
     name: rhel_repo
     tasks_from: remove_nexus_repos
   when: not rpm_install
@@ -42,9 +44,3 @@
   systemd:
     name: redis
     enabled: yes
-
-# - name: redis | Disable Persistence
-#   lineinfile:
-#     path: /etc/redis.conf
-#     state: absent
-#     regexp: '^save'

@@ -18,7 +18,7 @@
       - name: Import DIP/GIP variables
         include_vars:
           file: "{{ dip_core_vars }}"
-    - name: Set Server Ip Variable
+    - name: Set Server Ip Variable # noqa empty-string-compare
       set_fact:
         server_ip: "{{ hostvars['localhost']['ansible_default_ipv4']['address'] }}"
       when: hostvars['localhost']['ansible_default_ipv4'] is defined and server_ip is not defined or (server_ip is defined and server_ip == '')
@@ -132,7 +132,8 @@
   hosts: localhost
   any_errors_fatal: true
   tasks:
-    - import_role:
+    - name: frontend
+      import_role:
         name: frontend
         tasks_from: 60_preload_rules
   tags:

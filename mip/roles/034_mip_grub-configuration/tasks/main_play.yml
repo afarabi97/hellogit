@@ -5,7 +5,8 @@
     dest: /boot/efi/EFI/redhat
     remote_src: yes
 
-- debug:
+- name: Debug - MIP Model
+  debug:
     msg: "{{ ansible_product_name }}"
   register: MIP_model
 
@@ -42,14 +43,14 @@
   command: tail -n 1 /etc/cvah-release
   register: mip
   changed_when: mip.rc == 0
-  failed_when:  mip.rc > 0
+  failed_when: mip.rc > 0
 
 - name: check if 05_custom file exists
   stat:
     path: /etc/grub.d/05_custom
   register: does_exist
 
-- name: Adding custom menu to GRUB
+- name: Adding custom menu to GRUB # noqa: no-tabs
   lineinfile:
     path: /etc/grub.d/05_custom
     line: "{{ item }}"
@@ -58,8 +59,8 @@
     mode: '0755'
   with_items:
     - "#!/bin/sh\nexec tail -n +3 $0"
-    - "# This file provides an easy way to add custom menu entries.  Simply type the"
-    - "# menu entries you want to add after this comment.  Be careful not to change"
+    - "# This file provides an easy way to add custom menu entries. Simply type the"
+    - "# menu entries you want to add after this comment. Be careful not to change"
     - "# the 'exec tail' line above."
     - "menuentry '{{ cvah.stdout }}' {"
     - "\ttrue\n}\nmenuentry '{{ mip.stdout }}' {\n\ttrue\n}"

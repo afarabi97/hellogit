@@ -4,6 +4,8 @@
   shell: |
     kubectl drain --force --ignore-daemonsets --grace-period 30 --timeout 60s --delete-emptydir-data {{ item }}
     kubectl delete node {{ item }}
+  register: kubectl_actions
+  changed_when: kubectl_actions.rc == 0
   ignore_errors: yes
   with_items:
     - "{{ groups['servers'] }}"
@@ -12,6 +14,8 @@
 - name: Reset All
   shell: |
     kubectl delete -f {{ tfplenum_config_dir  }}/{{ item }}  --ignore-not-found
+  register: kubectl_delete
+  changed_when: kubectl_delete.rc == 0
   ignore_errors: yes
   with_items:
     - elasticsearch/deploy.yml
@@ -29,11 +33,15 @@
 - name: Remove all helm installs
   shell: |
     helm ls --all --short | xargs -L1 helm delete
+  register: helm_ls
+  changed_when: helm_ls.rc == 0
   ignore_errors: yes
 
 - name: Clean up more stuff
   shell: |
     kubectl delete secret {{ item }} --ignore-not-found
+  register: kubectl_delete_secret
+  changed_when: kubectl_delete_secret.rc == 0
   ignore_errors: yes
   with_items:
     - webca-key-pair

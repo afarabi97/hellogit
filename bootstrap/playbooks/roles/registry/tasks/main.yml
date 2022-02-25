@@ -4,14 +4,16 @@
     - setup_registry
     - rpm_setup
 
-- set_fact:
+- name: Pull Default Docker Images
+  set_fact:
     kube_images:  "{{ kube_images|default([]) }} + ['{{ item.1 }}']"
   loop: "{{ custom_rpm_packages|subelements('containers') }}"
   loop_control:
     label: "{{ item.0.name }}"
   tags: pull-docker-images
 
-- set_fact:
+- name: Pull Unique Docker Images
+  set_fact:
     kube_images: "{{ kube_images|unique|sort  }}"
   tags: pull-docker-images
 

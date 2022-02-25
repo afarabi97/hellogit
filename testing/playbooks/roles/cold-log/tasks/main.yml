@@ -11,8 +11,10 @@
 - name: Set bearer token
   command: /opt/tfplenum/.venv/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 4
   register: keycloak_bearer_token
+  changed_when: keycloak_bearer_token.rc == 0
 
 - name: Create Cold-Log Indices
+  # noqa command-instead-of-module
   command: >
     curl -X POST -H "Authorization: Bearer {{ keycloak_bearer_token.stdout }}"
     -F 'upload_file=@roles/cold-log/files/{{ item.module }}/{{ item.fileset }}.log'
@@ -20,6 +22,7 @@
     https://controller.{{ kit_domain }}/api/coldlog/upload
   loop: "{{ modules_and_filesets }}"
   register: post_result
+  changed_when: post_result.rc == 0
   failed_when: "post_result.rc != 0"
 
 - name: Verify Cold-Log Indices Exist

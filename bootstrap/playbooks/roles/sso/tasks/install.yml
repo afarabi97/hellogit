@@ -75,7 +75,8 @@
     saml_keys: "{{ saml_keys|default({}) | combine( {item.item: item.stdout} ) }}"
   with_items: "{{ clean_keys.results }}"
 
-- import_role:
+- name: rhel_repo
+  import_role:
     name: rhel_repo
     tasks_from: add_repo
   when: not rpm_install
@@ -87,7 +88,8 @@
       - pwgen
     state: present
 
-- import_role:
+- name: rhel_repo
+  import_role:
     name: rhel_repo
     tasks_from: remove_nexus_repos
   when: not rpm_install
@@ -102,7 +104,8 @@
   set_fact:
     sso_admin_password: "{{ tpass.stdout | replace(' ','') }}"
 
-- debug:
+- name: Debug - SSO Admin Creds
+  debug:
     msg: "SSO Admin creds: admin/{{ sso_admin_password }}"
 
 - name: Generate Realm JSON

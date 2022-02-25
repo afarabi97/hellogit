@@ -3,18 +3,18 @@
   shell: |
     helm get values {{ inventory_hostname_short }}-zeek
   register: zeek_values_result
-  changed_when: false
+  changed_when: no
   delegate_to: localhost
   ignore_errors: yes
 
-- set_fact:
+- set_fact: # noqa unnamed-task
     zeek_values: "{{ zeek_values_result.stdout|from_yaml  }}"
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Zeek Integration Test | 003 | Replay The PCAP
   command: |
       /usr/bin/tcpreplay --loop=5 --loopdelay-ms=3000 --intf1={{ zeek_values.interfaces[0] }} {{ item }}
-  changed_when: false
+  changed_when: no
   loop:
     - "{{ zeek_test_pcap_dir }}/zeek_it_intel.pcap"
     - "{{ zeek_test_pcap_dir }}/smb1_transaction_request.pcap"
@@ -28,4 +28,4 @@
   pause:
     seconds: "{{ zeek_pause }}"
     prompt: "{{ zeek_pause_prompt }}"
-    echo: false
+    echo: no

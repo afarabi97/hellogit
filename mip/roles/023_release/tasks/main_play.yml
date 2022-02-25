@@ -1,6 +1,7 @@
 ---
-- name: Get commit hash
+- name: Get commit hash # noqa no-changed-when
   shell: |
+      set -o pipefail && \
       cd /opt/tfplenum; git log | head -n 1 | awk '{print $2}'
   register: commit_hash
   delegate_to: localhost

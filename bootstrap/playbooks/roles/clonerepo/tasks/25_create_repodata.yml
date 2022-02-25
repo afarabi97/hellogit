@@ -6,20 +6,24 @@
     state: absent
 
 - name: create repodata
-  shell: "createrepo ."
+  command: "createrepo ."
   args:
     chdir: "{{ extras_dir }}"
+  register: create_repodata
+  changed_when: create_repodata.rc == 0
 
 - name: get list of directories with wrong permissions
   shell: |
     # change all directories permissions that are not 755 to 755
     find {{ web_root }} -type d -not -perm 755 -exec chmod 755 {} \;
   register: dir_list
+  changed_when: dir_list.rc == 0
 
 - name: fix files with wrong permissions
   shell: |
     find {{ web_root }} -type f -not -perm 644 -exec chmod 644 {} \;
   register: file_list
+  changed_when: file_list.rc == 0
 
 - name: restorecon for web root
   shell: |

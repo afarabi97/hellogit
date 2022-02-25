@@ -47,7 +47,8 @@
   gather_facts: yes
   any_errors_fatal: true
   tasks:
-    - import_role:
+    - name: controller/setup
+      import_role:
         name: controller/setup
         tasks_from: update_portal_client
   tags:
@@ -69,7 +70,8 @@
     - name: OpenVPN pre_tasks
       setup:
   tasks:
-    - import_role:
+    - name: openvpn/server
+      import_role:
         name: openvpn/server
   tags:
     - openvpn
@@ -94,10 +96,12 @@
     - name: Create cert authority pre_tasks
       setup:
   tasks:
-    - import_role:
+    - name: certificate_authority/localhost
+      import_role:
         name: certificate_authority/localhost
         tasks_from: create_ca
-    - import_role:
+    - name: certificate_authority/localhost
+      import_role:
         name: certificate_authority/localhost
         tasks_from: create_controller_cert
   tags:

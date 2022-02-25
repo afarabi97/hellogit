@@ -18,8 +18,8 @@
 - name: Set Total Number of Shards
   set_fact:
     total_number_of_shards: "{{ (number_of_shards * number_of_replicas) + number_of_shards }}"
-
-- debug:
+- name: Debug - Total Number of Shards
+  debug:
     msg: "{{ total_number_of_shards }} shards cannot fit into {{ data_count }} data nodes."
   when:
     - total_number_of_shards > data_count

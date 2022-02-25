@@ -9,15 +9,21 @@
     mode: '0755'
 
 - name: Configure PAM to use sssd
-  shell: authselect select sssd with-smartcard with-smartcard-lock-on-removal --force
+  command: authselect select sssd with-smartcard with-smartcard-lock-on-removal --force
+  register: authselect_select
+  changed_when: authselect_select.rc == 0
 
 - name: Apply sssd changes
-  shell: authselect apply-changes
+  command: authselect apply-changes
+  register: authselect_apply
+  changed_when: authselect_apply.rc == 0
 
 - name: Run ans_2fa_rhel8_configure script
-  shell: ./ans_2fa_rhel8_configure
+  command: ./ans_2fa_rhel8_configure
   args:
     chdir: /home/assessor/Desktop/2fa/
+  register: rhel8_config
+  changed_when: rhel8_config.rc == 0
 
 - name: Copy 2famapper.wish to /usr/local/bin & set permissions
   copy:

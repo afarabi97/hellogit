@@ -59,3 +59,5 @@
 
 - name: Kube | Label node
   command: 'kubectl label nodes {{ inventory_hostname }} role={{ node_type | lower }} --overwrite=true'
+  register: kubectl_label
+  changed_when: kubectl_label.rc == 0

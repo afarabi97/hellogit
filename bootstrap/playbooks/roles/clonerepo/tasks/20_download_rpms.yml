@@ -1,5 +1,6 @@
 ---
-- import_role:
+- name: rhel_repo
+  import_role:
     name: rhel_repo
     tasks_from: nexus_yum_repos
   when: not rpm_install
@@ -17,18 +18,23 @@
     dnf download --repoid="nexus-yum-proxy" --destdir="{{ extras_dir }}/Packages/" {{ extra_packages | join(' ') }}
   args:
     warn: false
+  register: dnf_download
+  changed_when: dnf_download.rc == 0
 
 - name: Download MIP Packages
-  shell: "{{ item }}"
+  command: "{{ item }}"
   with_items:
     - "dnf download --destdir={{ extras_dir }}/Packages --arch=x86_64,noarch {{ download_packages | join(' ') }}"
   args:
     warn: false
+  register: dnf_mip_download
+  changed_when: dnf_mip_download.rc == 0
 
 - import_tasks: 25_create_repodata.yml
   tags: create_repodata
 
-- import_role:
+- name: rhel_repo
+  import_role:
     name: rhel_repo
     tasks_from: remove_nexus_repos
   when: not rpm_install

@@ -1,6 +1,7 @@
 ---
 
-- import_role:
+- name: rhel_repo
+  import_role:
     name: rhel_repo
     tasks_from: add_repo
   when: not rpm_install
@@ -13,7 +14,8 @@
       - shibboleth
     state: present
 
-- import_role:
+- name: rhel_repo
+  import_role:
     name: rhel_repo
     tasks_from: remove_nexus_repos
   when: not rpm_install

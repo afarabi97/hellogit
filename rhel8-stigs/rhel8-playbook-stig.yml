@@ -366,28 +366,6 @@
     - password-auth
   when: '"pam" in ansible_facts.packages'
 
-#- name: "RHEL-08-010130 | MEDIUM | Set login rounds to '5000' - system-auth/password-auth (change)"
-#  lineinfile:
-#    create: yes
-#    dest: '{{ item }}'
-#    regexp: ^sha512\s.*rounds\s*=\s*(\S+)(.*)$
-#    line: \g<1>{{ Var_010130_PAM_Rounds }}\g<3>
-#  loop:
-#    - /etc/pam.d/system-auth
-#    - /etc/pam.d/password-auth
-#  when: '"pam" in ansible_facts.packages'
-#
-#- name: "RHEL-08-010130 | MEDIUM | Set login rounds to '5000' - system-auth/password-auth (add)"
-#  lineinfile:
-#    create: yes
-#    dest: '{{ item }}'
-#    regexp: ^sha512\s(?!.*rounds\s*=\s*).*$
-#    line: \g<0> rounds={{ Var_010130_PAM_Rounds }}
-#  loop:
-#    - /etc/pam.d/system-auth
-#    - /etc/pam.d/password-auth
-#  when: '"pam" in ansible_facts.packages'
-
 - name: "RHEL-08-010151 | MEDIUM | Require single user mode password"
   lineinfile:
     create: yes
@@ -979,7 +957,7 @@
     create: yes
     mode: 644
     regexp: ^\s*RekeyLimit.*$
-    line: RekeyLimit {{ Var_040161_040341_Rekey_Limit_Size }} {{ Var_040161_040341_Rekey_Limit_Time }}
+    line: RekeyLimit {{ Var_040161_040341_Rekey_Limit_Size }} {{ Var_040161_040341_Rekey_Limit_Time }} # noqa risky-octal
     state: present
 
 - name: "RHEL-08-040172 | HIGH | Disable Ctrl-Alt-Del Burst Action"
@@ -1090,12 +1068,6 @@
       regexp: '^kernel.yama.ptrace_scope'
       line: 'kernel.yama.ptrace_scope = 1'
 
-#- name: "RHEL-08-040284 | MEDIUM | PATCH | RHEL 8 must disable the use of user namespaces."
-#  lineinfile:
-#      path: /etc/sysctl.d/99-sysctl.conf
-#      regexp: '^user.max_user_namespaces'
-#      line: 'user.max_user_namespaces = 0'
-
 - name: "RHEL-08-040341 | MEDIUM | Remove X11UseLocalhost values from /etc/ssh/sshd_config"
   lineinfile:
     path: /etc/ssh/sshd_config
@@ -1138,6 +1110,8 @@
 
 - name: sysctl system
   command: sysctl --system
+  register: sysctl_system
+  changed_when: sysctl_system.rc == 0
 
 - name: Reboot system
   reboot:

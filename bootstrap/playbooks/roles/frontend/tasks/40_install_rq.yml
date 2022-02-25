@@ -19,7 +19,7 @@
     name: "rqworker@{{ item }}"
     enabled: yes
     state: stopped
-  with_sequence: start=1 end={{number_of_rq_workers}}
+  with_sequence: start=1 end={{ number_of_rq_workers }}
 
 - name: rq scheduler | Enable Service
   systemd:

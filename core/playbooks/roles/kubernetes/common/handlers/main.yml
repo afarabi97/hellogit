@@ -6,7 +6,8 @@
     - Kubelet | reload kubelet
 
 - name: Kubelet | reload systemd
-  command: systemctl daemon-reload
+  systemd:
+    daemon_reload: yes
 
 - name: Kubelet | reload kubelet
   service:
@@ -20,7 +21,8 @@
     - CRIO | reload crio
 
 - name: CRIO | reload systemd
-  command: systemctl daemon-reload
+  systemd:
+    daemon_reload: yes
 
 - name: CRIO | reload crio
   service:

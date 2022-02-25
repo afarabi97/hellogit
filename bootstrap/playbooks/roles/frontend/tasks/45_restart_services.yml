@@ -14,4 +14,4 @@
   systemd:
     name: "rqworker@{{ item }}"
     state: restarted
-  with_sequence: start=1 end={{number_of_rq_workers}}
+  with_sequence: start=1 end={{ number_of_rq_workers }}

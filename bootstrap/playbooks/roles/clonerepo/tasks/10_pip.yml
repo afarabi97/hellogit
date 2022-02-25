@@ -5,16 +5,22 @@
     name: common
     tasks_from: pip
 
-- set_fact:
+- name: Pip Path
+  set_fact:
     pip_path: "{{ tfplenum_root_dir }}/.venv/bin/pip3"
 
-- set_fact:
+- name: Pip Path rpm_build
+  set_fact:
     pip_path: "/usr/local/bin/pip3"
   when: rpm_build
 
 - name: "Download pip packages to the custom install repo"
-  shell: "{{ pip_path }} download -d {{ tfplenumoffline_dir }}/pip -r {{ tfplenum_root_dir }}/requirements.txt"
+  command: "{{ pip_path }} download -d {{ tfplenumoffline_dir }}/pip -r {{ tfplenum_root_dir }}/requirements.txt"
+  register: pip_packages_download
+  changed_when: pip_packages_download.rc == 0
 
 # TODO: broken module with python38
-- name: create pip repo
-  shell: "dir2pi {{ tfplenumoffline_dir }}/pip"
+- name: Create pip Repo
+  command: "dir2pi {{ tfplenumoffline_dir }}/pip"
+  register: dir2pi_pip
+  changed_when: dir2pi_pip.rc == 0

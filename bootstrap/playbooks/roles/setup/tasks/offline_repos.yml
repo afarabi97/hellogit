@@ -9,7 +9,8 @@
     regexp: 'enabled=1'
     replace: 'enabled=0'
 
-- import_role:
+- name: rhel_repo
+  import_role:
     name: rhel_repo
     tasks_from: add_repo
   when: not rpm_install

@@ -23,4 +23,5 @@
       state: enabled
   when: inventory_hostname == "localhost"
 
-- meta: flush_handlers
+- name: flush_handlers
+  meta: flush_handlers

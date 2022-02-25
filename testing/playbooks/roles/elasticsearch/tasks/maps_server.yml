@@ -8,7 +8,8 @@
   retries: 5
   delay: 5
 
-- debug:
+- name: Debug - MAPS Server Status
+  debug:
     msg: "{{ maps_server_status.json.services }}"
 
 - name: Test | Elastic Maps Server
