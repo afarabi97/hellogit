@@ -62,6 +62,7 @@ Install Multiple Apps
     ...              will take place upon each application installation.
     ...              Set SKIP_ALL_VERIFICATION to handle verification on your own.
     Set Selenium Speed  0.5s
+    ${retry_times} =  Set Variable If  ${IS_BARE_METAL_KIT}  150x  ${retry}
     log     Installing the following applications:
     FOR  ${appname}  IN  @{application_list}
         log     \t- ${appname}
@@ -72,9 +73,9 @@ Install Multiple Apps
 
     IF    '${asynchronous}' == 'True' and '${SKIP_ALL_VERIFICATION}' == 'False'
         log     Starting Asynchronous Bulk Verification Of The Installed Applications
-        log     The API Will Be Requested ${retry} times every ${retry_interval}.
+        log     The API Will Be Requested ${retry_times} times every ${retry_interval}.
         log     If the applications are not installed after the number of requests are met, the test will be marked as failing
-        Wait Until Keyword Succeeds    ${retry}    ${retry_interval}    Verify Applications Have Installed    @{application_list}
+        Wait Until Keyword Succeeds    ${retry_times}    ${retry_interval}    Verify Applications Have Installed    @{application_list}
     END
 
 Perform Fast Install Of Catalog Apps
@@ -162,9 +163,14 @@ Is App Already Installed
 Install App
     [Arguments]  ${application_name}    ${asynchronous}=${FALSE}
     [Documentation]  Downloads specified app from Catalog page
+    Run Keyword if  ${IS_BARE_METAL_KIT}  Set Selenium Speed  1s
     ${already_installed} =    Is App Already Installed    ${application_name}
     IF  '${already_installed}' == 'True'
         Return From Keyword
+    END
+
+    IF  '${application_name}' == 'Arkime' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
+        ${sensor_name} =  Check For Sensor With Available Interface
     END
 
     log     Installing App: ${application_name}
@@ -194,8 +200,8 @@ Install App
     ${next_btn_list} =   Get WebElements  id=app-catalog-page-div-mat-card-div-button-next-get-config
     Run Keyword if  '${application_name}' == 'Arkime' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
     ...  Run Keywords  click  ${locNodeSelection}
-    ...  AND  lookForElement  ${locFirstNodeOption}
-    ...  AND  click  ${locFirstNodeOption}
+    ...  AND  lookForElement  xpath=//span[text()="${sensor_name}"]
+    ...  AND  click  xpath=//span[text()="${sensor_name}"]
     ...  AND  Press Keys  None  TAB
     ...  AND  Wait Until Element Is Enabled  ${next_btn_list[0]}
     ...  AND  Click Button  ${next_btn_list[0]}  # Next btn
@@ -237,7 +243,8 @@ Verify App Has Been Installed
         log    Asynchronous is FALSE
         log    Starting Individual Verification
         @{one_app_list}=    Create List    ${application_name}
-        Wait Until Keyword Succeeds  60x  10s  Verify Applications Have Installed    @{one_app_list}
+        ${retry_times} =  Set Variable If  ${IS_BARE_METAL_KIT}  150x  60x
+        Wait Until Keyword Succeeds  ${retry_times}  10s  Verify Applications Have Installed    @{one_app_list}
         # Check Notifications For App  ${application_name}
         # Check Health Page For App  ${application_name}
     END

@@ -18,7 +18,7 @@ Suite Teardown    Close All Connections
 Run Elastic Integration Test
     [Tags]                           THISISCVAH-10191
     [Documentation]                  Grab the elastic password and run some tests
-    Set Selenium Speed               0.5s
+    Set Selenium Speed               1s
     Install Multiple Apps            Logstash   Zeek    Suricata    Arkime-viewer    Arkime
     Login Into Kibana
     Navigate To PCAPs

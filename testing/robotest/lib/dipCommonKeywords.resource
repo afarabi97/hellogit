@@ -227,14 +227,15 @@ Login Into Kibana
     shoot       StackManagement
 
 Play ${pcap} PCAP
+    ${sensor_name} =  Check For Sensor With Available Interface
     IF      "${pcap}" == "Wannacry"
         click    ${locPcapPlayBtn}
         click    ${locPcapSensorHostname}
-        click    ${locPcapFirstSensorHostname}
+        click    xpath=//span[contains(text(),"${sensor_name}")]
         click    ${locPcapPreserveTimestamp}
         click    ${locPcapSensorInterface}
-        click    ${locPcapEns224}
-        click    ${locOverlayClick}
+        click    ${locPcapSensorInterfaceOptn}
+        Press Keys  None  TAB
         shoot    Play Pcap Options
         click    ${locPcapExecuteBtn}
     END
@@ -283,7 +284,7 @@ getType
     [Return]           ${object_type}
 
 click
-    [Arguments]     ${element}     ${timeout}=5s
+    [Arguments]     ${element}     ${timeout}=30s
     Wait Until Page Contains Element    ${element}  timeout=${timeout}
     Click Element   ${element}
     log     Clicked element: ${element}
@@ -293,7 +294,7 @@ failTest
     fail
 
 clickElements
-    [Arguments]     ${elements_locator}     ${timeout}=5s
+    [Arguments]     ${elements_locator}     ${timeout}=30s
     log     Retrieving Elements using locator: ${elements_locator}
     ${elements} =      Get Web Elements    ${elements_locator}
     FOR  ${element}  IN  @{elements}

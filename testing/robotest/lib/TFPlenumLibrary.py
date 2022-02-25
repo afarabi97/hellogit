@@ -12,6 +12,7 @@ class TFPlenumLibrary:
     ZEEK_CHART_STATUS_ENDPOINT = "/catalog/chart/zeek/status"
     SURICATA_CHART_STATUS_ENDPOINT = "/catalog/chart/suricata/status"
     EVERY_CHART_STATUS_ENDPOINT = "/catalog/charts/status"
+    KIT_NODES_ENDPOINT = "/kit/nodes"
 
     def __init__(self):
         self.COLOR_HEADER = "\033[95m"
@@ -186,6 +187,27 @@ class TFPlenumLibrary:
         else:
             return {"status": True, "verified": verified_applications}
 
+    @keyword
+    def check_for_sensor_with_available_interface(self):
+        """
+        Uses the TFPlenum Backend API to look for a sensor that has an ingest
+        interface available. This is necessary for installing certain PMO apps
+        from the Catalog Page (Arkime, Suricata, Zeek).
+
+        Returns:
+            string: name of sensor with available ingest interface
+        """
+        response = self.api_get_kit_nodes_info(jsonify=False)
+        json_response = response.json()
+
+        for node in json_response:
+            if node['node_type'].lower() == "sensor":
+                sensor_name = node['hostname']
+                for interface in node['deviceFacts']['interfaces']:
+                    if interface['speed'] > -1 and not interface['ip_address']:
+                        return sensor_name
+        return None
+
     # API Calls (not to be used in robot tests directly)
 
     def api_get_current_user(self, jsonify=True):
@@ -202,6 +224,9 @@ class TFPlenumLibrary:
 
     def api_get_chart_statuses(self, jsonify=True):
         return self.execute_request(self.EVERY_CHART_STATUS_ENDPOINT, jsonify=jsonify)
+
+    def api_get_kit_nodes_info(self, jsonify=True):
+        return self.execute_request(self.KIT_NODES_ENDPOINT, jsonify=jsonify)
 
     def execute_request(self, endpoint, request_type="GET", payload={}, jsonify=True):
         self._tfplenum_lib_test_setup()

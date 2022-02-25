@@ -51,7 +51,7 @@ Cleanup Virtual Sensors With The Name ${text}
 
     IF      '${delBtns_type}' == 'list'
         ${delBtns_length}        Get Length       ${delBtns}
-        ${wait_time}        Evaluate    $delBtns_length * 180
+        ${wait_time}        Evaluate    $delBtns_length * 360
         log        We have a list of length ${delBtns_length}
         FOR  ${delete_button}  IN  @{delBtns}
             click               ${delete_button}

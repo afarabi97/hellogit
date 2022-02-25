@@ -67,10 +67,9 @@ ${locOverlayClick}              xpath=//div[3]/div[3]
 # Playing PCAP Dialog Box
 ${locPcapPlayBtn}               xpath=//em[@id="app-pcap-form-div-mat-card-mat-card-content-table-td-7-action-button-play-arow-em"]
 ${locPcapSensorHostname}        id=replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select
-${locPcapFirstSensorHostname}   xpath=//mat-option[@id='replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select-mat-option-0']/span
 ${locPcapPreserveTimestamp}     xpath=//mat-checkbox[@id='mat-checkbox-1']/label/div
 ${locPcapSensorInterface}       xpath=//mat-select[@id='replay-pcap-dialog-div-mat-form-field-iface-mat-select']/div/div[2]/div
-${locPcapEns224}                xpath=//mat-option[@id='replay-pcap-dialog-div-mat-form-field-iface-mat-select-mat-option-0']/mat-pseudo-checkbox
+${locPcapSensorInterfaceOptn}   xpath=//mat-option[@id='replay-pcap-dialog-div-mat-form-field-iface-mat-select-mat-option-0']/mat-pseudo-checkbox
 ${locOverlayClick}              xpath=//div[3]/div[3]
 ${locPcapExecuteBtn}            xpath=//button[@id='replay-pcap-dialog-div-button-execute']/span
 
