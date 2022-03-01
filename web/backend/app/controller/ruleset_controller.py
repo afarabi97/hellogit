@@ -149,7 +149,6 @@ class UploadRule(Resource):
         if rule_set:
             rule_set_file = request.files['upload_file']
             filename = secure_filename(rule_set_file.filename)
-
             with tempfile.TemporaryDirectory() as export_path:
                 abs_save_path = str(export_path) + '/' + filename
                 rule_set_file.save(abs_save_path)

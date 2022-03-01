@@ -2,7 +2,7 @@ import os
 import tempfile
 import uuid
 from datetime import datetime
-from io import StringIO
+from io import StringIO, TextIOWrapper
 from pathlib import Path
 from typing import Dict, List, Tuple, Union
 from zipfile import ZipFile
@@ -173,6 +173,12 @@ def does_file_have_ext(some_path: str, extension: str) -> bool:
     file_ext = some_path[pos:]
     return file_ext.lower() == extension
 
+def _get_file_header(rule_set: dict, file: TextIOWrapper):
+    if rule_set['appType'] == RULE_TYPES[2]:
+        header = file.readline()
+        return header
+    return None
+
 def create_rule_from_file(path: Path, rule_set: Dict, ignore_errors: bool = False, by_pass_validation: bool = False) -> Union[Dict, List[Dict]]:
     # If the file is greater than 5 MB we need to split up the file into smaller pieces
     if path.stat().st_size > CHUNK_SIZE:
@@ -180,18 +186,19 @@ def create_rule_from_file(path: Path, rule_set: Dict, ignore_errors: bool = Fals
         count = 1
         ret_val = []
         with path.open() as f:
+            header = _get_file_header(rule_set, f)
             for line in f.readlines():
                 partial_rule.write(line)
                 if partial_rule.tell() >= CHUNK_SIZE:
                     filename = _get_file_name(path.name, count)
                     ret_val.append(_create_rule_srv_wrapper(rule_set, filename, partial_rule.getvalue(
-                    ), ignore_errors=ignore_errors, by_pass_validation=by_pass_validation))
+                    ), ignore_errors=ignore_errors, by_pass_validation=by_pass_validation, header=header))
                     partial_rule = StringIO()
                     count += 1
         if partial_rule.tell() > 0:
             filename = _get_file_name(path.name, count)
             ret_val.append(_create_rule_srv_wrapper(rule_set, filename, partial_rule.getvalue(
-            ), ignore_errors=ignore_errors, by_pass_validation=by_pass_validation))
+            ), ignore_errors=ignore_errors, by_pass_validation=by_pass_validation, header=header))
         return ret_val
     else:
         with path.open() as f:
@@ -401,12 +408,14 @@ def _create_rule_srv_wrapper(rule_set: Dict,
                             rule_content: str,
                             is_enabled: bool = True,
                             ignore_errors: bool = False,
-                            by_pass_validation: bool = False):
+                            by_pass_validation: bool = False,
+                            header: str = None):
     rule = {
         "ruleName": rule_name,
         "rule": rule_content,
         "isEnabled": is_enabled
     }
+
     rule_set_id = rule_set["_id"]
     rule_type = rule_set['appType']
     is_valid = False
@@ -423,6 +432,8 @@ def _create_rule_srv_wrapper(rule_set: Dict,
         elif rule_type == RULE_TYPES[1]:
             is_valid, error_output = validate_zeek_script(rule)
         elif rule_type == RULE_TYPES[2]:
+            if header:
+                rule['rule'] = header + rule['rule']
             is_valid, error_output = validate_zeek_intel(rule)
         elif rule_type == RULE_TYPES[3]:
             is_valid, error_output = validate_zeek_signature(rule)
