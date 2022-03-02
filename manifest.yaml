@@ -62,8 +62,8 @@ CPT:
 
 - app: Mockingbird
   src:
-    - Repo/CPT/VMs/Mockingbird/1.1.1/Mockingbird_Sandbox.ova
-    - Repo/CPT/VMs/Mockingbird/1.1.1/ReadMe.txt
+    - Repo/CPT/VMs/Mockingbird/1.2.0/Mockingbird_Sandbox.ova
+    - Repo/CPT/VMs/Mockingbird/1.2.0/ReadMe.txt
   dest: staging/v3.7/CPT/Data/CVAH 3.7/Software/VMs/Mockingbird
 
 - app: Pfsense
@@ -228,11 +228,11 @@ CPT:
   src:
     - Repo/CPT/Documentation/VMs/Cuckoo Sandbox/2.0.7
     - Repo/CPT/Documentation/VMs/Endgame/3.23.3-32
-    - Repo/CPT/Documentation/VMs/Mockingbird/1.1.1
+    - Repo/CPT/Documentation/VMs/Mockingbird/1.2.0
     - Repo/CPT/Documentation/VMs/REMnux/2021.29.9
     - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
     - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.80
-    - Repo/Shared/VMs/ACAS/21.04-0/Tenablesc_UserGuide-5.19.pdf
+    - Repo/Shared/Documentation/VMs/ACAS/21.04-0/Tenablesc_UserGuide-5.19.pdf
   dest: staging/v3.7/CPT/Data/CVAH 3.7/Documentation/VMs
 
 - app: Documentation
@@ -368,7 +368,7 @@ MDT:
   src:
     - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.80
     - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
-    - Repo/Shared/VMs/ACAS/21.04-0/Tenablesc_UserGuide-5.19.pdf
+    - Repo/Shared/Documentation/VMs/ACAS/21.04-0/Tenablesc_UserGuide-5.19.pdf
   dest: staging/v3.7/MDT/Data/CVAH 3.7/Documentation/VMs
 
 - app: Documentation
