@@ -2,7 +2,7 @@ from pathlib import Path
 
 from app.common import NOTFOUND_RESPONSE
 from app.models.common import JobID
-from app.service.diagnostrics_service import run_diagnostics
+from app.service.diagnostics_service import run_diagnostics
 from app.utils.collections import mongo_console
 from flask import send_file
 from flask_restx import Namespace, Resource

@@ -167,8 +167,8 @@ def notify_node_management(kit_status: dict, node_data: dict):
     socketio.emit("node-state-change", node_data, broadcast=True)
 
 
-def notify_diag():
-    socketio.emit("diagnostics_finished_running", True, broadcast=True)
+def notify_diag(rc):
+    socketio.emit("diagnostics_finished_running", rc, broadcast=True)
 
 
 def notify_disk_pressure(message: dict):

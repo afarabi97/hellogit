@@ -5,17 +5,15 @@ from components.metrics import check_node_metrics
 from datetime import date
 import os
 import time
-from git import Repo
+import configparser
 
-def get_commit_hash() -> str:
-    REPO_PATH = "/opt/tfplenum"
-    repo = Repo(REPO_PATH)
-    sha = repo.head.commit.hexsha
-    short_sha = repo.git.rev_parse(sha, short=8)
-    return short_sha
+def get_version():
+    config = configparser.ConfigParser()
+    config.read("/etc/tfplenum/tfplenum.ini")
+    return config["tfplenum"]["version"]
 
 def collect_logs():
-    tar_name = "tfplenum-logs-{}-{}.tar.gz".format(date.today(), get_commit_hash())
+    tar_name = "tfplenum-logs-{}-{}.tar.gz".format(date.today(), get_version())
     os.system("mkdir -p /var/www/html/downloads > /dev/null 2>&1")
     os.system(f"tar -czvf /var/www/html/downloads/{tar_name} -C /var/log . > /dev/null 2>&1")
     print("=====> {} created in /var/www/html/downloads".format(tar_name))

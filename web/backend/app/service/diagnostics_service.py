@@ -18,5 +18,5 @@ def run_diagnostics():
         working_dir=str(SCRIPTS_DIR / "diagnostics"),
         use_shell=True,
     )
-    job.run_async_command()
-    notify_diag()
+    rc = job.run_async_command()
+    notify_diag(rc)

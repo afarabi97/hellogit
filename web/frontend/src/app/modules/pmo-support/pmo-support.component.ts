@@ -128,9 +128,14 @@ export class PmoSupportComponent implements OnInit {
    */
   private setup_websocket_diagnostics_finished_(): void {
     this.websocket_service_.getSocket()
-      .on('diagnostics_finished_running', (data: any) => {
+      .on('diagnostics_finished_running', (rc: number) => {
         this.running_diagnostics_script = null;
-        this.api_download_diagnostics_();
+        if(rc == 0) {
+          this.api_download_diagnostics_();
+        } else {
+          this.diagnostics_job_id = null;
+          this.mat_snackbar_service_.generate_return_error_snackbar_message("Diagnostics script failed.", MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        }
       });
   }
 
