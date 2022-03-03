@@ -34,10 +34,12 @@ build frontend:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     ansible-playbook bootstrap/playbooks/site.yml --connection=local -i localhost, -t install_angular,build_frontend
+    chmod -R -x+X web/frontend/node_modules/
   allow_failure: false
   artifacts:
     paths:
       - web/frontend/dist/frontend/*
+      - web/frontend/node_modules/*
     expire_in: 30 minutes
 
 rpm build tfplenum repo:

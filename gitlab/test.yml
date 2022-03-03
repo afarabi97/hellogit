@@ -12,6 +12,8 @@ Back-End Unit Testing:
     reports:
       junit: "web/backend/*.xml"
   image: $LATEST_CODE_CHECKER_IMAGE
+  except:
+    - tags
   tags:
     - docker-runner
 

@@ -60,17 +60,20 @@ def clear_based_on_pattern(some_path: Union[str, Path], pattern: str):
         file_to_delete.unlink()
 
 
-def get_commit_hash(username: str,
-                    password: str,
-                    ctrl_ip: str):
-    try:
-        short_hash = ""
-        with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
+def get_commit_hash_or_tag(ctrl_settings: ControllerSetupSettings):
+    with FabricConnectionWrapper(ctrl_settings.node.username,
+                                 ctrl_settings.node.password,
+                                 ctrl_settings.node.ipaddress) as remote_shell:
+        try:
             long_hash=remote_shell.run("cd /opt/tfplenum; git log | head -n 1 | awk '{print $2}'", hide=True).stdout.strip()
             short_hash=remote_shell.run(f"cd /opt/tfplenum; git rev-parse --short {long_hash}").stdout.strip()
-        return str(short_hash)
-    except UnexpectedExit:
-        return "rpm" + str(uuid4())[0:5]
+            return str(short_hash)
+        except UnexpectedExit:
+            output = remote_shell.run("dnf list installed tfplenum").stdout.strip()
+            tag = output.split()[3]
+            pos = tag.rfind(".")
+            tag = tag[:pos]
+            return "rpm_tag_v" + tag
 
 
 def export(vcenter_settings: VCenterSettings,
@@ -173,9 +176,8 @@ class ControllerExport:
     def create_ctrl_template(self):
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
-        commit_hash = get_commit_hash(self.ctrl_settings.node.username,
-                                      self.ctrl_settings.node.password,
-                                      self.ctrl_settings.node.ipaddress)
+
+        commit_hash = get_commit_hash_or_tag(self.ctrl_settings)
         self._set_private(commit_hash)
         payload = self.ctrl_settings.to_dict()
         payload["commands"] = [

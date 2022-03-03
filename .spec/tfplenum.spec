@@ -215,6 +215,7 @@ fi
 %files
 %{web_folder}/backend/*
 %{web_folder}/frontend/*
+%{web_folder}/frontend/node_modules/*
 %{component_folder}/*
 %{web_folder}/setup/*
 %{core_folder}/*

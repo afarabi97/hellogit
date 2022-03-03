@@ -16,12 +16,17 @@
   tags:
     - build_frontend
     - install_angular
+    - rpm_setup
 
 - import_tasks: 05_install_node.yml
-  tags: install_node
+  tags:
+    - install_node
+    - rpm_setup
 
 - import_tasks: 10_install_angular.yml
-  tags: install_angular
+  tags:
+    - install_angular
+    - rpm_setup
 
 - name: "Open up port 443 and 4200"
   firewalld:
