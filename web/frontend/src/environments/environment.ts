@@ -30,7 +30,7 @@ export const environment = {
   CONFIG_MAP_SERVICE_GET_ASSOCIATED_PODS: `/api/kubernetes/associated/pods/`,
 
   COLD_LOG_INGEST_SERVICE_POST_COLD_LOG_FILE: `/api/coldlog/upload`,
-  COLD_LOG_INGEST_SERVICE_GET_WINLOGBEAT_CONFIGURATION: `/api/coldlog/winglogbeat/configure`,
+  COLD_LOG_INGEST_SERVICE_GET_WINLOGBEAT_CONFIGURATION: `/api/coldlog/winlogbeat/configure`,
   COLD_LOG_INGEST_SERVICE_POST_WINLOGBEAT: `/api/coldlog/winlogbeat/install`,
   COLD_LOG_INGEST_SERVICE_GET_MODULE_INFO: `/api/coldlog/module/info`,
 

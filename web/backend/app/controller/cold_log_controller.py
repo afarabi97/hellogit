@@ -84,7 +84,7 @@ class ModuleInfo(Resource):
         return ColdLogModules.to_list(), 200
 
 
-@COLDLOG_NS.route("/winglogbeat/configure")
+@COLDLOG_NS.route("/winlogbeat/configure")
 class ConfigureWinlogbeat(Resource):
     def get(self) -> Response:
         """
