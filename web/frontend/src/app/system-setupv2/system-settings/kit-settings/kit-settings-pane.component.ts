@@ -58,8 +58,9 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(){
-    if(this.kitSettings && this.kitSettings != null){
-      this.job_id = this.kitSettings.job_id;
+
+    if(this.kitStatus && this.kitStatus != null){
+      this.kitSettings != null ? this.job_id = this.kitSettings.job_id : this.job_id = null;
       this.createFormGroup(this.kitSettings);
       this.checkJob();
     }
@@ -76,12 +77,12 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
   }
 
   checkJob(){
-    if(!this.kitStatus.general_settings_configured){
-      this.kitForm.disable();
-    } else{
+    if(this.kitStatus.general_settings_configured){
       this.kitForm.enable();
+    } else{
+      this.kitForm.disable();
     }
-    if (this.job_id){
+    if (this.job_id && this.kitStatus.general_settings_configured){
       this.kitSettingsSrv.getJob(this.job_id).subscribe(data => {
         if (data && data['status'] === 'started'){
           this.kitJobRunning = true;

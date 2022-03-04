@@ -14,7 +14,7 @@ from app.models.settings.general_settings import (SETINGS_NS,
 from app.models.settings.kit_settings import KitSettingsForm
 from app.models.settings.mip_settings import MipSettingsForm
 from app.models.settings.snmp_settings import SNMPSettingsForm
-from app.service.node_service import execute
+from app.service.node_service import execute, send_notification
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.constants import DEPLOYMENT_JOBS
 from app.utils.logging import logger
@@ -161,6 +161,7 @@ class GeneralSettings(Resource):
             notification.set_and_send(
                 message="General Settings Saved", status=NotificationCode.COMPLETED.name
             )
+            send_notification()
         except ValidationError as e:
             notification.set_and_send(
                 message=str(e), status=NotificationCode.ERROR.name
