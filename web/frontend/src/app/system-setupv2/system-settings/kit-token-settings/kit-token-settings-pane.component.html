@@ -8,6 +8,7 @@
       </mat-card-title>
   </mat-card-header>
   <mat-card-content *ngIf="is_card_visible" fxLayout="column" fxLayoutAlign="space-around stretch">
+    <p>For GIP builds only; enable the GIP Build option in Kit Settings.</p>
     <table mat-table [dataSource]="kit_tokens" #KitTokenTable aria-describedby="kit-token-table">
         <ng-container matColumnDef="ipaddress">
             <th scope="col" mat-header-cell *matHeaderCellDef>IP Address</th>
@@ -27,6 +28,6 @@
     </table>
 </mat-card-content>
   <mat-card-actions *ngIf="is_card_visible">
-    <button mat-raised-button color="primary" (click)=add_kit_token_dialog()>Add Kit</button>
+    <button mat-raised-button color="primary" [disabled]=!gipBuild (click)=add_kit_token_dialog()>Add Kit</button>
 </mat-card-actions>
 </mat-card>

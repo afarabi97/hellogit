@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Input} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTable } from '@angular/material/table';
 import { KitTokenInterface } from '../../interfaces/kit-token.interface';
@@ -15,6 +15,7 @@ import {CopyTokenModalDialogComponent} from '../../copy-token-dialog/copy-token-
 })
 
 export class KitTokenSettingsPaneComponent implements OnInit {
+  @Input() gipBuild: boolean;
   @ViewChild('KitTokenTable') kit_token_table: MatTable<KitTokenClass>;
   is_card_visible: boolean = false;
   kit_token_table_columns = ['ipaddress', 'actions'];
