@@ -90,11 +90,11 @@ ${locRulesetActionEditBtnSuricata}    xpath=//button[@id='cvah-policy-management
 ${locRulesetActionEditBtnZeek}        xpath=//button[@id='cvah-policy-management-table-rule-set-td-1-actions-button-edit']/span/em
 
 ${locAddRulesetNameInputField}             id=rule-set-add-edit-div-mat-form-field-ruleset-name-input
-${locAddRulesetClassificationField}        xpath=//div[@id='mat-select-value-3']/span
-${locAddRulesetUnclassifedSelectOption}    xpath=//mat-option[@id='rule-set-add-edit-div-mat-form-field-classification-mat-select-mat-option-0']/span
-${locAddRulesetRuletypeField}              xpath=//div[@id='mat-select-value-5']/span
+${locAddRulesetClassificationField}        xpath=//*[@id="rule-set-add-edit-div-mat-form-field-classification-mat-select"]
+${locAddRulesetUnclassifedSelectOption}    xpath=//mat-option/span[contains(text(), "Unclassified")]
+${locAddRulesetRuletypeField}              xpath=//*[@id="rule-set-add-edit-div-mat-form-field-rule-type"]
 ${locAddRulesetRuletypeZeekSigOption}      xpath=//mat-option[@id='rule-set-add-edit-div-mat-form-field-rule-type-mat-select-mat-option-3']/span
-${locAddRulesetSensorField}                xpath=//div[@id='mat-select-value-7']/span
+${locAddRulesetSensorField}                xpath=//*[@id="rule-set-add-edit-div-mat-form-field-sensors-mat-select"]
 ${locAddRulesetSensorCheckbox}             id=rule-set-add-edit-div-mat-form-field-sensors-mat-select-mat-option-0
 
 ${locEditRulesetSensorCheckboxes}            xpath=//*[contains(@id,"rule-set-add-edit-div-mat-form-field-sensors-mat-select-mat-option")]
@@ -102,7 +102,12 @@ ${locEditRulesetSensorCheckboxes}            xpath=//*[contains(@id,"rule-set-ad
 ${locAddRulesetOverlayClick}         xpath=//div[3]/div[3]
 ${locAddRulesetIsEnabledcheckbox}    xpath=//mat-checkbox[@id='rule-set-add-edit-div-mat-checkbox-is-enabled']/label/div
 ${locAddRulesetSubmitBtn}            xpath=//button[@id='rule-set-add-edit-div-button-submit']/span
+${locRuleSetTableNameElements}       xpath=//cvah-policy-management//table/tbody/tr/td[2]/a/span
+${locRuleSetTableStateElements}      xpath=//cvah-policy-management//table/tbody/tr/td[5]
 ${locRuleSyncButton}                 id=cvah-policy-management-button-rule-sync
+
+${locRemoveRsConfirmDialogMsg}       id=cvah-confirm-dialog-message
+${locRemoveRsConfirmBtn}             id=cvah-confirm-dialog-button-options2-not-double-confirm
 
 ${locZeekIntegrationFolderDeleteBtn}        xpath=//button[@id='cvah-policy-management-table-rule-set-td-2-actions-button-delete']/span/em
 ${locZeekIntegrationFolderDeleteConfirm}    xpath=//button[@id='cvah-confirm-dialog-button-options2-not-double-confirm']

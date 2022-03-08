@@ -130,115 +130,6 @@ robot:catalog:CHM:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
   retry: 2
 
-robot:rulesets:zeek_script:
-  stage: robot-test-setup
-  tags:
-    - docker-runner
-  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
-  extends: .setup-robot-script
-  script: |
-    python3 -m run.runner -c integration \
-      -t "011_rulesets/00_dipZeekScriptRuleset" \
-      -r INTEGRATION \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
-      -v PIPELINE:$PIPELINE
-    /bin/cp -rf /usr/src/robot/output $build_path/
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: false
-  needs:
-    - job: "Sensor Setup"
-      optional: true
-    - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "Service Setup"
-    - job: robot:catalog:independents
-      optional: true
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
-robot:rulesets:zeek_signature:
-  stage: robot-test-setup
-  tags:
-    - docker-runner
-  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
-  extends: .setup-robot-script
-  script: |
-    python3 -m run.runner -c integration \
-      -t "011_rulesets/00_dipZeekSignatureRuleset" \
-      -r INTEGRATION \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
-      -v PIPELINE:$PIPELINE
-    /bin/cp -rf /usr/src/robot/output $build_path/
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: false
-  needs:
-    - job: "Sensor Setup"
-      optional: true
-    - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "Service Setup"
-    - job: robot:catalog:independents
-      optional: true
-    - job: "robot:regression_testing"
-      optional: true
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
-robot:rulesets:suricata:
-  stage: robot-test-setup
-  tags:
-    - docker-runner
-  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
-  extends: .setup-robot-script
-  script: |
-    python3 -m run.runner -c integration \
-      -t "011_rulesets/00_dipSuricataRuleset" \
-      -r INTEGRATION \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
-      -v PIPELINE:$PIPELINE
-    /bin/cp -rf /usr/src/robot/output $build_path/
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: false
-  needs:
-    - job: "Sensor Setup"
-      optional: true
-    - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "Service Setup"
-    - job: robot:catalog:independents
-      optional: true
-    - job: "robot:regression_testing"
-      optional: true
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
 robot:rulesets:sync:
   stage: robot-test-setup
   tags:
@@ -261,9 +152,13 @@ robot:rulesets:sync:
     when: always
   allow_failure: false
   needs:
-    - job: robot:rulesets:zeek_script
-    - job: robot:rulesets:zeek_signature
-    - job: robot:rulesets:suricata
+    - job: "Sensor Setup"
+      optional: true
+    - job: "Hardware Sensor Setup"
+      optional: true
+    - job: "Service Setup"
+    - job: robot:catalog:independents
+      optional: true
     - job: "robot:regression_testing"
       optional: true
   only:

@@ -7,6 +7,132 @@ Library     String
 
 
 *** Keywords ***
+Edit Rule Set
+    [Arguments]  ${rule_set_name}  ${reset}=${False}
+    [Documentation]  Edits the specified Rule Set by assigning a sensor. The rule set state
+    ...              should be "Dirty" upon completion of this keyword. If reest=True, the sensor
+    ...              will be unassigned and the "Is Enabled?" will be unchecked.
+    Navigate To Rulesets
+
+    ${index} =  Get Rule Set Table Row Index  ${rule_set_name}
+    ${locEditRuleSetBtn} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${index}-actions-button-edit
+    click  ${locEditRuleSetBtn}
+
+    lookForElement  ${locAddRulesetDialogClassificationField}
+    Element Should Contain  ${locAddRulesetDialogClassificationField}  Unclassified
+
+    # Select a sensor. Unselects sensor if reset=True
+    ${selected_sensor} =  Get Text  ${locAddRulesetSensorField}
+    ${selected_sensor} =  Strip String  ${selected_sensor}
+    ${sensor_name_len} =  Get Length  ${selected_sensor}
+    IF  not ${reset} and ${sensor_name_len} == ${0} or ${reset} and ${sensor_name_len} > ${0}
+        click  ${locAddRulesetSensorField}
+        click  ${locAddRulesetSensorCheckbox}
+        Press Keys  None  TAB
+    END
+
+    # Click "Is Enabled?" checkbox. Unchecks box if reset=True
+    ${checkbox_input} =  Set Variable  id=rule-set-add-edit-div-mat-checkbox-is-enabled-input
+    ${is_checked} =  Get Element Attribute  ${checkbox_input}  aria-checked
+    IF  not ${reset} and '${is_checked}' == 'false' or ${reset} and '${is_checked}' == 'true'
+        click  ${locAddRulesetIsEnabledcheckbox}
+    END
+
+    click  ${locAddRulesetSubmitBtn}
+    reload
+    ${locState} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${index}-state
+    lookForElement  ${locState}
+    Element Should Contain  ${locState}  Dirty  # current state of rule set
+
+Add Rule Set
+    [Arguments]  ${rule_set_name}  ${rule_type}
+    Navigate To Rulesets
+
+    ${rs_exists} =  Check If Rule Set Exists  ${rule_set_name}
+    IF  ${rs_exists}
+        log  Rule Set with name "${rule_set_name}" already exists.
+        Return From Keyword
+    END
+
+    click  ${locRulesetActionAddButton}
+    type  ${locAddRulesetNameInputField}  ${rule_set_name}
+    click  ${locAddRulesetClassificationField}
+    click  ${locAddRulesetUnclassifedSelectOption}
+    click  ${locAddRulesetRuletypeField}
+    click  xpath=//mat-option/span[contains(text(), "${rule_type}")]
+    click  ${locAddRulesetSensorField}
+    click  ${locAddRulesetSensorCheckbox}
+    Press Keys  None  TAB
+    click  ${locAddRulesetSubmitBtn}
+    reload
+    ${index} =  Get Rule Set Table Row Index  ${rule_set_name}
+    ${locState} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${index}-state
+    lookForElement  ${locState}
+    Element Should Not Contain  ${locState}  Synced
+
+Delete Rule Set
+    [Arguments]  ${rule_set_name}
+    Navigate To Rulesets
+
+    ${rs_exists} =  Check If Rule Set Exists  ${rule_set_name}
+    IF  not ${rs_exists}
+        log  Rule Set with name "${rule_set_name}" does not exist. Skipping "Delete Rule Set" keyword.
+        Return From Keyword
+    END
+
+    ${index} =  Get Rule Set Table Row Index  ${rule_set_name}
+    ${locDeleteBtn} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${index}-actions-button-delete
+    click  ${locDeleteBtn}
+    Wait Until Element Contains  ${locRemoveRsConfirmDialogMsg}  ${rule_set_name}
+    click  ${locRemoveRsConfirmBtn}
+    ${rs_exists} =  Check If Rule Set Exists  ${rule_set_name}
+    Should Not Be True  ${rs_exists}
+
+Sync Rules
+    log  Syncing Rulesets..this could take a while
+    Navigate To Rulesets
+    clickAndWaitOnEnable  ${locRuleSyncButton}
+    reload
+    lookForElement  ${locRuleSetTableStateElements}
+    ${num_rule_sets} =  Get Element Count  ${locRuleSetTableStateElements}
+    FOR  ${i}  IN RANGE  ${num_rule_sets}
+        ${assigned_sensor} =  Get Text  id=cvah-policy-management-table-rule-set-td-${i}-assigned-sensors
+        ${assigned_sensor} =  Strip String  ${assigned_sensor}
+        ${sensor_name_len} =  Get Length  ${assigned_sensor}
+        ${state_loc} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${i}-state
+        IF  ${sensor_name_len} > 0
+            Element Should Contain  ${state_loc}  Synced
+        ELSE
+            Element Should Contain  ${state_loc}  Dirty
+        END
+    END
+    log  Rulesync Successful
+
+# HELPER KEYWORDS
+Check If Rule Set Exists
+    [Arguments]  ${rs_name}
+    [Documentation]  Returns true if Robot is able to locate the index of the Rule Set
+    ${rs_index} =  Get Rule Set Table Row Index  ${rs_name}
+    Return From Keyword If  ${rs_index} > ${-1}  ${TRUE}
+    [Return]  ${FALSE}
+
+Get Rule Set Table Row Index
+    [Arguments]  ${target_rule_set}
+    [Documentation]  Returns the index position of the rule set if it exists.
+    ...              If rule set does not exist, the value of -1 will be return.
+    Sleep  2s
+    lookForElement  ${locRuleSetTableNameElements}
+    ${rule_set_names} =  Get WebElements  ${locRuleSetTableNameElements}
+    ${index} =  Set Variable  ${0}
+    FOR  ${name}  IN  @{rule_set_names}
+        ${name_text} =  Get Text  ${name}
+        Return From Keyword If  '${name_text}' == '${target_rule_set}'  ${index}
+        ${index} =  Set Variable  ${index+1}
+    END
+    [Return]  ${-1}
+
+
+###################  Keywords for Rule Set State Machine  #######################
 Set Ruleset Initial State
     [Arguments]         ${use_cached}=${True}
     [Documentation]     Gets The Rulesets State And Sets The Global Variable (suricata, zeek_script and zeek_signature)
