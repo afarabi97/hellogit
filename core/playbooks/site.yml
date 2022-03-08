@@ -99,7 +99,7 @@
           kit_size_name: "R440 Legacy Node"
           cacheable: yes
         when:
-          - ansible_processor_vcpus == 48
+          - ansible_processor_vcpus >= 48
           - total_mem_gb >= 500
       - name: R440 Common Node Kit Size
         set_fact:
@@ -107,7 +107,7 @@
           kit_size_name: "R440 Common Node"
           cacheable: yes
         when:
-          - ansible_processor_vcpus == 64
+          - ansible_processor_vcpus >= 64
           - total_mem_gb >= 500
       - name: Small Form Factor
         set_fact:
@@ -115,7 +115,7 @@
           kit_size_name: "Small Form Factor"
           cacheable: yes
         when:
-          - ansible_processor_vcpus == 128
+          - ansible_processor_vcpus >= 128
           - total_mem_gb >= 500
       when:
           - not is_gip

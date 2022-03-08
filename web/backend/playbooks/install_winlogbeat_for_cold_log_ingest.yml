@@ -21,7 +21,7 @@
 
     - name: Copy winlogbeat-{{ beats_version }}-windows-x86_64.zip over to {{ ansible_host }}
       win_copy:
-        src: "/opt/tfplenum/agent_pkgs/winlogbeat/winlogbeat-{{ beats_version }}-windows-x86_64.zip"
+        src: "/var/www/html/offlinerepo/beats/winlogbeat/winlogbeat-{{ beats_version }}-windows-x86_64.zip"
         dest: "C:/winlogbeat-{{ beats_version }}-windows-x86_64.zip"
 
     - name: Unzip winlogbeat-{{ beats_version }}-windows-x86_64.zip on {{ ansible_host }}

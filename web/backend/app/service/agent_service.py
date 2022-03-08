@@ -1,4 +1,5 @@
 import cgi
+import glob
 import json
 import logging
 import shutil
@@ -208,6 +209,10 @@ class AgentBuilder:
             for template in templates:
                 self._create_config(template, tpl_context)
 
+    def _copy_zip_packages_from_offlinerepo(self, application_name:str):
+        for fname in glob.glob(f"/var/www/html/offlinerepo/beats/{application_name}/*.zip"):
+            shutil.copy(fname, f"/opt/tfplenum/agent_pkgs/{application_name}")
+
     def _package_generic(
         self,
         pkg_folder: Path,
@@ -221,6 +226,7 @@ class AgentBuilder:
         self._process_templates_dir(tpl_dir, tpl_context)
         self._process_kubernetes_dir(
             kubernetes_dir, application_name, folder_to_copy)
+        self._copy_zip_packages_from_offlinerepo(application_name)
         self._copy_package(folder_to_copy, str(dst_folder))
 
     def _package_generic_all(self, dst_folder: Path):

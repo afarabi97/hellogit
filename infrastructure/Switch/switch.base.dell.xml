@@ -3499,19 +3499,6 @@
           <end-ip-address>10.20.136.250</end-ip-address>
         </include-range>
       </ip-pool-list>
-      <ip-pool-list>
-        <pool-name>INTERNAL</pool-name>
-        <ip-range>10.20.137.0/24</ip-range>
-        <dhcp-options>
-          <router>10.20.137.1</router>
-          <domain-name>dmss</domain-name>
-          <domain-name-server>10.20.137.15</domain-name-server>
-        </dhcp-options>
-        <include-range>
-          <start-ip-address>10.20.137.224</start-ip-address>
-          <end-ip-address>10.20.137.254</end-ip-address>
-        </include-range>
-      </ip-pool-list>
     </global-ip-pool>
     <disable>false</disable>
   </server>

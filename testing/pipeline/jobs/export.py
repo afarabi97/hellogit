@@ -181,6 +181,7 @@ class ControllerExport:
         self._set_private(commit_hash)
         payload = self.ctrl_settings.to_dict()
         payload["commands"] = [
+            {"vm_shell": "/usr/bin/sed", "vm_shell_args": "sed -i '/.ontroller/d'"},
             {"vm_shell": '/bin/nmcli', "vm_shell_args": "connection modify 'Bridge br0' ipv4.method auto ipv4.addresses '' ipv4.gateway '' ipv4.dns ''"},
             {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password {self.ctrl_settings.node.export_password} root"}
         ]
