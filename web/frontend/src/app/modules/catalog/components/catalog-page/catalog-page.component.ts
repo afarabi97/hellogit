@@ -20,6 +20,7 @@ import {
 } from '../../../../../../src/app/modules/ngx-monaco-text-editor/ngx-monaco-text-editor.component';
 import { MatSnackBarService } from '../../../../../../src/app/services/mat-snackbar.service';
 import {
+  ChartClass,
   ChartInfoClass,
   ErrorMessageClass,
   FormControlClass,
@@ -483,7 +484,7 @@ export class CatalogPageComponent implements OnInit {
     const hostname_form_group: FormGroup = this.config_form_group.controls[hostname] as FormGroup;
     const control_name_keys: string[] = Object.keys(checkbox_dependent_apps);
 
-    control_name_keys.forEach((key: string) => this.api_get_saved_values_(key, checkbox_dependent_apps[key], hostname_form_group));
+    control_name_keys.forEach((key: string) => this.check_chart_dependencies_(key, checkbox_dependent_apps[key], hostname_form_group));
   }
 
   /**
@@ -933,35 +934,42 @@ export class CatalogPageComponent implements OnInit {
         });
   }
 
-  /**
-   * Used for making api rest call to get saved values
-   *
+    /**
+   * Used for checking chart dependencies using get_all_application_statuses api
    * @private
    * @param {string} [key]
    * @param {string} [checkbox_dependent_app]
    * @param {FormGroup} [hostname_form_group]
    * @memberof CatalogPageComponent
    */
-  private api_get_saved_values_(key?: string, checkbox_dependent_app?: string, hostname_form_group?: FormGroup): void {
-    const path_value: string = ObjectUtilitiesClass.notUndefNull(key) &&
-                               ObjectUtilitiesClass.notUndefNull(checkbox_dependent_app) &&
-                               ObjectUtilitiesClass.notUndefNull(hostname_form_group) ? checkbox_dependent_app : this.chart_info.id;
-    this.catalog_service_.get_saved_values(path_value)
+  private check_chart_dependencies_( key: string, checkbox_dependent_app: string, hostname_form_group: FormGroup): void {
+      this.catalog_service_.get_all_application_statuses()
+      .pipe(untilDestroyed(this))
+      .subscribe(values => {
+        const appValues = values.filter((value: ChartClass)  => value.application === checkbox_dependent_app).map((node: ChartClass) => node.nodes )[0];
+        if(ObjectUtilitiesClass.notUndefNull(appValues) && appValues.length > 0 && appValues[0].status === "DEPLOYED"){
+          hostname_form_group.controls[key].enable();
+        }
+        else {
+          hostname_form_group.controls[key].setValue(false);
+          hostname_form_group.controls[key].disable();
+        }
+      });
+  }
+
+  /**
+   * Used for making api rest call to get saved values
+   *
+   * @private
+   * @memberof CatalogPageComponent
+   */
+  private api_get_saved_values_(): void {
+
+    this.catalog_service_.get_saved_values(this.chart_info.id)
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: SavedValueClass[]) => {
-          if (ObjectUtilitiesClass.notUndefNull(key) &&
-              ObjectUtilitiesClass.notUndefNull(checkbox_dependent_app) &&
-              ObjectUtilitiesClass.notUndefNull(hostname_form_group)) {
-            if (response.length > 0) {
-              hostname_form_group.controls[key].enable();
-            } else {
-              hostname_form_group.controls[key].setValue(false);
-              hostname_form_group.controls[key].disable();
-            }
-          } else {
-            this.saved_values_ = response.length > 0 ? response : null;
-          }
+          this.saved_values_ = response.length > 0 ? response : null;
         },
         (error: HttpErrorResponse) => {
           const message: string = 'getting saved values';

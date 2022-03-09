@@ -36,6 +36,7 @@ import {
   MockStatusClassArkimeViewerDeployed,
   MockStatusClassSuricataDeployed
 } from '../../../../../../static-data/class-objects';
+import {MockChartInterfaceArray} from '../../../../../../static-data/interface-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import {
   MockFormControlInterfaceServiceNodeCheckbox
@@ -231,6 +232,7 @@ describe('CatalogPageComponent', () => {
     spyApiGetChartInfo = spyOn<any>(component, 'api_get_chart_info_').and.callThrough();
     spyApiGetChartStatuses = spyOn<any>(component, 'api_get_chart_statuses_').and.callThrough();
     spyApiGetSavedValues = spyOn<any>(component, 'api_get_saved_values_').and.callThrough();
+    spyApiGetSavedValues = spyOn<any>(component, 'check_chart_dependencies_').and.callThrough();
     spyApiGenerateValuesFile = spyOn<any>(component, 'api_generate_values_file_').and.callThrough();
     spyApiCatalogInstall = spyOn<any>(component, 'api_catalog_install_').and.callThrough();
     spyApiCatalogReinstall = spyOn<any>(component, 'api_catalog_reinstall_').and.callThrough();
@@ -1129,7 +1131,7 @@ describe('CatalogPageComponent', () => {
         expect(component['handle_checkbox_dependent_apps_']).toHaveBeenCalled();
       });
 
-      it('should call api_get_saved_values_() from handle_checkbox_dependent_apps_()', () => {
+      it('should call check_chart_dependencies_() from handle_checkbox_dependent_apps_()', () => {
         reset();
 
         component.config_form_group = new FormGroup({});
@@ -1138,7 +1140,7 @@ describe('CatalogPageComponent', () => {
         component.config_form_group.addControl(hostname_server, form_control_group);
         component['handle_checkbox_dependent_apps_'](hostname_server, checkbox_dependent_apps);
 
-        expect(component['api_get_saved_values_']).toHaveBeenCalled();
+        expect(component['check_chart_dependencies_']).toHaveBeenCalled();
       });
     });
 
@@ -2169,6 +2171,7 @@ describe('CatalogPageComponent', () => {
     });
 
     describe('private api_get_saved_values_()', () => {
+
       it('should call api_get_saved_values_()', () => {
         reset();
 
@@ -2177,46 +2180,12 @@ describe('CatalogPageComponent', () => {
         expect(component['api_get_saved_values_']).toHaveBeenCalled();
       });
 
-      it('should call catalog_service_.get_saved_values() from api_get_saved_values_()', () => {
+      it('should call catalog_service_.get_saved_values) from api_get_saved_values_()', () => {
         reset();
 
         component['api_get_saved_values_']();
 
         expect(component['catalog_service_'].get_saved_values).toHaveBeenCalled();
-      });
-
-      it('should call catalog_service_.get_saved_values() and hostname_form_group.controls[key].enable() when key, checkbox_dependent_app, hostname_form_group all defined and response.length > 0', () => {
-        reset();
-
-        component['api_get_saved_values_'](test_form_control_name, 'fake', fake_form_group);
-
-        expect(fake_form_group.controls[test_form_control_name].disabled).toBeFalse();
-        expect(fake_form_group.controls[test_form_control_name].enabled).toBeTrue();
-      });
-
-      it('should call catalog_service_.get_saved_values() and hostname_form_group.controls[key].setValue(false) when key, checkbox_dependent_app, hostname_form_group all defined', () => {
-        reset();
-
-        // Allows respy to change default spy created in spy service
-        jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['catalog_service_'], 'get_saved_values').and.returnValue(of([]));
-
-        component['api_get_saved_values_'](test_form_control_name, 'fake', fake_form_group);
-
-        expect(fake_form_group.controls[test_form_control_name].value).toBeFalse();
-      });
-
-      it('should call catalog_service_.get_saved_values() and hostname_form_group.controls[key].disable() when key, checkbox_dependent_app, hostname_form_group all defined', () => {
-        reset();
-
-        // Allows respy to change default spy created in spy service
-        jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['catalog_service_'], 'get_saved_values').and.returnValue(of([]));
-
-        component['api_get_saved_values_'](test_form_control_name, 'fake', fake_form_group);
-
-        expect(fake_form_group.controls[test_form_control_name].disabled).toBeTrue();
-        expect(fake_form_group.controls[test_form_control_name].enabled).toBeFalse();
       });
 
       it('should call catalog_service_.get_saved_values() and set saved_values = response', () => {
@@ -2225,6 +2194,47 @@ describe('CatalogPageComponent', () => {
         component['api_get_saved_values_']();
 
         expect(component['saved_values_']).toEqual(MockSavedValueClassArkimeViewer);
+      });
+
+    });
+
+    describe('private check_chart_dependencies_()', () => {
+      it('should call catalog_service_.get_all_application_statuses() and hostname_form_group.controls[key].enable() when key, checkbox_dependent_app, hostname_form_group all defined and response.length > 0', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['catalog_service_'], 'get_all_application_statuses').and.returnValue(of(MockChartInterfaceArray));
+
+        component['check_chart_dependencies_'](test_form_control_name, 'cortex', fake_form_group);
+
+        expect(fake_form_group.controls[test_form_control_name].disabled).toBeFalse();
+        expect(fake_form_group.controls[test_form_control_name].enabled).toBeTrue();
+      });
+
+      it('should call catalog_service_.get_all_application_statuses() and hostname_form_group.controls[key].setValue(false) when key, checkbox_dependent_app, hostname_form_group all defined', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['catalog_service_'], 'get_all_application_statuses').and.returnValue(of([]));
+
+        component['check_chart_dependencies_'](test_form_control_name, 'fake', fake_form_group);
+
+        expect(fake_form_group.controls[test_form_control_name].value).toBeFalse();
+      });
+
+      it('should call catalog_service_.get_all_application_statuses() and hostname_form_group.controls[key].disable() when key, checkbox_dependent_app, hostname_form_group all defined', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['catalog_service_'], 'get_all_application_statuses').and.returnValue(of([]));
+
+        component['check_chart_dependencies_'](test_form_control_name, 'fake', fake_form_group);
+
+        expect(fake_form_group.controls[test_form_control_name].disabled).toBeTrue();
+        expect(fake_form_group.controls[test_form_control_name].enabled).toBeFalse();
       });
 
       it('should call catalog_service_.get_saved_values() and set saved_values = null', () => {
