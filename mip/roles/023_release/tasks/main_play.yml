@@ -1,10 +1,11 @@
 ---
-- name: Get commit hash # noqa no-changed-when
-  shell: |
-      set -o pipefail && \
-      cd /opt/tfplenum; git log | head -n 1 | awk '{print $2}'
+- name: Get commit hash
+  shell:
+    cmd: git log | head -n 1 | awk '{print $2}'
+    chdir: /opt/tfplenum
   register: commit_hash
   delegate_to: localhost
+  changed_when: commit_hash.rc == 141 or commit_hash.rc == 0
 
 - name: Copy {{ operator_type }} cvah-release file to etc
   template:

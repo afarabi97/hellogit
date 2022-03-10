@@ -35,9 +35,6 @@
 - name: Reload daemon services to accomodate newly added service daemon
   systemd:
     daemon_reload: yes
-  register: result
-  changed_when: result.rc == 0
-  failed_when:  result.rc > 0
 
 - name: Set trust setting for MIP config script
   become: yes
