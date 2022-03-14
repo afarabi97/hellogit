@@ -45,14 +45,6 @@ import { VirtualNodeFormComponent } from './system-setupv2/virtual-node-form/vir
 
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
 
-// Tools page
-import { ToolsFormComponent } from './tools-form/tools.component';
-import { ChangePasswordFormComponent } from './tools-form/change-password-form/change-password.component';
-import { UpdateDocsFormComponent } from './tools-form/update-documentation-form/update-docs.component';
-import { NodeMaintenanceFormComponent } from './tools-form/node-maintenance-form/node-maintenance.component';
-import { RepositorySettingsComponent } from './tools-form/repository-settings/repository-settings.component';
-import { UpdateEsLicenseComponent } from './tools-form/update-es-license-form/update-es-license-form.component';
-
 // classes
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { ConfirmActionPopup } from './classes/ConfirmActionPopup';
@@ -83,6 +75,7 @@ import { PmoSupportModule } from './modules/pmo-support/pmo-support.module';
 import { PolicyManagementModule } from './modules/policy-management/policy-management.module';
 import { PortalModule } from './modules/portal/portal.module';
 import { SecurityAlertsModule } from './modules/security-alerts/security-alerts.module';
+import { ToolsModule } from './modules/tools/tools.module';
 import { InjectorModule } from './modules/utilily-modules/injector.module';
 import { MaterialModule } from './modules/utilily-modules/material.module';
 import { PipesModule } from './modules/utilily-modules/pipes.module';
@@ -101,11 +94,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     NodeManagementComponent,
     NodeStateProgressBarComponent,
     ServerStdoutComponent,
-    ToolsFormComponent,
-    ChangePasswordFormComponent,
-    UpdateDocsFormComponent,
-    UpdateEsLicenseComponent,
-    NodeMaintenanceFormComponent,
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
     HealthDashboardModalDialogComponent,
@@ -115,7 +103,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     NodeInfoDialogComponent,
     PasswordMessageComponent,
     PodLogModalDialogComponent,
-    RepositorySettingsComponent,
     VMWareSettingsComponent,
     GeneralSettingsPaneComponent,
     KitSettingsPaneComponent,
@@ -155,6 +142,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     PolicyManagementModule,
     PortalModule,
     SecurityAlertsModule,
+    ToolsModule,
     InjectorModule,
     ChartsModule,
     PipesModule

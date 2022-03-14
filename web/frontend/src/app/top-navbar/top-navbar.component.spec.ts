@@ -19,7 +19,7 @@ import { CapitalizeFirstPipe } from '../pipes/capitalize-first.pipe';
 import { ApiService } from '../services/abstract/api.service';
 import { CookieService } from '../services/cookies.service';
 import { WebsocketService } from '../services/websocket.service';
-import { ToolsService } from '../tools-form/services/tools.service';
+import { ToolsService } from '../modules/tools/services/tools.service';
 import { getSideNavigationButtons } from './functions/navbar.functions';
 import { NavGroupInterface } from './interfaces';
 import { TopNavbarComponent } from './top-navbar.component';

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 
-import { UserService } from '../services/user.service';
+import { UserService } from '../../services/user.service';
 
 export const target_config_validators = {
   required: [

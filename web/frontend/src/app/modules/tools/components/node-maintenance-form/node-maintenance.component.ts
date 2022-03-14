@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
-import { UserService } from '../../services/user.service';
-import { ToolsService } from '../services/tools.service';
+import { UserService } from '../../../../services/user.service';
+import { ToolsService } from '../../services/tools.service';
 
 @Component({
   selector: 'app-node-maintenance-form',

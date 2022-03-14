@@ -7,16 +7,15 @@ import { returnDate } from '../functions/cvah.functions';
 import { NotificationsComponent } from '../modules/notifications/notifications.component';
 import { CookieService } from '../services/cookies.service';
 import { UserService } from '../services/user.service';
-import { ToolsService } from '../tools-form/services/tools.service';
+import { ToolsService } from '../modules/tools/services/tools.service';
 import { DIPTimeClass } from './classes/dip-time.class';
 import { getSideNavigationButtons } from './functions/navbar.functions';
 import { NavGroupInterface } from './interfaces';
 import { NavBarService } from './services/navbar.service';
 import { KitSettingsService } from '../system-setupv2/services/kit-settings.service';
 import { WebsocketService } from '../services/websocket.service';
-import { NotificationClass } from '../classes';
 import { MatSnackBarService } from '../services/mat-snackbar.service';
-import {  MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../constants/cvah.constants';
+import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../constants/cvah.constants';
 
 /**
  * Component used for top navbar related functionality

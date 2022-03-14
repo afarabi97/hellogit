@@ -12,7 +12,7 @@ import { InjectorModule } from './modules/utilily-modules/injector.module';
 import { MaterialModule } from './modules/utilily-modules/material.module';
 import { ApiService } from './services/abstract/api.service';
 import { CookieService } from './services/cookies.service';
-import { ToolsService } from './tools-form/services/tools.service';
+import { ToolsService } from './modules/tools/services/tools.service';
 import { NavBarService } from './top-navbar/services/navbar.service';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
 

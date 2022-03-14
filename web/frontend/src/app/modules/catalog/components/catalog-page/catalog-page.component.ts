@@ -16,7 +16,7 @@ import {
   TAKE_ME_BACK_DIALOG_OPTION
 } from '../../../../../../src/app/constants/cvah.constants';
 import {
-  NGXMonacoTextEditorComponent,
+  NGXMonacoTextEditorComponent
 } from '../../../../../../src/app/modules/ngx-monaco-text-editor/ngx-monaco-text-editor.component';
 import { MatSnackBarService } from '../../../../../../src/app/services/mat-snackbar.service';
 import {
@@ -41,7 +41,7 @@ import {
 } from '../../../../interfaces';
 import { CatalogService } from '../../../../services/catalog.service';
 import { SortingService } from '../../../../services/sorting.service';
-import { ToolsService } from '../../../../tools-form/services/tools.service';
+import { ToolsService } from '../../../tools/services/tools.service';
 import {
   CLOSE_CONFIRM_ACTION_CONFIGURATION,
   DEPLOYED,
@@ -949,8 +949,7 @@ export class CatalogPageComponent implements OnInit {
         const appValues = values.filter((value: ChartClass)  => value.application === checkbox_dependent_app).map((node: ChartClass) => node.nodes )[0];
         if(ObjectUtilitiesClass.notUndefNull(appValues) && appValues.length > 0 && appValues[0].status === "DEPLOYED"){
           hostname_form_group.controls[key].enable();
-        }
-        else {
+        } else {
           hostname_form_group.controls[key].setValue(false);
           hostname_form_group.controls[key].disable();
         }

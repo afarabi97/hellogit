@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
 import { AbstractControl, FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { UserService } from '../../services/user.service';
-import { ToolsService } from '../services/tools.service';
+import { UserService } from '../../../../services/user.service';
+import { TopNavbarComponent } from '../../../../top-navbar/top-navbar.component';
+import { ToolsService } from '../../services/tools.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
@@ -15,67 +15,67 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
   }
 }
 @Component({
-  selector: 'app-update-es-license-form',
-  templateUrl: './update-es-license-form.component.html',
-  styleUrls: ['./update-es-license-form.component.css']
+  selector: 'app-update-docs-form',
+  templateUrl: './update-docs.component.html',
+  styleUrls: ['./update-docs.component.css']
 })
-export class UpdateEsLicenseComponent implements OnInit {
+export class UpdateDocsFormComponent implements OnInit {
 
-  fileToUpload: File = null;
+  zipToUpload: File = null;
   isCardVisible: boolean;
   controllerMaintainer: boolean;
+  spaceFormControl: FormControl;
   matcher: MyErrorStateMatcher;
-  currentLicense: Object;
   constructor(private snackBar: MatSnackBar,
     private toolSrv: ToolsService,
-    private userService: UserService,) {
+    private userService: UserService,
+    private navbar: TopNavbarComponent ) {
     this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
 
   ngOnInit() {
+    this.spaceFormControl = new FormControl('', [
+      Validators.required,
+      Validators.pattern('^[a-zA-Z]{1,50}$')
+    ]);
     this.matcher = new MyErrorStateMatcher();
-    this.toolSrv.getEsLicense().subscribe(data => {
-      this.currentLicense = data;
-    });
   }
 
   toggleCard() {
     this.isCardVisible = !this.isCardVisible;
   }
 
-  uploadFile(event: any) {
-    event.target.disabled = true;
-    this.displaySnackBar('Loading ' + this.fileToUpload.name + '...');
-    const fileReader = new FileReader();
-    fileReader.onload = (e) => {
-      const license = JSON.parse(fileReader.result as string);
-      this.toolSrv.uploadEsLicense(license).subscribe(data => {
-        this.displayServiceResponse(data);
-      });
-    };
-    fileReader.readAsText(this.fileToUpload);
+  uploadFile() {
+    console.log(this.spaceFormControl.value);
+
+    this.displaySnackBar('Loading ' + this.zipToUpload.name + '...');
+    this.toolSrv.uploadDocumentation(this.zipToUpload, this.spaceFormControl.value).subscribe(data => {
+      this.displayServiceResponse(data);
+    });
   }
 
   handleFileInput(files: FileList) {
-    this.fileToUpload = files.item(0);
+    this.zipToUpload = files.item(0);
   }
 
   getErrorMessage(control: FormControl | AbstractControl): string {
     return control.errors ? control.errors.error_message : '';
   }
 
-  private displaySnackBar(message: string, duration_seconds: number = 60) {
-    this.snackBar.open(message, 'Close', { duration: duration_seconds * 1000 });
-  }
-
   private displayServiceResponse(data: any) {
     if (data['success_message']) {
       this.displaySnackBar(data['success_message']);
-      this.fileToUpload = null;
+      this.spaceFormControl.reset();
+      this.zipToUpload = null;
+      this.navbar.buildNavBar();
     } else if (data['error_message']) {
       this.displaySnackBar(data['error_message']);
     } else {
       this.displaySnackBar('Failed for unknown reason');
     }
+  }
+
+  private displaySnackBar(message: string, duration_seconds: number = 60) {
+    this.snackBar.open(message, 'Close', { duration: duration_seconds * 1000 });
   }
 }

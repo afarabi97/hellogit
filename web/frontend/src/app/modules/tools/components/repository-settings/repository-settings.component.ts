@@ -1,12 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { MatSnackbarConfigurationClass } from '../../classes';
-import { MatSnackBarService } from '../../services/mat-snackbar.service';
-import { WebsocketService } from '../../services/websocket.service';
-import { ToolsService } from '../../system-setupv2/services/tools.service';
+import { MatSnackbarConfigurationClass } from '../../../../classes';
+import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
+import { WebsocketService } from '../../../../services/websocket.service';
+import { ToolsService } from '../../../../system-setupv2/services/tools.service';
 
-import { UserService } from '../../services/user.service';
+import { UserService } from '../../../../services/user.service';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 @Component({

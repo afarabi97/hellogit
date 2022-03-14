@@ -7,7 +7,6 @@ import { ServerStdoutComponent } from '../../server-stdout/server-stdout.compone
 import { MipManagementComponent } from '../../system-setupv2/mip-mng/mip-mng.component';
 import { NodeManagementComponent } from '../../system-setupv2/node-mng/node-mng.component';
 import { SystemSettingsComponent } from '../../system-setupv2/system-settings/system-settings.component';
-import { ToolsFormComponent } from '../../tools-form/tools.component';
 import { AgentBuilderChooserComponent } from '../agent-builder-chooser/agent-builder-chooser.component';
 import { CatalogComponent } from '../catalog/catalog.component';
 import { CatalogPageComponent } from '../catalog/components/catalog-page/catalog-page.component';
@@ -23,6 +22,7 @@ import { PmoSupportComponent } from '../pmo-support/pmo-support.component';
 import { PolicyManagementComponent } from '../policy-management/policy-management.component';
 import { PortalComponent } from '../portal/portal.component';
 import { SecurityAlertsComponent } from '../security-alerts/security-alerts.component';
+import { ToolsFormComponent } from '../tools/tools.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
@@ -44,7 +44,7 @@ const routes: Routes = [
   { path: 'application/:id', component : CatalogPageComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
   { path: 'es_scale', component: ElasticsearchScaleComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
   { path: 'index_management', component: ElasticsearchIndexManagementComponent, canActivate: [ControllerMaintainerRequiredGuard] },
-  { path: 'logingest', component: ColdLogIngestComponent, canActivate: [ OperatorRequiredGuard ] },
+  { path: 'logingest', component: ColdLogIngestComponent, canActivate: [ OperatorRequiredGuard ] }
 ];
 
 @NgModule({
