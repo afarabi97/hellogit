@@ -37,6 +37,7 @@ export * from './mat-snackbar-configuration.class';
 export * from './node.class';
 export * from './notification.class';
 export * from './ntlm.class';
+export * from './pcap.class';
 export * from './portal-link.class';
 export * from './rule-set.class';
 export * from './rule-sync.class';

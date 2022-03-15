@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -5,10 +6,15 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 
+import { ErrorMessageClass, GenericJobAndKeyClass, ObjectUtilitiesClass } from '../../classes';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../constants/cvah.constants';
 import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
-import { PcapService } from '../../services/pcap.service';
+import { GlobalPCAPService } from '../../services/global-pcap.service';
+import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { ReplayPcapDialogComponent } from './components/replay-pcap-dialog/replay-pcap-dialog.component';
+import { ReplayPCAPInterface } from './interfaces/replay-pcap.interface';
+import { PCAPService } from './services/pcap.service';
 
 const DIALOG_WIDTH = '800px';
 
@@ -28,9 +34,11 @@ export class PcapFormComponent implements OnInit {
   showSha256: boolean;
   displayColumns = [ 'name', 'mod_date', 'hash', 'size', 'action' ];
 
-  constructor(private pcapSrv: PcapService,
+  constructor(private global_pcap_service_: GlobalPCAPService,
+              private pcap_service_: PCAPService,
               private title: Title,
-              private dialog: MatDialog) {
+              private dialog: MatDialog,
+              private mat_snackbar_service_: MatSnackBarService,) {
     this.hostname = window.location.hostname;
     this.pcapToDelete = '';
     this.showMd5 = true;
@@ -48,17 +56,23 @@ export class PcapFormComponent implements OnInit {
   }
 
   uploadFile(){
-    this.pcapSrv.displaySnackBar('Loading ' + this.pcapToUpload.name + '...');
-    this.pcapSrv.uploadPcap(this.pcapToUpload).subscribe(data => {
+    this.mat_snackbar_service_.displaySnackBar('Loading ' + this.pcapToUpload.name + '...');
+    const pcap_form_data: FormData = new FormData();
+    pcap_form_data.append('upload_file', this.pcapToUpload, this.pcapToUpload.name);
+    this.pcap_service_.upload_pcap(pcap_form_data).subscribe(data => {
       //This timeout is put in place to ensure that the modal will hide.
       //For very small PCAPs its possible to upload them faster than the
       //Loading dialog has time to open thus causing the modal to stay open forever.
       setTimeout(() => {
         this.displayServiceResponse(data);
       }, 1000);
-    }, err => {
-      if (err.error && err.error['error_message']){
-        this.pcapSrv.displaySnackBar(err.error['error_message']);
+    },
+    (error: ErrorMessageClass | HttpErrorResponse) => {
+      if (error instanceof ErrorMessageClass) {
+        this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+      } else {
+        const message: string = 'uploading pcap file';
+        this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
       }
     });
   }
@@ -114,8 +128,16 @@ export class PcapFormComponent implements OnInit {
   }
 
   deleteFile(){
-    this.pcapSrv.deletePcap(this.pcapToDelete).subscribe(data => {
+    this.pcap_service_.delete_pcap(this.pcapToDelete).subscribe(data => {
       this.displayServiceResponse(data);
+    },
+    (error: ErrorMessageClass | HttpErrorResponse) => {
+      if (error instanceof ErrorMessageClass) {
+        this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+      } else {
+        const message: string = 'deleting pcap';
+        this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+      }
     });
   }
 
@@ -125,21 +147,28 @@ export class PcapFormComponent implements OnInit {
       data: pcap['name']
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      const form = result as FormGroup;
-      if (form && form.valid){
-        this.pcapSrv.replayPcap(form.getRawValue()).subscribe(data => {
-          this.pcapSrv.displaySnackBar('Replaying ' + form.get('pcap').value + ' on ' + form.get('sensor_hostname').value +
-                                '. Open the notification manager to track its progress.');
-        }, err => {
-          console.error(err);
-        });
+    dialogRef.afterClosed().subscribe((form : FormGroup) => {
+      if (ObjectUtilitiesClass.notUndefNull(form) && form.valid){
+        this.pcap_service_.replay_pcap(form.getRawValue() as ReplayPCAPInterface)
+          .subscribe(
+            (response: GenericJobAndKeyClass) => {
+              this.mat_snackbar_service_.displaySnackBar('Replaying ' + form.get('pcap').value + ' on ' + form.get('sensor_hostname').value +
+                                                         '. Open the notification manager to track its progress.');
+            },
+            (error: ErrorMessageClass | HttpErrorResponse) => {
+              if (error instanceof ErrorMessageClass) {
+                this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+              } else {
+                const message: string = 'replaying pcap';
+                this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+              }
+            });
       }
     });
   }
 
   private initalizePage(){
-    this.pcapSrv.get_pcaps().subscribe(data => {
+    this.global_pcap_service_.get_pcaps().subscribe(data => {
       this.pcaps = new MatTableDataSource<Object>(data as Array<Object>);
       this.pcaps.paginator = this.paginator;
     });
@@ -147,12 +176,12 @@ export class PcapFormComponent implements OnInit {
 
   private displayServiceResponse(data: any){
     if (data['success_message']){
-      this.pcapSrv.displaySnackBar(data['success_message']);
+      this.mat_snackbar_service_.displaySnackBar(data['success_message']);
       this.initalizePage();
     } else if (data['error_message']){
-      this.pcapSrv.displaySnackBar(data['error_message']);
+      this.mat_snackbar_service_.displaySnackBar(data['error_message']);
     } else {
-      this.pcapSrv.displaySnackBar('Failed for unknown reason');
+      this.mat_snackbar_service_.displaySnackBar('Failed for unknown reason');
     }
   }
 }

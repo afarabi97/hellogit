@@ -31,7 +31,7 @@ import {
   MockSavedValueInterfaceArkime,
   MockStatusInterfaceArkimeViewer
 } from '../../../static-data/interface-objects';
-import { GenerateValuesFileSensor, GenerateValuesFileServer } from '../../../static-data/return-data';
+import { ConfiguredIfaces, GenerateValuesFileSensor, GenerateValuesFileServer } from '../../../static-data/return-data';
 import { environment } from '../../environments/environment';
 import {
   AppClass,
@@ -63,6 +63,7 @@ describe('CatalogService', () => {
   let spyCatalogInstall: jasmine.Spy<any>;
   let spyCatalogReinstall: jasmine.Spy<any>;
   let spyCatalogUninstall: jasmine.Spy<any>;
+  let spyGetConfiguredIfaces: jasmine.Spy<any>;
 
   // Used to handle subscriptions
   const ngUnsubscribe$: Subject<void> = new Subject<void>();
@@ -78,6 +79,7 @@ describe('CatalogService', () => {
   };
   const mockErrorResponse = { status: 500, statusText: 'Internal Server Error' };
   const path_value: string = 'fakehostname';
+  const sensor_hostname: string = 'fake-sensor3.fake';
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -107,6 +109,7 @@ describe('CatalogService', () => {
     spyCatalogInstall = spyOn(service, 'catalog_install').and.callThrough();
     spyCatalogReinstall = spyOn(service, 'catalog_reinstall').and.callThrough();
     spyCatalogUninstall = spyOn(service, 'catalog_uninstall').and.callThrough();
+    spyGetConfiguredIfaces = spyOn(service, 'get_configured_ifaces').and.callThrough();
   });
 
   afterAll(() => {
@@ -127,6 +130,7 @@ describe('CatalogService', () => {
     spyCatalogInstall.calls.reset();
     spyCatalogReinstall.calls.reset();
     spyCatalogUninstall.calls.reset();
+    spyGetConfiguredIfaces.calls.reset();
   };
   const after = () => {
     httpMock.verify();
@@ -703,6 +707,51 @@ describe('CatalogService', () => {
         after();
       });
     });
+
+    describe('REST get_configured_ifaces()', () => {
+      it('should call get_configured_ifaces()', () => {
+        reset();
+
+        service.get_configured_ifaces(sensor_hostname)
+          .pipe(takeUntil(ngUnsubscribe$))
+          .subscribe((response:  string[]) => {
+            response.forEach((iface: string, i: number) => {
+              expect(iface).toEqual(ConfiguredIfaces[i]);
+            });
+
+            expect(service.get_configured_ifaces).toHaveBeenCalled();
+          });
+
+        const xhrURL: string = `${environment.CATALOG_SERVICE_GET_CONFIGURED_IFACES}${sensor_hostname}`;
+        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
+
+        expect(xhrRequest.request.method).toEqual(getType);
+
+        xhrRequest.flush(ConfiguredIfaces);
+
+        after();
+      });
+
+      it('should call get_configured_ifaces() and handle error', () => {
+        reset();
+
+        service.get_configured_ifaces(sensor_hostname)
+          .pipe(takeUntil(ngUnsubscribe$))
+          .subscribe(
+            (response: string[]) => {},
+            (error: HttpErrorResponse) => {
+              expect(error.error).toContain(errorRequest);
+              expect(service.get_configured_ifaces).toHaveBeenCalled();
+            });
+
+        const xhrURL: string = `${environment.CATALOG_SERVICE_GET_CONFIGURED_IFACES}${sensor_hostname}`;
+        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
+
+        xhrRequest.flush(errorRequest, mockErrorResponse);
+
+        after();
+      });
+    });
   });
 });
 
@@ -749,6 +798,10 @@ export class CatalogServiceSpy implements CatalogServiceInterface {
     (catalog_helm_action: CatalogHelmActionInterface): Observable<GenericJobAndKeyClass> => this.call_fake_catalog_uninstall(catalog_helm_action)
   );
 
+  get_configured_ifaces = jasmine.createSpy('get_configured_ifaces').and.callFake(
+    (sensor_hostname: string): Observable<string[]> => this.call_fake_get_configured_ifaces(sensor_hostname)
+  );
+
   call_fake_get_catalog_nodes(): Observable<NodeClass[]> {
     return of(MockNodeClassArray);
   }
@@ -787,5 +840,9 @@ export class CatalogServiceSpy implements CatalogServiceInterface {
 
   call_fake_catalog_uninstall(catalog_helm_action: CatalogHelmActionInterface): Observable<GenericJobAndKeyClass> {
     return of(MockGenericJobAndKeyClass);
+  }
+
+  call_fake_get_configured_ifaces(sensor_hostname: string): Observable<string[]> {
+    return of(ConfiguredIfaces);
   }
 }

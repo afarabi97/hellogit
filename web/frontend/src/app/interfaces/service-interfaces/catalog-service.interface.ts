@@ -29,4 +29,5 @@ export interface CatalogServiceInterface {
   catalog_install(catalog_helm_action: CatalogHelmActionInterface): Observable<GenericJobAndKeyClass>;
   catalog_reinstall(catalog_helm_action: CatalogHelmActionInterface): Observable<GenericJobAndKeyClass>;
   catalog_uninstall(catalog_helm_action: CatalogHelmActionInterface): Observable<GenericJobAndKeyClass>;
+  get_configured_ifaces(sensor_hostname: string): Observable<string[]>;
 }

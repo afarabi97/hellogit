@@ -24,6 +24,7 @@ export const environment = {
   CATALOG_SERVICE_UNINSTALL: `/api/catalog/uninstall`,
   CATALOG_SERVICE_CHARTS_STATUS: `/api/catalog/charts/status`,
   CATALOG_SERVICE_CHECK_LOGSTASH_INSTALLED: `/api/catalog/chart/logstash/status`,
+  CATALOG_SERVICE_GET_CONFIGURED_IFACES: '/api/catalog/configured-ifaces/',
 
   CONFIG_MAP_SERVICE_GET_CONFIG_MAPS: `/api/kubernetes/configmaps`,
   CONFIG_MAP_SERVICE_BASE_URL: `/api/kubernetes/configmap`,
@@ -69,6 +70,12 @@ export const environment = {
   DOCKER_REGISTRY_SERVICE_GET_DOCKER_REGISTRY: `/api/kubernetes/docker/registry`,
 
   NOTIFICATION_SERVICE_BASE_URL: `/api/notifications`,
+
+  GLOBAL_PCAP_SERVICE_GET_PCAPS: `/api/policy/pcaps`,
+
+  PCAP_SERVICE_BASE: `/api/policy/pcap/`,
+  PCAP_SERVICE_UPLOAD_PCAP: `/api/policy/pcap/upload`,
+  PCAP_SERVICE_REPLAY_PCAP: `/api/policy/pcap/replay`,
 
   PORTAL_SERVICE_GET_PORTAL_LINKS: `/api/portal/links`,
   PORTAL_SERVICE_ADD_USER_LINK: `/api/portal/user/links`,

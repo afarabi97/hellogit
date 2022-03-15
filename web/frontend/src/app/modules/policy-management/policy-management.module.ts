@@ -4,7 +4,8 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { PcapService } from '../../services/pcap.service';
+import { GlobalPCAPService } from '../../services/global-pcap.service';
+import { SensorHostInfoService } from '../../services/sensor-host-info.service';
 import { NGXMonacoTextEditorModule } from '../ngx-monaco-text-editor/ngx-monaco-text-editor.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { RuleAddEditComponent } from './components/rule-add-edit/rule-add-edit.component';
@@ -38,7 +39,8 @@ import { PolicyManagementComponent } from './policy-management.component';
     PolicyManagementComponent
   ],
   providers: [
-    PcapService
+    GlobalPCAPService,
+    SensorHostInfoService
   ]
 })
 export class PolicyManagementModule { }

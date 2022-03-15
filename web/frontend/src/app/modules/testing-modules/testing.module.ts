@@ -7,6 +7,8 @@ import { CatalogService } from '../../services/catalog.service';
 import { CatalogServiceSpy } from '../../services/catalog.service.spec';
 import { CookieService } from '../../services/cookies.service';
 import { CookieServiceSpy } from '../../services/cookies.service.spec';
+import { GlobalPCAPService } from '../../services/global-pcap.service';
+import { GlobalPCAPServiceSpy } from '../../services/global-pcap.service.spec';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { MatSnackbarServiceSpy } from '../../services/mat-snackbar.service.spec';
 import { PortalService } from '../../services/portal.service';
@@ -39,6 +41,8 @@ import { ElasticsearchService } from '../elasticsearch-scale/services/elasticsea
 import { ElasticsearchServiceSpy } from '../elasticsearch-scale/services/elasticsearch.service.spec';
 import { NotificationService } from '../notifications/services/notification.service';
 import { NotificationServiceSpy } from '../notifications/services/notification.service.spec';
+import { PCAPService } from '../pcap-form/services/pcap.service';
+import { PCAPServiceSpy } from '../pcap-form/services/pcap.service.spec';
 import { DiagnosticsService } from '../pmo-support/services/diagnostics.service';
 import { DiagnosticsServiceSpy } from '../pmo-support/services/diagnostics.service.spec';
 import { SystemVersionService } from '../pmo-support/services/system-version.service';
@@ -55,6 +59,7 @@ import { PolicyManagementServiceSpy } from '../policy-management/services/policy
     { provide: CatalogService, useClass: CatalogServiceSpy },
     { provide: CookieService, useClass: CookieServiceSpy },
     { provide: MatSnackBarService, useClass: MatSnackbarServiceSpy },
+    { provide: GlobalPCAPService, useClass: GlobalPCAPServiceSpy },
     { provide: PortalService, useClass: PortalServiceSpy },
     { provide: RulesService, useClass: RulesServiceSpy },
     { provide: SensorHostInfoService, useClass: SensorHostInfoServiceSpy },
@@ -71,6 +76,7 @@ import { PolicyManagementServiceSpy } from '../policy-management/services/policy
     { provide: IndexManagementService, useClass: IndexManagementServiceSpy },
     { provide: ElasticsearchService, useClass: ElasticsearchServiceSpy },
     { provide: NotificationService, useClass: NotificationServiceSpy },
+    { provide: PCAPService, useClass: PCAPServiceSpy },
     { provide: DiagnosticsService, useClass: DiagnosticsServiceSpy },
     { provide: SystemVersionService, useClass: SystemVersionServiceSpy }
     // { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open', 'closeAll', 'getDialogById']) },

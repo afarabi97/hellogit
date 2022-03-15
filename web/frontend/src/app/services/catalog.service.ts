@@ -11,12 +11,13 @@ import {
   GenericJobAndKeyClass,
   NodeClass,
   SavedValueClass,
-  StatusClass
+  StatusClass,
 } from '../classes';
 import { HTTP_OPTIONS } from '../constants/cvah.constants';
 import {
   AppInterface,
   CatalogHelmActionInterface,
+  CatalogServiceInterface,
   ChartInfoInterface,
   ChartInterface,
   EntityConfig,
@@ -26,10 +27,9 @@ import {
   SavedValueInterface,
   StatusInterface
 } from '../interfaces';
-import { CatalogServiceInterface } from '../interfaces/service-interfaces/catalog-service.interface';
 import { ApiService } from './abstract/api.service';
 
-const entityConfig: EntityConfig = { entityPart: '', type: 'Catalog' };
+const entityConfig: EntityConfig = { entityPart: '', type: 'CatalogService' };
 
 /**
  * Service used for catalog related rest calls
@@ -186,5 +186,17 @@ export class CatalogService extends ApiService<any> implements CatalogServiceInt
     return this.httpClient_.post<GenericJobAndKeyInterface>(environment.CATALOG_SERVICE_UNINSTALL, catalog_helm_action, HTTP_OPTIONS)
       .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
             catchError((error: HttpErrorResponse) => this.handleError('catalog uninstall', error)));
+  }
+
+  /**
+   * REST call to GET configured ifaces
+   *
+   * @param {string} sensor_hostname
+   * @return {*}  {Observable<string[]>}
+   * @memberof CatalogService
+   */
+  get_configured_ifaces(sensor_hostname: string): Observable<string[]> {
+    const url = `${environment.CATALOG_SERVICE_GET_CONFIGURED_IFACES}${sensor_hostname}`;
+    return this.httpClient_.get<string[]>(url);
   }
 }

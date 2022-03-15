@@ -27,8 +27,8 @@ import {
   DialogFormControlConfigClass
 } from '../../../../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../../../../modal-dialog-mat/modal-dialog-mat.component';
+import { GlobalPCAPService } from '../../../../services/global-pcap.service';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
-import { PcapService } from '../../../../services/pcap.service';
 import { RulesService } from '../../../../services/rules.service';
 import { EDIT } from '../../constants/policy-management.constant';
 import { DialogDataInterface } from '../../interfaces';
@@ -71,7 +71,7 @@ export class RuleAddEditComponent implements OnInit {
    * @param {FormBuilder} form_builder_
    * @param {MatDialog} mat_dialog_
    * @param {MatSnackBarService} mat_snackbar_service_
-   * @param {PcapService} pcap_service_
+   * @param {GlobalPCAPService} global_pcap_service_
    * @param {RulesService} rules_service_
    * @param {DialogDataInterface} dialog_data
    * @memberof RuleAddEditComponent
@@ -80,7 +80,7 @@ export class RuleAddEditComponent implements OnInit {
               private form_builder_: FormBuilder,
               private mat_dialog_: MatDialog,
               private mat_snackbar_service_: MatSnackBarService,
-              private pcap_service_: PcapService,
+              private global_pcap_service_: GlobalPCAPService,
               private rules_service_: RulesService,
               @Inject(MAT_DIALOG_DATA) public dialog_data: DialogDataInterface) {
     this.text = '';
@@ -419,7 +419,7 @@ export class RuleAddEditComponent implements OnInit {
    * @memberof RuleAddEditComponent
    */
   private api_get_pcaps_(): void {
-    this.pcap_service_.get_pcaps()
+    this.global_pcap_service_.get_pcaps()
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: Object[]) => this.pcaps = response,

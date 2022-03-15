@@ -18,7 +18,7 @@ const entityConfig: EntityConfig = { entityPart: '', type: 'SensorHostInfoServic
  * @class SensorHostInfoService
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: null
 })
 export class SensorHostInfoService extends ApiService<any> implements SensorHostInfoServiceInterface {
 

@@ -6,7 +6,7 @@ import * as FileSaver from 'file-saver';
 import { of, Subject, throwError } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MockRuleClass, MockRuleSetClass } from '../../../../../../static-data/class-objects';
+import { MockPCAPClassArray, MockRuleClass, MockRuleSetClass } from '../../../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import {
   MockErrorMessageInterface,
@@ -219,7 +219,6 @@ describe('RuleAddEditComponent', () => {
     spyApiValidateRule = spyOn<any>(component, 'api_validate_rule_').and.callThrough();
 
     // Add service spies
-    spyOn<any>(component['pcap_service_'], 'get_pcaps').and.returnValue(of([pcap_data]));
     spyOn(FileSaver, 'saveAs').and.stub();
 
     // Detect changes
@@ -890,29 +889,29 @@ describe('RuleAddEditComponent', () => {
         expect(component['api_get_pcaps_']).toHaveBeenCalled();
       });
 
-      it('should call pcap_service_.get_pcaps() from api_get_pcaps_()', () => {
+      it('should call global_pcap_service_.get_pcaps() from api_get_pcaps_()', () => {
         reset();
 
         component['api_get_pcaps_']();
 
-        expect(component['pcap_service_'].get_pcaps).toHaveBeenCalled();
+        expect(component['global_pcap_service_'].get_pcaps).toHaveBeenCalled();
       });
 
-      it('should call pcap_service_.get_pcaps() and set component.pcaps = response', () => {
+      it('should call global_pcap_service_.get_pcaps() and set component.pcaps = response', () => {
         reset();
 
         component['api_get_pcaps_']();
 
-        expect(component.pcaps.length).toEqual(1);
-        expect(component.pcaps[0]).toEqual(pcap_data);
+        expect(component.pcaps.length).toEqual(3);
+        expect(component.pcaps[0]).toEqual(MockPCAPClassArray[0]);
       });
 
-      it('should call pcap_service_.get_pcaps() and handle error', () => {
+      it('should call global_pcap_service_.get_pcaps() and handle error', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['pcap_service_'], 'get_pcaps').and.returnValue(throwError(mock_http_error_response));
+        spyOn<any>(component['global_pcap_service_'], 'get_pcaps').and.returnValue(throwError(mock_http_error_response));
         component['api_get_pcaps_']();
 
         expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();

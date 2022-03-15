@@ -1,24 +1,21 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 
 import { HostInfoClass, HostInfoRedacClass } from '../../../../classes';
 import { COMMON_VALIDATORS } from '../../../../constants/cvah.constants';
-import { PcapService } from '../../../../services/pcap.service';
+import { CatalogService } from '../../../../services/catalog.service';
+import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { SensorHostInfoService } from '../../../../services/sensor-host-info.service';
 import { SortingService } from '../../../../services/sorting.service';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-
 
 @Component({
   selector: 'replay-pcap-dialog',
   templateUrl: 'replay-pcap-dialog.component.html',
-  styleUrls: ['replay-pcap-dialog.component.css'],
-  providers: [
-    SensorHostInfoService
-  ]
+  styleUrls: ['replay-pcap-dialog.component.css']
 })
 export class ReplayPcapDialogComponent implements OnInit {
   selectableSensors: HostInfoRedacClass[];
@@ -28,7 +25,8 @@ export class ReplayPcapDialogComponent implements OnInit {
   constructor( public dialogRef: MatDialogRef<ReplayPcapDialogComponent>,
                private formBuilder: FormBuilder,
                private sensor_host_info_service_: SensorHostInfoService,
-               private pcapSrv: PcapService,
+               private catalog_service_: CatalogService,
+               private mat_snackbar_service_: MatSnackBarService,
                private sortSvc: SortingService,
                @Inject(MAT_DIALOG_DATA) public pcap_name: any) {
     this.selectableSensors = [];
@@ -98,11 +96,11 @@ export class ReplayPcapDialogComponent implements OnInit {
       }
     }
 
-    this.pcapSrv.getConfiguredIfaces(hostname).subscribe(data => {
+    this.catalog_service_.get_configured_ifaces(hostname).subscribe(data => {
       this.selectableIfaces = data as Array<string>;
       if (this.selectableIfaces === null || this.selectableIfaces.length === 0){
-        this.pcapSrv.displaySnackBar('You cannot replay traffic on the selected Sensor because Zeek and Suricata are not installed.  \
-                                      Please go to the catalog page and install one or both applications on the desired sensor.');
+        this.mat_snackbar_service_.displaySnackBar('You cannot replay traffic on the selected Sensor because Zeek and Suricata are not installed.  \
+                                                    Please go to the catalog page and install one or both applications on the desired sensor.');
       }
     });
 
