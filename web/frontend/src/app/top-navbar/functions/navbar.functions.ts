@@ -26,7 +26,7 @@ export function getSideNavigationButtons(userService: UserService, kitStatus: bo
     { label: 'System Settings', url: '/settings', icon: 'layers', isExternalLink: false, section: 'system_setup', privs: controller_admin, kitStatus: false },
     { label: 'Node Management', url: '/node-mng', icon: 'dns', isExternalLink: false, section: 'system_setup', privs: controller_admin, kitStatus: false },
     { label: 'MIP Management', url: '/mip-mng', icon: 'laptop', isExternalLink: false, section: 'system_setup', privs: controller_admin, kitStatus: false },
-    { label: 'Install Windows Agents', url: '/windows_agent_deployer', icon: 'cloud_download', isExternalLink: false, section: 'system_setup', privs: operator, kitStatus: true },
+    { label: 'Remote Agents', url: '/windows_agent_deployer', icon: 'manage_search', isExternalLink: false, section: 'system_setup', privs: operator, kitStatus: true },
     { label: 'Catalog', url: '/catalog', icon: 'apps', isExternalLink: false, section: 'system_setup', privs: controller_maintainer, kitStatus: true },
     { label: 'Health', url: '/health', icon: 'local_hospital', isExternalLink: false, section: 'kubernetes', privs: true, kitStatus: true },
     { label: 'Configuration Maps', url: '/configmaps', icon: 'swap_calls', isExternalLink: false, section: 'kubernetes', privs: operator, kitStatus: true },
