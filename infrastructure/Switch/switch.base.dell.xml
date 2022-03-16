@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config
   xmlns:ncx="http://netconfcentral.org/ns/yuma-ncx"
-  ncx:last-modified="2021-11-29T21:09:45Z" ncx:etag="3758"
+  ncx:last-modified="2022-03-14T08:43:51Z" ncx:etag="5960"
   xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
   <aaa xmlns="http://www.dellemc.com/networking/os10/dell-system">
     <authentication>
@@ -32,11 +32,11 @@
       <description-string>SSH_Management_Access</description-string>
       <rule>
         <seq-no>10</seq-no>
-        <command-string>permit ip 10.20.136.0/24 any</command-string>
         <condition>
           <match-ip>
-            <destination-any>true</destination-any>
-            <source-prefix>10.20.136.0/24</source-prefix>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
             <ip-protocol>4</ip-protocol>
           </match-ip>
         </condition>
@@ -45,17 +45,43 @@
         </action>
       </rule>
       <rule>
-        <seq-no>20</seq-no>
-        <command-string>deny ip any any</command-string>
+        <seq-no>15</seq-no>
         <condition>
           <match-ip>
-            <destination-any>true</destination-any>
-            <source-any>true</source-any>
+            <source-address>10.20.139.0</source-address>
+            <source-mask>255.255.255.252</source-mask>
+            <src-address-format>prefix</src-address-format>
             <ip-protocol>4</ip-protocol>
           </match-ip>
         </condition>
         <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9999</seq-no>
+        <condition>
+          <match-ip>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <log-enabled>true</log-enabled>
           <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9000</seq-no>
+        <condition>
+          <match-ip>
+            <source-address>10.10.102.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
         </action>
       </rule>
     </access-list>
@@ -65,15 +91,11 @@
       <rule>
         <seq-no>10</seq-no>
         <remark>explicit deny</remark>
-        <command-string>remark "explicit deny"</command-string>
       </rule>
       <rule>
         <seq-no>20</seq-no>
-        <command-string>deny ipv6 any any log</command-string>
         <condition>
           <match-ip>
-            <destination-any>true</destination-any>
-            <source-any>true</source-any>
             <ip-protocol>41</ip-protocol>
           </match-ip>
         </condition>
@@ -89,15 +111,11 @@
       <rule>
         <seq-no>10</seq-no>
         <remark>explicit deny</remark>
-        <command-string>remark "explicit deny"</command-string>
       </rule>
       <rule>
         <seq-no>20</seq-no>
-        <command-string>deny ipv6 any any log</command-string>
         <condition>
           <match-ip>
-            <destination-any>true</destination-any>
-            <source-any>true</source-any>
             <ip-protocol>41</ip-protocol>
           </match-ip>
         </condition>
@@ -113,15 +131,11 @@
       <rule>
         <seq-no>10</seq-no>
         <remark>explicit deny</remark>
-        <command-string>remark "explicit deny"</command-string>
       </rule>
       <rule>
         <seq-no>20</seq-no>
-        <command-string>deny ipv6 any any log</command-string>
         <condition>
           <match-ip>
-            <destination-any>true</destination-any>
-            <source-any>true</source-any>
             <ip-protocol>41</ip-protocol>
           </match-ip>
         </condition>
@@ -132,20 +146,37 @@
       </rule>
     </access-list>
     <access-list>
-      <name>INTERNAL_IN</name>
+      <name>P2P_IN</name>
       <role>ipv4</role>
       <rule>
         <seq-no>10</seq-no>
-        <remark>v-207134 (1 line)</remark>
-        <command-string>remark "v-207134 (1 line)"</command-string>
+        <remark>dell switches need this</remark>
       </rule>
       <rule>
         <seq-no>20</seq-no>
-        <command-string>deny icmp any any log fragment</command-string>
         <condition>
           <match-ip>
-            <destination-any>true</destination-any>
-            <source-any>true</source-any>
+            <destination-address>10.20.139.0</destination-address>
+            <destination-mask>255.255.255.252</destination-mask>
+            <source-address>10.20.139.0</source-address>
+            <source-mask>255.255.255.252</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>30</seq-no>
+        <remark>V-207134 (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>40</seq-no>
+        <condition>
+          <match-ip>
             <ip-protocol>1</ip-protocol>
             <fragments>true</fragments>
           </match-ip>
@@ -156,56 +187,22 @@
         </action>
       </rule>
       <rule>
-        <seq-no>30</seq-no>
-        <remark>dell switches need these two lines</remark>
-        <command-string>remark "dell switches need these two lines"</command-string>
-      </rule>
-      <rule>
-        <seq-no>40</seq-no>
-        <command-string>permit ip 10.20.137.0/24 10.20.137.0/24</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.0/24</destination-prefix>
-            <source-prefix>10.20.137.0/24</source-prefix>
-            <ip-protocol>4</ip-protocol>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
         <seq-no>50</seq-no>
-        <command-string>permit ip 10.233.0.0/16 10.233.0.0/16</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.233.0.0/16</destination-prefix>
-            <source-prefix>10.233.0.0/16</source-prefix>
-            <ip-protocol>4</ip-protocol>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
+        <remark>external/dmz/pfsense dns to controller (1 line)</remark>
       </rule>
       <rule>
         <seq-no>60</seq-no>
-        <remark>allow 443 and 22 to endgame from internal (2 lines)</remark>
-        <command-string>remark "allow 443 and 22 to endgame from internal (2 lines)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>70</seq-no>
-        <command-string>permit tcp 10.20.137.0/24 host 10.20.138.200 eq 443</command-string>
         <condition>
           <match-ip>
-            <destination-host>10.20.138.200</destination-host>
-            <source-prefix>10.20.137.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
+            <destination-address>10.20.137.15</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>17</ip-protocol>
             <match-tcp>
-              <destination-port-range>
-                <comparator-port>443</comparator-port>
+              <source-port-range>
+                <lower-port>53</lower-port>
                 <comparator>eq</comparator>
-              </destination-port-range>
+              </source-port-range>
             </match-tcp>
           </match-ip>
         </condition>
@@ -214,16 +211,20 @@
         </action>
       </rule>
       <rule>
+        <seq-no>70</seq-no>
+        <remark>remote Sensor VPN (1 line)</remark>
+      </rule>
+      <rule>
         <seq-no>80</seq-no>
-        <command-string>permit tcp 10.20.137.0/24 host 10.20.138.200 eq 22</command-string>
         <condition>
           <match-ip>
-            <destination-host>10.20.138.200</destination-host>
-            <source-prefix>10.20.137.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
+            <destination-address>10.20.137.15</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>17</ip-protocol>
             <match-tcp>
               <destination-port-range>
-                <comparator-port>22</comparator-port>
+                <lower-port>1194</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
@@ -235,22 +236,24 @@
       </rule>
       <rule>
         <seq-no>90</seq-no>
-        <remark>remote Sensor VPN (1 line)</remark>
-        <command-string>remark "remote Sensor VPN (1 line)"</command-string>
+        <remark>pfsense dns/ntp to controller (2 lines)</remark>
       </rule>
       <rule>
         <seq-no>100</seq-no>
-        <command-string>permit udp host 10.20.137.15 eq 1194 host 10.98.20.75</command-string>
         <condition>
           <match-ip>
-            <destination-host>10.98.20.75</destination-host>
-            <source-host>10.20.137.15</source-host>
+            <destination-address>10.20.137.15</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.139.2</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>host</dst-address-format>
             <ip-protocol>17</ip-protocol>
             <match-tcp>
-              <source-port-range>
-                <comparator-port>1194</comparator-port>
+              <destination-port-range>
+                <lower-port>53</lower-port>
                 <comparator>eq</comparator>
-              </source-port-range>
+              </destination-port-range>
             </match-tcp>
           </match-ip>
         </condition>
@@ -260,20 +263,18 @@
       </rule>
       <rule>
         <seq-no>110</seq-no>
-        <remark>allow elasticsearch to endgame (1 line)</remark>
-        <command-string>remark "allow elasticsearch to endgame (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>120</seq-no>
-        <command-string>permit tcp host 10.20.137.4 host 10.20.138.200 eq 9200</command-string>
         <condition>
           <match-ip>
-            <destination-host>10.20.138.200</destination-host>
-            <source-host>10.20.137.4</source-host>
-            <ip-protocol>6</ip-protocol>
+            <destination-address>10.20.137.15</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.139.2</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>17</ip-protocol>
             <match-tcp>
               <destination-port-range>
-                <comparator-port>9200</comparator-port>
+                <lower-port>123</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
@@ -284,16 +285,20 @@
         </action>
       </rule>
       <rule>
-        <seq-no>150</seq-no>
-        <command-string>permit udp host 10.20.137.15 eq 53 host 10.20.139.2</command-string>
+        <seq-no>120</seq-no>
+        <remark>external ntp to controller (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>130</seq-no>
         <condition>
           <match-ip>
-            <destination-host>10.20.139.2</destination-host>
-            <source-host>10.20.137.15</source-host>
+            <destination-address>10.20.137.15</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <dst-address-format>host</dst-address-format>
             <ip-protocol>17</ip-protocol>
             <match-tcp>
               <source-port-range>
-                <comparator-port>53</comparator-port>
+                <lower-port>123</lower-port>
                 <comparator>eq</comparator>
               </source-port-range>
             </match-tcp>
@@ -304,24 +309,47 @@
         </action>
       </rule>
       <rule>
-        <seq-no>151</seq-no>
-        <remark>allow dns from controller back to management (1 line)</remark>
-        <command-string>remark "allow dns from controller back to management (1 line)"</command-string>
+        <seq-no>140</seq-no>
+        <remark>Internal to Endgame 443 return path (1 line)</remark>
       </rule>
       <rule>
-        <seq-no>152</seq-no>
-        <command-string>permit udp host 10.20.137.15 eq 53 10.20.136.0/24</command-string>
+        <seq-no>150</seq-no>
         <condition>
           <match-ip>
-            <destination-prefix>10.20.136.0/24</destination-prefix>
-            <source-host>10.20.137.15</source-host>
-            <ip-protocol>17</ip-protocol>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.138.200</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
             <match-tcp>
               <source-port-range>
-                <comparator-port>53</comparator-port>
+                <lower-port>443</lower-port>
                 <comparator>eq</comparator>
               </source-port-range>
             </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>160</seq-no>
+        <remark>Unable to filter by icmp types so allowing icmp (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>170</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.139.1</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.139.2</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>1</ip-protocol>
           </match-ip>
         </condition>
         <action>
@@ -330,22 +358,24 @@
       </rule>
       <rule>
         <seq-no>180</seq-no>
-        <remark>sil/pfsense https/ssh access to controller (3 lines)</remark>
-        <command-string>remark "sil/pfsense https/ssh access to controller (3 lines)"</command-string>
+        <remark>Endgame to elasticsearch (1 line)</remark>
       </rule>
       <rule>
         <seq-no>190</seq-no>
-        <command-string>permit tcp host 10.20.137.15 eq 22 host 10.20.139.2</command-string>
         <condition>
           <match-ip>
-            <destination-host>10.20.139.2</destination-host>
-            <source-host>10.20.137.15</source-host>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.138.200</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
             <ip-protocol>6</ip-protocol>
             <match-tcp>
-              <source-port-range>
-                <comparator-port>22</comparator-port>
+              <destination-port-range>
+                <lower-port>9200</lower-port>
                 <comparator>eq</comparator>
-              </source-port-range>
+              </destination-port-range>
             </match-tcp>
           </match-ip>
         </condition>
@@ -355,85 +385,22 @@
       </rule>
       <rule>
         <seq-no>200</seq-no>
-        <command-string>permit tcp host 10.20.137.15 eq 22 10.10.0.0/16</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.10.0.0/16</destination-prefix>
-            <source-host>10.20.137.15</source-host>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
+        <remark>endgame dns/ntp to controller</remark>
       </rule>
       <rule>
         <seq-no>210</seq-no>
-        <command-string>permit tcp host 10.20.137.15 eq 443 10.10.0.0/16</command-string>
         <condition>
           <match-ip>
-            <destination-prefix>10.10.0.0/16</destination-prefix>
-            <source-host>10.20.137.15</source-host>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>220</seq-no>
-        <remark>vpn access to controller (1 line)</remark>
-        <command-string>remark "vpn access to controller (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>230</seq-no>
-        <command-string>permit tcp host 10.20.137.15 eq 443 10.2.2.0/24</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.2.2.0/24</destination-prefix>
-            <source-host>10.20.137.15</source-host>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>240</seq-no>
-        <remark>dns for metricbeat (6 lines)</remark>
-        <command-string>remark "dns for metricbeat (6 lines)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>250</seq-no>
-        <command-string>permit udp 10.20.137.40/31 10.233.0.0/18 eq 53</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.233.0.0/18</destination-prefix>
-            <source-prefix>10.20.137.40/31</source-prefix>
+            <destination-address>10.20.137.15</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.138.200</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>host</dst-address-format>
             <ip-protocol>17</ip-protocol>
             <match-tcp>
               <destination-port-range>
-                <comparator-port>53</comparator-port>
+                <lower-port>53</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
@@ -444,16 +411,70 @@
         </action>
       </rule>
       <rule>
-        <seq-no>260</seq-no>
-        <command-string>permit udp 10.20.137.50/31 10.233.0.0/18 eq 53</command-string>
+        <seq-no>220</seq-no>
         <condition>
           <match-ip>
-            <destination-prefix>10.233.0.0/18</destination-prefix>
-            <source-prefix>10.20.137.50/31</source-prefix>
+            <destination-address>10.20.137.15</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.138.200</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>host</dst-address-format>
             <ip-protocol>17</ip-protocol>
             <match-tcp>
               <destination-port-range>
-                <comparator-port>53</comparator-port>
+                <lower-port>123</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>230</seq-no>
+        <remark>endgame to kibana</remark>
+      </rule>
+      <rule>
+        <seq-no>240</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.138.200</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>250</seq-no>
+        <remark>Endgame Agent (mpnet) to logstash</remark>
+      </rule>
+      <rule>
+        <seq-no>260</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>5045</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
@@ -465,37 +486,24 @@
       </rule>
       <rule>
         <seq-no>270</seq-no>
-        <command-string>permit udp 10.20.137.52/31 10.233.0.0/18 eq 53</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.233.0.0/18</destination-prefix>
-            <source-prefix>10.20.137.52/31</source-prefix>
-            <ip-protocol>17</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>53</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
+        <remark>remote gip to kit ssh/https</remark>
       </rule>
       <rule>
         <seq-no>280</seq-no>
-        <command-string>permit udp 10.233.0.0/18 eq 53 10.20.137.40/31</command-string>
         <condition>
           <match-ip>
-            <destination-prefix>10.20.137.40/31</destination-prefix>
-            <source-prefix>10.233.0.0/18</source-prefix>
-            <ip-protocol>17</ip-protocol>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.252.0</destination-mask>
+            <source-address>10.20.2.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
             <match-tcp>
-              <source-port-range>
-                <comparator-port>53</comparator-port>
+              <destination-port-range>
+                <lower-port>443</lower-port>
                 <comparator>eq</comparator>
-              </source-port-range>
+              </destination-port-range>
             </match-tcp>
           </match-ip>
         </condition>
@@ -505,17 +513,20 @@
       </rule>
       <rule>
         <seq-no>290</seq-no>
-        <command-string>permit udp 10.233.0.0/18 eq 53 10.20.137.50/31</command-string>
         <condition>
           <match-ip>
-            <destination-prefix>10.20.137.50/31</destination-prefix>
-            <source-prefix>10.233.0.0/18</source-prefix>
-            <ip-protocol>17</ip-protocol>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.252.0</destination-mask>
+            <source-address>10.20.2.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
             <match-tcp>
-              <source-port-range>
-                <comparator-port>53</comparator-port>
+              <destination-port-range>
+                <lower-port>22</lower-port>
                 <comparator>eq</comparator>
-              </source-port-range>
+              </destination-port-range>
             </match-tcp>
           </match-ip>
         </condition>
@@ -525,100 +536,19 @@
       </rule>
       <rule>
         <seq-no>300</seq-no>
-        <command-string>permit udp 10.233.0.0/18 eq 53 10.20.137.52/31</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.52/31</destination-prefix>
-            <source-prefix>10.233.0.0/18</source-prefix>
-            <ip-protocol>17</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>53</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
+        <remark>Controller to Endgame Agent (mpnet) (return traffic)</remark>
       </rule>
       <rule>
         <seq-no>310</seq-no>
-        <remark>needed for metricbeat to start on sensors (6 lines)</remark>
-        <command-string>remark "needed for metricbeat to start on sensors (6 lines)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>320</seq-no>
-        <command-string>permit tcp 10.20.137.40/31 10.233.0.0/18 eq 5601</command-string>
         <condition>
           <match-ip>
-            <destination-prefix>10.233.0.0/18</destination-prefix>
-            <source-prefix>10.20.137.40/31</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>5601</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>330</seq-no>
-        <command-string>permit tcp 10.20.137.50/31 10.233.0.0/18 eq 5601</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.233.0.0/18</destination-prefix>
-            <source-prefix>10.20.137.50/31</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>5601</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>340</seq-no>
-        <command-string>permit tcp 10.20.137.52/31 10.233.0.0/18 eq 5601</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.233.0.0/18</destination-prefix>
-            <source-prefix>10.20.137.52/31</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>5601</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>350</seq-no>
-        <command-string>permit tcp 10.233.0.0/18 eq 5601 10.20.137.40/31</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.40/31</destination-prefix>
-            <source-prefix>10.233.0.0/18</source-prefix>
+            <destination-address>10.20.137.15</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <dst-address-format>host</dst-address-format>
             <ip-protocol>6</ip-protocol>
             <match-tcp>
               <source-port-range>
-                <comparator-port>5601</comparator-port>
+                <lower-port>5985</lower-port>
                 <comparator>eq</comparator>
               </source-port-range>
             </match-tcp>
@@ -629,61 +559,23 @@
         </action>
       </rule>
       <rule>
-        <seq-no>360</seq-no>
-        <command-string>permit tcp 10.233.0.0/18 eq 5601 10.20.137.50/31</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.50/31</destination-prefix>
-            <source-prefix>10.233.0.0/18</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>5601</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
+        <seq-no>9010</seq-no>
+        <remark>SIL to internal resources (6 lines)</remark>
       </rule>
       <rule>
-        <seq-no>370</seq-no>
-        <command-string>permit tcp 10.233.0.0/18 eq 5601 10.20.137.52/31</command-string>
+        <seq-no>9020</seq-no>
         <condition>
           <match-ip>
-            <destination-prefix>10.20.137.52/31</destination-prefix>
-            <source-prefix>10.233.0.0/18</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>5601</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>380</seq-no>
-        <remark>needed for elasticsearch to start (6 lines)</remark>
-        <command-string>remark "needed for elasticsearch to start (6 lines)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>390</seq-no>
-        <command-string>permit tcp 10.20.137.40/31 10.233.0.0/18 eq 9200</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.233.0.0/18</destination-prefix>
-            <source-prefix>10.20.137.40/31</source-prefix>
+            <destination-address>10.20.137.15</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.0.0.0</source-address>
+            <source-mask>255.0.0.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
             <ip-protocol>6</ip-protocol>
             <match-tcp>
               <destination-port-range>
-                <comparator-port>9200</comparator-port>
+                <lower-port>443</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
@@ -694,16 +586,19 @@
         </action>
       </rule>
       <rule>
-        <seq-no>400</seq-no>
-        <command-string>permit tcp 10.20.137.50/31 10.233.0.0/18 eq 9200</command-string>
+        <seq-no>9030</seq-no>
         <condition>
           <match-ip>
-            <destination-prefix>10.233.0.0/18</destination-prefix>
-            <source-prefix>10.20.137.50/31</source-prefix>
+            <destination-address>10.20.137.15</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.0.0.0</source-address>
+            <source-mask>255.0.0.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
             <ip-protocol>6</ip-protocol>
             <match-tcp>
               <destination-port-range>
-                <comparator-port>9200</comparator-port>
+                <lower-port>22</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
@@ -714,16 +609,19 @@
         </action>
       </rule>
       <rule>
-        <seq-no>410</seq-no>
-        <command-string>permit tcp 10.20.137.52/31 10.233.0.0/18 eq 9200</command-string>
+        <seq-no>9040</seq-no>
         <condition>
           <match-ip>
-            <destination-prefix>10.233.0.0/18</destination-prefix>
-            <source-prefix>10.20.137.52/31</source-prefix>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.0.0.0</source-address>
+            <source-mask>255.0.0.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
             <ip-protocol>6</ip-protocol>
             <match-tcp>
               <destination-port-range>
-                <comparator-port>9200</comparator-port>
+                <lower-port>22</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
@@ -734,846 +632,21 @@
         </action>
       </rule>
       <rule>
-        <seq-no>420</seq-no>
-        <command-string>permit tcp 10.233.0.0/18 eq 9200 10.20.137.40/31</command-string>
+        <seq-no>9070</seq-no>
         <condition>
           <match-ip>
-            <destination-prefix>10.20.137.40/31</destination-prefix>
-            <source-prefix>10.233.0.0/18</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>9200</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>430</seq-no>
-        <command-string>permit tcp 10.233.0.0/18 eq 9200 10.20.137.50/31</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.50/31</destination-prefix>
-            <source-prefix>10.233.0.0/18</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>9200</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>440</seq-no>
-        <command-string>permit tcp 10.233.0.0/18 eq 9200 10.20.137.52/31</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.52/31</destination-prefix>
-            <source-prefix>10.233.0.0/18</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>9200</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>450</seq-no>
-        <remark>needed for chartmuseum to start (2 lines)</remark>
-        <command-string>remark "needed for chartmuseum to start (2 lines)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>460</seq-no>
-        <command-string>permit tcp 10.20.137.40/31 10.233.0.0/18 eq 8080</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.233.0.0/18</destination-prefix>
-            <source-prefix>10.20.137.40/31</source-prefix>
+            <destination-address>10.20.136.2</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.0.0.0</source-address>
+            <source-mask>255.0.0.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
             <ip-protocol>6</ip-protocol>
             <match-tcp>
               <destination-port-range>
-                <comparator-port>8080</comparator-port>
+                <lower-port>443</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>470</seq-no>
-        <command-string>permit tcp 10.233.0.0/18 eq 8080 10.20.137.40/31</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.40/31</destination-prefix>
-            <source-prefix>10.233.0.0/18</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>8080</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>9998</seq-no>
-        <remark>explicit deny (1 line)</remark>
-        <command-string>remark "explicit deny (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>9999</seq-no>
-        <command-string>deny ip any any log</command-string>
-        <condition>
-          <match-ip>
-            <destination-any>true</destination-any>
-            <source-any>true</source-any>
-            <ip-protocol>4</ip-protocol>
-          </match-ip>
-        </condition>
-        <action>
-          <log-enabled>true</log-enabled>
-          <packet-handling>deny</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>145</seq-no>
-        <remark>and esxi ntp</remark>
-        <command-string>remark "and esxi ntp"</command-string>
-      </rule>
-      <rule>
-        <seq-no>146</seq-no>
-        <command-string>permit udp host 10.20.137.15 eq 123 host 10.20.136.2</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.136.2</destination-host>
-            <source-host>10.20.137.15</source-host>
-            <ip-protocol>17</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>123</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>510</seq-no>
-        <command-string>permit udp host 10.20.137.15 any eq 123</command-string>
-        <condition>
-          <match-ip>
-            <destination-any>true</destination-any>
-            <source-host>10.20.137.15</source-host>
-            <ip-protocol>17</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>123</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>520</seq-no>
-        <remark>controller to esxi https</remark>
-        <command-string>remark "controller to esxi https"</command-string>
-      </rule>
-      <rule>
-        <seq-no>530</seq-no>
-        <command-string>permit tcp host 10.20.137.15 host 10.20.136.2 eq 443</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.136.2</destination-host>
-            <source-host>10.20.137.15</source-host>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>171</seq-no>
-        <remark>allow dns to SIL</remark>
-        <command-string>remark "allow dns to SIL"</command-string>
-      </rule>
-      <rule>
-        <seq-no>172</seq-no>
-        <command-string>permit udp host 10.20.137.15 any eq 53</command-string>
-        <condition>
-          <match-ip>
-            <destination-any>true</destination-any>
-            <source-host>10.20.137.15</source-host>
-            <ip-protocol>17</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>53</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>550</seq-no>
-        <command-string>permit tcp host 10.20.137.16 10.233.0.0/18 eq 10250</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.233.0.0/18</destination-prefix>
-            <source-host>10.20.137.16</source-host>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>10250</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>560</seq-no>
-        <remark>cert-manager back to control plane</remark>
-        <command-string>remark "cert-manager back to control plane"</command-string>
-      </rule>
-      <rule>
-        <seq-no>570</seq-no>
-        <command-string>permit tcp 10.233.0.0/18 eq 10250 host 10.20.137.16</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.137.16</destination-host>
-            <source-prefix>10.233.0.0/18</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>10250</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>580</seq-no>
-        <remark>endgame to controller ntp and dns return path</remark>
-        <command-string>remark "endgame to controller ntp and dns return path"</command-string>
-      </rule>
-      <rule>
-        <seq-no>590</seq-no>
-        <command-string>permit udp host 10.20.137.15 eq 123 host 10.20.138.200</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.138.200</destination-host>
-            <source-host>10.20.137.15</source-host>
-            <ip-protocol>17</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>123</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>600</seq-no>
-        <command-string>permit udp host 10.20.137.15 eq 53 host 10.20.138.200</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.138.200</destination-host>
-            <source-host>10.20.137.15</source-host>
-            <ip-protocol>17</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>53</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>610</seq-no>
-        <remark>endgame to elastic return path</remark>
-        <command-string>remark "endgame to elastic return path"</command-string>
-      </rule>
-      <rule>
-        <seq-no>620</seq-no>
-        <command-string>permit tcp 10.20.137.192/27 eq 9200 host 10.20.138.200</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.138.200</destination-host>
-            <source-prefix>10.20.137.192/27</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>9200</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>630</seq-no>
-        <remark>endgame to kibana reverse path</remark>
-        <command-string>remark "endgame to kibana reverse path"</command-string>
-      </rule>
-      <rule>
-        <seq-no>640</seq-no>
-        <command-string>permit tcp 10.20.137.192/27 eq 443 host 10.20.138.200</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.138.200</destination-host>
-            <source-prefix>10.20.137.192/27</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>130</seq-no>
-        <remark>dns/ntp reverse path from controller to pfsense (2 lines)</remark>
-        <command-string>remark "dns/ntp reverse path from controller to pfsense (2 lines)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>140</seq-no>
-        <command-string>permit udp host 10.20.137.15 eq 123 host 10.20.139.2</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.139.2</destination-host>
-            <source-host>10.20.137.15</source-host>
-            <ip-protocol>17</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>123</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>650</seq-no>
-        <remark>remote gip to kit ssh/https return path</remark>
-        <command-string>remark "remote gip to kit ssh/https return path"</command-string>
-      </rule>
-      <rule>
-        <seq-no>660</seq-no>
-        <command-string>permit tcp 10.20.137.0/24 eq 22 10.20.2.0/24</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.2.0/24</destination-prefix>
-            <source-prefix>10.20.137.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>670</seq-no>
-        <command-string>permit tcp 10.20.137.0/24 eq 443 10.20.2.0/24</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.2.0/24</destination-prefix>
-            <source-prefix>10.20.137.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>680</seq-no>
-        <remark>Controller to Endgame Agent</remark>
-        <command-string>remark "Controller to Endgame Agent"</command-string>
-      </rule>
-      <rule>
-        <seq-no>700</seq-no>
-        <remark>Internal to Management 443/22 return traffic</remark>
-        <command-string>remark "Internal to Management 443/22 return traffic"</command-string>
-      </rule>
-      <rule>
-        <seq-no>710</seq-no>
-        <command-string>permit tcp 10.20.137.0/24 eq 443 10.20.136.0/24</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.136.0/24</destination-prefix>
-            <source-prefix>10.20.137.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>720</seq-no>
-        <command-string>permit tcp 10.20.137.0/24 eq 22 10.20.136.0/24</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.136.0/24</destination-prefix>
-            <source-prefix>10.20.137.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>160</seq-no>
-        <remark>allow logstash to 10.30.202.0/24 (mpnet) (1 line)</remark>
-        <command-string>remark "allow logstash to 10.30.202.0/24 (mpnet) (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>170</seq-no>
-        <command-string>permit tcp 10.20.137.192/27 eq 5045 10.30.202.0/24</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.30.202.0/24</destination-prefix>
-            <source-prefix>10.20.137.192/27</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>5045</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>690</seq-no>
-        <command-string>permit tcp host 10.20.137.15 10.30.202.0/24 eq 5985</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.30.202.0/24</destination-prefix>
-            <source-host>10.20.137.15</source-host>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>5985</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>500</seq-no>
-        <remark>controller access to external ntp</remark>
-        <command-string>remark "controller access to external ntp"</command-string>
-      </rule>
-      <rule>
-        <seq-no>540</seq-no>
-        <remark> control plane to cert-manager</remark>
-        <command-string>remark " control plane to cert-manager"</command-string>
-      </rule>
-    </access-list>
-    <access-list>
-      <name>MANAGEMENT_IN</name>
-      <role>ipv4</role>
-      <rule>
-        <seq-no>40</seq-no>
-        <remark>V-207134 (1 line)</remark>
-        <command-string>remark "V-207134 (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>50</seq-no>
-        <command-string>deny icmp any any log fragment</command-string>
-        <condition>
-          <match-ip>
-            <destination-any>true</destination-any>
-            <source-any>true</source-any>
-            <ip-protocol>1</ip-protocol>
-            <fragments>true</fragments>
-          </match-ip>
-        </condition>
-        <action>
-          <log-enabled>true</log-enabled>
-          <packet-handling>deny</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>60</seq-no>
-        <remark>Allow MINIO (1 line)</remark>
-        <command-string>remark "Allow MINIO (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>70</seq-no>
-        <command-string>permit tcp 10.20.136.0/24 host 10.20.137.100 eq 9000</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.137.100</destination-host>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>9000</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>80</seq-no>
-        <remark>management to internal 443 (1 line)</remark>
-        <command-string>remark "management to internal 443 (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>90</seq-no>
-        <command-string>permit tcp 10.20.136.0/24 10.20.137.0/24 eq 443</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.0/24</destination-prefix>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>100</seq-no>
-        <remark>management to endgame (2 lines)</remark>
-        <command-string>remark "management to endgame (2 lines)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>110</seq-no>
-        <command-string>permit tcp 10.20.136.0/24 host 10.20.138.200 eq 443</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.138.200</destination-host>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>120</seq-no>
-        <command-string>permit tcp 10.20.136.0/24 host 10.20.138.200 eq 22</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.138.200</destination-host>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>130</seq-no>
-        <remark>management to internal remote access (5 lines)</remark>
-        <command-string>remark "management to internal remote access (5 lines)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>140</seq-no>
-        <command-string>permit tcp 10.20.136.0/24 10.20.137.0/24 eq 22</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.0/24</destination-prefix>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>150</seq-no>
-        <command-string>permit tcp 10.20.136.0/24 10.20.137.0/24 eq 445</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.0/24</destination-prefix>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>445</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>160</seq-no>
-        <command-string>permit tcp 10.20.136.0/24 10.20.137.0/24 eq 139</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.0/24</destination-prefix>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>139</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>170</seq-no>
-        <command-string>permit tcp 10.20.136.0/24 10.20.137.0/24 eq 135</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.0/24</destination-prefix>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>135</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>180</seq-no>
-        <command-string>permit tcp 10.20.136.0/24 10.20.137.0/24 eq 3389</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.0/24</destination-prefix>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>3389</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>190</seq-no>
-        <remark>allow ping/trace to internal network from management (1 line)</remark>
-        <command-string>remark "allow ping/trace to internal network from management (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>200</seq-no>
-        <command-string>permit icmp 10.20.136.0/24 10.20.137.0/24</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.0/24</destination-prefix>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>1</ip-protocol>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>210</seq-no>
-        <remark>allow ping/trace to dmz network from management (1 line)</remark>
-        <command-string>remark "allow ping/trace to dmz network from management (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>220</seq-no>
-        <command-string>permit icmp 10.20.136.0/24 10.20.138.0/24</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.138.0/24</destination-prefix>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>1</ip-protocol>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>230</seq-no>
-        <remark>management to controller dns (1 line)</remark>
-        <command-string>remark "management to controller dns (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>240</seq-no>
-        <command-string>permit udp 10.20.136.0/24 host 10.20.137.15 eq 53</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>17</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>53</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>250</seq-no>
-        <remark>SIL access to ESXi return path (1 line)</remark>
-        <command-string>remark "SIL access to ESXi return path (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>260</seq-no>
-        <command-string>permit tcp host 10.20.136.2 eq 443 10.10.0.0/16</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.10.0.0/16</destination-prefix>
-            <source-host>10.20.136.2</source-host>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
             </match-tcp>
           </match-ip>
         </condition>
@@ -1584,15 +657,11 @@
       <rule>
         <seq-no>9998</seq-no>
         <remark>explicit deny</remark>
-        <command-string>remark "explicit deny"</command-string>
       </rule>
       <rule>
         <seq-no>9999</seq-no>
-        <command-string>deny ip any any log</command-string>
         <condition>
           <match-ip>
-            <destination-any>true</destination-any>
-            <source-any>true</source-any>
             <ip-protocol>4</ip-protocol>
           </match-ip>
         </condition>
@@ -1601,22 +670,66 @@
           <packet-handling>deny</packet-handling>
         </action>
       </rule>
+    </access-list>
+    <access-list>
+      <name>MANAGEMENT_IN</name>
+      <role>ipv4</role>
       <rule>
-        <seq-no>51</seq-no>
-        <remark>esx ntp access to controller</remark>
-        <command-string>remark "esx ntp access to controller"</command-string>
+        <seq-no>10</seq-no>
+        <remark>dell switches need the next line</remark>
       </rule>
       <rule>
-        <seq-no>52</seq-no>
-        <command-string>permit udp host 10.20.136.2 host 10.20.137.15 eq 123</command-string>
+        <seq-no>20</seq-no>
         <condition>
           <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-host>10.20.136.2</source-host>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>30</seq-no>
+        <remark>V-207134 (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>40</seq-no>
+        <condition>
+          <match-ip>
+            <ip-protocol>1</ip-protocol>
+            <fragments>true</fragments>
+          </match-ip>
+        </condition>
+        <action>
+          <log-enabled>true</log-enabled>
+          <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>50</seq-no>
+        <remark>management ntp to controller (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>60</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.15</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
             <ip-protocol>17</ip-protocol>
             <match-tcp>
               <destination-port-range>
-                <comparator-port>123</comparator-port>
+                <lower-port>123</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
@@ -1627,18 +740,26 @@
         </action>
       </rule>
       <rule>
-        <seq-no>1</seq-no>
-        <remark>dell switches need the next line</remark>
-        <command-string>remark "dell switches need the next line"</command-string>
+        <seq-no>70</seq-no>
+        <remark>Allow MINIO (1 line)</remark>
       </rule>
       <rule>
-        <seq-no>2</seq-no>
-        <command-string>permit ip 10.20.136.0/24 10.20.136.0/24</command-string>
+        <seq-no>80</seq-no>
         <condition>
           <match-ip>
-            <destination-prefix>10.20.136.0/24</destination-prefix>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>4</ip-protocol>
+            <destination-address>10.20.137.100</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>9000</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
           </match-ip>
         </condition>
         <action>
@@ -1646,21 +767,311 @@
         </action>
       </rule>
       <rule>
-        <seq-no>270</seq-no>
-        <remark>remote gip to kit ssh/https return path</remark>
-        <command-string>remark "remote gip to kit ssh/https return path"</command-string>
+        <seq-no>90</seq-no>
+        <remark>management to internal 443 (1 line)</remark>
       </rule>
       <rule>
-        <seq-no>280</seq-no>
-        <command-string>permit tcp 10.20.136.0/24 eq 22 10.20.2.0/24</command-string>
+        <seq-no>100</seq-no>
         <condition>
           <match-ip>
-            <destination-prefix>10.20.2.0/24</destination-prefix>
-            <source-prefix>10.20.136.0/24</source-prefix>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>110</seq-no>
+        <remark>management to endgame (2 lines)</remark>
+      </rule>
+      <rule>
+        <seq-no>120</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.138.200</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>130</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.138.200</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>22</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>140</seq-no>
+        <remark>management to internal remote access (5 lines)</remark>
+      </rule>
+      <rule>
+        <seq-no>150</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>22</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>160</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>445</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>170</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>139</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>180</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>135</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>190</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>3389</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>200</seq-no>
+        <remark>allow ping/trace to internal network from management (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>210</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>1</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>220</seq-no>
+        <remark>allow ping/trace to dmz network from management (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>230</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.138.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>1</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>240</seq-no>
+        <remark>management to controller dns (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>250</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.15</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>53</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>260</seq-no>
+        <remark>remote gip to kit ssh/https return path (2 lines)</remark>
+      </rule>
+      <rule>
+        <seq-no>270</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.2.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
             <ip-protocol>6</ip-protocol>
             <match-tcp>
               <source-port-range>
-                <comparator-port>22</comparator-port>
+                <lower-port>22</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>280</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.2.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>443</lower-port>
                 <comparator>eq</comparator>
               </source-port-range>
             </match-tcp>
@@ -1672,23 +1083,7 @@
       </rule>
       <rule>
         <seq-no>290</seq-no>
-        <command-string>permit tcp 10.20.136.0/24 eq 443 10.20.2.0/24</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.2.0/24</destination-prefix>
-            <source-prefix>10.20.136.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <source-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </source-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
+        <remark>esxi return path to controller (1 line)</remark>
       </rule>
       <rule>
         <seq-no>300</seq-no>
@@ -1713,24 +1108,19 @@
           <packet-handling>permit</packet-handling>
         </action>
       </rule>
-</access-list>
-    <access-list>
-      <name>P2P_IN</name>
-      <role>ipv4</role>
       <rule>
-        <seq-no>10</seq-no>
-        <remark>V-207134 (1 line)</remark>
-        <command-string>remark "V-207134 (1 line)"</command-string>
+        <seq-no>9000</seq-no>
+        <remark>SIL-specific rules go after this point but before the explicit deny at 9999</remark>
       </rule>
       <rule>
-        <seq-no>20</seq-no>
-        <command-string>deny icmp any any log fragment</command-string>
+        <seq-no>9998</seq-no>
+        <remark>explicit deny</remark>
+      </rule>
+      <rule>
+        <seq-no>9999</seq-no>
         <condition>
           <match-ip>
-            <destination-any>true</destination-any>
-            <source-any>true</source-any>
-            <ip-protocol>1</ip-protocol>
-            <fragments>true</fragments>
+            <ip-protocol>4</ip-protocol>
           </match-ip>
         </condition>
         <action>
@@ -1739,21 +1129,23 @@
         </action>
       </rule>
       <rule>
-        <seq-no>40</seq-no>
-        <remark>external dns to controller (1 line)</remark>
-        <command-string>remark "external dns to controller (1 line)"</command-string>
+        <seq-no>9010</seq-no>
+        <remark>SIL access to ESXi return path (2 lines)</remark>
       </rule>
       <rule>
-        <seq-no>50</seq-no>
-        <command-string>permit udp any eq 53 host 10.20.137.15</command-string>
+        <seq-no>9020</seq-no>
         <condition>
           <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-any>true</source-any>
-            <ip-protocol>17</ip-protocol>
+            <destination-address>10.10.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.136.2</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
             <match-tcp>
               <source-port-range>
-                <comparator-port>53</comparator-port>
+                <lower-port>443</lower-port>
                 <comparator>eq</comparator>
               </source-port-range>
             </match-tcp>
@@ -1764,24 +1156,81 @@
         </action>
       </rule>
       <rule>
-        <seq-no>51</seq-no>
-        <remark>remote Sensor VPN (1 line)</remark>
-        <command-string>remark "remote Sensor VPN (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>52</seq-no>
-        <command-string>permit udp host 10.98.20.75 host 10.20.137.15 eq 1194</command-string>
+        <seq-no>9030</seq-no>
         <condition>
           <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-host>10.98.20.75</source-host>
-            <ip-protocol>17</ip-protocol>
+            <destination-address>10.2.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.136.2</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
             <match-tcp>
-              <destination-port-range>
-                <comparator-port>1194</comparator-port>
+              <source-port-range>
+                <lower-port>443</lower-port>
                 <comparator>eq</comparator>
-              </destination-port-range>
+              </source-port-range>
             </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+    </access-list>
+    <access-list>
+      <name>INTERNAL_IN</name>
+      <role>ipv4</role>
+      <rule>
+        <seq-no>10</seq-no>
+        <remark>v-207134 (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>20</seq-no>
+        <condition>
+          <match-ip>
+            <ip-protocol>1</ip-protocol>
+            <fragments>true</fragments>
+          </match-ip>
+        </condition>
+        <action>
+          <log-enabled>true</log-enabled>
+          <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>30</seq-no>
+        <remark>dell switches need these two lines</remark>
+      </rule>
+      <rule>
+        <seq-no>40</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>50</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.233.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.233.0.0</source-address>
+            <source-mask>255.255.0.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
           </match-ip>
         </condition>
         <action>
@@ -1790,20 +1239,22 @@
       </rule>
       <rule>
         <seq-no>60</seq-no>
-        <remark>pfsense dns/ntp to controller (2 lines)</remark>
-        <command-string>remark "pfsense dns/ntp to controller (2 lines)"</command-string>
+        <remark>allow 443 and 22 to endgame from internal (2 lines)</remark>
       </rule>
       <rule>
         <seq-no>70</seq-no>
-        <command-string>permit udp host 10.20.139.2 host 10.20.137.15 eq 53</command-string>
         <condition>
           <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-host>10.20.139.2</source-host>
-            <ip-protocol>17</ip-protocol>
+            <destination-address>10.20.138.200</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>6</ip-protocol>
             <match-tcp>
               <destination-port-range>
-                <comparator-port>53</comparator-port>
+                <lower-port>443</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
@@ -1815,15 +1266,45 @@
       </rule>
       <rule>
         <seq-no>80</seq-no>
-        <command-string>permit udp host 10.20.139.2 host 10.20.137.15 eq 123</command-string>
         <condition>
           <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-host>10.20.139.2</source-host>
-            <ip-protocol>17</ip-protocol>
+            <destination-address>10.20.138.200</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>6</ip-protocol>
             <match-tcp>
               <destination-port-range>
-                <comparator-port>123</comparator-port>
+                <lower-port>22</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>90</seq-no>
+        <remark>allow elasticsearch to endgame (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>100</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.138.200</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.137.4</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>9200</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
@@ -1835,20 +1316,22 @@
       </rule>
       <rule>
         <seq-no>110</seq-no>
-        <remark>external ntp to controller (1 line)</remark>
-        <command-string>remark "external ntp to controller (1 line)"</command-string>
+        <remark>dns/ntp reverse path from controller to pfsense (2 lines)</remark>
       </rule>
       <rule>
         <seq-no>120</seq-no>
-        <command-string>permit udp any eq 123 host 10.20.137.15</command-string>
         <condition>
           <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-any>true</source-any>
+            <destination-address>10.20.139.2</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>host</dst-address-format>
             <ip-protocol>17</ip-protocol>
             <match-tcp>
               <source-port-range>
-                <comparator-port>123</comparator-port>
+                <lower-port>123</lower-port>
                 <comparator>eq</comparator>
               </source-port-range>
             </match-tcp>
@@ -1859,21 +1342,69 @@
         </action>
       </rule>
       <rule>
+        <seq-no>130</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.139.2</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>53</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>140</seq-no>
+        <remark>dns/ntp reverse path from controller to management (2 lines)</remark>
+      </rule>
+      <rule>
         <seq-no>150</seq-no>
-        <remark>Internal to Endgame 443 return path (1 line)</remark>
-        <command-string>remark "Internal to Endgame 443 return path (1 line)"</command-string>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>123</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
       </rule>
       <rule>
         <seq-no>160</seq-no>
-        <command-string>permit tcp host 10.20.138.200 eq 443 10.20.137.0/24</command-string>
         <condition>
           <match-ip>
-            <destination-prefix>10.20.137.0/24</destination-prefix>
-            <source-host>10.20.138.200</source-host>
-            <ip-protocol>6</ip-protocol>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>17</ip-protocol>
             <match-tcp>
               <source-port-range>
-                <comparator-port>443</comparator-port>
+                <lower-port>53</lower-port>
                 <comparator>eq</comparator>
               </source-port-range>
             </match-tcp>
@@ -1885,17 +1416,22 @@
       </rule>
       <rule>
         <seq-no>170</seq-no>
-        <remark>Unable to filter by icmp types so allowing icmp (1 line)</remark>
-        <command-string>remark "Unable to filter by icmp types so allowing icmp (1 line)"</command-string>
+        <remark>allow dns/ntp from controller upstream (2 lines)</remark>
       </rule>
       <rule>
         <seq-no>180</seq-no>
-        <command-string>permit icmp host 10.20.139.2 host 10.20.139.1</command-string>
         <condition>
           <match-ip>
-            <destination-host>10.20.139.1</destination-host>
-            <source-host>10.20.139.2</source-host>
-            <ip-protocol>1</ip-protocol>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>53</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
           </match-ip>
         </condition>
         <action>
@@ -1904,275 +1440,15 @@
       </rule>
       <rule>
         <seq-no>190</seq-no>
-        <remark>Endgame to elasticsearch (1 line)</remark>
-        <command-string>remark "Endgame to elasticsearch (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>209</seq-no>
-        <remark>ssh pfsense to kubernetes resources (jumpbox) (4 lines)</remark>
-        <command-string>remark "ssh pfsense to kubernetes resources (jumpbox) (4 lines)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>210</seq-no>
-        <command-string>permit tcp host 10.20.139.2 host 10.20.137.15 eq 22</command-string>
         <condition>
           <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-host>10.20.139.2</source-host>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>220</seq-no>
-        <command-string>permit tcp host 10.20.139.2 10.20.137.40/31 eq 22</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.40/31</destination-prefix>
-            <source-host>10.20.139.2</source-host>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>230</seq-no>
-        <command-string>permit tcp host 10.20.139.2 10.20.137.50/31 eq 22</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.50/31</destination-prefix>
-            <source-host>10.20.139.2</source-host>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>240</seq-no>
-        <command-string>permit tcp host 10.20.139.2 10.20.137.52/31 eq 22</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.52/31</destination-prefix>
-            <source-host>10.20.139.2</source-host>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>249</seq-no>
-        <remark>SIL to internal resources (5 lines)</remark>
-        <command-string>remark "SIL to internal resources (5 lines)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>250</seq-no>
-        <command-string>permit tcp 10.10.0.0/16 host 10.20.137.15 eq 443</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-prefix>10.10.0.0/16</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>260</seq-no>
-        <command-string>permit tcp 10.10.0.0/16 host 10.20.137.15 eq 22</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-prefix>10.10.0.0/16</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>270</seq-no>
-        <command-string>permit tcp 10.10.0.0/16 10.20.137.40/31 eq 22</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.40/31</destination-prefix>
-            <source-prefix>10.10.0.0/16</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>280</seq-no>
-        <command-string>permit tcp 10.10.0.0/16 10.20.137.50/31 eq 22</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.50/31</destination-prefix>
-            <source-prefix>10.10.0.0/16</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>290</seq-no>
-        <command-string>permit tcp 10.10.0.0/16 10.20.137.52/31 eq 22</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.52/31</destination-prefix>
-            <source-prefix>10.10.0.0/16</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>299</seq-no>
-        <remark>VPN to controller web ui (1 line)</remark>
-        <command-string>remark "VPN to controller web ui (1 line)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>300</seq-no>
-        <command-string>permit tcp 10.2.2.0/24 host 10.20.137.15 eq 443</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-prefix>10.2.2.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>9998</seq-no>
-        <remark>explicit deny</remark>
-        <command-string>remark "explicit deny"</command-string>
-      </rule>
-      <rule>
-        <seq-no>9999</seq-no>
-        <command-string>deny ip any any log</command-string>
-        <condition>
-          <match-ip>
-            <destination-any>true</destination-any>
-            <source-any>true</source-any>
-            <ip-protocol>4</ip-protocol>
-          </match-ip>
-        </condition>
-        <action>
-          <log-enabled>true</log-enabled>
-          <packet-handling>deny</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>320</seq-no>
-        <command-string>permit udp host 10.20.138.200 host 10.20.137.15 eq 53</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-host>10.20.138.200</source-host>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
             <ip-protocol>17</ip-protocol>
             <match-tcp>
               <destination-port-range>
-                <comparator-port>53</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>340</seq-no>
-        <command-string>permit udp host 10.20.138.200 host 10.20.137.15 eq 123</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-host>10.20.138.200</source-host>
-            <ip-protocol>17</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>123</comparator-port>
+                <lower-port>123</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
@@ -2184,15 +1460,22 @@
       </rule>
       <rule>
         <seq-no>200</seq-no>
-        <command-string>permit tcp host 10.20.138.200 10.20.137.192/27 eq 9200</command-string>
+        <remark>dns for metricbeat (2 lines)</remark>
+      </rule>
+      <rule>
+        <seq-no>210</seq-no>
         <condition>
           <match-ip>
-            <destination-prefix>10.20.137.192/27</destination-prefix>
-            <source-host>10.20.138.200</source-host>
-            <ip-protocol>6</ip-protocol>
+            <destination-address>10.233.0.0</destination-address>
+            <destination-mask>255.255.192.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>17</ip-protocol>
             <match-tcp>
               <destination-port-range>
-                <comparator-port>9200</comparator-port>
+                <lower-port>53</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
@@ -2203,116 +1486,19 @@
         </action>
       </rule>
       <rule>
-        <seq-no>500</seq-no>
-        <remark>endgame to kibana</remark>
-        <command-string>remark "endgame to kibana"</command-string>
-      </rule>
-      <rule>
-        <seq-no>510</seq-no>
-        <command-string>permit tcp host 10.20.138.200 10.20.137.192/27 eq 443</command-string>
+        <seq-no>220</seq-no>
         <condition>
           <match-ip>
-            <destination-prefix>10.20.137.192/27</destination-prefix>
-            <source-host>10.20.138.200</source-host>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>540</seq-no>
-        <remark>remote gip to kit ssh/https</remark>
-        <command-string>remark "remote gip to kit ssh/https"</command-string>
-      </rule>
-      <rule>
-        <seq-no>550</seq-no>
-        <command-string>permit tcp 10.20.2.0/24 10.20.136.0/22 eq 443</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.136.0/22</destination-prefix>
-            <source-prefix>10.20.2.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>443</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>560</seq-no>
-        <command-string>permit tcp 10.20.2.0/24 10.20.136.0/22 eq 22</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.136.0/22</destination-prefix>
-            <source-prefix>10.20.2.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>22</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>520</seq-no>
-        <remark>Endgame Agent (mpnet) to logstash</remark>
-        <command-string>remark "Endgame Agent (mpnet) to logstash"</command-string>
-      </rule>
-      <rule>
-        <seq-no>530</seq-no>
-        <command-string>permit tcp 10.30.202.0/24 10.20.137.192/27 eq 5045</command-string>
-        <condition>
-          <match-ip>
-            <destination-prefix>10.20.137.192/27</destination-prefix>
-            <source-prefix>10.30.202.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <comparator-port>5045</comparator-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>570</seq-no>
-        <remark>Controller to Endgame Agent (mpnet) (return traffic)</remark>
-        <command-string>remark "Controller to Endgame Agent (mpnet) (return traffic)"</command-string>
-      </rule>
-      <rule>
-        <seq-no>580</seq-no>
-        <command-string>permit tcp 10.30.202.0/24 eq 5985 host 10.20.137.15</command-string>
-        <condition>
-          <match-ip>
-            <destination-host>10.20.137.15</destination-host>
-            <source-prefix>10.30.202.0/24</source-prefix>
-            <ip-protocol>6</ip-protocol>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.233.0.0</source-address>
+            <source-mask>255.255.192.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>17</ip-protocol>
             <match-tcp>
               <source-port-range>
-                <comparator-port>5985</comparator-port>
+                <lower-port>53</lower-port>
                 <comparator>eq</comparator>
               </source-port-range>
             </match-tcp>
@@ -2323,9 +1509,761 @@
         </action>
       </rule>
       <rule>
+        <seq-no>230</seq-no>
+        <remark>needed for metricbeat to start on sensors (2 lines)</remark>
+      </rule>
+      <rule>
+        <seq-no>240</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.233.0.0</destination-address>
+            <destination-mask>255.255.192.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>5601</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>250</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.233.0.0</source-address>
+            <source-mask>255.255.192.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>5601</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>260</seq-no>
+        <remark>needed for elasticsearch to start (2 lines)</remark>
+      </rule>
+      <rule>
+        <seq-no>270</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.233.0.0</destination-address>
+            <destination-mask>255.255.192.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>9200</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>280</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.233.0.0</source-address>
+            <source-mask>255.255.192.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>9200</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>290</seq-no>
+        <remark>needed for chartmuseum to start (2 lines)</remark>
+      </rule>
+      <rule>
+        <seq-no>300</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.233.0.0</destination-address>
+            <destination-mask>255.255.192.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>8080</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
         <seq-no>310</seq-no>
-        <remark>endgame dns/ntp to controller</remark>
-        <command-string>remark "endgame dns/ntp to controller"</command-string>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.233.0.0</source-address>
+            <source-mask>255.255.192.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>8080</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>320</seq-no>
+        <remark>controller to esxi https (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>330</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.2</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>340</seq-no>
+        <remark> control plane to cert-manager (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>350</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.233.0.0</destination-address>
+            <destination-mask>255.255.192.0</destination-mask>
+            <source-address>10.20.137.16</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>10250</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>360</seq-no>
+        <remark>cert-manager back to control plane (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>370</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.16</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.233.0.0</source-address>
+            <source-mask>255.255.192.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>10250</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>380</seq-no>
+        <remark>endgame to controller ntp and dns return path (2 lines)</remark>
+      </rule>
+      <rule>
+        <seq-no>390</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.138.200</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>123</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>400</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.138.200</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>53</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>410</seq-no>
+        <remark>endgame to elastic return path (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>420</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.138.200</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>9200</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>430</seq-no>
+        <remark>endgame to kibana reverse path (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>440</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.138.200</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>450</seq-no>
+        <remark>remote gip to kit ssh/https return path (2 lines)</remark>
+      </rule>
+      <rule>
+        <seq-no>460</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.2.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>22</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>470</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.2.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>480</seq-no>
+        <remark>Internal to Management 443/22 return traffic (2 lines)</remark>
+      </rule>
+      <rule>
+        <seq-no>490</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>500</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>22</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>510</seq-no>
+        <remark>allow logstash to 10.30.202.0/24 (mpnet) (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>520</seq-no>
+        <condition>
+          <match-ip>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>5045</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>530</seq-no>
+        <remark>remote Sensor VPN (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>540</seq-no>
+        <condition>
+          <match-ip>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>1194</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>550</seq-no>
+        <remark>Controller to Endgame Agent (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>560</seq-no>
+        <condition>
+          <match-ip>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>5985</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9010</seq-no>
+        <remark>sil http/ssh access to controller (10 lines)</remark>
+      </rule>
+      <rule>
+        <seq-no>9020</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.2.2.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>22</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9030</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.4.4.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>22</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9040</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.10.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>22</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9050</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.30.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>22</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9060</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.40.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>22</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9070</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.2.2.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9080</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.4.4.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9090</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.10.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9100</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.30.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9110</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.40.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.137.15</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9998</seq-no>
+        <remark>explicit deny</remark>
+      </rule>
+      <rule>
+        <seq-no>9999</seq-no>
+        <condition>
+          <match-ip>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <log-enabled>true</log-enabled>
+          <packet-handling>deny</packet-handling>
+        </action>
       </rule>
     </access-list>
     <policy-vty-config>
@@ -2343,7 +2281,8 @@
   </config>
   <dhcp-snooping-global-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
     <dhcp-v4-snooping>
-      <enable>false</enable>
+      <enable>true</enable>
+      <dai-violation-logging>false</dai-violation-logging>
     </dhcp-v4-snooping>
   </dhcp-snooping-global-config>
   <dns-resolver xmlns="http://www.dellemc.com/networking/os10/dell-dns">
@@ -2369,8 +2308,9 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <trust>false</trust>
+        <trust>true</trust>
         <sav/>
+        <dai-trust>true</dai-trust>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2406,6 +2346,7 @@
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
         <sav>
+          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
         </sav>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
@@ -2443,6 +2384,7 @@
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
         <sav>
+          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
         </sav>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
@@ -2480,6 +2422,7 @@
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
         <sav>
+          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
         </sav>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
@@ -2517,6 +2460,7 @@
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
         <sav>
+          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
         </sav>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
@@ -2553,6 +2497,7 @@
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
         <sav>
+          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
         </sav>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
@@ -2589,6 +2534,7 @@
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
         <sav>
+          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
         </sav>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
@@ -2625,6 +2571,7 @@
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
         <sav>
+          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
         </sav>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
@@ -2661,6 +2608,7 @@
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
         <sav>
+          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
         </sav>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
@@ -2696,8 +2644,9 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <trust>false</trust>
+        <sav/>
+        <dai-trust>true</dai-trust>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2732,8 +2681,8 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
+        <dai-trust>true</dai-trust>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2768,8 +2717,9 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <trust>false</trust>
+        <sav/>
+        <dai-trust>true</dai-trust>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2788,6 +2738,7 @@
       <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
         <interface-common>
           <br-index>0</br-index>
+          <enable>true</enable>
           <config>
             <guard>root</guard>
             <edge-port-basic>enable</edge-port-basic>
@@ -2810,7 +2761,7 @@
         <tx-enable>true</tx-enable>
         <rx-enable>true</rx-enable>
       </lldp>
-      <mtu xmlns="http://www.dellemc.com/networking/os10/dell-interface">1500</mtu>
+      <mtu xmlns="http://www.dellemc.com/networking/os10/dell-interface">1532</mtu>
       <speed xmlns="http://www.dellemc.com/networking/os10/dell-interface">AUTO</speed>
     </interface>
     <interface>
@@ -2831,6 +2782,9 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:l2vlan</type>
       <enabled>true</enabled>
+      <dhcp-v4-snooping-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
+        <arp-inspection>true</arp-inspection>
+      </dhcp-v4-snooping-config>
       <ipv4 xmlns="http://www.dellemc.com/networking/os10/dell-ip">
         <address>
           <primary-addr>10.20.136.1/24</primary-addr>
@@ -2903,6 +2857,10 @@
         <vrf-name>default</vrf-name>
         <server-address>10.20.137.15</server-address>
       </dhcp-relay-if-cfgs>
+      <dhcp-v4-snooping-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
+        <disable>false</disable>
+        <arp-inspection>true</arp-inspection>
+      </dhcp-v4-snooping-config>
       <ipv4 xmlns="http://www.dellemc.com/networking/os10/dell-ip">
         <address>
           <primary-addr>10.20.137.1/24</primary-addr>
@@ -2915,16 +2873,16 @@
       </ipv6>
       <policy-acl-config xmlns="http://www.dellemc.com/networking/os10/dell-policy">
         <access-group>
-          <role>ipv4</role>
-          <direction>in</direction>
-          <vrf>0</vrf>
-          <name>INTERNAL_IN</name>
-        </access-group>
-        <access-group>
           <role>ipv6</role>
           <direction>in</direction>
           <vrf>0</vrf>
           <name>INTERNALv6</name>
+        </access-group>
+        <access-group>
+          <role>ipv4</role>
+          <direction>in</direction>
+          <vrf>0</vrf>
+          <name>INTERNAL_IN</name>
         </access-group>
       </policy-acl-config>
       <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/1</tagged-ports>
@@ -2985,8 +2943,9 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <trust>false</trust>
+        <sav/>
+        <dai-trust>true</dai-trust>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -3020,8 +2979,8 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
+        <dai-trust>true</dai-trust>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -3055,8 +3014,8 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
+        <dai-trust>true</dai-trust>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -3090,8 +3049,8 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
+        <dai-trust>true</dai-trust>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -3126,6 +3085,7 @@
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
         <sav>
+          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
         </sav>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
@@ -3161,6 +3121,7 @@
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
         <sav>
+          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
         </sav>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
@@ -3196,6 +3157,7 @@
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
         <sav>
+          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
         </sav>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
@@ -3231,6 +3193,7 @@
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
         <sav>
+          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
         </sav>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
@@ -3264,7 +3227,8 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <trust>true</trust>
+        <trust>false</trust>
+        <sav/>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -3589,6 +3553,7 @@
       <utc_hour_offset>0</utc_hour_offset>
       <utc_minute_offset>0</utc_minute_offset>
     </timezone>
+    <obscure-password>true</obscure-password>
     <banner>
       <banner-login>
         <banner-text>\n###############################################################################\n\n# THIS IS A DOD COMPUTER SYSTEM.  THIS COMPUTER SYSTEM, INCLUDING ALL RELATED #\n\n# EQUIPMENT, NETWORKS &amp; NETWORK DEVICES (SPECIFICALLY INCLUDING INTERNET      #\n\n# ACCESS) ARE PROVIDED ONLY FOR AUTHORIZED U.S. GOVERNMENT USE. DOD COMPUTER  #\n\n# SYSTEMS MAY BE MONITORED FOR ALL LAWFUL PURPOSES, FOR MANAGEMENT OF THE     #\n\n# SYSTEM, TO FACILATE PROTECTION, AND TO VERIFY SECURITY PROCEDURES,          #\n\n# SURVIVABILITY, AND OPSEC. MONITORING INCLUDES ACTIVE ATTACKS BY AUTHORIZED  #\n\n# DOD ENTITES. DURING MONITORING, INFORMATION MAY BE EXAMINED, RECORDED,      #\n\n# COPIED, AND USED FOR AUTHORIZED PURPOSES.  ALL INFORMATION, INCLUDING       #\n\n# PERSONAL INFORMATION MAY BE MONITORED. USE OF THIS DOD COMPUTER SYSTEM,     #\n\n# AUTHORIZED OR UNAUTHORIZED, CONSTITUTES CONSENT TO MONITORING OF THIS       #\n\n# SYSTEM. EVIDENCE OF UNAUTHORIZED USE COLLECTED DURING MONITORING MAY BE     #\n\n# USED FOR ADMINISTRATIVE, CRIMINAL OR OTHER ADVERSE ACTIONS.  USE OF THIS    #\n\n# SYSTEM CONSTITUTES CONSENT TO MONITORING FOR THESE PURPOSES                 #\n\n###############################################################################\n</banner-text>
@@ -3809,15 +3774,43 @@
         </sensor-paths>
       </sensor-group>
       <sensor-group>
+        <sensor-group-id>oc-bfd</sensor-group-id>
+        <config>
+          <sensor-group-id>oc-bfd</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>openconfig-bfd/bfd</path>
+            <config>
+              <path>openconfig-bfd/bfd</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
         <sensor-group-id>oc-bgp</sensor-group-id>
         <config>
           <sensor-group-id>oc-bgp</sensor-group-id>
         </config>
         <sensor-paths>
           <sensor-path>
-            <path>openconfig-bgp/bgp/neighbors/neighbor</path>
+            <path>openconfig-network-instance/network-instances/network-instance/protocols/protocol/bgp/neighbors/neighbor</path>
             <config>
-              <path>openconfig-bgp/bgp/neighbors/neighbor</path>
+              <path>openconfig-network-instance/network-instances/network-instance/protocols/protocol/bgp/neighbors/neighbor</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>oc-bgp-rib</sensor-group-id>
+        <config>
+          <sensor-group-id>oc-bgp-rib</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>openconfig-network-instance/network-instances/network-instance/protocols/protocol/bgp/rib/afi-safis/afi-safi</path>
+            <config>
+              <path>openconfig-network-instance/network-instances/network-instance/protocols/protocol/bgp/rib/afi-safis/afi-safi</path>
             </config>
           </sensor-path>
         </sensor-paths>
@@ -3885,6 +3878,20 @@
         </sensor-paths>
       </sensor-group>
       <sensor-group>
+        <sensor-group-id>oc-lacp</sensor-group-id>
+        <config>
+          <sensor-group-id>oc-lacp</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>openconfig-lacp/lacp</path>
+            <config>
+              <path>openconfig-lacp/lacp</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
         <sensor-group-id>oc-lag</sensor-group-id>
         <config>
           <sensor-group-id>oc-lag</sensor-group-id>
@@ -3894,6 +3901,34 @@
             <path>openconfig-interfaces/interfaces/interface</path>
             <config>
               <path>openconfig-interfaces/interfaces/interface</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>oc-lldp</sensor-group-id>
+        <config>
+          <sensor-group-id>oc-lldp</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>openconfig-lldp/lldp</path>
+            <config>
+              <path>openconfig-lldp/lldp</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>oc-stp</sensor-group-id>
+        <config>
+          <sensor-group-id>oc-stp</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>openconfig-spanning-tree/stp</path>
+            <config>
+              <path>openconfig-spanning-tree/stp</path>
             </config>
           </sensor-path>
         </sensor-paths>
@@ -3914,6 +3949,82 @@
             <path>openconfig-platform/components/component</path>
             <config>
               <path>openconfig-platform/components/component</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>oc-vendor-ufd</sensor-group-id>
+        <config>
+          <sensor-group-id>oc-vendor-ufd</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>ufd/uplink-state-group-stats/ufd-groups</path>
+            <config>
+              <path>ufd/uplink-state-group-stats/ufd-groups</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>oc-vxlan</sensor-group-id>
+        <config>
+          <sensor-group-id>oc-vxlan</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>openconfig-vxlan/vxlan/state/vxlan-tunnel-infos</path>
+            <config>
+              <path>openconfig-vxlan/vxlan/state/vxlan-tunnel-infos</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>openconfig-network-instance/network-instances/network-instance</path>
+            <config>
+              <path>openconfig-network-instance/network-instances/network-instance</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>oc-vlan</sensor-group-id>
+        <config>
+          <sensor-group-id>oc-vlan</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>openconfig-interfaces/interfaces/interface</path>
+            <config>
+              <path>openconfig-interfaces/interfaces/interface</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>oc-vrrp</sensor-group-id>
+        <config>
+          <sensor-group-id>oc-vrrp</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>openconfig-interfaces/interfaces/interface/subinterfaces/subinterface</path>
+            <config>
+              <path>openconfig-interfaces/interfaces/interface/subinterfaces/subinterface</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>oc-relayagent</sensor-group-id>
+        <config>
+          <sensor-group-id>oc-relayagent</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>openconfig-relay-agent/relay-agent/dhcp/interfaces/interface</path>
+            <config>
+              <path>openconfig-relay-agent/relay-agent/dhcp/interfaces/interface</path>
             </config>
           </sensor-path>
         </sensor-paths>
