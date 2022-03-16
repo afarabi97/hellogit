@@ -7,6 +7,7 @@ Library     SeleniumLibrary     15s    run_on_failure= loggy_obj.failure
 Library     SSHLibrary          15s
 Library     String
 Library     Collections
+Library     DateTime
 Library     TFPlenumLibrary.py
 
 
@@ -209,7 +210,7 @@ Get Hive IP
     log     Hive IP: ${HIVE_IP}
     Set Global Variable     ${HIVE_IP}
 
-Login Into Kibana
+Log In To Kibana
     Navigate To Kibana
     click       ${locElasticLoginButton}
     lookFor     Username
@@ -245,7 +246,9 @@ Wait And Validate Kibana Hits
     Sleep       180s
     Go To       ${KIBANA_IP}/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))&_a=(columns:!(),filters:!(),index:'filebeat-*',interval:auto,query:(language:kuery,query:''),sort:!(!('@timestamp',desc)))
     lookFor     Discover
-    lookFor     Searching
+    ${curr_date} =  Get Current Date  result_format=%b %d, %Y   #Ex: Mar 16, 2022
+    ${locDocTableFirstRowDate} =  Set Variable  xpath=//*[@id="kibana-body"]//tbody/tr[1]/td[2]/div
+    Wait Until Element Contains  ${locDocTableFirstRowDate}  ${curr_date}
     shoot       KibanaHits
     Sleep       10s
     shoot       KibinaHitsResults

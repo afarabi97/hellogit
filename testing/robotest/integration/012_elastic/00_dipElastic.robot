@@ -20,7 +20,7 @@ Run Elastic Integration Test
     [Documentation]                  Grab the elastic password and run some tests
     Set Selenium Speed               1s
     Install Multiple Apps            Logstash   Zeek    Suricata    Arkime-viewer    Arkime
-    Login Into Kibana
+    Log In To Kibana
     Navigate To PCAPs
     Play Wannacry PCAP
     Wait And Validate Kibana Hits

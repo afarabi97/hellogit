@@ -192,6 +192,7 @@ robot:elastic:elastic:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
 
 robot:elastic:alerts:
   stage: robot-test-elastic
@@ -301,6 +302,7 @@ robot:cleanup:virtual_sensor:
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
 
 robot:regression_testing:
   stage: robot-test-regression
