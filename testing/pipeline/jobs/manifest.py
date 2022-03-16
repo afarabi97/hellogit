@@ -79,13 +79,13 @@ class BuildManifestJob():
         if text_file_path:
             self.replace_text(
             text_file_path,
-            text_to_find='CVA/H Build:.\d.\d',
+            text_to_find='CVA/H Build:[\w._ ]*',
             substitution='CVA/H Build: ' + self.manifest.version
             )
 
             self.replace_text(
             text_file_path,
-            text_to_find='CVAH.\d.\d',
+            text_to_find='CVAH[\w._ ]*',
             substitution='CVAH ' + self.manifest.version
             )
 
@@ -115,12 +115,13 @@ class BuildManifestJob():
                     app_folder = src_path[pos:]
 
                 self.check_dir_exists(dest_path)
-                self.modify_readme(src_path)
 
                 if os.path.isdir(src_path):
                     shutil.copytree(src_path, dest_path + app_folder)
+                    self.modify_readme(dest_path + app_folder)
                 else:
                     shutil.copy2(src_path, dest_path)
+                    self.modify_readme(dest_path)
 
     def execute(self):
         self.build_manifest()
