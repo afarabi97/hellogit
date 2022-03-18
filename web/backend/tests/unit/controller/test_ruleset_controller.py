@@ -179,6 +179,7 @@ def test_validate_rule(ruleset_client, mocker):
     results = ruleset_client.post("/api/policy/rule/validate", json=zeek_rule)
     assert 500 == results.status_code
     assert "error_message" in results.json
+    zeek_ruleset['appType'] = "Zeek Scripts"
 
 
 def test_ruleset(client):

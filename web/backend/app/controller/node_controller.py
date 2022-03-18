@@ -24,6 +24,8 @@ from flask_restx import Resource
 from marshmallow.exceptions import ValidationError
 from randmac import RandMac
 
+NAMESPACE = "default"
+
 
 @KIT_SETUP_NS.route("/nodes")
 class NodesCtrl(Resource):
@@ -80,7 +82,7 @@ class NodeCtrl(Resource):
                             node_dict["deployment_name"] = inst_app["deployment_name"]
                             nodes = [node_dict]
                             delete_helm_apps.delay(
-                                application=inst_app["deployment_name"], nodes=nodes)
+                                application=inst_app["deployment_name"], namespace=NAMESPACE, nodes=nodes)
                         # Remove node will delete this
                         delete_node = False
                         return self._remove_node(node), 200

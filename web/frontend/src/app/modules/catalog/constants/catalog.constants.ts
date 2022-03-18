@@ -23,7 +23,10 @@ export const COLORS_DICT: ColorsDictInterface = {
   uninstalled: RED,
   failed: RED
 };
+export const ZEEK: string = 'zeek';
+export const SURICATA: string = 'suricata';
 export const COMPLETED: string = 'COMPLETED';
+export const UNINSTALL_COMPLETED: string = 'Uninstall completed.';
 export const DEPLOYED = 'DEPLOYED';
 export const FAILED = 'failed';
 export const UNKNOWN = 'UNKNOWN';

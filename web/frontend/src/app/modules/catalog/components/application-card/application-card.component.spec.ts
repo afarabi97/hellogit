@@ -5,6 +5,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import {
   MockChartClassArkime,
   MockChartClassRedmine,
+  MockChartClassSuricata,
+  MockChartClassWikiJs,
   MockChartClassZeek,
   MockChartClassZeekFailed,
   MockChartClassZeekUninstalling,
@@ -32,6 +34,7 @@ describe('ApplicationCardComponent', () => {
   let spyMouseleaveHoverCard: jasmine.Spy<any>;
   let spyGetBackgroundColor: jasmine.Spy<any>;
   let spyGetStatusColor: jasmine.Spy<any>;
+  let spyIsDiabled: jasmine.Spy<any>;
   let spyCardSelect: jasmine.Spy<any>;
 
   // Router Spy
@@ -61,6 +64,7 @@ describe('ApplicationCardComponent', () => {
     spyMouseleaveHoverCard = spyOn(component, 'mouseleave_hover_card').and.callThrough();
     spyGetBackgroundColor = spyOn(component, 'get_background_color').and.callThrough();
     spyGetStatusColor = spyOn(component, 'get_status_color').and.callThrough();
+    spyIsDiabled = spyOn(component, 'is_disabled').and.callThrough();
     spyCardSelect = spyOn(component, 'card_select').and.callThrough();
 
     // Router spy
@@ -80,6 +84,7 @@ describe('ApplicationCardComponent', () => {
     spyMouseleaveHoverCard.calls.reset();
     spyGetBackgroundColor.calls.reset();
     spyGetStatusColor.calls.reset();
+    spyIsDiabled.calls.reset();
     spyCardSelect.calls.reset();
   };
 
@@ -280,6 +285,52 @@ describe('ApplicationCardComponent', () => {
         const return_value: string = component.get_status_color(MockStatusClassLogstashDeployedError);
 
         expect(return_value).toEqual(WHITE);
+      });
+    });
+
+    describe('is_disabled()', () => {
+      it('should call is_disabled()', () => {
+        reset();
+
+        component.is_disabled(MockChartClassWikiJs);
+
+        expect(component.is_disabled).toHaveBeenCalled();
+      });
+
+      it('should call is_disabled() and return true for SURICATA application', () => {
+        reset();
+
+        component.rule_sync = true;
+        const return_value: boolean = component.is_disabled(MockChartClassSuricata);
+
+        expect(return_value).toBeTrue();
+      });
+
+      it('should call is_disabled() and return true for ZEEK application', () => {
+        reset();
+
+        component.rule_sync = true;
+        const return_value: boolean = component.is_disabled(MockChartClassZeek);
+
+        expect(return_value).toBeTrue();
+      });
+
+      it('should call is_disabled() and return false for SURICATA application', () => {
+        reset();
+
+        component.rule_sync = false;
+        const return_value: boolean = component.is_disabled(MockChartClassSuricata);
+
+        expect(return_value).toBeFalse();
+      });
+
+      it('should call is_disabled() and return false for ZEEK application', () => {
+        reset();
+
+        component.rule_sync = false;
+        const return_value: boolean = component.is_disabled(MockChartClassZeek);
+
+        expect(return_value).toBeFalse();
       });
     });
 

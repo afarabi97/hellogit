@@ -1,5 +1,5 @@
 <div *ngFor="let chart of charts; let i = index;" class="list-item"
      fxLayout="row wrap" fxLayoutAlign="space-around center" fxLayoutGap="3em">
   <cvah-application-card id="{{ 'cvah-chart-list-div-cvah-application-card-' + i }}"
-                         [unique_html_id]="'cvah-chart-list-' + i" [chart]="chart"></cvah-application-card>
+                         [unique_html_id]="'cvah-chart-list-' + i" [chart]="chart" [rule_sync]="rule_sync"></cvah-application-card>
 </div>

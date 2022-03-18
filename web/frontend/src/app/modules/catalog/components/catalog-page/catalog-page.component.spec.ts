@@ -32,15 +32,13 @@ import {
   MockSavedValueClassArkime,
   MockSavedValueClassArkimeViewer,
   MockSavedValueClassSuricata,
+  MockSavedValueClassSuricata2,
   MockStatusClassArkimeViewer,
   MockStatusClassArkimeViewerDeployed,
   MockStatusClassSuricataDeployed
 } from '../../../../../../static-data/class-objects';
 import {MockChartInterfaceArray} from '../../../../../../static-data/interface-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
-import {
-  MockFormControlInterfaceServiceNodeCheckbox
-} from '../../../../../../static-data/interface-objects';
 import { FormControlClass, NodeClass, ObjectUtilitiesClass, SavedValueClass, StatusClass } from '../../../../classes';
 import { CONTINUE_DIALOG_OPTION, TAKE_ME_BACK_DIALOG_OPTION } from '../../../../constants/cvah.constants';
 import { CatalogHelmActionInterface, ProcessFromFormGroupInterface, SelectedNodeInterface } from '../../../../interfaces';
@@ -1354,7 +1352,7 @@ describe('CatalogPageComponent', () => {
         reset();
 
         component.chart_info = MockChartInfoClassArkimeViewerReinstallorUninstall;
-        const return_value: FormControl = component['get_form_control_'](MockFormControlInterfaceServiceNodeCheckbox, hostname_server);
+        const return_value: FormControl = component['get_form_control_'](MockFormControlClassServiceNodeCheckbox, hostname_server);
 
         expect(return_value.value).toEqual(component['service_node_available_']);
       });
@@ -1558,7 +1556,7 @@ describe('CatalogPageComponent', () => {
         expect(component['reset_config_form_group_']).toHaveBeenCalled();
       });
 
-      it('should call initialize_config_form_control() from get_values_file_() when saved_values defined', () => {
+      it('should call initialize_config_form_control() from initialize_config_form_group_() when saved_values_ defined and saved_value.values[node_hostname] === node.hostname', () => {
         reset();
 
         component['config_array_'] = null;
@@ -1574,7 +1572,23 @@ describe('CatalogPageComponent', () => {
         expect(component['initialize_config_form_control']).toHaveBeenCalled();
       });
 
-      it('should call initialize_config_form_control() from get_values_file_() when saved_values undefined', () => {
+      it('should call initialize_config_form_control() from initialize_config_form_group_() when saved_values_ defined and saved_value.values[node_hostname] !== node.hostname', () => {
+        reset();
+
+        component['config_array_'] = null;
+        component.chart_info = MockChartInfoClassSuricata;
+        component['initialize_process_form_group_']();
+        component.selection_change_process();
+        component.process_form_group.controls['selectedProcess'].setValue(REINSTALL);
+        component.process_form_group.controls['selectedNodes'].setValue(MockNodeClassArray.filter((v: NodeClass) => v.node_type === SENSOR_VALUE));
+        component['statuses_'] = [MockStatusClassSuricataDeployed];
+        component['saved_values_'] = MockSavedValueClassSuricata2;
+        component['initialize_config_form_group_']();
+
+        expect(component['initialize_config_form_control']).toHaveBeenCalled();
+      });
+
+      it('should call initialize_config_form_control() from initialize_config_form_group_() when saved_values_ undefined', () => {
         reset();
 
         component['config_array_'] = null;
@@ -1590,7 +1604,7 @@ describe('CatalogPageComponent', () => {
         expect(component['initialize_config_form_control']).toHaveBeenCalled();
       });
 
-      it('should call handle_checkbox_dependent_apps_() from get_values_file_() when saved_values undefined', () => {
+      it('should call handle_checkbox_dependent_apps_() from initialize_config_form_group_()', () => {
         reset();
 
         component['config_array_'] = null;

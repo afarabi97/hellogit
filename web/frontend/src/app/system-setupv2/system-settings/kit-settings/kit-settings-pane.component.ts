@@ -1,22 +1,23 @@
-import { Component, Input, OnInit, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { Router } from '@angular/router';
-import { FormControl, FormGroup, Validators, AbstractControl } from '@angular/forms';
-import { validateFromArray } from '../../../validators/generic-validators.validator';
-import { kitSettingsValidators, kickStartTooltips } from '../../validators/kit-setup-validators';
-import { KitSettingsService } from '../../services/kit-settings.service';
-import { Settings, GeneralSettings, KitStatus } from '../../models/kit';
+
+import { ObjectUtilitiesClass } from '../../../classes';
+import { PasswordMessageComponent } from '../../../components/password-message/password-message.component';
 import { UserService } from '../../../services/user.service';
 import { WebsocketService } from '../../../services/websocket.service';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { MatDialog } from '@angular/material/dialog';
-import { PasswordMessageComponent } from '../../../components/password-message/password-message.component';
+import { validateFromArray } from '../../../validators/generic-validators.validator';
+import { GeneralSettings, KitStatus, Settings } from '../../models/kit';
+import { KitSettingsService } from '../../services/kit-settings.service';
+import { kickStartTooltips, kitSettingsValidators } from '../../validators/kit-setup-validators';
 
 @Component({
   selector: 'app-kit-settings-pane',
   templateUrl: './kit-settings-pane.component.html',
   styleUrls: ['./kit-settings-pane.component.scss']
 })
-
 export class KitSettingsPaneComponent implements OnInit, OnChanges {
   @Input() hasTitle: boolean;
   @Input() generalSettings: Partial<GeneralSettings> = {};
@@ -41,12 +42,11 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
   kitButtonToolTip: string = '';
   kitJobRunning: boolean = false;
 
-  constructor(public _WebsocketService:WebsocketService,
+  constructor(private websocket_service_: WebsocketService,
               private kitSettingsSrv: KitSettingsService,
               private userService: UserService,
               private router: Router,
-              private dialog: MatDialog
-              ) {
+              private dialog: MatDialog) {
     this.hasTitle = true;
     this.controllerMaintainer = this.userService.isControllerMaintainer();
     this.job_id = null;
@@ -57,14 +57,13 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
     this.createFormGroup();
   }
 
-  ngOnChanges(){
-
-    if(this.kitStatus && this.kitStatus != null){
-      this.kitSettings != null ? this.job_id = this.kitSettings.job_id : this.job_id = null;
+  ngOnChanges(): void {
+    if (ObjectUtilitiesClass.notUndefNull(this.kitStatus)) {
+      this.job_id = ObjectUtilitiesClass.notUndefNull(this.kitSettings) ? this.kitSettings.job_id : null;
       this.createFormGroup(this.kitSettings);
       this.checkJob();
     }
-    if(this.controllerInfo){
+    if (this.controllerInfo){
       this.gatherControllerFacts();
     }
   }
@@ -218,7 +217,7 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
   }
 
   private socketRefresh(){
-    this._WebsocketService.getSocket().on('kit-status-change', (data: KitStatus) => {
+    this.websocket_service_.getSocket().on('kit-status-change', (data: KitStatus) => {
       this.kitStatus = data;
       this.checkJob();
     });

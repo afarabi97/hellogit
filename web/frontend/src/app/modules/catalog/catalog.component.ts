@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { ChartClass, NodeClass, NotificationClass, ObjectUtilitiesClass } from '../../classes';
+import { ChartClass, NodeClass, NotificationClass, ObjectUtilitiesClass, StatusClass } from '../../classes';
 import {
   MAT_SNACKBAR_CONFIGURATION_60000_DUR,
   WEBSOCKET_MESSAGE_MESSAGE_ADD_NODE,
@@ -11,7 +11,10 @@ import {
   WEBSOCKET_MESSAGE_MESSAGE_PROVISION_VIRTUAL_MACHINE,
   WEBSOCKET_MESSAGE_MESSAGE_REMOVE_NODE,
   WEBSOCKET_MESSAGE_ROLE_CATALOG,
-  WEBSOCKET_MESSAGE_ROLE_NODE
+  WEBSOCKET_MESSAGE_ROLE_NODE,
+  WEBSOCKET_MESSAGE_ROLE_RULE_SYNC,
+  WEBSOCKET_MESSAGE_STATUS_COMPLETED,
+  WEBSOCKET_MESSAGE_STATUS_STARTED
 } from '../../constants/cvah.constants';
 import { CatalogService } from '../../services/catalog.service';
 import { CookieService } from '../../services/cookies.service';
@@ -23,7 +26,7 @@ import {
   COMPLETED,
   DEFAULT_SHOW_CHART,
   SENSOR_VALUE,
-  SHOW_CHART_COOKIE_NAME
+  SHOW_CHART_COOKIE_NAME,
 } from './constants/catalog.constants';
 import { ShowChartsInterface } from './interfaces';
 
@@ -50,6 +53,8 @@ export class CatalogComponent implements OnInit {
   filtered_charts: ChartClass[];
   // Used for data binding user selection to show / hide PMO and community charts
   show_charts: ShowChartsInterface;
+  // Used for passing attribute to disable suricata and zeek during a rule sync event
+  rule_sync: boolean;
   // Used for filtering out apps that need a sensor
   private has_sensors_: boolean;
   // Used for holding the charts response from the backend
@@ -73,6 +78,7 @@ export class CatalogComponent implements OnInit {
                private sorting_service_: SortingService,
                private websocket_service_: WebsocketService) {
     this.is_loading = true;
+    this.rule_sync = false;
     this.has_sensors_ = false;
   }
 
@@ -169,29 +175,44 @@ export class CatalogComponent implements OnInit {
     this.websocket_service_.onBroadcast()
       .pipe(untilDestroyed(this))
       .subscribe((message: NotificationClass) => {
-        if (message.role === WEBSOCKET_MESSAGE_ROLE_CATALOG) {
-          /* istanbul ignore else */
-          if (ObjectUtilitiesClass.notUndefNull(message.data) &&
-              ObjectUtilitiesClass.notUndefNull(this.charts_)) {
-            this.charts_.forEach((chart: ChartClass) => {
-              /* istanbul ignore else */
-              if (chart.application === message.application.toLowerCase()) {
-                chart.nodes = (Object.keys(message.data).length > 0) ? [ message.data[0] ] : [];
-              }
-            });
-          }
-        } else if (message.role === WEBSOCKET_MESSAGE_ROLE_NODE) {
-          /* istanbul ignore else */
-          if (((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_REMOVE_NODE))) ||
-              ((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_CREATE_VIRTUAL_MACHINE))) ||
-              ((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_PROVISION_VIRTUAL_MACHINE))) ||
-              ((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_ADD_NODE)))) {
-            this.is_loading = true;
-            this.filtered_charts = [];
-            this.charts_ = [];
-            this.has_sensors_ = false;
-            this.api_get_all_application_statuses_();
-          }
+        switch (message.role) {
+          case WEBSOCKET_MESSAGE_ROLE_CATALOG:
+            /* istanbul ignore else */
+            if (ObjectUtilitiesClass.notUndefNull(message.data) &&
+                ObjectUtilitiesClass.notUndefNull(this.charts_)) {
+              this.charts_.forEach((chart: ChartClass) => {
+                /* istanbul ignore else */
+                if (chart.application === message.application.toLowerCase()) {
+                  const data_keys: string[] = Object.keys(message.data);
+                  const node_statuses: StatusClass[] = data_keys.map((key: string) => message.data[key]);
+                  chart.nodes = node_statuses;
+                }
+              });
+            }
+            break;
+          case WEBSOCKET_MESSAGE_ROLE_NODE:
+            /* istanbul ignore else */
+            if (((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_REMOVE_NODE))) ||
+                ((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_CREATE_VIRTUAL_MACHINE))) ||
+                ((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_PROVISION_VIRTUAL_MACHINE))) ||
+                ((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_ADD_NODE)))) {
+              this.is_loading = true;
+              this.filtered_charts = [];
+              this.charts_ = [];
+              this.has_sensors_ = false;
+              this.api_get_all_application_statuses_();
+            }
+            break;
+          case WEBSOCKET_MESSAGE_ROLE_RULE_SYNC:
+            if (message.status === WEBSOCKET_MESSAGE_STATUS_STARTED) {
+              this.rule_sync = true;
+            }
+            if (message.status === WEBSOCKET_MESSAGE_STATUS_COMPLETED) {
+              this.rule_sync = false;
+            }
+            break;
+          default:
+            break;
         }
       });
   }
@@ -211,7 +232,7 @@ export class CatalogComponent implements OnInit {
           this.api_get_catalog_nodes_();
         },
         (error: HttpErrorResponse) => {
-          const message: string = 'getting application statuses';
+          const message: string = 'retrieving application statuses';
           this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
         });
   }
@@ -237,7 +258,7 @@ export class CatalogComponent implements OnInit {
           this.filter_charts();
         },
         (error: HttpErrorResponse) => {
-          const message: string = 'getting catalog nodes';
+          const message: string = 'retrieving catalog nodes';
           this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
         });
   }

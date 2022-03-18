@@ -19,6 +19,8 @@ import { HOST_BINDING_CLASS_CHART_LIST_COMPONENT } from '../../constants/catalog
 export class ChartListComponent {
   // Chart List passed from parent component
   @Input() charts: ChartClass[];
+  // Rule Sync attribute passed from parent
+  @Input() rule_sync: boolean;
   // Used for setting the host binding class
   @HostBinding('class') private chart_list_component_class_: string;
 

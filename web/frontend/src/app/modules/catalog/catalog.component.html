@@ -18,7 +18,7 @@
       </div>
       <div *ngIf="!is_loading">
         <cvah-chart-list class="charts__gallery__content" fxLayout="row" fxLayoutAlign="space-evenly center"
-                         [charts]="filtered_charts"></cvah-chart-list>
+                         [charts]="filtered_charts" [rule_sync]="rule_sync"></cvah-chart-list>
       </div>
     </mat-card-content>
   </mat-card>

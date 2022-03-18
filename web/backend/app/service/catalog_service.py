@@ -12,7 +12,8 @@ from app.models.settings.kit_settings import GeneralSettingsForm
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.service.system_info_service import get_auth_base
-from app.utils.collections import mongo_catalog_saved_values, mongo_node
+from app.service.rulesync_service import perform_rulesync
+from app.utils.collections import mongo_catalog_saved_values, mongo_node, mongo_ruleset
 from app.utils.connection_mngs import REDIS_CLIENT, KubernetesWrapper
 from app.utils.constants import NODE_TYPES
 from app.utils.logging import logger, rq_logger
@@ -839,7 +840,18 @@ def delete_helm_apps(application: str, namespace: str, nodes: List):
     )
     notification.set_status(status=NotificationCode.COMPLETED.name)
     notification.post_to_websocket_api()
+    if (application.lower() == "suricata"):
+            perform_rulesync()
+    elif (application.lower() == "zeek"):
+            perform_rulesync()
     return response
+
+def _remove_sensor_from_ruleset_assignment(node: str, app_type_to_find: str):
+    rulesets = mongo_ruleset().find({})
+    for ruleset in rulesets:
+        if app_type_to_find in ruleset["appType"].lower():
+            mongo_ruleset().update_one({"_id": ruleset["_id"]},
+                        {'$pull': {"sensors": { "hostname": node} } } )
 
 
 @job("default", connection=REDIS_CLIENT, timeout="30m")
@@ -874,6 +886,11 @@ def delete_helm_command(
                 node,
             )
             notification.set_message(message=message)
+            if "suricata" in application.lower():
+                _remove_sensor_from_ruleset_assignment(node, "suricata")
+            elif "zeek" in application.lower():
+                _remove_sensor_from_ruleset_assignment(node, "zeek")
+
         notification.set_status(status=NotificationCode.UNINSTALLED.name)
         notification.post_to_websocket_api()
 

@@ -104,6 +104,9 @@ export const MIP_PXE_TYPES: string[] = ['SCSI/SATA/USB', 'NVMe'];
 // Websocket
 export const WEBSOCKET_MESSAGE_ROLE_CATALOG: string = 'catalog';
 export const WEBSOCKET_MESSAGE_ROLE_NODE: string = 'node';
+export const WEBSOCKET_MESSAGE_ROLE_RULE_SYNC: string = 'rulesync';
+export const WEBSOCKET_MESSAGE_STATUS_STARTED: string = 'STARTED';
+export const WEBSOCKET_MESSAGE_STATUS_COMPLETED: string = 'COMPLETED';
 export const WEBSOCKET_MESSAGE_MESSAGE_REMOVE_NODE: string = 'Remove Node';
 export const WEBSOCKET_MESSAGE_MESSAGE_ADD_NODE: string = 'Add Node';
 export const WEBSOCKET_MESSAGE_MESSAGE_CREATE_VIRTUAL_MACHINE: string = 'Create Virtual Machine';

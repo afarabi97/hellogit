@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { ChartClass, ObjectUtilitiesClass, StatusClass } from '../../../../classes';
-import { COLORS_DICT, DEPLOYED, FAILED, GREEN, HOVER_COLOR, RED, WHITE, YELLOW } from '../../constants/catalog.constants';
+import { COLORS_DICT, DEPLOYED, FAILED, GREEN, HOVER_COLOR, RED, SURICATA, WHITE, YELLOW, ZEEK } from '../../constants/catalog.constants';
 
 /**
  * Component used for displaying identifiable information
@@ -21,7 +21,10 @@ import { COLORS_DICT, DEPLOYED, FAILED, GREEN, HOVER_COLOR, RED, WHITE, YELLOW }
 export class ApplicationCardComponent implements OnInit {
   // Unique ID passed from parent component to create unique element ids
   @Input() unique_html_id: string;
+  // Charts passed from parent so they can be displayed
   @Input() chart: ChartClass;
+  // Rule Sync attribute passed from parent
+  @Input() rule_sync: boolean;
   hover_color: string;
   hovered: boolean;
 
@@ -120,6 +123,19 @@ export class ApplicationCardComponent implements OnInit {
     } else {
       return WHITE;
     }
+  }
+
+  /**
+   * Used for checking if configure application button is disabled
+   * note: only effets suricata and zeek
+   *       only during rule sync event
+   *
+   * @param {ChartClass} chart
+   * @return {*}  {boolean}
+   * @memberof ApplicationCardComponent
+   */
+  is_disabled(chart: ChartClass): boolean {
+    return ((chart.application.toLowerCase() === ZEEK) || ((chart.application.toLowerCase() === SURICATA))) && this.rule_sync;
   }
 
   /**

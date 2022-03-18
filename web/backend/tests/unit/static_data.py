@@ -812,6 +812,15 @@ zeek_ruleset = {
             "lastModifiedDate" : "2022-02-22 14:33:46"
             }
 
+suricata_ruleset = {
+            "_id" : "9f662724a49d4d228c5486b62d554a4e",
+            "name" : "suricata_test",
+            "clearance" : "Unclassified",
+            "sensors" : [ { "hostname" : "test-sensor.test", "mac" : "9e:7d:02:7d:1c:2a", "management_ip" : "10.40.29.197" } ],
+            "appType" : "Suricata", "isEnabled" : True, "state" : "Dirty", "createdDate" : "2022-02-21 20:39:37",
+            "lastModifiedDate" : "2022-02-22 14:33:46"
+            }
+
 zeek_rule_update = {"_id": "1408f54e2f994d639030dc4d04601efe",
                     "ruleName": "test_zeek_script", "isEnabled": True,
                     "rule_set_id": "ffb76d57576245e2b1466b9368b2a119",

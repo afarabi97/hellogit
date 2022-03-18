@@ -143,3 +143,53 @@ export const MockSavedValueInterfaceSuricata: SavedValueInterface[] = [
       }
   }
 ];
+export const MockSavedValueInterfaceSuricata2: SavedValueInterface[] = [
+  {
+      _id: '620be71c3f30b97dc4f07eb1',
+      application: 'suricata',
+      deployment_name: 'fake-sensor2-suricata',
+      values: {
+          kibana_fqdn: 'kibana.default.svc.cluster.local',
+          kibana_port: 443,
+          elastic_ingest_nodes: [
+              'https://tfplenum-es-data-0.tfplenum-es-data.default.svc.cluster.local:9200',
+              'https://tfplenum-es-data-1.tfplenum-es-data.default.svc.cluster.local:9200',
+              'https://tfplenum-es-data-2.tfplenum-es-data.default.svc.cluster.local:9200',
+              'https://tfplenum-es-data-3.tfplenum-es-data.default.svc.cluster.local:9200'
+          ],
+          logstash_nodes: [],
+          suricata_directory: '/opt/tfplenum/suricata',
+          suricata_threads: '8',
+          home_net: [
+              '192.168.0.0/24'
+          ],
+          external_net: '',
+          interfaces: [
+              'ens224'
+          ],
+          image_name: 'tfplenum/suricata',
+          image_tag: '6.0.0',
+          cpu_request: 1000,
+          affinity_hostname: 'fake-sensor2.fake',
+          suricata_log_path: '/data/suricata',
+          filebeat_image_name: 'beats/filebeat',
+          filebeat_image_tag: '7.15.1',
+          pcapEnabled: false,
+          fpc_path: '/data/pcap',
+          flow: false,
+          shards: 4,
+          hard_disk_drive: true,
+          use_logstash: false,
+          log_types: [
+              'alert',
+              'http',
+              'dns',
+              'tls',
+              'flow',
+              'other'
+          ],
+          node_hostname: 'fake-sensor2.fake',
+          deployment_name: 'fake-sensor2-suricata'
+      }
+  }
+];
