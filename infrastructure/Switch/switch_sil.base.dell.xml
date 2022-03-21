@@ -70,6 +70,20 @@
           <packet-handling>deny</packet-handling>
         </action>
       </rule>
+      <rule>
+        <seq-no>9000</seq-no>
+        <condition>
+          <match-ip>
+            <source-address>10.10.102.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
     </access-list>
     <access-list>
       <name>MANAGEMENTv6</name>
@@ -560,6 +574,95 @@
           <packet-handling>deny</packet-handling>
         </action>
       </rule>
+      <rule>
+        <seq-no>9000</seq-no>
+        <remark>seq 9000-9998 for sil nets</remark>
+      </rule>
+      <rule>
+        <seq-no>9010</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.252.0</destination-mask>
+            <source-address>10.2.2.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9020</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.252.0</destination-mask>
+            <source-address>10.4.4.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9030</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.252.0</destination-mask>
+            <source-address>10.30.0.0</source-address>
+            <source-mask>255.255.0.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9040</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.252.0</destination-mask>
+            <source-address>10.40.0.0</source-address>
+            <source-mask>255.255.0.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9050</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.252.0</destination-mask>
+            <source-address>10.10.0.0</source-address>
+            <source-mask>255.255.0.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
     </access-list>
     <access-list>
       <name>MANAGEMENT_IN</name>
@@ -989,6 +1092,95 @@
         <action>
           <log-enabled>true</log-enabled>
           <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9000</seq-no>
+        <remark>seq 9000-9998 for sil nets</remark>
+      </rule>
+      <rule>
+        <seq-no>9010</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.2.2.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9020</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.4.4.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9030</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.30.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9040</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.40.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9050</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.10.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
         </action>
       </rule>
       <rule>
@@ -1893,7 +2085,96 @@
           <log-enabled>true</log-enabled>
           <packet-handling>deny</packet-handling>
         </action>
-      </rule>      
+      </rule>
+      <rule>
+        <seq-no>9000</seq-no>
+        <remark>seq 9000-9998 for sil nets</remark>
+      </rule>
+      <rule>
+        <seq-no>9010</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.2.2.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9020</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.4.4.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9030</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.30.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9040</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.40.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9050</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.10.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
       <rule>
         <seq-no>570</seq-no>
         <remark>minio back to management (1 line)</remark>
