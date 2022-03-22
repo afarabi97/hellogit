@@ -180,7 +180,7 @@ Install App
 
     ${index} =  Find App index  ${application_name}
 
-    ${app_card_status} =  Set Variable  xpath=//*[@id="cvah-chart-list-div-cvah-application-card-${index}"]/div/div[2]/div[1]/div[2]
+    ${app_card_status} =  Set Variable  xpath=//*[@id="cvah-chart-list-div-cvah-application-card-${index}"]/div/div[2]/div[1]/div[2]/p
     lookForElement  ${app_card_status}
     ${app_status_text} =  Get Text  ${app_card_status}
     ${app_status_text} =  Fetch From Right  ${app_status_text}  :
@@ -313,7 +313,7 @@ Uninstall App
     Navigate To Catalog
     ${index} =  Find App index  ${application_name}
 
-    ${app_card_status} =  Set Variable  xpath=//*[@id="cvah-chart-list-div-cvah-application-card-${index}"]/div/div[2]/div[1]/div[2]
+    ${app_card_status} =  Set Variable  xpath=//*[@id="cvah-chart-list-div-cvah-application-card-${index}"]/div/div[2]/div[1]/div[2]/p
     lookForElement  ${app_card_status}
     ${app_status_text} =  Get Text  ${app_card_status}
     ${app_status_text} =  Fetch From Right  ${app_status_text}  :

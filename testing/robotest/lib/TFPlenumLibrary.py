@@ -8,6 +8,7 @@ from robot.api.deco import library, keyword
 class TFPlenumLibrary:
     CURRENT_USER_ENDPOINT = "/current_user"
     RULESETS_ENDPOINT = "/policy/ruleset"
+    RULE_UPLOAD_ENDPOINT = "/policy/rule/upload"
     SENSOR_INFO_ENDPOINT = "/policy/sensor/info"
     ZEEK_CHART_STATUS_ENDPOINT = "/catalog/chart/zeek/status"
     SURICATA_CHART_STATUS_ENDPOINT = "/catalog/chart/suricata/status"
@@ -208,6 +209,20 @@ class TFPlenumLibrary:
                         return sensor_name
         return None
 
+    @keyword
+    def upload_rule(self, ruleset_name):
+        response = self.api_get_rulesets(jsonify=False)
+        json_response = response.json()
+
+        ruleset_id = ''
+        for ruleset in json_response:
+            if ruleset['name'] == ruleset_name:
+                ruleset_id = ruleset['_id']
+
+        rules_file = {"upload_file": open('/usr/src/robot/mal_md5_robot.txt','rb')}
+        data = {"ruleSetForm": '{"_id": "' + ruleset_id + '"}'}
+        return self.api_post_rule_to_ruleset(file=rules_file, data=data, jsonify=False)
+
     # API Calls (not to be used in robot tests directly)
 
     def api_get_current_user(self, jsonify=True):
@@ -228,7 +243,10 @@ class TFPlenumLibrary:
     def api_get_kit_nodes_info(self, jsonify=True):
         return self.execute_request(self.KIT_NODES_ENDPOINT, jsonify=jsonify)
 
-    def execute_request(self, endpoint, request_type="GET", payload={}, jsonify=True):
+    def api_post_rule_to_ruleset(self, file={}, data={}, jsonify=True):
+        return self.execute_request(self.RULE_UPLOAD_ENDPOINT, request_type="POST", files=file, payload=data, jsonify=jsonify)
+
+    def execute_request(self, endpoint, request_type="GET", files={}, payload={}, jsonify=True):
         self._tfplenum_lib_test_setup()
         # TODO: Actully handle exceptions correctly
         try:
@@ -236,7 +254,7 @@ class TFPlenumLibrary:
             endpoint = endpoint.strip().lstrip("/")
             url = f"{self.BASE_API_URL}/{endpoint}"
             response = requests.request(
-                request_type, url, headers=self.HEADERS, data=payload
+                request_type, url, headers=self.HEADERS, files=files, data=payload
             )
             response.raise_for_status()
         except:

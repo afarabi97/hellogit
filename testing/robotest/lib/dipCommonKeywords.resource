@@ -248,7 +248,8 @@ Wait And Validate Kibana Hits
     lookFor     Discover
     ${curr_date} =  Get Current Date  time_zone=UTC  result_format=%b %d, %Y   #Ex: Mar 16, 2022
     ${locDocTableFirstRowDate} =  Set Variable  xpath=//*[@id="kibana-body"]//tbody/tr[1]/td[2]/div
-    Wait Until Element Contains  ${locDocTableFirstRowDate}  ${curr_date}
+    # Wait Until Element Contains  ${locDocTableFirstRowDate}  ${curr_date}  2m
+    lookForElement  ${locDocTableFirstRowDate}  2m
     shoot       KibanaHits
     Sleep       10s
     shoot       KibinaHitsResults
