@@ -55,20 +55,6 @@
           <packet-handling>deny</packet-handling>
         </action>
       </rule>
-      <rule>
-        <seq-no>15</seq-no>
-        <command-string>permit ip 10.20.139.0/30 any</command-string>
-        <condition>
-          <match-ip>
-            <destination-any>true</destination-any>
-            <source-prefix>10.20.139.0/30</source-prefix>
-            <ip-protocol>4</ip-protocol>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
     </access-list>
     <policy-vty-config>
       <vty-acl>
@@ -105,11 +91,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
         <rx-enable>false</rx-enable>
@@ -142,11 +123,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
         <rx-enable>false</rx-enable>
@@ -179,11 +155,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
         <rx-enable>false</rx-enable>
@@ -216,11 +187,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
         <rx-enable>false</rx-enable>
@@ -253,11 +219,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
         <rx-enable>false</rx-enable>
@@ -290,11 +251,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
         <rx-enable>false</rx-enable>
@@ -327,11 +283,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
         <rx-enable>false</rx-enable>
@@ -364,11 +315,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
         <rx-enable>false</rx-enable>
@@ -401,11 +347,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
         <rx-enable>false</rx-enable>
@@ -438,11 +379,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
         <rx-enable>false</rx-enable>
@@ -475,11 +411,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
         <rx-enable>false</rx-enable>
@@ -512,11 +443,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
         <rx-enable>false</rx-enable>
@@ -548,11 +474,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>false</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
       </lldp>
       <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
@@ -566,11 +487,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>false</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-          <ip-vlan-all-sav-enable>true</ip-vlan-all-sav-enable>
-        </sav>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
       </lldp>
       <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
@@ -585,11 +501,6 @@
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
-      <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <trust>true</trust>
-        <sav/>
-        <dai-trust>true</dai-trust>
-      </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
         <rx-enable>false</rx-enable>
@@ -667,10 +578,6 @@
       <description>Internal</description>
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:l2vlan</type>
-      <dhcp-v4-snooping-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <disable>false</disable>
-        <arp-inspection>true</arp-inspection>
-      </dhcp-v4-snooping-config>
       <ipv6 xmlns="http://www.dellemc.com/networking/os10/dell-ip">
         <ra>
           <hop-limit>32</hop-limit>
@@ -961,7 +868,7 @@
     </system-user>
     <user>
       <name>admin</name>
-      <password>$6$q9QBeYjZ$jfxzVqGhkxX3smxJSH9DDz7/3OJc6m5wjF8nnLD7/VKx8SloIhp4NoGZs0I/UNwh8WVuxwfd9q4pWIgNs5BKH.</password>
+      <password>$6$rounds=656000$B5WrTirvJvje8G95$7Xs13NbzvjAU4kiUGdk3p0G60w4xPsLIYn.G07pVUKGWBNDU1J0ktIGlWd/Tq/EdbVSzREdE31AQpKAvk6aG51</password>
       <group>sysadmin</group>
       <privilege-level>15</privilege-level>
     </user>
