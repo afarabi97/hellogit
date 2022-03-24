@@ -7,6 +7,12 @@
     owner: root
     group: root
 
+- name: Updating ssh banner path
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '#Banner none'
+    replace: "Banner /etc/issue.net"
+
 - name: NetworkManager TFPlenum hook
   copy:
     src: nm-issue-update
