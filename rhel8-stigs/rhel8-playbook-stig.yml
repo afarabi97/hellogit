@@ -1005,10 +1005,11 @@
     name: net.ipv4.conf.default.accept_source_route
     value: 0
 
-- name: "RHEL-08-040260 | MEDIUM | RHEL 8 must not be performing IPv4 packet forwarding unless the system is a router."
-  sysctl:
-    name: net.ipv4.ip_forward
-    value: 0
+# REMOVED because this breaks remote SENSOR! DO NOT ADD IT BACK.
+# - name: "RHEL-08-040260 | MEDIUM | RHEL 8 must not be performing IPv4 packet forwarding unless the system is a router."
+#   sysctl:
+#     name: net.ipv4.ip_forward
+#     value: 0
 
 - name: "RHEL-08-040260 | MEDIUM | RHEL 8 must not be performing IPv6 packet forwarding unless the system is a router."
   lineinfile:

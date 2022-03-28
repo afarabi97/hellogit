@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <pfsense>
-	<version>19.1</version>
+	<version>21.7</version>
 	<lastchange></lastchange>
 	<system>
 		<optimization>normal</optimization>
@@ -101,7 +101,7 @@
 			<ldap_caref>597a2d31db0b5</ldap_caref>
 			<host>collector.dmss</host>
 			<ldap_port>636</ldap_port>
-			<ldap_urltype>SSL - Encrypted</ldap_urltype>
+			<ldap_urltype>SSL/TLS Encrypted</ldap_urltype>
 			<ldap_protver>3</ldap_protver>
 			<ldap_scope>subtree</ldap_scope>
 			<ldap_basedn><![CDATA[dc=dmss]]></ldap_basedn>
@@ -124,6 +124,10 @@
 		<ssh>
 			<enable>enabled</enable>
 		</ssh>
+		<hn_altq_enable></hn_altq_enable>
+		<maxmss_enable></maxmss_enable>
+		<maxmss>1380</maxmss>
+		<pkg_repo_conf_path>/usr/local/share/pfSense/pkg/repos/pfSense-repo.conf</pkg_repo_conf_path>
 	</system>
 	<interfaces>
 		<wan>
@@ -133,9 +137,8 @@
 			<alias-address></alias-address>
 			<alias-subnet>32</alias-subnet>
 			<enable></enable>
-			<ipaddr>10.98.20.3</ipaddr>
-			<subnet>19</subnet>
-			<gateway>ExternalGWNEw</gateway>
+			<ipaddr>172.16.1.6</ipaddr>
+			<subnet>24</subnet>
 		</wan>
 		<lan>
 			<enable></enable>
@@ -164,7 +167,7 @@
 	</interfaces>
 	<staticroutes>
 		<route>
-			<network>10.20.137.0/24</network>
+			<network>10.20.136.0/22</network>
 			<gateway>Core_Switch_P2P</gateway>
 			<descr><![CDATA[INTERNAL Network]]></descr>
 		</route>
@@ -207,14 +210,15 @@
 			<ddnsdomainsecondary></ddnsdomainsecondary>
 			<ddnsdomainkeyalgorithm>hmac-md5</ddnsdomainkeyalgorithm>
 			<ddnsclientupdates>allow</ddnsclientupdates>
-			<ntpserver>10.20.136.1</ntpserver>
+			<enable></enable>
+			<dnsserver>10.20.137.15</dnsserver>
+			<ntpserver>10.20.137.15</ntpserver>
 		</lan>
 		<opt2>
 			<range>
 				<from>10.20.138.224</from>
 				<to>10.20.138.254</to>
 			</range>
-			<enable></enable>
 			<failover_peerip></failover_peerip>
 			<defaultleasetime></defaultleasetime>
 			<maxleasetime></maxleasetime>
@@ -237,6 +241,9 @@
 			<rootpath></rootpath>
 			<numberoptions></numberoptions>
 			<dhcpleaseinlocaltime></dhcpleaseinlocaltime>
+			<ddnsdomainsecondary></ddnsdomainsecondary>
+			<ddnsdomainkeyalgorithm>hmac-md5</ddnsdomainkeyalgorithm>
+			<ddnsclientupdates>allow</ddnsclientupdates>
 		</opt2>
 		<opt3>
 			<range>
@@ -267,6 +274,7 @@
 			<filename64></filename64>
 			<rootpath></rootpath>
 			<numberoptions></numberoptions>
+			<dhcpleaseinlocaltime></dhcpleaseinlocaltime>
 		</opt3>
 	</dhcpd>
 	<snmpd>
@@ -284,6 +292,7 @@
 		<filter_settings>
 			<cronorder>reverse</cronorder>
 		</filter_settings>
+		<reverse></reverse>
 	</syslog>
 	<nat>
 		<outbound>
@@ -352,11 +361,11 @@
 			<descr><![CDATA[Port forwards Winlogbeats client traffic connecting to External to Logstash server]]></descr>
 			<associated-rule-id>nat_5cc1fc988aee34.45304723</associated-rule-id>
 			<updated>
-				<time>1556216984</time>
+				<time>1556208984</time>
 				<username><![CDATA[assessor@10.20.136.50]]></username>
 			</updated>
 			<created>
-				<time>1556216984</time>
+				<time>1556208984</time>
 				<username><![CDATA[assessor@10.20.136.50]]></username>
 			</created>
 		</rule>
@@ -489,7 +498,7 @@
 		</rule>
 		<rule>
 			<id></id>
-			<tracker>1556216984</tracker>
+			<tracker>1556208984</tracker>
 			<type>pass</type>
 			<interface>wan</interface>
 			<ipprotocol>inet</ipprotocol>
@@ -513,7 +522,7 @@
 			<descr><![CDATA[NAT Port forwards Winlogbeats client traffic]]></descr>
 			<associated-rule-id>nat_5cc1fc988aee34.45304723</associated-rule-id>
 			<created>
-				<time>1556216984</time>
+				<time>1556208984</time>
 				<username><![CDATA[NAT Port Forward]]></username>
 			</created>
 			<updated>
@@ -606,7 +615,7 @@
 			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp/udp</protocol>
 			<source>
-				<any></any>
+				<any>lan</any>
 			</source>
 			<destination>
 				<network>lanip</network>
@@ -1097,6 +1106,105 @@
 		</rule>
 		<rule>
 			<id></id>
+			<tracker>1639160128</tracker>
+			<type>pass</type>
+			<interface>opt3</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>icmp</protocol>
+			<icmptype>any</icmptype>
+			<source>
+				<address>10.20.136.0/23</address>
+			</source>
+			<destination>
+				<address>Remote_GIP_Network</address>
+			</destination>
+			<descr><![CDATA[ICMP DIP TO GIP 20 (TESTING)]]></descr>
+			<created>
+				<time>1639160128</time>
+				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
+			</created>
+			<updated>
+				<time>1639168120</time>
+				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
+			</updated>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1639169474</tracker>
+			<type>pass</type>
+			<interface>opt3</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>tcp</protocol>
+			<source>
+				<address>10.20.136.0/23</address>
+			</source>
+			<destination>
+				<address>GIP_MGMT_OPS_SERVICES_NETS</address>
+				<port>DIP_TO_GIP_TCP</port>
+			</destination>
+			<descr><![CDATA[DIP TO GIP TCP (TESTING)]]></descr>
+			<updated>
+				<time>1639169474</time>
+				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1639169474</time>
+				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1639169498</tracker>
+			<type>pass</type>
+			<interface>opt3</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>udp</protocol>
+			<source>
+				<address>10.20.136.0/23</address>
+			</source>
+			<destination>
+				<address>GIP_MGMT_OPS_SERVICES_NETS</address>
+				<port>DIP_TO_GIP_UDP</port>
+			</destination>
+			<descr><![CDATA[DIP TO GIP UDP (TESTING)]]></descr>
+			<updated>
+				<time>1639169498</time>
+				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1639169498</time>
+				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
 			<tracker>1623942525</tracker>
 			<type>pass</type>
 			<interface>opt3</interface>
@@ -1280,7 +1388,7 @@
 				<network>lan</network>
 			</source>
 			<destination>
-				<network>lanip</network>
+				<network>lan</network>
 				<port>53</port>
 			</destination>
 			<descr><![CDATA[Allow DNS from Management net to Management address]]></descr>
@@ -1438,8 +1546,7 @@
 			<enc0></enc0>
 		</separator>
 	</filter>
-	<shaper>
-	</shaper>
+	<shaper></shaper>
 	<ipsec>
 		<phase1>
 			<ikeid>1</ikeid>
@@ -1458,20 +1565,26 @@
 						<keylen>256</keylen>
 					</encryption-algorithm>
 					<hash-algorithm>sha256</hash-algorithm>
+					<prf-algorithm>md5</prf-algorithm>
 					<dhgroup>14</dhgroup>
 				</item>
 			</encryption>
-			<lifetime>28800</lifetime>
+			<lifetime>86400</lifetime>
+			<rekey_time>77760</rekey_time>
+			<reauth_time>77760</reauth_time>
+			<rand_time>8640</rand_time>
 			<pre-shared-key>1qaz2wsx!QAZ@WSX</pre-shared-key>
 			<private-key></private-key>
 			<certref></certref>
+			<pkcs11certref></pkcs11certref>
+			<pkcs11pin></pkcs11pin>
 			<caref></caref>
 			<authentication_method>pre_shared_key</authentication_method>
 			<descr><![CDATA[Remote GIP]]></descr>
 			<nat_traversal>on</nat_traversal>
 			<mobike>off</mobike>
-			<closeaction></closeaction>
-			<rekey_enable></rekey_enable>
+			<startaction></startaction>
+			<closeaction>start</closeaction>
 			<dpd_delay>10</dpd_delay>
 			<dpd_maxfail>5</dpd_maxfail>
 			<splitconn></splitconn>
@@ -1479,13 +1592,13 @@
 		<client></client>
 		<phase2>
 			<ikeid>1</ikeid>
-			<uniqid>5d1117c4182e6</uniqid>
+			<uniqid>61b38069a236e</uniqid>
 			<mode>tunnel</mode>
-			<reqid>1</reqid>
+			<reqid>2</reqid>
 			<localid>
 				<type>network</type>
 				<address>10.20.136.0</address>
-				<netbits>22</netbits>
+				<netbits>24</netbits>
 			</localid>
 			<remoteid>
 				<type>network</type>
@@ -1499,10 +1612,119 @@
 			</encryption-algorithm-option>
 			<hash-algorithm-option>hmac_sha256</hash-algorithm-option>
 			<pfsgroup>14</pfsgroup>
-			<lifetime>3600</lifetime>
+			<lifetime>28800</lifetime>
+			<rekey_time>25920</rekey_time>
+			<rand_time>2880</rand_time>
 			<pinghost>10.20.3.1</pinghost>
-			<descr><![CDATA[Remote GIP to DIP Internal]]></descr>
+			<descr><![CDATA[MGMT TO GIP 20]]></descr>
 		</phase2>
+		<phase2>
+			<ikeid>1</ikeid>
+			<uniqid>61b380cbc524d</uniqid>
+			<mode>tunnel</mode>
+			<reqid>3</reqid>
+			<localid>
+				<type>network</type>
+				<address>10.20.137.0</address>
+				<netbits>24</netbits>
+			</localid>
+			<remoteid>
+				<type>network</type>
+				<address>10.20.0.0</address>
+				<netbits>17</netbits>
+			</remoteid>
+			<protocol>esp</protocol>
+			<encryption-algorithm-option>
+				<name>aes</name>
+				<keylen>256</keylen>
+			</encryption-algorithm-option>
+			<hash-algorithm-option>hmac_sha256</hash-algorithm-option>
+			<pfsgroup>14</pfsgroup>
+			<lifetime>28800</lifetime>
+			<rekey_time>25920</rekey_time>
+			<rand_time>2880</rand_time>
+			<pinghost>10.20.3.1</pinghost>
+			<descr><![CDATA[INT TO GIP 20]]></descr>
+		</phase2>
+		<phase2>
+			<ikeid>1</ikeid>
+			<uniqid>61b380f6a3200</uniqid>
+			<mode>tunnel</mode>
+			<reqid>1</reqid>
+			<localid>
+				<type>network</type>
+				<address>10.20.138.0</address>
+				<netbits>24</netbits>
+			</localid>
+			<remoteid>
+				<type>network</type>
+				<address>10.20.0.0</address>
+				<netbits>17</netbits>
+			</remoteid>
+			<protocol>esp</protocol>
+			<encryption-algorithm-option>
+				<name>aes</name>
+				<keylen>256</keylen>
+			</encryption-algorithm-option>
+			<hash-algorithm-option>hmac_sha256</hash-algorithm-option>
+			<pfsgroup>14</pfsgroup>
+			<lifetime>28800</lifetime>
+			<rekey_time>25920</rekey_time>
+			<rand_time>2880</rand_time>
+			<pinghost>10.20.2.1</pinghost>
+			<descr><![CDATA[DMZ TO GIP 20]]></descr>
+		</phase2>
+		<phase2>
+			<ikeid>1</ikeid>
+			<uniqid>61b3819d7726c</uniqid>
+			<mode>tunnel</mode>
+			<reqid>4</reqid>
+			<localid>
+				<type>network</type>
+				<address>10.20.139.0</address>
+				<netbits>24</netbits>
+			</localid>
+			<remoteid>
+				<type>network</type>
+				<address>10.20.0.0</address>
+				<netbits>17</netbits>
+			</remoteid>
+			<protocol>esp</protocol>
+			<encryption-algorithm-option>
+				<name>aes</name>
+				<keylen>256</keylen>
+			</encryption-algorithm-option>
+			<hash-algorithm-option>hmac_sha256</hash-algorithm-option>
+			<pfsgroup>14</pfsgroup>
+			<lifetime>28800</lifetime>
+			<rekey_time>25920</rekey_time>
+			<rand_time>2880</rand_time>
+			<pinghost>10.20.3.1</pinghost>
+			<descr><![CDATA[SPARE TO GIP 20]]></descr>
+		</phase2>
+		<vtimaps></vtimaps>
+		<logging>
+			<dmn>1</dmn>
+			<mgr>1</mgr>
+			<ike>2</ike>
+			<chd>2</chd>
+			<job>1</job>
+			<cfg>2</cfg>
+			<knl>1</knl>
+			<net>1</net>
+			<asn>1</asn>
+			<enc>1</enc>
+			<imc>1</imc>
+			<imv>1</imv>
+			<pts>1</pts>
+			<tls>1</tls>
+			<esp>1</esp>
+			<lib>1</lib>
+		</logging>
+		<async_crypto>disabled</async_crypto>
+		<uniqueids>replace</uniqueids>
+		<filtermode>enc</filtermode>
+		<bypassrules></bypassrules>
 	</ipsec>
 	<aliases>
 		<alias>
@@ -1511,6 +1733,20 @@
 			<address>10.20.137.15</address>
 			<descr></descr>
 			<detail><![CDATA[Entry added Fri, 13 Mar 2020 02:06:45 +0000]]></detail>
+		</alias>
+		<alias>
+			<name>DIP_TO_GIP_TCP</name>
+			<type>port</type>
+			<address>22 443 3033 135:139 445</address>
+			<descr><![CDATA[DIP TO GIP TCP PORTS]]></descr>
+			<detail><![CDATA[Entry added Fri, 10 Dec 2021 20:31:29 +0000||Entry added Fri, 10 Dec 2021 20:31:29 +0000||Entry added Fri, 10 Dec 2021 20:31:29 +0000||Entry added Fri, 10 Dec 2021 20:31:29 +0000||Entry added Fri, 10 Dec 2021 20:31:29 +0000]]></detail>
+		</alias>
+		<alias>
+			<name>DIP_TO_GIP_UDP</name>
+			<type>port</type>
+			<address>135:139 445</address>
+			<descr><![CDATA[DIP TO GIP UDP PORTS]]></descr>
+			<detail><![CDATA[Entry added Fri, 10 Dec 2021 20:31:59 +0000||Entry added Fri, 10 Dec 2021 20:31:59 +0000]]></detail>
 		</alias>
 		<alias>
 			<name>Elasticsearch</name>
@@ -1539,6 +1775,13 @@
 			<address>443</address>
 			<descr><![CDATA[Allows Endgame clients to communicate to the Endgame server through port forwarding]]></descr>
 			<detail><![CDATA[Arbitrary port set in sensor configuration]]></detail>
+		</alias>
+		<alias>
+			<name>GIP_MGMT_OPS_SERVICES_NETS</name>
+			<type>network</type>
+			<address>10.20.2.0/24 10.20.3.0/24 10.20.4.0/24</address>
+			<descr><![CDATA[REMOTE GIP NETWORKS - MGMT OPS SERVICES]]></descr>
+			<detail><![CDATA[MGMT||OPS||SERVICES]]></detail>
 		</alias>
 		<alias>
 			<name>INTERNAL_net</name>
@@ -1571,9 +1814,23 @@
 		<alias>
 			<name>MPNet</name>
 			<type>network</type>
-			<address>172.16.71.0/24 172.16.70.0/24 172.16.72.0/24 10.30.202.0/24 10.98.20.75/32</address>
+			<address>172.16.71.0/24 172.16.70.0/24 172.16.72.0/24</address>
 			<descr><![CDATA[Defines Mission Partner Network Range(s)]]></descr>
-			<detail><![CDATA[Desired MP Network (Example)||Desired MP Network (Example)||Desired MP Network (Example)||Target_Endpoints||Remote_Sensor]]></detail>
+			<detail><![CDATA[Desired MP Network (Example)||Desired MP Network (Example)||Desired MP Network (Example)]]></detail>
+		</alias>
+		<alias>
+			<name>MPNET_DNS</name>
+			<type>host</type>
+			<address>10.10.101.248</address>
+			<descr><![CDATA[IP Address for Mission Partner Network DNS Server. Remember this will also require ACL switch changes. ]]></descr>
+			<detail><![CDATA[Mission Partner DNS Server]]></detail>
+		</alias>
+		<alias>
+			<name>MPNET_NTP</name>
+			<type>host</type>
+			<address>10.10.101.248</address>
+			<descr><![CDATA[IP Address for Mission Partner Network NTP Server. Remember this will also require ACL switch changes. ]]></descr>
+			<detail><![CDATA[Mission Partner NTP Server]]></detail>
 		</alias>
 		<alias>
 			<name>Network_Services_UDP</name>
@@ -1604,25 +1861,18 @@
 			<detail><![CDATA[TFP Controller]]></detail>
 		</alias>
 		<alias>
-			<name>Remote_GIP</name>
+			<name>Remote_GIP_EXTERNAL_IP</name>
 			<type>host</type>
 			<address>10.10.220.4</address>
 			<descr><![CDATA[IP Address for Remote GIP WAN ]]></descr>
 			<detail><![CDATA[Remote GIP WAN IP]]></detail>
 		</alias>
 		<alias>
-			<name>MPNET_DNS</name>
-			<type>host</type>
-			<address>10.10.101.248</address>
-			<descr><![CDATA[IP Address for Mission Partner Network DNS Server. Remember this will also require ACL switch changes. ]]></descr>
-			<detail><![CDATA[Mission Partner DNS Server]]></detail>
-		</alias>
-		<alias>
-			<name>MPNET_NTP</name>
-			<type>host</type>
-			<address>10.10.101.248</address>
-			<descr><![CDATA[IP Address for Mission Partner Network NTP Server. Remember this will also require ACL switch changes. ]]></descr>
-			<detail><![CDATA[Mission Partner NTP Server]]></detail>
+			<name>Remote_GIP_Network</name>
+			<type>network</type>
+			<address>10.20.0.0/17</address>
+			<descr><![CDATA[GIP 20]]></descr>
+			<detail><![CDATA[GIP 20]]></detail>
 		</alias>
 		<alias>
 			<name>Remote_Operations_Ports</name>
@@ -1744,55 +1994,48 @@
 			<who>root</who>
 			<command>/usr/bin/nice -n20 /etc/rc.update_pkg_metadata</command>
 		</item>
+		<item>
+			<minute>*/1</minute>
+			<hour>*</hour>
+			<mday>*</mday>
+			<month>*</month>
+			<wday>*</wday>
+			<who>root</who>
+			<command>/usr/sbin/newsyslog</command>
+		</item>
+		<item>
+			<minute>1</minute>
+			<hour>3</hour>
+			<mday>*</mday>
+			<month>*</month>
+			<wday>*</wday>
+			<who>root</who>
+			<command>/etc/rc.periodic daily</command>
+		</item>
+		<item>
+			<minute>15</minute>
+			<hour>4</hour>
+			<mday>*</mday>
+			<month>*</month>
+			<wday>6</wday>
+			<who>root</who>
+			<command>/etc/rc.periodic weekly</command>
+		</item>
+		<item>
+			<minute>30</minute>
+			<hour>5</hour>
+			<mday>1</mday>
+			<month>*</month>
+			<wday>*</wday>
+			<who>root</who>
+			<command>/etc/rc.periodic monthly</command>
+		</item>
 	</cron>
 	<wol></wol>
 	<rrd>
 		<enable></enable>
 		<category>left=system-processor&amp;right=&amp;resolution=300&amp;timePeriod=-1d&amp;startDate=&amp;endDate=&amp;startTime=0&amp;endTime=0&amp;graphtype=line&amp;invert=true&amp;refresh-interval=0</category>
 	</rrd>
-	<load_balancer>
-		<monitor_type>
-			<name>ICMP</name>
-			<type>icmp</type>
-			<descr><![CDATA[ICMP]]></descr>
-			<options></options>
-		</monitor_type>
-		<monitor_type>
-			<name>TCP</name>
-			<type>tcp</type>
-			<descr><![CDATA[Generic TCP]]></descr>
-			<options></options>
-		</monitor_type>
-		<monitor_type>
-			<name>HTTP</name>
-			<type>http</type>
-			<descr><![CDATA[Generic HTTP]]></descr>
-			<options>
-				<path>/</path>
-				<host></host>
-				<code>200</code>
-			</options>
-		</monitor_type>
-		<monitor_type>
-			<name>HTTPS</name>
-			<type>https</type>
-			<descr><![CDATA[Generic HTTPS]]></descr>
-			<options>
-				<path>/</path>
-				<host></host>
-				<code>200</code>
-			</options>
-		</monitor_type>
-		<monitor_type>
-			<name>SMTP</name>
-			<type>send</type>
-			<descr><![CDATA[Generic SMTP]]></descr>
-			<options>
-				<send></send>
-				<expect>220 *</expect>
-			</options>
-		</monitor_type>
-	</load_balancer>
 	<widgets>
 		<sequence>interfaces:col1:open:0,services_status:col1:open:0,ntp_status:col1:open:0,system_information:col1:open:0,ipsec:col2:open:0,gateways:col2:open:0,log:col2:open:0,traffic_graphs:col3:open:0</sequence>
 		<period>10</period>
@@ -1814,15 +2057,14 @@
 			<filterlogentriesinterval>30</filterlogentriesinterval>
 		</log-0>
 		<services_status-0>
-			<filter>dhcpd</filter>
+			<filter></filter>
 			<descr><![CDATA[Services Status]]></descr>
 		</services_status-0>
 		<system_information-0>
 			<filter>name,system,bios,platform,cpu_type,hwcrypto,mbuf_usage</filter>
 		</system_information-0>
 	</widgets>
-	<dnshaper>
-	</dnshaper>
+	<dnshaper></dnshaper>
 	<unbound>
 		<active_interface>all</active_interface>
 		<outgoing_interface>opt3</outgoing_interface>
@@ -1834,7 +2076,7 @@
 		<system_domain_local_zone_type>transparent</system_domain_local_zone_type>
 		<acls>
 			<aclid>0</aclid>
-			<aclname>Allow Internal</aclname>
+			<aclname><![CDATA[Allow Internal]]></aclname>
 			<aclaction>allow</aclaction>
 			<description></description>
 			<row>
@@ -1881,17 +2123,18 @@
 			<descr><![CDATA[Switch IP Address for Management]]></descr>
 			<aliases></aliases>
 		</hosts>
-		<sslport></sslport>
 		<sslcertref>594cecb4cca0a</sslcertref>
 		<enable></enable>
+		<tlsport></tlsport>
 	</unbound>
 	<dyndnses></dyndnses>
 	<revision>
-		<time>1636652347</time>
-		<description><![CDATA[assessor@10.2.2.49 (Local Database): Firewall: Rules - saved/edited a firewall rule.]]></description>
-		<username><![CDATA[assessor@10.2.2.49 (Local Database)]]></username>
+		<time>1648676590</time>
+		<description><![CDATA[assessor@10.20.148.243 (Local Database): Interfaces settings changed]]></description>
+		<username><![CDATA[assessor@10.20.148.243 (Local Database)]]></username>
 	</revision>
-	<ppps></ppps>
+	<ppps>
+	</ppps>
 	<ntpd>
 		<interface>opt3</interface>
 		<gps>
@@ -1911,14 +2154,6 @@
 	</ntpd>
 	<gateways>
 		<gateway_item>
-			<interface>wan</interface>
-			<gateway>10.98.0.1</gateway>
-			<name>ExternalGWNEw</name>
-			<weight></weight>
-			<ipprotocol>inet</ipprotocol>
-			<descr><![CDATA[new def ext gw]]></descr>
-		</gateway_item>
-		<gateway_item>
 			<interface>opt3</interface>
 			<gateway>10.20.139.1</gateway>
 			<name>Core_Switch_P2P</name>
@@ -1926,7 +2161,16 @@
 			<ipprotocol>inet</ipprotocol>
 			<descr></descr>
 		</gateway_item>
-		<defaultgw4>ExternalGWNEw</defaultgw4>
+		<gateway_item>
+			<interface>wan</interface>
+			<gateway>10.10.3.254</gateway>
+			<name>ExternalGW</name>
+			<weight></weight>
+			<ipprotocol>inet</ipprotocol>
+			<descr><![CDATA[New_SIL_GW_for_DIPS]]></descr>
+		</gateway_item>
+		<defaultgw4>ExternalGW</defaultgw4>
+		<defaultgw6></defaultgw6>
 	</gateways>
 	<vlans></vlans>
 	<openvpn></openvpn>
@@ -1986,4 +2230,53 @@
 	</sysctl>
 	<virtualip></virtualip>
 	<dhcpdv6></dhcpdv6>
+	<installedpackages>
+		<package>
+			<name>Open-VM-Tools</name>
+			<descr><![CDATA[VMware Tools is a suite of utilities that enhances the performance of the virtual machine's guest operating system and improves management of the virtual machine.]]></descr>
+			<website>http://open-vm-tools.sourceforge.net/</website>
+			<version>10.1.0_5,1</version>
+			<pkginfolink>https://docs.netgate.com/pfsense/en/latest/packages/open-vm-tools.html</pkginfolink>
+			<configurationfile>open-vm-tools.xml</configurationfile>
+			<logging>
+				<logfilename>vmware-vmsvc-root.log</logfilename>
+			</logging>
+			<include_file>/usr/local/pkg/open-vm-tools.inc</include_file>
+		</package>
+		<package>
+			<name>OpenVPN Client Export Utility</name>
+			<internal_name>openvpn-client-export</internal_name>
+			<descr><![CDATA[Allows a pre-configured OpenVPN Windows Client or Mac OS X's Viscosity configuration bundle to be exported directly from pfSense.]]></descr>
+			<version>1.6_4</version>
+			<configurationfile>openvpn-client-export.xml</configurationfile>
+			<tabs>
+				<tab>
+					<name>Client Export</name>
+					<tabgroup>OpenVPN</tabgroup>
+					<url>/vpn_openvpn_export.php</url>
+				</tab>
+				<tab>
+					<name>Shared Key Export</name>
+					<tabgroup>OpenVPN</tabgroup>
+					<url>/vpn_openvpn_export_shared.php</url>
+				</tab>
+			</tabs>
+			<include_file>/usr/local/pkg/openvpn-client-export.inc</include_file>
+		</package>
+		<vpn_openvpn_export>
+			<config></config>
+		</vpn_openvpn_export>
+		<service>
+			<name>vmware-guestd</name>
+			<rcfile>vmware-guestd.sh</rcfile>
+			<custom_php_service_status_command>mwexec(&quot;/usr/local/etc/rc.d/vmware-guestd status&quot;) == 0;</custom_php_service_status_command>
+			<description><![CDATA[VMware Guest Daemon]]></description>
+		</service>
+		<service>
+			<name>vmware-kmod</name>
+			<rcfile>vmware-kmod.sh</rcfile>
+			<custom_php_service_status_command>mwexec(&quot;/usr/local/etc/rc.d/vmware-kmod status&quot;) == 0;</custom_php_service_status_command>
+			<description><![CDATA[VMware Kernel Modules]]></description>
+		</service>
+	</installedpackages>
 </pfsense>

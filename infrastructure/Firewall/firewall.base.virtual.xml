@@ -2250,6 +2250,26 @@
 			</logging>
 			<include_file>/usr/local/pkg/open-vm-tools.inc</include_file>
 		</package>
+		<package>
+			<name>OpenVPN Client Export Utility</name>
+			<internal_name>openvpn-client-export</internal_name>
+			<descr><![CDATA[Allows a pre-configured OpenVPN Windows Client or Mac OS X's Viscosity configuration bundle to be exported directly from pfSense.]]></descr>
+			<version>1.6_4</version>
+			<configurationfile>openvpn-client-export.xml</configurationfile>
+			<tabs>
+				<tab>
+					<name>Client Export</name>
+					<tabgroup>OpenVPN</tabgroup>
+					<url>/vpn_openvpn_export.php</url>
+				</tab>
+				<tab>
+					<name>Shared Key Export</name>
+					<tabgroup>OpenVPN</tabgroup>
+					<url>/vpn_openvpn_export_shared.php</url>
+				</tab>
+			</tabs>
+			<include_file>/usr/local/pkg/openvpn-client-export.inc</include_file>
+		</package>
 		<service>
 			<name>vmware-guestd</name>
 			<rcfile>vmware-guestd.sh</rcfile>
@@ -2262,5 +2282,8 @@
 			<custom_php_service_status_command>mwexec(&quot;/usr/local/etc/rc.d/vmware-kmod status&quot;) == 0;</custom_php_service_status_command>
 			<description><![CDATA[VMware Kernel Modules]]></description>
 		</service>
+		<vpn_openvpn_export>
+			<config></config>
+		</vpn_openvpn_export>
 	</installedpackages>
 </pfsense>

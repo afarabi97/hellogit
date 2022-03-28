@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config
   xmlns:ncx="http://netconfcentral.org/ns/yuma-ncx"
-  ncx:last-modified="2022-03-22T14:47:00Z" ncx:etag="6202"
+  ncx:last-modified="2022-03-28T14:57:08Z" ncx:etag="6319"
   xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
   <aaa xmlns="http://www.dellemc.com/networking/os10/dell-system">
     <authentication>
@@ -322,27 +322,6 @@
         </action>
       </rule>
       <rule>
-        <seq-no>160</seq-no>
-        <remark>Unable to filter by icmp types so allowing icmp (1 line)</remark>
-      </rule>
-      <rule>
-        <seq-no>170</seq-no>
-        <condition>
-          <match-ip>
-            <destination-address>10.20.139.1</destination-address>
-            <destination-mask>255.255.255.255</destination-mask>
-            <source-address>10.20.139.2</source-address>
-            <source-mask>255.255.255.255</source-mask>
-            <src-address-format>host</src-address-format>
-            <dst-address-format>host</dst-address-format>
-            <ip-protocol>1</ip-protocol>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
         <seq-no>180</seq-no>
         <remark>Endgame to elasticsearch (1 line)</remark>
       </rule>
@@ -558,6 +537,48 @@
         <action>
           <log-enabled>true</log-enabled>
           <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>320</seq-no>
+        <remark>Needed since pfsense MGMT traffic being punted over P2P</remark>
+      </rule>
+      <rule>
+        <seq-no>330</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>160</seq-no>
+        <remark>icmp allowed internally to kit</remark>
+      </rule>
+      <rule>
+        <seq-no>170</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.252.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.252.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>1</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
         </action>
       </rule>
     </access-list>
@@ -830,48 +851,6 @@
         </action>
       </rule>
       <rule>
-        <seq-no>200</seq-no>
-        <remark>allow ping/trace to internal network from management (1 line)</remark>
-      </rule>
-      <rule>
-        <seq-no>210</seq-no>
-        <condition>
-          <match-ip>
-            <destination-address>10.20.137.0</destination-address>
-            <destination-mask>255.255.255.0</destination-mask>
-            <source-address>10.20.136.0</source-address>
-            <source-mask>255.255.255.0</source-mask>
-            <src-address-format>prefix</src-address-format>
-            <dst-address-format>prefix</dst-address-format>
-            <ip-protocol>1</ip-protocol>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>220</seq-no>
-        <remark>allow ping/trace to dmz network from management (1 line)</remark>
-      </rule>
-      <rule>
-        <seq-no>230</seq-no>
-        <condition>
-          <match-ip>
-            <destination-address>10.20.138.0</destination-address>
-            <destination-mask>255.255.255.0</destination-mask>
-            <source-address>10.20.136.0</source-address>
-            <source-mask>255.255.255.0</source-mask>
-            <src-address-format>prefix</src-address-format>
-            <dst-address-format>prefix</dst-address-format>
-            <ip-protocol>1</ip-protocol>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
         <seq-no>240</seq-no>
         <remark>management to controller dns (1 line)</remark>
       </rule>
@@ -995,9 +974,9 @@
         <seq-no>80</seq-no>
         <condition>
           <match-ip>
-            <destination-address>10.20.149.0</destination-address>
+            <destination-address>10.20.137.0</destination-address>
             <destination-mask>255.255.255.0</destination-mask>
-            <source-address>10.20.148.0</source-address>
+            <source-address>10.20.136.0</source-address>
             <source-mask>255.255.255.0</source-mask>
             <src-address-format>prefix</src-address-format>
             <dst-address-format>prefix</dst-address-format>
@@ -1022,9 +1001,9 @@
         <seq-no>320</seq-no>
         <condition>
           <match-ip>
-            <destination-address>10.20.149.0</destination-address>
+            <destination-address>10.20.137.0</destination-address>
             <destination-mask>255.255.255.0</destination-mask>
-            <source-address>10.20.148.0</source-address>
+            <source-address>10.20.136.0</source-address>
             <source-mask>255.255.255.0</source-mask>
             <src-address-format>prefix</src-address-format>
             <dst-address-format>prefix</dst-address-format>
@@ -1035,6 +1014,27 @@
                 <comparator>eq</comparator>
               </source-port-range>
             </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>200</seq-no>
+        <remark>icmp allowed internally to kit</remark>
+      </rule>
+      <rule>
+        <seq-no>210</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.252.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.252.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>1</ip-protocol>
           </match-ip>
         </condition>
         <action>
@@ -1893,7 +1893,7 @@
           <log-enabled>true</log-enabled>
           <packet-handling>deny</packet-handling>
         </action>
-      </rule>      
+      </rule>
       <rule>
         <seq-no>570</seq-no>
         <remark>minio back to management (1 line)</remark>
@@ -1902,9 +1902,9 @@
         <seq-no>580</seq-no>
         <condition>
           <match-ip>
-            <destination-address>10.20.148.0</destination-address>
+            <destination-address>10.20.136.0</destination-address>
             <destination-mask>255.255.255.0</destination-mask>
-            <source-address>10.20.149.0</source-address>
+            <source-address>10.20.137.0</source-address>
             <source-mask>255.255.255.0</source-mask>
             <src-address-format>prefix</src-address-format>
             <dst-address-format>prefix</dst-address-format>
@@ -1929,9 +1929,9 @@
         <seq-no>600</seq-no>
         <condition>
           <match-ip>
-            <destination-address>10.20.148.0</destination-address>
+            <destination-address>10.20.136.0</destination-address>
             <destination-mask>255.255.255.0</destination-mask>
-            <source-address>10.20.149.0</source-address>
+            <source-address>10.20.137.0</source-address>
             <source-mask>255.255.255.0</source-mask>
             <src-address-format>prefix</src-address-format>
             <dst-address-format>prefix</dst-address-format>
@@ -1942,6 +1942,27 @@
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>610</seq-no>
+        <remark>icmp allowed internally to kit</remark>
+      </rule>
+      <rule>
+        <seq-no>620</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.252.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.252.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>1</ip-protocol>
           </match-ip>
         </condition>
         <action>
@@ -1977,7 +1998,6 @@
   <dns-resolver xmlns="http://www.dellemc.com/networking/os10/dell-dns">
     <vrf>default</vrf>
     <hostname>lan</hostname>
-    <server>10.20.137.40</server>
     <server>10.20.137.15</server>
   </dns-resolver>
   <errdisable xmlns="http://www.dellemc.com/networking/os10/dell-system">
@@ -3022,9 +3042,6 @@
   </nacm>
   <ntp-config xmlns="http://www.dellemc.com/networking/os10/dell-ntp">
     <servers>
-      <server>
-        <address>10.20.137.40</address>
-      </server>
       <server>
         <address>10.20.137.15</address>
         <prefer>true</prefer>

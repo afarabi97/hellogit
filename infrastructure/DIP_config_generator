@@ -112,8 +112,6 @@ def prompts():
                 config = ["firewall", "switch", "aux-switch"]
             elif choice == 6:
                 config = ["virtual_firewall"]
-            elif choice == 99:
-                config = ["firewall", "sil_switch", "aux-switch"]
             else:
                 print("Invalid selection. Please try again.")
                 continue
@@ -164,8 +162,6 @@ def main():
         Path(folder).mkdir(parents=False, exist_ok=True)
         if "switch" in config:
             write_switch_config(global_kit_id, folder)
-        if "sil_switch" in config:
-            write_switch_config(global_kit_id, folder, "Switch/switch_sil.base.dell.xml")
         if "aux-switch" in config:
             write_aux_switch_config(global_kit_id, folder)
         if "firewall" in config:
