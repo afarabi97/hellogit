@@ -68,40 +68,42 @@ export class HealthDashboardNodeTableComponent implements OnChanges {
     }
 
     reload() {
-      if (this.token && this.token.token == null) {
-        this.nodes = [];
-        return;
-      }
-      this.health_service.get_nodes_status(this.token).subscribe(
-        data => {
-          this.nodes = data;
-          this.health_service.write_rejects(this.token).subscribe(rejects => {
-            this.health_service.suricata_pckt_stats(this.token).subscribe(suricata_data => {
-              this.health_service.zeek_pckt_stats(this.token).subscribe(zeek_data => {
-                this.nodes = this.nodes.map(node => {
-                    node['app_data'] = [];
-                    zeek_data.map(data2 => {
-                      if (data2['node_name'] === node['name']) {
-                        node['app_data'].push(data2);
+      if (this.expandedElement.length == 0) {
+        if (this.token && this.token.token == null) {
+          this.nodes = [];
+          return;
+        }
+        this.health_service.get_nodes_status(this.token).subscribe(
+          data => {
+            this.nodes = data;
+            this.health_service.write_rejects(this.token).subscribe(rejects => {
+              this.health_service.suricata_pckt_stats(this.token).subscribe(suricata_data => {
+                this.health_service.zeek_pckt_stats(this.token).subscribe(zeek_data => {
+                  this.nodes = this.nodes.map(node => {
+                      node['app_data'] = [];
+                      zeek_data.map(data2 => {
+                        if (data2['node_name'] === node['name']) {
+                          node['app_data'].push(data2);
+                        }
+                      });
+                      suricata_data.map(data3 => {
+                        if (data3['node_name'] === node['name']) {
+                          node['app_data'].push(data3);
+                        }
+                      });
+                      if (node['type'] === 'server') {
+                        node['write_rejects'] = rejects;
                       }
-                    });
-                    suricata_data.map(data3 => {
-                      if (data3['node_name'] === node['name']) {
-                        node['app_data'].push(data3);
-                      }
-                    });
-                    if (node['type'] === 'server') {
-                      node['write_rejects'] = rejects;
-                    }
-                    return node;
+                      return node;
+                  });
                 });
               });
             });
-          });
-        },
-        error => {
-          this.nodes = [];
-        }
-      );
+          },
+          error => {
+            this.nodes = [];
+          }
+        );
+      }
     }
 }
