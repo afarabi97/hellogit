@@ -56,8 +56,8 @@ CPT:
 
 - app: Kali Linux VM
   src:
-    - Repo/CPT/VMs/Kali Linux VM/2021.1/Kali.ova
-    - Repo/CPT/VMs/Kali Linux VM/2021.1/ReadMe.txt
+    - Repo/CPT/VMs/Kali Linux VM/2021.3/Kali.ova
+    - Repo/CPT/VMs/Kali Linux VM/2021.3/ReadMe.txt
   dest: staging/v3.7/CPT/Data/CVAH 3.7/Software/VMs/Kali Linux VM
 
 - app: Mockingbird
