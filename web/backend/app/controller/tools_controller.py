@@ -284,7 +284,7 @@ class ElasticLicense(Resource):
         except Exception as e:
             logger.exception(e)
             return {
-                "error_message": "Something getting the Elastic license.  See the logs."
+                "error_message": "Something went wrong getting the Elastic license.  See the logs."
             }, 500
 
 
