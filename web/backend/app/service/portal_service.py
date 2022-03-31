@@ -38,9 +38,7 @@ def get_app_credentials(app: str, user_key: str, pass_key: str):
 
 def _append_portal_link(name: str, kit_domain: str, ip: str = None):
     logins = ""
-    if name == "arkime":
-        logins = get_app_credentials("arkime-viewer", "username", "password")
-    elif name == "hive":
+    if name == "hive":
         logins = get_app_credentials(
             "hive", "superadmin_username", "superadmin_password"
         )
@@ -53,8 +51,6 @@ def _append_portal_link(name: str, kit_domain: str, ip: str = None):
         logins = "elastic/{}".format(password)
     elif name == "redmine":
         logins = "admin/admin"
-    elif name == "misp":
-        logins = get_app_credentials("misp", "admin_user", "admin_pass")
     elif name == "wikijs":
         logins = get_app_credentials("wikijs", "admin_email", "admin_pass")
     elif name == "mattermost":

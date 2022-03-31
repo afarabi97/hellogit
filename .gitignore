@@ -91,5 +91,5 @@ pytestdebug.log
 pytest_bdd_logs.log
 web/backend/*.xml
 web/frontend/*.xml
-
-
+.hypothesis/*
+Dockerfile.local*

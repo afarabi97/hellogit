@@ -198,6 +198,7 @@ Install App
     Wait Until Element Is Visible  ${locInstallButton}
     click  ${locInstallButton}
     Wait Until Element Contains  ${locSelectProcessDropdown}  Install
+    shoot   Install-${application_name}-Step-01-ProcessPage
     Run Keyword if  '${application_name}' == 'Arkime' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
     ...  Run Keywords  click  ${locNodeSelection}
     ...  AND  lookForElement  xpath=//span[text()="${sensor_name}"]
@@ -209,14 +210,15 @@ Install App
     ...                        type  ${locMemLimitInput}  6Gi  # If virtual kit decrease memory limit from 20Gi to 6Gi
     ...  AND  Run Keyword if  '${application_name}' == 'Suricata'
     ...                         click  ${locSuriPcapCheckbox}
-    ...  AND  shoot  InstallConfigOverviewPage
     ...  AND  click  ${locInterfaceSelection}
     ...  AND  Sleep  10s
     ...  AND  click  ${locInterfaceOptionConnected}
     ...  AND  Press Keys  None  TAB
     ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
+    ...  AND  shoot   Install-${application_name}-Step-02-ConfigurationOverviewPage
     ...  AND  Click Button  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
     ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
+    ...  AND  shoot   Install-${application_name}-Step-03-ValuesFileOverviewPage
     ...  AND  Click Button  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
     ...  ELSE
     ...  Run Keywords  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}
@@ -225,8 +227,10 @@ Install App
     ...                        type  ${locHeapSizeInput}  4  # If virtual kit decrease heap_size from 12 to 4
     ...  AND  lookFor  server
     ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
+    ...  AND  shoot   Install-${application_name}-Step-02-ConfigurationOverviewPage
     ...  AND  click  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
     ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
+    ...  AND  shoot   Install-${application_name}-Step-03-ValuesFileOverviewPage
     ...  AND  click  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
     Sleep  10s
     Verify App Has Been Installed  ${application_name}    ${asynchronous}

@@ -1,5 +1,5 @@
 ---
-# Dependency Versions file between all tfplenum projects.
+# Dependency versions file between all tfplenum projects.
 # Use include_vars function to utilize this file.
 
 # VERSIONS
@@ -106,14 +106,14 @@ setup_package_list:
   - tcpreplay-4.4.0-1.el8
 
 helm_versions:
-  arkime: 1.0.3
-  arkime_viewer: 1.0.3
+  arkime: 1.0.4
+  arkime_viewer: 1.0.4
   cortex: 1.0.5
   logstash: 1.0.4
   hive: 1.0.6
   jcat_nifi: 1.0.3
   mattermost: 1.0.4
-  misp: 1.0.5
+  misp: 1.0.7
   netflow_filebeat: 1.0.3
   nifi: 1.0.4
   redmine: 1.0.5
@@ -143,7 +143,6 @@ helm_packages:
   - suricata-{{ helm_versions.suricata }}.tgz
   - wikijs-{{ helm_versions.wikijs }}.tgz
   - zeek-{{ helm_versions.zeek }}.tgz
-
 
 custom_rpm_packages:
   - name: "arkime"

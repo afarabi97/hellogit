@@ -49,10 +49,6 @@ spec:
         env:
         - name: CONTAINER_TYPE
           value: "VIEWER"
-        - name: MOLOCH_USER
-          value: "{{ .Values.username }}"
-        - name: MOLOCH_PASSWORD
-          value: "{{ .Values.password }}"
         ports:
         - name: webgui
           containerPort: {{ .Values.port }}

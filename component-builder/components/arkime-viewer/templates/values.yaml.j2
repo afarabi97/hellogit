@@ -3,16 +3,13 @@ image: 'tfplenum/arkime'
 port: "8005"
 domain: lan
 auth_base: https://controller.lan/auth/realms/CVAH-SSO
-# Username and password for Web login
-username: 'assessor'
-password: 'Password!123456'
 
 # Location of arkime dirs/files
 dir: '/opt/tfplenum/arkime'
 path: '/data/moloch'
 config_path: "/opt/tfplenum/arkime/etc"
 
-# Kubernetes and docker info
+# Kubernetes And Docker Info
 elastic_data_nodes: []
 version: {{ component["app_version"] }}
 cpu_request: 1000

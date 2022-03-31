@@ -31,15 +31,11 @@ logstash_headless_fqdn: "logstash-headless.{{ fqdn }}"
 logstash_port: "5044"
 
 # If you have licensing for x-pack set variable to true.
-xpack_license: 'true'
+xpack_license: "true"
 
 # Kubernetes
 kubernetes_conf_file: /etc/kubernetes/admin.conf
 kube_dir: "{{ tfplenum_opt_dir }}/kubernetes"
-
-# Username and password for Web login
-arkime_login: 'assessor'
-arkime_pass: 'password'
 
 # Directories in which to store IDS logs
 zeek_log_path: "/data/zeek"
@@ -104,18 +100,17 @@ ansible_controller_ip: "{{ hostvars.localhost.ansible_default_ipv4.address }}"
 operator_node_affinity:
   nodeAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
-    - weight: 50
-      preference:
-        matchExpressions:
-        - key: role
-          operator: In
-          values:
-          - service
-    - weight: 20
-      preference:
-        matchExpressions:
-        - key: role
-          operator: In
-          values:
-          - server
-...
+      - weight: 50
+        preference:
+          matchExpressions:
+            - key: role
+              operator: In
+              values:
+                - service
+      - weight: 20
+        preference:
+          matchExpressions:
+            - key: role
+              operator: In
+              values:
+                - server
