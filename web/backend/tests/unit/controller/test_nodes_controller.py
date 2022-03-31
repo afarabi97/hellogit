@@ -1,12 +1,13 @@
 from app.utils.collections import Collections, get_collection
-from tests.unit.static_data import (get_node_expected, jobs_collection,
-                                    nodes_collection)
+from tests.unit.static_data.node import (get_node_expected, jobs_collection,
+                                         nodes_collection)
+
+
 import pytest
 @pytest.fixture
 def settings():
     class Settings:
         domain = "kit200"
-    
     return Settings()
 
 def test_node(client, mocker, settings):

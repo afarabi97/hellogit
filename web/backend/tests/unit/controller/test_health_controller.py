@@ -1,6 +1,4 @@
-from unittest.mock import patch
-
-from tests.unit.static_data import nodes_and_pods, zeek_stats
+from tests.unit.static_data.health import nodes_and_pods, zeek_stats
 
 
 def test_suricata_installed(client, mocker):

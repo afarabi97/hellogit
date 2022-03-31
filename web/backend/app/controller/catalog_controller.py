@@ -1,6 +1,5 @@
 from typing import List, Set
 
-from app.common import ERROR_RESPONSE
 from app.middleware import controller_maintainer_required
 from app.models.catalog import (CATALOG_NS, ChartInfoModel, ChartModel,
                                 ChartNodeModel, HELMActionModel,
@@ -60,7 +59,7 @@ class ConfiguredIfaces(Resource):
         ret_val = list(ifaces)
         if len(ret_val) > 0:
             return list(ifaces)
-        return {'error_message': 'Failed to to list iface names configured with either zeek or suricata'}, 500
+        return {'error_message': 'Failed to list iface names configured with either zeek or suricata'}, 500
 
 
 @CATALOG_NS.route('/install')
@@ -211,8 +210,12 @@ class NodeDetails(Resource):
     @CATALOG_NS.doc(description="Returns a list of Nodes from the Kit configuration.")
     @CATALOG_NS.response(200, 'Node', [Node.DTO])
     def get(self) -> Response:
+        # Filter out nodes that have not been assigned deviceFacts
+        # bool(n["deviceFacts"]) evaluates to true if it is not an empty object {}
         nodes = get_nodes(details=True)
-        return nodes
+        filter_data = filter(lambda n: bool(n["deviceFacts"]), nodes)
+        nodes_filtered = list(filter_data)
+        return nodes_filtered
 
 
 @CATALOG_NS.route('/<node_hostname>/apps')

@@ -1,7 +1,8 @@
-from app.utils.collections import Collections, get_collection
-from tests.unit.static_data import zeek_ruleset
-from app.service.catalog_service import (_remove_sensor_from_ruleset_assignment)
 import json
+
+from app.service.catalog_service import _remove_sensor_from_ruleset_assignment
+from app.utils.collections import Collections, get_collection
+from tests.unit.static_data.rule_set import zeek_ruleset
 
 
 def test_remove_sensor_from_ruleset_assignment(client):

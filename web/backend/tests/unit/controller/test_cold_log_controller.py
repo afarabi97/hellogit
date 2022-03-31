@@ -1,19 +1,18 @@
-from app.utils.collections import Collections, get_collection
 import json
 import os
 
 RULE_UPLOAD_CONTENT_TYPE = "multipart/form-data"
 
 class MyTestJob:
-        def __init__(self, id, key):
-            self.id = id
-            self.key = key.encode("UTF-8")
-        
-        def get_id(self):
-            return self.id
-        
-        def delay():
-            pass
+    def __init__(self, id, key):
+        self.id = id
+        self.key = key.encode("UTF-8")
+
+    def get_id(self):
+        return self.id
+
+    def delay():
+        pass
 
 def test_upload_route(tmp_path, client, mocker):
     upload_file_name = "test_upload.log"
@@ -26,7 +25,7 @@ def test_upload_route(tmp_path, client, mocker):
 
     # Here we test a valid cold log upload
     payload = {
-        "upload_file": (open(test_file, "rb"), 
+        "upload_file": (open(test_file, "rb"),
                         upload_file_name),
         "cold_log_form": json.dumps(
             {
@@ -37,7 +36,7 @@ def test_upload_route(tmp_path, client, mocker):
             }
         )
     }
-    results = client.post("/api/coldlog/upload", data=payload, 
+    results = client.post("/api/coldlog/upload", data=payload,
                           content_type=RULE_UPLOAD_CONTENT_TYPE)
     assert results.status_code == 200
 
@@ -52,13 +51,13 @@ def test_upload_route(tmp_path, client, mocker):
             }
         )
     }
-    results = client.post("/api/coldlog/upload", data=payload, 
+    results = client.post("/api/coldlog/upload", data=payload,
                           content_type=RULE_UPLOAD_CONTENT_TYPE)
     assert results.status_code == 400
 
     # Here we test a cold log upload without Winlogbeat being setup
     payload = {
-        "upload_file": (open(test_file, "rb"), 
+        "upload_file": (open(test_file, "rb"),
                         upload_file_name),
         "cold_log_form": json.dumps(
             {
@@ -69,7 +68,7 @@ def test_upload_route(tmp_path, client, mocker):
             }
         )
     }
-    results = client.post("/api/coldlog/upload", data=payload, 
+    results = client.post("/api/coldlog/upload", data=payload,
                           content_type=RULE_UPLOAD_CONTENT_TYPE)
     assert results.status_code == 500
 
@@ -97,10 +96,8 @@ def test_winlogbeat_install_route(client, mocker):
         "winrm_transport": "tcp",
         "winrm_scheme": "none"
     }
-
     job = MyTestJob("fbbd7123-4926-4a84-a8ea-7c926e38edab", "fbbd7123-4926-4a84-a8ea-7c926e38edab")
     mocker.patch("app.service.cold_log_service.install_winlogbeat_srv.delay", return_value=job)
-    
     results = client.post("/api/coldlog/winlogbeat/install", json=payload)
     assert results.status_code == 200
     assert results.get_json() != ""

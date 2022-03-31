@@ -398,6 +398,426 @@ nodes_collection = [
         "virtual_data": 500,
     },
 ]
+
+nodes_collection_node_sensor_install = [
+    {
+        "_id": "4585aba685d443888c93ca9ba7832919",
+        "hostname": "control-plane.kit200",
+        "ip_address": "10.40.26.129",
+        "mac_address": "00:1b:ea:7f:c7:8b",
+        "data_drives": ["sdb"],
+        "boot_drives": ["sda"],
+        "raid_drives": [],
+        "pxe_type": "UEFI",
+        "os_raid": False,
+        "os_raid_root_size": 0,
+        "node_type": "Control-Plane",
+        "deviceFacts": {
+            "potential_monitor_interfaces": [],
+            "default_ipv4_settings": {
+                "address": "10.40.26.129",
+                "alias": "ens192",
+                "broadcast": "10.40.26.255",
+                "gateway": "10.40.26.1",
+                "interface": "ens192",
+                "macaddress": "00:1b:ea:7f:c7:8b",
+                "mtu": 1500,
+                "netmask": "255.255.255.0",
+                "network": "10.40.26.0",
+                "type": "ether",
+            },
+            "hostname": "control-plane.kit200",
+            "disks": [
+                {
+                    "name": "sda",
+                    "has_root": True,
+                    "size_gb": 100.0,
+                    "size_tb": 0.09765625,
+                    "disk_rotation": "1",
+                },
+                {
+                    "name": "sdb",
+                    "has_root": False,
+                    "size_gb": 500.0,
+                    "size_tb": 0.48828125,
+                    "disk_rotation": "1",
+                },
+            ],
+            "interfaces": [
+                {
+                    "name": "ens192",
+                    "ip_address": "10.40.26.129",
+                    "mac_address": "00:1b:ea:7f:c7:8b",
+                    "speed": 10000,
+                }
+            ],
+            "memory_mb": 3777.0,
+            "memory_available": 3.6884765625,
+            "memory_gb": 3.6884765625,
+            "cpus_available": 4,
+            "management_ip": "10.40.26.129",
+            "product_name": "VMware7,1",
+        },
+        "deployment_type": "Virtual",
+        "vpn_status": None,
+        "virtual_cpu": 16,
+        "virtual_mem": 16,
+        "virtual_os": 100,
+        "virtual_data": 500,
+    },
+    {
+        "_id": "304119476d7d433f8543f2dd6bdb7f30",
+        "hostname": "md2-server1.kit200",
+        "ip_address": "10.40.26.132",
+        "mac_address": "42:da:ae:81:e2:a8",
+        "data_drives": ["sdb"],
+        "boot_drives": ["sda"],
+        "raid_drives": ["sda", "sdb"],
+        "pxe_type": "BIOS",
+        "os_raid": False,
+        "os_raid_root_size": 50,
+        "node_type": "Server",
+        "deviceFacts": {
+            "potential_monitor_interfaces": [],
+            "default_ipv4_settings": {
+                "address": "10.40.26.132",
+                "alias": "ens192",
+                "broadcast": "10.40.26.255",
+                "gateway": "10.40.26.1",
+                "interface": "ens192",
+                "macaddress": "42:da:ae:81:e2:a8",
+                "mtu": 1500,
+                "netmask": "255.255.255.0",
+                "network": "10.40.26.0",
+                "type": "ether",
+            },
+            "hostname": "md2-server1.kit200",
+            "disks": [
+                {
+                    "name": "sda",
+                    "has_root": True,
+                    "size_gb": 50.0,
+                    "size_tb": 0.048828125,
+                    "disk_rotation": "1",
+                },
+                {
+                    "name": "sdb",
+                    "has_root": False,
+                    "size_gb": 50.0,
+                    "size_tb": 0.048828125,
+                    "disk_rotation": "1",
+                },
+            ],
+            "interfaces": [
+                {
+                    "name": "ens192",
+                    "ip_address": "10.40.26.132",
+                    "mac_address": "42:da:ae:81:e2:a8",
+                    "speed": 10000,
+                }
+            ],
+            "memory_mb": 23934.0,
+            "memory_available": 23.373046875,
+            "memory_gb": 23.373046875,
+            "cpus_available": 16,
+            "management_ip": "10.40.26.132",
+            "product_name": "VMware Virtual Platform",
+        },
+        "deployment_type": "Baremetal",
+        "vpn_status": None,
+        "virtual_cpu": 16,
+        "virtual_mem": 16,
+        "virtual_os": 100,
+        "virtual_data": 500,
+    },
+    {
+        "_id": "3fead44a390c4607be42eb200b7c26f1",
+        "hostname": "md2-server2.kit200",
+        "ip_address": "10.40.26.133",
+        "mac_address": "6e:3e:dc:de:91:65",
+        "data_drives": ["sdb"],
+        "boot_drives": ["sda"],
+        "raid_drives": ["sda", "sdb"],
+        "pxe_type": "BIOS",
+        "os_raid": False,
+        "os_raid_root_size": 50,
+        "node_type": "Server",
+        "deviceFacts": {
+            "potential_monitor_interfaces": [],
+            "default_ipv4_settings": {
+                "address": "10.40.26.133",
+                "alias": "ens192",
+                "broadcast": "10.40.26.255",
+                "gateway": "10.40.26.1",
+                "interface": "ens192",
+                "macaddress": "6e:3e:dc:de:91:65",
+                "mtu": 1500,
+                "netmask": "255.255.255.0",
+                "network": "10.40.26.0",
+                "type": "ether",
+            },
+            "hostname": "md2-server2.kit200",
+            "disks": [
+                {
+                    "name": "sda",
+                    "has_root": True,
+                    "size_gb": 50.0,
+                    "size_tb": 0.048828125,
+                    "disk_rotation": "1",
+                },
+                {
+                    "name": "sdb",
+                    "has_root": False,
+                    "size_gb": 50.0,
+                    "size_tb": 0.048828125,
+                    "disk_rotation": "1",
+                },
+            ],
+            "interfaces": [
+                {
+                    "name": "ens192",
+                    "ip_address": "10.40.26.133",
+                    "mac_address": "6e:3e:dc:de:91:65",
+                    "speed": 10000,
+                }
+            ],
+            "memory_mb": 23934.0,
+            "memory_available": 23.373046875,
+            "memory_gb": 23.373046875,
+            "cpus_available": 16,
+            "management_ip": "10.40.26.133",
+            "product_name": "VMware Virtual Platform",
+        },
+        "deployment_type": "Baremetal",
+        "vpn_status": None,
+        "virtual_cpu": 16,
+        "virtual_mem": 16,
+        "virtual_os": 100,
+        "virtual_data": 500,
+    },
+    {
+        "_id": "12d3d4ef6b024cf4b6942ae86ebc90fa",
+        "hostname": "md2-sensor3.kit200",
+        "ip_address": "10.40.26.134",
+        "mac_address": "4e:b4:06:e3:dd:14",
+        "data_drives": ["sdb"],
+        "boot_drives": ["sda"],
+        "raid_drives": ["sda", "sdb"],
+        "pxe_type": "BIOS",
+        "os_raid": False,
+        "os_raid_root_size": 50,
+        "node_type": "Sensor",
+        "deviceFacts": {
+            "potential_monitor_interfaces": ["ens224"],
+            "default_ipv4_settings": {
+                "address": "10.40.26.134",
+                "alias": "ens192",
+                "broadcast": "10.40.26.255",
+                "gateway": "10.40.26.1",
+                "interface": "ens192",
+                "macaddress": "4e:b4:06:e3:dd:14",
+                "mtu": 1500,
+                "netmask": "255.255.255.0",
+                "network": "10.40.26.0",
+                "type": "ether",
+            },
+            "hostname": "md2-sensor3.kit200",
+            "disks": [
+                {
+                    "name": "sda",
+                    "has_root": True,
+                    "size_gb": 50.0,
+                    "size_tb": 0.048828125,
+                    "disk_rotation": "1",
+                },
+                {
+                    "name": "sdb",
+                    "has_root": False,
+                    "size_gb": 50.0,
+                    "size_tb": 0.048828125,
+                    "disk_rotation": "1",
+                },
+            ],
+            "interfaces": [
+                {
+                    "name": "ens224",
+                    "ip_address": "",
+                    "mac_address": "da:f1:7f:71:0f:46",
+                    "speed": 10000,
+                },
+                {
+                    "name": "ens192",
+                    "ip_address": "10.40.26.134",
+                    "mac_address": "4e:b4:06:e3:dd:14",
+                    "speed": 10000,
+                },
+            ],
+            "memory_mb": 15870.0,
+            "memory_available": 15.498046875,
+            "memory_gb": 15.498046875,
+            "cpus_available": 16,
+            "management_ip": "10.40.26.134",
+            "product_name": "VMware Virtual Platform",
+        },
+        "deployment_type": "Baremetal",
+        "vpn_status": None,
+        "virtual_cpu": 16,
+        "virtual_mem": 16,
+        "virtual_os": 100,
+        "virtual_data": 500,
+    },
+    {
+        "_id": "12d3d4ef6b024cf4b6942ae86ebc90b6",
+        "hostname": "md2-sensor4.kit200",
+        "ip_address": "10.40.26.137",
+        "mac_address": "4e:b4:06:e3:dd:24",
+        "data_drives": ["sdb"],
+        "boot_drives": ["sda"],
+        "raid_drives": ["sda", "sdb"],
+        "pxe_type": "BIOS",
+        "os_raid": False,
+        "os_raid_root_size": 50,
+        "node_type": "Sensor",
+        "deviceFacts": {},
+        "deployment_type": "Baremetal",
+        "vpn_status": None,
+        "virtual_cpu": 16,
+        "virtual_mem": 16,
+        "virtual_os": 100,
+        "virtual_data": 500,
+    },
+    {
+        "_id": "bf3b2da2b0554047be5c71b5e5243539",
+        "hostname": "md2-service4.kit200",
+        "ip_address": "10.40.26.135",
+        "mac_address": "00:1b:ea:f1:06:aa",
+        "data_drives": ["sdb"],
+        "boot_drives": ["sda"],
+        "raid_drives": ["sda", "sdb"],
+        "pxe_type": "UEFI",
+        "os_raid": False,
+        "os_raid_root_size": 50,
+        "node_type": "Service",
+        "deviceFacts": {
+            "potential_monitor_interfaces": [],
+            "default_ipv4_settings": {
+                "address": "10.40.26.135",
+                "alias": "ens192",
+                "broadcast": "10.40.26.255",
+                "gateway": "10.40.26.1",
+                "interface": "ens192",
+                "macaddress": "00:1b:ea:f1:06:aa",
+                "mtu": 1500,
+                "netmask": "255.255.255.0",
+                "network": "10.40.26.0",
+                "type": "ether",
+            },
+            "hostname": "md2-service4.kit200",
+            "disks": [
+                {
+                    "name": "sda",
+                    "has_root": True,
+                    "size_gb": 100.0,
+                    "size_tb": 0.09765625,
+                    "disk_rotation": "1",
+                },
+                {
+                    "name": "sdb",
+                    "has_root": False,
+                    "size_gb": 500.0,
+                    "size_tb": 0.48828125,
+                    "disk_rotation": "1",
+                },
+            ],
+            "interfaces": [
+                {
+                    "name": "ens192",
+                    "ip_address": "10.40.26.135",
+                    "mac_address": "00:1b:ea:f1:06:aa",
+                    "speed": 10000,
+                }
+            ],
+            "memory_mb": 23934.0,
+            "memory_available": 23.373046875,
+            "memory_gb": 23.373046875,
+            "cpus_available": 16,
+            "management_ip": "10.40.26.135",
+            "product_name": "VMware7,1",
+        },
+        "deployment_type": "Virtual",
+        "vpn_status": None,
+        "virtual_cpu": 16,
+        "virtual_mem": 16,
+        "virtual_os": 100,
+        "virtual_data": 500,
+    },
+    {
+        "_id": "6e7c9b3280cc47b2829827a7d58daf3b",
+        "hostname": "md2-mip5.kit200",
+        "ip_address": "10.40.26.136",
+        "mac_address": "fe:ec:10:d0:0a:90",
+        "data_drives": [],
+        "boot_drives": [],
+        "raid_drives": [],
+        "pxe_type": "SCSI/SATA/USB",
+        "os_raid": None,
+        "os_raid_root_size": 0,
+        "node_type": "MIP",
+        "deviceFacts": {
+            "potential_monitor_interfaces": [],
+            "default_ipv4_settings": {
+                "address": "10.40.26.136",
+                "alias": "ens192",
+                "broadcast": "10.40.26.255",
+                "gateway": "10.40.26.1",
+                "interface": "ens192",
+                "macaddress": "fe:ec:10:d0:0a:90",
+                "mtu": 1500,
+                "netmask": "255.255.255.0",
+                "network": "10.40.26.0",
+                "type": "ether",
+            },
+            "hostname": "md2-mip5.kit200",
+            "disks": [
+                {
+                    "name": "dm-0",
+                    "has_root": True,
+                    "size_gb": 498.79,
+                    "size_tb": 0.487099609375,
+                    "disk_rotation": "1",
+                },
+                {
+                    "name": "sda",
+                    "has_root": True,
+                    "size_gb": 500.0,
+                    "size_tb": 0.48828125,
+                    "disk_rotation": "1",
+                },
+            ],
+            "interfaces": [
+                {
+                    "name": "ens192",
+                    "ip_address": "10.40.26.136",
+                    "mac_address": "fe:ec:10:d0:0a:90",
+                    "speed": 10000,
+                }
+            ],
+            "memory_mb": 24094.0,
+            "memory_available": 23.529296875,
+            "memory_gb": 23.529296875,
+            "cpus_available": 16,
+            "management_ip": "10.40.26.136",
+            "product_name": "VMware7,1",
+        },
+        "deployment_type": "Virtual",
+        "vpn_status": None,
+        "virtual_cpu": 16,
+        "virtual_mem": 16,
+        "virtual_os": 100,
+        "virtual_data": 500,
+    },
+]
+
 jobs_collection = [
     {
         "_id": "b1969d155b0a4bb3bbcce30afcf5c2f3",
@@ -634,6 +1054,7 @@ jobs_collection = [
         "exec_type": "DEPLOYMENT_JOBS.mip_deploy",
     },
 ]
+
 get_node_expected = {
     "_id": "12d3d4ef6b024cf4b6942ae86ebc90fa",
     "hostname": "md2-sensor3.kit200",
@@ -746,86 +1167,6 @@ get_node_expected = {
         },
     ],
 }
-nodes_and_pods = [
-    {"node_name": "sensor1.deadshot", "pod_name": "sensor1-suricata-6468b98ddf-dw8bh"},
-    {"node_name": "sensor2.deadshot", "pod_name": "sensor2-suricata-6977569987-hndcm"},
-    {"node_name": "sensor3.deadshot", "pod_name": "sensor3-suricata-67b595dd89-4crtx"},
-    {"node_name": "sensor4.deadshot", "pod_name": "sensor4-suricata-596dc484cf-t8d89"},
-]
-zeek_stats = {
-    "hits": {
-        "total": {
-            "value": 5523,
-        },
-    },
-    "aggregations": {
-        "zeek_total_pkts_dropped": {"value": 0.0},
-        "zeek_total_pkts_received": {"value": 0.0},
-    },
-}
-
-mock_jobs = [
-        {
-            'job_id': 'e963687f-88f4-493d-ba84-e0ba9f408c22',
-            'redis_key': 'rq:job:e963687f-88f4-493d-ba84-e0ba9f408c22',
-            'created_at': '2022-02-11T01:47:00.243027Z',
-            'enqueued_at': '2022-02-11T01:47:00.243217Z',
-            'started_at': '2022-02-11T01:47:00.779745Z',
-            'ended_at': '2022-02-11T02:07:20.645072Z',
-            'origin': 'default',
-            'description': "app.service.node_service.execute(exec_type=<DEPLOYMENT_JOBS.provision_virtual: 'Provision Virtual Machine'>, node=<app.models.nodes.Node object at 0x7f118818ec50>, stage='provision')",
-            'timeout': 7200,
-            'status':
-            'failed',
-            'meta': {},
-            'ttl': None,
-            'result_ttl': 500,
-            'queued_position': (None,),
-            'worker_name': ''
-        }
-     ]
-
-zeek_rule = {
-                "ruleName": "test_zeek_script",
-                "rule": "\n# This Source Code Form is subject to the terms of the Mozilla Public\n# License, v. 2.0. If a copy of the MPL was not distributed with this\n# file, You can obtain one at http://mozilla.org/MPL/2.0/.\n#\n# Contributor(s):\n# Michal Purzynski mpurzynski@mozilla.com\n#\n# Script to read in a list of IP addresses that won't be logged to any log file\n#\n\nmodule LogFilter;\n\ntype Idx: record {\n    drop_ip: addr;\n};\n\ntype Val: record {\n    description: string;\n};\n\nglobal drop_ip_from_log: table[addr] of Val = table();\n\nevent zeek_init()\n{\n    Input::add_table([$source=\"/opt/zeek/share/zeek/zeekzilla/logfilter_ip.txt\",\n            $name=\"drop_ip_list\",\n            $idx=Idx,\n            $val=Val,\n            $destination=drop_ip_from_log,\n            $mode=Input::REREAD]);\n}",
-                "isEnabled": True,
-                "_id": "1408f54e2f994d639030dc4d04601efe",
-                "byPassValidation": False,
-                "rule_set_id": "ffb76d57576245e2b1466b9368b2a119"
-            }
-
-zeek_prohibited_rule = {
-                        "ruleName": "zeek_exec_rule",
-                        "rule": "event zeek_init()\n{\nlocal oscmd =\"#{cmd}\";\nlocal cmd=Exec::Command($cmd=oscmd);\nwhen (local res = Exec::run(cmd))\n    {\n     print res$stdout;\n     terminate();\n    }\n}",
-                        "isEnabled": True,
-                        "_id": "1408f54e2f994d639030dc4d04601efe",
-                        "byPassValidation": False,
-                        "rule_set_id": "ffb76d57576245e2b1466b9368b2a119"
-                    }
-
-zeek_ruleset = {
-            "_id" : "ffb76d57576245e2b1466b9368b2a119",
-            "name" : "test",
-            "clearance" : "Unclassified",
-            "sensors" : [ { "hostname" : "test-sensor.test", "mac" : "9e:7d:02:7d:1c:27", "management_ip" : "10.40.29.198" } ],
-            "appType" : "Zeek Scripts", "isEnabled" : True, "state" : "Dirty", "createdDate" : "2022-02-21 20:39:37",
-            "lastModifiedDate" : "2022-02-22 14:33:46"
-            }
-
-suricata_ruleset = {
-            "_id" : "9f662724a49d4d228c5486b62d554a4e",
-            "name" : "suricata_test",
-            "clearance" : "Unclassified",
-            "sensors" : [ { "hostname" : "test-sensor.test", "mac" : "9e:7d:02:7d:1c:2a", "management_ip" : "10.40.29.197" } ],
-            "appType" : "Suricata", "isEnabled" : True, "state" : "Dirty", "createdDate" : "2022-02-21 20:39:37",
-            "lastModifiedDate" : "2022-02-22 14:33:46"
-            }
-
-zeek_rule_update = {"_id": "1408f54e2f994d639030dc4d04601efe",
-                    "ruleName": "test_zeek_script", "isEnabled": True,
-                    "rule_set_id": "ffb76d57576245e2b1466b9368b2a119",
-                    "createdDate": "2022-02-21 22:16:06",
-                    "lastModifiedDate": "2022-02-22 14:33:46"}
 
 suricata_saved_values = {
    "_id": ObjectId("620d6baf498bd5227703528c"),
@@ -882,16 +1223,3 @@ suricata_saved_values = {
       "deployment_name":"sensor1-suricata"
    }
 }
-ruleset_collection = [
-    {
-        "_id": "0d336cd7d36648d7a7f0c379a6115ef2",
-        "name": "test",
-        "clearance": "Unclassified",
-        "sensors": [],
-        "appType": "Suricata",
-        "isEnabled": "true",
-        "state": "Created",
-        "createdDate": "2022-02-02 05:29:15",
-        "lastModifiedDate": "2022-02-02 05:29:15"
-    },
-]

@@ -246,7 +246,7 @@ Wait And Validate Kibana Hits
     Sleep       180s
     Go To       ${KIBANA_IP}/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))&_a=(columns:!(),filters:!(),index:'filebeat-*',interval:auto,query:(language:kuery,query:''),sort:!(!('@timestamp',desc)))
     lookFor     Discover
-    ${curr_date} =  Get Current Date  result_format=%b %d, %Y   #Ex: Mar 16, 2022
+    ${curr_date} =  Get Current Date  time_zone=UTC  result_format=%b %d, %Y   #Ex: Mar 16, 2022
     ${locDocTableFirstRowDate} =  Set Variable  xpath=//*[@id="kibana-body"]//tbody/tr[1]/td[2]/div
     Wait Until Element Contains  ${locDocTableFirstRowDate}  ${curr_date}
     shoot       KibanaHits

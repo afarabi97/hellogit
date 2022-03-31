@@ -1,6 +1,6 @@
 from fakeredis import FakeStrictRedis
 from tests.unit.mock_classes import MockJobID, MockWorker
-from tests.unit.static_data import mock_jobs
+from tests.unit.static_data.jobs import mock_jobs
 
 
 def test_get_job_id(client, mocker):
