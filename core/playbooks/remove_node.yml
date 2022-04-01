@@ -1,15 +1,16 @@
 # Name: remove-node
 # Description: This playbook will unschedule and remove a node from the kubernetes cluster. BE CAREFUL!
+# This playbook can also be used to remove a virtual MIP from the ESXI server.
 # Requirement: Add node to nodes_to_remove group in inventory.yml
 # Usage: ansible-playbook remove-node.yml -u <user>
 # Example: ansible-playbook -i inventory/misc/inventory.yml remove-node.yml -u root
 
 ---
-
 - name: Set controller variables on hosts
   hosts:
     - servers
     - sensors
+    - mips
   gather_facts: no
   ignore_errors: yes
   ignore_unreachable: yes
@@ -21,6 +22,22 @@
         groups: nodes_to_remove
       when: node is defined
       ignore_errors: yes
+
+- name: Set node type
+  hosts: localhost
+  tasks:
+    - name: Set node type
+      set_fact:
+        node_type: "{{ hostvars[node].node_type }}"
+
+- name: Wait for connection
+  hosts: nodes_to_remove
+  gather_facts: no
+  tasks:
+    - name: Wait 30 minutes for connection
+      wait_for_connection:
+        timeout: 1800
+        sleep: 10
 
 - name: Remove installed apps
   hosts: nodes_to_remove
@@ -52,7 +69,7 @@
         with_items:
           - /etc/auditbeat
           - /opt/metrics
-      when: hostvars[inventory_hostname].deployment_type == "Baremetal"
+      when: node_type != "MIP" and hostvars[inventory_hostname].deployment_type == "Baremetal"
 
 - name: Remove node from cluster
   hosts: localhost
@@ -60,44 +77,48 @@
   ignore_errors: yes
   ignore_unreachable: yes
   tasks:
-    - name: Get current node list
-      shell: |
-        set -o pipefail
-        kubectl get nodes --no-headers=true | awk '{ print $1 }'
-      register: node_list
-      changed_when: False
+    - block:
+      - name: Get current node list
+        shell: |
+          set -o pipefail
+          kubectl get nodes --no-headers=true | awk '{ print $1 }'
+        register: node_list
+        changed_when: False
 
-    - name: remove-node | Drain node except daemonsets resource
-      shell: |
-        kubectl drain --force --ignore-daemonsets --grace-period 30 --timeout 60s --delete-emptydir-data {{ item }}
-      failed_when: false
-      ignore_errors: yes
-      when: item in node_list.stdout
-      with_items: "{{ groups['nodes_to_remove'] }}"
-      register: results
-      changed_when: results.rc == 0
+      - name: remove-node | Drain node except daemonsets resource
+        shell: |
+          kubectl drain --force --ignore-daemonsets --grace-period 30 --timeout 60s --delete-emptydir-data {{ item }}
+        failed_when: false
+        ignore_errors: yes
+        when: item in node_list.stdout
+        with_items: "{{ groups['nodes_to_remove'] }}"
+        register: results
+        changed_when: results.rc == 0
 
-    - name: Delete nodes from k8s cluster
-      shell: |
-        kubectl delete node {{ item }}
-      when: item in node_list.stdout
-      with_items: "{{ groups['nodes_to_remove'] }}"
-      register: results
-      changed_when: results.rc == 0
+      - name: Delete nodes from k8s cluster
+        shell: |
+          kubectl delete node {{ item }}
+        when: item in node_list.stdout
+        with_items: "{{ groups['nodes_to_remove'] }}"
+        register: results
+        changed_when: results.rc == 0
+      when: node_type != "MIP"
 
 - name: Clean up node
   hosts: nodes_to_remove
   gather_facts: no
   ignore_errors: yes
   ignore_unreachable: yes
-  roles:
-    - { role: kubernetes/reset }
   tasks:
+    - name: Reset Kubernetes
+      include_role: 
+        name: kubernetes/reset
+      when: node_type != "MIP"
     - name: Reboot system # noqa 301
       command: "/sbin/shutdown -r +1 --no-wall"
       async: 0
       poll: 0
-      when: hostvars[inventory_hostname].deployment_type == "Baremetal"
+      when: hostvars[node].deployment_type == "Baremetal"
 
 - name: Update VPN Server
   hosts: localhost
@@ -134,5 +155,3 @@
       service:
         name: dnsmasq
         state: restarted
-
-

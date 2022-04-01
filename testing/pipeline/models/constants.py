@@ -21,6 +21,7 @@ class SubCmd:
     checkout_latest_code = 'checkout-latest-code'
     run_remote_node= 'run-remote-node'
     run_export = 'run-export'
+    acceptance_tests = 'acceptance-tests'
 
     run_cleanup = 'run-cleanup'
     gip_setup = 'gip-setup'

@@ -1,39 +1,46 @@
+import logging
 import sys
 import traceback
-import logging
-
 from argparse import ArgumentParser, Namespace
+from ast import Sub
+
+from jobs.catalog import CatalogJob
 from jobs.ctrl_setup import ControllerSetupJob, checkout_latest_code
 from jobs.drive_creation import DriveCreationJob, DriveHashCreationJob
-from jobs.catalog import CatalogJob
-from jobs.kit import KitSettingsJob
-from jobs.oscap import OSCAPScanJob
-from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
 from jobs.export import (ConfluenceExport, ControllerExport, GIPServiceExport,
-                         ReposyncServerExport, MinIOExport)
+                         MinIOExport, ReposyncServerExport)
 from jobs.gip_creation import GipCreationJob
+from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
+from jobs.kit import KitSettingsJob
+from jobs.manifest import BuildManifestJob, VerifyManifestJob
 from jobs.minio import StandAloneMinIO
+from jobs.oscap import OSCAPScanJob
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
-from jobs.manifest import VerifyManifestJob, BuildManifestJob
-from models.ctrl_setup import ControllerSetupSettings
-from models.kit import KitSettingsV2
 from models.catalog import CatalogSettings
 from models.common import RepoSettings
-from models.node import NodeSettingsV2
-
-from models.export import ExportSettings
-from models.drive_creation import DriveCreationSettings, DriveCreationHashSettings
-from models.manifest import ManifestSettings
 from models.constants import SubCmd
+from models.ctrl_setup import ControllerSetupSettings
+from models.drive_creation import (DriveCreationHashSettings,
+                                   DriveCreationSettings)
+from models.export import ExportSettings
 from models.gip_settings import GIPServiceSettings
-from models.rhel_repo_vm import RHELRepoSettings
+from models.kit import KitSettingsV2
+from models.manifest import ManifestSettings
 from models.minio import MinIOSettings
-from util.yaml_util import YamlManager
+from models.node import NodeSettingsV2
+from models.rhel_repo_vm import RHELRepoSettings
 from util.ansible_util import delete_vms
 from util.constants import MINIO_PREFIX
+from util.yaml_util import YamlManager
 
 
 class Runner:
+
+    parser = ArgumentParser(description="This application is used to run TFPlenum's CI pipeline. \
+                                             It can setup Kits, export docs, export controller OVA and does \
+                                             other various actions.")
+
+    subparsers = parser.add_subparsers(help='commands')
 
     def _setup_logging(self):
         kit_builder = logging.getLogger()
@@ -49,123 +56,158 @@ class Runner:
         ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
         kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
 
-        nodes = YamlManager.load_nodes_from_yaml_files(ctrl_settings, kit_settings)
+        nodes = YamlManager.load_nodes_from_yaml_files(
+            ctrl_settings, kit_settings)
         catalog_settings = CatalogSettings()
         catalog_settings.set_from_kickstart(nodes, kit_settings, args)
         YamlManager.save_to_yaml(catalog_settings)
 
-        executor = CatalogJob(ctrl_settings, kit_settings, catalog_settings, nodes)
+        executor = CatalogJob(ctrl_settings, kit_settings,
+                              catalog_settings, nodes)
         executor.run_catalog(application, process)
 
+    def _set_parser(self, sub_command, help, settings=None):
+        parser = self.subparsers.add_parser(sub_command, help=help)
+        if settings:
+            settings.add_args(parser)
+        parser.set_defaults(which=sub_command)
+
     def _setup_args(self):
-        parser = ArgumentParser(description="This application is used to run TFPlenum's CI pipeline. \
-                                             It can setup Kits, export docs, export controller OVA and does \
-                                             other various actions.")
-        subparsers = parser.add_subparsers(help='commands')
-        setup_ctrl_parser = subparsers.add_parser(SubCmd.setup_ctrl,
-                                                  help="This command is used to setup a controller \
-                                                        either from scratch or is cloned from nightly")
-        ControllerSetupSettings.add_args(setup_ctrl_parser)
-        setup_ctrl_parser.set_defaults(which=SubCmd.setup_ctrl)
+        self._set_parser(
+            SubCmd.setup_ctrl,
+            "This command is used to setup a controller either from scratch or is cloned from nightly",
+            ControllerSetupSettings
+        )
 
-        kit_settings_parser = subparsers.add_parser(SubCmd.run_kit_settings,
-                                                      help="This command is used to setup the Kits settings.")
-        KitSettingsV2.add_args(kit_settings_parser)
-        kit_settings_parser.set_defaults(which=SubCmd.run_kit_settings)
+        self._set_parser(
+            SubCmd.run_kit_settings,
+            "This command is used to setup the Kits settings.",
+            KitSettingsV2
+        )
 
-        control_plane_parser = subparsers.add_parser(SubCmd.setup_control_plane,
-                                                     help="This command is used to setup the Kits control plane node.")
-        control_plane_parser.set_defaults(which=SubCmd.setup_control_plane)
+        self._set_parser(
+            SubCmd.setup_control_plane,
+            "This command is used to setup the Kits control plane node.",
+        )
 
-        add_node_parser = subparsers.add_parser(SubCmd.add_node,
-                                                help="This command is used to setup an arbitrary node.")
-        NodeSettingsV2.add_args(add_node_parser)
-        add_node_parser.set_defaults(which=SubCmd.add_node)
+        self._set_parser(
+            SubCmd.add_node,
+            "This command is used to setup an arbitrary node.",
+            NodeSettingsV2
+        )
 
-        deploy_kit_parser = subparsers.add_parser(SubCmd.deploy_kit,
-                                                help="This command is used to deploy the kit after two servers have been setup.")
-        deploy_kit_parser.set_defaults(which=SubCmd.deploy_kit)
+        self._set_parser(
+            SubCmd.deploy_kit,
+            "This command is used to deploy the kit after two servers have been setup."
+        )
 
-        oscap_parser = subparsers.add_parser(SubCmd.run_oscap_scans,
-                                             help="This command is used to run oscap scans on each node.")
-        oscap_parser.set_defaults(which=SubCmd.run_oscap_scans)
+        self._set_parser(
+            SubCmd.run_oscap_scans,
+            "This command is used to run oscap scans on each node."
+        )
 
-        integration_tests_parser = subparsers.add_parser(
-            SubCmd.run_integration_tests, help="This command is used to run integration tests.")
-        integration_tests_parser.set_defaults(
-            which=SubCmd.run_integration_tests)
+        self._set_parser(
+            SubCmd.run_integration_tests,
+            "This command is used to run integration tests."
+        )
 
-        unittest_parser = subparsers.add_parser(
-            SubCmd.run_disk_fillup_tests, help="This command is used to run disk fillup tests on a given DIP kit.")
-        unittest_parser.set_defaults(which=SubCmd.run_disk_fillup_tests)
+        self._set_parser(
+            SubCmd.run_disk_fillup_tests,
+            "This command is used to run disk fillup tests on a given DIP kit."
+        )
 
-        powerfailure_parser = subparsers.add_parser(
-            SubCmd.simulate_power_failure, help="This command is used to simulate a power failures on a Kit.")
-        powerfailure_parser.set_defaults(which=SubCmd.simulate_power_failure)
+        self._set_parser(
+            SubCmd.simulate_power_failure,
+            "This command is used to simulate a power failures on a Kit."
+        )
 
-        export_parser = subparsers.add_parser(
-            SubCmd.run_export, help="This command is used to export various artifacts from the pipeline.")
-        ExportSettings.add_args(export_parser)
-        export_parser.set_defaults(which=SubCmd.run_export)
+        self._set_parser(
+            SubCmd.run_export,
+            "This command is used to export various artifacts from the pipeline.",
+            ExportSettings
+        )
 
-        catalog_parser = subparsers.add_parser(
-            SubCmd.run_catalog, help="This subcommand installs applications on your Kit.")
-        CatalogSettings.add_args(catalog_parser)
-        catalog_parser.set_defaults(which=SubCmd.run_catalog)
+        catalog_parser = self._set_parser(
+            SubCmd.run_catalog,
+            "This subcommand installs applications on your Kit.",
+            CatalogSettings
+        )
 
-        verify_manifest_parser = subparsers.add_parser(
-            SubCmd.verify_manifest, help="This command is used to verify all the files within the manifest exist.")
-        ManifestSettings.add_args(verify_manifest_parser)
-        verify_manifest_parser.set_defaults(which=SubCmd.verify_manifest)
+        self._set_parser(
+            SubCmd.verify_manifest,
+            "This command is used to verify all the files within the manifest exist.",
+            ManifestSettings
+        )
 
-        build_manifest_parser = subparsers.add_parser(
-            SubCmd.build_manifest, help="This command is used build the release candidate from the release manifest.")
-        ManifestSettings.add_args(build_manifest_parser)
-        build_manifest_parser.set_defaults(which=SubCmd.build_manifest)
+        self._set_parser(
+            SubCmd.build_manifest,
+            "This command is used build the release candidate from the release manifest.",
+            ManifestSettings
+        )
 
-        cleanup_parser = subparsers.add_parser(
-            SubCmd.run_cleanup, help="This subcommand powers off and deletes all VMs.")
-        cleanup_parser.set_defaults(which=SubCmd.run_cleanup)
+        self._set_parser(
+            SubCmd.run_cleanup,
+            "This subcommand powers off and deletes all VMs."
+        )
 
-        gip_setup_parser = subparsers.add_parser(SubCmd.gip_setup,
-                                                  help="Configures GIP VMs and other related commands.")
-        gip_setup_subparsers = gip_setup_parser.add_subparsers(help="gip setup commands")
-        GIPServiceSettings.add_args(gip_setup_subparsers) # Creates a parser and adds arguments to it.
+        gip_setup_parser = self.subparsers.add_parser(SubCmd.gip_setup,
+                                                      help="Configures GIP VMs and other related commands.")
+        gip_setup_subparsers = gip_setup_parser.add_subparsers(
+            help="gip setup commands")
+        # Creates a parser and adds arguments to it.
+        GIPServiceSettings.add_args(gip_setup_subparsers)
 
-        minio_setup_parser = subparsers.add_parser(SubCmd.setup_minio, help="Creates a stand alone MinIO server.")
-        minio_setup_parser.set_defaults(which=SubCmd.setup_minio)
-        MinIOSettings.add_args(minio_setup_parser)
+        self._set_parser(
+            SubCmd.setup_minio,
+            "Creates a stand alone MinIO server.",
+            MinIOSettings
+        )
 
-        test_server_vm_parser = subparsers.add_parser(
-            SubCmd.test_server_repository_vm, help="Tests the reposync server repository VM.")
-        RHELRepoSettings.add_args(test_server_vm_parser)
-        test_server_vm_parser.set_defaults(
-            which=SubCmd.test_server_repository_vm)
+        self._set_parser(
+            SubCmd.test_server_repository_vm,
+            "Tests the reposync server repository VM.",
+            RHELRepoSettings
+        )
 
-        build_server_for_export_parser = subparsers.add_parser(
-            SubCmd.build_server_for_export, help="Builds the reposync server for export.")
-        RHELRepoSettings.add_args(build_server_for_export_parser)
-        build_server_for_export_parser.set_defaults(
-            which=SubCmd.build_server_for_export)
+        export_parser = self._set_parser(
+            SubCmd.build_server_for_export,
+            "Builds the reposync server for export.",
+            RHELRepoSettings
+        )
 
-        latest_code_parser = subparsers.add_parser(
-            SubCmd.checkout_latest_code, help="Pulls the latest git commit of your branch.")
-        RepoSettings.add_args(latest_code_parser)
-        latest_code_parser.set_defaults(which=SubCmd.checkout_latest_code)
+        self._set_parser(
+            SubCmd.checkout_latest_code,
+            "Pulls the latest git commit of your branch.",
+            RepoSettings
+        )
 
-        args = parser.parse_args()
+        self._set_parser(
+            SubCmd.acceptance_tests,
+            "Setups up envirnonment to run acceptance tests."
+        )
+
+        args = self.parser.parse_args()
 
         try:
             if args.which == SubCmd.setup_minio:
                 minio_settings = MinIOSettings(args)
                 YamlManager.save_to_yaml(minio_settings)
                 StandAloneMinIO(minio_settings).create()
+            elif args.which == SubCmd.acceptance_tests:
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
+                nodes = YamlManager.load_nodes_from_yaml_files(
+                    ctrl_settings, kit_settings)
+                executor = IntegrationTestsJob(
+                    ctrl_settings, kit_settings, nodes)
+                executor.setup_acceptance_tests()
             elif args.which == SubCmd.export_minio:
                 minio_settings = YamlManager.load_minio_settings_from_yaml()
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
                 minio_settings.export_loc = export_settings.export_loc
-                minio_settings.release_template_name = minio_settings.export_loc.render_export_name(MINIO_PREFIX, minio_settings.commit_hash)[0:-4]
+                minio_settings.release_template_name = minio_settings.export_loc.render_export_name(
+                    MINIO_PREFIX, minio_settings.commit_hash)[0:-4]
                 MinIOExport(minio_settings).export_minio()
             elif args.which == SubCmd.test_server_repository_vm:
                 repo_settings = RHELRepoSettings()
@@ -182,14 +224,16 @@ class Runner:
                 server_repo_settings = YamlManager.load_reposync_settings_from_yaml()
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-                executor_server = ReposyncServerExport(server_repo_settings, export_settings.export_loc)
+                executor_server = ReposyncServerExport(
+                    server_repo_settings, export_settings.export_loc)
                 executor_server.export_reposync_server()
 
             elif args.which == SubCmd.export_gip_service_vm:
                 gip_service_settings = YamlManager.load_gip_service_settings_from_yaml()
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-                executor = GIPServiceExport(gip_service_settings, export_settings.export_loc)
+                executor = GIPServiceExport(
+                    gip_service_settings, export_settings.export_loc)
                 executor.export_gip_service_vm()
             elif args.which == SubCmd.create_gip_service_vm:
                 service_settings = GIPServiceSettings()
@@ -244,19 +288,24 @@ class Runner:
             elif args.which == SubCmd.run_disk_fillup_tests:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
-                nodes = YamlManager.load_nodes_from_yaml_files(ctrl_settings, kit_settings)
-                executor = IntegrationTestsJob( ctrl_settings, kit_settings, nodes)
+                nodes = YamlManager.load_nodes_from_yaml_files(
+                    ctrl_settings, kit_settings)
+                executor = IntegrationTestsJob(
+                    ctrl_settings, kit_settings, nodes)
                 executor.run_disk_fillup_tests()
             elif args.which == SubCmd.run_integration_tests:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
-                nodes = YamlManager.load_nodes_from_yaml_files(ctrl_settings, kit_settings)
-                executor = IntegrationTestsJob(ctrl_settings, kit_settings, nodes)
+                nodes = YamlManager.load_nodes_from_yaml_files(
+                    ctrl_settings, kit_settings)
+                executor = IntegrationTestsJob(
+                    ctrl_settings, kit_settings, nodes)
                 executor.run_integration_tests()
             elif args.which == SubCmd.simulate_power_failure:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
-                nodes = YamlManager.load_nodes_from_yaml_files(ctrl_settings, kit_settings)
+                nodes = YamlManager.load_nodes_from_yaml_files(
+                    ctrl_settings, kit_settings)
                 executor = PowerFailureJob(ctrl_settings, kit_settings, nodes)
                 executor.simulate_power_failure()
             elif args.which == SubCmd.export_html_docs:
@@ -343,7 +392,7 @@ class Runner:
             logging.exception(e)
             exit(1)
         except AttributeError as e:
-            parser.print_help()
+            self.parser.print_help()
             traceback.print_exc()
             exit(1)
 

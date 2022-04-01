@@ -1,28 +1,29 @@
 import asyncio
-import os
 import logging
-import requests
+import os
 import time
-
 from datetime import datetime, timedelta
-from elasticsearch.exceptions import TransportError, ConnectionTimeout
-from fabric import Connection
-from elasticsearch import Elasticsearch
-from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
-from models.node import NodeSettingsV2, get_control_plane_node, HardwareNodeSettingsV2
-from models.kit import KitSettingsV2
+from typing import List, Union
 
-from typing import Union, List
-from util.api_tester import APITesterV2
-from util.network import IPAddressManager
+import pytest
+import requests
+from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import ConnectionTimeout, TransportError
+from fabric import Connection
+from models.ctrl_setup import (ControllerSetupSettings,
+                               HwControllerSetupSettings)
+from models.kit import KitSettingsV2
+from models.node import (HardwareNodeSettingsV2, NodeSettingsV2,
+                         get_control_plane_node)
+from util import redfish_util as redfish
+from util.ansible_util import power_off_vms, power_on_vms
+from util.api_tester import (APITesterV2, _clean_up, check_web_ca, get_api_key,
+                             get_web_ca)
 from util.connection_mngs import FabricConnectionWrapper, KubernetesWrapper
 from util.elastic import get_elastic_password, get_elastic_service_ip
-from util.ssh import test_nodes_up_and_alive
-from util.ansible_util import power_off_vms, power_on_vms
 from util.kubernetes_util import wait_for_pods_to_be_alive
-import os, logging
-from util.api_tester import get_api_key, get_web_ca, check_web_ca, _clean_up
-from util import redfish_util as redfish
+from util.network import IPAddressManager
+from util.ssh import test_nodes_up_and_alive
 
 TIMER_START_THRESHOLD = 60
 TIMER_TIMEOUT_MINUTES = 30
@@ -34,7 +35,7 @@ PCAPS = ["2018-09-06-infection-traffic-from-password-protected-Word-doc.pcap", "
          "2019-05-01-password-protected-doc-infection-traffic.pcap", "2019-07-09-password-protected-Word-doc-pushes-Dridex.pcap",
          "2019-08-12-Rig-EK-sends-MedusaHTTP-malware.pcap", "2019-09-03-password-protected-Word-doc-pushes-Remcos-RAT.pcap",
          "wannacry.pcap", "dns-dnskey.trace", "get.trace", "smb1_transaction_request.pcap", "zeek_it_intel.pcap"
-        ]
+         ]
 
 
 class NodeDiskFillup(Exception):
@@ -62,29 +63,37 @@ class IntegrationTestsJob:
                                   nodes=self.nodes)
 
     def _replay_pcaps(self):
-        headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
+        headers = {'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY']}
         root_ca = check_web_ca()
-        REPLAY_PACAP_URL = 'https://{}/api/policy/pcap/replay'.format(self.ctrl_settings.node.ipaddress)
-        for node in self.nodes: # type: NodeSettingsV2
+        REPLAY_PACAP_URL = 'https://{}/api/policy/pcap/replay'.format(
+            self.ctrl_settings.node.ipaddress)
+        for node in self.nodes:  # type: NodeSettingsV2
             if node.is_sensor():
                 monitoring_ifaces = node.get_monitoring_interfaces_from_mongo()
                 payloads = [
-                    {"pcap":"dns-dnskey.trace", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
-                    {"pcap":"get.trace", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
-                    {"pcap":"smb1_transaction_request.pcap", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
-                    {"pcap":"wannacry.pcap", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    {"pcap": "dns-dnskey.trace", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces,
+                        "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    {"pcap": "get.trace", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces,
+                        "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    {"pcap": "smb1_transaction_request.pcap", "sensor_ip": node.ip_address,
+                        "ifaces": monitoring_ifaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    {"pcap": "wannacry.pcap", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces,
+                        "sensor_hostname": node.hostname, "preserve_timestamp": False},
                 ]
                 for payload in payloads:
-                    response = requests.post(REPLAY_PACAP_URL, json=payload, verify=root_ca, headers=headers)
+                    response = requests.post(
+                        REPLAY_PACAP_URL, json=payload, verify=root_ca, headers=headers)
                     if response.status_code != 200:
-                        logging.error(str(response.status_code) + ': ' + response.text)
+                        logging.error(str(response.status_code) +
+                                      ': ' + response.text)
                         raise Exception("Failed to replay pcap.")
 
     def _set_api_keys_to_environment(self):
         try:
             api_key = get_api_key(self.ctrl_settings)
         except Exception as e:
-            logging.error('SSH to controller failed.  Unable to get API Key.  Exiting.')
+            logging.error(
+                'SSH to controller failed.  Unable to get API Key.  Exiting.')
             logging.error(e)
             exit(1)
         try:
@@ -92,6 +101,17 @@ class IntegrationTestsJob:
         except Exception as e:
             logging.error(e)
             logging.error('Falling back to verify=False.')
+
+    def setup_acceptance_tests(self):
+        cmd = ("source /opt/tfplenum/.venv/bin/activate && python3 -m pytest -s --durations=1 --durations-min=600.0 \
+            --junitxml=test_results.xml --gherkin-terminal-reporter -W ignore::DeprecationWarning -p pytest_cov \
+            --cov=app /opt/tfplenum/web/backend/tests/acceptance")
+
+        with FabricConnectionWrapper(self.ctrl_settings.node.username,
+                                     self.ctrl_settings.node.password,
+                                     self.ctrl_settings.node.ipaddress) as ctrl_cmd:
+            with ctrl_cmd.cd("/opt/tfplenum/web/backend"):
+                ctrl_cmd.run(cmd)
 
     def run_integration_tests(self):
         self._set_api_keys_to_environment()
@@ -101,18 +121,19 @@ class IntegrationTestsJob:
         self.runner.update_ruleset("zeek")
 
         self._replay_pcaps()
-        _clean_up(wait = 0)
-        current_path=os.getcwd()
-        reports_destination="reports/"
+        _clean_up(wait=0)
+        current_path = os.getcwd()
+        reports_destination = "reports/"
         if "jenkins" not in current_path and "workspace" not in current_path:
-            reports_destination=""
+            reports_destination = ""
         reports_source = "/opt/tfplenum/testing/playbooks/reports"
-        cmd_to_list_reports = ("for i in " + reports_source + "/*; do echo $i; done")
+        cmd_to_list_reports = (
+            "for i in " + reports_source + "/*; do echo $i; done")
         cmd_to_mkdir = ("mkdir -p reports")
-        cmd_to_execute = ("export JUNIT_OUTPUT_DIR='"+ reports_source +"' && \
+        cmd_to_execute = ("export JUNIT_OUTPUT_DIR='" + reports_source + "' && \
             export JUNIT_FAIL_ON_CHANGE='true' && \
             ansible-playbook -i /opt/tfplenum/core/playbooks/inventory/ -e ansible_ssh_pass='" +
-                self.kit_settings.settings.password + "' site.yml")
+                          self.kit_settings.settings.password + "' site.yml")
 
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
                                      self.ctrl_settings.node.password,
@@ -123,7 +144,7 @@ class IntegrationTestsJob:
                 ctrl_cmd.run(cmd_to_execute, shell=True)
 
             reports_string_ = ctrl_cmd.run(cmd_to_list_reports).stdout.strip()
-            reports = reports_string_.replace("\r","").split("\n")
+            reports = reports_string_.replace("\r", "").split("\n")
             for report in reports:
                 filename = report.replace(reports_source + "/", "")
                 ctrl_cmd.get(report, reports_destination + filename)
@@ -131,30 +152,32 @@ class IntegrationTestsJob:
         return True
 
     async def _check_disk(self, hostname, disk, tokens, remote_shell):
-            threshold_exceeded = False
-            for x in range(0, 5):
-                print("Rechecking disk {} on {}".format(disk, hostname))
-                cmd = "df -h {}".format(disk)
-                cmd = cmd + "| sed -e /Filesystem/d | awk '{ print $5 }'"
-                results = remote_shell.run(cmd, hide=True).stdout.strip()
-                usage = results[0:-1]
-                if int(usage) > NODE_DISK_THRESHOLD_CHECK:
-                    threshold_exceeded = True
-                    print(f"Threshold exceeded waiting to recheck disk {disk} on {hostname}")
-                else:
-                    print(f"Resetting threshold counter")
-                    threshold_exceeded = False
-                    self._threshold_counter = 0
-                    return
-                await asyncio.sleep(2)
+        threshold_exceeded = False
+        for x in range(0, 5):
+            print("Rechecking disk {} on {}".format(disk, hostname))
+            cmd = "df -h {}".format(disk)
+            cmd = cmd + "| sed -e /Filesystem/d | awk '{ print $5 }'"
+            results = remote_shell.run(cmd, hide=True).stdout.strip()
+            usage = results[0:-1]
+            if int(usage) > NODE_DISK_THRESHOLD_CHECK:
+                threshold_exceeded = True
+                print(
+                    f"Threshold exceeded waiting to recheck disk {disk} on {hostname}")
+            else:
+                print(f"Resetting threshold counter")
+                threshold_exceeded = False
+                self._threshold_counter = 0
+                return
+            await asyncio.sleep(2)
 
-            if threshold_exceeded:
-                print(f"Threshold exceeded raising NodeDiskFillup Exception for {disk} on {hostname}")
-                self._disk_pressure_job_completed = True
-                self._run_docker_cleanup()
-                self._clear_elastic_indexes()
-                raise NodeDiskFillup(f"Node {hostname} Filesystem: {tokens[0]} mounted on {tokens[5]} exceeded the {NODE_DISK_THRESHOLD_CHECK}% threshold. "
-                        f"Used space was {tokens[2]} with available space {tokens[3]}.")
+        if threshold_exceeded:
+            print(
+                f"Threshold exceeded raising NodeDiskFillup Exception for {disk} on {hostname}")
+            self._disk_pressure_job_completed = True
+            self._run_docker_cleanup()
+            self._clear_elastic_indexes()
+            raise NodeDiskFillup(f"Node {hostname} Filesystem: {tokens[0]} mounted on {tokens[5]} exceeded the {NODE_DISK_THRESHOLD_CHECK}% threshold. "
+                                 f"Used space was {tokens[2]} with available space {tokens[3]}.")
 
     async def _check_node_disks_work(self, hostname: str, remote_shell: Connection):
         """
@@ -189,16 +212,17 @@ class IntegrationTestsJob:
 
             if disk_usage > NODE_DISK_THRESHOLD_CHECK:
                 self._threshold_counter += 1
-                print(f"Increasing the threshold_counter {self._threshold_counter}")
+                print(
+                    f"Increasing the threshold_counter {self._threshold_counter}")
 
             if self._threshold_counter > MAX_THRESHOLD_COUNT:
-                print(f"Executing extra disk check")
+                print("Executing extra disk check")
                 await self._check_disk(hostname, tokens[5], tokens, remote_shell)
 
         print("Highest current disk usage: " + highest_disk_usage_info)
         await asyncio.sleep(20)
 
-    async def _check_node_disks_continuous(self, hostname: str, node: NodeSettingsV2, password:str):
+    async def _check_node_disks_continuous(self, hostname: str, node: NodeSettingsV2, password: str):
         with FabricConnectionWrapper(node.username,
                                      password,
                                      node.ip_address) as shell:
@@ -244,7 +268,8 @@ class IntegrationTestsJob:
                             self._timer_triggered = True
 
                         if disk_percentage > ELASIC_DISK_THRESHOLD_CHECK:
-                            raise ElasticDiskFillup(f"{node_name} exceeded the {ELASIC_DISK_THRESHOLD_CHECK}% threshold")
+                            raise ElasticDiskFillup(
+                                f"{node_name} exceeded the {ELASIC_DISK_THRESHOLD_CHECK}% threshold")
 
                 print("Current Elastic Allocations:")
                 print(allocations)
@@ -258,13 +283,13 @@ class IntegrationTestsJob:
             if self._disk_pressure_job_completed:
                 break
 
-
     async def _run_cold_log_pressure(self):
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
                                      self.ctrl_settings.node.password,
                                      self.ctrl_settings.node.ipaddress) as shell:
             while True:
-                shell.run("/opt/tfplenum/scripts/process_offline_logs.py system -t syslog -z /var/www/html/testfiles/system_logs.zip", shell=True, warn=True)
+                shell.run(
+                    "/opt/tfplenum/scripts/process_offline_logs.py system -t syslog -z /var/www/html/testfiles/system_logs.zip", shell=True, warn=True)
                 await asyncio.sleep(15)
 
                 if self._disk_pressure_job_completed:
@@ -272,10 +297,11 @@ class IntegrationTestsJob:
 
     def _run_docker_cleanup(self):
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
-                                self.ctrl_settings.node.password,
-                                self.ctrl_settings.node.ipaddress) as shell:
+                                     self.ctrl_settings.node.password,
+                                     self.ctrl_settings.node.ipaddress) as shell:
             shell.run("redis-cli FLUSHALL", shell=True, warn=True)
-            shell.run("systemctl restart rqworker@{1..20}", shell=True, warn=True)
+            shell.run(
+                "systemctl restart rqworker@{1..20}", shell=True, warn=True)
             shell.run("docker stop $(docker ps -qa)", shell=True, warn=True)
 
     async def _run_pcaps_on_sensors(self, node: NodeSettingsV2, password: str):
@@ -287,9 +313,11 @@ class IntegrationTestsJob:
                 for pcap in PCAPS:
                     shell.run(f"curl -o {pcap} http://controller/pcaps/{pcap}")
 
-                monitoring_iface = node.get_monitoring_interfaces_from_mongo()[0]
+                monitoring_iface = node.get_monitoring_interfaces_from_mongo()[
+                    0]
                 while True:
-                    shell.run(f"tcpreplay --mbps=1000 -i {monitoring_iface} --loop=1 *.pcap")
+                    shell.run(
+                        f"tcpreplay --mbps=1000 -i {monitoring_iface} --loop=1 *.pcap")
                     await self._check_node_disks(node.hostname, shell)
 
                     if self._disk_pressure_job_completed:
@@ -302,7 +330,8 @@ class IntegrationTestsJob:
                 while True:
                     delta = future_time - datetime.utcnow()
                     minutes = divmod(delta.total_seconds(), 60)
-                    print("Time before test passes is minutes: {}, seconeds: {}".format(minutes[0], minutes[1]))
+                    print("Time before test passes is minutes: {}, seconeds: {}".format(
+                        minutes[0], minutes[1]))
 
                     if future_time <= datetime.utcnow():
                         self._disk_pressure_job_completed = True
@@ -320,11 +349,12 @@ class IntegrationTestsJob:
         tasks.append(self._run_cold_log_pressure())
         tasks.append(self._check_elastic_cluster())
         password = self.kit_settings.settings.password
-        for node in self.nodes: # type: NodeSettingsV2
+        for node in self.nodes:  # type: NodeSettingsV2
             if node.is_sensor():
                 tasks.append(self._run_pcaps_on_sensors(node, password))
             elif node.is_server():
-                tasks.append(self._check_node_disks_continuous(node.hostname, node, password))
+                tasks.append(self._check_node_disks_continuous(
+                    node.hostname, node, password))
 
         await asyncio.gather(*tasks)
 
@@ -342,33 +372,38 @@ class IntegrationTestsJob:
 
     def _run_forcemerged(self) -> None:
         try:
-            self._es.indices.forcemerge(params={"only_expunge_deletes": "true", "ignore_unavailable": "true"})
+            self._es.indices.forcemerge(
+                params={"only_expunge_deletes": "true", "ignore_unavailable": "true"})
         except Exception as e:
             logging.exception(e)
 
     def _remove_index_blocks(self, index) -> None:
         try:
-            self._es.indices.put_settings(index=index, body={"index.blocks.read_only_allow_delete": None})
+            self._es.indices.put_settings(
+                index=index, body={"index.blocks.read_only_allow_delete": None})
         except Exception as e:
             logging.exception(e)
         try:
-            self._es.indices.put_settings(index=index, body={"index.blocks.write": None})
+            self._es.indices.put_settings(
+                index=index, body={"index.blocks.write": None})
         except Exception as e:
             logging.exception(e)
         try:
-            self._es.indices.put_settings(index=index, body={"index.blocks.read": None})
+            self._es.indices.put_settings(
+                index=index, body={"index.blocks.read": None})
         except Exception as e:
             logging.exception(e)
 
     def _clear_elastic_indexes(self):
-        result = self._es.cat.indices(params={"s": "store.size:desc", "h": "index"})
+        result = self._es.cat.indices(
+            params={"s": "store.size:desc", "h": "index"})
         indexes = result.split("\n")
         cold_log_index = "filebeat-external-cold-log-system"
         self._remove_index_blocks(cold_log_index)
         self._es.indices.close(cold_log_index)
         self._es.indices.delete(cold_log_index)
         for i in range(0, len(indexes)):
-            index = indexes[i] # type: str
+            index = indexes[i]  # type: str
 
             # Skip the index we deleted.
             if index == cold_log_index:
@@ -407,7 +442,8 @@ class IntegrationTestsJob:
             self._run_docker_cleanup()
             retries = 0
             while True:
-                print("Attempting to clear elastic indexes on retry number {}".format(retries))
+                print(
+                    "Attempting to clear elastic indexes on retry number {}".format(retries))
                 try:
                     self._clear_elastic_indexes()
                     break
@@ -447,7 +483,7 @@ class PowerFailureJob:
 
         # Power on the remaining kubernetes servers.
         remaining_srvs_to_power_on = []
-        for node in self.nodes: # type: NodeSettingsV2
+        for node in self.nodes:  # type: NodeSettingsV2
             if node.is_server() or node.is_service():
                 remaining_srvs_to_power_on.append(node)
 
@@ -472,7 +508,7 @@ class HwPowerFailureJob:
         self.kit_settings = kit_settings
 
     def run_power_cycle(self):
-        for node in self.nodes: # type: HardwareNodeSettingsV2
+        for node in self.nodes:  # type: HardwareNodeSettingsV2
             if node.is_control_plane():
                 power_off_vms(self.kit_settings.vcenter, node)
                 power_on_vms(self.kit_settings.vcenter, node)

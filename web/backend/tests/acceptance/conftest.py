@@ -1,5 +1,6 @@
 """Provides the basic fixture to mock the database and generate a test client."""
 import os
+import socket
 from unittest.mock import patch
 
 import app.utils.collections as mongo
@@ -8,6 +9,12 @@ from app import create_app
 from mongomock import MongoClient
 
 os.environ["IS_DEBUG_SERVER"] = "yes"
+
+
+@pytest.fixture
+def ctrl_ip():
+    hostname = socket.gethostname()
+    return socket.gethostbyname(hostname)
 
 
 class PyMongoMock(MongoClient):
@@ -21,3 +28,10 @@ def client():
         app = create_app({"TESTING": True})
         with app.test_client() as test_client:
             yield test_client
+
+
+@pytest.fixture
+def real_client():
+    app = create_app({"TESTING": True})
+    with app.test_client() as test_client:
+        yield test_client

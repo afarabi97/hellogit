@@ -48,12 +48,18 @@ class NodeCtrl(Resource):
                             exec_type=DEPLOYMENT_JOBS.remove_node)
         return JobID(job).to_dict()
 
+    def _get_settings(self):
+        return GeneralSettingsForm.load_from_db()
+
     @KIT_SETUP_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @KIT_SETUP_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
     @controller_admin_required
     def get(self, hostname: str) -> Response:
         try:
+            settings = self._get_settings()  # type: Dict
+            if not hostname.endswith(settings.domain):
+                hostname = f"{hostname}.{settings.domain}"
             node = Node.load_from_db_using_hostname_with_jobs(
                 hostname)  # type: dict
             if node:
@@ -66,6 +72,9 @@ class NodeCtrl(Resource):
     @KIT_SETUP_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_admin_required
     def delete(self, hostname: str) -> Response:
+        settings = GeneralSettingsForm.load_from_db()  # type: Dict
+        if not hostname.endswith(settings.domain):
+            hostname = f"{hostname}.{settings.domain}"
         delete_node = False
         try:
             node = Node.load_from_db_using_hostname(hostname)  # type: Node
@@ -86,6 +95,9 @@ class NodeCtrl(Resource):
                         # Remove node will delete this
                         delete_node = False
                         return self._remove_node(node), 200
+
+                elif node.node_type == NODE_TYPES.mip.value:
+                    return self._remove_node(node), 202
 
                 if delete_node:
                     node.delete()
@@ -130,6 +142,9 @@ class NewNodeCtrl(Resource):
         job = execute.delay(
             node=node, exec_type=DEPLOYMENT_JOBS.create_virtual)
         return JobID(job).to_dict()
+    
+    def _get_settings(self):
+        return GeneralSettingsForm.load_from_db()
 
     @KIT_SETUP_NS.expect(Node.DTO)
     @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
@@ -137,7 +152,7 @@ class NewNodeCtrl(Resource):
     @controller_admin_required
     def post(self) -> Response:
         try:
-            settings = GeneralSettingsForm.load_from_db()  # type: Dict
+            settings = self._get_settings() # type: Dict
             node = Node.load_node_from_request(
                 KIT_SETUP_NS.payload)  # type: Node
             if not node.hostname.endswith(settings.domain):

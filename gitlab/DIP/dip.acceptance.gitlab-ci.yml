@@ -1,14 +1,12 @@
 Acceptance Testing:
   stage: acceptance
   tags:
-    - docker-runner
-  image: $LATEST_CODE_CHECKER_IMAGE
+    - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
-    chmod +x web/backend/run_acceptance_tests.sh
-    web/backend/run_acceptance_tests.sh
+    python3 testing/pipeline/pipeline.py acceptance-tests
   allow_failure: false
   artifacts:
     paths:

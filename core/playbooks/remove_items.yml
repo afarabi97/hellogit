@@ -12,6 +12,7 @@
   register: results
   changed_when: results.rc == 0
   ignore_errors: yes
+  when: node_type != "MIP"
 
 - name: Remove {{ node_index }} Host Entry
   blockinfile:
@@ -48,7 +49,7 @@
     state: absent
 
 - name: Power off {{ node_index }} VM
-  ignore_errors: yes
+  ignore_errors: no
   vmware_guest:
     hostname: "{{ esxi.ipaddress }}"
     username: "{{ esxi.username }}"
@@ -59,10 +60,10 @@
     folder: "{{ folder }}"
     state: poweredoff
     validate_certs: no
-  when: hostvars[node_index].deployment_type == "Virtual"
+  when: (node_type == "MIP" and hostvars[node].deployment_type == "Virtual") or hostvars[node_index].deployment_type == "Virtual"
 
 - name: Deleting {{ node_index }} VM
-  ignore_errors: yes
+  ignore_errors: no
   vmware_guest:
     hostname: "{{ esxi.ipaddress }}"
     username: "{{ esxi.username }}"
@@ -73,4 +74,4 @@
     folder: "{{ folder }}"
     state: absent
     validate_certs: no
-  when: hostvars[node_index].deployment_type == "Virtual"
+  when: (node_type == "MIP" and hostvars[node].deployment_type == "Virtual") or hostvars[node_index].deployment_type == "Virtual"

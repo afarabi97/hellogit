@@ -78,6 +78,15 @@ export class MipManagementComponent implements OnInit {
     });
   }
 
+  canDeleteNode(node: Node){
+    for (const job of node.jobs){
+      if (job.name === 'create') {
+        return (this.getCurrentStatus(job) === 'Complete' || this.getCurrentStatus(job) === 'Error');
+      }
+    }
+    return true;
+  }
+
   deleteMIP(mip: Node) {
     const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
       title: `Delete ${mip.hostname}?`,
@@ -96,6 +105,7 @@ export class MipManagementComponent implements OnInit {
         });
       }
     });
+    mip.isRemoving = true;
   }
 
   stopNodeJob(node: Node) {
