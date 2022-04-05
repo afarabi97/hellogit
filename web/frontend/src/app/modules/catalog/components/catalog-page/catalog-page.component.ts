@@ -97,6 +97,8 @@ export class CatalogPageComponent implements OnInit {
   chart_info: ChartInfoClass;
   // Used for storing nodes
   nodes: NodeClass[];
+  // Used to ensure set Children is called
+  private set_children_called_: boolean;
   // Used for storing saved values if already installed
   private saved_values_: SavedValueClass[];
   // Used for storing the statuses of current apps
@@ -135,6 +137,7 @@ export class CatalogPageComponent implements OnInit {
     this.value_form_group = new FormGroup({});
     this.process_list = PROCESS_LIST.map((process: ProcessInterface) => ObjectUtilitiesClass.create_deep_copy<ProcessInterface>(process));
     this.node_list = [];
+    this.set_children_called_ = false;
     this.config_array_ = [];
     this.service_node_available_ = false;
     this.sensor_interface_states_ = {};
@@ -608,7 +611,7 @@ export class CatalogPageComponent implements OnInit {
    */
   private initialize_process_form_group_(): void {
     const process_form_group: FormGroup = this.form_builder_.group({
-      'selectedProcess': new FormControl({ value: '', disabled: true }, Validators.required),
+      'selectedProcess': new FormControl({ value: '', disabled: !this.set_children_called_ }, Validators.required),
       'selectedNodes': new FormControl({ value: [], disabled: true }),
       'node_affinity': new FormControl(this.chart_info.node_affinity)
     });
@@ -625,16 +628,15 @@ export class CatalogPageComponent implements OnInit {
     this.reset_config_form_group_();
     this.process_form_group.getRawValue().selectedNodes.forEach((node: NodeClass) => {
       this.set_deployment_name_();
+      form_control_dependent_apps = this.initialize_config_form_control(node.hostname);
+      /* istanbul ignore else */
       if (ObjectUtilitiesClass.notUndefNull(this.saved_values_)) {
         this.saved_values_.forEach((saved_value: SavedValueClass) => {
+          /* istanbul ignore else */
           if (saved_value.values['node_hostname'] === node.hostname) {
             form_control_dependent_apps = this.initialize_config_form_control(node.hostname, saved_value.values);
-          } else {
-            form_control_dependent_apps = this.initialize_config_form_control(node.hostname);
           }
         });
-      } else {
-        form_control_dependent_apps = this.initialize_config_form_control(node.hostname);
       }
       this.config_form_group.addControl(node.hostname, form_control_dependent_apps.form_controls_form_group);
       this.handle_checkbox_dependent_apps_(node.hostname, form_control_dependent_apps.checkbox_dependent_apps);
@@ -686,6 +688,8 @@ export class CatalogPageComponent implements OnInit {
    */
   private set_process_form_group_(process_form_group: FormGroup): void {
     this.process_form_group = process_form_group;
+    this.process_form_group.markAsPristine();
+    this.process_form_group.markAsUntouched();
     this.change_detector_ref_.detectChanges();
   }
 
@@ -800,6 +804,7 @@ export class CatalogPageComponent implements OnInit {
         break;
     }
     this.process_form_group.controls['selectedProcess'].enable();
+    this.set_children_called_ = true;
   }
 
   /**
