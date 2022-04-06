@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config
   xmlns:ncx="http://netconfcentral.org/ns/yuma-ncx"
-  ncx:last-modified="2022-03-28T14:57:08Z" ncx:etag="6319"
+  ncx:last-modified="2022-04-08T14:31:27Z" ncx:etag="6637"
   xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
   <aaa xmlns="http://www.dellemc.com/networking/os10/dell-system">
     <authentication>
@@ -322,6 +322,27 @@
         </action>
       </rule>
       <rule>
+        <seq-no>160</seq-no>
+        <remark>Unable to filter by icmp types so allowing icmp (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>170</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.139.1</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.139.2</source-address>
+            <source-mask>255.255.255.255</source-mask>
+            <src-address-format>host</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>1</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
         <seq-no>180</seq-no>
         <remark>Endgame to elasticsearch (1 line)</remark>
       </rule>
@@ -541,7 +562,7 @@
       </rule>
       <rule>
         <seq-no>320</seq-no>
-        <remark>Needed since pfsense MGMT traffic being punted over P2P</remark>
+        <remark>remote gip to internal</remark>
       </rule>
       <rule>
         <seq-no>330</seq-no>
@@ -549,32 +570,11 @@
           <match-ip>
             <destination-address>10.20.137.0</destination-address>
             <destination-mask>255.255.255.0</destination-mask>
-            <source-address>10.20.137.0</source-address>
-            <source-mask>255.255.255.0</source-mask>
+            <source-address>10.20.0.0</source-address>
+            <source-mask>255.255.128.0</source-mask>
             <src-address-format>prefix</src-address-format>
             <dst-address-format>prefix</dst-address-format>
             <ip-protocol>4</ip-protocol>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>160</seq-no>
-        <remark>icmp allowed internally to kit</remark>
-      </rule>
-      <rule>
-        <seq-no>170</seq-no>
-        <condition>
-          <match-ip>
-            <destination-address>10.20.136.0</destination-address>
-            <destination-mask>255.255.252.0</destination-mask>
-            <source-address>10.20.136.0</source-address>
-            <source-mask>255.255.252.0</source-mask>
-            <src-address-format>prefix</src-address-format>
-            <dst-address-format>prefix</dst-address-format>
-            <ip-protocol>1</ip-protocol>
           </match-ip>
         </condition>
         <action>
@@ -851,6 +851,48 @@
         </action>
       </rule>
       <rule>
+        <seq-no>200</seq-no>
+        <remark>allow ping/trace to internal network from management (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>210</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>1</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>220</seq-no>
+        <remark>allow ping/trace to dmz network from management (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>230</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.138.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>1</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
         <seq-no>240</seq-no>
         <remark>management to controller dns (1 line)</remark>
       </rule>
@@ -971,6 +1013,52 @@
         </action>
       </rule>
       <rule>
+        <seq-no>310</seq-no>
+        <remark>internal to management https return path (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>330</seq-no>
+        <remark>management to remote gip</remark>
+      </rule>
+      <rule>
+        <seq-no>340</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.0.0</destination-address>
+            <destination-mask>255.255.128.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>350</seq-no>
+        <remark>remote gip back - unsure if needed</remark>
+      </rule>
+      <rule>
+        <seq-no>360</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.0.0</source-address>
+            <source-mask>255.255.128.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
         <seq-no>80</seq-no>
         <condition>
           <match-ip>
@@ -994,10 +1082,6 @@
         </action>
       </rule>
       <rule>
-        <seq-no>310</seq-no>
-        <remark>internal to management https return path (1 line)</remark>
-      </rule>
-      <rule>
         <seq-no>320</seq-no>
         <condition>
           <match-ip>
@@ -1014,27 +1098,6 @@
                 <comparator>eq</comparator>
               </source-port-range>
             </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>200</seq-no>
-        <remark>icmp allowed internally to kit</remark>
-      </rule>
-      <rule>
-        <seq-no>210</seq-no>
-        <condition>
-          <match-ip>
-            <destination-address>10.20.136.0</destination-address>
-            <destination-mask>255.255.252.0</destination-mask>
-            <source-address>10.20.136.0</source-address>
-            <source-mask>255.255.252.0</source-mask>
-            <src-address-format>prefix</src-address-format>
-            <dst-address-format>prefix</dst-address-format>
-            <ip-protocol>1</ip-protocol>
           </match-ip>
         </condition>
         <action>
@@ -1899,6 +1962,31 @@
         <remark>minio back to management (1 line)</remark>
       </rule>
       <rule>
+        <seq-no>590</seq-no>
+        <remark>internal to management https (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>610</seq-no>
+        <remark>internal to remote gip</remark>
+      </rule>
+      <rule>
+        <seq-no>620</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.0.0</destination-address>
+            <destination-mask>255.255.128.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
         <seq-no>580</seq-no>
         <condition>
           <match-ip>
@@ -1920,10 +2008,6 @@
         <action>
           <packet-handling>permit</packet-handling>
         </action>
-      </rule>
-      <rule>
-        <seq-no>590</seq-no>
-        <remark>internal to management https (1 line)</remark>
       </rule>
       <rule>
         <seq-no>600</seq-no>
@@ -1948,21 +2032,71 @@
           <packet-handling>permit</packet-handling>
         </action>
       </rule>
+    </access-list>
+    <access-list>
+      <name>INTERNAL_in</name>
+      <role>ipv4</role>
+    </access-list>
+    <access-list>
+      <name>INTERNAL_PBR</name>
+      <role>ipv4</role>
       <rule>
-        <seq-no>610</seq-no>
-        <remark>icmp allowed internally to kit</remark>
-      </rule>
-      <rule>
-        <seq-no>620</seq-no>
+        <seq-no>20</seq-no>
         <condition>
           <match-ip>
-            <destination-address>10.20.136.0</destination-address>
-            <destination-mask>255.255.252.0</destination-mask>
-            <source-address>10.20.136.0</source-address>
-            <source-mask>255.255.252.0</source-mask>
+            <destination-address>10.20.138.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
             <src-address-format>prefix</src-address-format>
             <dst-address-format>prefix</dst-address-format>
-            <ip-protocol>1</ip-protocol>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>10</seq-no>
+        <remark>to dmz</remark>
+      </rule>
+      <rule>
+        <seq-no>30</seq-no>
+        <remark>to mgmt ip</remark>
+      </rule>
+      <rule>
+        <seq-no>40</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.3</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>50</seq-no>
+        <remark>to remote gip</remark>
+      </rule>
+      <rule>
+        <seq-no>60</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.0.0</destination-address>
+            <destination-mask>255.255.128.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
           </match-ip>
         </condition>
         <action>
@@ -1971,9 +2105,104 @@
       </rule>
     </access-list>
     <access-list>
-      <name>INTERNAL_in</name>
+      <name>MANAGEMENT_PBR</name>
       <role>ipv4</role>
+      <rule>
+        <seq-no>10</seq-no>
+        <remark>to dmz</remark>
+      </rule>
+      <rule>
+        <seq-no>20</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.138.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>30</seq-no>
+        <remark>to mgmt ip</remark>
+      </rule>
+      <rule>
+        <seq-no>50</seq-no>
+        <remark>to remote gip</remark>
+      </rule>
+      <rule>
+        <seq-no>60</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.0.0</destination-address>
+            <destination-mask>255.255.128.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>40</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.3</destination-address>
+            <destination-mask>255.255.255.255</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>host</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
     </access-list>
+    <route-map>
+      <rm-name>INTERNAL_PBR_RMAP</rm-name>
+      <rule>
+        <seq-no>10</seq-no>
+        <packet-handling>permit</packet-handling>
+        <match-node>
+          <ipv4-acl-list>INTERNAL_PBR</ipv4-acl-list>
+        </match-node>
+        <set-action>
+          <ipv4-nexthop>
+            <address>10.20.139.2</address>
+            <vrf>default</vrf>
+          </ipv4-nexthop>
+        </set-action>
+      </rule>
+    </route-map>
+    <route-map>
+      <rm-name>MANAGEMENT_PBR_RMAP</rm-name>
+      <rule>
+        <seq-no>10</seq-no>
+        <packet-handling>permit</packet-handling>
+        <match-node>
+          <ipv4-acl-list>MANAGEMENT_PBR</ipv4-acl-list>
+        </match-node>
+        <set-action>
+          <ipv4-nexthop>
+            <address>10.20.136.3</address>
+            <vrf>default</vrf>
+          </ipv4-nexthop>
+        </set-action>
+      </rule>
+    </route-map>
     <policy-vty-config>
       <vty-acl>
         <ip-type>ipv4</ip-type>
@@ -1998,6 +2227,7 @@
   <dns-resolver xmlns="http://www.dellemc.com/networking/os10/dell-dns">
     <vrf>default</vrf>
     <hostname>lan</hostname>
+    <server>10.20.137.40</server>
     <server>10.20.137.15</server>
   </dns-resolver>
   <errdisable xmlns="http://www.dellemc.com/networking/os10/dell-system">
@@ -2054,8 +2284,7 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2091,8 +2320,7 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2128,8 +2356,7 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2165,8 +2392,7 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2201,8 +2427,7 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2237,8 +2462,7 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2273,8 +2497,7 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2309,8 +2532,7 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2507,6 +2729,13 @@
           <name>MANAGEMENT_IN</name>
         </access-group>
       </policy-acl-config>
+      <policy-pbr-config xmlns="http://www.dellemc.com/networking/os10/dell-policy">
+        <pbr-route-map-group>
+          <ip-type>ipv4</ip-type>
+          <vrf>0</vrf>
+          <route-map-name>MANAGEMENT_PBR_RMAP</route-map-name>
+        </pbr-route-map-group>
+      </policy-pbr-config>
       <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/1</tagged-ports>
       <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/15</tagged-ports>
       <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/2</untagged-ports>
@@ -2579,6 +2808,13 @@
           <name>INTERNAL_IN</name>
         </access-group>
       </policy-acl-config>
+      <policy-pbr-config xmlns="http://www.dellemc.com/networking/os10/dell-policy">
+        <pbr-route-map-group>
+          <ip-type>ipv4</ip-type>
+          <vrf>0</vrf>
+          <route-map-name>INTERNAL_PBR_RMAP</route-map-name>
+        </pbr-route-map-group>
+      </policy-pbr-config>
       <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/1</tagged-ports>
       <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/15</tagged-ports>
       <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/10</untagged-ports>
@@ -2778,8 +3014,7 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2813,8 +3048,7 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2848,8 +3082,7 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -2883,8 +3116,7 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
       <dhcp-v4-snooping-intf-config xmlns="http://www.dellemc.com/networking/os10/dell-dhcp-snooping">
-        <sav>
-        </sav>
+        <sav/>
       </dhcp-v4-snooping-intf-config>
       <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
         <tx-enable>false</tx-enable>
@@ -3042,6 +3274,9 @@
   </nacm>
   <ntp-config xmlns="http://www.dellemc.com/networking/os10/dell-ntp">
     <servers>
+      <server>
+        <address>10.20.137.40</address>
+      </server>
       <server>
         <address>10.20.137.15</address>
         <prefer>true</prefer>

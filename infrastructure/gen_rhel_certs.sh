@@ -1,5 +1,5 @@
 #!/bin/bash
-
+ 
 # Documentation can be found here for this process manually
 # https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/yum-repositories/proxying-rhel-yum-repositories
 

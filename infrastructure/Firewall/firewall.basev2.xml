@@ -125,9 +125,6 @@
 			<enable>enabled</enable>
 		</ssh>
 		<hn_altq_enable></hn_altq_enable>
-		<maxmss_enable></maxmss_enable>
-		<maxmss>1380</maxmss>
-		<pkg_repo_conf_path>/usr/local/share/pfSense/pkg/repos/pfSense-repo.conf</pkg_repo_conf_path>
 	</system>
 	<interfaces>
 		<wan>
@@ -137,8 +134,9 @@
 			<alias-address></alias-address>
 			<alias-subnet>32</alias-subnet>
 			<enable></enable>
-			<ipaddr>172.16.1.6</ipaddr>
+			<ipaddr>10.10.3.3</ipaddr>
 			<subnet>24</subnet>
+			<gateway>ExternalGW</gateway>
 		</wan>
 		<lan>
 			<enable></enable>
@@ -167,7 +165,7 @@
 	</interfaces>
 	<staticroutes>
 		<route>
-			<network>10.20.136.0/22</network>
+			<network>10.20.137.0/24</network>
 			<gateway>Core_Switch_P2P</gateway>
 			<descr><![CDATA[INTERNAL Network]]></descr>
 		</route>
@@ -175,6 +173,7 @@
 			<network>10.20.136.0/25</network>
 			<gateway>Core_Switch_P2P</gateway>
 			<descr><![CDATA[MGMT NETWORK ROUTE]]></descr>
+			<disabled></disabled>
 		</route>
 	</staticroutes>
 	<dhcpd>
@@ -210,15 +209,14 @@
 			<ddnsdomainsecondary></ddnsdomainsecondary>
 			<ddnsdomainkeyalgorithm>hmac-md5</ddnsdomainkeyalgorithm>
 			<ddnsclientupdates>allow</ddnsclientupdates>
-			<enable></enable>
-			<dnsserver>10.20.137.15</dnsserver>
-			<ntpserver>10.20.137.15</ntpserver>
+			<ntpserver>10.20.136.1</ntpserver>
 		</lan>
 		<opt2>
 			<range>
 				<from>10.20.138.224</from>
 				<to>10.20.138.254</to>
 			</range>
+			<enable></enable>
 			<failover_peerip></failover_peerip>
 			<defaultleasetime></defaultleasetime>
 			<maxleasetime></maxleasetime>
@@ -241,9 +239,6 @@
 			<rootpath></rootpath>
 			<numberoptions></numberoptions>
 			<dhcpleaseinlocaltime></dhcpleaseinlocaltime>
-			<ddnsdomainsecondary></ddnsdomainsecondary>
-			<ddnsdomainkeyalgorithm>hmac-md5</ddnsdomainkeyalgorithm>
-			<ddnsclientupdates>allow</ddnsclientupdates>
 		</opt2>
 		<opt3>
 			<range>
@@ -274,7 +269,6 @@
 			<filename64></filename64>
 			<rootpath></rootpath>
 			<numberoptions></numberoptions>
-			<dhcpleaseinlocaltime></dhcpleaseinlocaltime>
 		</opt3>
 	</dhcpd>
 	<snmpd>
@@ -292,7 +286,6 @@
 		<filter_settings>
 			<cronorder>reverse</cronorder>
 		</filter_settings>
-		<reverse></reverse>
 	</syslog>
 	<nat>
 		<outbound>
@@ -361,11 +354,11 @@
 			<descr><![CDATA[Port forwards Winlogbeats client traffic connecting to External to Logstash server]]></descr>
 			<associated-rule-id>nat_5cc1fc988aee34.45304723</associated-rule-id>
 			<updated>
-				<time>1556208984</time>
+				<time>1556216984</time>
 				<username><![CDATA[assessor@10.20.136.50]]></username>
 			</updated>
 			<created>
-				<time>1556208984</time>
+				<time>1556216984</time>
 				<username><![CDATA[assessor@10.20.136.50]]></username>
 			</created>
 		</rule>
@@ -427,6 +420,135 @@
 			<updated>
 				<time>1556626122</time>
 				<username><![CDATA[assessor@10.20.136.50]]></username>
+			</updated>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1649360958</tracker>
+			<type>pass</type>
+			<interface>wan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>udp</protocol>
+			<source>
+				<address>Remote_GIP_EXTERNAL_IP</address>
+			</source>
+			<destination>
+				<any></any>
+				<port>4500</port>
+			</destination>
+			<descr><![CDATA[GIP IPSEC NAT-T Tunnel Allow]]></descr>
+			<updated>
+				<time>1649360958</time>
+				<username><![CDATA[assessor@10.2.2.19 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1649360958</time>
+				<username><![CDATA[assessor@10.2.2.19 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1649360937</tracker>
+			<type>pass</type>
+			<interface>wan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>udp</protocol>
+			<source>
+				<address>Remote_GIP_EXTERNAL_IP</address>
+			</source>
+			<destination>
+				<any></any>
+				<port>500</port>
+			</destination>
+			<descr><![CDATA[GIP ISAKMP Tunnel Allow]]></descr>
+			<updated>
+				<time>1649360937</time>
+				<username><![CDATA[assessor@10.2.2.19 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1649360937</time>
+				<username><![CDATA[assessor@10.2.2.19 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1649353387</tracker>
+			<type>pass</type>
+			<interface>wan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>esp</protocol>
+			<source>
+				<address>Remote_GIP_EXTERNAL_IP</address>
+			</source>
+			<destination>
+				<any></any>
+			</destination>
+			<descr><![CDATA[GIP ESP Tunnel Allow]]></descr>
+			<created>
+				<time>1649353387</time>
+				<username><![CDATA[assessor@10.2.2.19 (Local Database)]]></username>
+			</created>
+			<updated>
+				<time>1649360914</time>
+				<username><![CDATA[assessor@10.2.2.19 (Local Database)]]></username>
+			</updated>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1648755105</tracker>
+			<type>pass</type>
+			<interface>wan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>SIL_Network</address>
+			</source>
+			<destination>
+				<any></any>
+			</destination>
+			<descr><![CDATA[Allow SIL to Any]]></descr>
+			<created>
+				<time>1648755105</time>
+				<username><![CDATA[assessor@10.20.136.245 (Local Database)]]></username>
+			</created>
+			<updated>
+				<time>1649360768</time>
+				<username><![CDATA[assessor@10.2.2.19 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -498,7 +620,7 @@
 		</rule>
 		<rule>
 			<id></id>
-			<tracker>1556208984</tracker>
+			<tracker>1556216984</tracker>
 			<type>pass</type>
 			<interface>wan</interface>
 			<ipprotocol>inet</ipprotocol>
@@ -522,7 +644,7 @@
 			<descr><![CDATA[NAT Port forwards Winlogbeats client traffic]]></descr>
 			<associated-rule-id>nat_5cc1fc988aee34.45304723</associated-rule-id>
 			<created>
-				<time>1556208984</time>
+				<time>1556216984</time>
 				<username><![CDATA[NAT Port Forward]]></username>
 			</created>
 			<updated>
@@ -615,7 +737,7 @@
 			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp/udp</protocol>
 			<source>
-				<any>lan</any>
+				<any></any>
 			</source>
 			<destination>
 				<network>lanip</network>
@@ -629,6 +751,37 @@
 				<time>1623759241</time>
 				<username><![CDATA[assessor@10.1.1.35 (Local Database)]]></username>
 			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1649253305</tracker>
+			<type>pass</type>
+			<interface>lan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<network>lan</network>
+			</source>
+			<destination>
+				<address>10.20.0.0/17</address>
+			</destination>
+			<descr><![CDATA[MGMT Network to Remote GIP]]></descr>
+			<created>
+				<time>1649253305</time>
+				<username><![CDATA[assessor@10.2.2.215 (Local Database)]]></username>
+			</created>
+			<updated>
+				<time>1649253329</time>
+				<username><![CDATA[assessor@10.2.2.215 (Local Database)]]></username>
+			</updated>
 		</rule>
 		<rule>
 			<id></id>
@@ -710,22 +863,21 @@
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
-			<protocol>tcp</protocol>
+			<protocol>tcp/udp</protocol>
 			<source>
-				<address>10.20.2.0/24</address>
+				<address>10.20.2.0/23</address>
 			</source>
 			<destination>
 				<address>10.20.136.0/22</address>
-				<port>TCP_MGMT</port>
 			</destination>
-			<descr><![CDATA[Allow Remote GIP MGMT Net to DIP Networks]]></descr>
+			<descr><![CDATA[Allow Remote GIP MGMT/OPS NET to DIP NET]]></descr>
 			<created>
 				<time>1630697490</time>
 				<username><![CDATA[assessor@10.2.2.49 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1631119484</time>
-				<username><![CDATA[assessor@10.10.102.155 (Local Database)]]></username>
+				<time>1649271787</time>
+				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -743,22 +895,21 @@
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
-			<protocol>tcp</protocol>
+			<protocol>tcp/udp</protocol>
 			<source>
-				<address>10.20.67.0/24</address>
+				<address>10.20.64.0/19</address>
 			</source>
 			<destination>
 				<address>10.20.136.0/22</address>
-				<port>TCP_MGMT</port>
 			</destination>
-			<descr><![CDATA[Allow Remote GIP MIP SUPT to DIP MGMT Network]]></descr>
+			<descr><![CDATA[Allow Remote GIP MIP NET to DIP NET]]></descr>
 			<created>
 				<time>1631120452</time>
 				<username><![CDATA[assessor@10.10.102.155 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1631130505</time>
-				<username><![CDATA[assessor@10.10.102.155 (Local Database)]]></username>
+				<time>1649271715</time>
+				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -776,23 +927,22 @@
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
-			<protocol>tcp</protocol>
+			<protocol>tcp/udp</protocol>
 			<source>
-				<address>10.20.96.0/24</address>
+				<address>10.20.96.0/19</address>
 			</source>
 			<destination>
 				<address>10.20.136.0/22</address>
-				<port>TCP_MGMT</port>
 			</destination>
-			<descr><![CDATA[Allow Remote GIP XE2 to DIP MGMT Network]]></descr>
-			<updated>
-				<time>1631120513</time>
-				<username><![CDATA[assessor@10.10.102.155 (Local Database)]]></username>
-			</updated>
+			<descr><![CDATA[Allow Remote GIP XE2 to DIP NET]]></descr>
 			<created>
 				<time>1631120513</time>
 				<username><![CDATA[assessor@10.10.102.155 (Local Database)]]></username>
 			</created>
+			<updated>
+				<time>1649271751</time>
+				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
+			</updated>
 		</rule>
 		<rule>
 			<id></id>
@@ -1106,105 +1256,6 @@
 		</rule>
 		<rule>
 			<id></id>
-			<tracker>1639160128</tracker>
-			<type>pass</type>
-			<interface>opt3</interface>
-			<ipprotocol>inet</ipprotocol>
-			<tag></tag>
-			<tagged></tagged>
-			<max></max>
-			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
-			<max-src-states></max-src-states>
-			<statetimeout></statetimeout>
-			<statetype><![CDATA[keep state]]></statetype>
-			<os></os>
-			<protocol>icmp</protocol>
-			<icmptype>any</icmptype>
-			<source>
-				<address>10.20.136.0/23</address>
-			</source>
-			<destination>
-				<address>Remote_GIP_Network</address>
-			</destination>
-			<descr><![CDATA[ICMP DIP TO GIP 20 (TESTING)]]></descr>
-			<created>
-				<time>1639160128</time>
-				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
-			</created>
-			<updated>
-				<time>1639168120</time>
-				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
-			</updated>
-		</rule>
-		<rule>
-			<id></id>
-			<tracker>1639169474</tracker>
-			<type>pass</type>
-			<interface>opt3</interface>
-			<ipprotocol>inet</ipprotocol>
-			<tag></tag>
-			<tagged></tagged>
-			<max></max>
-			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
-			<max-src-states></max-src-states>
-			<statetimeout></statetimeout>
-			<statetype><![CDATA[keep state]]></statetype>
-			<os></os>
-			<protocol>tcp</protocol>
-			<source>
-				<address>10.20.136.0/23</address>
-			</source>
-			<destination>
-				<address>GIP_MGMT_OPS_SERVICES_NETS</address>
-				<port>DIP_TO_GIP_TCP</port>
-			</destination>
-			<descr><![CDATA[DIP TO GIP TCP (TESTING)]]></descr>
-			<updated>
-				<time>1639169474</time>
-				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
-			</updated>
-			<created>
-				<time>1639169474</time>
-				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
-			</created>
-		</rule>
-		<rule>
-			<id></id>
-			<tracker>1639169498</tracker>
-			<type>pass</type>
-			<interface>opt3</interface>
-			<ipprotocol>inet</ipprotocol>
-			<tag></tag>
-			<tagged></tagged>
-			<max></max>
-			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
-			<max-src-states></max-src-states>
-			<statetimeout></statetimeout>
-			<statetype><![CDATA[keep state]]></statetype>
-			<os></os>
-			<protocol>udp</protocol>
-			<source>
-				<address>10.20.136.0/23</address>
-			</source>
-			<destination>
-				<address>GIP_MGMT_OPS_SERVICES_NETS</address>
-				<port>DIP_TO_GIP_UDP</port>
-			</destination>
-			<descr><![CDATA[DIP TO GIP UDP (TESTING)]]></descr>
-			<updated>
-				<time>1639169498</time>
-				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
-			</updated>
-			<created>
-				<time>1639169498</time>
-				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
-			</created>
-		</rule>
-		<rule>
-			<id></id>
 			<tracker>1623942525</tracker>
 			<type>pass</type>
 			<interface>opt3</interface>
@@ -1388,7 +1439,7 @@
 				<network>lan</network>
 			</source>
 			<destination>
-				<network>lan</network>
+				<network>lanip</network>
 				<port>53</port>
 			</destination>
 			<descr><![CDATA[Allow DNS from Management net to Management address]]></descr>
@@ -1465,6 +1516,38 @@
 			<updated>
 				<time>1631027786</time>
 				<username><![CDATA[assessor@10.2.2.49 (Local Database)]]></username>
+			</updated>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1649253431</tracker>
+			<type>pass</type>
+			<interface>opt3</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>tcp/udp</protocol>
+			<source>
+				<address>10.20.136.0/23</address>
+			</source>
+			<destination>
+				<address>10.20.0.0/17</address>
+			</destination>
+			<descr><![CDATA[MGMT/INTERNAL to Remote GIP]]></descr>
+			<created>
+				<time>1649253431</time>
+				<username><![CDATA[assessor@10.2.2.215 (Local Database)]]></username>
+			</created>
+			<updated>
+				<time>1649273224</time>
+				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -1546,13 +1629,14 @@
 			<enc0></enc0>
 		</separator>
 	</filter>
-	<shaper></shaper>
+	<shaper>
+	</shaper>
 	<ipsec>
 		<phase1>
 			<ikeid>1</ikeid>
 			<iketype>ikev2</iketype>
 			<interface>wan</interface>
-			<remote-gateway>10.10.220.4</remote-gateway>
+			<remote-gateway>10.10.4.85</remote-gateway>
 			<protocol>inet</protocol>
 			<myid_type>myaddress</myid_type>
 			<myid_data></myid_data>
@@ -1592,9 +1676,9 @@
 		<client></client>
 		<phase2>
 			<ikeid>1</ikeid>
-			<uniqid>61b38069a236e</uniqid>
+			<uniqid>5d1117c4182e6</uniqid>
 			<mode>tunnel</mode>
-			<reqid>2</reqid>
+			<reqid>1</reqid>
 			<localid>
 				<type>network</type>
 				<address>10.20.136.0</address>
@@ -1616,13 +1700,13 @@
 			<rekey_time>25920</rekey_time>
 			<rand_time>2880</rand_time>
 			<pinghost>10.20.3.1</pinghost>
-			<descr><![CDATA[MGMT TO GIP 20]]></descr>
+			<descr><![CDATA[Remote GIP to DIP Internal]]></descr>
 		</phase2>
 		<phase2>
 			<ikeid>1</ikeid>
-			<uniqid>61b380cbc524d</uniqid>
+			<uniqid>62461a2333155</uniqid>
 			<mode>tunnel</mode>
-			<reqid>3</reqid>
+			<reqid>2</reqid>
 			<localid>
 				<type>network</type>
 				<address>10.20.137.0</address>
@@ -1640,17 +1724,17 @@
 			</encryption-algorithm-option>
 			<hash-algorithm-option>hmac_sha256</hash-algorithm-option>
 			<pfsgroup>14</pfsgroup>
-			<lifetime>28800</lifetime>
-			<rekey_time>25920</rekey_time>
-			<rand_time>2880</rand_time>
+			<lifetime>3600</lifetime>
+			<rekey_time></rekey_time>
+			<rand_time></rand_time>
 			<pinghost>10.20.3.1</pinghost>
-			<descr><![CDATA[INT TO GIP 20]]></descr>
+			<descr><![CDATA[INTERNAL TO GIP 20]]></descr>
 		</phase2>
 		<phase2>
 			<ikeid>1</ikeid>
-			<uniqid>61b380f6a3200</uniqid>
+			<uniqid>62461a621c1af</uniqid>
 			<mode>tunnel</mode>
-			<reqid>1</reqid>
+			<reqid>3</reqid>
 			<localid>
 				<type>network</type>
 				<address>10.20.138.0</address>
@@ -1668,15 +1752,15 @@
 			</encryption-algorithm-option>
 			<hash-algorithm-option>hmac_sha256</hash-algorithm-option>
 			<pfsgroup>14</pfsgroup>
-			<lifetime>28800</lifetime>
-			<rekey_time>25920</rekey_time>
-			<rand_time>2880</rand_time>
-			<pinghost>10.20.2.1</pinghost>
+			<lifetime>3600</lifetime>
+			<rekey_time></rekey_time>
+			<rand_time></rand_time>
+			<pinghost>10.20.3.1</pinghost>
 			<descr><![CDATA[DMZ TO GIP 20]]></descr>
 		</phase2>
 		<phase2>
 			<ikeid>1</ikeid>
-			<uniqid>61b3819d7726c</uniqid>
+			<uniqid>62461a974af46</uniqid>
 			<mode>tunnel</mode>
 			<reqid>4</reqid>
 			<localid>
@@ -1696,35 +1780,13 @@
 			</encryption-algorithm-option>
 			<hash-algorithm-option>hmac_sha256</hash-algorithm-option>
 			<pfsgroup>14</pfsgroup>
-			<lifetime>28800</lifetime>
-			<rekey_time>25920</rekey_time>
-			<rand_time>2880</rand_time>
+			<lifetime>3600</lifetime>
+			<rekey_time></rekey_time>
+			<rand_time></rand_time>
 			<pinghost>10.20.3.1</pinghost>
-			<descr><![CDATA[SPARE TO GIP 20]]></descr>
+			<descr></descr>
 		</phase2>
 		<vtimaps></vtimaps>
-		<logging>
-			<dmn>1</dmn>
-			<mgr>1</mgr>
-			<ike>2</ike>
-			<chd>2</chd>
-			<job>1</job>
-			<cfg>2</cfg>
-			<knl>1</knl>
-			<net>1</net>
-			<asn>1</asn>
-			<enc>1</enc>
-			<imc>1</imc>
-			<imv>1</imv>
-			<pts>1</pts>
-			<tls>1</tls>
-			<esp>1</esp>
-			<lib>1</lib>
-		</logging>
-		<async_crypto>disabled</async_crypto>
-		<uniqueids>replace</uniqueids>
-		<filtermode>enc</filtermode>
-		<bypassrules></bypassrules>
 	</ipsec>
 	<aliases>
 		<alias>
@@ -1733,20 +1795,6 @@
 			<address>10.20.137.15</address>
 			<descr></descr>
 			<detail><![CDATA[Entry added Fri, 13 Mar 2020 02:06:45 +0000]]></detail>
-		</alias>
-		<alias>
-			<name>DIP_TO_GIP_TCP</name>
-			<type>port</type>
-			<address>22 443 3033 135:139 445</address>
-			<descr><![CDATA[DIP TO GIP TCP PORTS]]></descr>
-			<detail><![CDATA[Entry added Fri, 10 Dec 2021 20:31:29 +0000||Entry added Fri, 10 Dec 2021 20:31:29 +0000||Entry added Fri, 10 Dec 2021 20:31:29 +0000||Entry added Fri, 10 Dec 2021 20:31:29 +0000||Entry added Fri, 10 Dec 2021 20:31:29 +0000]]></detail>
-		</alias>
-		<alias>
-			<name>DIP_TO_GIP_UDP</name>
-			<type>port</type>
-			<address>135:139 445</address>
-			<descr><![CDATA[DIP TO GIP UDP PORTS]]></descr>
-			<detail><![CDATA[Entry added Fri, 10 Dec 2021 20:31:59 +0000||Entry added Fri, 10 Dec 2021 20:31:59 +0000]]></detail>
 		</alias>
 		<alias>
 			<name>Elasticsearch</name>
@@ -1775,13 +1823,6 @@
 			<address>443</address>
 			<descr><![CDATA[Allows Endgame clients to communicate to the Endgame server through port forwarding]]></descr>
 			<detail><![CDATA[Arbitrary port set in sensor configuration]]></detail>
-		</alias>
-		<alias>
-			<name>GIP_MGMT_OPS_SERVICES_NETS</name>
-			<type>network</type>
-			<address>10.20.2.0/24 10.20.3.0/24 10.20.4.0/24</address>
-			<descr><![CDATA[REMOTE GIP NETWORKS - MGMT OPS SERVICES]]></descr>
-			<detail><![CDATA[MGMT||OPS||SERVICES]]></detail>
 		</alias>
 		<alias>
 			<name>INTERNAL_net</name>
@@ -1814,9 +1855,9 @@
 		<alias>
 			<name>MPNet</name>
 			<type>network</type>
-			<address>172.16.71.0/24 172.16.70.0/24 172.16.72.0/24</address>
+			<address>172.16.71.0/24 172.16.70.0/24 172.16.72.0/24 10.30.202.0/24 10.98.20.75/32</address>
 			<descr><![CDATA[Defines Mission Partner Network Range(s)]]></descr>
-			<detail><![CDATA[Desired MP Network (Example)||Desired MP Network (Example)||Desired MP Network (Example)]]></detail>
+			<detail><![CDATA[Desired MP Network (Example)||Desired MP Network (Example)||Desired MP Network (Example)||Target_Endpoints||Remote_Sensor]]></detail>
 		</alias>
 		<alias>
 			<name>MPNET_DNS</name>
@@ -1863,16 +1904,9 @@
 		<alias>
 			<name>Remote_GIP_EXTERNAL_IP</name>
 			<type>host</type>
-			<address>10.10.220.4</address>
+			<address>10.10.4.85</address>
 			<descr><![CDATA[IP Address for Remote GIP WAN ]]></descr>
 			<detail><![CDATA[Remote GIP WAN IP]]></detail>
-		</alias>
-		<alias>
-			<name>Remote_GIP_Network</name>
-			<type>network</type>
-			<address>10.20.0.0/17</address>
-			<descr><![CDATA[GIP 20]]></descr>
-			<detail><![CDATA[GIP 20]]></detail>
 		</alias>
 		<alias>
 			<name>Remote_Operations_Ports</name>
@@ -1901,6 +1935,13 @@
 			<address>server1.catwoman</address>
 			<descr></descr>
 			<detail><![CDATA[Entry added Fri, 13 Mar 2020 02:06:45 +0000]]></detail>
+		</alias>
+		<alias>
+			<name>SIL_Network</name>
+			<type>network</type>
+			<address>10.2.0.0/16 10.10.0.0/16</address>
+			<descr><![CDATA[SIL_Network]]></descr>
+			<detail><![CDATA[VPN_SIL||SIL_Local]]></detail>
 		</alias>
 		<alias>
 			<name>Switch_P2P</name>
@@ -2057,16 +2098,17 @@
 			<filterlogentriesinterval>30</filterlogentriesinterval>
 		</log-0>
 		<services_status-0>
-			<filter></filter>
+			<filter>dhcpd</filter>
 			<descr><![CDATA[Services Status]]></descr>
 		</services_status-0>
 		<system_information-0>
 			<filter>name,system,bios,platform,cpu_type,hwcrypto,mbuf_usage</filter>
 		</system_information-0>
 	</widgets>
-	<dnshaper></dnshaper>
+	<dnshaper>
+	</dnshaper>
 	<unbound>
-		<active_interface>all</active_interface>
+		<active_interface>wan,lan,opt2,lo0</active_interface>
 		<outgoing_interface>opt3</outgoing_interface>
 		<custom_options></custom_options>
 		<hideidentity></hideidentity>
@@ -2129,12 +2171,11 @@
 	</unbound>
 	<dyndnses></dyndnses>
 	<revision>
-		<time>1648676590</time>
-		<description><![CDATA[assessor@10.20.148.243 (Local Database): Interfaces settings changed]]></description>
-		<username><![CDATA[assessor@10.20.148.243 (Local Database)]]></username>
+		<time>1649360958</time>
+		<description><![CDATA[assessor@10.2.2.19 (Local Database): Firewall: Rules - saved/edited a firewall rule.]]></description>
+		<username><![CDATA[assessor@10.2.2.19 (Local Database)]]></username>
 	</revision>
-	<ppps>
-	</ppps>
+	<ppps></ppps>
 	<ntpd>
 		<interface>opt3</interface>
 		<gps>
@@ -2167,10 +2208,9 @@
 			<name>ExternalGW</name>
 			<weight></weight>
 			<ipprotocol>inet</ipprotocol>
-			<descr><![CDATA[New_SIL_GW_for_DIPS]]></descr>
+			<descr><![CDATA[ExternalGW]]></descr>
 		</gateway_item>
 		<defaultgw4>ExternalGW</defaultgw4>
-		<defaultgw6></defaultgw6>
 	</gateways>
 	<vlans></vlans>
 	<openvpn></openvpn>
@@ -2263,9 +2303,6 @@
 			</tabs>
 			<include_file>/usr/local/pkg/openvpn-client-export.inc</include_file>
 		</package>
-		<vpn_openvpn_export>
-			<config></config>
-		</vpn_openvpn_export>
 		<service>
 			<name>vmware-guestd</name>
 			<rcfile>vmware-guestd.sh</rcfile>
@@ -2278,5 +2315,8 @@
 			<custom_php_service_status_command>mwexec(&quot;/usr/local/etc/rc.d/vmware-kmod status&quot;) == 0;</custom_php_service_status_command>
 			<description><![CDATA[VMware Kernel Modules]]></description>
 		</service>
+		<vpn_openvpn_export>
+			<config></config>
+		</vpn_openvpn_export>
 	</installedpackages>
 </pfsense>
