@@ -6,20 +6,12 @@ ${KIBANA_USERNAME}              elastic
 
 ${SSO_FILE}                     /opt/sso-idp/sso_admin_password.txt
 
-# Put a TILDE '~' in the spot you want to inject into! Use with:
-#   inject count of ${first_element} into ${second_element} and wait ${wait_time}
 ${DEFUALT_REPLACEMENT_PATTERN}  ~
 
 # API URLS
 ${API_CMD}                      /opt/tfplenum/.venv/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator"
 ${API_HEADER_KEY}               Authorization
 ${API_HEADER_VALUE}             Bearer {bearer_token}
-${API_BASE_URL}                 http://${host}/api{endpoint}
-
-# API Endpoints
-# ${current_user_endpoint}        /current_user
-# ${rulesets_endpoint}            /policy/ruleset
-# ${sensor_info_endpoint}         /policy/sensor/info
 
 # NESTING PREDICATE EXAMPLE
 # //section[.//h1[@id='hi']]

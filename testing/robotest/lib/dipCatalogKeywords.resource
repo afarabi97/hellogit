@@ -1,7 +1,7 @@
 *** Settings ***
 Resource    ../include/dipCommonVariables.resource
 Resource    ../include/dipCatalogVariables.resource
-Variables    ../include/element_ids_frontend.py
+Variables   ../include/element_ids_frontend.py
 
 
 *** Keywords ***
@@ -112,9 +112,6 @@ Perform Fast Install Of Catalog Apps
 
     log    All Specified Catalog Applications Have Been Successfully Installed!
 
-
-
-
 Install Dependent Apps
     [Arguments]      @{application_list}
     Set Selenium Speed  0.5s
@@ -140,34 +137,18 @@ Verify Applications Have Installed
 
     Should Be Equal    '${response_info_dict.status}'    'True'    msg=Each Application(s) State Must Be Verified    values=True    ignore_case=True    formatter=str
 
-Uninstall Multiple Apps
-    [Arguments]  @{application_list}
-    [Documentation]  Uninstalls one or many apps from Catalog page.
-    Set Selenium Speed  0.5s
-    FOR  ${application}  IN  @{application_list}
-        Uninstall App  ${application}
-    END
-
-Is App Already Installed
-    [Arguments]    ${application_name}
-    [Documentation]  Checks to see if the app is already installed
-
-    @{one_app_list}=    Create List    ${application_name}
-    &{response_info_dict}=      Check Catalog Applications For State    @{one_app_list}    expected_state=DEPLOYED
-    IF      '${response_info_dict.status}' == 'True'
-        log    ${application_name} Is Already Installed
-        Return From Keyword    ${TRUE}
-    END
-    log    ${application_name} Is Not Installed
-    Return From Keyword    ${FALSE}
-
 Install App
-    [Arguments]  ${application_name}    ${asynchronous}=${FALSE}
+    [Arguments]  ${application_name}  ${asynchronous}=${FALSE}
     [Documentation]  Downloads specified app from Catalog page
     Run Keyword if  ${IS_BARE_METAL_KIT}  Set Selenium Speed  1s
-    ${already_installed} =    Is App Already Installed    ${application_name}
-    IF  '${already_installed}' == 'True'
+
+    # Check if app is already installed using API call
+    &{response_info_dict} =  Check Catalog Applications For State  ${application_name}  expected_state=DEPLOYED
+    IF  '${response_info_dict.status}' == 'True'
+        log  ${application_name} Is Already Installed
         Return From Keyword
+    ELSE
+        log  ${application_name} Is Not Installed
     END
 
     IF  '${application_name}' == 'Arkime' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
@@ -179,16 +160,7 @@ Install App
     reload
 
     ${index} =  Find App index  ${application_name}
-
-    ${app_card_status} =  Set Variable  xpath=//*[@id="cvah-chart-list-div-cvah-application-card-${index}"]/div/div[2]/div[1]/div[2]/p
-    lookForElement  ${app_card_status}
-    ${app_status_text} =  Get Text  ${app_card_status}
-    ${app_status_text} =  Fetch From Right  ${app_status_text}  :
-    ${app_status_text} =  Strip String  ${app_status_text}
-    # IF  '${app_status_text}' == 'DEPLOYED'
-    #     log     ${application_name} has already been deployed
-    #     Return From Keyword
-    # END
+    Check App Card Status  ${index}  Not Installed  # Verify app is not installed through the UI
 
     ${config_app_button} =  Set Variable  id=cvah-chart-list-${index}-cvah-application-card-div-div-div-button-configure-application
     lookForElement  ${config_app_button}
@@ -199,58 +171,55 @@ Install App
     click  ${locInstallButton}
     Wait Until Element Contains  ${locSelectProcessDropdown}  Install
     shoot   Install-${application_name}-Step-01-ProcessPage
-    Run Keyword if  '${application_name}' == 'Arkime' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
-    ...  Run Keywords  click  ${locNodeSelection}
-    ...  AND  lookForElement  xpath=//span[text()="${sensor_name}"]
-    ...  AND  click  xpath=//span[text()="${sensor_name}"]
-    ...  AND  Press Keys  None  TAB
-    ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}
-    ...  AND  Click Button  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}  # Next btn
-    ...  AND  Run Keyword if  '${application_name}' == 'Arkime' and ${IS_BARE_METAL_KIT} is ${False}
-    ...                        type  ${locMemLimitInput}  6Gi  # If virtual kit decrease memory limit from 20Gi to 6Gi
-    ...  AND  Run Keyword if  '${application_name}' == 'Suricata'
-    ...                         click  ${locSuriPcapCheckbox}
-    ...  AND  click  ${locInterfaceSelection}
-    ...  AND  Sleep  10s
-    ...  AND  click  ${locInterfaceOptionConnected}
-    ...  AND  Press Keys  None  TAB
-    ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
-    ...  AND  shoot   Install-${application_name}-Step-02-ConfigurationOverviewPage
-    ...  AND  Click Button  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
-    ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
-    ...  AND  shoot   Install-${application_name}-Step-03-ValuesFileOverviewPage
-    ...  AND  Click Button  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
-    ...  ELSE
-    ...  Run Keywords  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}
-    ...  AND  Click Button  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}  # Next btn
-    ...  AND  Run Keyword if  '${application_name}' == 'Logstash' and ${IS_BARE_METAL_KIT} is ${False}
-    ...                        type  ${locHeapSizeInput}  4  # If virtual kit decrease heap_size from 12 to 4
-    ...  AND  lookFor  server
-    ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
-    ...  AND  shoot   Install-${application_name}-Step-02-ConfigurationOverviewPage
-    ...  AND  click  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
-    ...  AND  Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
-    ...  AND  shoot   Install-${application_name}-Step-03-ValuesFileOverviewPage
-    ...  AND  click  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
+    IF  '${application_name}' == 'Arkime' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
+        click  ${locNodeSelection}
+        lookForElement  xpath=//span[text()="${sensor_name}"]
+        click  xpath=//span[text()="${sensor_name}"]
+        Press Keys  None  TAB
+        Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}
+        Click Button  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}  # Next btn
+        Run Keyword if  '${application_name}' == 'Arkime' and ${IS_BARE_METAL_KIT} is ${False}
+        ...             type  ${locMemLimitInput}  6Gi  # If virtual kit decrease memory limit from 20Gi to 6Gi
+        Run Keyword if  '${application_name}' == 'Suricata'
+        ...             click  ${locSuriPcapCheckbox}
+        click  ${locInterfaceSelection}
+        Sleep  10s
+        click  ${locInterfaceOptionConnected}
+        Press Keys  None  TAB
+        Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
+        shoot   Install-${application_name}-Step-02-ConfigurationOverviewPage
+        Click Button  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
+        Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
+        shoot   Install-${application_name}-Step-03-ValuesFileOverviewPage
+        Click Button  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
+    ELSE
+        Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}
+        Click Button  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}  # Next btn
+        Run Keyword if  '${application_name}' == 'Logstash' and ${IS_BARE_METAL_KIT} is ${False}
+        ...             type  ${locHeapSizeInput}  4  # If virtual kit decrease heap_size from 12 to 4
+        lookFor  server
+        Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
+        shoot   Install-${application_name}-Step-02-ConfigurationOverviewPage
+        click  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
+        Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
+        shoot   Install-${application_name}-Step-03-ValuesFileOverviewPage
+        click  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
+    END
     Sleep  10s
     Verify App Has Been Installed  ${application_name}    ${asynchronous}
+    Run Keyword And Warn On Failure  Check App Card Status  ${index}  DEPLOYED  # Confirm app installed via UI
 
 Verify App Has Been Installed
-    [Arguments]  ${application_name}    ${asynchronous}=${FALSE}
+    [Arguments]  ${application_name}  ${asynchronous}=${FALSE}
     [Documentation]  Checks if specified app was sucessfully installed on kit
+    log  Verify App Has Been Installed ${application_name}
+    log  asynchronous is ${asynchronous}
     IF  '${asynchronous}' == 'True'
-        log    Verify App Has Been Installed ${application_name}
-        log    asynchronous is TRUE
-        log    Skipping Individual Verification
+        log  Skipping individual verification using API call
     ELSE
-        log    Verify App Has Been Installed ${application_name}
-        log    Asynchronous is FALSE
-        log    Starting Individual Verification
-        @{one_app_list}=    Create List    ${application_name}
+        log  Starting individual verification using API call
         ${retry_times} =  Set Variable If  ${IS_BARE_METAL_KIT}  150x  60x
-        Wait Until Keyword Succeeds  ${retry_times}  10s  Verify Applications Have Installed    @{one_app_list}
-        # Check Notifications For App  ${application_name}
-        # Check Health Page For App  ${application_name}
+        Wait Until Keyword Succeeds  ${retry_times}  10s  Verify Applications Have Installed  ${application_name}
     END
 
 Check App Card Status
@@ -258,12 +227,12 @@ Check App Card Status
     [Documentation]  Visual confirmation on the Catalog Page that the app is installed
     log     Check App Card Status
     Navigate To Catalog
-    ${application_card} =  Set Variable  id=cvah-chart-list-div-cvah-application-card-${index}
+    ${application_card} =  Inject  ${CVAH_CHART_LIST__CVAH_APPLICATION_CARD}  ${index}  replacement_pattern=*
     lookForElement  ${application_card}
     Wait Until Element Contains  ${application_card}  ${expected_status}  2m
-    ${app_card_circle} =  Set Variable  id=cvah-chart-list-${index}-cvah-application-card-div-div-div-button
+    ${app_card_circle} =  Inject  ${CVAH_CHART_LIST__CVAH_APPLICATION_CARD__BUTTON}  ${index}  replacement_pattern=*
     ${circle_color} =  Set Variable If  '${expected_status}' == 'DEPLOYED'  rgb(30, 185, 128)
-    ...  '${expected_status}' == 'Not Installed'  white
+    ...  '${expected_status}' == 'Not Installed'  rgb(255, 255, 255)
     Element Attribute Value Should Be  ${app_card_circle}  style  background-color: ${circle_color};
 
 Check Notifications For App
@@ -285,18 +254,8 @@ Check Health Page For App
     ${expected_text} =  Set Variable If
     ...  '${app_name_lower}' == 'arkime'  -${app_name_lower}-  ${app_name_lower}  # else var just assigned app name
     ${app_on_health_page} =  Set Variable  False
-
-    Run Keyword If  '${KIT_VERSION}' == '3.6'
-    ...  lookFor  Pod Health
-    ...  ELSE IF  '${KIT_VERSION}' == '3.7'
-    ...  lookFor  Pods
-
-    ${pod_table_loc} =  Set Variable If
-    ...  '${KIT_VERSION}' == '3.6'
-    ...  xpath=//*[contains(@id, "mat-tab-label-")]
-    ...  '${KIT_VERSION}' == '3.7'
-    ...  xpath=//*[@id="app-root-app-top-navbar"]/mat-drawer-container/mat-drawer-content/div/app-health-dashboard/div/app-health-dashboard-pod-table/mat-card/mat-card-content/table/tbody/tr/td[1]/span[1]
-
+    lookFor  Pods
+    ${pod_table_loc} =  Set Variable  xpath=//app-health-dashboard-pod-table//tbody/tr/td[1]/span[1]
     Wait Until Element Is Visible  ${pod_table_loc}
     ${pod_status_tables} =  Get WebElements  ${pod_table_loc}
     FOR  ${table}  IN  @{pod_status_tables}
@@ -306,6 +265,14 @@ Check Health Page For App
         Run Keyword If	'${app_on_health_page}' == 'True'  Exit For Loop
     END
     Run Keyword if  '${app_on_health_page}'=='False'  Fail  ${application_name} not listed on Health page
+
+Uninstall Multiple Apps
+    [Arguments]  @{application_list}
+    [Documentation]  Uninstalls one or many apps from Catalog page.
+    Set Selenium Speed  0.5s
+    FOR  ${application}  IN  @{application_list}
+        Uninstall App  ${application}
+    END
 
 Uninstall App
     [Arguments]  ${application_name}

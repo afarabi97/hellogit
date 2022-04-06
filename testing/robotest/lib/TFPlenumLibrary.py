@@ -49,6 +49,7 @@ class TFPlenumLibrary:
         if len(injections) > 1:
             rcount = 1
         for injection in injections:
+            injection = injection if isinstance(injection, str) else str(injection)
             ret_string = ret_string.replace(
                 replacement_pattern, injection, rcount)
         print("TFPlenum Library | inject | Injection was successful!")
@@ -144,30 +145,6 @@ class TFPlenumLibrary:
         We evaluate only the applications that robot is trying to install
         This should run only once after you try install each app in the applications list
 
-
-        # [full_app_item for full_app_item in json_response if full_app_item['nodes']]
-        # [full_app_item for full_app_item in json_response if full_app_item['nodes']
-        #     for n in full_app_item['nodes'] if n['status'] == 'DEPLOYED']
-        # pending_applications = [full_app_item for full_app_item in json_response if full_app_item['nodes']
-        #                         for n in full_app_item['nodes'] if n['status'] == 'PENDING INSTALL' and n['application'] in application_strings]
-        # empty_applications = [full_app_item for full_app_item in json_response if full_app_item['nodes'] == [
-        # ] and full_app_item['application'] in application_strings]
-        # response_info_dict = {"status": False,
-        #                       "deployed": deployed_applications}
-        # Catastrophic failure because we tried to install but it didn't even attempt to install
-        # if len(empty_applications) > 0:
-        #     empty_app_names = [app_names['application'] for app_names in pending_applications]
-        #     BuiltIn().fatal_error(msg=f"Installation has failed for the following applications: {empty_app_names}")
-        # There are still some applications that have not deployed
-        # if len([app['application'] for app in deployed_applications if app['application'] not in application_strings]) > 0:
-        #     return response_info_dict
-        # elif len(pending_applications) > 0:
-        #     # There are still some applications that have not deployed
-        #     return response_info_dict
-        # else:
-        #     response_info_dict['status'] = True
-        #     return response_info_dict
-
         Args:
             expected_state (str, optional): _description_. Defaults to "DEPLOYED".
 
@@ -191,9 +168,9 @@ class TFPlenumLibrary:
     @keyword
     def check_for_sensor_with_available_interface(self):
         """
-        Uses the TFPlenum Backend API to look for a sensor that has an ingest
-        interface available. This is necessary for installing certain PMO apps
-        from the Catalog Page (Arkime, Suricata, Zeek).
+        Looks for a sensor that has an ingest interface available. This is
+        necessary for installing certain PMO apps from the Catalog Page
+        (Arkime, Suricata, Zeek).
 
         Returns:
             string: name of sensor with available ingest interface
@@ -210,7 +187,14 @@ class TFPlenumLibrary:
         return None
 
     @keyword
-    def upload_rule(self, ruleset_name):
+    def upload_rule(self, ruleset_name: str, file_name: str):
+        """
+        Uploads a rules file to a specified Rule Set on the Controller.
+
+        Args:
+            ruleset_name (str): the target rule set
+            file_name (str): name of rules file (must include .txt extention)
+        """
         response = self.api_get_rulesets(jsonify=False)
         json_response = response.json()
 
@@ -219,7 +203,7 @@ class TFPlenumLibrary:
             if ruleset['name'] == ruleset_name:
                 ruleset_id = ruleset['_id']
 
-        rules_file = {"upload_file": open('/usr/src/robot/mal_md5_robot.txt','rb')}
+        rules_file = {"upload_file": open(f'/usr/src/robot/{file_name}','rb')}
         data = {"ruleSetForm": '{"_id": "' + ruleset_id + '"}'}
         return self.api_post_rule_to_ruleset(file=rules_file, data=data, jsonify=False)
 

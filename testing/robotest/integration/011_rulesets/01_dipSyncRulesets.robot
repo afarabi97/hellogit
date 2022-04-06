@@ -34,7 +34,7 @@ Zeek Intel Script Upload
     [Documentation]  Validate the Zeek intel rules can be uploaded to the ruleset without errors.
     Set Selenium Speed  0.5s
     Add Rule Set        Zeek Intel Script Upload Test    Zeek Intel
-    Upload Rules File   Zeek Intel Script Upload Test
+    Upload Rules File   Zeek Intel Script Upload Test    mal_md5_robot.txt
     Delete Rule Set     Zeek Intel Script Upload Test
 
 Play PCAPs Across Sensor

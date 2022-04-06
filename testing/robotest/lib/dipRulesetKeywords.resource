@@ -105,10 +105,10 @@ Sync Rules
     log  Rulesync Successful
 
 Upload Rules File
-    [Arguments]  ${rule_set_name}
+    [Arguments]  ${rule_set_name}  ${rules_file_name}
     [Documentation]  Robot Framework cannot upload file via OS GUI because it's running in a container,
     ...              so this keyword needs to use a backend API call to upload the rules file to the Rule Set.
-    Upload Rule  ${rule_set_name}
+    Upload Rule  ${rule_set_name}  ${rules_file_name}
     ${i} =  Get Rule Set Table Row Index  ${rule_set_name}
     click  xpath=//*[@id="cvah-policy-management-table-rule-set-td-${i}-rule-set-name-a"]
     Wait Until Page Contains  mal_md5_robot_1.txt  30s

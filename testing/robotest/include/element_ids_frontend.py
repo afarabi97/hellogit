@@ -201,7 +201,7 @@ APP_ARCHIVE_DIALOG__BUTTON_SAVE = 'app-archive-dialog-mat-dialog-actions-button-
 # TODO cvah-chart-list-cvah-application-card-*-cvah-application-card-div-div-chart-description # div
 # TODO cvah-chart-list-cvah-application-card-*-cvah-application-card-div-div-div-div-*-node-info # div
 # TODO cvah-chart-list-cvah-application-card-*-cvah-application-card-div-div-div-button-configure-application # button
-# TODO cvah-chart-list-cvah-application-card-*-cvah-application-card-div-div-div-button # button
+CVAH_CHART_LIST__CVAH_APPLICATION_CARD__BUTTON = 'cvah-chart-list-*-cvah-application-card-div-div-div-button' # button
 
 
 # These are for configmap-editor.component.html
@@ -257,7 +257,7 @@ APP_CHANGE_PASSWORD_FORM__BUTTON_CHANGE_PASSWORD = 'app-change-password-form-mat
 
 
 # These are for chart-list.component.html
-# TODO cvah-chart-list-div-cvah-application-card-* # cvah-application-card (internal)
+CVAH_CHART_LIST__CVAH_APPLICATION_CARD = 'cvah-chart-list-div-cvah-application-card-*' # cvah-application-card (internal)
 
 
 # These are for catalog.component.html

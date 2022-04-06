@@ -12,7 +12,6 @@ robot:sso_login:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE
     /bin/cp -rf /usr/src/robot/output $build_path/
   artifacts:
@@ -39,7 +38,6 @@ robot:catalog:independents:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE
     /bin/cp -rf /usr/src/robot/output $build_path/
   artifacts:
@@ -74,7 +72,6 @@ robot:catalog:arkime:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE
     /bin/cp -rf /usr/src/robot/output $build_path/
   artifacts:
@@ -109,7 +106,6 @@ robot:catalog:CHM:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE
     /bin/cp -rf /usr/src/robot/output $build_path/
   artifacts:
@@ -145,7 +141,6 @@ robot:rulesets:sync:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE
     /bin/cp -rf /usr/src/robot/output $build_path/
   artifacts:
@@ -182,7 +177,6 @@ robot:elastic:elastic:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE
     /bin/cp -rf /usr/src/robot/output $build_path/
   artifacts:
@@ -209,7 +203,6 @@ robot:elastic:alerts:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE
     /bin/cp -rf /usr/src/robot/output $build_path/
   artifacts:
@@ -236,7 +229,6 @@ robot:cleanup:rulesets:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE
     /bin/cp -rf /usr/src/robot/output $build_path/
   artifacts:
@@ -263,7 +255,6 @@ robot:add_virtual_sensor:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE
     /bin/cp -rf /usr/src/robot/output $build_path/
   artifacts:
@@ -290,7 +281,6 @@ robot:cleanup:virtual_sensor:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE
     /bin/cp -rf /usr/src/robot/output $build_path/
   artifacts:
