@@ -1,17 +1,19 @@
 import os
-import sys
 import subprocess
+import sys
 from typing import Union
+
 from fabric import Connection
 from models.common import RepoSettings
-from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
-from util.connection_mngs import FabricConnectionWrapper
-from util.constants import CONTROLLER_PREFIX, PIPELINE_DIR, ROOT_DIR, SKIP_CTRL_BUILD_AND_TEMPLATE
-from util.ssh import test_nodes_up_and_alive
+from models.ctrl_setup import (ControllerSetupSettings,
+                               HwControllerSetupSettings)
+from pyVim.connect import Disconnect, SmartConnectNoSSL, vim
 from util.ansible_util import execute_playbook, take_snapshot
+from util.connection_mngs import FabricConnectionWrapper
+from util.constants import (CONTROLLER_PREFIX, PIPELINE_DIR,
+                            SKIP_CTRL_BUILD_AND_TEMPLATE)
+from util.ssh import test_nodes_up_and_alive
 from util.vmware_util import get_vms_in_folder
-from pyVim.connect import SmartConnectNoSSL,Disconnect,vim
-
 
 TEMPLATES_DIR = os.path.dirname(os.path.realpath(__file__)) + '/../templates'
 

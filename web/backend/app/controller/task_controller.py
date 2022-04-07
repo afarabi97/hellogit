@@ -1,5 +1,3 @@
-from typing import List
-
 from app.middleware import controller_admin_required
 from app.models.common import (COMMON_ERROR_MESSAGE, BackgroundJob, JobID,
                                WorkerModel)

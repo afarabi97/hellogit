@@ -137,14 +137,6 @@ class KitSettingsInventoryGenerator:
         self._template_ctx['kubernetes_svc_first_ip'] = cidr[0]
         self._template_ctx['kubernetes_svc_last_ip'] = cidr[-1]
 
-    # def _set_raid(self):
-    #     for node in self._template_ctx["nodes"]:
-    #         if node['os_raid']:
-    #             node['boot_drives'] = ""
-    #             node['data_drives'] = ""
-    #         if not node['os_raid']:
-    #             node['raid_drives'] = []
-
     def generate(self) -> None:
         """
         Generates the Kickstart inventory file in

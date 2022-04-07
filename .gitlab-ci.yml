@@ -213,7 +213,8 @@ variables:
   LATEST_CODE_CHECKER_IMAGE: "docker.nexus.sil.lab/tfplenum/code-checker:1.6"
 
 stages:
-  - test
+  - test-compile
+  - lint-unit-test
   - code-analysis
   - publish-to-confluence
   - clean-staging-env
@@ -290,7 +291,8 @@ stages:
 
 include:
   - local: gitlab/pipeline-rules.yml
-  - local: gitlab/test.yml
+  - local: gitlab/test-compile.yml
+  - local: gitlab/lint-and-unit-test.yml
   - local: gitlab/code-analysis.yml
   - local: gitlab/confluence-publish.yml
   - local: gitlab/DIP/dip.gitlab-ci.yml

@@ -5,7 +5,7 @@ https://flask-restplus.readthedocs.io/en/0.9.2/example.html
 import os
 import re
 from ipaddress import IPv4Address
-from typing import Dict, List
+from typing import Dict
 
 from app.models import Model
 from app.models.settings.settings_base import SettingsBase

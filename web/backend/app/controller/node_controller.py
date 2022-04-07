@@ -142,7 +142,7 @@ class NewNodeCtrl(Resource):
         job = execute.delay(
             node=node, exec_type=DEPLOYMENT_JOBS.create_virtual)
         return JobID(job).to_dict()
-    
+
     def _get_settings(self):
         return GeneralSettingsForm.load_from_db()
 

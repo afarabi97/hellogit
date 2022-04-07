@@ -1,0 +1,26 @@
+back-end pylint and pytest:
+  tags:
+    - docker-runner
+  stage: lint-unit-test
+  only:
+    changes:
+      - web/backend/*
+      - web/backend/**/*
+  except:
+    - tags
+    - schedules
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
+    echo "TASK [pylint / pytest-cov: back-end] *******************************************"
+    web/backend/run_pylint.sh
+    web/backend/run_unit_tests.sh coverage
+  artifacts:
+    paths:
+      - web/backend/*.xml
+      - web/backend/pylint-backend.txt
+    reports:
+      junit: web/backend/*.xml
+  image: $LATEST_CODE_CHECKER_IMAGE
+  allow_failure: false

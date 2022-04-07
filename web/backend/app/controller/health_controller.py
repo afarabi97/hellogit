@@ -30,7 +30,6 @@ from bson import ObjectId
 from flask import Response, request
 from flask_restx import Resource, fields
 from kubernetes.client.models.v1_pod_list import V1PodList
-from kubernetes.stream import stream
 
 
 @KUBERNETES_NS.route("/pod/describe/<pod_name>/<namespace>")

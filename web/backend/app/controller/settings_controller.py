@@ -2,7 +2,7 @@
 Main module for handling all of the Kit Configuration REST calls.
 """
 import ssl
-from typing import Dict
+from typing import Dict, List
 
 from app.common import ERROR_RESPONSE
 from app.middleware import controller_admin_required

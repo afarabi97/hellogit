@@ -5,8 +5,7 @@ from app.utils.utils import get_domain
 from elasticsearch import Elasticsearch
 from elasticsearch.client import ClusterClient, IndicesClient, SnapshotClient
 from elasticsearch.exceptions import ConflictError
-from kubernetes import client, config, utils
-from kubernetes.client.rest import ApiException
+from kubernetes import client, config
 
 from .constants import CA_BUNDLE
 

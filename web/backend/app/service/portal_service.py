@@ -3,7 +3,6 @@ from typing import List
 from app.utils.collections import mongo_catalog_saved_values
 from app.utils.connection_mngs import KubernetesWrapper
 from app.utils.elastic import get_elastic_password
-from app.utils.logging import logger
 from app.utils.utils import get_domain
 
 DISCLUDES = (

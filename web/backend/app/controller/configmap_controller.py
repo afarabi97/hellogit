@@ -11,7 +11,7 @@ from app.service.configmap_service import bounce_pods
 from app.utils.connection_mngs import KitFormNotFound, KubernetesWrapper
 from app.utils.logging import logger
 from flask import Response, jsonify, request
-from flask_restx import Resource, api
+from flask_restx import Resource
 from kubernetes import client
 from kubernetes.client.models.v1_pod_list import V1PodList
 

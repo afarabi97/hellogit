@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict
 
 from app.models import Model
 from app.utils.constants import RULE_TYPES, RULESET_STATES

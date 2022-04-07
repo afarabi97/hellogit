@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict
 
 from app.models.common import JobID
 from app.models.nodes import KIT_SETUP_NS, Node

@@ -118,28 +118,6 @@ class NodeBaseModel(Model):
         new_node = cls.schema.load(payload)  # type: KitSettingsForm
         return new_node
 
-    # def _compare_hostnames(self, node: Node, cmp_node: Node, exc: PostValidationError):
-    #     if node.hostname == cmp_node.hostname:
-    #         exc.append_error("Two or more of your nodes have the same hostname.")
-
-    # def _compare_ips(self, node: Node, cmp_node: Node, exc: PostValidationError):
-    #     if node.ip_address == cmp_node.ip_address:
-    #         exc.append_error("{} and {} have the same IP Address.".format(node.hostname, cmp_node.hostname))
-
-    # def _compare_macs(self, node: Node, cmp_node: Node, exc: PostValidationError):
-    #     if node.mac_address == cmp_node.mac_address:
-    #         exc.append_error("{} and {} have the same MAC Address.".format(node.hostname, cmp_node.hostname))
-
-    # def _common_compares(self) -> PostValidationError:
-    #     exc = PostValidationError()
-    #     if len(self.nodes) > 1:
-    #         for i in range(len(self.nodes)):
-    #             for j in range(i + 1, len(self.nodes)):
-    #                 self._compare_hostnames(self.nodes[i], self.nodes[j], exc)
-    #                 self._compare_ips(self.nodes[i], self.nodes[j], exc)
-    #                 self._compare_macs(self.nodes[i], self.nodes[j], exc)
-    #     return exc
-
 
 class Command(Model):
     def __init__(self, command: str, cwd_dir: str, job_name: str, job_id: str):
@@ -237,7 +215,6 @@ class Node(NodeBaseModel):
         "os_raid_root_size": fields.Integer(description="Required field when os_raid is set to true. \
                                                          Size of os raid root size in GB."),
         "node_type": fields.String(example="Server", description="During Kit configuration this gets set to either Server or Sensor"),
-        # "error": fields.String(),
         "deviceFacts": fields.Nested(DeviceFacts.DTO, default={}),
         "deployment_type": fields.String(example="Baremetal or Virtual"),
         "vpn_status": fields.Boolean(required=True, default=False, description="When the Node is connected or disconnected from vpn"),
@@ -259,7 +236,6 @@ class Node(NodeBaseModel):
                  raid_drives: List[str] = [],
                  os_raid_root_size: int = 0,
                  node_type: str = "Undefined",
-                 #  error: str="",
                  deviceFacts: Dict = {},
                  deployment_type: str = None,
                  vpn_status: bool = None,
@@ -280,7 +256,6 @@ class Node(NodeBaseModel):
         self.os_raid_root_size = os_raid_root_size
         # Kit specific fields add later on
         self.node_type = node_type
-        #self.error = error
         self.deviceFacts = deviceFacts
         self.deployment_type = deployment_type
         self.vpn_status = vpn_status
@@ -464,19 +439,6 @@ class Node(NodeBaseModel):
     def load_node_from_request(cls, payload: Dict) -> Model:
         return cls.schema.load(payload)
 
-    # def _do_optional_node_validations(self, exc: PostValidationError):
-    #     for node in self.nodes:
-    #         if node.os_raid:
-    #             if len(node.raid_drives) == 0:
-    #                 exc.append_error("When os_raid is set to true at least one raid_drives is required for {}.".format(node.hostname))
-    #             if node.os_raid_root_size == 0:
-    #                 exc.append_error("When os_raid is set to true, os_raid_root_size but be 1 or greater for {}.".format(node.hostname))
-    #         else:
-    #             if len(node.data_drives) == 0:
-    #                 exc.append_error("When os_raid is set to false at least one data_drive is required for {}.".format(node.hostname))
-    #             if len(node.boot_drives) == 0:
-    #                 exc.append_error("When os_raid is set to false at least one boot_drive is required for {}.".format(node.hostname))
-
     def post_validation(self):
         """
         These are other validation performed that cannot be done through marshmallow.
@@ -614,11 +576,6 @@ class NodeJob(Model):
         self.message = message
         self.save_to_db()
 
-    # @classmethod
-    # def update(self) -> Model:
-    #    updated_job = mongo_jobs().find_one_and_replace({"node_id": self.node_id, "name": job.name}, self.schema.dump(self), upsert=True)
-    #    return cls.schema.load(updated_job)
-
     @classmethod
     def create_remove_node_job(cls, node: Node, job_id: str) -> None:
         mongo_jobs().delete_many({"node_id": node._id})
@@ -710,11 +667,8 @@ class NodeInventoryGenerator:
 
     def __init__(self, nodes: Dict):
         self._template_ctx = nodes
-        # print(self._template_ctx)
         self._servers_list = get_servers_from_list(self._template_ctx["nodes"])
         self._sensors_list = get_sensors_from_list(self._template_ctx["nodes"])
-        #self._server_res = NodeResourcePool(self._servers_list)
-        #self._sensor_res = NodeResourcePool(self._sensors_list)
 
     def _set_sensor_type_counts(self) -> None:
         """
@@ -757,9 +711,7 @@ class NodeInventoryGenerator:
         Generates the Kickstart inventory file in
         :return:
         """
-        # print(self._template_ctx)
         self._set_defaults()
-        # self._set_reservations()
 
         template = JINJA_ENV.get_template('nodes.yml')
         kit_template = template.render(template_ctx=self._template_ctx)

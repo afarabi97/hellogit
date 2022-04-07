@@ -2,7 +2,6 @@ import time
 
 import urllib3
 from app.common import ERROR_RESPONSE
-from app.middleware import login_required_roles
 from app.models.health import APP_NS, HEALTH_NS
 from app.service.health_service import client_session, get_kibana_ipaddress
 from app.utils.collections import mongo_kit_tokens, mongo_settings

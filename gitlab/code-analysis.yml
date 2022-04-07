@@ -161,25 +161,29 @@ sonar-scan back-end code base:
   except:
     - tags
     - schedules
+  dependencies:
+    - back-end pylint and pytest
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
+    echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
     PATH_PWD=$(pwd)
-    echo "TASK [pylint / pytest-cov: back-end] *******************************************"
-    docker run -e PATH_PWD=/opt/tfplenum --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD $LATEST_CODE_CHECKER_IMAGE $PATH_PWD/web/setup/pylint_pytest_backend.sh
     echo "TASK [sonar-scanner: back-end code-base ingestion] **************************************"
+    sed -i "s%<source>/builds/tfplenum/tfplenum/web/backend/app</source>%<source>$PATH_PWD/web/backend/app</source>%g" web/backend/pytest-coverage-report.xml
+    sed -i "s%/builds/tfplenum/tfplenum/web/backend%$PATH_PWD/web/backend%g" web/backend/pylint-backend.txt
     sonar-scanner \
       -Dsonar.qualitygate.wait=true \
-      -Dsonar.python.pylint.reportPath=$PATH_PWD/web/backend/pylint-backend.txt \
+      -Dsonar.python.pylint.reportPath=web/backend/pylint-backend.txt \
+      -Dsonar.python.coveragePlugin=cobertura \
+      -Dsonar.python.coverage.reportPaths=web/backend/pytest-coverage-report.xml \
       -Dsonar.projectKey=tfplenum-backend \
-      -Dsonar.sources=web/backend/> >(tee $PATH_PWD/web/backend/sonar-report.txt) 2> >(tee $PATH_PWD/web/backend/sonar-report.txt >&2)
-    cat $PATH_PWD/web/backend/sonar-report.txt | grep QUALITY >> $PATH_PWD/web/backend/backend-sonarlink.txt
-    cat $PATH_PWD/web/backend/sonar-report.txt | grep -i "total time" >> $PATH_PWD/web/backend/backend-scantime.txt
+      -Dsonar.sources=web/backend/> >(tee web/backend/sonar-report.txt) 2> >(tee web/backend/sonar-report.txt >&2)
+    cat web/backend/sonar-report.txt | grep QUALITY >> web/backend/backend-sonarlink.txt
+    cat web/backend/sonar-report.txt | grep -i "total time" >> web/backend/backend-scantime.txt
   artifacts:
     paths:
       - web/backend/backend-sonarlink.txt
       - web/backend/backend-scantime.txt
-      - web/backend/*.png
   allow_failure: false
 
 sonar-scan front-end code base:
@@ -208,12 +212,11 @@ sonar-scan front-end code base:
       -Dsonar.javascript.lcov.reportPaths=$PATH_PWD/web/frontend/test-coverage/lcov.info \
       -Dsonar.typescript.tsconfigPath=$PATH_PWD/web/frontend/src/tsconfig.app.json \
       -Dsonar.projectKey=tfplenum-frontend \
-      -Dsonar.sources=web/frontend/src/app/> >(tee $PATH_PWD/web/frontend/sonar-report.txt) 2> >(tee $PATH_PWD/web/frontend/sonar-report.txt >&2)
+      -Dsonar.sources=$PATH_PWD/web/frontend/src/app/> >(tee $PATH_PWD/web/frontend/sonar-report.txt) 2> >(tee $PATH_PWD/web/frontend/sonar-report.txt >&2)
     cat $PATH_PWD/web/frontend/sonar-report.txt | grep QUALITY >> $PATH_PWD/web/frontend/frontend-sonarlink.txt
     cat $PATH_PWD/web/frontend/sonar-report.txt | grep -i "total time" >> $PATH_PWD/web/frontend/frontend-scantime.txt
   artifacts:
     paths:
       - web/frontend/frontend-sonarlink.txt
       - web/frontend/frontend-scantime.txt
-      - web/frontend/*.png
   allow_failure: false

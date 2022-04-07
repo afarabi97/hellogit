@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Dict, Iterable, List, Optional, TypeVar
+from typing import Iterable, List, Optional, TypeVar
 
 import requests
 from app.common import ERROR_RESPONSE

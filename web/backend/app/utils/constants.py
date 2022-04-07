@@ -1,9 +1,8 @@
 """
 Module hold constants that can be used for controllers or fabric files.
 """
-from enum import Enum, auto
+from enum import Enum
 from pathlib import Path
-from typing import Dict
 
 SHARED_DIR = Path(__file__).parent  # type: Path
 CORE_DIR = SHARED_DIR / "../../../../core"
