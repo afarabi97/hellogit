@@ -16,7 +16,13 @@
         <p>Requires General Settings to be completed</p>
 
         <!-- Kit Type -->
-        <mat-slide-toggle (change)="isGIPChecked($event)" formControlName="is_gip" matTooltip="Toggle on to enable building a GIP">Enable GIP Build</mat-slide-toggle>
+        <mat-radio-group fxLayout="column" fxLayoutAlign="start start" (change)="isGIPChecked($event)" 
+                         matTooltip="Checking the GIP selection will ensure only applications needed for setting up a GIP are included and vice versa for the DIP.">
+          <mat-radio-button value="DIP" style="margin-bottom: 5px" checked>I am on a DIP</mat-radio-button>
+          <mat-radio-button value="GIP">I am on a GIP</mat-radio-button>
+        </mat-radio-group>
+
+        <!-- <mat-slide-toggle (change)="isGIPChecked($event)" formControlName="is_gip" matTooltip="Toggle on to enable building a GIP">Enable GIP Build</mat-slide-toggle> -->
         <br>
         <!-- Password -->
         <mat-form-field>

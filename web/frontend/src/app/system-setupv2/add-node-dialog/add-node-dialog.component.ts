@@ -93,9 +93,6 @@ export class AddNodeDialogComponent implements OnInit {
 
     this.kitSettingsSrv.getGeneralSettings().subscribe((data: GeneralSettings) => {
       this.settings = data;
-      this.kitSettingsSrv.getUnusedIPAddresses(this.settings.controller_interface, this.settings.netmask).subscribe((data2: string[]) => {
-        this.availableIPs = data2;
-      });
       this.kitSettingsSrv.getUsedIPAddresses(this.settings.controller_interface, this.settings.netmask).subscribe((data2: string[]) => {
         for (const d of data2){
           nodesIP.push(d);
@@ -184,6 +181,8 @@ export class AddNodeDialogComponent implements OnInit {
       this.isNodeType = true;
     }
 
+    this.updateSelectableNodeIPAddresses();
+
     this.deploymentOptions = [];
     this.deploymentOptions.push({text: 'Baremetal', value: 'Baremetal', disabled: false});
     if(this.kitStatus.esxi_settings_configured){
@@ -195,6 +194,30 @@ export class AddNodeDialogComponent implements OnInit {
       this.deploymentOptions.push({text: 'ISO Remote Sensor Download', value: 'Iso', disabled: false});
     }
     this.virtualNodeForm.setDefaultValues(this.nodeType);
+  }
+
+  private updateSelectableNodeIPAddresses(){
+    if (!this.settings || !this.settings.controller_interface){
+      return;
+    }
+
+    let index = this.settings.controller_interface.lastIndexOf(".");
+    let subnet = this.settings.controller_interface.substring(0, index) + ".";
+    let offset = 40;
+    let number_of_addrs = 10
+    if (this.nodeType === "Sensor"){
+      offset = 50
+      number_of_addrs = 46
+    }
+
+    // this.availableIPs.splice(0)
+    let availIPs = [];
+    for (let i = 0; i < number_of_addrs; i++){
+      let last_octet = i + offset;
+      availIPs.push(subnet + last_octet);
+    }
+
+    this.availableIPs = availIPs;    
   }
 
   setBaremetalValidation(event: MatRadioChange){

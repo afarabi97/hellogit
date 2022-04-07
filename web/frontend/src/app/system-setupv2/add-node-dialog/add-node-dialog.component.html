@@ -16,15 +16,7 @@
                 color="warn">error</mat-icon>
       <mat-error>{{ getErrorMessage(nodeForm.get("hostname")) }}</mat-error>
     </mat-form-field>
-    <br />
-    <!-- IP Address-->
-    <unused-ipaddress-autocomplete-ctrl
-      [formControlInput]="nodeForm.get('ip_address')"
-      matTooltip="{{ getTooltip('ip_address') }}"
-      [options]="availableIPs"
-      inputPlaceHolder='Enter your node IP address here'
-      [matError]="getErrorMessage(nodeForm.get('ip_address'))">
-    </unused-ipaddress-autocomplete-ctrl>
+    <br />    
 
     <!-- Node Type -->
     <label id="node-radio-group-label" style="margin-top: 15px;">Node Type</label>
@@ -36,6 +28,15 @@
         <mat-radio-button  class="radio-button" value="Sensor">Sensor</mat-radio-button>
         <mat-radio-button  class="radio-button" value="Service">Service</mat-radio-button>
     </mat-radio-group>
+
+    <!-- IP Address-->
+    <unused-ipaddress-autocomplete-ctrl
+      [formControlInput]="nodeForm.get('ip_address')"
+      matTooltip="{{ getTooltip('ip_address') }}"
+      [options]="availableIPs"
+      inputPlaceHolder='Enter your node IP address here'
+      [matError]="getErrorMessage(nodeForm.get('ip_address'))">
+    </unused-ipaddress-autocomplete-ctrl>
 
     <!-- Deployment Type -->
     <div *ngIf="isNodeType == true" style="margin-top: 10px;">

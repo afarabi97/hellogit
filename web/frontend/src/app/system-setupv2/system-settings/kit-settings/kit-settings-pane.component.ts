@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angu
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatRadioChange } from '@angular/material/radio';
 import { Router } from '@angular/router';
 
 import { ObjectUtilitiesClass } from '../../../classes';
@@ -161,9 +162,9 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
     }
   }
 
-  isGIPChecked(event: MatSlideToggleChange){
-    if (event.checked){
-      this.kitForm.get('is_gip').setValue(true);
+  isGIPChecked(event: MatRadioChange){
+    if (event){      
+      this.kitForm.get('is_gip').setValue(event.value === 'GIP');
     }
   }
 

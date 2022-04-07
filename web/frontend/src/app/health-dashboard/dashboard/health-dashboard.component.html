@@ -3,7 +3,7 @@
     <mat-card-header>
         <mat-card-title>Managed Kits : {{ kitSelected }}</mat-card-title>
     </mat-card-header>
-      <mat-tab-group>
+      <mat-tab-group (selectedTabChange)="tabChange($event)">
         <mat-tab label="Local">
           <mat-card>
             <mat-card-content fxLayout="column" fxLayoutAlign="space-around stretch">

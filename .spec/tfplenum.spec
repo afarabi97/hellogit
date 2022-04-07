@@ -95,6 +95,7 @@ cp -rf %{current_dir}/web/frontend/dist/frontend/* %{buildroot}%{frontend_folder
 cp -rf %{current_dir}/requirements.txt %{buildroot}%{tf_folder}/requirements.txt
 cp -rf %{current_dir}/aliases %{buildroot}%{tf_folder}/aliases
 cp %{current_dir}/versions.yml %{buildroot}%{tf_folder}/versions.yml
+cp %{current_dir}/web/angular_debug.yml %{buildroot}%{web_folder}/angular_debug.yml
 
 touch %{buildroot}%{log_folder}/tfplenum.log
 touch %{buildroot}%{pip_env}/bin/python3
@@ -218,6 +219,7 @@ fi
 %{web_folder}/frontend/node_modules/*
 %{component_folder}/*
 %{web_folder}/setup/*
+%{web_folder}/angular_debug.yml
 %{core_folder}/*
 %{bootstrap_folder}/*
 %{testing_folder}/*

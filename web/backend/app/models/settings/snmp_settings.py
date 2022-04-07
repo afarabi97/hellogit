@@ -41,8 +41,8 @@ class SNMPSettingsForm(Model):
     schema = SNMPSettingsSchema()
 
     DTO = KIT_SETUP_NS.model("SNMPSettingsForm", {
-        "security_name": fields.String(required=True, example="1qaz2wsx!QAZ@WSX", description="SNMPv3 security name or user name"),
-        "auth_pass": fields.String(required=True, example="opennmsuser", description="SNMPv3 authentication passphrase or password."),
+        "security_name": fields.String(required=True, example="opennmsuser", description="SNMPv3 security name or user name"),
+        "auth_pass": fields.String(required=True, example="1qaz2wsx!QAZ@WSX", description="SNMPv3 authentication passphrase or password."),
         "priv_pass": fields.String(required=True, example="1qaz2wsx!QAZ@WSX", description="SNMPv3 encryption password.")
     })
 

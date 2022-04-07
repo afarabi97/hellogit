@@ -12,6 +12,8 @@ import { HealthDashboardModalDialogComponent } from '../../health-dashboard-dial
 import { KitSettingsService } from '../../system-setupv2/services/kit-settings.service';
 import { Settings } from '../../system-setupv2//models/kit';
 import { MatSnackBar, TextOnlySnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { MatTabChangeEvent } from '@angular/material/tabs';
+
 
 @Component({
     selector: 'app-health-dashboard',
@@ -82,6 +84,17 @@ export class HealthDashboardComponent implements OnInit {
     this.update_subscription.unsubscribe();
     if (this.snack_bar_ref) {
       this.snack_bar_ref.dismiss();
+    }
+  }
+
+  tabChange(event: MatTabChangeEvent){
+    if (event && event.index > 0 && this.remote_dashboard_status && this.remote_dashboard_status.length > 0){
+      let initial_token = this.remote_dashboard_status[0] as HealthDashboardStatusClass
+      this.kitSelected = initial_token.ipaddress;
+      this.token = initial_token;
+    } else {
+      this.token = null;
+      this.kitSelected = 'localhost';
     }
   }
 
