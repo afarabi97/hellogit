@@ -156,7 +156,6 @@ CPT:
     - Repo/CPT/AppStore/Osmosis/0.46
     - Repo/CPT/AppStore/Pass-the-hash Toolkit/1.4
     - Repo/CPT/AppStore/PEiD/0.95
-    - Repo/CPT/AppStore/PhoneSweep/2_7
     - Repo/CPT/AppStore/Photon/2.0-304b817
     - Repo/CPT/AppStore/Security Windows Credential Editor/1.42
     - Repo/CPT/AppStore/Servify This/20120127
@@ -213,6 +212,7 @@ CPT:
     - Repo/CPT/AppStore/OpenVAS/10.0
     - Repo/CPT/AppStore/openVPN/2.10.0
     - Repo/CPT/AppStore/PE.Explorer/1.99R6
+    - Repo/CPT/AppStore/PhoneSweep/2_7
     - Repo/CPT/AppStore/PKI Certs/5.5
     - Repo/CPT/AppStore/Powersploit/3.0
     - Repo/CPT/AppStore/Redline/2.0
