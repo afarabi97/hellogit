@@ -1,6 +1,0 @@
-snmp_dir: "{{ tfplenum_config_dir }}/snmp"
-elastic_uri: "elasticsearch.{{ kit_domain }}:{{ elastic_port }}"
-default_elastic_user: elastic
-security_name: "opennmsuser"
-auth_key: "1qaz2wsx!QAZ@WSX"
-priv_key: "1qaz2wsx!QAZ@WSX"

@@ -30,7 +30,6 @@ import { VMWareSettingsComponent } from './system-setupv2/system-settings/vmware
 import { GeneralSettingsPaneComponent } from './system-setupv2/system-settings/general-settings/general-settings-pane.component';
 import { KitSettingsPaneComponent } from './system-setupv2/system-settings/kit-settings/kit-settings-pane.component';
 import { MIPSettingsPaneComponent } from './system-setupv2/system-settings/mip-settings/mip-settings-pane.component';
-import { SNMPSettingsPaneComponent } from './system-setupv2/system-settings/snmp-settings/snmp-settings-pane.component';
 import { KitTokenSettingsPaneComponent } from './system-setupv2/system-settings/kit-token-settings/kit-token-settings-pane.component';
 import { AddNodeDialogComponent } from './system-setupv2/add-node-dialog/add-node-dialog.component';
 import { NodeInfoDialogComponent } from './system-setupv2/node-info-dialog/node-info-dialog.component';
@@ -54,7 +53,6 @@ import { UserClass } from './classes';
 import { HealthDashboardComponent } from './health-dashboard/dashboard/health-dashboard.component';
 import { HealthDashboardNodeTableComponent } from './health-dashboard/node-table/node-table.component';
 import { HealthDashboardPodTableComponent } from './health-dashboard/pod-table/pod-table.component';
-import { HealthDashboardSNMPComponent } from './health-dashboard/snmp/snmp-stats.component';
 import { HealthDashboardDatastoresComponent } from './health-dashboard/datastores/datastores.component';
 import { HealthDashboardModalDialogComponent } from './health-dashboard-dialog/health-dashboard-dialog.component';
 
@@ -107,7 +105,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     GeneralSettingsPaneComponent,
     KitSettingsPaneComponent,
     MIPSettingsPaneComponent,
-    SNMPSettingsPaneComponent,
     KitTokenSettingsPaneComponent,
     AddKitTokenComponent,
     AddMipDialogComponent,
@@ -115,7 +112,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     HealthDashboardComponent,
     HealthDashboardNodeTableComponent,
     HealthDashboardPodTableComponent,
-    HealthDashboardSNMPComponent,
     HealthDashboardDatastoresComponent
   ],
   imports: [

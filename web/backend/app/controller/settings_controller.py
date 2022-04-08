@@ -13,7 +13,6 @@ from app.models.settings.general_settings import (SETINGS_NS,
                                                   GeneralSettingsForm)
 from app.models.settings.kit_settings import KitSettingsForm
 from app.models.settings.mip_settings import MipSettingsForm
-from app.models.settings.snmp_settings import SNMPSettingsForm
 from app.service.node_service import execute, send_notification
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.constants import DEPLOYMENT_JOBS
@@ -362,36 +361,3 @@ class EsxiSettingsTest(Resource):
             return {"message": "DBModelNotFound"}, 200
 
         return _test_esxi_client(esxi_settings)
-
-
-@SETINGS_NS.route("/snmp")
-class SNMPSettings(Resource):
-    @SETINGS_NS.response(200, "Get the SNMP settings.", SNMPSettingsForm.DTO)
-    def get(self) -> Response:
-        try:
-            return SNMPSettingsForm.load_from_db().to_dict()
-        except DBModelNotFound:
-            return {"message": "DBModelNotFound"}, 200
-        except Exception as e:
-            logger.exception(e)
-        return ERROR_RESPONSE
-
-    @SETINGS_NS.expect(SNMPSettingsForm.DTO)
-    @SETINGS_NS.response(200, "Save SNMP settings.", SNMPSettingsForm.DTO)
-    @SETINGS_NS.response(400, "Error Model", COMMON_ERROR_DTO)
-    @controller_admin_required
-    def put(self) -> Response:
-        notification = NotificationMessage(role=_JOB_NAME.lower())
-        try:
-            snmp_settings = SNMPSettingsForm.load_from_request(
-                SETINGS_NS.payload)
-            snmp_settings.save_to_db()
-            notification.set_and_send(
-                message="SNMP Settings Saved", status=NotificationCode.COMPLETED.name
-            )
-        except ValidationError as e:
-            notification.set_and_send(
-                message=str(e), status=NotificationCode.ERROR.name
-            )
-            return e.normalized_messages(), 400
-        return SETINGS_NS.payload

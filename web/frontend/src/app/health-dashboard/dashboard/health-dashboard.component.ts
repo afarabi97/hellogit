@@ -5,7 +5,6 @@ import { HealthDashboardStatusClass } from '../../system-setupv2/classes';
 import { interval, Subscription } from 'rxjs';
 import { HealthDashboardNodeTableComponent } from '../node-table/node-table.component';
 import { HealthDashboardPodTableComponent } from '../pod-table/pod-table.component';
-import { HealthDashboardSNMPComponent } from '../snmp/snmp-stats.component';
 import { HealthDashboardDatastoresComponent } from '../datastores/datastores.component';
 import { MatDialog } from '@angular/material/dialog';
 import { HealthDashboardModalDialogComponent } from '../../health-dashboard-dialog/health-dashboard-dialog.component';
@@ -22,7 +21,6 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 
 })
 export class HealthDashboardComponent implements OnInit {
-  @ViewChild(HealthDashboardSNMPComponent) snmp_component: HealthDashboardSNMPComponent;
   @ViewChild(HealthDashboardDatastoresComponent) datastores_component: HealthDashboardDatastoresComponent;
   @ViewChild(HealthDashboardNodeTableComponent) node_component: HealthDashboardNodeTableComponent;
   @ViewChild(HealthDashboardPodTableComponent) pod_component: HealthDashboardPodTableComponent;
@@ -64,7 +62,6 @@ export class HealthDashboardComponent implements OnInit {
       this.is_gip = data.is_gip ? true : false;
       this.update_subscription = interval(30000).subscribe((number) => {
         if (this.is_gip && !this.token) {
-          this.snmp_component.reload();
           this.datastores_component.reload();
         }
         this.node_component.reload();

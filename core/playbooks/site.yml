@@ -300,17 +300,6 @@
   tags:
     - metrics
 
-- name: Deploy snmp-manager
-  hosts: localhost
-  any_errors_fatal: true
-  tasks:
-    - name: snmp
-      include_role:
-        name: snmp
-      when: is_gip
-  tags:
-    - snmp
-
 - name: Deploy Arkime
   hosts:
     - localhost
