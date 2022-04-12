@@ -2,9 +2,8 @@ from typing import Dict, List
 
 from app.middleware import controller_admin_required, login_required_roles
 from app.models import DBModelNotFound, PostValidationError
-from app.models.common import (COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE,
-                               COMMON_SUCCESS_MESSAGE, JobID)
-from app.models.nodes import KIT_SETUP_NS, Node, NodeJob, _generate_inventory
+from app.models.common import COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE, JobID
+from app.models.nodes import KIT_SETUP_NS, Node, NodeJob
 from app.models.settings.kit_settings import (GeneralSettingsForm,
                                               KitSettingsForm)
 from app.models.settings.mip_settings import MipSettingsForm
@@ -90,8 +89,7 @@ class NodeCtrl(Resource):
                         for inst_app in installed_apps:
                             node_dict["deployment_name"] = inst_app["deployment_name"]
                             nodes = [node_dict]
-                            delete_helm_apps.delay(
-                                application=inst_app["deployment_name"], namespace=NAMESPACE, nodes=nodes)
+                            delete_helm_apps.delay(application=inst_app["application"], namespace=NAMESPACE, nodes=nodes, from_helm_delete_ctrl=False)
                         # Remove node will delete this
                         delete_node = False
                         return self._remove_node(node), 200
@@ -383,5 +381,6 @@ class KitRefresh(Resource):
     def post(self) -> Response:
         cp = Node.load_control_plane_from_db()  # type: List[Node]
         nodes = Node.load_all_servers_sensors_from_db()  # type: List[Node]
+
 
         return self._refresh_kit(new_nodes=nodes, control_plane=cp)

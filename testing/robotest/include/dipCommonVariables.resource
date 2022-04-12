@@ -12,24 +12,7 @@ ${DEFUALT_REPLACEMENT_PATTERN}  ~
 ${API_CMD}                      /opt/tfplenum/.venv/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator"
 ${API_HEADER_KEY}               Authorization
 ${API_HEADER_VALUE}             Bearer {bearer_token}
-
-# NESTING PREDICATE EXAMPLE
-# //section[.//h1[@id='hi']]
-
-# Not selecting direct children
-# //table['mat-table']//tbody//tr[contains(@class,'example-element-row')][.//td[contains(@id,'type') and contains(text(), 'Suricata')]]
-
-
-# //button[@id='cvah-policy-management-table-rule-set-td-1-actions-button-edit']/span/em
-
-# //table['mat-table']/td
-
-# //table['mat-table']//tbody//tr[contains(@class,'example-element-row')][.//td[contains(@id,'-is-enabled')]]
-
-# //table['mat-table']//tbody//tr[contains(@class,'example-element-row')]
-
-# //table['mat-table']//tbody//tr[contains(@class,'example-element-row')]/td[contains(@id,'-is-enabled')]
-
+${API_BASE_URL}                 http://${host}/api{endpoint}
 
 # Pages start with a capital
 ${Portal}                       https://${host}/portal
@@ -84,6 +67,4 @@ ${locSystemVersionNumber}       id=cvah-pmo-support-version
 ${locServiceNowURL}             id=cvah-pmo-support-servicenow-website
 
 # Portal Page
-# ${locKibanaUserPassword}      id=cvah-portal-portal-link-1-logins
-# ${locKibanaKitIP}             id=cvah-portal-portal-link-1-ip
 ${locElasticLoginButton}        xpath=(//p[@class="euiTitle euiTitle--xsmall secLoginCard__title"])[2]

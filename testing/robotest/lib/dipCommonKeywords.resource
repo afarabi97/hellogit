@@ -7,7 +7,6 @@ Library     SeleniumLibrary     15s    run_on_failure= loggy_obj.failure
 Library     SSHLibrary          15s
 Library     String
 Library     Collections
-Library     DateTime
 Library     TFPlenumLibrary.py
 
 
@@ -246,9 +245,7 @@ Wait And Validate Kibana Hits
     Sleep       180s
     Go To       ${KIBANA_IP}/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))&_a=(columns:!(),filters:!(),index:'filebeat-*',interval:auto,query:(language:kuery,query:''),sort:!(!('@timestamp',desc)))
     lookFor     Discover
-    ${curr_date} =  Get Current Date  time_zone=UTC  result_format=%b %d, %Y   #Ex: Mar 16, 2022
     ${locDocTableFirstRowDate} =  Set Variable  xpath=//*[@id="kibana-body"]//tbody/tr[1]/td[2]/div
-    # Wait Until Element Contains  ${locDocTableFirstRowDate}  ${curr_date}  2m
     lookForElement  ${locDocTableFirstRowDate}  2m
     shoot       KibanaHits
     Sleep       10s
@@ -257,7 +254,6 @@ Wait And Validate Kibana Hits
 Find Portal App Index
     [Arguments]  ${application_name}
     [Documentation]  Locates and returns index of application based on name supplied in argument.
-    # Wait Until Element Is Visible  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
     Navigate To Portal
     ${app_name_elements} =  Get WebElements  xpath=//*[contains(@id, "-dns")]
     log     Contains DNS: ${app_name_elements}

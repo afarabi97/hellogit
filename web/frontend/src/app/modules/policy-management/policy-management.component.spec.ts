@@ -721,7 +721,7 @@ describe('PolicyManagementComponent', () => {
         expect(component.rule_sync).toHaveBeenCalled();
       });
 
-      it('should call rule_sync() and and set component.rule_sync = true', () => {
+      it('should call rule_sync() and and set component.job_status = true', () => {
         reset();
 
         expect(component.job_status).toBeFalse();
@@ -729,6 +729,16 @@ describe('PolicyManagementComponent', () => {
         component.rule_sync();
 
         expect(component.job_status).toBeTrue();
+      });
+
+      it('should call rule_sync() and and set component.rulesetchange = true', () => {
+        reset();
+
+        expect(component.rulesetchange).toBeFalse();
+
+        component.rule_sync();
+
+        expect(component.rulesetchange).toBeTrue();
       });
 
       it('should call api_sync_rule_sets_() from rule_sync()', () => {
@@ -1021,6 +1031,22 @@ describe('PolicyManagementComponent', () => {
         component['api_get_rule_sets_']();
 
         expect(component.rule_sets_data_source.data.length > 0).toBeFalse();
+      });
+
+      it('should call rules_service_.get_rule_sets() and handle response and set rulesetchange = false', () => {
+        reset();
+
+        component.rulesetchange = true;
+
+        expect(component.rulesetchange).toBeTrue();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['rules_service_'], 'get_rule_sets').and.returnValue(of([]));
+
+        component['api_get_rule_sets_']();
+
+        expect(component.rulesetchange).toBeFalse();
       });
 
       it('should call rules_service_.get_rule_sets() and handle error', () => {

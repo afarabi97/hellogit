@@ -576,28 +576,21 @@ def install_helm_apps(
                 )
                 while True:
                     sleep(0.25)
-                    data = get_app_state(
-                        application=application, namespace=namespace)
-                    if (
-                        len(
-                            list(
-                                filter(
-                                    lambda d: d["deployment_name"] == deployment_name,
-                                    data,
-                                )
-                            )
-                        )
-                        > 0
-                    ):
+                    filter_data = filter(
+                                      lambda d: d["deployment_name"] == deployment_name,
+                                      get_app_state(application=application, namespace=namespace)
+                                  )
+                    list_data = list(filter_data)
+                    length = len(list_data)
+                    if (length > 0):
                         break
                 # Send Update Notification to websocket
                 notification.set_exception(exception=None)
                 notification.set_status(
                     status=NotificationCode.IN_PROGRESS.name)
-                notification.set_additional_data(data=data)
+                notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
                 notification.post_to_websocket_api()
             except Exception as exc:
-                rq_logger.error(exc)
                 # Send Update Notification to websocket
                 notification.set_status(status=NotificationCode.ERROR.name)
                 notification.set_exception(exception=exc)
@@ -609,7 +602,6 @@ def install_helm_apps(
                 _purge_helm_app_on_failure(deployment_name, namespace)
         else:
             err = "Error unable to parse values from request"
-            rq_logger.exception(err)
             # Send Update Notification to websocket
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_exception(exception=err)
@@ -622,9 +614,8 @@ def install_helm_apps(
     while len(
         list(
             filter(
-                lambda d: d["deployment_name"] in deployment_names
-                and d["status"].lower() == "deployed",
-                get_app_state(application=application, namespace=namespace),
+                lambda d: (d["deployment_name"] in deployment_names) and (d["status"].lower() == "deployed"),
+                get_app_state(application=application, namespace=namespace)
             )
         )
     ) < len(deployment_names):
@@ -709,7 +700,6 @@ def install_helm_command(
         )
     if ret_code != 0 and stdout != "":
         results = stdout.strip()
-        rq_logger.error(results)
         # Send Update Notification to websocket
         notification.set_status(status=NotificationCode.ERROR.name)
         notification.set_exception(exception=results)
@@ -726,7 +716,7 @@ def install_helm_command(
 
 
 @job("default", connection=REDIS_CLIENT, timeout="30m")
-def delete_helm_apps(application: str, namespace: str, nodes: List):
+def delete_helm_apps(application: str, namespace: str, nodes: List, from_helm_delete_ctrl=True):
     get_app_context().push()
     # Send Update Notification to websocket
     notification = NotificationMessage(
@@ -752,9 +742,7 @@ def delete_helm_apps(application: str, namespace: str, nodes: List):
             status = node["status"]
             if "deployment_name" in status:
                 old_deployment_name = status["deployment_name"]
-        if (deployment_name and old_deployment_name) and (
-            deployment_name != old_deployment_name
-        ):
+        if (deployment_name and old_deployment_name) and (deployment_name != old_deployment_name):
             deployment_to_uninstall = old_deployment_name
 
         if deployment_to_uninstall:
@@ -776,24 +764,16 @@ def delete_helm_apps(application: str, namespace: str, nodes: List):
                     deployment_name=deployment_to_uninstall,
                     application=application,
                     node=node_hostname,
-                    namespace=namespace,
+                    namespace=namespace
                 )
                 while True:
-                    if (
-                        len(
-                            list(
-                                filter(
-                                    lambda d: d["deployment_name"]
-                                    == deployment_to_uninstall
-                                    and d["status"].lower() == "uninstalling",
-                                    get_app_state(
-                                        application=application, namespace=namespace
-                                    ),
-                                )
-                            )
-                        )
-                        > 0
-                    ):
+                    filter_data = filter(
+                                      lambda d: (d["deployment_name"] == deployment_to_uninstall) and (d["status"].lower() == "uninstalling"),
+                                      get_app_state(application=application, namespace=namespace)
+                                  )
+                    list_data = list(filter_data)
+                    length = len(list_data)
+                    if (length > 0):
                         break
                 # Send Update Notification to websocket
                 notification.set_status(
@@ -805,7 +785,6 @@ def delete_helm_apps(application: str, namespace: str, nodes: List):
                 notification.post_to_websocket_api()
                 response.append(results)
             except Exception as exc:
-                rq_logger.exception(exc)
                 # Send Update Notification to websocket
                 notification.set_status(status=NotificationCode.ERROR.name)
                 notification.set_exception(exception=exc)
@@ -816,7 +795,6 @@ def delete_helm_apps(application: str, namespace: str, nodes: List):
                 notification.post_to_websocket_api()
         else:
             err = "Error unable to determine deployment name please try again"
-            rq_logger.exception(err)
             # Send Update Notification to websocket
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_exception(exception=err)
@@ -841,10 +819,8 @@ def delete_helm_apps(application: str, namespace: str, nodes: List):
     )
     notification.set_status(status=NotificationCode.COMPLETED.name)
     notification.post_to_websocket_api()
-    if (application.lower() == "suricata"):
-            perform_rulesync()
-    elif (application.lower() == "zeek"):
-            perform_rulesync()
+    if (((application.lower() == "suricata") or (application.lower() == "zeek")) and from_helm_delete_ctrl):
+        perform_rulesync.delay()
     return response
 
 def _remove_sensor_from_ruleset_assignment(node: str, app_type_to_find: str):
@@ -852,7 +828,7 @@ def _remove_sensor_from_ruleset_assignment(node: str, app_type_to_find: str):
     for ruleset in rulesets:
         if app_type_to_find in ruleset["appType"].lower():
             mongo_ruleset().update_one({"_id": ruleset["_id"]},
-                        {'$pull': {"sensors": { "hostname": node} } } )
+                        {'$pull': {"sensors": {"hostname": node}}})
 
 
 @job("default", connection=REDIS_CLIENT, timeout="30m")
@@ -900,7 +876,6 @@ def delete_helm_command(
         results = ""
         if stdout != "":
             results = stdout.strip()
-        rq_logger.exception(results)
         # Send Update Notification to websocket
         notification.set_status(status=NotificationCode.ERROR.name)
         notification.set_exception(exception=results)
@@ -917,7 +892,7 @@ def reinstall_helm_apps(
     application: str, namespace: str, nodes: List, node_affinity: str, values: List
 ):
     get_app_context().push()
-    delete_helm_apps(application=application, namespace=namespace, nodes=nodes)
+    delete_helm_apps(application=application, namespace=namespace, nodes=nodes, from_helm_delete_ctrl=False)
     install_helm_apps(
         application=application,
         namespace=namespace,

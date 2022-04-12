@@ -2,7 +2,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
-          <button [disabled]="job_status" mat-raised-button id="cvah-policy-management-button-rule-sync"
+          <button [disabled]="job_status || rulesetchange" mat-raised-button id="cvah-policy-management-button-rule-sync"
                   matTooltip="Synchronize RuleSets" color="primary" (click)="rule_sync()">
             <em class="material-icons">swap_horiz</em>Rule Sync</button>
           <button mat-raised-button id="cvah-policy-management-button-add-ruleset"
@@ -71,19 +71,11 @@
 
               <!-- State -->
               <ng-container matColumnDef="state">
-                <th scope="col" mat-header-cell *matHeaderCellDef>State</th>
+                <th scope="col" mat-header-cell *matHeaderCellDef>Rule Set State</th>
                 <td mat-cell *matCellDef="let ruleSet; dataIndex as z;"
                     id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-state' }}" class="mat-header-cell">
-                  <ng-container *ngIf="!is_array(ruleSet.state)">
+                  <ng-container>
                     {{ ruleSet.state }}
-                  </ng-container>
-                  <ng-container *ngIf="is_array(ruleSet.state)">
-                    <dl>
-                      <ng-container *ngFor="let state of ruleSet.state">
-                        <dt id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-classification-dl-dt-hostname' }}">{{ state.hostname }}</dt>
-                        <dd id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-classification-dl-dt-state' }}">- {{ state.state }}</dd>
-                      </ng-container>
-                    </dl>
                   </ng-container>
                 </td>
               </ng-container>
@@ -100,6 +92,22 @@
                     <div *ngFor="let sensor of ruleSet.sensors; let i = index;"
                          id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-assigned-sensors-div-' + i + '-hostname' }}">
                       <ng-container *ngIf="sensor">{{ sensor.hostname }}</ng-container></div>
+                  </ng-container>
+                </td>
+              </ng-container>
+
+              <!-- Sensor States -->
+              <ng-container matColumnDef="sensor_states">
+                <th scope="col" mat-header-cell *matHeaderCellDef>Sensor States</th>
+                <td mat-cell *matCellDef="let ruleSet; dataIndex as z;"
+                    id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-sensor-states' }}" class="mat-header-cell">
+                  <ng-container>
+                    <dl>
+                      <ng-container *ngFor="let sensor_state of ruleSet.sensor_states">
+                        <dt id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-classification-dl-dt-hostname' }}">{{ sensor_state.hostname }}</dt>
+                        <dd id="{{ 'cvah-policy-management-table-rule-set-td-' + z + '-classification-dl-dt-state' }}">- {{ sensor_state.state }}</dd>
+                      </ng-container>
+                    </dl>
                   </ng-container>
                 </td>
               </ng-container>

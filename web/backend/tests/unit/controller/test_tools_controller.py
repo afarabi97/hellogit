@@ -26,7 +26,7 @@ def test_update_docs(client):
         data=payload,
         content_type="multipart/form-data",
     )
-    assert 200 == results.status_code
+    assert results.status_code == 200
     assert Path("/var/www/html/docs/THISISCVAH").exists()
 
     # Test condition that saves the file in a weird place
@@ -42,7 +42,7 @@ def test_update_docs(client):
         data=payload,
         content_type="multipart/form-data",
     )
-    assert 400 == results.status_code
+    assert results.status_code == 400
     assert "error_message" in results.json
 
     # Test null character
@@ -58,5 +58,5 @@ def test_update_docs(client):
         data=payload,
         content_type="multipart/form-data",
     )
-    assert 400 == results.status_code
+    assert results.status_code == 400
     assert "error_message" in results.json

@@ -68,7 +68,7 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
   // Used for referencing mat sort
   @ViewChild(MatSort) sort: MatSort;
   // Used for passing column names to tables
-  readonly columns_to_display = [ 'Enabled', 'name', 'appType', 'clearance', 'state', 'sensors', 'Actions' ];
+  readonly columns_to_display = [ 'Enabled', 'name', 'appType', 'clearance', 'state', 'sensors', 'sensor_states', 'Actions' ];
   readonly inner_columns_to_display = [ 'Enabled', 'ruleName', 'lastModifiedDate', 'Actions' ];
   // Used for passing data source to tables
   rule_sets_data_source: MatTableDataSource<RuleSetClass>;
@@ -76,6 +76,7 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
   // Used for indicating if a row is expanded or not
   expanded_row: RuleSetClass | null;
   job_status: boolean;
+  rulesetchange: boolean;
   // Used for inidacting if a rule set rules visible
   private rules_visible_: boolean[];
 
@@ -99,6 +100,7 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
               private websocket_service_: WebsocketService,
               private policy_management_service_: PolicyManagementService) {
     this.job_status = false;
+    this.rulesetchange = false;
     this.rules_visible_ = [];
     this.rule_sets_data_source = new MatTableDataSource();
     this.rules_data_source = new MatTableDataSource();
@@ -417,6 +419,7 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
    */
   rule_sync(): void {
     this.job_status = true;
+    this.rulesetchange = true;
     this.api_sync_rule_sets_();
   }
 
@@ -553,6 +556,13 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
           if (notification.status === 'COMPLETED') {
             this.job_status = false;
           }
+          /* istanbul ignore else */
+          if (notification.status === 'ERROR') {
+            const message: string = 'performing rule sync. Try operation again, and if problem persists notify servicenow.';
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            this.job_status = false;
+            this.rulesetchange = false;
+          }
         }
       });
   }
@@ -630,6 +640,7 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
         (response: RuleSetClass[]) => {
           this.rules_visible_ = new Array(response.length).fill(false);
           this.rule_sets_data_source.data = response.sort(this.sorting_service_.rule_set_alphanum);
+          this.rulesetchange = false;
         },
         (error: HttpErrorResponse) => {
           const message: string = 'getting rule sets';

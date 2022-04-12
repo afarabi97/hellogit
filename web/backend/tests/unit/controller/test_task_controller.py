@@ -7,7 +7,7 @@ def test_get_job_id(client, mocker):
     mocker.patch("app.controller.task_controller.get_all_jobs", return_value=FakeStrictRedis())
     mocker.patch("app.controller.task_controller.transform_jobs", return_value=mock_jobs)
     results = client.get("/api/jobs/e963687f-88f4-493d-ba84-e0ba9f408c22")
-    assert 200 == results.status_code
+    assert results.status_code == 200
     assert results.json['job_id'] == mock_jobs[0]['job_id']
 
 
@@ -15,7 +15,7 @@ def test_get_job_id_empty(client, mocker):
     mocker.patch("app.controller.task_controller.get_all_jobs", return_value=FakeStrictRedis())
     mocker.patch("app.controller.task_controller.transform_jobs", return_value=mock_jobs)
     results = client.get("/api/jobs/e963687f-88f4-493d-ba84-e0ba9f408c00")
-    assert 200 == results.status_code
+    assert results.status_code == 200
     assert results.json == {}
 
 
@@ -31,4 +31,4 @@ def test_delete_job(client, mocker):
     mocker.patch("app.service.job_service.Worker.all", return_value=workers)
     mocker.patch("app.service.job_service.JobID", return_value=job_id_class)
     results = client.delete("/api/jobs/e2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6")
-    assert 200 == results.status_code
+    assert results.status_code == 200

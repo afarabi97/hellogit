@@ -1,8 +1,10 @@
-import os
 import json
+import os
+
 import pytest
 from app.utils.collections import Collections, get_collection
-from tests.unit.static_data.rule_set import (zeek_prohibited_rule, zeek_rule,
+from tests.unit.static_data.rule_set import (ruleset_collection,
+                                             zeek_prohibited_rule, zeek_rule,
                                              zeek_rule_update, zeek_ruleset)
 
 RULE_UPLOAD_ENDPOINT = "/api/policy/rule/upload"
@@ -16,19 +18,6 @@ ZEEK_FILE_LINES = [
 ZEEK_FILE_NAME = "ruleset.zeek"
 VALID_SURICATA_RULES_BYTES = b'alert ip [1.189.88.67] any -> $HOME_NET any (msg:"ET 3CORESec Poor Reputation IP group 1"; reference:url,blacklist.3coresec.net/lists/et-open.txt; threshold: type limit, track by_src, seconds 3600, count 1; classtype:misc-attack; sid:2525000; rev:390; metadata:affected_product Any, attack_target Any, deployment Perimeter, tag 3CORESec, signature_severity Major, created_at 2020_07_20, updated_at 2022_01_14;)\n'
 INVALID_SYNTAX_SURICATA_RULES_BYTES = b'alert tip [1.189.88.67] any -> $HOME_NET any (msg:"ET 3CORESec Poor Reputation IP group 1";)\n'
-ruleset_collection = [
-    {
-        "_id": "0d336cd7d36648d7a7f0c379a6115ef2",
-        "name": "test",
-        "clearance": "Unclassified",
-        "sensors": [],
-        "appType": "Suricata",
-        "isEnabled": "true",
-        "state": "Created",
-        "createdDate": "2022-02-02 05:29:15",
-        "lastModifiedDate": "2022-02-02 05:29:15"
-    },
-]
 
 
 def binary_line_generator(lines):
@@ -63,7 +52,7 @@ def test_pcap_rule_test(client):
     }
 
     results = client.post("/api/policy/pcap/rule/test", json=payload)
-    assert 400 == results.status_code
+    assert results.status_code == 400
     assert "error_message" in results.json
 
     zeek_payload = {
@@ -73,7 +62,7 @@ def test_pcap_rule_test(client):
     }
 
     results = client.post("/api/policy/pcap/rule/test", json=zeek_payload)
-    assert 403 == results.status_code
+    assert results.status_code == 403
     assert "error_message" in results.json
 
 def test_rule_upload(ruleset_client, ruleset_file, mocker):
@@ -110,45 +99,45 @@ def test_create_and_update_zeek_rule(ruleset_client, mocker):
     mocker.patch("app.controller.ruleset_controller.validate_zeek_script", return_value=(True, ""))
     # Test create rule
     results = ruleset_client.post("/api/policy/rule", json=zeek_rule)
-    assert 200 == results.status_code
+    assert results.status_code == 200
     assert results.json['ruleName'] == zeek_rule['ruleName']
 
     # Test update existing rule
     mocker.patch("app.utils.collections.mongo.db.rule.find_one_and_update", return_value=zeek_rule_update)
     results = ruleset_client.put("/api/policy/rule", json=zeek_rule)
-    assert 200 == results.status_code
+    assert results.status_code == 200
     assert results.json['ruleName'] == zeek_rule['ruleName']
 
     # Test prohibited zeek exec function
     results = ruleset_client.post("/api/policy/rule", json=zeek_prohibited_rule)
-    assert 403 == results.status_code
+    assert results.status_code == 403
     assert "error_message" in results.json
 
     # Test update rule with prohibited zeek exec function
     results = ruleset_client.put("/api/policy/rule", json=zeek_prohibited_rule)
-    assert 403 == results.status_code
+    assert results.status_code == 403
     assert "error_message" in results.json
 
     # Test invalid rule
     mocker.patch("app.controller.ruleset_controller.validate_zeek_script", return_value=(False, "Not Valid rule"))
     results = ruleset_client.post("/api/policy/rule", json=zeek_rule)
-    assert 400 == results.status_code
+    assert results.status_code == 400
     assert "error_message" in results.json
 
     # Test update invalid rule
     results = ruleset_client.put("/api/policy/rule", json=zeek_rule)
-    assert 400 == results.status_code
+    assert results.status_code == 400
     assert "error_message" in results.json
 
     # Test ruleset doesn't exist
     get_collection(Collections.RULESET).delete_one({"_id": zeek_ruleset['_id']})
     results = ruleset_client.post("/api/policy/rule", json=zeek_rule)
-    assert 500 == results.status_code
+    assert results.status_code == 500
     assert "error_message" in results.json
 
     # Test ruleset doesn't exist for update
     results = ruleset_client.put("/api/policy/rule", json=zeek_rule)
-    assert 500 == results.status_code
+    assert results.status_code == 500
     assert "error_message" in results.json
 
 
@@ -156,12 +145,12 @@ def test_validate_rule(ruleset_client, mocker):
     mocker.patch("app.controller.ruleset_controller.validate_zeek_script", return_value=(True, ""))
     # Test validate rule
     results = ruleset_client.post("/api/policy/rule/validate", json=zeek_rule)
-    assert 200 == results.status_code
+    assert results.status_code == 200
     assert "success_message" in results.json
 
     # Test validate prohibited zeek exec function
     results = ruleset_client.post("/api/policy/rule/validate", json=zeek_prohibited_rule)
-    assert 403 == results.status_code
+    assert results.status_code == 403
     assert "error_message" in results.json
 
     # Test validate prohibited zeek exec function
@@ -169,7 +158,7 @@ def test_validate_rule(ruleset_client, mocker):
     zeek_ruleset['appType'] = None
     get_collection(Collections.RULESET).insert_one(zeek_ruleset)
     results = ruleset_client.post("/api/policy/rule/validate", json=zeek_rule)
-    assert 500 == results.status_code
+    assert results.status_code == 500
     assert "error_message" in results.json
     zeek_ruleset['appType'] = "Zeek Scripts"
 
@@ -188,13 +177,13 @@ def test_duplicate_rule_error_msg(tmp_path, client):
         f.write(VALID_SURICATA_RULES_BYTES)
         f.write(VALID_SURICATA_RULES_BYTES)
     rulesfile = open(rules_file, 'rb')
-    payload = {"upload_file": (rulesfile, upload_file_name), 
+    payload = {"upload_file": (rulesfile, upload_file_name),
                "ruleSetForm": json.dumps({"_id": "0d336cd7d36648d7a7f0c379a6115ef2"})}
     results = client.post("/api/policy/rule/upload", data=payload,
                             content_type="multipart/form-data")
     errormsg = "Error loading rulesets: Duplicate or invalid rulesets detected: "
     loglocationmsg = "see /var/log/tfplenum/tfplenum.log for more detail"
-    assert 422 == results.status_code
+    assert results.status_code == 422
     assert errormsg + loglocationmsg == results.json["error_message"]
 
 
@@ -205,11 +194,11 @@ def test_invalid_syntax_rule_error_msg(tmp_path, client):
     with open(rules_file, "wb") as f:
         f.write(INVALID_SYNTAX_SURICATA_RULES_BYTES)
     rulesfile = open(rules_file, 'rb')
-    payload = {"upload_file": (rulesfile, upload_file_name), 
+    payload = {"upload_file": (rulesfile, upload_file_name),
                "ruleSetForm": json.dumps({"_id": "0d336cd7d36648d7a7f0c379a6115ef2"})}
     results = client.post("/api/policy/rule/upload", data=payload,
                             content_type="multipart/form-data")
     errormsg = "Error loading rulesets: Duplicate or invalid rulesets detected: "
     loglocationmsg = "see /var/log/tfplenum/tfplenum.log for more detail"
-    assert 422 == results.status_code
+    assert results.status_code == 422
     assert errormsg + loglocationmsg == results.json["error_message"]

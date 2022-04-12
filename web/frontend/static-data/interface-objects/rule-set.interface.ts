@@ -15,6 +15,7 @@ export const MockRuleSetInterface: RuleSetInterface = {
       management_ip: '172.16.83.67'
     }],
   state: 'Created',
+  sensor_states: [],
   createdDate: '2020-02-27 00:08:58',
   lastModifiedDate: '2020-02-27 00:08:58',
   isEnabled: true
@@ -33,6 +34,7 @@ export const MockRuleSetDisabledInterface: RuleSetInterface = {
       management_ip: '172.16.83.67'
     }],
   state: 'Created',
+  sensor_states: [],
   createdDate: '2020-02-27 00:08:58',
   lastModifiedDate: '2020-02-27 00:08:58',
   isEnabled: false
@@ -50,6 +52,7 @@ export const MockRuleSetForDeleteInterface: RuleSetInterface = {
     MockHostInfoInterface
   ],
   state: 'Created',
+  sensor_states: [],
   createdDate: '2020-02-27 00:08:58',
   lastModifiedDate: '2020-02-27 00:08:58',
   isEnabled: true
@@ -66,7 +69,8 @@ export const MockArrayRuleSetInterface: RuleSetInterface[] = [
     lastModifiedDate: '2020-02-27 00:11:41',
     name: 'Emerging Threats',
     sensors: [],
-    state: 'Dirty'
+    state: 'Dirty',
+    sensor_states: [],
   },
   {
     _id: 73337,
@@ -80,7 +84,8 @@ export const MockArrayRuleSetInterface: RuleSetInterface[] = [
     sensors: [
       MockHostInfoInterface
     ],
-    state: 'Dirty'
+    state: 'Dirty',
+    sensor_states: [],
   },
   {
     _id: 73340,
@@ -94,7 +99,8 @@ export const MockArrayRuleSetInterface: RuleSetInterface[] = [
     sensors: [
       MockHostInfoInterface
     ],
-    state: 'Created'
+    state: 'Created',
+    sensor_states: [],
   },
   MockRuleSetInterface,
   MockRuleSetForDeleteInterface

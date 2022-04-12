@@ -3,7 +3,9 @@ import tempfile
 from shutil import make_archive
 from typing import Dict, List
 
+from app.models import Model
 from app.models.nodes import Node
+from app.models.ruleset import RuleSetModel
 from app.models.settings.kit_settings import KitSettingsForm
 from app.service.socket_service import (NotificationCode, NotificationMessage,
                                         notify_ruleset_refresh)
@@ -92,7 +94,7 @@ class RuleSynchronization:
                     self._send_notification("Failed to clear " + str(rule_set))
 
         mongo_ruleset().update_many(
-            {"_id": {"$in": ids_to_reset}}, {"$set": {"state": []}}
+            {"_id": {"$in": ids_to_reset}}, {"$set": {"sensor_states": []}}
         )
 
     def _build_suricata_rule_file(self, ip_address: str) -> tempfile.NamedTemporaryFile:
@@ -205,7 +207,7 @@ class RuleSynchronization:
             ):
                 state_obj = {"hostname": hostname, "state": statestr}
                 ret_val = mongo_ruleset().update_one(
-                    {"_id": rule_set["_id"]}, {"$push": {"state": state_obj}}
+                    {"_id": rule_set["_id"]}, {"$push": {"sensor_states": state_obj}}
                 )  # type: UpdateResult
                 if ret_val.modified_count == 0:
                     self._send_notification(
@@ -406,6 +408,50 @@ class RuleSynchronization:
             )
             raise e
 
+    def _clear_states(self, rule_sets: List[RuleSetModel]) -> None:
+        for rule_set in rule_sets:
+            self._clear_state(rule_set)
+
+    def _clear_state(self, rule_set: RuleSetModel.DTO) -> None:
+        mongo_ruleset_id = rule_set["_id"]
+        try:
+            # Clear states incase remove node triggered
+            mongo_ruleset().update_one({"_id": mongo_ruleset_id}, {"$set": {"sensor_states": []}})
+
+            self.notification.set_status(status=NotificationCode.COMPLETED.name)
+            self.notification.set_message("Clear states for rule set ID {}".format(mongo_ruleset_id))
+        except Exception as exception:
+            self.notification.set_status(status=NotificationCode.ERROR.name)
+            self.notification.set_message("Failed to clear states for rule set ID {}".format(mongo_ruleset_id))
+            self.notification.set_exception(exception)
+
+        self.notification.post_to_websocket_api()
+
+    def _update_rule_set_states(self, rule_sets: List[RuleSetModel]) -> None:
+        for rule_set in rule_sets:
+            self._update_rule_set_state(rule_set)
+
+    def _update_rule_set_state(self, rule_set: RuleSetModel.DTO) -> None:
+        mongo_ruleset_id = rule_set["_id"]
+        state = self._get_worse_state_from_sensor_states(rule_set)
+        try:
+            # Clear states incase remove node triggered
+            mongo_ruleset().update_one({"_id": mongo_ruleset_id}, {"$set": {"state": state}})
+
+            rq_logger.info("Setting ruleset state equal to worest sensor state: {}.".format(state))
+        except Exception as exception:
+            rq_logger.info("Setting ruleset state equal to worest sensor state failed see exception below.")
+            rq_logger.exception(exception)
+
+    def _get_worse_state_from_sensor_states(self, rule_set: RuleSetModel.DTO) -> str:
+        state = RULESET_STATES[2]
+        for sensor_state in rule_set["sensor_states"]:
+            if sensor_state["state"] == RULESET_STATES[3]:
+                state = RULESET_STATES[3]
+                break
+        return state
+
+
     def sync_rulesets(self):
         try:
             self.notification.set_status(status=NotificationCode.STARTED.name)
@@ -423,6 +469,8 @@ class RuleSynchronization:
             self.notification.set_message("Rule synchronization in progress.")
             self.notification.post_to_websocket_api()
             errors = False
+            # Clear states from all rule sets to make sure removed nodes are handled
+            self._clear_states(self.rule_sets)
             for node in kit_nodes:  # type: Node
                 if node.node_type != NODE_TYPES.sensor.value:
                     continue
@@ -481,6 +529,9 @@ class RuleSynchronization:
                             hostname, ip_address, RULESET_STATES[3]
                         )
                         rq_logger.exception(e)
+
+                    # Need to update each rule set state to reflect the status of the sensors
+                    self._update_rule_set_states(self.rule_sets)
 
             if not errors:
                 self.notification.set_status(

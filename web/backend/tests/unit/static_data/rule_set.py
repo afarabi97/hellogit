@@ -1,7 +1,107 @@
 
 from typing import List
 
-from app.models.ruleset import RuleSetModel
+from app.models.ruleset import RuleModel, RuleSetModel
+from app.utils.constants import RULESET_STATES
+
+ruleset_collection = [
+    {
+        "_id": "0d336cd7d36648d7a7f0c379a6115ef2",
+        "name": "test",
+        "clearance": "Unclassified",
+        "sensors": [],
+        "appType": "Suricata",
+        "isEnabled": "true",
+        "state": RULESET_STATES[0],
+        "sensor_states": [],
+        "createdDate": "2022-02-02 05:29:15",
+        "lastModifiedDate": "2022-02-02 05:29:15"
+    },
+]   # type: List[RuleSetModel]
+
+zeek_ruleset = {
+    "_id" : "ffb76d57576245e2b1466b9368b2a119",
+    "name" : "test",
+    "clearance" : "Unclassified",
+    "sensors" : [
+        {
+            "hostname" : "test-sensor.test",
+            "mac" : "9e:7d:02:7d:1c:27",
+            "management_ip" : "10.40.29.198"
+        }
+    ],
+    "appType" : "Zeek Scripts",
+    "isEnabled" : True,
+    "state" : RULESET_STATES[1],
+    "createdDate" : "2022-02-21 20:39:37",
+    "lastModifiedDate" : "2022-02-22 14:33:46"
+}   # type: RuleSetModel
+
+synced_sensors_ruleset = {
+    "_id": "e685d945834340258cb039d55bdee7d1",
+    "appType": "Suricata",
+    "clearance": "Unclassified",
+    "name": "Emerging Threats",
+    "sensors": [
+        {
+            "hostname": "fake-sensor3.fake",
+            "mac": "00:1b:ea:2e:9a:f1",
+            "management_ip": "10.40.31.70"
+        },
+        {
+            "hostname": "fake-sensor4.fake",
+            "mac": "00:1b:ea:d0:b6:2f",
+            "management_ip": "10.40.31.72"
+        }
+    ],
+    "isEnabled": True,
+    "state": RULESET_STATES[2],
+    "sensor_states": [
+        {
+            "hostname": "fake-sensor3.fake",
+            "state": RULESET_STATES[2]
+        },
+        {
+            "hostname": "fake-sensor4.fake",
+            "state": RULESET_STATES[2]
+        }
+    ],
+    "createdDate": "2022-03-24 04:09:31",
+    "lastModifiedDate": "2022-03-27 19:58:35"
+}   # type: RuleSetModel
+
+error_sensors_ruleset = {
+    "_id": "e685d945834340258cb039d55bdee7d1",
+    "appType": "Suricata",
+    "clearance": "Unclassified",
+    "name": "Emerging Threats",
+    "sensors": [
+        {
+            "hostname": "fake-sensor3.fake",
+            "mac": "00:1b:ea:2e:9a:f1",
+            "management_ip": "10.40.31.70"
+        },
+        {
+            "hostname": "fake-sensor4.fake",
+            "mac": "00:1b:ea:d0:b6:2f",
+            "management_ip": "10.40.31.72"
+        }
+    ],
+    "isEnabled": True,
+    "state": RULESET_STATES[3],
+    "sensor_states": [
+        {
+            "hostname": "fake-sensor3.fake",
+            "state": RULESET_STATES[3]
+        },
+        {
+            "hostname": "fake-sensor4.fake",
+            "state": RULESET_STATES[2]
+        }
+    ],
+    "createdDate": "2022-03-24 04:09:31",
+    "lastModifiedDate": "2022-03-27 19:58:35"
+}   # type: RuleSetModel
 
 rule_sets_mongo_static_data = [
     {
@@ -22,14 +122,15 @@ rule_sets_mongo_static_data = [
             }
         ],
         "isEnabled": True,
-        "state": [
+        "state": RULESET_STATES[2],
+        "sensor_states": [
             {
                 "hostname": "fake-sensor3.fake",
-                "state": "Synced"
+                "state": RULESET_STATES[2]
             },
             {
                 "hostname": "fake-sensor4.fake",
-                "state": "Synced"
+                "state": RULESET_STATES[2]
             }
         ],
         "createdDate": "2022-03-24 04:09:31",
@@ -40,28 +141,9 @@ rule_sets_mongo_static_data = [
         "appType": "Zeek Scripts",
         "clearance": "Unclassified",
         "name": "Zeek Sample Scripts",
-        "sensors": [
-            {
-                "hostname": "fake-sensor3.fake",
-                "mac": "00:1b:ea:2e:9a:f1",
-                "management_ip": "10.40.31.70"
-            },
-            {
-                "hostname": "fake-sensor4.fake",
-                "mac": "00:1b:ea:d0:b6:2f",
-                "management_ip": "10.40.31.72"
-            }
-        ],
-        "state": [
-            {
-                "hostname": "fake-sensor3.fake",
-                "state": "Synced"
-            },
-            {
-                "hostname": "fake-sensor4.fake",
-                "state": "Synced"
-            }
-        ],
+        "sensors": [],
+        "state": RULESET_STATES[1],
+        "sensor_states": [],
         "isEnabled": True,
         "createdDate": "2022-03-24 04:09:31",
         "lastModifiedDate": "2022-03-27 20:17:09"
@@ -75,7 +157,7 @@ zeek_rule = {
     "_id": "1408f54e2f994d639030dc4d04601efe",
     "byPassValidation": False,
     "rule_set_id": "ffb76d57576245e2b1466b9368b2a119"
-}
+}   # type: RuleModel
 
 zeek_prohibited_rule = {
     "ruleName": "zeek_exec_rule",
@@ -84,25 +166,7 @@ zeek_prohibited_rule = {
     "_id": "1408f54e2f994d639030dc4d04601efe",
     "byPassValidation": False,
     "rule_set_id": "ffb76d57576245e2b1466b9368b2a119"
-}
-
-zeek_ruleset = {
-    "_id" : "ffb76d57576245e2b1466b9368b2a119",
-    "name" : "test",
-    "clearance" : "Unclassified",
-    "sensors" : [
-        {
-            "hostname" : "test-sensor.test",
-            "mac" : "9e:7d:02:7d:1c:27",
-            "management_ip" : "10.40.29.198"
-        }
-    ],
-    "appType" : "Zeek Scripts",
-    "isEnabled" : True,
-    "state" : "Dirty",
-    "createdDate" : "2022-02-21 20:39:37",
-    "lastModifiedDate" : "2022-02-22 14:33:46"
-}
+}   # type: RuleModel
 
 zeek_rule_update = {
     "_id": "1408f54e2f994d639030dc4d04601efe",
@@ -111,4 +175,4 @@ zeek_rule_update = {
     "rule_set_id": "ffb76d57576245e2b1466b9368b2a119",
     "createdDate": "2022-02-21 22:16:06",
     "lastModifiedDate": "2022-02-22 14:33:46"
-}
+}   # type: RuleModel

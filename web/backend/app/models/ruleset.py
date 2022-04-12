@@ -19,6 +19,16 @@ class SimpleSensor(Model):
         pass
 
 
+class SensorState(Model):
+    DTO = POLICY_NS.model('SensorState', {
+        'hostname': fields.String(example="navarro2-sensor1.lan", required=True),
+        'state': fields.String(example="Created", description="The state the ruleset synced sensor is in. Can be one of {}".format(str(RULESET_STATES)))
+    })
+
+    def __init__(self):
+        pass
+
+
 class RuleSetModel(Model):
     DTO = POLICY_NS.model('RuleSet', {
         '_id': fields.Integer(example=67811),
@@ -27,8 +37,9 @@ class RuleSetModel(Model):
         'name': fields.String(example="Emerging Threats", required=True, description="The name of the Rule Set."),
         'clearance': fields.String(example="Unclassified", required=True, description="The classification of the Rule Set."),
         'sensors': fields.List(fields.Nested(SimpleSensor.DTO), description="The sensor that will be assigned the RuleSet on next Rule Sync."),
-        'state': fields.String(example="Created", description="The state the ruleset is in. Can be on of {}".format(str(RULESET_STATES))),
-        'isEnabled': fields.Boolean(default=True, description="Determines whether or not the RuleSet will be Synced.  It is set to True initally when a RuleSet is created."),
+        'state': fields.String(example="Created", description="The state the ruleset is in. Can be one of {}".format(str(RULESET_STATES))),
+        'sensor_states': fields.List(fields.Nested(SensorState.DTO), description="The state of synced sensors for given ruleset."),
+        'isEnabled': fields.Boolean(default=True, description="Determines whether or not the RuleSet will be Synced. It is set to True initally when a RuleSet is created."),
         'createdDate': fields.String(example="2020-12-15 23:20:08", description="The datetime the RuleSet was created."),
         'lastModifiedDate': fields.String(example="2020-12-15 23:20:08", description="The datetime the RuleSet was last modified.")
     })

@@ -8,7 +8,7 @@ def test_used_ip_address(client, mocker):
     ip_or_network_id = "10.40.12.0"
     netmask = "255.255.255.0"
     results = client.get(f"/api/used-ip-addrs/{ip_or_network_id}/{netmask}")
-    assert 200 == results.status_code
+    assert results.status_code == 200
     assert len(results.json) > 0
 
 
@@ -17,27 +17,27 @@ def test_used_ip_address_failure_cases(client):
     ip_or_network_id = "10.40.12.0"
     netmask = "255.25255.0"
     results = client.get(f"/api/used-ip-addrs/{ip_or_network_id}/{netmask}")
-    assert 500 == results.status_code
+    assert results.status_code == 500
     assert "Invalid Netmask Error" == results.json["message"]
 
     # Test invalid ip address
     ip_or_network_id = "10.40.12"
     netmask = "255.255.255.0"
     results = client.get(f"/api/used-ip-addrs/{ip_or_network_id}/{netmask}")
-    assert 500 == results.status_code
+    assert results.status_code == 500
     assert "Invalid IP Address Error" == results.json["message"]
 
     # Test command injection
     ip_or_network_id = "10.40.12.0%3Bip%20addr%3B"
     netmask = "255.255.255.0"
     results = client.get(f"/api/used-ip-addrs/{ip_or_network_id}/{netmask}")
-    assert 500 == results.status_code
+    assert results.status_code == 500
     assert "Invalid IP Address Error" == results.json["message"]
 
     ip_or_network_id = "10.40.12.0"
     netmask = "10.40.12.0%3Bip%20addr%3B"
     results = client.get(f"/api/used-ip-addrs/{ip_or_network_id}/{netmask}")
-    assert 500 == results.status_code
+    assert results.status_code == 500
     assert "Invalid Netmask Error" == results.json["message"]
 
 
@@ -50,7 +50,7 @@ def test_unused_ip_address(client, mocker):
     ip_or_network_id = "10.40.12.0"
     netmask = "255.255.255.0"
     results = client.get(f"/api/unused-ip-addrs/{ip_or_network_id}/{netmask}")
-    assert 200 == results.status_code
+    assert results.status_code == 200
     assert len(results.json) > 0
 
 
@@ -59,25 +59,25 @@ def test_unused_ip_address_failure_cases(client):
     ip_or_network_id = "10.40.12.0"
     netmask = "255.25255.0"
     results = client.get(f"/api/unused-ip-addrs/{ip_or_network_id}/{netmask}")
-    assert 500 == results.status_code
+    assert results.status_code == 500
     assert "Invalid Netmask Error" == results.json["message"]
 
     # Test invalid ip address
     ip_or_network_id = "10.40.12"
     netmask = "255.255.255.0"
     results = client.get(f"/api/unused-ip-addrs/{ip_or_network_id}/{netmask}")
-    assert 500 == results.status_code
+    assert results.status_code == 500
     assert "Invalid IP Address Error" == results.json["message"]
 
     # Test command injection
     ip_or_network_id = "10.40.12.0%3Bip%20addr%3B"
     netmask = "255.255.255.0"
     results = client.get(f"/api/unused-ip-addrs/{ip_or_network_id}/{netmask}")
-    assert 500 == results.status_code
+    assert results.status_code == 500
     assert "Invalid IP Address Error" == results.json["message"]
 
     ip_or_network_id = "10.40.12.0"
     netmask = "10.40.12.0%3Bip%20addr%3B"
     results = client.get(f"/api/unused-ip-addrs/{ip_or_network_id}/{netmask}")
-    assert 500 == results.status_code
+    assert results.status_code == 500
     assert "Invalid Netmask Error" == results.json["message"]

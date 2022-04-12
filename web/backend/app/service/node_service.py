@@ -4,12 +4,13 @@ from typing import Dict, List, Union
 
 from app.models.device_facts import (DeviceFacts,
                                      create_device_facts_from_ansible_setup)
-from app.models.nodes import Command, Node, NodeJob, NodeSchema
+from app.models.nodes import Command, Node, NodeJob
 from app.models.settings.esxi_settings import EsxiSettingsForm
 from app.models.settings.general_settings import GeneralSettingsForm
 from app.models.settings.kit_settings import KitSettingsForm
 from app.models.settings.mip_settings import MipSettingsForm
 from app.service.job_service import AsyncJob
+from app.service.rulesync_service import perform_rulesync
 from app.service.socket_service import (NotificationCode, NotificationMessage,
                                         log_to_console, notify_node_management)
 from app.utils.connection_mngs import REDIS_CLIENT
@@ -470,6 +471,8 @@ class NodeService:
                 )
         elif self.exec_type == DEPLOYMENT_JOBS.remove_node:
             self.node.delete()
+            if self.node.node_type == "Sensor":
+                perform_rulesync.delay()
         elif self.exec_type == DEPLOYMENT_JOBS.setup_controller:
             settings = GeneralSettingsForm.load_from_db()  # type: GeneralSettingsForm
             settings.job_completed = True

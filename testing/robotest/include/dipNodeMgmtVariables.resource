@@ -3,7 +3,6 @@
 ${listLocNodeMgmtProgressBars}                      xpath=//app-node-state-progress-bar
 ${listLocNodeMgmtTableRows}                         xpath=//mat-card[2]//table[@role='grid']/tbody/tr['mat-column-hostname']
 ${listLocRobotTestTableRows}                        xpath=//mat-card[2]//table[@role='grid']/tbody/tr['mat-column-hostname']/td[1]/a[contains(text(),'robottest')]
-# ${listLocRobotTestCleanupDeleteBtn}               xpath=//mat-card[2]//table[@role='grid']//tbody//tr['mat-column-hostname' and td[position()=1 and a[contains(text(),'robot')]]]//following-sibling::td[5]//button[@mattooltip='Delete Node']
 
 # Templated variables
 # (default: '~' in fields to replace)
@@ -29,12 +28,3 @@ ${locNodeMgmtAddNodeDialogSubmitBtn}                xpath=//*[contains(@id, "mat
 
 # Cleanup Locators
 ${locNodeMgmtAddNodeDoubleConfirmDeleteBtn}         xpath=//button[@id='cvah-confirm-dialog-button-options2-not-double-confirm']/span
-
-
-# ${locNodeMgmtAddNodeDialogIpAddressDropdownOpt1}    xpath=//mat-option[1]
-# ${locNodeMgmtAddNodeDialogIpAddressDropdownOpt1}    xpath=//*[contains(@id, "mat-option-")][1]
-# ${locNodeMgmtAddNodeDialogSensorRadioBtn}           //input[@value='Sensor']
-# ${locNodeMgmtAddNodeDialogVMRadioBtn}               xpath=//div[@class='mat-radio-container']//input[@value='Virtual']
-
-
-

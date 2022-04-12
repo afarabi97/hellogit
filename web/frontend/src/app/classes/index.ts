@@ -27,6 +27,7 @@ export * from './rule-set.class';
 export * from './rule-sync.class';
 export * from './rule.class';
 export * from './saved-value.class';
+export * from './sensor-state.class';
 export * from './status.class';
 export * from './success-message.class';
 export * from './user-portal-link.class';

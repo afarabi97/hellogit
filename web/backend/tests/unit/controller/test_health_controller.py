@@ -10,7 +10,7 @@ def test_suricata_installed(client, mocker):
         "app.controller.health_controller.get_suricata_stats", return_value=(0, 0)
     )
     results = client.get("/api/app/suricata/packets")
-    assert 200 == results.status_code
+    assert results.status_code == 200
     assert len(results.json) == 4
 
 
@@ -21,7 +21,7 @@ def test_suricata_uninstalled(client, mocker):
         "app.controller.health_controller.get_suricata_stats", return_value=(0, 0)
     )
     results = client.get("/api/app/suricata/packets")
-    assert 200 == results.status_code
+    assert results.status_code == 200
     assert len(results.json) == 0
 
 
@@ -34,7 +34,7 @@ def test_zeek_installed(client, mocker):
         "app.controller.health_controller.get_zeek_stats", return_value=zeek_stats
     )
     results = client.get("/api/app/zeek/packets")
-    assert 200 == results.status_code
+    assert results.status_code == 200
     assert len(results.json) == 4
 
 
@@ -45,5 +45,5 @@ def test_zeek_uninstalled(client, mocker):
         "app.controller.health_controller.get_zeek_stats", return_value=zeek_stats
     )
     results = client.get("/api/app/zeek/packets")
-    assert 200 == results.status_code
+    assert results.status_code == 200
     assert len(results.json) == 0

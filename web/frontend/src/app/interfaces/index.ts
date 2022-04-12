@@ -50,6 +50,7 @@ export * from './rule-sync.interface';
 export * from './rule.interface';
 export * from './saved-value.interface';
 export * from './selected-node.interface';
+export * from './sensor-state.interface';
 export * from './status.interface';
 export * from './success-message.interface';
 export * from './text-editor-configuration.interface';

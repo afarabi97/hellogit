@@ -38,7 +38,7 @@ Edit Rule Set
     reload
     ${locState} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${index}-state
     lookForElement  ${locState}
-    Element Should Contain  ${locState}  Dirty  # current state of rule set
+    Element Should Contain  ${locState}  Dirty  # current state of edited rule set before sync
 
 Add Rule Set
     [Arguments]  ${rule_set_name}  ${rule_type}
@@ -64,7 +64,7 @@ Add Rule Set
     ${index} =  Get Rule Set Table Row Index  ${rule_set_name}
     ${locState} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${index}-state
     lookForElement  ${locState}
-    Element Should Not Contain  ${locState}  Synced
+    Element Should Contain  ${locState}  Created  # current state of new rule set before edit or sync
 
 Delete Rule Set
     [Arguments]  ${rule_set_name}
@@ -88,7 +88,6 @@ Sync Rules
     log  Syncing Rulesets..this could take a while
     Navigate To Rulesets
     clickAndWaitOnEnable  ${locRuleSyncButton}
-    reload
     lookForElement  ${locRuleSetTableStateElements}
     ${num_rule_sets} =  Get Element Count  ${locRuleSetTableStateElements}
     FOR  ${i}  IN RANGE  ${num_rule_sets}
@@ -96,10 +95,13 @@ Sync Rules
         ${assigned_sensor} =  Strip String  ${assigned_sensor}
         ${sensor_name_len} =  Get Length  ${assigned_sensor}
         ${state_loc} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${i}-state
+        ${sensor_states_loc} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${i}-sensor-states
         IF  ${sensor_name_len} > 0
             Element Should Contain  ${state_loc}  Synced
+            Element Should Contain  ${sensor_states_loc}  Synced
         ELSE
-            Element Should Contain  ${state_loc}  Dirty
+            Element Should Contain  ${state_loc}  Synced
+            Element Should Not Contain  ${sensor_states_loc}  Synced
         END
     END
     log  Rulesync Successful
@@ -156,7 +158,6 @@ Set Ruleset State
     [Documentation]     Gets the current_state of the Zeek Script Ruleset,
     ...                 Perform actions needed to reach the target_state
     [Arguments]  ${ruleset_type_key}   ${target_name}  ${target_clearance}=${ruleset_clearance_state}  ${target_state}=${ruleset_presync_state}  ${target_enabled}=${True}  ${target_sensors}=${True}  ${delete}=${False}   ${reset_state_after}=${False}
-    # Set Ruleset State    ruleset_type_key=${zeek_script_ruleset_key}  target_state=${ruleset_presync_state}  target_name=${zeek_script_ruleset_name}   target_enabled=True   target_sensors=True  delete=${delete}
 
     ${rulesetExists}=   Does Ruleset Exist  ${ruleset_type_key}
     ${ruleset_type_string}=    Convert Ruleset Key To Robot String   ${ruleset_type_key}
@@ -360,8 +361,6 @@ Input Ruleset Dialog Information
         click       ${classification_item_element}
 
         shoot       Input-Ruleset-Dialog-Info-Classification
-        # log     Clicking The Overlay, No Dropdown Should Be Open Afterwards
-        # click       ${locAddRulesetOverlayClick}
     ELSE IF     '${action_key}' == '${ruleset_appType_key}'
         log         Changing the rulesets rule type
 
@@ -436,10 +435,6 @@ Set ${ruleset} Ruleset To ${enabled_state} With ${all_or_no_sensors_assigned} Se
 Set ${ruleset} Ruleset To Deleted
     IF          "${ruleset}" == "Zeek Signatures"
         ${type_key}  ${name_key}=    Set Variable  ${zeek_signature_ruleset_key}  ${zeek_signature_rulset_name}
-    # ELSE IF     "${ruleset}" == "Zeek Signatures"
-    #     ${type_key}  ${name_key}=    Set Variable  ${zeek_signature_ruleset_key}  ${zeek_signature_rulset_name}
-    # ELSE IF     "${ruleset}" == "Suricata"
-    #     ${type_key}    ${name_key}=    Set Variable     ${suricata_ruleset_key}  ${suricata_ruleset_name}
     END
 
     Set Ruleset State    ruleset_type_key=${type_key}  target_state=${ruleset_presync_state}  target_name=${name_key}  delete=${True}

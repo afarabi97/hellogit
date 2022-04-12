@@ -10,4 +10,4 @@ def test_remove_sensor_from_ruleset_assignment(client):
     _remove_sensor_from_ruleset_assignment("test-sensor.test", "zeek")
     results = client.get("api/policy/ruleset")
     assert json.loads(results.data)[0]['sensors'] == []
-    assert 200 == results.status_code
+    assert results.status_code == 200
