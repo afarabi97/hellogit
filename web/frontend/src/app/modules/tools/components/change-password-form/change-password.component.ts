@@ -94,16 +94,16 @@ export class ChangePasswordFormComponent implements OnInit {
   private changePassword() {
     this.toolsSrv.changeKitPassword(this.changePasswordForm.getRawValue()).subscribe(
       data => {
-        this.displaySnackBar(data['message']);
+        this.displaySnackBar(data['success_message']);
       },
       error => {
         console.error(error);
         if (error.status === 404 || error.status === 409) {
-          this.displaySnackBar(error.error['message']);
+          this.displaySnackBar(error.error['error_message']);
         } else if (error.status === 403) {
           this.displaySnackBar('Authentication failure. Check the ssh key on the controller.');
         } else {
-          this.displaySnackBar('An unknown error occurred.');
+          this.displaySnackBar('Internal Server Error: Please ensure that the kit is fully built with all components online.');
         }
       }
     );

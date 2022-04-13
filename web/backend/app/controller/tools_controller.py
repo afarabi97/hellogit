@@ -84,12 +84,8 @@ class ChangeKitPassword(Resource):
     @TOOLS_NS.doc(description="Changes the Kit's ssh root/password on all nodes.")
     @TOOLS_NS.expect(NewPasswordModel.DTO)
     @TOOLS_NS.response(200, "Success Message", COMMON_SUCCESS_MESSAGE)
-    @TOOLS_NS.response(
-        409,
-        "Password has already been used. You must try another password.",
-        COMMON_ERROR_MESSAGE,
-    )
-    @TOOLS_NS.response(500, "Unknown error.", COMMON_ERROR_MESSAGE)
+    @TOOLS_NS.response(409, "Password has already been used. You must try another password.", COMMON_ERROR_MESSAGE)
+    @TOOLS_NS.response(500, "Internal Server Error", COMMON_ERROR_MESSAGE)
     @TOOLS_NS.response(404, "Kit config not found.", COMMON_ERROR_MESSAGE)
     @TOOLS_NS.response(403, "Authentication failure on Node", Node.DTO)
     @controller_maintainer_required
@@ -117,7 +113,7 @@ class ChangeKitPassword(Resource):
                                 "error_message": "Password has already been used. You must try another password."
                             }, 409
                         else:
-                            return {"error_message": "An unknown error occurred."}, 500
+                            return {"error_message": "Internal Server Error"}, 500
 
             except AuthenticationException:
                 return node.to_dict(), 403

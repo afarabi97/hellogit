@@ -24,7 +24,7 @@ class KitStatusCtrl(Resource):
                 return kit_status, {}
         except DBModelNotFound:
             return {"error_message": "DBModelNotFound."}, 400
-        return {"error_message": "Unknown error."}, 500
+        return {"error_message": "Internal Server Error."}, 500
 
 
 @KIT_SETUP_NS.route("/deploy")

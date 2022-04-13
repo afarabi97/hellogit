@@ -93,3 +93,4 @@ web/backend/*.xml
 web/frontend/*.xml
 .hypothesis/*
 Dockerfile.local*
+vs-commit.json
