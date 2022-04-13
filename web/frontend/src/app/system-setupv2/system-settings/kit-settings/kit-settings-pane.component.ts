@@ -1,8 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { MatRadioChange } from '@angular/material/radio';
 import { Router } from '@angular/router';
 
 import { ObjectUtilitiesClass } from '../../../classes';
@@ -139,7 +137,10 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
     }
 
     this.kitSettings = this.kitForm.getRawValue();
-    this.kitSettingsSrv.updateKitSettings(this.kitForm.getRawValue()).subscribe((data) => {
+    let form = this.kitForm.getRawValue();
+    form['is_gip'] = form['is_gip'] === "GIP" ? true: false;
+
+    this.kitSettingsSrv.updateKitSettings(form).subscribe((data) => {
       const job_id = data['job_id'];
       this.job_id = job_id;
       this.kitSettings.job_id = job_id;
@@ -159,12 +160,6 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
     const index = this.kubernetes_ip_options.indexOf(dhcp_range);
     if (index !== -1) {
       this.kubernetes_ip_options.splice(index, 1);
-    }
-  }
-
-  isGIPChecked(event: MatRadioChange){
-    if (event){      
-      this.kitForm.get('is_gip').setValue(event.value === 'GIP');
     }
   }
 
@@ -192,6 +187,7 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
     const password = new FormControl(kitForm ? kitForm.password : '');
     const re_password = new FormControl(kitForm ? kitForm.password : '');
 
+    kitForm.is_gip = kitForm.is_gip ? "GIP": "DIP"
     this.kitForm = new FormGroup({
       'password': password,
       're_password': re_password,

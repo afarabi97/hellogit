@@ -50,6 +50,9 @@
           kit_size: 99
           kit_size_name: "GIP Default (testing only)"
           cacheable: yes
+      - name: Memory to GB
+        set_fact:
+          total_mem_gb: "{{ (ansible_memtotal_mb/1024)|round|int }}"
       - name: Set GIP Kit Size
         set_fact:
           kit_size: 100

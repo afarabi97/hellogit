@@ -8,7 +8,7 @@ SNMP_QUERY = {
         "bool": {
             "filter": [
                 {"term": {"type": "snmp"}},
-                {"range": {"@timestamp": {"gte": "now-1m"}}},
+                {"range": {"@timestamp": {"gte": "now-5m"}}},
             ]
         }
     },
@@ -21,7 +21,7 @@ def status():
     client = ElasticWrapper()
     index = client.indices.exists(index="snmp-data")
     if index:
-        response = client.search(SNMP_QUERY, "snmp-data", size=50)
+        response = client.search(SNMP_QUERY, "snmp-data", size=500)
         return sorted(
             filter(
                 lambda y: y,
