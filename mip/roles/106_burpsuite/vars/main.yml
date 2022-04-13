@@ -1,3 +1,0 @@
----
- burpsuite_path: "{{ tmp_apps }}/{{ burpsuite_file }}"
-...

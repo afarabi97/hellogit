@@ -70,7 +70,6 @@ export interface MipSettings {
   password: string;
   user_password: string;
   luks_password: string;
-  operator_type: string;
 }
 
 export interface KitStatus {

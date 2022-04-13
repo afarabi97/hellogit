@@ -7,7 +7,7 @@
   delegate_to: localhost
   changed_when: commit_hash.rc == 141 or commit_hash.rc == 0
 
-- name: Copy {{ operator_type }} cvah-release file to etc
+- name: Copy cvah-release file to etc
   template:
     src: release.j2
     dest: /etc/cvah-release

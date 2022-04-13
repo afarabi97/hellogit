@@ -23,7 +23,6 @@ export class MIPSettingsPaneComponent implements OnInit, OnChanges {
   mipForm: FormGroup;
   isCardVisible: boolean;
   controllerMaintainer: boolean;
-  default_operator_type = 'cpt';
 
   constructor(public _WebsocketService:WebsocketService,
               private kitSettingsSrv: KitSettingsService,
@@ -103,8 +102,7 @@ export class MIPSettingsPaneComponent implements OnInit, OnChanges {
       'user_password': user_password,
       'user_re_password': user_re_password,
       'luks_password': luks_password,
-      'luks_re_password': luks_re_password,
-      'operator_type': new FormControl(mipForm ? mipForm.operator_type : this.default_operator_type)
+      'luks_re_password': luks_re_password
     });
 
     // Since re_password is dependent on password, the formcontrol for password must exist first. Then we can add the dependency for validation

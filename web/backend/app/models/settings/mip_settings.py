@@ -35,7 +35,6 @@ def _generate_mip_settings_inventory():
 
 class MipSettingsSchema(Schema):
     _id = marsh_fields.Str()
-    operator_type = marsh_fields.Str(required=True)
     password = marsh_fields.Str(required=True)
     user_password = marsh_fields.Str(required=True)
     luks_password = marsh_fields.Str(required=True)
@@ -62,19 +61,17 @@ class MipSettingsForm(SettingsBase):
     DTO = SETINGS_NS.model('MipSettingsForm', {
         'password': fields.String(required=True, example="mypassword1!Afoobar", description="The root and ssh password for all the MIPs in the kit."),
         'user_password': fields.String(required=True, example="mypassword1!Afoobar", description="The user and ssh password for all the MIPs in the kit."),
-        'luks_password': fields.String(required=True, example="mypassword1!Afoobar", description="The drive encryption password for all the MIPs in the kit."),
-        'operator_type': fields.String(required=True, description="Either CPT or MDT")
+        'luks_password': fields.String(required=True, example="mypassword1!Afoobar", description="The drive encryption password for all the MIPs in the kit.")
     })
 
     def __init__(self, password: str,
                  user_password: str,
                  luks_password: str,
-                 operator_type: str, _id: str = None):
+                 _id: str = None):
         self._id = _id or MIP_SETTINGS_ID
         self.password = password
         self.user_password = user_password
         self.luks_password = luks_password
-        self.operator_type = operator_type
 
     @classmethod
     def load_combined_from_db(cls, query: Dict = {"_id": MIP_SETTINGS_ID}) -> dict:

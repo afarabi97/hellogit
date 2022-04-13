@@ -432,13 +432,11 @@ class NodeService:
                 "export ANSIBLE_LOG_PATH={log_path}/{mip_job}.log;"
                 "ansible-playbook site.yml -i inventory -i {settings} "
                 "--limit localhost,{node} "
-                "-t {op_type}"
             ).format(
                 log_path=LOG_PATH,
                 settings=GENERAL_SETTINGS_PATH,
                 node=self.node.hostname,
                 mip_job=self.exec_type,
-                op_type=settings.operator_type,
             )
 
         return self.cmd

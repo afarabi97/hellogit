@@ -14,14 +14,6 @@
     <form [formGroup]="mipForm">
       <div fxLayout="column" fxLayoutAlign="start stretch">
         <p>Requires General Settings to be completed</p>
-        <!-- Operator -->
-        <mat-form-field>
-          <mat-label>Operator Type</mat-label>
-          <mat-select formControlName="operator_type" [(value)]="default_operator_type">
-            <mat-option value="CPT">CPT</mat-option>
-            <mat-option value="MDT">MDT</mat-option>
-          </mat-select>
-        </mat-form-field>
         <!-- Root Password -->
         <mat-form-field>
           <mat-label>Root Password</mat-label>

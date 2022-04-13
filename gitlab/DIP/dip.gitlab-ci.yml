@@ -108,8 +108,7 @@ Kit Settings:
     --network-id "$NETWORK_ID" \
     --network-block-index $NETWORK_BLOCK_INDEX \
     --domain "$KIT_DOMAIN" \
-    --kit-password "$DEFAULT_VM_PASSWORD" \
-    --operator-type "$OPERATOR_TYPE"
+    --kit-password "$DEFAULT_VM_PASSWORD"
   artifacts:
     untracked: true
   extends: .all-and-mip

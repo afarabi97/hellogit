@@ -63,6 +63,7 @@
     - 004_CPT_packages
   tags:
     - packages_CPT
+    - MDT
     - CPT
 
 - name: Version lock kernel, kernel headers, kernel-devel
@@ -188,44 +189,7 @@
     - COTS
     - MDT
     - CPT
-
-- name: Install third party software CPT only
-  hosts: mips
-  gather_facts: no
-  any_errors_fatal: true
-  roles:
-    - 106_burpsuite
-    - 107_nexpose
-  tags:
-    - third_party_CPT
-    - CPT
-
-# - name: Configure SSH
-#   hosts:
-#     - localhost
-#     - mips
-#   gather_facts: yes
-#   any_errors_fatal: true
-#   roles:
-#     - 028_SSH
-#   tags:
-#     - MDT
-#     - CPT
-#     - 028-SSH
-
-# - name: Host config
-#   hosts:
-#     - localhost
-#     - mips
-#   gather_facts: yes
-#   any_errors_fatal: true
-#   roles:
-#     - 029_hosts
-#   tags:
-#     - 029-hosts
-#     - MDT
-#     - CPT
-
+    
 - name: Common STIG remediations
   hosts: mips
   gather_facts: no
