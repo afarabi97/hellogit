@@ -8,6 +8,6 @@ import { AgentInstallerConfigurationClass, IPTargetListClass, WindowsCredentials
  */
 export interface AgentInterface {
   installer_config: AgentInstallerConfigurationClass;
-  target_config: IPTargetListClass;
+  target_config?: IPTargetListClass;
   windows_domain_creds: WindowsCredentialsClass;
 }

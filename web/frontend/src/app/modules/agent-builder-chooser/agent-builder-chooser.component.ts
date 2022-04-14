@@ -301,6 +301,8 @@ export class AgentBuilderChooserComponent implements OnInit {
   agent_uninstall(agent_installer_configuration_selection: AgentInstallerConfigurationClass, ip_target_list_selection: IPTargetListClass, host: HostClass): void {
     const title: string = `${UNINSTALL_WINDOWS_HOST} ${host.hostname}`;
     const message: string = this.dialog_message_(UNINSTALL, host.hostname);
+    ip_target_list_selection.targets = ip_target_list_selection.targets.filter((h: HostClass) => h.hostname === host.hostname);
+
     const agent_target: AgentTargetInterface = {
       installer_config: agent_installer_configuration_selection,
       target_config: ip_target_list_selection,
@@ -322,6 +324,8 @@ export class AgentBuilderChooserComponent implements OnInit {
   agent_reinstall(agent_installer_configuration_selection: AgentInstallerConfigurationClass, ip_target_list_selection: IPTargetListClass, host: HostClass): void {
     const title: string = `${REINSTALL_WINDOWS_HOST} ${host.hostname}`;
     const message: string = this.dialog_message_(REINSTALL, host.hostname);
+    ip_target_list_selection.targets = ip_target_list_selection.targets.filter((h: HostClass) => h.hostname === host.hostname);
+
     const agent_target: AgentTargetInterface = {
       installer_config: agent_installer_configuration_selection,
       target_config: ip_target_list_selection,
@@ -1070,6 +1074,7 @@ export class AgentBuilderChooserComponent implements OnInit {
    * @memberof AgentBuilderChooserComponent
    */
   private api_agent_uninstall_(agent_target: AgentTargetInterface): void {
+    console.log("I am here");
     this.agent_builder_service_.agent_uninstall(agent_target)
       .pipe(untilDestroyed(this))
       .subscribe(
