@@ -178,7 +178,7 @@ class ColdLogModules:
         cls.CISCO.appendFileset("ios", "IOS logs")
         cls.CISCO.appendFileset("meraki", "Meraki logs")
         cls.CISCO.appendFileset("nexus", "Nexus logs")
-        cls.CISCO.appendFileset("umbrella", "Umbella logs")
+        cls.CISCO.appendFileset("umbrella", "Umbrella logs")
 
         cls.JUNIPER.appendFileset("srx", "SRX logs")
         cls.JUNIPER.appendFileset("junos", "Junos logs")
