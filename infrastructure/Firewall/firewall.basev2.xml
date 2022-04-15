@@ -522,37 +522,6 @@
 		</rule>
 		<rule>
 			<id></id>
-			<tracker>1648755105</tracker>
-			<type>pass</type>
-			<interface>wan</interface>
-			<ipprotocol>inet</ipprotocol>
-			<tag></tag>
-			<tagged></tagged>
-			<max></max>
-			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
-			<max-src-states></max-src-states>
-			<statetimeout></statetimeout>
-			<statetype><![CDATA[keep state]]></statetype>
-			<os></os>
-			<source>
-				<address>SIL_Network</address>
-			</source>
-			<destination>
-				<any></any>
-			</destination>
-			<descr><![CDATA[Allow SIL to Any]]></descr>
-			<created>
-				<time>1648755105</time>
-				<username><![CDATA[assessor@10.20.136.245 (Local Database)]]></username>
-			</created>
-			<updated>
-				<time>1649360768</time>
-				<username><![CDATA[assessor@10.2.2.19 (Local Database)]]></username>
-			</updated>
-		</rule>
-		<rule>
-			<id></id>
 			<tracker>1630697107</tracker>
 			<type>pass</type>
 			<interface>wan</interface>
@@ -1935,13 +1904,6 @@
 			<address>server1.catwoman</address>
 			<descr></descr>
 			<detail><![CDATA[Entry added Fri, 13 Mar 2020 02:06:45 +0000]]></detail>
-		</alias>
-		<alias>
-			<name>SIL_Network</name>
-			<type>network</type>
-			<address>10.2.0.0/16 10.10.0.0/16</address>
-			<descr><![CDATA[SIL_Network]]></descr>
-			<detail><![CDATA[VPN_SIL||SIL_Local]]></detail>
 		</alias>
 		<alias>
 			<name>Switch_P2P</name>

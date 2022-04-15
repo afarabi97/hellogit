@@ -65,7 +65,7 @@ def validate_hostname_fn(value: str):
     fqdn_length = len(domain) + 52
     pattern = "^[a-z]([a-z0-9-.]){4,%s}$" % fqdn_length
     if not re.match(pattern, value):
-        raise ValidationError("Hostname must be alphanumeric, less than {} characters. "
+        raise ValidationError("Hostname must be alphanumeric with a length between 5 and {} characters. "
                               " Special characters are not allowed with the exception of dashes (IE -).".format(fqdn_length))
 
 

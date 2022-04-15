@@ -20,12 +20,12 @@ import { kickStartTooltips, kitSettingsValidators } from '../../validators/kit-s
 export class KitSettingsPaneComponent implements OnInit, OnChanges {
   @Input() hasTitle: boolean;
   @Input() generalSettings: Partial<GeneralSettings> = {};
-  @Input() kitSettings: Partial<Settings> = {};
   @Input() kitStatus: Partial<KitStatus> = {};
   @Input() controllerInfo: any = {};
   @Output() public getSettings = new EventEmitter<any>();
 
   kitForm: FormGroup;
+  kitSettings: Settings;
   dhcp_range_options: string[] = [];
   kubernetes_ip_options: string[];
   unused_ip_addresses: string[] = [];
@@ -56,10 +56,16 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
     this.createFormGroup();
   }
 
+  ngAfterViewInit(): void {
+    this.kitSettingsSrv.getKitSettings().subscribe((data: Settings) => {
+      this.kitSettings = data;
+      this.updateFormGroup();
+      this.checkJob();
+    });
+  }
+
   ngOnChanges(): void {
     if (ObjectUtilitiesClass.notUndefNull(this.kitStatus)) {
-      this.job_id = ObjectUtilitiesClass.notUndefNull(this.kitSettings) ? this.kitSettings.job_id : null;
-      this.createFormGroup(this.kitSettings);
       this.checkJob();
     }
     if (this.controllerInfo){
@@ -75,11 +81,17 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
   }
 
   checkJob(){
+    this.job_id = ObjectUtilitiesClass.notUndefNull(this.kitSettings) ? this.kitSettings.job_id : null;
+    if (!this.kitForm){
+      return;
+    }
+
     if(this.kitStatus.general_settings_configured){
       this.kitForm.enable();
     } else{
       this.kitForm.disable();
     }
+
     if (this.job_id && this.kitStatus.general_settings_configured){
       this.kitSettingsSrv.getJob(this.job_id).subscribe(data => {
         if (data && data['status'] === 'started'){
@@ -183,21 +195,38 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
     });
   }
 
-  private createFormGroup(kitForm?) {
-    const password = new FormControl(kitForm ? kitForm.password : '');
-    const re_password = new FormControl(kitForm ? kitForm.password : '');
 
-    kitForm.is_gip = kitForm.is_gip ? "GIP": "DIP"
+  private updateFormGroup(){
+    if (!this.kitSettings || !this.kitForm){
+      return;
+    }
+    let is_gip = "DIP";
+    if (this.kitSettings.is_gip){
+      is_gip = this.kitSettings.is_gip ? "GIP": "DIP"
+    }
+
+    this.kitForm.get('password').setValue(this.kitSettings ? this.kitSettings.password : '');
+    this.kitForm.get('re_password').setValue(this.kitSettings ? this.kitSettings.password : '');
+    this.kitForm.get('upstream_ntp').setValue(this.kitSettings ? this.kitSettings.upstream_ntp : null);
+    this.kitForm.get('upstream_dns').setValue(this.kitSettings ? this.kitSettings.upstream_dns : null);
+    this.kitForm.get('kubernetes_services_cidr').setValue(this.kitSettings ? this.kitSettings.kubernetes_services_cidr : '');
+    this.kitForm.get('is_gip').setValue(is_gip);
+  }
+
+  private createFormGroup() {
+    const password = new FormControl('');
+    const re_password = new FormControl('');
+
     this.kitForm = new FormGroup({
       'password': password,
       're_password': re_password,
-      'upstream_ntp': new FormControl(kitForm ? kitForm.upstream_ntp : null,
+      'upstream_ntp': new FormControl(null,
         Validators.compose([validateFromArray(kitSettingsValidators.upstream_ntp)])),
-      'upstream_dns': new FormControl(kitForm ? kitForm.upstream_dns : null,
+      'upstream_dns': new FormControl(null,
         Validators.compose([validateFromArray(kitSettingsValidators.upstream_dns)])),
-      'kubernetes_services_cidr': new FormControl(kitForm ? kitForm.kubernetes_services_cidr : '',
+      'kubernetes_services_cidr': new FormControl('',
         Validators.compose([validateFromArray(kitSettingsValidators.kubernetes_services_cidr)])),
-      'is_gip': new FormControl(kitForm ? kitForm.is_gip : null)
+      'is_gip': new FormControl(null)
     });
 
     // Since re_password is dependent on password, the formcontrol for password must exist first. Then we can add the dependency for validation
