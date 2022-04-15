@@ -747,7 +747,11 @@ export class CatalogPageComponent implements OnInit {
     this.nodes = nodes.sort(this.sorting_service_.node_alphanum);
     let child_status: string;
     this.nodes.forEach((node: NodeClass) => {
-      node.status = this.statuses_.filter((status: StatusClass) => node.hostname === status.hostname || node.hostname.includes(status.hostname))[0];
+      if (node.node_type.toLocaleLowerCase() === SENSOR_VALUE.toLocaleLowerCase()) {
+        node.status = this.statuses_.filter((status: StatusClass) => node.hostname === status.hostname)[0];
+      } else {
+        node.status = this.statuses_.filter((status: StatusClass) => node.hostname === status.hostname || node.hostname.includes(status.hostname))[0];
+      }
       /* istanbul ignore else */
       if (this.chart_info.node_affinity.includes(node.node_type) ||
           (this.chart_info.node_affinity === this.server_any_value &&

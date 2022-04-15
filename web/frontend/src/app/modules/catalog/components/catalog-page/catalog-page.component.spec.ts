@@ -460,6 +460,7 @@ describe('CatalogPageComponent', () => {
         reset();
 
         component.chart_info = MockChartInfoClassArkimeViewerReinstallorUninstall;
+        component['statuses_'] = [MockStatusClassArkimeViewerDeployed];
         component['api_get_catalog_nodes_']();
         component.filter_nodes_by_process(REINSTALL);
 
@@ -470,6 +471,7 @@ describe('CatalogPageComponent', () => {
         reset();
 
         component.chart_info = MockChartInfoClassArkimeViewerReinstallorUninstall;
+        component['statuses_'] = [MockStatusClassArkimeViewerDeployed];
         component['api_get_catalog_nodes_']();
         component.filter_nodes_by_process(REINSTALL);
 
