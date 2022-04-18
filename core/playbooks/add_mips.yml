@@ -1,9 +1,0 @@
----
-- name: Gather Invetory MIP settings
-  hosts: localhost
-  gather_facts: yes
-  tasks:
-    - name: MIP nodes
-      copy:
-        src: /opt/tfplenum/mip/inventory/mip_nodes.yml
-        dest: /opt/tfplenum/core/playbooks/inventory/mip_nodes.yml

@@ -39,19 +39,14 @@ def given_MIP(mip, real_client):
 def when_i_delete_mip(real_client):
     real_client.delete('/api/kit/node/miper22')
 
-
-@when("I wait a minute")
-def wait():
-    sleep(60)
-
-
 @then("the MIP is not found on the ESXI server")
 def then_no_mip(real_client):
-    response = real_client.get('/api/kit/node/miper22').data
-    data = json.loads(response)
-    for x in range(60):
-        for job in data['jobs']:
-            if job['name'] == 'remove' and job['complete']:
-                assert True
-            else:
-                sleep(10)
+    for x in range(30):
+        response = real_client.get('/api/kit/node/miper22')
+        status_code = response.status_code
+        if status_code == 404:
+            assert True
+            return 0
+        else:
+            sleep(10)
+    assert False

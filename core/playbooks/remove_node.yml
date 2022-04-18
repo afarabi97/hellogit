@@ -30,15 +30,6 @@
       set_fact:
         node_type: "{{ hostvars[node].node_type }}"
 
-- name: Wait for connection
-  hosts: nodes_to_remove
-  gather_facts: no
-  tasks:
-    - name: Wait 30 minutes for connection
-      wait_for_connection:
-        timeout: 1800
-        sleep: 10
-
 - name: Remove installed apps
   hosts: nodes_to_remove
   gather_facts: no
@@ -118,7 +109,7 @@
       command: "/sbin/shutdown -r +1 --no-wall"
       async: 0
       poll: 0
-      when: hostvars[node].deployment_type == "Baremetal"
+      when: node_type != "MIP" and hostvars[inventory_hostname].deployment_type == "Baremetal"
 
 - name: Update VPN Server
   hosts: localhost

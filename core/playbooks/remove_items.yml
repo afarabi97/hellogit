@@ -49,7 +49,7 @@
     state: absent
 
 - name: Power off {{ node_index }} VM
-  ignore_errors: no
+  ignore_errors: yes
   vmware_guest:
     hostname: "{{ esxi.ipaddress }}"
     username: "{{ esxi.username }}"
@@ -63,7 +63,7 @@
   when: (node_type == "MIP" and hostvars[node].deployment_type == "Virtual") or hostvars[node_index].deployment_type == "Virtual"
 
 - name: Deleting {{ node_index }} VM
-  ignore_errors: no
+  ignore_errors: yes
   vmware_guest:
     hostname: "{{ esxi.ipaddress }}"
     username: "{{ esxi.username }}"

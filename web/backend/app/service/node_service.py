@@ -347,9 +347,12 @@ class NodeService:
         elif self.exec_type == DEPLOYMENT_JOBS.remove_node:
             self.cmd = (
                 "export ANSIBLE_LOG_PATH={log_path}/remove-node.log; "
-                "ansible-playbook add_mips.yml -i inventory -e node='{node}'; "
-                "ansible-playbook remove_node.yml -i inventory -e node='{node}'"
-            ).format(log_path=LOG_PATH, node=self.node.hostname)
+                "ansible-playbook remove_node.yml -i inventory -i {mip_dir} -e node='{node}'"
+            ).format(
+                log_path=LOG_PATH,
+                node=self.node.hostname,
+                mip_dir=str(MIP_DIR / "inventory"),
+            )
 
         # Control Plane
         elif (

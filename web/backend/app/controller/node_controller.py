@@ -61,6 +61,8 @@ class NodeCtrl(Resource):
                 hostname = f"{hostname}.{settings.domain}"
             node = Node.load_from_db_using_hostname_with_jobs(
                 hostname)  # type: dict
+            if node == {}:
+                return {"error_message": "Node not found."}, 404
             if node:
                 return node
         except DBModelNotFound:
