@@ -104,7 +104,7 @@ export const kitSettingsValidators = {
   upstream_dns: [{ ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' }],
   upstream_ntp: [{ ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' }],
   domain: [
-    { ops: { pattern: /^[a-z]([a-z0-9-]){2,51}$/ }, error_message: 'Domain must be alphanumeric and 52 characters or less. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
+    { ops: { pattern: /^[a-z]([a-z0-9-]){2,39}$/ }, error_message: 'Domain must be alphanumeric, less than 40 characters. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
     { error_message: 'Domain is required', validatorFn: 'required' }
   ],
   kubernetes_services_cidr: [
@@ -115,7 +115,7 @@ export const kitSettingsValidators = {
 export const addNodeValidators = {
   hostname: [
     { error_message: (value) => `Duplicate hostnames found: ${value}. Node must have a unique hostnames.`, validatorFn: 'unique' },
-    { ops: { pattern: /^[a-z]([a-z0-9-.]){4,51}$/ }, error_message: 'Hostname must be alphanumeric with a length between 5 and 52 characters. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
+    { ops: { pattern: /^[a-z]([a-z0-9-.]){4,39}$/ }, error_message: 'Hostname must be alphanumeric, less than 40 characters. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
     { error_message: 'Hostname is required', validatorFn: 'required' }
   ],
   ip_address: [
@@ -168,7 +168,7 @@ export const addNodeValidators = {
 
 export const kickstart_validators = {
   hostname: [
-    { ops: { pattern: /^[a-z]([a-z0-9-.]){4,51}$/ }, error_message: 'Hostname must be alphanumeric with a length between 5 and 52 characters. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
+    { ops: { pattern: /^[a-z]([a-z0-9-.]){4,39}$/ }, error_message: 'Hostname must be alphanumeric, less than 40 characters. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
     { error_message: (value) => `Duplicate hostnames found: ${value}. Node must have a unique hostnames.`, validatorFn: 'unique' },
     { error_message: 'Hostname is required', validatorFn: 'required' }
   ],
@@ -205,7 +205,7 @@ export const kickstart_validators = {
   //general form validation
   controller_interface: [{ error_message: 'Controller Interface is required', validatorFn: 'required' }],
   domain: [
-    { ops: { pattern: /^[a-z]([a-z0-9-]){2,51}$/ }, error_message: 'Domain must be alphanumeric and 52 characters or less. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
+    { ops: { pattern: /^[a-z]([a-z0-9-]){2,39}$/ }, error_message: 'Domain must be alphanumeric, less than 40 characters. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
     { error_message: 'Domain is required', validatorFn: 'required' }
   ],
 

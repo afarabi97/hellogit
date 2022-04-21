@@ -47,9 +47,9 @@ class GeneralSettingsSchema(Schema):
 
     @validates("domain")
     def validate_domain(self, value: str):
-        pattern = "^[a-z]([a-z0-9-]){2,51}$"
+        pattern = f"^[a-z]([a-z0-9-]){2,39}$"
         if not re.match(pattern, value):
-            raise ValidationError("Domain must be alphanumeric, less than 51 characters. "
+            raise ValidationError("Domain must be alphanumeric, less than 40 characters. "
                                   "Special characters are not allowed with the exception of dashes (IE -).")
 
 
