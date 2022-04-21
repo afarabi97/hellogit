@@ -234,25 +234,28 @@ Hardware CVAH Catalog Community Apps:
       - $RUN_CATALOG == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "hw-developer-all"
       - $RUN_INTEGRATION == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "hw-developer-all"
 
-Verodin Automation:
-  stage: verodin-test
+Mandiant Automation:
+  stage: mandiant-test
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/baremetal_pipeline.py \
-    run-verodin \
-    --verodin-ipaddress "$VERODIN_IPADDRESS" \
-    --verodin-username "$VERODIN_USERNAME" \
-    --verodin-password "$VERODIN_PASSWORD" \
-    --sequence-name "$SEQUENCE_NAME" \
+    run-mandiant \
+    --mandiant-ipaddress "$MANDIANT_IPADDRESS" \
+    --mandiant-username "$MANDIANT_USERNAME" \
+    --mandiant-password "$MANDIANT_PASSWORD" \
+    --run-all-actions "$RUN_ALL_ACTIONS" \
+    --run-common-detections "$RUN_COMMON_DETECTIONS" \
     --num-of-actions $NUM_OF_ACTIONS \
-    --run-action-sample "$ACTION_SAMPLE"
+    --ctrl-ipaddress "$CONTROLLER_IPADDRESS" \
+    --ctrl-password "$DEFAULT_TEMPLATE_PASSWORD"
   retry: 2
   only:
     variables:
-      - $RUN_CATALOG == "yes" && $RUN_VERODIN == "yes" && $PIPELINE == "hw-developer-all"
+      - $RUN_CATALOG == "yes" && $RUN_MANDIANT == "yes" && $PIPELINE == "hw-developer-all"
+      - $PIPELINE == "run-mandiant"
 
 BreakingPoint Automation:
   stage: breakingpoint-test

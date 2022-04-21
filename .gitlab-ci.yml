@@ -190,12 +190,13 @@ variables:
   # Robot Test Integration
   JIRA_PROJECT_KEY: "THISISCVAH"
 
-  # Verodin Automation
-  VERODIN_IPADDRESS: "10.30.206.200"
-  VERODIN_USERNAME: "dev-user@sil.local"
-  SEQUENCE_NAME: "Common Detection Alerts - Improved"
-  NUM_OF_ACTIONS: 50
-  ACTION_SAMPLE: "no"
+  # Mandiant Automation
+  MANDIANT_IPADDRESS: "10.30.207.200"
+  MANDIANT_USERNAME: "sil-adm@range.sil"
+  RUN_ALL_ACTIONS: "no"
+  RUN_COMMON_DETECTIONS: "no"
+  NUM_OF_ACTIONS: 40
+  RUN_MANDIANT: "no"
 
   #Nexus URLs
   DEV_REGISTRY_URL: "https://nexus.sil.lab/repository/tfplenum-dev"
@@ -249,7 +250,7 @@ stages:
   - release
   - checkhash
   - breakingpoint-test
-  - verodin-test
+  - mandiant-test
   - remote-node
   - range-mip-controller
   - range-mip-kickstart

@@ -7,18 +7,15 @@ from jobs.ctrl_setup import BaremetalControllerSetup
 from jobs.kit import KitSettingsJob
 from jobs.catalog import CatalogJob
 from jobs.breakingpoint import BPJob
-from jobs.verodin import VerodinJob
+from jobs.mandiant import MandiantJob
 from jobs.remote_node import RemoteNode
-from models import add_args_from_instance
-from models.common import BasicNodeCreds
 from models.constants import SubCmd
 from models.ctrl_setup import HwControllerSetupSettings
 from models.catalog import CatalogSettings
 from models.breakingpoint import BPSettings
-from models.verodin import VerodinSettings
+from models.mandiant import MandiantSettings
 from models.node import HardwareNodeSettingsV2
 from models.kit import KitSettingsV2
-from util.ansible_util import delete_vms
 from util.yaml_util import YamlManager
 
 
@@ -89,10 +86,10 @@ class BaremetalRunner():
             SubCmd.run_remote_node, help="this subcommand runs remote node")
         remote_parser.set_defaults(which=SubCmd.run_remote_node)
 
-        verodin_parser = subparsers.add_parser(
-            SubCmd.run_verodin, help="this subcommand run verodin traffic choosen from endpoint or network actors")
-        VerodinSettings.add_args(verodin_parser)
-        verodin_parser.set_defaults(which=SubCmd.run_verodin)
+        mandiant_parser = subparsers.add_parser(
+            SubCmd.run_mandiant, help="this subcommand run mandiant traffic choosen from endpoint or network actors")
+        MandiantSettings.add_args(mandiant_parser)
+        mandiant_parser.set_defaults(which=SubCmd.run_mandiant)
 
         args = parser.parse_args()
         self.args = args
@@ -155,15 +152,10 @@ class BaremetalRunner():
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
                 executor = RemoteNode(ctrl_settings, kit_settings)
                 executor.remote_node_config()
-            elif args.which == SubCmd.run_verodin:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
-                kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
-                nodes = YamlManager.load_nodes_from_yaml_files(ctrl_settings, kit_settings)
-
-                verodin_settings = VerodinSettings()
-                verodin_settings.from_namespace(args)
-                executor = VerodinJob(verodin_settings, ctrl_settings,
-                                      nodes, kit_settings)
+            elif args.which == SubCmd.run_mandiant:
+                mandiant_settings = MandiantSettings()
+                mandiant_settings.from_namespace(args)
+                executor = MandiantJob(mandiant_settings)
                 executor.run_job()
             else:
                 self._run_catalog(args.which, args.process, args)

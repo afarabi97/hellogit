@@ -14,7 +14,7 @@ class SubCmd:
 
     run_catalog = 'run-catalog'
     run_bp = 'run-bp'
-    run_verodin = 'run-verodin'
+    run_mandiant = 'run-mandiant'
     run_integration_tests = 'run-integration-tests'
     simulate_power_failure = 'simulate-power-failure'
     run_disk_fillup_tests = 'run-disk-fillup-tests'
