@@ -1,7 +1,9 @@
 import os
+import re
 import tempfile
+
 from shutil import make_archive
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from app.models import Model
 from app.models.nodes import Node
@@ -59,10 +61,10 @@ class RuleSynchronization:
         self.notification = NotificationMessage(role="rulesync")
 
     def _send_notification(
-        self, msg: str, code: str = NotificationCode.ERROR.name, exception=""
+        self, msg: str, status: str = NotificationCode.ERROR.name, exception: Optional[Exception] = None
     ):
         rq_logger.debug(msg)
-        self.notification.set_status(status=code)
+        self.notification.set_status(status=status)
         self.notification.set_message(msg)
         self.notification.set_exception(exception)
         self.notification.post_to_websocket_api()
@@ -78,12 +80,15 @@ class RuleSynchronization:
 
     def _clear_enabled_rulesets(self, nodes: List[Node]):
         ids_to_reset = []
+        rq_logger.debug(
+            f"_clear_enabled_rulesets | nodes | Type: {type(nodes)}")
+
         for node in nodes:
             if node.node_type != NODE_TYPES.sensor.value:
                 continue
 
             ip_address = node.deviceFacts["default_ipv4_settings"]["address"]
-            for rule_set in self.rule_sets:
+            for rule_set in self._get_rulesets():
                 if not self._is_sensor_in_ruleset(ip_address, rule_set):
                     continue
 
@@ -207,7 +212,8 @@ class RuleSynchronization:
             ):
                 state_obj = {"hostname": hostname, "state": statestr}
                 ret_val = mongo_ruleset().update_one(
-                    {"_id": rule_set["_id"]}, {"$push": {"sensor_states": state_obj}}
+                    {"_id": rule_set["_id"]}, {
+                        "$push": {"sensor_states": state_obj}}
                 )  # type: UpdateResult
                 if ret_val.modified_count == 0:
                     self._send_notification(
@@ -346,6 +352,9 @@ class RuleSynchronization:
         return zeek_load_dir
 
     def _sync_zeek_items(self, fabric: Connection, ip_address: str, hostname: str):
+        rq_logger.info(
+            f"Synchronizing Zeek scripts, intel, and signatures for {hostname}.")
+
         try:
             zeek_pod_name = get_zeek_pod_name(ip_address)
         except ValueError as e:
@@ -408,24 +417,28 @@ class RuleSynchronization:
             )
             raise e
 
-    def _clear_states(self, rule_sets: List[RuleSetModel]) -> None:
-        for rule_set in rule_sets:
-            self._clear_state(rule_set)
+    def _get_rulesets(self):
+        self.rule_sets = list(mongo_ruleset().find({}))
+        return self.rule_sets  # type: ignore
+
+    def _clear_states(self, rule_sets: Optional[List[RuleSetModel]] = None) -> None:
+        if rule_sets is None:
+            rule_sets = self._get_rulesets()  # type: ignore
+        else:
+            # type: ignore
+            [self._clear_state(ruleset) for ruleset in rule_sets]
 
     def _clear_state(self, rule_set: RuleSetModel.DTO) -> None:
         mongo_ruleset_id = rule_set["_id"]
         try:
             # Clear states incase remove node triggered
-            mongo_ruleset().update_one({"_id": mongo_ruleset_id}, {"$set": {"sensor_states": []}})
-
-            self.notification.set_status(status=NotificationCode.COMPLETED.name)
-            self.notification.set_message("Clear states for rule set ID {}".format(mongo_ruleset_id))
+            mongo_ruleset().update_one({"_id": mongo_ruleset_id}, {
+                "$set": {"sensor_states": []}})
+            self._send_notification(
+                f"Clear states for rule set ID {mongo_ruleset_id}", NotificationCode.COMPLETED.name)
         except Exception as exception:
-            self.notification.set_status(status=NotificationCode.ERROR.name)
-            self.notification.set_message("Failed to clear states for rule set ID {}".format(mongo_ruleset_id))
-            self.notification.set_exception(exception)
-
-        self.notification.post_to_websocket_api()
+            self._send_notification(
+                f"Failed to clear states for rule set ID {mongo_ruleset_id}", NotificationCode.ERROR.name, exception)
 
     def _update_rule_set_states(self, rule_sets: List[RuleSetModel]) -> None:
         for rule_set in rule_sets:
@@ -436,11 +449,14 @@ class RuleSynchronization:
         state = self._get_worse_state_from_sensor_states(rule_set)
         try:
             # Clear states incase remove node triggered
-            mongo_ruleset().update_one({"_id": mongo_ruleset_id}, {"$set": {"state": state}})
+            mongo_ruleset().update_one(
+                {"_id": mongo_ruleset_id}, {"$set": {"state": state}})
 
-            rq_logger.info("Setting ruleset state equal to worest sensor state: {}.".format(state))
+            rq_logger.info(
+                "Setting ruleset state equal to worest sensor state: {}.".format(state))
         except Exception as exception:
-            rq_logger.info("Setting ruleset state equal to worest sensor state failed see exception below.")
+            rq_logger.info(
+                "Setting ruleset state equal to worest sensor state failed see exception below.")
             rq_logger.exception(exception)
 
     def _get_worse_state_from_sensor_states(self, rule_set: RuleSetModel.DTO) -> str:
@@ -451,111 +467,155 @@ class RuleSynchronization:
                 break
         return state
 
+    def _can_sync(self, node: Node) -> bool:
+        """
+        _can_sync checks if we processing this node when syncing rulesets.
+
+        If the node is a valid sensor (is of type sensor and has deviceFacts defined) then we should
+        process the node. The function will return True since we DO NOT want to skip processing.
+
+        Args:
+            node (Model): Node to check.
+
+        Returns:
+            bool: True if we should skip processing this node, False otherwise.
+        """
+        if node.node_type == NODE_TYPES.sensor.value and self._has_device_facts(node):
+            return True
+        return False
+
+    def _has_device_facts(self, node: Node) -> bool:
+        """
+        _has_device_facts checks if the node has device facts.
+
+        This method also sends a warning to the User via notifications if deviceFacts is missing.
+        This is usually caused due to improper handling of nodes in the database.
+
+        Args:
+            node (Node): A Node object
+
+        Returns:
+            bool: True if the node has device facts, False otherwise
+        """
+        if not node.deviceFacts:
+            device_facts_warning = f"Node {node.hostname} is missing deviceFacts. Has {node.hostname} been properly removed from the cluster?"
+            rq_logger.warning(device_facts_warning)
+            self.notification.set_message(device_facts_warning)
+            self.notification.post_to_websocket_api()
+            return False
+        return True
+
+    def sync_all_rulesets(self, nodes, password: Optional[str] = None, before_action: Optional[object] = None):
+        """
+        sync_all_rulesets Handles synchronization state changes from IN_PROGRESS to FINISHED
+
+        TODO: Refactor the nasty try-except hell we are in
+
+        Args:
+            nodes (_type_): list of nodes to process and sync their rulesets
+            password (Optional[str], optional): The password to connect to the node. Defaults to None.
+            before_action (Optional[object], optional): A function you wish to call before syncing begins. Defaults to None.
+        """
+        # Inform user the rule sync is now in progress
+        self._send_notification(
+            "Rule synchronization in progress.", NotificationCode.IN_PROGRESS.name)
+        sync_errors = False
+        if before_action:
+            before_action()  # type: ignore
+
+        password = [form.password for form in [
+            KitSettingsForm.load_from_db()] if form != None and form.password != None][0]
+
+        # TODO: Fix this very large problem
+        for node in nodes:  # type: Node
+            ip_address = node.deviceFacts["default_ipv4_settings"]["address"]
+            hostname = node.deviceFacts["hostname"]
+            with FabricConnection(ip_address, password) as fabric:
+                try:
+                    # TODO: Specify the exact types of errors we want to catch
+                    self._sync_suricata_rulesets(
+                        fabric, ip_address, hostname)
+                except Exception as e:
+                    sync_errors = True  # TODO: Get rid of this sync_errors variable
+                    self._set_suricata_states(
+                        hostname, ip_address, RULESET_STATES[3]
+                    )
+                    self._send_notification(
+                        f"Failed to synchronize Suricata rules for {hostname}.", NotificationCode.ERROR.name, exception=e)
+
+                try:
+                    # TODO: Specify the exact types of errors we want to catch
+                    self._sync_zeek_items(fabric, ip_address, hostname)
+                except Exception as e:
+                    # TODO: Get rid of this sync_errors variable
+                    sync_errors = True  # TODO: Get rid of this sync_errors variable
+                    self._send_notification(
+                        f"Failed to synchronize Zeek scripts, intel, and signatures for {hostname}.", NotificationCode.ERROR.name, exception=e)
+                    self._set_zeek_intel_states(
+                        hostname, ip_address, RULESET_STATES[3]
+                    )
+                    self._set_zeek_script_states(
+                        hostname, ip_address, RULESET_STATES[3]
+                    )
+                    self._set_zeek_signatures_states(
+                        hostname, ip_address, RULESET_STATES[3]
+                    )
+
+                # TODO: Understand this
+                # Need to update each rule set state to reflect the status of the sensors
+                self._update_rule_set_states(self.rule_sets)
+
+        # TODO: Get rid of this sync_errors variable
+        self._send_sync_finished_notification(sync_errors)
+
+    def _send_sync_finished_notification(self, sync_errors: bool) -> None:
+        """
+        _send_sync_finished_notification Sends the final notification in the syncing process
+
+        Sends a Success or Error message depending on if there were errors that occurred during sync
+
+        Args:
+            sync_errors (bool): True if there were errors during sync, False if not
+        """
+        if sync_errors:
+            self._send_notification(
+                "Rule synchronization completed with errors!", NotificationCode.ERROR.name)
+        else:
+            self._send_notification(
+                "Rule synchronization completed successfully!", NotificationCode.COMPLETED.name)
+
+    def prepare_for_ruleset_sync(self, nodes: List[Node]):
+        """
+        prepare_for_ruleset_sync the first step in syncing the rulesets
+
+        Puts the ruleset synchronization process in a STARTED state and calls self._clear_enabled_rulesets
+        which performs these actions: Get Nodes, Get Password and Clears Each Nodes Enabled Rulesets
+
+        Args:
+            nodes (List[Node]): List of nodes that will have their enabled rulesets cleared
+        """
+        self._send_notification(
+            "Rule synchronization started.", NotificationCode.STARTED.name)
+        self._clear_enabled_rulesets(nodes)
 
     def sync_rulesets(self):
+        """
+        sync_rulesets performs the full action of syncing the rulesets against all syncable nodes
+
+        TODO: State Machine that has STARTED -> IN_PROGRESS -> FINISHED
+        """
         try:
-            self.notification.set_status(status=NotificationCode.STARTED.name)
-            self.notification.set_message("Rule synchronization started.")
-            self.notification.post_to_websocket_api()
+            kit_nodes = [node for node in Node.load_all_from_db()
+                         if self._can_sync(node)]
 
-            kit_nodes = Node.load_all_from_db()  # type: List[Model]
-            kickstart_form = KitSettingsForm.load_from_db()  # type: Dict
-            password = kickstart_form.password
-            self.rule_sets = list(mongo_ruleset().find({}))
-            self._clear_enabled_rulesets(kit_nodes)
+            self.prepare_for_ruleset_sync(kit_nodes)
 
-            self.notification.set_status(
-                status=NotificationCode.IN_PROGRESS.name)
-            self.notification.set_message("Rule synchronization in progress.")
-            self.notification.post_to_websocket_api()
-            errors = False
-            # Clear states from all rule sets to make sure removed nodes are handled
-            self._clear_states(self.rule_sets)
-            for node in kit_nodes:  # type: Node
-                if node.node_type != NODE_TYPES.sensor.value:
-                    continue
+            # (fix) finding/THISISCVAH-12535
+            self.sync_all_rulesets(kit_nodes, before_action=self._clear_states)
 
-                ip_address = node.deviceFacts["default_ipv4_settings"]["address"]
-                hostname = node.deviceFacts["hostname"]
-                with FabricConnection(ip_address, password) as fabric:
-                    try:
-                        rq_logger.info(
-                            "Synchronizing Suricata signatures for {}.".format(
-                                hostname)
-                        )
-                        self._sync_suricata_rulesets(
-                            fabric, ip_address, hostname)
-                    except Exception as e:
-                        errors = True
-                        self._set_suricata_states(
-                            hostname, ip_address, RULESET_STATES[3]
-                        )
-                        self.notification.set_status(
-                            status=NotificationCode.ERROR.name)
-                        self.notification.set_message(
-                            "Failed to synchronize Suricata rules for {}.".format(
-                                hostname
-                            )
-                        )
-                        self.notification.set_exception(e)
-                        self.notification.post_to_websocket_api()
-                        rq_logger.exception(e)
-
-                    try:
-                        rq_logger.info(
-                            "Synchronizing Zeek scripts, intel, and signatures for {}.".format(
-                                hostname
-                            )
-                        )
-                        self._sync_zeek_items(fabric, ip_address, hostname)
-                    except Exception as e:
-                        errors = True
-                        self.notification.set_status(
-                            status=NotificationCode.ERROR.name)
-                        self.notification.set_message(
-                            "Failed to synchronize Zeek scripts, intel, and signatures for {}.".format(
-                                hostname
-                            )
-                        )
-                        self.notification.set_exception(e)
-                        self.notification.post_to_websocket_api()
-                        self._set_zeek_intel_states(
-                            hostname, ip_address, RULESET_STATES[3]
-                        )
-                        self._set_zeek_script_states(
-                            hostname, ip_address, RULESET_STATES[3]
-                        )
-                        self._set_zeek_signatures_states(
-                            hostname, ip_address, RULESET_STATES[3]
-                        )
-                        rq_logger.exception(e)
-
-                    # Need to update each rule set state to reflect the status of the sensors
-                    self._update_rule_set_states(self.rule_sets)
-
-            if not errors:
-                self.notification.set_status(
-                    status=NotificationCode.COMPLETED.name)
-                self.notification.set_message(
-                    "Rule synchronization completed successfully!"
-                )
-                self.notification.post_to_websocket_api()
-            else:
-                self.notification.set_status(
-                    status=NotificationCode.ERROR.name)
-                self.notification.set_message(
-                    "Rule synchronization completed with errors!"
-                )
-                self.notification.post_to_websocket_api()
-
-        except Exception as e:
-            self.notification.set_status(status=NotificationCode.ERROR.name)
-            self.notification.set_message(
-                "Unrecoverable error. This is really bad contact the programmers!"
-            )
-            self.notification.set_exception(e)
-            self.notification.post_to_websocket_api()
-            rq_logger.exception(e)
+        except (Exception, KeyError) as e:
+            self._send_notification(
+                f"Error of type: {type(e)} in sync_ruleset | Please confirm the results of your action | {e}", NotificationCode.ERROR.name, exception=e)
 
 
 @job("default", connection=REDIS_CLIENT, timeout="30m")

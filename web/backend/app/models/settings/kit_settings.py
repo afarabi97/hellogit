@@ -88,8 +88,10 @@ class KitSettingsForm(SettingsBase):
     def load_combined_from_db(cls, query: Dict = {"_id": KIT_SETTINGS_ID}) -> dict:
         mongo_document = mongo_settings().find_one(query)
         if mongo_document:
+            # type: ignore type: KitSettingsForm
             kit_settings = cls.schema.load(mongo_document)
-            kit_settings.password = decode_password(kit_settings.password)
+            kit_settings.password = decode_password(
+                kit_settings.password)
             general_dict = GeneralSettingsForm.load_from_db().to_dict()
             kit_dict = cls.schema.dump(kit_settings)
             general_dict.update(kit_dict)
@@ -100,10 +102,13 @@ class KitSettingsForm(SettingsBase):
     @classmethod
     def load_from_db(cls, query: Dict = {"_id": KIT_SETTINGS_ID}) -> Model:
         mongo_document = mongo_settings().find_one(query)
+        #  mongo_document = get_collection(Collections.SETTINGS).find_one(query)
         if mongo_document:
+            # type: ignore type: KitSettingsForm
             kit_settings = cls.schema.load(mongo_document)
-            kit_settings.password = decode_password(kit_settings.password)
-            return kit_settings
+            kit_settings.password = decode_password(  # type: ignore
+                kit_settings.password)  # type: ignore
+            return kit_settings  # type: ignore
         return None
 
     def save_to_db(self):

@@ -413,7 +413,7 @@ class Node(NodeBaseModel):
         return ret_val
 
     @classmethod
-    def load_dip_nodes_from_db(cls) -> List[Model]:
+    def load_dip_nodes_from_db(cls) -> List['Node']:
         ret_val = []
         query = {"node_type": {
             "$in": ["Server", "Sensor", "Service", "Control-Plane"]}}
@@ -422,22 +422,22 @@ class Node(NodeBaseModel):
         return ret_val
 
     @classmethod
-    def load_all_from_db(cls) -> List[Model]:
+    def load_all_from_db(cls) -> List['Node']:
         ret_val = []
         for node in mongo_node().find({}):
             ret_val.append(cls.schema.load(node))
         return ret_val
 
     @classmethod
-    def load_nodes_from_request(cls, payload: List[Dict]) -> List[Model]:
+    def load_nodes_from_request(cls, payload: List[Dict]) -> List['Node']:
         results = []
         for node in payload:
             results.append(cls.schema.load(node))
         return results
 
     @classmethod
-    def load_node_from_request(cls, payload: Dict) -> Model:
-        return cls.schema.load(payload)
+    def load_node_from_request(cls, payload: Dict) -> 'Node':
+        return cls.schema.load(payload)  # type: ignore
 
     def post_validation(self):
         """

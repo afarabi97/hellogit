@@ -7,6 +7,7 @@ from app.utils.constants import REDIS
 from app.utils.logging import rq_logger
 from flask_socketio import SocketIO
 from pymongo.errors import AutoReconnect
+from typing import Optional
 
 socketio = SocketIO(message_queue=REDIS)
 
@@ -78,8 +79,11 @@ class NotificationMessage(object):
                 status, str(valid_names))
         )
 
-    def set_exception(self, exception: Exception) -> None:
+    def set_exception(self, exception: Optional[Exception] = None) -> None:
         if exception is not None:
+            rq_logger.debug(
+                f"Exception: {exception} | Type: {type(exception)}")
+            rq_logger.exception(exception)
             self.exception = str(exception)
 
     def set_additional_data(self, data: list) -> None:
