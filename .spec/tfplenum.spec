@@ -77,6 +77,7 @@ mkdir -p %{buildroot}%{log_folder}
 mkdir -p %{buildroot}%{pip_env}/bin
 mkdir -p %{buildroot}%{tfplenum_etc}
 mkdir -p %{buildroot}%{ansible_etc}
+mkdir -p %{buildroot}%{html_folder}/testfiles/
 
 #Copy files
 cp -rf %{current_dir}/core/* %{buildroot}%{core_folder}
@@ -96,6 +97,13 @@ cp -rf %{current_dir}/requirements.txt %{buildroot}%{tf_folder}/requirements.txt
 cp -rf %{current_dir}/aliases %{buildroot}%{tf_folder}/aliases
 cp %{current_dir}/versions.yml %{buildroot}%{tf_folder}/versions.yml
 cp %{current_dir}/web/angular_debug.yml %{buildroot}%{web_folder}/angular_debug.yml
+
+curl https://nexus.sil.lab/repository/tfplenum-repo/testfiles/apache.zip --output %{buildroot}%{html_folder}/testfiles/apache.file
+curl https://nexus.sil.lab/repository/tfplenum-repo/testfiles/audit_logs.zip --output %{buildroot}%{html_folder}/testfiles/audit_logs.file
+curl https://nexus.sil.lab/repository/tfplenum-repo/testfiles/rules.zip --output %{buildroot}%{html_folder}/testfiles/rules.file
+curl https://nexus.sil.lab/repository/tfplenum-repo/testfiles/suricata_events.zip --output %{buildroot}%{html_folder}/testfiles/suricata_events.file
+curl https://nexus.sil.lab/repository/tfplenum-repo/testfiles/system_logs.zip --output %{buildroot}%{html_folder}/testfiles/system_logs.file
+curl https://nexus.sil.lab/repository/tfplenum-repo/testfiles/windows_events.zip --output %{buildroot}%{html_folder}/testfiles/windows_events.file
 
 touch %{buildroot}%{log_folder}/tfplenum.log
 touch %{buildroot}%{pip_env}/bin/python3
@@ -217,6 +225,7 @@ fi
 %{web_folder}/backend/*
 %{web_folder}/frontend/*
 %{web_folder}/frontend/node_modules/*
+%{html_folder}/testfiles/*
 %{component_folder}/*
 %{web_folder}/setup/*
 %{web_folder}/angular_debug.yml
