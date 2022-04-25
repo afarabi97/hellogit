@@ -1,15 +1,4 @@
-{{- $d := dict "manager" (dict "type" "manager" "port" 47760) -}}
-{{- $_ := set $d "proxy" (dict "type" "proxy" "port" 47762) -}}
-{{- range $i, $e := until (.Values.zeek_loggers | int) -}}
-{{- $_ := set $d (printf "logger-%d" $i) (dict "type" "logger" "logger_number" $i "port" (add 47761 $i)) -}}
-{{- range $interface_idx, $interface := $.Values.interfaces -}}
-{{- range $i, $e := until ($.Values.zeek_workers | int) -}}
-{{- $_ := set $d (printf "%s-%d" $interface $i) (dict "type" "worker" "interface" (printf "af_packet::%s" $interface) "port" (add 47763 ($.Values.zeek_loggers | int) $i (mul ($.Values.zeek_workers | int) $interface_idx))) -}}
-{{- end -}}
-{{- end -}}
-{{- end -}}
 ---
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -17,29 +6,6 @@ metadata:
   labels:
     component: zeek
 data:
-  cluster-layout.zeek: |
-    redef Cluster::manager_is_logger = F;
-    redef Cluster::nodes = {
-{{- range $node, $config := $d }}
-        ["{{ $node }}"] = [
-            $node_type=Cluster::{{ $config.type | upper }},
-            $ip=127.0.0.1, $p={{ $config.port }}/tcp,
-{{- if $config.interface }}
-            $interface="{{ $config.interface }}",
-{{- end }}
-            $manager="manager"
-        ],
-{{- end }}
-    };
-
-    @if ( Cluster::local_node_type() == Cluster::WORKER )
-{{- range $i, $interface := .Values.interfaces }}
-    @if ( Cluster::nodes[Cluster::node]$interface == "af_packet::{{ $interface }}" )
-    redef AF_Packet::fanout_id = {{ add 22 $i }};
-    @endif
-{{- end }}
-    @endif
-
   local.zeek: |
     # Load some defaults
     @load misc/loaded-scripts
@@ -75,10 +41,6 @@ data:
     @load frameworks/intel/do_notice
     @load frameworks/files/hash-all-files
 
-    redef Intel::read_files += { "{{ .Values.zeek_intel_dat }}" };
-
-    redef signature_files  += "{{ .Values.zeek_custom_sig_path }}";
-
     # Load tfplenum scripts
     @load ./tfplenum
 
@@ -86,41 +48,109 @@ data:
     @load custom # Rules provided by operator
     @load Corelight/CommunityID # Community ID plugin
 
-    redef Log::default_rotation_interval = {{ .Values.ids_log_rotate_interval }} secs;
-    redef Control::controllee_listen = F;
-
-    redef Site::local_nets = {
-{{- if has "any" .Values.home_net }}
-        0.0.0.0/0,
-        [::]/0,
-{{- else }}
-    {{- range .Values.home_net }}
-        {{ . }},
-{{- end }}
-{{- end }}
-    };
-
     # JSON output
     @load tuning/json-logs
-    #redef LogAscii::json_timestamps = JSON::TS_ISO8601;
+
     redef LogAscii::use_json = T;
+    redef Intel::read_files += { "{{ .Values.zeek_intel_dat }}" };
+    redef signature_files  += "{{ .Values.zeek_custom_sig_path }}";
+
+  networks.cfg: |
+{{- if has "any" .Values.home_net }}
+        0.0.0.0/0
+{{- else }}
+    {{- range .Values.home_net }}
+        {{ . }}
+{{- end }}
+{{- end }}
 
 
-    # Add some basic info to all the connection records.
-    global sensor_name = ""; # Hostname for this box.
-    global interface_full = ""; # Interface we are listening on
-    global interface_name = "";
+  node.cfg: |
+    [logger]
+    type=logger
+    host=localhost
+    [manager]
+    type=manager
+    host=localhost
+    [proxy]
+    type=proxy
+    host=localhost
+{{- range $i, $interface := .Values.interfaces }}
+    [worker-{{ $i }}]
+    type=worker
+    host=localhost
+    interface=af_packet::{{ $interface }}
+    lb_method=custom
+    lb_procs={{ $.Values.zeek_workers }}
+    af_packet_fanout_id={{ add 22 $i }}
+    af_packet_fanout_mode=AF_Packet::FANOUT_HASH
+    af_packet_buffer_size=128*1024*1024
+{{- end }}
 
-    event zeek_init()
-        {
-        if ( Cluster::local_node_type() == Cluster::WORKER )
-            {
-            sensor_name = gethostname();
-            interface_full = Cluster::nodes[Cluster::node]$interface;
-            interface_name = subst_string(interface_full, "af_packet::", "");
-            }
-        }
+  zeekctl.cfg: |
+    ## Global ZeekControl configuration file.
 
+    ###############################################
+    # Mail Options
+
+    #Disables mail options
+    SendMail =
+
+    ###############################################
+    # Logging Options
+
+    # Rotation interval in seconds for log files on manager (or standalone) node.
+    # A value of 0 disables log rotation.
+    LogRotationInterval = {{ .Values.ids_log_rotate_interval }}
+
+    # Expiration interval for archived log files in LogDir.  Files older than this
+    # will be deleted by "zeekctl cron".  The interval is an integer followed by
+    # one of these time units:  day, hr, min.  A value of 0 means that logs
+    # never expire.
+    LogExpireInterval = 10 min
+
+    # Enable ZeekControl to write statistics to the stats.log file.  A value of 1
+    # means write to stats.log, and a value of 0 means do not write to stats.log.
+    StatsLogEnable = 1
+
+    # Number of days that entries in the stats.log file are kept.  Entries older
+    # than this many days will be removed by "zeekctl cron".  A value of 0 means
+    # that entries never expire.
+    StatsLogExpireInterval = 1
+
+    ###############################################
+    # Other Options
+
+    # Show all output of the zeekctl status command.  If set to 1, then all output
+    # is shown.  If set to 0, then zeekctl status will not collect or show the peer
+    # information (and the command will run faster).
+    StatusCmdShowAll = 0
+
+    # Number of days that crash directories are kept.  Crash directories older
+    # than this many days will be removed by "zeekctl cron".  A value of 0 means
+    # that crash directories never expire.
+    CrashExpireInterval = 1
+
+    # Site-specific policy script to load. Zeek will look for this in
+    # $PREFIX/share/zeek/site. A default local.zeek comes preinstalled
+    # and can be customized as desired.
+    SitePolicyScripts = local.zeek
+
+    # Location of the log directory where log files will be archived each rotation
+    # interval.
+    LogDir = {{ $.Values.zeek_log_path }}
+
+    # Location of the spool directory where files and data that are currently being
+    # written are stored.
+    SpoolDir = {{ $.Values.zeek_log_path }}
+
+    # Location of the directory in which the databases for Broker datastore backed
+    # Zeek tables are stored.
+    BrokerDBDir = /opt/zeek/etc
+
+    # Location of other configuration files that can be used to customize
+    # ZeekControl operation (e.g. local networks, nodes).
+    CfgDir = /opt/zeek/etc
 ---
 
 apiVersion: v1
@@ -144,3 +174,4 @@ data:
   {{ base $path }}: |
 {{ $.Files.Get $path | indent 4 }}
 {{ end }}
+---

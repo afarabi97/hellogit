@@ -33,7 +33,7 @@ spec:
               key: password
         volumeMounts:
         - name: data
-          mountPath: {{ .Values.zeek_log_path }}
+          mountPath: {{ .Values.zeek_log_current_path }}
           readOnly: true
         - name: configs
           subPath: filebeat-setup.yml
@@ -63,6 +63,9 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        resources:
+          requests:
+            cpu: {{ .Values.cpu_request }}m
         volumeMounts:
         - name: data
           mountPath: /var/log/bro/current
@@ -83,7 +86,7 @@ spec:
       volumes:
       - name: data
         hostPath:
-          path: {{ .Values.zeek_log_path }}
+          path: {{ .Values.zeek_log_current_path }}
           type: DirectoryOrCreate
       - name: configs
         configMap:

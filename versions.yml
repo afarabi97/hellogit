@@ -4,57 +4,57 @@
 
 # VERSIONS
 misc_versions:
-  rpm_version: "3.7.0"
-  community_vmware_module_version: "1.15.0"
+  angular_cli: "10.2.0"
+  chartmuseum_version: "v0.13.1"
   community_utils_module_version: "2.4.2"
+  community_vmware_module_version: "1.15.0"
+  crio_version: "v1.24.1"
+  docker_distribution: "2.6.2-2"
   emerging_threat_rules_version: "suricata-5.0" # suricata-6.0 rules havent been released yet. (https://rules.emergingthreats.net/open/)
   helm_version: "v3.7.1"
-  crio_version: "v1.24.1"
-  chartmuseum_version: "v0.13.1"
-  keycloak_version: "11.0.3"
-  node_version: v14.5.0
   iso_rhel_version: "8.2"
-  support_diagnostics: "8.1.1"
+  keycloak_version: "11.0.3"
   kubetail: "1.6.12"
+  node_version: v14.5.0
   npm: "6.14.5"
-  angular_cli: "10.2.0"
-  docker_distribution: "2.6.2-2"
+  rpm_version: "3.7.0"
+  support_diagnostics: "8.1.1"
   tfplenum_cli_version: 3.7.0-5.el8.x86_64
 
 docker_versions:
-  rocketchat_version: 4.0.1
-  mongodb_version: 4.4.3
+  arkime_version: "3.1.0"
   busybox_version: "1.34.1"
-  zeek_version: "4.0.3"
+  calico_version: "v3.23.2"
+  cassandra_version: 4.0.1
+  cert_manager_version: v1.5.4
+  elastic_7_version: "7.16.2"
+  elastic_operator: 1.9.1
+  elastic_winlogbeat_version: "7.15.2"
+  hive_cortex_version: 3.1.1-1
+  hive_version: 4.1.9-1
+  jcat_nifi_version: "AF-1.0"
   k8s_coredns_version: "v1.8.6"
   k8s_etcd_version: "3.5.3-0"
   k8s_pause_version: "3.7"
   k8s_resizer_version: "2.3"
   k8s_version: "1.24.2"
-  metallb_version: "v0.13.3"
-  arkime_version: "3.1.0"
-  suricata_version: "6.0.0"
-  elastic_7_version: "7.16.2"
-  elastic_winlogbeat_version: "7.15.2"
-  hive_cortex_version: 3.1.1-1
-  hive_version: 4.1.9-1
-  cassandra_version: 4.0.1
-  elastic_operator: 1.9.1
-  redmine_version: "4.2.1"
-  nifi_version: 1.12.1
   mariadb_version: 10.6.3
   mattermost_version: 5.38.0
-  wikijs_version: 2.5.201
-  misp_version: 2.4.148
+  metallb_version: "v0.13.3"
   misp_modules_version: 2.4.148
-  redis_version: 6.2.5-alpine
-  calico_version: "v3.23.2"
+  misp_version: 2.4.148
+  mongodb_version: 4.4.3
   nginx_version: 1.20.1
-  cert_manager_version: v1.5.4
-  storage_provisioner_version: 2.3.4
-  shibboleth_proxy_version: 3.0.4
+  nifi_version: 1.12.1
   python_version: 3.9.0
-  jcat_nifi_version: "AF-1.0"
+  redis_version: 6.2.5-alpine
+  redmine_version: "4.2.1"
+  rocketchat_version: 4.0.1
+  shibboleth_proxy_version: 3.0.4
+  storage_provisioner_version: 2.3.4
+  suricata_version: "6.0.0"
+  wikijs_version: 2.5.201
+  zeek_version: "4.0.5"
 
 extra_packages:
   - "kubeadm-{{ docker_versions.k8s_version }}"
@@ -109,9 +109,9 @@ helm_versions:
   arkime: 1.1.0
   arkime_viewer: 1.1.0
   cortex: 1.0.5
-  logstash: 1.0.4
   hive: 1.0.6
   jcat_nifi: 1.0.3
+  logstash: 1.0.4
   mattermost: 1.0.4
   misp: 1.0.7
   netflow_filebeat: 1.0.3
@@ -121,18 +121,18 @@ helm_versions:
   rocketchat: 1.1.18
   suricata: 1.0.3
   wikijs: 1.0.4
-  zeek: 1.1.4
+  zeek: 1.1.6
 
 other:
   rpm_common_requirements: "docker-ce, docker-distribution, tfplenum"
 
 helm_packages:
-  - arkime-{{ helm_versions.arkime }}.tgz
   - arkime-viewer-{{ helm_versions.arkime_viewer }}.tgz
+  - arkime-{{ helm_versions.arkime }}.tgz
   - cortex-{{ helm_versions.cortex }}.tgz
-  - logstash-{{ helm_versions.logstash }}.tgz
   - hive-{{ helm_versions.hive }}.tgz
   - jcat-nifi-{{ helm_versions.jcat_nifi }}.tgz
+  - logstash-{{ helm_versions.logstash }}.tgz
   - mattermost-{{ helm_versions.mattermost }}.tgz
   - misp-{{ helm_versions.misp }}.tgz
   - netflow-filebeat-{{ helm_versions.netflow_filebeat }}.tgz
@@ -166,14 +166,14 @@ custom_rpm_packages:
     rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-python, tfplenum-nginx"
   - name: "elasticsearch"
     containers:
-      - "ext-docker.nexus.sil.lab/elasticsearch/elasticsearch:{{ docker_versions.elastic_7_version }}"
-      - "ext-docker.nexus.sil.lab/logstash/logstash:{{ docker_versions.elastic_7_version }}"
-      - "ext-docker.nexus.sil.lab/kibana/kibana:{{ docker_versions.elastic_7_version }}"
-      - "ext-docker.nexus.sil.lab/eck/eck-operator:{{ docker_versions.elastic_operator }}"
-      - "ext-docker.nexus.sil.lab/elastic-maps-service/elastic-maps-server-ubi8:{{ docker_versions.elastic_7_version }}"
-      - "ext-docker.nexus.sil.lab/beats/metricbeat:{{ docker_versions.elastic_7_version }}"
       - "docker.nexus.sil.lab/tfplenum/winlogbeat-setup:{{ docker_versions.elastic_winlogbeat_version }}"
       - "ext-docker.nexus.sil.lab/beats/filebeat:{{ docker_versions.elastic_7_version }}"
+      - "ext-docker.nexus.sil.lab/beats/metricbeat:{{ docker_versions.elastic_7_version }}"
+      - "ext-docker.nexus.sil.lab/eck/eck-operator:{{ docker_versions.elastic_operator }}"
+      - "ext-docker.nexus.sil.lab/elastic-maps-service/elastic-maps-server-ubi8:{{ docker_versions.elastic_7_version }}"
+      - "ext-docker.nexus.sil.lab/elasticsearch/elasticsearch:{{ docker_versions.elastic_7_version }}"
+      - "ext-docker.nexus.sil.lab/kibana/kibana:{{ docker_versions.elastic_7_version }}"
+      - "ext-docker.nexus.sil.lab/logstash/logstash:{{ docker_versions.elastic_7_version }}"
     rpm_requirements: "{{ other.rpm_common_requirements }}"
     logstash:
       helm_version: "{{ helm_versions.logstash }}"
@@ -194,23 +194,23 @@ custom_rpm_packages:
   - name: "kubernetes"
     containers:
       - "ext-docker.nexus.sil.lab/addon-resizer:{{ docker_versions.k8s_resizer_version }}"
-      - "ext-docker.nexus.sil.lab/coredns/coredns:{{ docker_versions.k8s_coredns_version }}"
       - "ext-docker.nexus.sil.lab/calico/cni:{{ docker_versions.calico_version }}"
       - "ext-docker.nexus.sil.lab/calico/kube-controllers:{{ docker_versions.calico_version }}"
       - "ext-docker.nexus.sil.lab/calico/node:{{ docker_versions.calico_version }}"
       - "ext-docker.nexus.sil.lab/calico/pod2daemon-flexvol:{{ docker_versions.calico_version }}"
-      - "ext-docker.nexus.sil.lab/jetstack/cert-manager-webhook:{{ docker_versions.cert_manager_version }}"
-      - "ext-docker.nexus.sil.lab/jetstack/cert-manager-cainjector:{{ docker_versions.cert_manager_version }}"
-      - "ext-docker.nexus.sil.lab/jetstack/cert-manager-controller:{{ docker_versions.cert_manager_version }}"
-      - "ext-docker.nexus.sil.lab/kube-apiserver:v{{ docker_versions.k8s_version }}"
-      - "ext-docker.nexus.sil.lab/kube-proxy:v{{ docker_versions.k8s_version }}"
-      - "ext-docker.nexus.sil.lab/kube-scheduler:v{{ docker_versions.k8s_version }}"
-      - "ext-docker.nexus.sil.lab/kube-controller-manager:v{{ docker_versions.k8s_version }}"
-      - "ext-docker.nexus.sil.lab/pause:{{ docker_versions.k8s_pause_version }}"
-      - "ext-docker.nexus.sil.lab/metallb/controller:{{ docker_versions.metallb_version }}"
-      - "ext-docker.nexus.sil.lab/metallb/speaker:{{ docker_versions.metallb_version }}"
+      - "ext-docker.nexus.sil.lab/coredns/coredns:{{ docker_versions.k8s_coredns_version }}"
       - "ext-docker.nexus.sil.lab/etcd:{{ docker_versions.k8s_etcd_version }}"
       - "ext-docker.nexus.sil.lab/external_storage/local-volume-provisioner:v{{ docker_versions.storage_provisioner_version }}"
+      - "ext-docker.nexus.sil.lab/jetstack/cert-manager-cainjector:{{ docker_versions.cert_manager_version }}"
+      - "ext-docker.nexus.sil.lab/jetstack/cert-manager-controller:{{ docker_versions.cert_manager_version }}"
+      - "ext-docker.nexus.sil.lab/jetstack/cert-manager-webhook:{{ docker_versions.cert_manager_version }}"
+      - "ext-docker.nexus.sil.lab/kube-apiserver:v{{ docker_versions.k8s_version }}"
+      - "ext-docker.nexus.sil.lab/kube-controller-manager:v{{ docker_versions.k8s_version }}"
+      - "ext-docker.nexus.sil.lab/kube-proxy:v{{ docker_versions.k8s_version }}"
+      - "ext-docker.nexus.sil.lab/kube-scheduler:v{{ docker_versions.k8s_version }}"
+      - "ext-docker.nexus.sil.lab/metallb/controller:{{ docker_versions.metallb_version }}"
+      - "ext-docker.nexus.sil.lab/metallb/speaker:{{ docker_versions.metallb_version }}"
+      - "ext-docker.nexus.sil.lab/pause:{{ docker_versions.k8s_pause_version }}"
     rpm_requirements: "{{ other.rpm_common_requirements }}"
   - name: "mattermost"
     helm_version: "{{ helm_versions.mattermost }}"

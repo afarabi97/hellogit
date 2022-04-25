@@ -142,7 +142,7 @@ class SavedHelmValuesModel(Model):
             "shards": 4,
             "zeek_intel_dat": "/opt/tfplenum/zeek/intel.dat",
             "zeek_log_path": "/data/zeek",
-            "zeek_loggers": 1,
+            "zeek_log_current_path": "/data/zeek/logger",
             "zeek_scripts": "/opt/tfplenum/zeek/scripts",
             "zeek_workers": "8"
         }

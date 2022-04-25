@@ -6,8 +6,10 @@ image_name: tfplenum/zeek
 image_tag: {{ component["app_version"] }}
 affinity_hostname: {}
 ids_log_rotate_interval: 300
+cpu_request: 3000
 zeek_log_path: /data/zeek
-zeek_loggers: 1
+zeekctl_log_path: /data/zeek/zeekctl
+zeek_log_current_path: /data/zeek/logger
 zeek_workers: 8
 zeek_scripts: /opt/tfplenum/zeek/scripts
 zeek_intel_dat: /opt/tfplenum/zeek/intel.dat

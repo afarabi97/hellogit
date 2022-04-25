@@ -77,7 +77,8 @@ def validate_zeek_script(rule: Dict) -> Tuple[bool, str]:
         stdoutput, ret_val = run_command2(pull_docker_cmd, use_shell=True)
         if ret_val == 0:
             cmd = ("docker run --rm "
-                   "-v {tmp_dir}:{script_dir} localhost:5000/tfplenum/zeek:{version} "
+                   "-v {tmp_dir}:{script_dir} --entrypoint /opt/zeek/bin/zeek "
+                   "localhost:5000/tfplenum/zeek:{version} "
                    "-S {script_dir}/{file_to_test}").format(tmp_dir=tmpdirname,
                                                             version=ZEEK_IMAGE_VERSION,
                                                             script_dir=ZEEK_SCRIPT_DIR,
@@ -118,6 +119,7 @@ def validate_zeek_intel(rule: Dict) -> Tuple[bool, str]:
                "-v {tmp_dir}/{Intel_File}:{script_dir}/{Intel_File} "
                "-v {pcap_dir}/{Pcap_Name}:/pcaps/{Pcap_Name} "
                "-w /data/ "
+               "--entrypoint /opt/zeek/bin/zeek "
                "localhost:5000/tfplenum/zeek:{version} "
                "-r /pcaps/{Pcap_Name} {script_dir}/{file_to_test}").\
             format(file_to_test=filename,
@@ -158,7 +160,8 @@ def validate_zeek_signature(rule: Dict) -> Tuple[bool, str]:
         stdoutput, ret_val = run_command2(pull_docker_cmd, use_shell=True)
         if ret_val == 0:
             cmd = ("docker run --rm "
-                   "-v {tmp_dir}:{sig_path} localhost:5000/tfplenum/zeek:{version} "
+                   "-v {tmp_dir}:{sig_path} --entrypoint /opt/zeek/bin/zeek "
+                   "localhost:5000/tfplenum/zeek:{version} "
                    "-s {sig_path}").format(tmp_dir=filepath,
                                            version=ZEEK_IMAGE_VERSION,
                                            sig_path=ZEEK_SIG_PATH)
@@ -292,6 +295,7 @@ def test_pcap_against_zeek_script(pcap_name: str, rule_content: str) -> Response
                    "-v {pcap_dir}:/pcaps/ "
                    "-v {results_dir}:/data/ "
                    "-w /data/ "
+                   "--entrypoint /opt/zeek/bin/zeek "
                    "localhost:5000/tfplenum/zeek:{version} "
                    "-r /pcaps/{pcap_name} {script_dir}/{file_to_test}").format(tmp_dir=rules_tmp_dir,
                                                                                pcap_dir=PCAP_UPLOAD_DIR,
@@ -338,6 +342,7 @@ def test_pcap_against_zeek_intel(pcap_name: str, rule_content: str) -> Response:
                    "-v {pcap_dir}/{Pcap_Name}:/pcaps/{Pcap_Name} "
                    "-v {results_dir}/:/data/ "
                    "-w /data/ "
+                   "--entrypoint /opt/zeek/bin/zeek "
                    "localhost:5000/tfplenum/zeek:{version} "
                    "-r /pcaps/{Pcap_Name} "
                    "{script_dir}/{file_to_test}").\
@@ -380,6 +385,7 @@ def test_pcap_against_zeek_signature(pcap_name: str, rule_content: str) -> Respo
                    "-v {pcap_dir}:/pcaps/ "
                    "-v {results_dir}:/data/ "
                    "-w /data/ "
+                   "--entrypoint /opt/zeek/bin/zeek "
                    "localhost:5000/tfplenum/zeek:{version} "
                    "-r /pcaps/{pcap_name} -s {sig_path}").format(tmp_dir=filepath,
                                                                  pcap_dir=PCAP_UPLOAD_DIR,

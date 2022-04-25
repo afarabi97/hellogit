@@ -218,15 +218,15 @@ export const MockChartInterfaceWikiJs: ChartInterface = {
 };
 export const MockChartInterfaceZeek: ChartInterface = {
   application: 'zeek',
-  version: '1.1.2',
-  appVersion: '4.0.3',
-  description: 'Zeek 4.0.3 with Filebeat (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know.',
+  version: '1.1.5',
+  appVersion: '4.0.5',
+  description: 'Zeek 4.0.5 with Filebeat (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know.',
   pmoSupported: true,
   isSensorApp: true,
   nodes: [
     {
       application: 'zeek',
-      appVersion: '4.0.3',
+      appVersion: '4.0.5',
       status: 'DEPLOYED',
       deployment_name: 'fake-sensor3-zeek',
       hostname: 'fake-sensor3.fake',
@@ -236,15 +236,15 @@ export const MockChartInterfaceZeek: ChartInterface = {
 };
 export const MockChartInterfaceZeekFailed: ChartInterface = {
   application: 'zeek',
-  version: '1.1.2',
-  appVersion: '4.0.3',
-  description: 'Zeek 4.0.3 with Filebeat (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know.',
+  version: '1.1.5',
+  appVersion: '4.0.5',
+  description: 'Zeek 4.0.5 with Filebeat (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know.',
   pmoSupported: true,
   isSensorApp: true,
   nodes: [
     {
       application: 'zeek',
-      appVersion: '4.0.3',
+      appVersion: '4.0.5',
       status: 'failed',
       deployment_name: 'fake-sensor3-zeek',
       hostname: 'fake-sensor3.fake',
@@ -254,15 +254,15 @@ export const MockChartInterfaceZeekFailed: ChartInterface = {
 };
 export const MockChartInterfaceZeekUninstalling: ChartInterface = {
   application: 'zeek',
-  version: '1.1.2',
-  appVersion: '4.0.3',
-  description: 'Zeek 4.0.3 with Filebeat (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know.',
+  version: '1.1.5',
+  appVersion: '4.0.5',
+  description: 'Zeek 4.0.5 with Filebeat (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know.',
   pmoSupported: true,
   isSensorApp: true,
   nodes: [
     {
       application: 'zeek',
-      appVersion: '4.0.3',
+      appVersion: '4.0.5',
       status: 'uninstalling',
       deployment_name: 'fake-sensor3-zeek',
       hostname: 'fake-sensor3.fake',

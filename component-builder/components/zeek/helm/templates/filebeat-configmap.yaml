@@ -8,6 +8,7 @@ metadata:
     "helm.sh/hook-delete-policy": "before-hook-creation"
 data:
   filebeat-setup.yml: |
+
     filebeat.config.modules:
       path: ${path.config}/modules.d/*.yml
       reload.enabled: false
