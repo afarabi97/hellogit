@@ -512,7 +512,8 @@ class HwPowerFailureJob:
             if node.is_control_plane():
                 power_off_vms(self.kit_settings.vcenter, node)
                 power_on_vms(self.kit_settings.vcenter, node)
-            else:
+            elif hasattr(node, "idrac_ip_address"):
+                print(node.idrac_ip_address)
                 self._power_cycle(
                     node.idrac_ip_address,
                     node.redfish_user,
