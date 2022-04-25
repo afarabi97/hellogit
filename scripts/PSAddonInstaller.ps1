@@ -267,7 +267,7 @@ function InstallSavedModules {
 $modules = @(
 	"Advanced-Threat-Analytics:0.0.12",
 	"AutoRuns:13.99",
-	"Az.Accounts:2.5.2",
+	"Az.Accounts:2.7.5",
 	"Az.Security:1.0.0",
 	"AzureAD:2.0.2.140",
 	"BAMCIS.Common:1.0.4.0",
@@ -289,14 +289,14 @@ $modules = @(
 	"HardenedPS:0.0.1",
 	"Hardening:1.0.1",
 	"HAWK:2.0.3.2",
-	"MSOnline:1.1.183.57",
+	"MSOnline:1.1.183.66",
 	"NTFSSecurity:4.2.6",
 	"ORCA:1.10.6",
 	"powershell-yaml:0.4.2",
 	"PowerSponse:0.3.0",
 	"PSAppInsights:0.9.6",
-	"PSEventViewer:1.0.17",
-	"PSFramework:1.6.205",
+	"PSEventViewer:1.0.18",
+	"PSFramework:1.6.214",
 	"psprivilege:0.1.0",
 	"PSURLhaus:0.4.0",
 	"PSWinReportingV2:2.0.20",
@@ -304,13 +304,13 @@ $modules = @(
 	"PSWriteHTML:0.0.158",
 	"RobustCloudCommand:2.0.1",
 	"SecurityFever:2.8.1",
-	"VMware.Vim:7.0.2.17839075",
-	"VMware.VimAutomation.Cis.Core:12.3.0.17839331",
-	"VMware.VimAutomation.Common:12.3.0.17838947",
-	"VMware.VimAutomation.Core:12.3.0.17839688",
-	"VMware.VimAutomation.Sdk:12.2.0.17531155",
+	"VMware.Vim:7.0.3.19601056",
+	"VMware.VimAutomation.Cis.Core:12.6.0.19601368",
+	"VMware.VimAutomation.Common:12.6.0.19600917",
+	"VMware.VimAutomation.Core:12.6.0.19601570",
+	"VMware.VimAutomation.Sdk:12.5.0.19093564",
 	"VMware.VimAutomation.Security:12.3.0.17833870",
-	"VMware.VimAutomation.Storage:12.3.0.17855705") | sort
+	"VMware.VimAutomation.Storage:12.6.0.19609013") | sort
 
 # ---- or ------
 
