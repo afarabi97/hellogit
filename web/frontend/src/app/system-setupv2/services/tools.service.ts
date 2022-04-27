@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { environment } from '../../../environments/environment';
 import { EntityConfig } from '../../interfaces';
@@ -120,7 +121,7 @@ export class ToolsService extends ApiService<any> {
    */
   configureRepository(repositorySettings: Object): Observable<Object> {
     return this.httpClient_.post(environment.TOOLS_SERVICE_CONFIGURE_REPOSITORY, repositorySettings)
-                           .pipe(catchError((err: any) => this.handleErrorConsole(err)));
+                           .pipe(catchError((error: HttpErrorResponse) => this.handleError('repo settings', error)));
   }
 
   /**

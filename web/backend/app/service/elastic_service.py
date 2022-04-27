@@ -10,8 +10,9 @@ from app.models.scale import read
 from app.service.scale_service import check_scale_status
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.connection_mngs import REDIS_CLIENT
+from app.utils.constants import MINIO_API_PORT
 from app.utils.elastic import ElasticsearchManager, ElasticWrapper
-from app.utils.logging import logger
+from app.utils.logging import logger, rq_logger
 from app.utils.utils import get_app_context
 from kubernetes import client, config
 from rq.decorators import job
@@ -99,7 +100,7 @@ def create_s3_repository_settings(bucket, endpoint, protocol):
         "settings": {
             "bucket": bucket,
             "client": "default",
-            "endpoint": endpoint,
+            "endpoint": endpoint + ":" + MINIO_API_PORT,
             "protocol": protocol,
         },
     }
@@ -213,9 +214,13 @@ def setup_s3_repository(service_ip: str, repository_settings: Dict):
         notification.set_status(NotificationCode.COMPLETED.name)
         notification.post_to_websocket_api()
     except Exception as e:
+        rq_logger.debug(str(e))
         traceback.print_exc()
         notification.set_status(status=NotificationCode.ERROR.name)
-        notification.set_message(str(e))
+        if "repository_exception" in str(e):
+            notification.set_message("Confirm bucket name is correct in Repository Settings page")
+        else:
+            notification.set_message(str(e))
         notification.post_to_websocket_api()
 
 
@@ -258,8 +263,9 @@ def check_elastic_license(current_license: dict):
                 logger.info("Original license: " + current_license)
                 logger.info("License Now: " + new_license)
                 return False
-        return False
+
     except Exception as e:
+        rq_logger.debug(str(e))
         traceback.print_exc()
         notification.set_status(status=NotificationCode.ERROR.name)
         notification.set_message(str(e))

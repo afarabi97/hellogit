@@ -88,7 +88,7 @@ export const COMMON_VALIDATORS = {
     { error_message: 'Required field', validatorFn: 'required' }
   ],
   isValidIP: [
-    { error_message: 'Invalid IP Address', validatorFn: 'pattern', ops: { pattern: new RegExp(IP_CONSTRAINT) } },
+    { ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' },
     { error_message: 'Required field', validatorFn: 'required' }
   ],
   root_password: [

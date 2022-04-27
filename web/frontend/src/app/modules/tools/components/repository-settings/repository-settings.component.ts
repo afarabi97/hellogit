@@ -1,13 +1,13 @@
 import { Component, Input } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 import { MatSnackbarConfigurationClass } from '../../../../classes';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { WebsocketService } from '../../../../services/websocket.service';
 import { ToolsService } from '../../../../system-setupv2/services/tools.service';
-
+import { COMMON_VALIDATORS } from 'src/app/constants/cvah.constants'; '../../../../constants/cvah.constants';
 import { UserService } from '../../../../services/user.service';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { validateFromArray } from '../../../../validators/generic-validators.validator';
 
 @Component({
     selector: 'app-repository-settings',
@@ -18,7 +18,7 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 })
 export class RepositorySettingsComponent {
     @Input() hasTitle: boolean;
-    repositorySettings: FormGroup;
+    repoForm: FormGroup;
     ioConnection: any;
     allowUpdate: boolean;
     showForm: boolean = false;
@@ -27,9 +27,9 @@ export class RepositorySettingsComponent {
 
     constructor(private toolsSrv: ToolsService,
                 private userService: UserService,
+                private formBuilder: FormBuilder,
                 private matSnackBarService_: MatSnackBarService,
                 private _WebsocketService: WebsocketService) {
-        this.repositorySettings = this.createFormControls();
         this.hasTitle = true;
         this.controllerMaintainer = this.userService.isControllerMaintainer();
         this.ioConnection = this._WebsocketService.onBroadcast()
@@ -42,37 +42,38 @@ export class RepositorySettingsComponent {
         this.allowUpdate = true;
     }
 
+    ngOnInit() {
+      this.initializeForm();
+    }
+
     toggleCard(){
         this.isCardVisible = !this.isCardVisible;
       }
 
-    update(event) {
+    update() {
         const matSnackbarConfiguration: MatSnackbarConfigurationClass = { timeInMS: 60000, actionLabel: 'Close' };
         this.allowUpdate = false;
-        this.toolsSrv.configureRepository(this.repositorySettings.value).subscribe(
+
+        this.toolsSrv.configureRepository(this.repoForm.value).subscribe(
         data => {
             this.matSnackBarService_.displaySnackBar('Updating repository settings.', matSnackbarConfiguration);
         },
         error => {
-            this.allowUpdate = true;
-            this.matSnackBarService_.displaySnackBar(error, matSnackbarConfiguration);
+          this.allowUpdate = true;
         });
     }
 
-    private createFormControls() {
-        const endpoint = new FormControl(null, Validators.required);
-        const protocol = new FormControl(null, Validators.required);
-        const bucket = new FormControl(null, Validators.required);
-        const access_key = new FormControl(null, Validators.required);
-        const secret_key = new FormControl(null, Validators.required);
-        const controls = {
-            'endpoint': endpoint,
-            'protocol': protocol,
-            'bucket': bucket,
-            'access_key': access_key,
-            'secret_key': secret_key
-        };
-        const form = new FormGroup(controls);
-        return form;
+    initializeForm() {
+        this.repoForm = this.formBuilder.group({
+          endpoint: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.isValidIP)])),
+          protocol: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
+          bucket: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
+          access_key: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
+          secret_key: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]))
+        });
+    }
+
+    public getErrorMessage(control: AbstractControl): string {
+      return control.errors ? control.errors.error_message : '';
     }
 }

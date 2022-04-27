@@ -54,6 +54,8 @@ CA_BUNDLE = "/etc/pki/tls/certs/ca-bundle.crt"
 
 REDIS = "redis://"
 
+MINIO_UI_PORT = "9000"
+MINIO_API_PORT = "9001"
 
 class NODE_TYPES(Enum):
     server = "Server"

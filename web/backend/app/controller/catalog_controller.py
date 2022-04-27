@@ -84,7 +84,7 @@ class HELMInstallCtrl(Resource):
             return JobID(job).to_dict(), 200
 
         logger.error("Executing /api/catalog/install has failed.")
-        return {'error_=message': 'Failed to install catalog application using helm'}, 500
+        return {'error_message': 'Failed to install catalog application using helm'}, 500
 
 
 @CATALOG_NS.route('/uninstall')

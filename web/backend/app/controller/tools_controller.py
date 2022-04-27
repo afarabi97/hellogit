@@ -21,7 +21,7 @@ from app.models.settings.kit_settings import KitSettingsForm
 from app.models.tools import (COMMON_TOOLS_RETURNS, TOOLS_NS,
                               InitialDeviceStatesModel,
                               NetworkDeviceStateModel, NetworkInterfaceModel,
-                              NewPasswordModel)
+                              NewPasswordModel, RepoSettingsModel)
 from app.service.elastic_service import (Timeout, apply_es_deploy,
                                          check_elastic_license,
                                          get_elasticsearch_license,
@@ -29,6 +29,7 @@ from app.service.elastic_service import (Timeout, apply_es_deploy,
                                          wait_for_elastic_cluster_ready)
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
+from app.service.tools_service import check_minio_conn
 from app.utils.collections import mongo_catalog_saved_values
 from app.utils.connection_mngs import FabricConnection, KubernetesWrapper
 from app.utils.constants import TFPLENUM_CONFIGS_PATH
@@ -39,6 +40,7 @@ from flask_restx import Resource
 from kubernetes.client.models.v1_service_list import V1ServiceList
 from kubernetes.client.rest import ApiException
 from paramiko.ssh_exception import AuthenticationException
+from requests.exceptions import ConnectionError
 from werkzeug.datastructures import FileStorage
 from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
@@ -526,17 +528,22 @@ class ElasticSnapshot(Resource):
     @TOOLS_NS.doc(description="Enable elastic snapshot for minio.")
     @TOOLS_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
     @TOOLS_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @TOOLS_NS.response(403, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @TOOLS_NS.expect(RepoSettingsModel.DTO)
     @controller_maintainer_required
     def post(self) -> Response:
         try:
+            repository_settings = TOOLS_NS.payload
+            check_minio_conn(repository_settings)
             wait_for_elastic_cluster_ready(minutes=0)
         except Timeout as e:
             return {"error_message": "Elastic cluster is not in a ready state."}, 400
+        except ConnectionError as e:
+            return {"error_message": "Connection to Repo failed. Check Repo IP Address and username/password."}, 403
         except Exception as e:
             logger.exception(e)
             return {"error_message": str(e)}, 400
         else:
-            repository_settings = request.get_json()
             elasticsearch_ip = retrieve_service_ip_address("elasticsearch")
             job = setup_s3_repository.delay(
                 elasticsearch_ip, repository_settings)

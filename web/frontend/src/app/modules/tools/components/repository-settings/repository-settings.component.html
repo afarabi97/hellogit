@@ -1,4 +1,4 @@
-<mat-card [formGroup]="repositorySettings">
+<mat-card [formGroup]="repoForm">
   <mat-card-header *ngIf="hasTitle">
     <mat-card-title>
       <a id="app-settings-repository-settings-form-mat-card-mat-card-header-mat-card-title-a" (click)="toggleCard()">
@@ -11,12 +11,14 @@
     </mat-card-title>
   </mat-card-header>
   <mat-card-content *ngIf="isCardVisible || !hasTitle" fxLayout="column" fxLayoutAlign="space-around stretch">
-    <form [formGroup]="repositorySettings">
+    <form [formGroup]="repoForm">
       <div fxLayout="column" fxLayoutAlign="start stretch">
         <!-- Endpoint -->
         <mat-form-field>
           <mat-label>Endpoint</mat-label>
-          <input matInput formControlName="endpoint">
+          <input matInput formControlName="endpoint" matTooltip="Enter MinIO IP Address"
+          placeholder="IP Address of repository">
+          <mat-error>{{ getErrorMessage(repoForm.get('endpoint')) }}</mat-error>
         </mat-form-field>
         <!-- Protocol -->
         <mat-form-field>
@@ -25,21 +27,28 @@
             <mat-option value="http">HTTP</mat-option>
             <mat-option value="https">HTTPS</mat-option>
           </mat-select>
+          <mat-error>{{ getErrorMessage(repoForm.get('protocol')) }}</mat-error>
         </mat-form-field>
         <!-- Bucket -->
         <mat-form-field>
           <mat-label>Bucket</mat-label>
-          <input matInput formControlName="bucket">
+          <input matInput formControlName="bucket" matTooltip="Enter name of bucket"
+          placeholder="Bucket name created in repository">
+          <mat-error>{{ getErrorMessage(repoForm.get('bucket')) }}</mat-error>
         </mat-form-field>
         <!-- Access Key -->
         <mat-form-field>
           <mat-label>Access Key</mat-label>
-          <input matInput formControlName="access_key">
+          <input matInput formControlName="access_key" matTooltip="Enter Repository username"
+          placeholder="Repository username">
+          <mat-error>{{ getErrorMessage(repoForm.get('access_key')) }}</mat-error>
         </mat-form-field>
         <!-- Secret Key -->
         <mat-form-field>
           <mat-label>Secret Key</mat-label>
-          <input matInput type="password" formControlName="secret_key">
+          <input matInput type="password" formControlName="secret_key" matTooltip="Enter Repository password"
+          placeholder="Repository password">
+          <mat-error>{{ getErrorMessage(repoForm.get('secret_key')) }}</mat-error>
         </mat-form-field>
       </div>
     </form>
@@ -47,7 +56,7 @@
   </mat-card-content>
   <mat-card-actions *ngIf="isCardVisible">
     <button mat-raised-button
-            color="primary" (click)="update($event)"
-            [disabled]="repositorySettings.invalid || (allowUpdate ? false : true)">Update</button>
+            color="primary" (click)="update()"
+            [disabled]="repoForm.invalid || (allowUpdate ? false : true)">Update</button>
   </mat-card-actions>
 </mat-card>
