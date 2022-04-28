@@ -1,12 +1,13 @@
-import { Component, Input, OnInit, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { FormControl, FormGroup, Validators, AbstractControl } from '@angular/forms';
-import { validateFromArray } from '../../../validators/generic-validators.validator';
+
 import { UserService } from '../../../services/user.service';
-import { kitSettingsValidators, kickStartTooltips } from '../../validators/kit-setup-validators';
-import { KitSettingsService } from '../../services/kit-settings.service';
-import { GeneralSettings, KitStatus } from '../../models/kit';
 import { WebsocketService } from '../../../services/websocket.service';
+import { validateFromArray } from '../../../validators/generic-validators.validator';
+import { GeneralSettings, KitStatus } from '../../models/kit';
+import { KitSettingsService } from '../../services/kit-settings.service';
+import { kickStartTooltips, kitSettingsValidators } from '../../validators/kit-setup-validators';
 
 @Component({
   selector: 'app-general-settings-pane',
@@ -98,7 +99,6 @@ export class GeneralSettingsPaneComponent implements OnInit, OnChanges {
 
   saveSettings() {
     this.generalSettings = this.generalSettingsForm.getRawValue();
-    console.log(this.generalSettingsForm.getRawValue());
     this.kitSettingsSrv.updateGeneralSettings(this.generalSettings).subscribe((data) => {
       const job_id = data['job_id'];
       this.job_id = job_id;

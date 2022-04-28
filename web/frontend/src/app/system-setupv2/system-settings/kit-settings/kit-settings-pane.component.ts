@@ -149,7 +149,7 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
     }
 
     this.kitSettings = this.kitForm.getRawValue();
-    let form = this.kitForm.getRawValue();
+    const form = this.kitForm.getRawValue();
     form['is_gip'] = form['is_gip'] === "GIP" ? true: false;
 
     this.kitSettingsSrv.updateKitSettings(form).subscribe((data) => {
@@ -202,7 +202,7 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
     }
     let is_gip = "DIP";
     if (this.kitSettings.is_gip){
-      is_gip = this.kitSettings.is_gip ? "GIP": "DIP"
+      is_gip = this.kitSettings.is_gip ? "GIP": "DIP";
     }
 
     this.kitForm.get('password').setValue(this.kitSettings ? this.kitSettings.password : '');

@@ -1,20 +1,22 @@
 <form>
   <!-- Form Input -->
   <mat-form-field>
-    <input matInput
-           type="text" placeholder="{{inputPlaceHolder}}" [formControl]="formControlInput" [matAutocomplete]="auto">
-    <mat-error *ngIf="matError">{{matError}}</mat-error>
-    <mat-autocomplete #auto="matAutocomplete">
+    <mat-label>{{ labelInput }}</mat-label>
+    <mat-select disableRipple
+                [formControl]="formControlInput"
+                matTooltip="{{ matTooltipInput }}"
+                (openedChange)="reset_form_control($event)">
       <mat-option *ngFor="let option of filteredOptions | async;"
                   [value]="option">
-        {{option}}
+        {{ option }}
       </mat-option>
-    </mat-autocomplete>
+    </mat-select>
     <mat-icon matSuffix *ngIf="formControlInput.valid &&
                                formControlInput.touched"
               color="primary">check_circle</mat-icon>
     <mat-icon matSuffix *ngIf="formControlInput.invalid &&
                                formControlInput.touched"
               color="warn">error</mat-icon>
+    <mat-error *ngIf="matError">{{ matError }}</mat-error>
   </mat-form-field>
 </form>

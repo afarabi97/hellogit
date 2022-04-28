@@ -165,7 +165,8 @@ class NewNodeCtrl(Resource):
 
             # Alert websocket to update the table
             send_notification()
-
+        except ValidationError as e:
+            return {"post_validation": e.messages}, 400
         except DBModelNotFound:
             return {"error_message": "DBModelNotFound."}, 400
         except PostValidationError as e:

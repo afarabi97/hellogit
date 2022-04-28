@@ -41,6 +41,9 @@ body {
       place-content: center flex-end;
       flex: 0 0 auto;
     }
+    .mat-simple-snackbar {
+      white-space: pre;
+    }
 }
 
 @font-face {

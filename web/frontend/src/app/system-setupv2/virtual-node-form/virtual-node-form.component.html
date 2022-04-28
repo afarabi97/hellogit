@@ -15,7 +15,7 @@
 
   <!--Memory -->
   <mat-form-field>
-    <mat-label>RAM Memory in GB</mat-label>
+    <mat-label>RAM Memory in (GB)</mat-label>
     <input matInput placeholder="Enter the amount of ram memory in GB" formControlName="virtual_mem"
           matTooltip="{{ getTooltip('virtual_mem') }}"/>
     <mat-icon matSuffix *ngIf="nodeForm.get('virtual_mem')?.valid &&
@@ -29,7 +29,7 @@
 
   <!--OS drive -->
   <mat-form-field>
-    <mat-label>OS Drive size in GB</mat-label>
+    <mat-label>OS Drive size in (GB)</mat-label>
     <input matInput placeholder="Enter the amount of ram memory in GB" formControlName="virtual_os"
           matTooltip="{{ getTooltip('virtual_os') }}"/>
     <mat-icon matSuffix *ngIf="nodeForm.get('virtual_os')?.valid &&
@@ -43,7 +43,7 @@
 
   <!--Data drive -->
   <mat-form-field *ngIf="hasDataDrive()">
-    <mat-label>Data Drive size in GB</mat-label>
+    <mat-label>Data Drive size in (GB)</mat-label>
     <input matInput placeholder="Enter the amount of ram memory in GB" formControlName="virtual_data"
           matTooltip="{{ getTooltip('virtual_data') }}"/>
     <mat-icon matSuffix *ngIf="nodeForm.get('virtual_data')?.valid &&

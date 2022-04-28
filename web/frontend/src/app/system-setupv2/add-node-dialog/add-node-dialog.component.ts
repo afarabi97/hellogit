@@ -1,14 +1,16 @@
-import { Component, Inject, OnInit, ViewChild  } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatRadioChange } from '@angular/material/radio';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
-import { FormGroup, FormBuilder, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { COMMON_VALIDATORS, PXE_TYPES } from '../../constants/cvah.constants';
-import { validateFromArray } from 'src/app/validators/generic-validators.validator';
-import { addNodeValidators, kickStartTooltips } from '../validators/kit-setup-validators';
-import { KitSettingsService } from '../services/kit-settings.service';
-import { GeneralSettings, KitStatus } from '../models/kit';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatRadioChange } from '@angular/material/radio';
+
+import { ObjectUtilitiesClass } from '../../classes';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
+import { COMMON_VALIDATORS, PXE_TYPES } from '../../constants/cvah.constants';
+import { validateFromArray } from '../../validators/generic-validators.validator';
+import { GeneralSettings, KitStatus } from '../models/kit';
+import { KitSettingsService } from '../services/kit-settings.service';
+import { addNodeValidators, kickStartTooltips } from '../validators/kit-setup-validators';
 import { VirtualNodeFormComponent } from '../virtual-node-form/virtual-node-form.component';
 
 export interface DeploymentOption {
@@ -25,7 +27,6 @@ export interface DeploymentOption {
 export class AddNodeDialogComponent implements OnInit {
   @ViewChild('virtualNodeForm') virtualNodeForm: VirtualNodeFormComponent;
   isRaid: boolean;
-  isNodeType: boolean;
   isCreateDuplicate: boolean;
   nodeForm: FormGroup;
   deploymentOptions: DeploymentOption[];
@@ -34,7 +35,6 @@ export class AddNodeDialogComponent implements OnInit {
   availableIPs: string[] = [];
   settings: Partial<GeneralSettings> = {};
   nodeType: string;
-
   //Validation
   validationHostnames: string[] = [];
   validationIPs: string[] = [];
@@ -46,27 +46,25 @@ export class AddNodeDialogComponent implements OnInit {
                @Inject(MAT_DIALOG_DATA) public pcap_name: any) {
     //TODO pass in unused IP Addresses
     this.isRaid = false;
-    this.isNodeType = false;
     dialogRef.disableClose = true;
   }
 
   ngOnInit() {
-    this.initializeForm();
+    this.updateNodeStatus();
   }
 
   initializeForm() {
-    this.updateNodeStatus();
     this.nodeForm = this.formBuilder.group({
-      hostname: new FormControl(undefined, Validators.compose([validateFromArray(addNodeValidators.hostname,
+      hostname: new FormControl('', Validators.compose([validateFromArray(addNodeValidators.hostname,
         { uniqueArray: this.validationHostnames })])),
-      ip_address: new FormControl(undefined, Validators.compose([validateFromArray(addNodeValidators.ip_address,
+      ip_address: new FormControl('', Validators.compose([validateFromArray(addNodeValidators.ip_address,
         { uniqueArray: this.validationIPs })])),
       node_type: this.nodeForm ? this.nodeForm.value.node_type :
         new FormControl(undefined, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
       deployment_type: this.nodeForm ? this.nodeForm.value.deployment_type :
         new FormControl(undefined, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
       // Baremetal form fields
-      mac_address: new FormControl(),
+      mac_address: new FormControl(''),
       data_drives: new FormControl('sdb'),
       boot_drives: new FormControl('sda'),
       raid_drives: new FormControl('sda,sdb'),
@@ -94,22 +92,33 @@ export class AddNodeDialogComponent implements OnInit {
     this.kitSettingsSrv.getGeneralSettings().subscribe((data: GeneralSettings) => {
       this.settings = data;
       this.kitSettingsSrv.getUsedIPAddresses(this.settings.controller_interface, this.settings.netmask).subscribe((data2: string[]) => {
-        for (const d of data2){
+        for (const d of data2) {
           nodesIP.push(d);
         }
+
+        this.kitSettingsSrv.getNodes().subscribe((response: Node[]) => {
+          for (const node of response) {
+            nodesHostnames.push(node['hostname'].split('.')[0]);
+            nodesIP.push(node['ip_address']);
+            nodesMacAddress.push(node['mac_address']);
+            this.validationHostnames = nodesHostnames;
+            this.validationIPs = nodesIP;
+            this.validationMacs = nodesMacAddress;
+          }
+          this.updateSelectableNodeIPAddresses();
+        });
       });
     });
 
-    this.kitSettingsSrv.getNodes().subscribe((data: Node[]) => {
-      for (const node of data){
-        nodesHostnames.push(node['hostname'].split('.')[0]);
-        nodesIP.push(node['ip_address']);
-        nodesMacAddress.push(node['mac_address']);
-      }
-    });
-    this.validationHostnames = nodesHostnames;
-    this.validationIPs = nodesIP;
-    this.validationMacs = nodesMacAddress;
+    if (ObjectUtilitiesClass.notUndefNull(this.nodeForm)) {
+      this.nodeForm.get('ip_address').setValue('');
+      this.nodeForm.get('ip_address').markAsPristine();
+      this.nodeForm.get('ip_address').markAsUntouched();
+      this.nodeForm.get('ip_address').updateValueAndValidity();
+      this.availableIPs = [];
+    } else {
+      this.initializeForm();
+    }
   }
 
   onSubmit() {
@@ -126,8 +135,18 @@ export class AddNodeDialogComponent implements OnInit {
       }
     },
     err => {
-      this.snackbar.showSnackBar(err.error["post_validation"], -1, 'Dismiss');
-        console.error(err);
+      if (ObjectUtilitiesClass.notUndefNull(err.error['error_message'])) {
+        this.snackbar.showSnackBar(err.error["error_message"], -1, 'Dismiss');
+      } else if (ObjectUtilitiesClass.notUndefNull(err.error['post_validation'])) {
+        if (typeof err.error['post_validation'] === 'object') {
+          const post_validation: object = err.error['post_validation'];
+          const post_validation_keys: string[] = Object.keys(post_validation);
+          const message: string = this.construct_post_validation_error_message_(post_validation, post_validation_keys);
+          this.snackbar.showSnackBar(message, -1, 'Dismiss');
+        } else {
+          this.snackbar.showSnackBar(err.error["post_validation"], -1, 'Dismiss');
+        }
+      }
     });
   }
 
@@ -141,7 +160,7 @@ export class AddNodeDialogComponent implements OnInit {
     let version = prevHost.match('[0-9]+$');
     this.initializeForm();
 
-    if (version){
+    if (version) {
       const hostname = prevHost.substr(0, prevHost.length - version[0].length);
       version = parseInt(version[0], 10);
       version++;
@@ -151,8 +170,8 @@ export class AddNodeDialogComponent implements OnInit {
     }
 
     let newIP;
-    for (const ip in this.availableIPs){
-      if (this.availableIPs[ip] === prevIP){
+    for (const ip in this.availableIPs) {
+      if (this.availableIPs[ip] === prevIP) {
         newIP = this.availableIPs[parseInt(ip, 10)+1];
         if (!newIP || (newIP.split('.'))[3] === '255') {
           newIP = this.availableIPs.shift();
@@ -160,7 +179,6 @@ export class AddNodeDialogComponent implements OnInit {
       }
     }
     this.nodeForm.get('ip_address').setValue(newIP);
-
     this.nodeForm.get('virtual_cpu').setValue(prevVirtualCpu);
     this.nodeForm.get('virtual_mem').setValue(prevVirtualMem);
     this.nodeForm.get('virtual_os').setValue(prevVirtualOS);
@@ -171,68 +189,35 @@ export class AddNodeDialogComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  onNodeTypeChange(event: MatRadioChange){
+  onNodeTypeChange(event: MatRadioChange) {
     if (!event) {
       return;
     }
-
-    if (event.value === 'Server' || event.value === 'Sensor' || event.value === 'Service') {
-      this.nodeType = event.value;
-      this.isNodeType = true;
-    }
-
-    this.updateSelectableNodeIPAddresses();
-
+    this.nodeType = event.value;
+    this.nodeForm.get('node_type').markAsTouched();
+    this.updateNodeStatus();
     this.deploymentOptions = [];
     this.deploymentOptions.push({text: 'Baremetal', value: 'Baremetal', disabled: false});
-    if(this.kitStatus.esxi_settings_configured){
+    if (this.kitStatus.esxi_settings_configured) {
       this.deploymentOptions.push({text: 'Virtual Machine', value: 'Virtual', disabled: false});
-    } else{
+    } else {
       this.deploymentOptions.push({text: 'Virtual Machine', value: 'Virtual', disabled: true});
     }
-    if (event.value === 'Sensor'){
+    if (event.value === 'Sensor') {
       this.deploymentOptions.push({text: 'ISO Remote Sensor Download', value: 'Iso', disabled: false});
     }
     this.virtualNodeForm.setDefaultValues(this.nodeType);
+    this.virtualNodeForm.setVirtualFormValidation(event);
   }
 
-  private updateSelectableNodeIPAddresses(){
-    if (!this.settings || !this.settings.controller_interface){
-      return;
-    }
-
-    let index = this.settings.controller_interface.lastIndexOf(".");
-    let subnet = this.settings.controller_interface.substring(0, index) + ".";
-    let offset = 40;
-    let number_of_addrs = 10
-    if (this.nodeType === "Sensor"){
-      offset = 50
-      number_of_addrs = 46
-    }
-
-    // this.availableIPs.splice(0)
-    let availIPs = [];
-    for (let i = 0; i < number_of_addrs; i++){
-      let last_octet = i + offset;
-      availIPs.push(subnet + last_octet);
-    }
-
-    this.availableIPs = availIPs;    
-  }
-
-  setBaremetalValidation(event: MatRadioChange){
-    if (!event) {
-      return;
-    }
-
-    this.updateNodeStatus();
+  setBaremetalValidation(event: MatRadioChange) {
     const mac_address = this.nodeForm.get('mac_address');
     const data_drives = this.nodeForm.get('data_drives');
     const boot_drives = this.nodeForm.get('boot_drives');
     const pxe_type = this.nodeForm.get('pxe_type');
     const raid_drives = this.nodeForm.get('raid_drives');
 
-    if (event.value === 'Baremetal'){
+    if (event.value === 'Baremetal') {
       mac_address.setValidators(Validators.compose([validateFromArray(addNodeValidators.mac_address,
         { uniqueArray: this.validationMacs })]));
       data_drives.setValidators(Validators.compose([validateFromArray(addNodeValidators.data_drives)]));
@@ -240,21 +225,31 @@ export class AddNodeDialogComponent implements OnInit {
       pxe_type.setValidators(Validators.compose([validateFromArray(addNodeValidators.pxe_type)]));
       raid_drives.setValidators(Validators.compose([validateFromArray(addNodeValidators.raid_drives)]));
     } else {
-      mac_address.setValidators(null);
-      data_drives.setValidators(null);
-      boot_drives.setValidators(null);
-      pxe_type.setValidators(null);
-      raid_drives.setValidators(null);
+      mac_address.clearValidators();
+      data_drives.clearValidators();
+      boot_drives.clearValidators();
+      pxe_type.clearValidators();
+      raid_drives.clearValidators();
     }
 
+    mac_address.markAsPristine();
+    mac_address.markAsUntouched();
     mac_address.updateValueAndValidity();
+    data_drives.markAsPristine();
+    data_drives.markAsUntouched();
     data_drives.updateValueAndValidity();
+    boot_drives.markAsPristine();
+    boot_drives.markAsUntouched();
     boot_drives.updateValueAndValidity();
+    pxe_type.markAsPristine();
+    pxe_type.markAsUntouched();
     pxe_type.updateValueAndValidity();
+    raid_drives.markAsPristine();
+    raid_drives.markAsUntouched();
     raid_drives.updateValueAndValidity();
   }
 
-  onDeploymentTypeChange(event: MatRadioChange){
+  onDeploymentTypeChange(event: MatRadioChange) {
     if (!event) {
       return;
     }
@@ -266,37 +261,37 @@ export class AddNodeDialogComponent implements OnInit {
   }
 
   isBaremetalDeployment(): boolean {
-    if(this.nodeForm && this.nodeForm.get('deployment_type')){
+    if (this.nodeForm && this.nodeForm.get('deployment_type')) {
       return this.nodeForm.get('deployment_type').value === 'Baremetal';
     }
     return false;
   }
 
   isVirtualMachineDeployment(): boolean {
-    if(this.nodeForm && this.nodeForm.get('deployment_type')){
+    if (this.nodeForm && this.nodeForm.get('deployment_type')) {
       return this.nodeForm.get('deployment_type').value === 'Virtual';
     }
     return false;
   }
 
   isISOSensorDeployment(): boolean {
-    if(this.nodeForm && this.nodeForm.get('deployment_type')){
+    if (this.nodeForm && this.nodeForm.get('deployment_type')) {
       return this.nodeForm.get('deployment_type').value === 'Iso';
     }
     return false;
   }
 
-  public getErrorMessage(control: AbstractControl): string {
+  getErrorMessage(control: AbstractControl): string {
     return control.errors ? control.errors.error_message : '';
   }
 
-  checkRaidChanged(event: MatCheckboxChange){
+  checkRaidChanged(event: MatCheckboxChange) {
     const checked: boolean = event.checked;
     const boot_drives = this.nodeForm.get('boot_drives');
     const data_drives = this.nodeForm.get('data_drives');
     const raid_drive = this.nodeForm.get('raid_drives');
     const os_raid_root_size = this.nodeForm.get('os_raid_root_size');
-    if (checked){
+    if (checked) {
       this.isRaid = true;
       data_drives.disable();
       boot_drives.disable();
@@ -311,12 +306,57 @@ export class AddNodeDialogComponent implements OnInit {
     }
   }
 
-  checkDuplicate(event: MatCheckboxChange){
+  checkDuplicate(event: MatCheckboxChange) {
     this.isCreateDuplicate = event.checked;
   }
 
 
   getTooltip(inputName: string): string {
     return kickStartTooltips[inputName];
+  }
+
+  private construct_post_validation_error_message_(post_validation: object, post_validation_keys: string[]): string {
+    let message: string = '';
+    post_validation_keys.forEach((key: string, index: number) => {
+      const errors: string[] = post_validation[key];
+      errors.forEach((error: string, index_error: number) => {
+        message += `${key}:     ${error}`;
+        if (index_error !== (errors.length - 1)) {
+          message += `\n`;
+        }
+      });
+      if (index !== (post_validation_keys.length - 1)) {
+        message += `\n\n`;
+      }
+    });
+
+    return message;
+  }
+
+  private updateSelectableNodeIPAddresses() {
+    if (!this.settings || !this.settings.controller_interface) {
+      return;
+    }
+
+    const index = this.settings.controller_interface.lastIndexOf(".");
+    const subnet = this.settings.controller_interface.substring(0, index) + ".";
+    let offset = 40;
+    let number_of_addrs = 10;
+    if (this.nodeType === "Sensor") {
+      offset = 50;
+      number_of_addrs = 46;
+    }
+
+    let availIPs = [];
+    for (let i = 0; i < number_of_addrs; i++) {
+      const last_octet = i + offset;
+      availIPs.push(subnet + last_octet);
+    }
+
+    this.validationIPs.forEach((used_ip: string) => {
+      availIPs = availIPs.filter((avail_ip: string) => avail_ip !== used_ip);
+    });
+
+    this.availableIPs = availIPs;
   }
 }
