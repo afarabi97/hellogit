@@ -49,7 +49,7 @@ spec:
     spec:
       containers:
       - name: "winlogbeat-setup"
-        image: "tfplenum/winlogbeat-setup:{{docker_versions.elastic_7_version}}"
+        image: "tfplenum/winlogbeat-setup:{{docker_versions.elastic_winlogbeat_version}}"
         imagePullPolicy: IfNotPresent
         env:
         - name: ELASTICSEARCH_USERNAME

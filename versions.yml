@@ -35,6 +35,7 @@ docker_versions:
   arkime_version: "3.1.0"
   suricata_version: "6.0.0"
   elastic_7_version: "7.16.2"
+  elastic_winlogbeat_version: "7.15.2"
   hive_cortex_version: 3.1.1-1
   hive_version: 4.1.9-1
   cassandra_version: 4.0.1
@@ -172,7 +173,7 @@ custom_rpm_packages:
       - "ext-docker.nexus.sil.lab/eck/eck-operator:{{ docker_versions.elastic_operator }}"
       - "ext-docker.nexus.sil.lab/elastic-maps-service/elastic-maps-server-ubi8:{{ docker_versions.elastic_7_version }}"
       - "ext-docker.nexus.sil.lab/beats/metricbeat:{{ docker_versions.elastic_7_version }}"
-      - "docker.nexus.sil.lab/tfplenum/winlogbeat-setup:{{ docker_versions.elastic_7_version }}"
+      - "docker.nexus.sil.lab/tfplenum/winlogbeat-setup:{{ docker_versions.elastic_winlogbeat_version }}"
       - "ext-docker.nexus.sil.lab/beats/filebeat:{{ docker_versions.elastic_7_version }}"
     rpm_requirements: "{{ other.rpm_common_requirements }}"
     logstash:

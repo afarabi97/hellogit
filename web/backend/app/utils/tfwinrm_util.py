@@ -14,7 +14,7 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.vars.manager import VariableManager
 from app.models.cold_log import WinlogbeatInstallModel
 from app.utils.ansible_collector import CallbackModule
-from app.utils.constants import BEATS_IMAGE_VERSIONS
+from app.utils.constants import WINLOGBEAT_IMAGE_VERSIONS
 from app.utils.logging import rq_logger
 from app.utils.utils import fix_hostname
 from pypsexec.client import Client as SMBClient
@@ -246,7 +246,7 @@ def install_winlogbeat_for_cold_log_ingest(config: WinlogbeatInstallModel):
         extra_vars = {
             "python_executable": sys.executable,
             "goto_user": config.username,
-            "beats_version": BEATS_IMAGE_VERSIONS,
+            "beats_version": WINLOGBEAT_IMAGE_VERSIONS,
         }
         ret_val = execute_win_playbook(
             [COLD_LOG_INSTALL_WINLOGBEAT], extra_vars, inventory_path
@@ -274,7 +274,7 @@ def configure_and_run_winlogbeat_for_cold_log_ingest(
         "python_executable": sys.executable,
         "goto_user": config.username,
         "cold_log_zip_path": cold_log_zip_path,
-        "beats_version": BEATS_IMAGE_VERSIONS,
+        "beats_version": WINLOGBEAT_IMAGE_VERSIONS,
     }
     return execute_win_playbook(
         [COLD_LOG_CONFIGURE_WINLOGBEAT], extra_vars, inventory_path

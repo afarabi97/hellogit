@@ -1,5 +1,5 @@
-FROM golang:1.15.3 as builder
-ARG version={{ context["docker_versions"]["elastic_7_version"] }}
+FROM golang:1.16.15 as builder
+ARG version={{ context["docker_versions"]["elastic_winlogbeat_version"] }}
 
 # Install virtualenv. Required for beats build processes.
 RUN apt-get update

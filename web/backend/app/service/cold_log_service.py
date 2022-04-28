@@ -261,8 +261,7 @@ class ColdLogsProcessor:
             mount_section = self._get_volume_mount_section(
                 tmp_directory, logs_directory)
             module_section = self._get_module_specific_params(module, fileset)
-            container_section = "localhost:5000/beats/filebeat:{} -e ".format(
-                BEATS_IMAGE_VERSIONS)
+            container_section = "localhost:5000/beats/filebeat:{} -e ".format(BEATS_IMAGE_VERSIONS)
             run_cmd = ("docker run --rm --name " + container_name + " " +
                        mount_section +
                        container_section +

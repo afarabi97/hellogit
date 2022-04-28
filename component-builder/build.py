@@ -46,7 +46,7 @@ def download_file(url: str):
 
 
 class Builder:
-    def __init__(self, name: str, nexus_user: str = None, nexus_password: str = None):
+    def __init__(self, name: str, nexus_user: str = None, nexus_password: str = None, set_helm_ctx:bool=True):
         self.component_name = name
         self.component_dir = COMPONENTS_DIR + "/" + self.component_name
         self.context = {}
@@ -54,7 +54,7 @@ class Builder:
         self._helm_name = ""
         self._helm_version = ""
         self._is_common_component = False
-        self._set_context()
+        self._set_context(set_helm_ctx)
         self.context["name"] = name
         self._nexus_auth = (nexus_user, nexus_password)
 
@@ -70,7 +70,7 @@ class Builder:
             autoescape=select_autoescape(),
         )
 
-    def _set_context(self) -> Dict:
+    def _set_context(self, set_helm_ctx: bool) -> Dict:
         yaml_dict = {}
         with open(SCRIPT_DIR + "/../versions.yml", "r") as stream:
             yaml_dict = yaml.safe_load(stream)
@@ -99,6 +99,9 @@ class Builder:
                 self.component["name"] = token
 
         # Set the helm and version information
+        if not set_helm_ctx:
+            return
+
         try:
             self._helm_name = self.component["name"]
             self._helm_version = self.component["helm_version"]
@@ -453,7 +456,7 @@ def main():
             if args.name == None:
                 docker_parser.print_help()
             else:
-                b = Builder(args.name)
+                b = Builder(args.name, set_helm_ctx=False)
                 b.build_docker_file()
         if args.which == SubCmd.helm_build:
             if args.name == None:

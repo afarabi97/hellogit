@@ -4,8 +4,11 @@ import getpass
 import glob
 import requests
 import subprocess
+import shutil
 import sys
+import tempfile
 
+from uuid import uuid4
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import List
@@ -30,41 +33,65 @@ class OfflineLogProcessor:
         self.session.headers.update({ 'Authorization': 'Bearer '+ controller_api_key })
         self.base_url = 'http://localhost:5001'
 
+    def _find_in_list(self, log_paths: List[str], str_to_find: str) -> int:
+        for index, log_path in enumerate(log_paths):
+            if str_to_find in log_path:
+                return index
+        return -1
+
     def post_file(self,
                   index_suffix: str,
                   log_type: str,
                   log_files: List[str],
                   send_to_logstash: bool,
                   file_set: str):
-        for log_path in log_files:
-            cold_log_form = {
-                "module": log_type,
-                "index_suffix": index_suffix,
-                "send_to_logstash": send_to_logstash,
-                "fileset": file_set
-            }
 
-            payload = { "cold_log_form":
-                json.dumps(cold_log_form)
-            }
+        event_file_path = log_files[0]
+        if len(log_files) > 1:
+            event_file_path = "windows_events"
+            tmp = Path(event_file_path+".zip")
+            if tmp.exists():
+                pos = self._find_in_list(log_files, str(tmp))
+                if pos > 0:
+                    log_files.pop(pos)
+                tmp.unlink()
 
-            files = {
-                'upload_file': open(log_path, 'rb' ),
-            }
+            with tempfile.TemporaryDirectory() as export_path:
+                for log_path in log_files:
+                    shutil.copy2(log_path, export_path)
 
-            print(cold_log_form)
-            response = self.session.post(self.base_url + "/api/coldlog/upload",
-                                         files=files,
-                                         data=payload)
-            if response.status_code != 200:
-                print("Failed to upload zip file.")
-                exit(1)
+                shutil.make_archive(event_file_path, 'zip', export_path)
+            event_file_path = event_file_path + ".zip"
+            print(f"Bundled multiple windows event files into {event_file_path}.")
 
-            res_body = response.json()
-            if "error_message" in res_body:
-                print(res_body["error_message"])
-            else:
-                print("Successfully uploaded {}".format(log_path))
+        cold_log_form = {
+            "module": log_type,
+            "index_suffix": index_suffix,
+            "send_to_logstash": send_to_logstash,
+            "fileset": file_set
+        }
+
+        payload = { "cold_log_form":
+            json.dumps(cold_log_form)
+        }
+
+        files = {
+            'upload_file': open(event_file_path, 'rb' ),
+        }
+
+        print(cold_log_form)
+        response = self.session.post(self.base_url + "/api/coldlog/upload",
+                                     files=files,
+                                     data=payload)
+        if response.status_code != 200:
+            print("Failed to upload zip file.")
+            exit(1)
+
+        res_body = response.json()
+        if "error_message" in res_body:
+            print(res_body["error_message"])
+        else:
+            print("Successfully uploaded {}".format(event_file_path))
 
     def prompt_for_password(self):
         while True:
