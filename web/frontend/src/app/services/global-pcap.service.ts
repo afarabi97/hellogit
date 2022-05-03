@@ -10,6 +10,14 @@ import { ApiService } from './abstract/api.service';
 
 const entityConfig: EntityConfig = { entityPart: '', type: 'GlobalPCAPService' };
 
+/**
+ * Service used for global pcap api calls
+ *
+ * @export
+ * @class GlobalPCAPService
+ * @extends {ApiService<any>}
+ * @implements {GlobalPCAPServiceInterface}
+ */
 @Injectable({
   providedIn: null
 })

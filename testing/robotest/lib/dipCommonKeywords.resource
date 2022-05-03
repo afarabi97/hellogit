@@ -1,6 +1,7 @@
 *** Settings ***
 Resource    ../include/dipCommonVariables.resource
 Resource    ./dipCatalogKeywords.resource
+Variables    ../include/element_ids_frontend.py
 
 Library     Loggy.py            ${CATEGORY}    WITH NAME    loggy_obj
 Library     SeleniumLibrary     15s    run_on_failure= loggy_obj.failure
@@ -237,7 +238,7 @@ Play ${pcap} PCAP
         click    ${locPcapSensorInterfaceOptn}
         Press Keys  None  TAB
         shoot    Play Pcap Options
-        click    ${locPcapExecuteBtn}
+        Click Button    id=${CVAH_REPLAY_PCAP_DIALOG__BUTTON_EXECUTE}  # execute btn
     END
 
 Wait And Validate Kibana Hits

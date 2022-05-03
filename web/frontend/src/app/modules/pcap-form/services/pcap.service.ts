@@ -12,6 +12,14 @@ import { PCAPServiceInterface } from '../interfaces/service-interfaces/pcap-serv
 
 const entityConfig: EntityConfig = { entityPart: '', type: 'PCAPService' };
 
+/**
+ * Service used for pcap api calls
+ *
+ * @export
+ * @class PCAPService
+ * @extends {ApiService<any>}
+ * @implements {PCAPServiceInterface}
+ */
 @Injectable({
   providedIn: null
 })

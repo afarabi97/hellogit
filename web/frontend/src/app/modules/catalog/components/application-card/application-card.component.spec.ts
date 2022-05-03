@@ -19,7 +19,7 @@ import {
 } from '../../../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { CatalogModule } from '../../catalog.module';
-import { GREEN, HOVER_COLOR, RED, WHITE, YELLOW } from '../../constants/catalog.constants';
+import { GREEN, RED, WHITE, YELLOW } from '../../constants/catalog.constants';
 import { ApplicationCardComponent } from './application-card.component';
 
 describe('ApplicationCardComponent', () => {

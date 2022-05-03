@@ -887,18 +887,18 @@ CVAH_PORTAL__TITLE_BUTTON_ADD_LINK = 'cvah-portal-title-button-add-link' # butto
 
 
 # These are for replay-pcap-dialog.component.html
-REPLAY_PCAP_DIALOG__MAT_FORM_FIELD_PCAP = 'replay-pcap-dialog-div-mat-form-field-pcap' # mat-form-field
-REPLAY_PCAP_DIALOG__PCAP_INPUT = 'replay-pcap-dialog-div-mat-form-field-pcap-input' # input
-REPLAY_PCAP_DIALOG__MAT_FORM_FIELD_SENSOR_HOSTNAME = 'replay-pcap-dialog-div-mat-form-field-sensor-hostname' # mat-form-field
-REPLAY_PCAP_DIALOG__SENSOR_HOSTNAME_MAT_SELECT = 'replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select' # mat-select
-# TODO replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select-mat-option-* # mat-option
-REPLAY_PCAP_DIALOG__MAT_ERROR_SENSOR_HOSTNAME = 'replay-pcap-dialog-div-mat-error-sensor-hostname' # mat-error
-REPLAY_PCAP_DIALOG__MAT_FORM_FIELD_IFACE = 'replay-pcap-dialog-div-mat-form-field-iface' # mat-form-field
-REPLAY_PCAP_DIALOG__IFACE_MAT_SELECT = 'replay-pcap-dialog-div-mat-form-field-iface-mat-select' # mat-select
-# TODO replay-pcap-dialog-div-mat-form-field-iface-mat-select-mat-option-* # mat-option
-REPLAY_PCAP_DIALOG__MAT_ERROR_IFACE = 'replay-pcap-dialog-div-mat-error-iface' # mat-error
-REPLAY_PCAP_DIALOG__BUTTON_CANCEL = 'replay-pcap-dialog-div-button-cancel' # button
-REPLAY_PCAP_DIALOG__BUTTON_EXECUTE = 'replay-pcap-dialog-div-button-execute' # button
+CVAH_REPLAY_PCAP_DIALOG__MAT_FORM_FIELD_PCAP = 'cvah-replay-pcap-dialog-div-mat-form-field-pcap' # mat-form-field
+CVAH_REPLAY_PCAP_DIALOG__PCAP_INPUT = 'cvah-replay-pcap-dialog-div-mat-form-field-pcap-input' # input
+CVAH_REPLAY_PCAP_DIALOG__MAT_FORM_FIELD_SENSOR_HOSTNAME = 'cvah-replay-pcap-dialog-div-mat-form-field-sensor-hostname' # mat-form-field
+CVAH_REPLAY_PCAP_DIALOG__SENSOR_HOSTNAME_MAT_SELECT = 'cvah-replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select' # mat-select
+# TODO cvah-replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select-mat-option-* # mat-option
+CVAH_REPLAY_PCAP_DIALOG__MAT_ERROR_SENSOR_HOSTNAME = 'cvah-replay-pcap-dialog-div-mat-error-sensor-hostname' # mat-error
+CVAH_REPLAY_PCAP_DIALOG__MAT_FORM_FIELD_IFACE = 'cvah-replay-pcap-dialog-div-mat-form-field-iface' # mat-form-field
+CVAH_REPLAY_PCAP_DIALOG__IFACE_MAT_SELECT = 'cvah-replay-pcap-dialog-div-mat-form-field-iface-mat-select' # mat-select
+# TODO cvah-replay-pcap-dialog-div-mat-form-field-iface-mat-select-mat-option-* # mat-option
+CVAH_REPLAY_PCAP_DIALOG__MAT_ERROR_IFACE = 'cvah-replay-pcap-dialog-div-mat-error-iface' # mat-error
+CVAH_REPLAY_PCAP_DIALOG__BUTTON_CANCEL = 'cvah-replay-pcap-dialog-button-cancel' # button
+CVAH_REPLAY_PCAP_DIALOG__BUTTON_EXECUTE = 'cvah-replay-pcap-dialog-button-execute' # button
 
 
 # These are for repository-settings.component.html

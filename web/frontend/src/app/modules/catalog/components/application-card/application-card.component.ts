@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { ChartClass, ObjectUtilitiesClass, StatusClass } from '../../../../classes';
-import { COLORS_DICT, DEPLOYED, FAILED, GREEN, HOVER_COLOR, RED, SURICATA, WHITE, YELLOW, ZEEK } from '../../constants/catalog.constants';
+import { COLORS_DICT, DEPLOYED, FAILED, GREEN, RED, SURICATA, WHITE, YELLOW, ZEEK } from '../../constants/catalog.constants';
 
 /**
  * Component used for displaying identifiable information

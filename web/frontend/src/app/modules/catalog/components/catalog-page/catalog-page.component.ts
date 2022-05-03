@@ -632,9 +632,10 @@ export class CatalogPageComponent implements OnInit {
       /* istanbul ignore else */
       if (ObjectUtilitiesClass.notUndefNull(this.saved_values_)) {
         this.saved_values_.forEach((saved_value: SavedValueClass) => {
-          /* istanbul ignore else */
           if (saved_value.values['node_hostname'] === node.hostname) {
             form_control_dependent_apps = this.initialize_config_form_control(node.hostname, saved_value.values);
+          } else {
+            form_control_dependent_apps = this.initialize_config_form_control(node.hostname);
           }
         });
       }

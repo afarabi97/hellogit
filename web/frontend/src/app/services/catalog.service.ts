@@ -10,6 +10,7 @@ import {
   ChartInfoClass,
   GenericJobAndKeyClass,
   NodeClass,
+  ObjectUtilitiesClass,
   SavedValueClass,
   StatusClass,
 } from '../classes';
@@ -197,6 +198,7 @@ export class CatalogService extends ApiService<any> implements CatalogServiceInt
    */
   get_configured_ifaces(sensor_hostname: string): Observable<string[]> {
     const url = `${environment.CATALOG_SERVICE_GET_CONFIGURED_IFACES}${sensor_hostname}`;
-    return this.httpClient_.get<string[]>(url);
+    return this.httpClient_.get<string[]>(url)
+      .pipe(catchError((error: HttpErrorResponse) => this.handleError('retrieving configured ifaces', error)));
   }
 }
