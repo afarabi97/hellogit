@@ -182,10 +182,9 @@ CPT:
 
 - app: AppStore
   src:
-    - Repo/CPT/AppStore/Burpsuite/burpsuite_pro_linux_v2021_8_4.sh
-    - Repo/CPT/AppStore/Nexpose/Rapid7Setup-Linux64_6.6.106.bin
     - Repo/CPT/AppStore/Acrobat Pro (AFCEDS)/21.001
     - Repo/CPT/AppStore/AVML/0.3.0
+    - Repo/CPT/AppStore/Burpsuite/2021_8_4
     - Repo/CPT/AppStore/CheckPWD/2.00A12
     - Repo/CPT/AppStore/Cobalt Strike/4.3
     - Repo/CPT/AppStore/DNSpy/6.0.5
