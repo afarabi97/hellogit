@@ -58,6 +58,40 @@ robot:catalog:independents:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
   retry: 2
 
+robot:catalog:community:
+  stage: robot-test-setup
+  tags:
+    - docker-runner
+  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c integration \
+      -t "010_install_catalog_apps/00_installCommunityApps" \
+      -r INTEGRATION \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v PIPELINE:$PIPELINE
+    /bin/cp -rf /usr/src/robot/output $build_path/
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  needs:
+    - job: "Sensor Setup"
+      optional: true
+    - job: "Hardware Sensor Setup"
+      optional: true
+    - job: "robot:regression_testing"
+      optional: true
+    - job: "Service Setup"
+  only:
+    variables:
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
 robot:catalog:arkime:
   stage: robot-test-setup
   tags:

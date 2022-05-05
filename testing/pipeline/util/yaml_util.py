@@ -8,9 +8,6 @@ from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
 from models.kit import KitSettingsV2, KitSettingsDef
 from models.gip_settings import GIPServiceSettings
 from models.node import NodeSettingsV2, HardwareNodeSettingsV2, load_control_plane_nodes_from_mongo
-from models.catalog import (CatalogSettings,
-                            MattermostSettings,
-                            RedmineSettings, NifiSettings, JcatNifiSettings, NetflowFilebeatSettings)
 from models.rhel_repo_vm import RHELRepoSettings
 from models.minio import MinIOSettings
 from typing import Union, List
@@ -34,12 +31,6 @@ class YamlManager:
             cls.yaml.register_class(VCenterSettings)
             cls.yaml.register_class(ESXiSettings)
             cls.yaml.register_class(RepoSettings)
-            cls.yaml.register_class(CatalogSettings)
-            cls.yaml.register_class(MattermostSettings)
-            cls.yaml.register_class(NifiSettings)
-            cls.yaml.register_class(JcatNifiSettings)
-            cls.yaml.register_class(RedmineSettings)
-            cls.yaml.register_class(NetflowFilebeatSettings)
             cls.yaml.register_class(GIPServiceSettings)
             cls.yaml.register_class(RHELRepoSettings)
             cls.yaml.register_class(RemoteNodeSettings)

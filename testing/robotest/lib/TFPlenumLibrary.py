@@ -157,8 +157,12 @@ class TFPlenumLibrary:
         response = self.api_get_chart_statuses(jsonify=False)
         json_response = response.json()
 
-        verified_applications = [full_app_item for full_app_item in json_response if full_app_item['nodes']
-                                 for n in full_app_item['nodes'] if n['status'] == str(expected_state) and n['application'] in application_strings]
+        verified_applications = []
+        for full_app_item in json_response:
+            if full_app_item['nodes']:
+                for n in full_app_item['nodes']:
+                    if n['status'] == str(expected_state) and n['application'] in application_strings and full_app_item not in verified_applications:
+                        verified_applications.append(full_app_item)
 
         if len(verified_applications) < len(application_strings) or len(verified_applications) > len(application_strings):
             return {"status": False, "verified": verified_applications}

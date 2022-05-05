@@ -14,19 +14,12 @@ from typing import Union, List, Dict
 
 from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
 from models.kit import KitSettingsV2
-from models.catalog import CatalogSettings
 from models.node import NodeSettingsV2
 from util.kubernetes_util import wait_for_jobs_to_complete, wait_for_deployments_to_ready
 from util.connection_mngs import FabricConnectionWrapper
 from util.network import retry
 
 from pprint import pprint
-
-SERVER_ANY = "Server - Any"
-SENSOR = "Sensor"
-INSTALL = "install"
-REINSTALL = "reinstall"
-UNINSTALL = "uninstall"
 
 def zero_pad(num: int) -> str:
     """
@@ -196,172 +189,17 @@ def _clean_up(wait: int = 60):
     if wait > 0:
         time.sleep(wait)
 
-
-class CatalogPayloadGenerator:
-
-    def __init__(self,
-                 controller_ip: str,
-                 nodes: List[NodeSettingsV2],
-                 catalog_settings: CatalogSettings):
-        self._controller_ip = controller_ip
-        self._url = "https://" + controller_ip + "{}"
-        self._catalog_settings = catalog_settings
-        self._nodes = nodes
-        self._device_facts_map = {}
-
-    def _set_device_facts_ip_map(self) -> None:
-        self._device_facts_map = {}
-        for node in self._nodes: # type: NodeSettingsV2
-            self._device_facts_map[node.ip_address] = node.device_facts
-
-    def _get_deployment_name(self, role:str, node: NodeSettingsV2) -> str:
-        if role == 'arkime-viewer':
-            return self._catalog_settings.arkime_viewer_settings.deployment_name
-        elif role == 'logstash':
-            return self._catalog_settings.logstash_settings.deployment_name
-        elif role == 'misp':
-            return self._catalog_settings.misp_settings.deployment_name
-        elif role == 'hive':
-            return self._catalog_settings.hive_settings.deployment_name
-        elif role == 'cortex':
-            return self._catalog_settings.cortex_settings.deployment_name
-        elif role == 'rocketchat':
-            return self._catalog_settings.rocketchat_settings.deployment_name
-        elif role == 'mattermost':
-            return self._catalog_settings.mattermost_settings.deployment_name
-        elif role == 'nifi':
-            return self._catalog_settings.nifi_settings.deployment_name
-        elif role == 'jcat-nifi':
-            return self._catalog_settings.jcat_nifi_settings.deployment_name
-        elif role == 'redmine':
-            return self._catalog_settings.redmine_settings.deployment_name
-        elif role == 'netflow-filebeat':
-            return self._catalog_settings.netflow_filebeat_settings.deployment_name
-
-    def _get_catalog_dict(self, role: str, node: NodeSettingsV2) -> Dict:
-        if role == 'suricata':
-            return self._catalog_settings.suricata_settings.get(node.hostname).to_dict()
-        elif role == 'arkime-viewer':
-            return self._catalog_settings.arkime_viewer_settings.to_dict()
-        elif role == 'arkime':
-            return self._catalog_settings.arkime_capture_settings.get(node.hostname).to_dict()
-        elif role == 'zeek':
-            return self._catalog_settings.zeek_settings.get(node.hostname).to_dict()
-        elif role == 'logstash':
-            return self._catalog_settings.logstash_settings.to_dict()
-        elif role == 'wikijs':
-            return self._catalog_settings.wikijs_settings.to_dict()
-        elif role == 'misp':
-            return self._catalog_settings.misp_settings.to_dict()
-        elif role == 'hive':
-            return self._catalog_settings.hive_settings.to_dict()
-        elif role == 'cortex':
-            return self._catalog_settings.cortex_settings.to_dict()
-        elif role == 'rocketchat':
-            return self._catalog_settings.rocketchat_settings.to_dict()
-        elif role == 'mattermost':
-            return self._catalog_settings.mattermost_settings.to_dict()
-        elif role == 'nifi':
-            return self._catalog_settings.nifi_settings.to_dict()
-        elif role == 'jcat-nifi':
-            return self._catalog_settings.jcat_nifi_settings.to_dict()
-        elif role == 'redmine':
-            return self._catalog_settings.redmine_settings.to_dict()
-        elif role == 'netflow-filebeat':
-            return self._catalog_settings.netflow_filebeat_settings.to_dict()
-
-    def _construct_selected_node_part(self, node_affinity: str, role: str) -> List[Dict]:
-        all_parts = []
-        if node_affinity == 'Server - Any':
-            for node in self._nodes: # type: NodeSettingsV2
-                is_primary = node.is_control_plane()
-                if is_primary:
-                    srv_part = self._device_facts_map[node.ip_address]
-                    deployment_name = self._get_deployment_name(role, node)
-                    device_facts = {"deviceFacts": srv_part,
-                                    "hostname" : "server",
-                                    "node_type" : "Control-Plane",
-                                    "deployment_name": deployment_name,
-                                    "ip_address": node.ip_address}
-                    all_parts.append(device_facts)
-        if node_affinity == 'Sensor':
-            for node in self._nodes: # type: NodeSettingsV2
-                if node.is_sensor():
-                    ses_part = self._device_facts_map[node.ip_address]
-                    deployment_name = self._get_deployment_name(role, node)
-                    device_facts = { "deviceFacts": ses_part,
-                                    "hostname" : node.hostname,
-                                    "node_type" : node_affinity,
-                                    "deployment_name": deployment_name,
-                                    "ip_address": node.ip_address,
-                                    "is_remote": False}
-                    all_parts.append(device_facts)
-
-        return all_parts
-
-    def _construct_config_part(self, node_affinity: str, role: str) -> List[Dict]:
-        node_parts = []
-        if node_affinity == 'Server - Any':
-            for node in self._nodes:
-                is_primary = node.is_control_plane()
-                if is_primary:
-                    deployment_name = self._get_deployment_name(role, node)
-                    thedict = self._get_catalog_dict(role, node)
-                    srv_part = { deployment_name : thedict }
-                    node_parts.append(srv_part)
-
-        if node_affinity == 'Sensor':
-            for node in self._nodes:
-                if node.is_sensor():
-                    deployment_name = self._get_deployment_name(role, node)
-                    thedict = self._get_catalog_dict(role, node)
-                    ses_part = { deployment_name : thedict }
-                    node_parts.append(ses_part)
-        return node_parts
-
-    def _construct_catalog_part(self, role: str, process: str, node_affinity: str) -> Dict:
-        payload = {
-            "role": role,
-            "process": {
-                "selectedProcess":  process,
-                "selectedNodes": self._construct_selected_node_part(node_affinity, role),
-            },
-            "configs": self._construct_config_part(node_affinity, role)
-        }
-        # print_json(payload)
-        ret_val = post_request(self._url.format("/api/catalog/generate_values"), payload)
-        values_payload = {
-            "role": role,
-            "process": {
-                "selectedProcess":  process,
-                "selectedNodes": self._construct_selected_node_part(node_affinity, role),
-                "node_affinity": node_affinity
-            },
-            "values": ret_val
-        }
-        # print_json(values_payload)
-        return values_payload
-
-    def generate(self, role: str, process: str, node_affinity: str) -> Dict:
-        self._set_device_facts_ip_map()
-        return self._construct_catalog_part(role, process, node_affinity)
-
-
 class APITesterV2:
 
     def __init__(self,
                  ctrl_settings: ControllerSetupSettings,
                  kit_settings: KitSettingsV2,
-                 catalog_settings: CatalogSettings=None,
                  nodes: List[NodeSettingsV2]=None):
         self._kit_settings = kit_settings
         self._ctrl_settings = ctrl_settings
         self._controller_ip = ctrl_settings.node.ipaddress
         self._nodes = nodes
-        self._catalog_payload_generator = CatalogPayloadGenerator(self._controller_ip, nodes, catalog_settings)
         self._url = "https://" + self._controller_ip + "{}"
-        self._catlog_install_url = self._url.format("/api/catalog/install")
-        self._catlog_reinstall_url = self._url.format("/api/catalog/reinstall")
 
         try:
             api_key = get_api_key(ctrl_settings)
@@ -440,40 +278,9 @@ class APITesterV2:
                 return node
         raise Exception("Impossible you MUST have a control plane node.")
 
-    def install_app(self, payload):
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=0)
-        deployments = []
-        for deployment in payload['values']:
-            deployment_name = list(deployment.keys())[0]
-            deployments.append(deployment_name)
-        control_plane = self._get_control_plane_node()
-        wait_for_deployments_to_ready(deployments, control_plane, 10)
-        wait_for_jobs_to_complete(deployments, control_plane, 10)
-
     def run_kit_deploy(self):
         response_dict = get_request(self._url.format("/api/kit/deploy"))
         wait_for_job_to_finish("Kit Deploy", self._url.format("/api/jobs/" + response_dict['job_id']), 60)
-
-    def install_mattermost(self):
-        payload = self._catalog_payload_generator.generate("mattermost", INSTALL, SERVER_ANY)
-        self.install_app(payload)
-
-    def install_nifi(self):
-        payload = self._catalog_payload_generator.generate("nifi", INSTALL, SERVER_ANY)
-        self.install_app(payload)
-
-    def install_jcat_nifi(self):
-        payload = self._catalog_payload_generator.generate("jcat-nifi", INSTALL, SERVER_ANY)
-        self.install_app(payload)
-
-    def install_redmine(self):
-        payload = self._catalog_payload_generator.generate("redmine", INSTALL, SERVER_ANY)
-        self.install_app(payload)
-
-    def install_netflow_filebeat(self):
-        payload = self._catalog_payload_generator.generate("netflow-filebeat", INSTALL, SERVER_ANY)
-        self.install_app(payload)
 
     def _get_sensor_hostinfo(self) -> dict:
         sensors = get_request(self._url.format("/api/policy/sensor/info"))

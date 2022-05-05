@@ -34,25 +34,6 @@ Install/Uninstall Every App
         END
     END
 
-Install Every App
-    [Documentation]  Installs every app from Catalog page and verifies successful install by checking the app card, notifications
-    ...              and the Health page.
-    Set Selenium Speed  0.5s
-    Navigate To Catalog
-
-
-    ${skip_apps} =  Create List  Arkime-viewer  Remote-health-agent
-    Wait Until Element Is Visible  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
-    ${app_name_count} =  Get Element Count  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
-    FOR  ${index}  IN RANGE  ${app_name_count}
-        ${app_name} =  Get Text  id=cvah-chart-list-${index}-cvah-application-card-div-div-div-h3-chart-application
-        Run Keyword If  '${app_name}' == 'Arkime'
-        ...  Run Keywords  Install App  Arkime-viewer
-        ...  AND  Install App  ${app_name}
-        ...  ELSE IF  $app_name not in $skip_apps
-        ...  Run Keywords  Install App  ${app_name}
-    END
-
 Install Multiple Apps
     [Arguments]  @{application_list}    ${asynchronous}=${TRUE}    ${retry}=60x    ${retry_interval}=10s    ${SKIP_ALL_VERIFICATION}=${FALSE}
     [Documentation]  Installs one or many apps from Catalog page. If the applications
@@ -77,6 +58,9 @@ Install Multiple Apps
         log     The API Will Be Requested ${retry_times} times every ${retry_interval}.
         log     If the applications are not installed after the number of requests are met, the test will be marked as failing
         Wait Until Keyword Succeeds    ${retry_times}    ${retry_interval}    Verify Applications Have Installed    @{application_list}
+        FOR  ${application}  IN  @{application_list}
+            Check App Card Status  ${application}  DEPLOYED  # Confirm app installed via UI
+        END
     END
 
 Perform Fast Install Of Catalog Apps
@@ -125,9 +109,9 @@ Install Independent Apps
     Install Multiple Apps    @{application_list}    asynchronous=${TRUE}
 
 Verify Applications Have Installed
-    [Arguments]  @{application_list}
-    log     Verify Applications Have Installed
-    &{response_info_dict}=      Check Catalog Applications For State    @{application_list}    expected_state=DEPLOYED
+    [Arguments]  @{application_list}  ${expected_state}=DEPLOYED
+    log     Verify Applications Have Installed For @{application_list}
+    &{response_info_dict}=      Check Catalog Applications For State    @{application_list}    expected_state=${expected_state}
     log    \nThe result for response_info_dict.status:\t ${response_info_dict.status}
     log    The result for response_info_dict.verified:\t ${response_info_dict.verified} \n
     IF      '${response_info_dict.status}' == 'False'
@@ -158,11 +142,10 @@ Install App
     log     Installing App: ${application_name}
     Navigate To Catalog
     reload
-
     ${index} =  Find App index  ${application_name}
-    Check App Card Status  ${index}  Not Installed  # Verify app is not installed through the UI
+    Check App Card Status  ${application_name}  Not Installed  1m  # Verify app is not installed through the UI
 
-    ${config_app_button} =  Set Variable  id=cvah-chart-list-${index}-cvah-application-card-div-div-div-button-configure-application
+    ${config_app_button} =  Inject  ${CVAH_CHART_LIST__CVAH_APPLICATION_CARD__BUTTON_CONFIGURE_APPLICATION}  ${index}  replacement_pattern=*
     lookForElement  ${config_app_button}
     Click Button  ${config_app_button}
     lookForElement  ${locSelectProcessDropdown}
@@ -170,7 +153,6 @@ Install App
     Wait Until Element Is Visible  ${locInstallButton}
     click  ${locInstallButton}
     Wait Until Element Contains  ${locSelectProcessDropdown}  Install
-    shoot   Install-${application_name}-Step-01-ProcessPage
     IF  '${application_name}' == 'Arkime' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
         click  ${locNodeSelection}
         lookForElement  xpath=//span[text()="${sensor_name}"]
@@ -187,10 +169,8 @@ Install App
         click  ${locInterfaceOptionConnected}
         Press Keys  None  TAB
         Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
-        shoot   Install-${application_name}-Step-02-ConfigurationOverviewPage
         Click Button  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
         Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
-        shoot   Install-${application_name}-Step-03-ValuesFileOverviewPage
         Click Button  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
     ELSE
         Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}
@@ -199,15 +179,12 @@ Install App
         ...             type  ${locHeapSizeInput}  4  # If virtual kit decrease heap_size from 12 to 4
         lookFor  server
         Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
-        shoot   Install-${application_name}-Step-02-ConfigurationOverviewPage
         click  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
         Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
-        shoot   Install-${application_name}-Step-03-ValuesFileOverviewPage
         click  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
     END
     Sleep  10s
     Verify App Has Been Installed  ${application_name}    ${asynchronous}
-    Run Keyword And Warn On Failure  Check App Card Status  ${index}  DEPLOYED  # Confirm app installed via UI
 
 Verify App Has Been Installed
     [Arguments]  ${application_name}  ${asynchronous}=${FALSE}
@@ -220,16 +197,18 @@ Verify App Has Been Installed
         log  Starting individual verification using API call
         ${retry_times} =  Set Variable If  ${IS_BARE_METAL_KIT}  150x  60x
         Wait Until Keyword Succeeds  ${retry_times}  10s  Verify Applications Have Installed  ${application_name}
+        Check App Card Status  ${application_name}  DEPLOYED  # Confirm app installed via UI
     END
 
 Check App Card Status
-    [Arguments]  ${index}  ${expected_status}
+    [Arguments]  ${application_name}  ${expected_status}  ${timeout}=8m
     [Documentation]  Visual confirmation on the Catalog Page that the app is installed
     log     Check App Card Status
     Navigate To Catalog
+    ${index} =  Find App index  ${application_name}
     ${application_card} =  Inject  ${CVAH_CHART_LIST__CVAH_APPLICATION_CARD}  ${index}  replacement_pattern=*
     lookForElement  ${application_card}
-    Wait Until Element Contains  ${application_card}  ${expected_status}  2m
+    Wait Until Element Contains  ${application_card}  ${expected_status}  ${timeout}
     ${app_card_circle} =  Inject  ${CVAH_CHART_LIST__CVAH_APPLICATION_CARD__BUTTON}  ${index}  replacement_pattern=*
     ${circle_color} =  Set Variable If  '${expected_status}' == 'DEPLOYED'  rgb(30, 185, 128)
     ...  '${expected_status}' == 'Not Installed'  rgb(255, 255, 255)
@@ -287,7 +266,7 @@ Uninstall App
     ${app_status_text} =  Strip String  ${app_status_text}
     Return From Keyword If  '${app_status_text}' == 'Not Installed'  # App does not need to be uninstalled
 
-    ${config_app_button} =  Set Variable  id=cvah-chart-list-${index}-cvah-application-card-div-div-div-button-configure-application
+    ${config_app_button} =  Inject  ${CVAH_CHART_LIST__CVAH_APPLICATION_CARD__BUTTON_CONFIGURE_APPLICATION}  ${index}  replacement_pattern=*
     lookForElement  ${config_app_button}
     Click Button  ${config_app_button}
     Run Keyword If  '${application_name}' == 'Arkime'
@@ -304,7 +283,7 @@ Uninstall App
     ...  AND  Press Keys  None  TAB
     Click Button  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_RUN}
     ${application_card} =  Set Variable  id=cvah-chart-list-div-cvah-application-card-${index}
-    Wait Until Keyword Succeeds  5x  5s  Check App Card Status  ${index}  Not Installed
+    Wait Until Keyword Succeeds  5x  5s  Check App Card Status  ${application_name}  Not Installed
     click  ${locNotificationsNavIcon}
     Wait Until Element Contains  ${locTopNotification}  COMPLETED Uninstalling ${application_name}  10m
     Press Keys  None  ESCAPE
@@ -330,6 +309,11 @@ Find App index
     [Arguments]  ${application_name}
     [Documentation]  Locates and returns index of application based on name supplied in argument.
     log     Find App Index ${application_name}
+
+    lookForElement  ${CVAH_CATALOG__MAT_SLIDE_TOGGLE_COMMUNITY_APPLICATIONS_INPUT}
+    ${comm_app_is_checked} =  Get Element Attribute  ${CVAH_CATALOG__MAT_SLIDE_TOGGLE_COMMUNITY_APPLICATIONS_INPUT}  aria-checked
+    Run Keyword If  '${comm_app_is_checked}' == 'false'  click  ${CVAH_CATALOG__MAT_SLIDE_TOGGLE_COMMUNITY_APPLICATIONS}
+
     Wait Until Element Is Visible  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
     ${app_name_elements} =  Get WebElements  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
     ${index} =  Set Variable  ${0}

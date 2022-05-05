@@ -12,7 +12,6 @@ class SubCmd:
     verify_manifest = 'verify-manifest'
     build_manifest = 'build-manifest'
 
-    run_catalog = 'run-catalog'
     run_bp = 'run-bp'
     run_mandiant = 'run-mandiant'
     run_integration_tests = 'run-integration-tests'
@@ -30,17 +29,6 @@ class SubCmd:
     build_server_for_export = 'build-server-for-export'
     run_stigs = 'run-stigs'
     run_oscap_scans = 'run-oscap-scans'
-
-    # run-catalog subcommands
-    install = "install"
-    uninstall = "uninstall"
-    reinstall = "reinstall"
-
-    mattermost = "mattermost"
-    nifi = "nifi"
-    jcat_nifi = "jcat-nifi"
-    redmine = "redmine"
-    netflow_filebeat = "netflow-filebeat"
 
     # run-export subcommands
     export_html_docs = 'export-html-docs'

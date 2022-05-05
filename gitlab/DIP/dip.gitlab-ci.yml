@@ -260,23 +260,6 @@ Perform Security Scans:
     untracked: true
   allow_failure: true
 
-CVAH Catalog Community Apps:
-  stage: robot-test-setup
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-catalog mattermost
-    python3 testing/pipeline/pipeline.py run-catalog nifi
-    python3 testing/pipeline/pipeline.py run-catalog jcat-nifi
-    python3 testing/pipeline/pipeline.py run-catalog redmine
-    python3 testing/pipeline/pipeline.py run-catalog netflow-filebeat
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "developer-all"
-  retry: 2
-
 System Function Testing:
   stage: integration-test
   tags:

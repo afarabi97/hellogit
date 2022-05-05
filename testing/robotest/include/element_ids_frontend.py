@@ -200,8 +200,8 @@ APP_ARCHIVE_DIALOG__BUTTON_SAVE = 'app-archive-dialog-mat-dialog-actions-button-
 # TODO cvah-chart-list-cvah-application-card-*-cvah-application-card-div-div-div-h3-chart-application # h3
 # TODO cvah-chart-list-cvah-application-card-*-cvah-application-card-div-div-chart-description # div
 # TODO cvah-chart-list-cvah-application-card-*-cvah-application-card-div-div-div-div-*-node-info # div
-# TODO cvah-chart-list-cvah-application-card-*-cvah-application-card-div-div-div-button-configure-application # button
-CVAH_CHART_LIST__CVAH_APPLICATION_CARD__BUTTON = 'cvah-chart-list-*-cvah-application-card-div-div-div-button' # button
+CVAH_CHART_LIST__CVAH_APPLICATION_CARD__BUTTON_CONFIGURE_APPLICATION = 'cvah-chart-list-*-cvah-application-card-div-div-div-button-configure-application' # button
+CVAH_CHART_LIST__CVAH_APPLICATION_CARD__BUTTON = 'cvah-chart-list-*-cvah-application-card-div-div-div-button' # button (color circle)
 
 
 # These are for configmap-editor.component.html
@@ -264,6 +264,7 @@ CVAH_CHART_LIST__CVAH_APPLICATION_CARD = 'cvah-chart-list-div-cvah-application-c
 CVAH_CATALOG__MAT_PROGRESS_BAR = 'cvah-catalog-mat-progress-bar' # mat-progress-bar
 CVAH_CATALOG__MAT_SLIDE_TOGGLE_PMO_APPLICATIONS = 'cvah-catalog-slide-toggle-pmo-applications' # mat-slide-toggle
 CVAH_CATALOG__MAT_SLIDE_TOGGLE_COMMUNITY_APPLICATIONS = 'cvah-catalog-slide-toggle-community-applications' # mat-slide-toggle
+CVAH_CATALOG__MAT_SLIDE_TOGGLE_COMMUNITY_APPLICATIONS_INPUT = 'cvah-catalog-slide-toggle-community-applications-input' # mat-slide-toggle-checkbox
 
 
 # These are for catalog-page.component.html

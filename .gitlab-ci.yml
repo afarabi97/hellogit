@@ -53,7 +53,6 @@ variables:
   RUN_REMOTE_NODE: "no"
   RUN_INTEGRATION: "yes"
   RUN_DISK_TEST: "no"
-  COMMUNITY_APPS: "yes"
   RUN_CODE_CHECKS: "yes"
   RUN_POWER_FAILURE: "yes"
   RUN_BREAKINGPOINT: "no"

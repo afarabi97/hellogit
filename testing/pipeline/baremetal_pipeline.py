@@ -5,13 +5,11 @@ from argparse import ArgumentParser, Namespace
 from jobs.integration_tests import IntegrationTestsJob, HwPowerFailureJob
 from jobs.ctrl_setup import BaremetalControllerSetup
 from jobs.kit import KitSettingsJob
-from jobs.catalog import CatalogJob
 from jobs.breakingpoint import BPJob
 from jobs.mandiant import MandiantJob
 from jobs.remote_node import RemoteNode
 from models.constants import SubCmd
 from models.ctrl_setup import HwControllerSetupSettings
-from models.catalog import CatalogSettings
 from models.breakingpoint import BPSettings
 from models.mandiant import MandiantSettings
 from models.node import HardwareNodeSettingsV2
@@ -20,18 +18,6 @@ from util.yaml_util import YamlManager
 
 
 class BaremetalRunner():
-
-    def _run_catalog(self, application: str, process: str, args: Namespace):
-        ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
-        kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
-
-        nodes = YamlManager.load_nodes_from_yaml_files(ctrl_settings, kit_settings)
-        catalog_settings = CatalogSettings()
-        catalog_settings.set_from_kickstart(nodes, kit_settings, args)
-        YamlManager.save_to_yaml(catalog_settings)
-
-        executor = CatalogJob(ctrl_settings, kit_settings, catalog_settings, nodes)
-        executor.run_catalog(application, process)
 
     def _setup_args(self):
         parser = ArgumentParser(description="This application is used to run TFPlenum's CI pipeline. \
@@ -71,11 +57,6 @@ class BaremetalRunner():
         powerfailure_parser = subparsers.add_parser(SubCmd.simulate_power_failure,
                                                     help="This command is used to simulate a power failures on a Kit.")
         powerfailure_parser.set_defaults(which=SubCmd.simulate_power_failure)
-
-        catalog_parser = subparsers.add_parser(
-            SubCmd.run_catalog, help="This subcommand installs applications on your Kit.")
-        CatalogSettings.add_args(catalog_parser)
-        catalog_parser.set_defaults(which=SubCmd.run_catalog)
 
         bp_parser = subparsers.add_parser(
             SubCmd.run_bp, help="this subcommand runs breaking point on your kit")
@@ -140,8 +121,6 @@ class BaremetalRunner():
                 nodes = YamlManager.load_nodes_from_yaml_files(ctrl_settings, kit_settings)
                 executor = HwPowerFailureJob(kit_settings, nodes)
                 executor.run_power_cycle()
-            elif args.which == SubCmd.run_catalog:
-                catalog_parser.print_help()
             elif args.which == SubCmd.run_bp:
                 bp_settings = BPSettings()
                 bp_settings.from_namespace(args)
@@ -157,8 +136,6 @@ class BaremetalRunner():
                 mandiant_settings.from_namespace(args)
                 executor = MandiantJob(mandiant_settings)
                 executor.run_job()
-            else:
-                self._run_catalog(args.which, args.process, args)
         except ValueError as e:
             logging.exception(e)
             print(e)
