@@ -4,76 +4,82 @@
           <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
               <div>Test Files</div>
               <div>
-                <button mat-raised-button id="app-pcap-form-div-mat-card-mat-card-header-mat-card-title-button-choose-pcap-file"
+                <button mat-raised-button id="cvah-pcap-form-button-choose-pcap-file"
                         color="primary" style="margin-right: 10px;" (click)="fileInput.click()">Choose PCAP File</button>
-                <button mat-raised-button id="app-pcap-form-div-mat-card-mat-card-header-mat-card-title-button-upload"
-                  color="primary" (click)="uploadFile()" [disabled]="!pcapToUpload" name="execute_kickstart">Upload
-                  <span *ngIf="pcapToUpload" id="app-pcap-form-div-mat-card-mat-card-header-mat-card-title-button-upload-span-pcap-to-upload" style="font-weight: bold;"> {{ pcapToUpload.name }}</span>
+                <button mat-raised-button id="cvah-pcap-form-button-upload"
+                        color="primary" (click)="upload_file()" [disabled]="!pcap_for_upload" name="execute_kickstart">Upload
+                  <span *ngIf="pcap_for_upload" id="cvah-pcap-form-button-upload-span-pcap-to-upload"
+                        style="font-weight: bold;">{{ pcap_for_upload.name }}</span>
                 </button>
-                <input hidden #fileInput id="app-pcap-form-div-mat-card-mat-card-header-mat-card-title-input-hidden-file"
-                        (change)="handleFileInput($event.target.files)" type="file"accept=".pcap,.PCAP">
+                <input hidden
+                       #fileInput
+                       id="cvah-pcap-form-input-hidden-file"
+                       (change)="handle_file_input($event.target.files)"
+                       type="file"
+                       accept=".pcap,.PCAP">
               </div>
           </mat-card-title>
         </mat-card-header>
         <mat-card-content>
+          <div class="table-wrapper">
             <table mat-table [dataSource]="pcaps" aria-describedby="PCAP Replay Table">
+
                 <!-- Name -->
                 <ng-container matColumnDef="name">
                     <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
                     <td mat-cell *matCellDef="let pcap; let z = index;"
-                        id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-name' }}">{{ pcap.name }}</td>
+                        id="{{ 'cvah-pcap-form-td-' + z + '-name' }}">{{ pcap.name }}</td>
                 </ng-container>
+
                 <!-- Modified Date -->
                 <ng-container matColumnDef="mod_date">
                     <th scope="col" mat-header-cell *matHeaderCellDef>Modified Date</th>
                     <td mat-cell *matCellDef="let pcap; let z = index;"
-                        id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-modified-date' }}"
+                        id="{{ 'cvah-pcap-form-td-' + z + '-modified-date' }}"
                         style="padding-right: 5px; padding-left: 5px;">{{ pcap.createdDate }}</td>
                 </ng-container>
-                <!-- Hash -->
-                <ng-container matColumnDef="hash">
-                    <th scope="col" mat-header-cell *matHeaderCellDef>
-                        <span *ngIf="showMd5"><a (click)="showMD5()"><strong>MD5</strong></a>&nbsp;</span>
-                        <span *ngIf="!showMd5"><a (click)="showMD5()">MD5</a>&nbsp;</span>
-                        <span *ngIf="showSha1"><a (click)="showSHA1()"><strong>SHA1</strong></a>&nbsp;</span>
-                        <span *ngIf="!showSha1"><a (click)="showSHA1()">SHA1</a>&nbsp;</span>
-                        <span *ngIf="showSha256"><a (click)="showSHA256()"><strong>SHA256</strong></a>&nbsp;</span>
-                        <span *ngIf="!showSha256"><a (click)="showSHA256()">SHA256</a>&nbsp;</span>
-                    </th>
+
+                <!-- Hashes -->
+                <ng-container matColumnDef="hashes">
+                    <th scope="col" mat-header-cell *matHeaderCellDef>Hashes</th>
                     <td mat-cell *matCellDef="let pcap; let z = index;"
-                        id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-hash' }}">{{ getHash(pcap.hashes) }}</td>
+                        id="{{ 'cvah-pcap-form-td-' + z + '-hashes' }}">{{ get_pcap_hashes(pcap.hashes) }}</td>
                 </ng-container>
+
                 <!-- Size -->
                 <ng-container matColumnDef="size">
                     <th scope="col" mat-header-cell *matHeaderCellDef>Size MB</th>
                     <td mat-cell *matCellDef="let pcap; let z = index;"
-                        id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-size-mb' }}"
+                        id="{{ 'cvah-pcap-form-td-' + z + '-size-mb' }}"
                         style="padding-left: 5px;">{{ pcap.size /1000000 | number:'1.0-3' }}</td>
                 </ng-container>
+
                 <!-- Action -->
                 <ng-container matColumnDef="action">
                     <th scope="col" mat-header-cell *matHeaderCellDef style="padding-left: 10px;">Action</th>
                     <td mat-cell *matCellDef="let pcap; let z = index;"
-                        id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-action' }}">
-                        <button mat-icon-button id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-action-button-play-arow' }}"
-                                matTooltip="Replay PCAP on Target Sensor" (click)="openPCAPReplayModal(pcap)">
-                            <em id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-action-button-play-arow-em' }}"
-                                class="material-icons">play_arrow</em>
+                        id="{{ 'cvah-pcap-form-td-' + z + '-action' }}">
+                        <button mat-icon-button id="{{ 'cvah-pcap-form-td-' + z + '-action-button-play-arrow' }}"
+                                matTooltip="Replay PCAP on Target Sensor" color="primary" (click)="replay_pcap_dialog(pcap)">
+                            <em class="material-icons">play_arrow</em>
                         </button>
-                        <button mat-icon-button id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-action-button-delete' }}"
-                                matTooltip="Delete PCAP" (click)="openConfirmModal(pcap)">
-                            <em id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-td-' + z + '-action-button-delete-em' }}"
-                                class="material-icons" style="color:red;">delete</em>
+                        <button mat-icon-button id="{{ 'cvah-pcap-form-td-' + z + '-action-button-delete' }}"
+                                matTooltip="Delete PCAP" color="warn" (click)="delete_pcap_confirm_dialog(pcap)">
+                            <em class="material-icons">delete</em>
                         </button>
                     </td>
                 </ng-container>
+
                 <!-- Table Rows -->
-                <tr mat-header-row *matHeaderRowDef="displayColumns"></tr>
-                <tr mat-row *matRowDef="let myRowData; columns: displayColumns; let z = index;"
-                    id="{{ 'app-pcap-form-div-mat-card-mat-card-content-table-tr-mat-row-' + i }}"></tr>
+                <tr mat-header-row *matHeaderRowDef="display_columns"></tr>
+                <tr mat-row *matRowDef="let myRowData; columns: display_columns; let z = index;"
+                    id="{{ 'cvah-pcap-form-tr-mat-row-' + i }}"></tr>
             </table>
-            <mat-paginator #pcapPaginator id="app-pcap-form-div-mat-card-mat-card-content-mat-paginator"
-                           [pageSize]="20" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+          </div>
+            <mat-paginator #pcapPaginator
+                           [pageSize]="20"
+                           [pageSizeOptions]="[5, 10, 20]"
+                           showFirstLastButtons></mat-paginator>
         </mat-card-content>
     </mat-card>
 </div>

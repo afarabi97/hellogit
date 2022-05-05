@@ -21,6 +21,7 @@
     background-color: map-get($theme, first-elevation-dark-background);
     color: map-get($theme, primary-text-color);
     border: 1px solid + map-get($theme, primary-border-color);
+    max-width: unset !important;
   }
 
   a {

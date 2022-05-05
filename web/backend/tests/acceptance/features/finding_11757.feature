@@ -14,4 +14,4 @@ Feature: Validate PCAP File Upon Upload
         |   file_type   |   valid_or_invalid    |   upload_file_name    |   message                                             |   status_code     |
         |   pcap        |   invalid             |   test_invalid.pcap   |   Failed to upload file. Not a valid pcap file.       |   422             |
         |   pcapng      |   valid               |   test_pcapng.pcap    |   Failed to upload file. Not a valid pcap file.       |   422             |
-        |   pcap        |   valid               |   testpcap            |   Successfully uploaded testpcap.pcap!                |   200             |
+        |   pcap        |   valid               |   testpcap            |   Successfully uploaded testpcap.pcap.                |   200             |

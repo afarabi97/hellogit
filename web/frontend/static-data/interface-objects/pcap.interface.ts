@@ -10,7 +10,7 @@ export const MockPCAPInterfaceInfectionTrafficFromPasswordProtectedWordDoc: PCAP
     "sha256": "89687b5d606ba818f0a100e92c9e48641aacfcb32c2c122c5d3002cfa1802cb7"
   }
 };
-export const MockPCAPInterfaceFlawedArmyTraffic: PCAPInterface = {
+export const MockPCAPInterfaceFlawedAmmyyTraffic: PCAPInterface = {
   "name": "2019-03-06-Flawed-Ammyy-traffic.pcap",
   "size": 4610405, "createdDate":
   "2022-03-15 02:40:37",
@@ -32,6 +32,6 @@ export const MockPCAPInterfacePasswordProtectedDocInfectionTraffic: PCAPInterfac
 };
 export const MockPCAPInterfaceArray: PCAPInterface[] = [
   MockPCAPInterfaceInfectionTrafficFromPasswordProtectedWordDoc,
-  MockPCAPInterfaceFlawedArmyTraffic,
+  MockPCAPInterfaceFlawedAmmyyTraffic,
   MockPCAPInterfacePasswordProtectedDocInfectionTraffic
 ];

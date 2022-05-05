@@ -53,11 +53,11 @@ describe('ReplayPcapDialogComponent', () => {
   let spyApiGetSensorHostInfo: jasmine.Spy<any>;
 
   // Test Data
-  const mat_checkboc_change_true: MatCheckboxChange = {
+  const mat_checkbox_change_true: MatCheckboxChange = {
     source: null,
     checked: true
   };
-  const mat_checkboc_change_false: MatCheckboxChange = {
+  const mat_checkbox_change_false: MatCheckboxChange = {
     source: null,
     checked: false
   };
@@ -198,7 +198,7 @@ describe('ReplayPcapDialogComponent', () => {
       it('should call change_preserve_timestamp()', () => {
         reset();
 
-        component.change_preserve_timestamp(mat_checkboc_change_true);
+        component.change_preserve_timestamp(mat_checkbox_change_true);
 
         expect(component.change_preserve_timestamp).toHaveBeenCalled();
       });
@@ -207,7 +207,7 @@ describe('ReplayPcapDialogComponent', () => {
         reset();
 
         component.pcap_form_group.controls['ifaces'].enable();
-        component.change_preserve_timestamp(mat_checkboc_change_true);
+        component.change_preserve_timestamp(mat_checkbox_change_true);
 
         expect(component.pcap_form_group.controls['ifaces'].enabled).toBeFalse();
       });
@@ -216,7 +216,7 @@ describe('ReplayPcapDialogComponent', () => {
         reset();
 
         component.pcap_form_group.controls['ifaces'].disable();
-        component.change_preserve_timestamp(mat_checkboc_change_false);
+        component.change_preserve_timestamp(mat_checkbox_change_false);
 
         expect(component.pcap_form_group.controls['ifaces'].enabled).toBeTrue();
       });

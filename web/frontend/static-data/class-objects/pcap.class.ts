@@ -1,15 +1,15 @@
 import { PCAPClass } from '../../src/app/classes';
 import {
-  MockPCAPInterfaceFlawedArmyTraffic,
+  MockPCAPInterfaceFlawedAmmyyTraffic,
   MockPCAPInterfaceInfectionTrafficFromPasswordProtectedWordDoc,
   MockPCAPInterfacePasswordProtectedDocInfectionTraffic
 } from '../interface-objects';
 
 export const MockPCAPClassInfectionTrafficFromPasswordProtectedWordDoc: PCAPClass = new PCAPClass(MockPCAPInterfaceInfectionTrafficFromPasswordProtectedWordDoc);
-export const MockPCAPClassFlawedArmyTraffic: PCAPClass = new PCAPClass(MockPCAPInterfaceFlawedArmyTraffic);
+export const MockPCAPClassFlawedAmmyyTraffic: PCAPClass = new PCAPClass(MockPCAPInterfaceFlawedAmmyyTraffic);
 export const MockPCAPClassPasswordProtectedDocInfectionTraffic: PCAPClass = new PCAPClass(MockPCAPInterfacePasswordProtectedDocInfectionTraffic);
 export const MockPCAPClassArray: PCAPClass[] = [
   MockPCAPClassInfectionTrafficFromPasswordProtectedWordDoc,
-  MockPCAPClassFlawedArmyTraffic,
+  MockPCAPClassFlawedAmmyyTraffic,
   MockPCAPClassPasswordProtectedDocInfectionTraffic
 ];

@@ -37,10 +37,8 @@ ${locSubmitButton}              css=input[class*='btn']
 # DoD Banner
 ${locBannerAcceptButton}        id=kc-accept
 
-${locOverlayClick}              xpath=//div[3]/div[3]
-
 # Playing PCAP Dialog Box
-${locPcapPlayBtn}               xpath=//em[@id="app-pcap-form-div-mat-card-mat-card-content-table-td-7-action-button-play-arow-em"]
+${locPcapPlayBtn}               xpath=//button[@id="cvah-pcap-form-td-7-action-button-play-arrow"]
 ${locPcapSensorHostname}        id=cvah-replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select
 ${locPcapPreserveTimestamp}     xpath=//mat-checkbox[@id='mat-checkbox-1']/label/div
 ${locPcapSensorInterface}       xpath=//mat-select[@id='cvah-replay-pcap-dialog-div-mat-form-field-iface-mat-select']/div/div[2]/div
@@ -49,10 +47,10 @@ ${locOverlayClick}              xpath=//div[3]/div[3]
 
 ### DIP Controller Variables ###
 # Side Nav Buttons
-${locNotificationsNavIcon}  id=cvah-notifications-open-dialog-window
-${locNotificationsPopup}    xpath=//*[contains(@id, "mat-dialog-")]
-${locTopNotification}       id=cvah-notifications-dialog_window-0-0-statusactionapp
-${locExpandSideNavIcon}     id=app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav-trigger-mat-icon-arrow-forward
+${locNotificationsNavIcon}      id=cvah-notifications-open-dialog-window
+${locNotificationsPopup}        xpath=//*[contains(@id, "mat-dialog-")]
+${locTopNotification}           id=cvah-notifications-dialog_window-0-0-statusactionapp
+${locExpandSideNavIcon}         id=app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav-trigger-mat-icon-arrow-forward
 
 
 ${locCatalogPageNavIcon}        id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-1-mat-list-item-5-mat-icon
