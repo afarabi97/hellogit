@@ -6,9 +6,9 @@
 
 .code-checks:
   rules:
-      - if: $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - if: $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-      - if: $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
+    - if: $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+    - if: $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+    - if: $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
 
 .all-and-mip:
   rules:
@@ -23,14 +23,24 @@
 
 .controller:
   rules:
-      - if: $PIPELINE == "controller-only"
-      - if: $PIPELINE == "export-all"
-      - if: $PIPELINE == "export-controller-only"
-      - if: $PIPELINE == "export-gip"
-      - if: $PIPELINE == "developer-all"
-      - if: $PIPELINE == "developer-mip"
-      - if: $EXPORT_DIP == "yes" && $PIPELINE == "minor-release"
-      - if: $EXPORT_BOTH == "yes" && $PIPELINE == "minor-release"
+    - if: $PIPELINE == "controller-only"
+    - if: $PIPELINE == "export-all"
+    - if: $PIPELINE == "export-controller-only"
+    - if: $PIPELINE == "export-gip"
+    - if: $PIPELINE == "developer-all"
+    - if: $PIPELINE == "developer-mip"
+    - if: $EXPORT_DIP == "yes" && $PIPELINE == "minor-release"
+    - if: $EXPORT_BOTH == "yes" && $PIPELINE == "minor-release"
+
+.before-commit-lint:
+  before_script:
+    - |
+      echo "Commit Hash = $CI_COMMIT_SHA"
+      echo "Pipeline ID = $CI_PIPELINE_ID"
+      echo "Project name = $CI_PROJECT_NAME"
+      echo "Build ref = $CI_BUILD_REF_NAME"
+      echo "Build Path = $(pwd)"
+      echo -e "Git Log Hash = $(git log -1 --pretty=%H)";
 
 .setup-robot-script:
   before_script:

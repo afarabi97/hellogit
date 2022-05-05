@@ -114,7 +114,6 @@ variables:
   SERVER_MACADDRESS_OVERRIDES: "nothing"
   SENSOR_MACADDRESS_OVERRIDES: "nothing"
 
-
   #Master Drive Creation Variables
   MASTER_DRIVE_CREATION_USERNAME: "drive_creator"
   MASTER_DRIVE_CREATION_IPADDRESS: "10.10.102.10"
@@ -213,6 +212,7 @@ variables:
   LATEST_CODE_CHECKER_IMAGE: "docker.nexus.sil.lab/tfplenum/code-checker:1.6"
 
 stages:
+  - commit-lint
   - test-compile
   - lint-unit-test
   - code-analysis

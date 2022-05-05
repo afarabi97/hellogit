@@ -94,3 +94,6 @@ web/frontend/*.xml
 .hypothesis/*
 Dockerfile.local*
 vs-commit.json
+component-builder/pipeline-images/vommit/run.sh
+component-builder/pipeline-images/committer
+component-builder/pipeline-images/committer/**/*
