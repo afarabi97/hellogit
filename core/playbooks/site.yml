@@ -404,7 +404,7 @@
     - name: Enable tab completion
       lineinfile:
         path: /root/.bashrc
-        regexp: '^source <(kubectl'
+        regexp: '^source <(kubectl completion bash)'
         line: 'source <(kubectl completion bash)'
       ignore_errors: yes
 

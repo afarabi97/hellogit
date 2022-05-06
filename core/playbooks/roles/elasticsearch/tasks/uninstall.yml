@@ -1,5 +1,17 @@
 ---
 
+- name: Check for ES
+  shell: |
+    kubectl get svc -l component=elasticsearch --ignore-not-found
+  ignore_errors: yes
+  register: es_check
+  changed_when: False
+
+- name: Debug no ES
+  debug:
+    msg: "ES not detected, skipping uninstall ES"
+  when: es_check.stdout_lines|length == 0
+
 - name: Uninstall ES
   command: "{{ item }} --ignore-not-found"
   ignore_errors: true
@@ -13,6 +25,7 @@
     - "kubectl delete secret elasticsearch-certificate"
   register: results
   changed_when: results.rc == 0
+  when: es_check.stdout_lines|length > 0
 
 - name: Delete Additional ES Secrets
   command: "kubectl delete secret {{ item.name }} --ignore-not-found"
@@ -47,11 +60,24 @@
   register: results
   changed_when: results.rc == 0
 
+- name: Check for ECK Operator
+  shell: |
+    kubectl get -f {{ elastic_dir }}/operator.yml --ignore-not-found
+  ignore_errors: yes
+  register: eck_operator_check
+  changed_when: False
+
+- name: Debug no ECK operator
+  debug:
+    msg: "ECK Operator not detected, skipping uninstall ECK Operator"
+  when: eck_operator_check.stdout_lines|length == 0
+
 - name: Uninstall ECK Operator
   shell: |
     kubectl delete -f {{ elastic_dir }}/operator.yml
   ignore_errors: true
   register: results
   changed_when: results.rc == 0
+  when: eck_operator_check.stdout_lines|length > 0
 
 ...

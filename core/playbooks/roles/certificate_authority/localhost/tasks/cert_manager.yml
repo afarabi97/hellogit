@@ -21,13 +21,20 @@
     - operator.yml
     - ca_issuer.yml
 
+- name: Check for existing Cert Manager
+  shell: |
+    kubectl get -f {{ cert_manager_dir }}/operator.yml --ignore-not-found
+  register: cert_mgr_check
+  changed_when: False
+
 - name: "Delete Cert Manager"
   shell: |
     kubectl delete -f {{ cert_manager_dir }}/operator.yml --ignore-not-found
   register: results
   changed_when: results.rc == 0
-  failed_when: result.rc != 0
+  failed_when: results.rc != 0
   ignore_errors: yes
+  when: cert_mgr_check.stdout_lines|length > 0
 
 - name: "Install Cert Manager Operator ({{ docker_versions.cert_manager_version }})"
   shell: |

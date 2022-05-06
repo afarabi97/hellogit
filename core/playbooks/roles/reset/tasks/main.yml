@@ -1,5 +1,17 @@
 ---
 
+- name: Check for nodes
+  shell: |
+    kubectl get nodes
+  register: node_check
+  ignore_errors: yes
+  changed_when: False
+
+- name: Debug nodes detected
+  debug:
+    msg: "No nodes detected, skipping node removal"
+  when: node_check.stdout_lines|length < 3
+
 - name: Remove all nodes
   shell: |
     kubectl drain --force --ignore-daemonsets --grace-period 30 --timeout 60s --delete-emptydir-data {{ item }}
@@ -10,6 +22,19 @@
   with_items:
     - "{{ groups['servers'] }}"
     - "{{ groups['sensors'] }}"
+  when: node_check.stdout_lines|length > 2
+
+- name: Check for deployments
+  shell: |
+    kubectl get deployments
+  register: deploy_check
+  ignore_errors: yes
+  changed_when: False
+
+- name: Debug no deployments
+  debug:
+    msg: "No deployments detected, skipping reset of all deployments and resources"
+  when: deploy_check.stdout_lines|length == 0
 
 - name: Reset All
   shell: |
@@ -29,6 +54,18 @@
     - elasticsearch/operator.yml
     - cert_manager/ca_issuer.yml
     - cert_manager/operator.yml
+  when: deploy_check.stdout_lines|length > 0
+
+- name: Check for helm installs
+  shell: |
+    helm ls --all --short
+  register: helm_check
+  changed_when: False
+
+- name: Debug no helm installs
+  debug:
+    msg: "No helm installs detected, skipping removing helm installs"
+  when: helm_check.stdout_lines|length < 1
 
 - name: Remove all helm installs
   shell: |
@@ -36,6 +73,19 @@
   register: helm_ls
   changed_when: helm_ls.rc == 0
   ignore_errors: yes
+  when: helm_check.stdout_lines|length > 0
+
+- name: Check for secret
+  shell: |
+    kubectl get secret
+  register: secret_check
+  ignore_errors: yes
+  changed_when: False
+
+- name: Debug no webca secrets
+  debug:
+    msg: "No webca secrets detected, skipping clean up more stuff"
+  when: secret_check.stdout.find("webca") == -1
 
 - name: Clean up more stuff
   shell: |
@@ -46,3 +96,4 @@
   with_items:
     - webca-key-pair
     - webca-certificate
+  when: secret_check.stdout.find("webca") != -1
