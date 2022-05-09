@@ -28,6 +28,7 @@ Sync Zeek And Suricata Rulesets
     Edit Rule Set           Zeek Sample Scripts
     Add Rule Set            Zeek Integration Test Sample    Zeek Signatures
     Sync Rules
+    Delete Rule Set         Zeek Integration Test Sample
 
 Zeek Intel Script Upload
     [Tags]  THISISCVAH-12249
