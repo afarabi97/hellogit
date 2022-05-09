@@ -1,0 +1,36 @@
+---
+- name: Check hidden file for play for vmware
+  stat:
+    path: /operator/.DO_NOT_DELETE/.101
+  register: check_vmware
+
+- name: Validate vmware play hasn't been run before
+  include_tasks: 101_vmware.yml
+  when: not check_vmware.stat.exists
+
+- name: Check hidden file for play for chrome
+  stat:
+    path: /operator/.DO_NOT_DELETE/.102
+  register: check_chrome
+
+- name: Validate crhome play hasn't been run before
+  include_tasks: 102_chrome.yml
+  when: not check_chrome.stat.exists
+
+- name: Check hidden file for play for vscode
+  stat:
+    path: /operator/.DO_NOT_DELETE/.103
+  register: check_vscode
+
+- name: Validate vscode play hasn't been run before
+  include_tasks: 103_vscode.yml
+  when: not check_vscode.stat.exists
+
+- name: Check hidden file for play for gitkraken
+  stat:
+    path: /operator/.DO_NOT_DELETE/.104
+  register: check_gitkraken
+
+- name: Validate gitkraken play hasn't been run before
+  include_tasks: 104_gitkraken.yml
+  when: not check_gitkraken.stat.exists

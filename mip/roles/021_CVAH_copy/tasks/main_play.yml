@@ -12,9 +12,6 @@
     - /cvah/data/snort
     - /cvah/scripts
     - /cvah/vm
-  tags:
-    - CPT
-    - MDT
 
 - name: Change file ownership, group and permissions
   file:
@@ -22,24 +19,15 @@
     owner: "{{ user }}"
     group: "{{ operator_group }}"
     mode: '0770'
-  tags:
-    - CPT
-    - MDT
 
 - name: Create symlink to user Desktop
   file:
     src: /cvah
     dest: "{{ user_desktop }}/cvah"
     state: link
-  tags:
-    - CPT
-    - MDT
 
 - name: Create hidden file for validation if playbooks crash
   file:
     path: /operator/.DO_NOT_DELETE/.021
     state: touch
-  tags:
-    - CPT
-    - MDT
 ...

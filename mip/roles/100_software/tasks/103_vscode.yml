@@ -1,0 +1,32 @@
+---
+- name: Install visual studio code
+  dnf:
+    name: code
+    state: present
+
+- name: Copy vscode to desktop
+  copy:
+    src: "{{ application_path }}/{{ vscode_desktop_app }}"
+    dest: "{{ user_desktop }}"
+    remote_src: yes
+
+- name: Trust vscode application
+  become: yes
+  become_user: "{{ user }}"
+  command: /usr/bin/dbus-run-session gio set "{{ user_desktop }}/{{ vscode_desktop_app }}" 'metadata::trusted' true
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
+
+- name: Change vscode permissions
+  file:
+    path: "{{ user_desktop }}/{{ vscode_desktop_app }}"
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '0774'
+
+- name: Create hidden file for validation if playbooks crash
+  file:
+    path: /operator/.DO_NOT_DELETE/.103
+    state: touch
+...

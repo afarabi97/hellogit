@@ -1,2 +1,0 @@
-gitkraken_path: "{{ tmp_apps }}/{{ gitkraken_file }}"
-gitkraken_desktop_app: gitkraken.desktop

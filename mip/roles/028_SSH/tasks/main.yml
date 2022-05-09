@@ -7,8 +7,6 @@
   # Most keywords, including loops and conditionals, only applied to the imported tasks, not to this statement itself.
   # If you need any of those to apply, use M(include_tasks) instead.
   tags:
-    - MDT
-    - CPT
     - 028-SSH
 
 - name: Generate SSH keys
@@ -24,7 +22,5 @@
     # ssh_short_known_hosts: "{{ ssh_known_hosts | map('regex_replace','(\\.lan$)','' ) | list }}"
   import_tasks: generate_ssh_keys.yml
   tags:
-    - MDT
-    - CPT
     - 028-SSH
 ...

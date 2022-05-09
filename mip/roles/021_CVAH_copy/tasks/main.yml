@@ -3,14 +3,8 @@
   stat:
     path: /operator/.DO_NOT_DELETE/.021
   register: check
-  tags:
-    - CPT
-    - MDT
 
 - name: Validate play hasn't been run before
   include_tasks: main_play.yml
   when: not check.stat.exists
-  tags:
-    - CPT
-    - MDT
 ...

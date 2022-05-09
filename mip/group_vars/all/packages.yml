@@ -88,13 +88,7 @@ packages:
   - gnome-session-xsession
   - samba
   - putty
-
-dependent_packages:
-  - gtk3-immodule-xim
-  - libkadm5
-  - krb5-workstation
-
-cpt_packages:
+  #cpt required packages
   - container-selinux
   - containernetworking-plugins
   - containers-common
@@ -102,6 +96,11 @@ cpt_packages:
   - protobuf-c
   - criu
   - runc
+
+dependent_packages:
+  - gtk3-immodule-xim
+  - libkadm5
+  - krb5-workstation
 
 #tars
 mip_images_tar: MIP_Images_v1.tar

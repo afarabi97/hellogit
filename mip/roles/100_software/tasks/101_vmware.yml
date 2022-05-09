@@ -52,4 +52,9 @@
     state: stopped
     enabled: no
   when: ansible_virtualization_role == "guest" and "failed" in result.stdout
+
+- name: Create hidden file for validation if playbooks crash
+  file:
+    path: /operator/.DO_NOT_DELETE/.101
+    state: touch
 ...
