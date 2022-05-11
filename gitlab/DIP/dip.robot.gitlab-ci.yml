@@ -12,8 +12,7 @@ robot:sso_login:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; if [ $exit_code -ne 0 ]; then echo "The exit code is $exit_code"; fi;
-    /bin/cp -rf /usr/src/robot/output $build_path/
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -38,8 +37,7 @@ robot:catalog:independents:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; if [ $exit_code -ne 0 ]; then echo "The exit code is $exit_code"; fi;
-    /bin/cp -rf /usr/src/robot/output $build_path/
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -72,8 +70,7 @@ robot:catalog:community:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; if [ $exit_code -ne 0 ]; then echo "The exit code is $exit_code"; fi;
-    /bin/cp -rf /usr/src/robot/output $build_path/
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -106,8 +103,7 @@ robot:catalog:arkime:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; if [ $exit_code -ne 0 ]; then echo "The exit code is $exit_code"; fi;
-    /bin/cp -rf /usr/src/robot/output $build_path/
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -140,8 +136,7 @@ robot:catalog:CHM:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; if [ $exit_code -ne 0 ]; then echo "The exit code is $exit_code"; fi;
-    /bin/cp -rf /usr/src/robot/output $build_path/
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -175,8 +170,7 @@ robot:rulesets:sync:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; if [ $exit_code -ne 0 ]; then echo "The exit code is $exit_code"; fi;
-    /bin/cp -rf /usr/src/robot/output $build_path/
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -211,8 +205,7 @@ robot:elastic:elastic:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; if [ $exit_code -ne 0 ]; then echo "The exit code is $exit_code"; fi;
-    /bin/cp -rf /usr/src/robot/output $build_path/
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -237,8 +230,7 @@ robot:elastic:alerts:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; if [ $exit_code -ne 0 ]; then echo "The exit code is $exit_code"; fi;
-    /bin/cp -rf /usr/src/robot/output $build_path/
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -263,8 +255,7 @@ robot:add_virtual_sensor:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; if [ $exit_code -ne 0 ]; then echo "The exit code is $exit_code"; fi;
-    /bin/cp -rf /usr/src/robot/output $build_path/
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -289,8 +280,7 @@ robot:cleanup:virtual_sensor:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; if [ $exit_code -ne 0 ]; then echo "The exit code is $exit_code"; fi;
-    /bin/cp -rf /usr/src/robot/output $build_path/
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -318,8 +308,7 @@ robot:regression_testing:
       -v HOST_PASSWORD:$password \
       -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE \
-      -v CATEGORY:regression || exit_code=$?; if [ $exit_code -ne 0 ]; then echo "The exit code is $exit_code"; fi;
-    /bin/cp -rf /usr/src/robot/output $build_path/
+      -v CATEGORY:regression || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
