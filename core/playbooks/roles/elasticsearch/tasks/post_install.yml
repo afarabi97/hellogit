@@ -61,7 +61,6 @@
   with_items:
     - logstash_writer
     - logstash_monitor_writer
-    - arkime_writer
     - read_only
 
 - name: Set Logstash User Password
@@ -103,7 +102,6 @@
   with_items:
     - logstash_internal
     - logstash_monitor
-    - arkime
 
 - name: Load Index Policies
   uri:

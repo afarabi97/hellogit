@@ -2,6 +2,7 @@
 image: 'tfplenum/arkime'
 port: "8005"
 domain: lan
+python_image: tfplenum/python:{{ context["docker_versions"]["python_version"] }}
 auth_base: https://controller.lan/auth/realms/CVAH-SSO
 
 # Location of arkime dirs/files
@@ -21,7 +22,7 @@ maxESRequests: "500"
 packetsPerPoll: "500000"
 maxPacketsInQueue: "400000"
 es_user: arkime
-es_password: password
+es_password: "SK2snS121nsk12s"
 
 ### proxy info
 proxy:
@@ -29,4 +30,3 @@ proxy:
   version: {{ context["docker_versions"]["shibboleth_proxy_version"] }}
 
 serviceNode: false
-

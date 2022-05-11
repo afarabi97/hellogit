@@ -16,6 +16,96 @@ spec:
         component: {{ .Release.Name }}
         app: {{ .Release.Name }}
     spec:
+      initContainers:
+      - name: "arkime-user-setup"
+        image: "{{ .Values.python_image }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "python3 -u /arkime_init.py setup_user"
+        securityContext:
+          runAsUser: 0
+        env:
+        - name: ELASTIC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-es-elastic-user
+              key: elastic
+        - name: ARKIME_ES_PASSWORD
+          value: "{{ .Values.es_password }}"
+        - name: ELASTICSEARCH_FQDN
+          value: "elasticsearch.default.svc.cluster.local"
+        - name: ELASTICSEARCH_PORT
+          value: "9200"
+        volumeMounts:
+        - name: configini
+          subPath: arkime_init.py
+          mountPath: /arkime_init.py
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+      - name: "arkime-template-setup"
+        image: "{{ .Values.image }}:{{ .Values.version }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CONTAINER_TYPE
+          value: "BOOTSTRAP"
+        - name: ELASTICSEARCH_USERNAME
+          value: "{{ .Values.es_user }}"
+        - name: ELASTICSEARCH_PASSWORD
+          value: "{{ .Values.es_password }}"
+        - name: ELASTICSEARCH_FQDN
+          value: "elasticsearch.default.svc.cluster.local"
+        - name: ELASTICSEARCH_PORT
+          value: "9200"
+        - name: NUM_OF_SHARDS
+          value: "2"
+        - name: NUM_OF_REPLICAS
+          value: "1"
+        - name: SHARDS_PER_NODE
+          value: "1"
+        - name: FORCE_MERGE
+          value: "25h"
+        - name: DELETE
+          value: "60d"
+        - name: HISTORY
+          value: "30"
+        - name: ILM_REPLICAS
+          value: "1"
+        volumeMounts:
+        - name: configini
+          subPath: bootstrap_config.ini
+          mountPath: /data/moloch/etc/config.ini
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+      - name: "arkime-template-modifications"
+        image: "{{ .Values.python_image }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "python3 -u /arkime_init.py update_templates"
+        securityContext:
+          runAsUser: 0
+        env:
+        - name: ELASTIC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-es-elastic-user
+              key: elastic
+        - name: ELASTICSEARCH_FQDN
+          value: "elasticsearch.default.svc.cluster.local"
+        - name: ELASTICSEARCH_PORT
+          value: "9200"
+        volumeMounts:
+        - name: configini
+          subPath: arkime_init.py
+          mountPath: /arkime_init.py
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
       containers:
       - name: shibboleth-proxy
         image: "{{ .Values.proxy.image }}:{{ .Values.proxy.version }}"
