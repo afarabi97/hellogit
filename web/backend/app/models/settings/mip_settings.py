@@ -48,11 +48,11 @@ class MipSettingsSchema(Schema):
         validate_password_stigs(value)
 
     @validates("user_password")
-    def validate_password(self, value: str):
+    def validate_user_password(self, value: str):
         validate_password_stigs(value)
 
     @validates("luks_password")
-    def validate_password(self, value: str):
+    def validate_luks_password(self, value: str):
         validate_password_stigs(value)
 
 
