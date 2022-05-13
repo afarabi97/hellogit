@@ -278,9 +278,9 @@ class DriveHashCreationJob:
         with FabricConnectionWrapper(self._drive_hash_settings.username,
                                      self._drive_hash_settings.password,
                                      self._drive_hash_settings.ipaddress) as shell:
-            shell.run("sudo mount {}6 {}".format(self._drive_hash_settings.external_drive, self.xfs_data_path))
+            shell.sudo("mount {}6 {}".format(self._drive_hash_settings.external_drive, self.xfs_data_path))
             shell.run(self.xfs_data_path + "/validate_drive.sh")
-            shell.run("sudo umount {}6".format(self._drive_hash_settings.external_drive))
+            shell.sudo("umount {}6".format(self._drive_hash_settings.external_drive))
 
     def _create_verification_script(self):
         path = self.rsync_source + "/"

@@ -276,14 +276,13 @@ CPT:
     - Repo/CPT/Documentation/AppStore/File Checksum Integrity Verifier FCIV/master
     - Repo/CPT/Documentation/AppStore/FTKImager/4.5.0.3
     - Repo/CPT/Documentation/AppStore/Hashcat/6.2.4
-    - Repo/CPT/Documentation/AppStore/Nipper Studio/2.9.0
+    - Repo/CPT/Documentation/AppStore/Nipper Studio/2.12.1
     - Repo/CPT/Documentation/AppStore/Redline/2.0
     - Repo/CPT/Documentation/AppStore/RegRipper/master
     - Repo/CPT/Documentation/AppStore/Secure Host Baseline/2019
-    - Repo/CPT/Documentation/AppStore/Snowflake/3.0.0
+    - Repo/CPT/Documentation/AppStore/Snowflake/3.0.1
     - Repo/Shared/Documentation/AppStore/Grassmarlin/master
     - Repo/Shared/Documentation/AppStore/Metasponse/1.6.2.0
-    - Repo/Shared/Documentation/AppStore/nfdump/1.6.17
     - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     - Repo/Shared/Documentation/AppStore/sysinternals suite/master
@@ -377,7 +376,7 @@ MDT:
     - Repo/Shared/AppStore/Elastic Stack/7.16.2
     - Repo/Shared/AppStore/Grassmarlin/3.3
     - Repo/Shared/AppStore/Metasponse/1.6.2.0
-    - Repo/Shared/AppStore/nfDump/1.6.23
+    - Repo/Shared/AppStore/nfdump/1.6.23
     - Repo/Shared/AppStore/notepad++/8.1.4
     - Repo/Shared/AppStore/Powershell/7.1.4-1
     - Repo/Shared/AppStore/puTTY/0.76
@@ -413,7 +412,6 @@ MDT:
     - Repo/MDT/Documentation/AppStore/SCAP Compliance Checker/4.2
     - Repo/Shared/Documentation/AppStore/Grassmarlin/master
     - Repo/Shared/Documentation/AppStore/Metasponse/1.6.2.0
-    - Repo/Shared/Documentation/AppStore/nfdump/1.6.17
     - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     - Repo/Shared/Documentation/AppStore/sysinternals suite/master
