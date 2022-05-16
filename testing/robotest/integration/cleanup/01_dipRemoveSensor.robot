@@ -20,4 +20,5 @@ Remove Sensor - Virtual
     [Documentation]                                Logs in, goes to Node Management page and removes added virtual sensor(s)
     Set Selenium Speed                             0.5s
     Navigate To Node Management
-    Cleanup Virtual Sensors With The Name Robottest-node
+    Delete Node  text=robottest-sensor
+    Verify Node Was Deleted  robottest-sensor

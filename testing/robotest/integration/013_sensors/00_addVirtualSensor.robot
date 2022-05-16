@@ -20,5 +20,5 @@ Add Sensor - Virtual
     [Documentation]                            Logs in, goes to Node Management page and adds a virtual sensor node
     Set Selenium Speed                         0.5s
     Navigate To Node Management
-    Enter Virtual Sensor Information
-    Wait For 30m To Verify Sensor Was Added
+    Enter Virtual Node Information  node_type=sensor  hostname=robottest-sensor
+    Verify Node Was Added  robottest-sensor

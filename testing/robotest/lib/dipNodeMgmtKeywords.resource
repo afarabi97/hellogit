@@ -4,71 +4,71 @@ Resource    ../include/dipNodeMgmtVariables.resource
 Library    SeleniumLibrary    15s
 Library    SSHLibrary         15s
 Library    String
-Library    Collections
 
 *** Keywords ***
-Enter Virtual Sensor Information
-    [Documentation]    Opens the Add Node Dialog Button
-    ...                And Enters In The Appropriate Information
-    shoot              AddNode
-    click              ${locNodeMgmtAddNodeBtn}
-    ${node_name}       getItemFromLocCount                                 ${listLocNodeMgmtProgressBars}                 ${tmplTextnodeMgmtAddNodeHostname}    addend=1
-    type               ${locNodeMgmtHostnameInput}                         ${node_name}
-    shoot              AddNode
-    type               ${locNodeMgmtAddNodeDialogIpAddressInput}           ${txtNodeMgmtAddNodeDialogInitialIpAddress}
-    shoot              AddNode
-    click              ${locNodeMgmtAddNodeDialogIpAddressDropdownOpt1}
-    shoot              AddNode
-    click              ${locNodeMgmtAddNodeDialogSensorRadioBtn}
-    shoot              AddNode
-    scrollAndClick     ${locNodeMgmtAddNodeDialogVMRadioBtn}
-    shoot              AddNode
-    click              ${locNodeMgmtAddNodeDialogSubmitBtn}
-    shoot              AddNode
-    log                Enter Virtual Sensor Information was a success!
+Enter Virtual Node Information
+    [Arguments]         ${node_type}  ${hostname}
+    [Documentation]     Adds virtual node (server, sensor, service) to the DIP kit
+    ${node_exists} =  Check If Node Exists  ${hostname}
+    Return From Keyword If  ${node_exists}
+    log                 Entering node information in Add Node Dialog.
+    click               ${locNodeMgmtAddNodeBtn}
+    IF  '${node_type}' == 'server'
+        click           ${locNodeMgmtAddNodeDialogServerRadioBtn}
+    ELSE IF  '${node_type}' == 'sensor'
+        click           ${locNodeMgmtAddNodeDialogSensorRadioBtn}
+    ELSE IF  '${node_type}' == 'service'
+        click           ${locNodeMgmtAddNodeDialogServiceRadioBtn}
+    END
+    scrollAndClick      ${locNodeMgmtAddNodeDialogVMRadioBtn}
+    type                ${locNodeMgmtHostnameInput}                         ${hostname}
+    click               ${locNodeMgmtAddNodeDialogIpAddressInput}
+    click               ${locNodeMgmtAddNodeDialogIpAddressDropdownOpt1}
+    click               ${locNodeMgmtAddNodeDialogSubmitBtn}
+    log                 Completed entering virtual node information.
+    click               xpath=//snack-bar-container//button  # message at bottom
 
-Wait For ${wait_time} To Verify Sensor Was Added
+Check If Node Exists
+    [Arguments]  ${name}
+    lookForElement  ${locNodeHostnames}
+    ${node_name_loc} =  Catenate  SEPARATOR=  ${locNodeHostnames}  [contains(text(), '${name}')]
+    ${count} =  Get Element Count  ${node_name_loc}
+    IF  ${count} > 0
+        log  Node with name "${name}" already exists.
+        Return From Keyword  ${True}
+    END
+    Return From Keyword  ${False}
+
+Verify Node Was Added
+    [Arguments]  @{node_names}
     [Documentation]      Waits for a period of time to ensure
-    ...                  the newly added sensor has finish deploying
-    ${verify_element}    getItemFromLocCount                            ${listLocNodeMgmtProgressBars}    ${tmplLocNodeMgmtProgressBar}
-    lookForElement       ${verify_element}                              timeout=${wait_time}
-    shoot                AddNode
-    log                  Add Virtual Sensor was a success!
+    ...                  the newly added node has finish deploying
+    FOR  ${node}  IN  @{node_names}
+        log                  Verifying node was added: ${node}
+        ${verify_element}    inject  ${tmplLocNodeMgmtProgressBar}  ${node}
+        lookForElement       ${verify_element}  timeout=30m
+        log                  Add Virtual Node was a success!
+    END
 
-Cleanup Virtual Sensors With The Name ${text}
-    [Documentation]    Cleans up virtual sensors whose
-    ...                name contains the passed in text.
+Delete Node
+    [Arguments]  ${text}
+    [Documentation]    Deletes node with hostname passed in as ${text}.
     ...                Change text to a specific name to
     ...                use it a single node
-    log                Cleaning up the virtual sensor
+    log                Cleaning up the virtual nodes
     shoot              AddNodeCleanup
-    ${node_name}       lower                                ${text}
-    # elem_obj could be a list, str, or None
-    ${holder}          inject                               ${tmplListLocRobotTestCleanupDeleteBtn}    ${node_name}
-    log                Fetching holders elements
-    ${delBtns}         Get WebElements                      ${holder}
-    ${delBtns_type}    getType                              ${delBtns}
-
-    IF      '${delBtns_type}' == 'list'
-        ${delBtns_length}        Get Length       ${delBtns}
-        ${wait_time}        Evaluate    $delBtns_length * 360
-        log        We have a list of length ${delBtns_length}
-        FOR  ${delete_button}  IN  @{delBtns}
-            click               ${delete_button}
-            shoot               AddNodeCleanup
-            click               ${locNodeMgmtAddNodeDoubleConfirmDeleteBtn}
-            shoot               AddNodeCleanup
-        END
-        log        Cleaning ${delBtns_length} Sensors
-        IF        $delBtns_length > 0
-            log         Waiting for ${wait_time} seconds!
-            gone        ${node_name}                                   wait_time=${wait_time}
-        END
+    ${node_name} =  lower  ${text}
+    ${delete_button} =  inject  ${tmplListLocRobotTestCleanupDeleteBtn}  ${node_name}
+    ${count} =  Get Element Count  ${delete_button}
+    IF  ${count} > 0
+        click  ${delete_button}
+        click  ${locNodeMgmtAddNodeDoubleConfirmDeleteBtn}
     END
-    log        Sensor Cleanup Complete
 
-
-
-
-
-
+Verify Node Was Deleted
+    [Arguments]  @{node_names}
+    FOR  ${node}  IN  @{node_names}
+        log  Waiting for node to be deleted: ${node}
+        gone  ${node}  wait_time=10m
+        log  Delete Node was a success!
+    END

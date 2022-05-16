@@ -389,25 +389,6 @@ assertText
     Page Should Contain     ${text}
     log     "Page Contains: ${text}"
 
-getItemFromLocCount
-    [Documentation]     Stringifies the ${sum} of ${times_list_element_seen} + ${addend} and replaces
-    ...                 chars matching ${char_pattern} in ${template_object} with the result. Change
-    ...                 the ${addend} to 0 in order to return the original ${times_list_element_seen}.
-    ...                 By Default the ${addend} is -1 in order to make the result "array friendly".
-    ...                 Returns ${desired_item}
-    [Arguments]     ${list_element}     ${template_object}     ${char_pattern}=${DEFUALT_REPLACEMENT_PATTERN}  ${addend}=-1    ${wait_time}=30s
-    log                 Finding how many times ${list_element} is seen on the page
-    lookForElement      ${list_element}     timeout=${wait_time}
-    ${times_list_element_seen}    Get Element Count    ${list_element}
-    log                 Element ${list_element} is seen ${times_list_element_seen} times!
-    log                 Calculating the the sum
-    ${sum}              Evaluate    ${times_list_element_seen} + ${addend}
-    log                 The sum is ${sum}
-    log                 If this is unnsuccessful try changing the addend variable to 0
-    ${replace_with}     Convert To String   ${sum}
-    ${desired_item}     Replace String  ${template_object}   ${DEFUALT_REPLACEMENT_PATTERN}  ${replace_with}
-    [Return]            ${desired_item}
-
 log
     [Arguments]     ${text}    ${isError}=False
     loggy_obj.loggy     ${text}    ${isError}
