@@ -8,6 +8,7 @@ from datetime import datetime
 from glob import glob
 from pathlib import Path
 from typing import Dict
+from xmlrpc.client import Boolean
 
 import kubernetes.client
 import yaml
@@ -33,7 +34,7 @@ from app.service.tools_service import check_minio_conn
 from app.utils.collections import mongo_catalog_saved_values
 from app.utils.connection_mngs import FabricConnection, KubernetesWrapper
 from app.utils.constants import TFPLENUM_CONFIGS_PATH
-from app.utils.logging import logger
+from app.utils.logging import rq_logger
 from fabric.runners import Result
 from flask import Response, request
 from flask_restx import Resource
@@ -46,10 +47,120 @@ from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
 _JOB_NAME = "tools"
+DEPLYMENT_TYPE_ISO = "Iso"
 
+
+upload_parser = TOOLS_NS.parser()
+upload_parser.add_argument(
+    "upload_file", location="files", type=FileStorage, required=True
+)
+upload_parser.add_argument(
+    "space_name",
+    type=str,
+    required=True,
+    location="form",
+    help="The name of the confluence space or some other arbirtrary name.",
+)
+
+
+def check_if_node_is_remote(hostname: str) -> Boolean:
+    node = Node.load_from_db_using_hostname(hostname)  # type: Node
+    if node:
+        return node.deployment_type == DEPLYMENT_TYPE_ISO
+    return False
+
+
+def update_password(config: Dict, password):
+    config.password = password
+    config.save_to_db()
+
+
+def validate_es_license_json(license: dict) -> bool:
+    keys = [
+        "uid",
+        "type",
+        "issue_date_in_millis",
+        "expiry_date_in_millis",
+        "issued_to",
+        "issuer",
+        "signature",
+        "start_date_in_millis"
+    ]
+    return license.get("license", None) is not None and all(
+        x in license["license"].keys() for x in keys
+    )
+
+
+def retrieve_service_ip_address(service_name: str) -> str:
+    with KubernetesWrapper() as kube_apiv1:
+        svcs = kube_apiv1.list_namespaced_service(
+            "default")  # type: V1ServiceList
+        for svc in svcs.items:  # type: V1Service
+            if svc.metadata.name == service_name:
+                return svc.status.load_balancer.ingress[0].ip
+
+    raise KubernetesError("Failed to find passed in Kubernetes service ip.")
 
 class AmmendedPasswordNotFound(Exception):
     pass
+
+
+class KubernetesError(Exception):
+    pass
+
+
+class RemoteNetworkDevice(object):
+    def __init__(self, node, device):
+        self._node = node
+        self._device = device
+
+    def _is_link_up(self, shell: FabricConnection) -> bool:
+        cmd = 'ethtool {} | grep "Link detected: yes"'.format(self._device)
+        print(cmd)
+        result = shell.run(cmd, warn=True, shell=True)
+        return result.return_code == 0
+
+    def set_up(self):
+        with FabricConnection(self._node) as shell:
+            result = shell.run(
+                "bash -c 'ip link set {} up'".format(self._device))
+            link_up = self._is_link_up(shell)
+            if result.return_code == 0:
+                return NetworkDeviceStateModel(
+                    self._node, self._device, "up", link_up
+                ).to_dict()
+            else:
+                return {}
+
+    def down(self):
+        with FabricConnection(self._node) as shell:
+            result = shell.run(
+                "bash -c 'ip link set {} down'".format(self._device))
+            link_up = self._is_link_up(shell)
+            if result.return_code == 0:
+                return NetworkDeviceStateModel(
+                    self._node, self._device, "down", link_up
+                ).to_dict()
+            else:
+                return {}
+
+    def get_state(self):
+        with FabricConnection(self._node) as shell:
+            result = shell.run(
+                "bash -c 'ip address show {} up'".format(self._device))
+            link_up = self._is_link_up(shell)
+            if result.return_code == 0:
+                if result.stdout == "":
+                    return NetworkDeviceStateModel(
+                        self._node, self._device, "down", link_up
+                    ).to_dict()
+                else:
+                    return NetworkDeviceStateModel(
+                        self._node, self._device, "up", link_up
+                    ).to_dict()
+            else:
+                return {}
+
 
 
 @TOOLS_NS.route("/controller/datetime")
@@ -76,20 +187,15 @@ class CurrentTime(Resource):
         return CurrentTimeMdl(timezone, date_stdout.replace("\n", "")).to_dict()
 
 
-def update_password(config: Dict, password):
-    config.password = password
-    config.save_to_db()
-
-
 @TOOLS_NS.route("/change-kit-password")
 class ChangeKitPassword(Resource):
     @TOOLS_NS.doc(description="Changes the Kit's ssh root/password on all nodes.")
     @TOOLS_NS.expect(NewPasswordModel.DTO)
     @TOOLS_NS.response(200, "Success Message", COMMON_SUCCESS_MESSAGE)
+    @TOOLS_NS.response(403, "Authentication failure on Node", Node.DTO)
+    @TOOLS_NS.response(404, "Kit config not found.", COMMON_ERROR_MESSAGE)
     @TOOLS_NS.response(409, "Password has already been used. You must try another password.", COMMON_ERROR_MESSAGE)
     @TOOLS_NS.response(500, "Internal Server Error", COMMON_ERROR_MESSAGE)
-    @TOOLS_NS.response(404, "Kit config not found.", COMMON_ERROR_MESSAGE)
-    @TOOLS_NS.response(403, "Authentication failure on Node", Node.DTO)
     @controller_maintainer_required
     def post(self):
         model = NewPasswordModel(TOOLS_NS.payload["root_password"])
@@ -118,23 +224,10 @@ class ChangeKitPassword(Resource):
                             return {"error_message": "Internal Server Error"}, 500
 
             except AuthenticationException:
-                return node.to_dict(), 403
+                return { "error_message": "Authentication failure. Check the ssh key on the controller." }, 403
 
         update_password(current_config, model.root_password)
         return {"success_message": "Successfully changed the password of your Kit!"}
-
-
-upload_parser = TOOLS_NS.parser()
-upload_parser.add_argument(
-    "upload_file", location="files", type=FileStorage, required=True
-)
-upload_parser.add_argument(
-    "space_name",
-    type=str,
-    required=True,
-    location="form",
-    help="The name of the confluence space or some other arbirtrary name.",
-)
 
 
 @TOOLS_NS.route("/documentation/upload")
@@ -193,22 +286,6 @@ class UpdateDocs(Resource):
         return {"success_message": "Successfully updated confluence documentation!"}
 
 
-def validate_es_license_json(license: dict) -> bool:
-    keys = [
-        "uid",
-        "type",
-        "issue_date_in_millis",
-        "expiry_date_in_millis",
-        "issued_to",
-        "issuer",
-        "signature",
-        "start_date_in_millis",
-    ]
-    return license.get("license", None) is not None and all(
-        x in license["license"].keys() for x in keys
-    )
-
-
 @TOOLS_NS.route("/es_license")
 class ElasticLicense(Resource):
     @TOOLS_NS.doc(description="Update Elasticsearch license.")
@@ -263,9 +340,9 @@ class ElasticLicense(Resource):
                             secret.metadata.name, namespace
                         )
             except ApiException as e:
-                logger.exception(e)
+                rq_logger.exception(e)
                 return {
-                    "error_message": "Something went wrong saving the Elastic license.  See the logs."
+                    "error_message": "Something went wrong saving the Elastic license. See the logs."
                 }, 500
         check_elastic_license.delay(current_license=current_license)
         return {
@@ -280,9 +357,9 @@ class ElasticLicense(Resource):
         try:
             return get_elasticsearch_license(), 200
         except Exception as e:
-            logger.exception(e)
+            rq_logger.exception(e)
             return {
-                "error_message": "Something went wrong getting the Elastic license.  See the logs."
+                "error_message": "Something went wrong getting the Elastic license.\nSee the logs."
             }, 500
 
 
@@ -303,74 +380,6 @@ class GetSpaces(Resource):
             return []
 
 
-class KubernetesError(Exception):
-    pass
-
-
-def retrieve_service_ip_address(service_name: str) -> str:
-    with KubernetesWrapper() as kube_apiv1:
-        svcs = kube_apiv1.list_namespaced_service(
-            "default")  # type: V1ServiceList
-        for svc in svcs.items:  # type: V1Service
-            if svc.metadata.name == service_name:
-                return svc.status.load_balancer.ingress[0].ip
-
-    raise KubernetesError("Failed to find passed in Kubernetes service ip.")
-
-
-class RemoteNetworkDevice(object):
-    def __init__(self, node, device):
-        self._node = node
-        self._device = device
-
-    def _is_link_up(self, shell: FabricConnection) -> bool:
-        cmd = 'ethtool {} | grep "Link detected: yes"'.format(self._device)
-        print(cmd)
-        result = shell.run(cmd, warn=True, shell=True)
-        return result.return_code == 0
-
-    def set_up(self):
-        with FabricConnection(self._node) as shell:
-            result = shell.run(
-                "bash -c 'ip link set {} up'".format(self._device))
-            link_up = self._is_link_up(shell)
-            if result.return_code == 0:
-                return NetworkDeviceStateModel(
-                    self._node, self._device, "up", link_up
-                ).to_dict()
-            else:
-                return {}
-
-    def down(self):
-        with FabricConnection(self._node) as shell:
-            result = shell.run(
-                "bash -c 'ip link set {} down'".format(self._device))
-            link_up = self._is_link_up(shell)
-            if result.return_code == 0:
-                return NetworkDeviceStateModel(
-                    self._node, self._device, "down", link_up
-                ).to_dict()
-            else:
-                return {}
-
-    def get_state(self):
-        with FabricConnection(self._node) as shell:
-            result = shell.run(
-                "bash -c 'ip address show {} up'".format(self._device))
-            link_up = self._is_link_up(shell)
-            if result.return_code == 0:
-                if result.stdout == "":
-                    return NetworkDeviceStateModel(
-                        self._node, self._device, "down", link_up
-                    ).to_dict()
-                else:
-                    return NetworkDeviceStateModel(
-                        self._node, self._device, "up", link_up
-                    ).to_dict()
-            else:
-                return {}
-
-
 @TOOLS_NS.route("/<node>/set-interface-state/<device>/<state>")
 class ChangeStateOfRemoteNetworkDevice(Resource):
     @TOOLS_NS.doc(
@@ -386,9 +395,7 @@ class ChangeStateOfRemoteNetworkDevice(Resource):
         },
     )
     @TOOLS_NS.response(200, "NetworkDeviceState", NetworkDeviceStateModel.DTO)
-    @TOOLS_NS.response(
-        500, "Errors with no message.  Check logs /var/log/tfplenum/ for more details."
-    )
+    @TOOLS_NS.response(500, "ErrorMessage: Something went wrong", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
     def put(self, node: str, device: str, state: str):
         device = RemoteNetworkDevice(node, device)
@@ -397,24 +404,22 @@ class ChangeStateOfRemoteNetworkDevice(Resource):
             if result:
                 return result
             else:
-                return ERROR_RESPONSE
+                return { "error_message": "Something went wrong. Check logs /var/log/tfplenum/ for more details." }, 500
 
         if state == "down":
             result = device.down()
             if result:
                 return result
             else:
-                return ERROR_RESPONSE
+                return { "error_message": "Something went wrong. Check logs /var/log/tfplenum/ for more details." }, 500
 
-        return ERROR_RESPONSE
+        return { "error_message": "Something went wrong. Check logs /var/log/tfplenum/ for more details." }, 500
 
 
 @TOOLS_NS.route("/monitoring-interfaces")
 class MonitoringInterfaces(Resource):
+    @TOOLS_NS.doc(description="Retrieves a list of node hostnames with their associated network interfaces.")
     @TOOLS_NS.response(200, "InitialDeviceStates", [InitialDeviceStatesModel.DTO])
-    @TOOLS_NS.doc(
-        description="Retrieves a list of node hostnames with their associated network interfaces."
-    )
     def get(self):
         nodes = {}
         applications = ["arkime", "zeek", "suricata"]
@@ -447,17 +452,16 @@ class MonitoringInterfaces(Resource):
                 except KeyError:
                     inital_states.add_interface(
                         NetworkInterfaceModel(interface))
-            result.append(inital_states.to_dict())
+            if check_if_node_is_remote(hostname):
+                result.append(inital_states.to_dict())
 
         return result
 
 
 @TOOLS_NS.route("/ifaces/<hostname>")
 class AllIfaces(Resource):
+    @TOOLS_NS.doc(description="Retrieves a list of network interfaces with their states.")
     @TOOLS_NS.response(200, "InitialDeviceStates", [NetworkInterfaceModel.DTO])
-    @TOOLS_NS.doc(
-        description="Retrieves a list of network interfaces with their states."
-    )
     def get(self, hostname: str):
         node = Node.load_from_db_using_hostname(hostname)
         result = []
@@ -503,7 +507,7 @@ class ElasticDeploy(Resource):
                     scale.create(d)
             return {"success_message": "Deploy config successfully loaded."}
         except Exception as e:
-            logger.exception(e)
+            rq_logger.exception(e)
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_message(str(e))
             notification.post_to_websocket_api()
@@ -523,10 +527,10 @@ class ElasticDeploy(Resource):
         return ERROR_RESPONSE
 
 
-@TOOLS_NS.route("/snapshot")
+# Unused on front-end may be able to be deleted from back-end
+@TOOLS_NS.route("/repo-settings-snapshot")
 class ElasticSnapshot(Resource):
     @TOOLS_NS.doc(description="Enable elastic snapshot for minio.")
-    @TOOLS_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
     @TOOLS_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @TOOLS_NS.response(403, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @TOOLS_NS.expect(RepoSettingsModel.DTO)
@@ -541,7 +545,7 @@ class ElasticSnapshot(Resource):
         except ConnectionError as e:
             return {"error_message": "Connection to Repo failed. Check Repo IP Address and username/password."}, 403
         except Exception as e:
-            logger.exception(e)
+            rq_logger.exception(e)
             return {"error_message": str(e)}, 400
         else:
             elasticsearch_ip = retrieve_service_ip_address("elasticsearch")

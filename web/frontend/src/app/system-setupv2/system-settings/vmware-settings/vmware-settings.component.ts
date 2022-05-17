@@ -1,14 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators, AbstractControl } from '@angular/forms';
-import { MatCheckboxChange } from '@angular/material/checkbox';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
+
 import { MatSnackBarService } from '../../../services/mat-snackbar.service';
-import { validateFromArray, AllValidationErrors, FormGroupControls, getFormValidationErrors } from '../../../validators/generic-validators.validator';
-import { vmwareSettingsValidators } from '../../validators/kit-setup-validators';
-import { KitSettingsService } from '../../services/kit-settings.service';
 import { UserService } from '../../../services/user.service';
-import { ToolsService } from '../../services/tools.service';
+import { validateFromArray } from '../../../validators/generic-validators.validator';
 import { VmwareData } from '../../models/kit';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { KitSettingsService } from '../../services/kit-settings.service';
+import { vmwareSettingsValidators } from '../../validators/kit-setup-validators';
 
 
 @Component({
@@ -26,7 +24,6 @@ export class VMWareSettingsComponent implements OnInit {
     vmwareData: Partial<VmwareData> = {};
 
     constructor(private matSnackBarSrv: MatSnackBarService,
-                private toolsSrv: ToolsService,
                 private userService: UserService,
                 private kitSettingsSvc: KitSettingsService) {
                   this.isTestVmwareSettingsBtnEnabled = true;

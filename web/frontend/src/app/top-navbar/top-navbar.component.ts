@@ -2,20 +2,20 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@ang
 import { forkJoin, interval, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { ObjectUtilitiesClass, KitStatusClass } from '../classes';
+import { KitStatusClass, ObjectUtilitiesClass } from '../classes';
+import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../constants/cvah.constants';
 import { returnDate } from '../functions/cvah.functions';
 import { NotificationsComponent } from '../modules/notifications/notifications.component';
 import { CookieService } from '../services/cookies.service';
+import { GlobalToolsService } from '../services/global-tools.service';
+import { MatSnackBarService } from '../services/mat-snackbar.service';
 import { UserService } from '../services/user.service';
-import { ToolsService } from '../modules/tools/services/tools.service';
+import { WebsocketService } from '../services/websocket.service';
+import { KitSettingsService } from '../system-setupv2/services/kit-settings.service';
 import { DIPTimeClass } from './classes/dip-time.class';
 import { getSideNavigationButtons } from './functions/navbar.functions';
 import { NavGroupInterface } from './interfaces';
 import { NavBarService } from './services/navbar.service';
-import { KitSettingsService } from '../system-setupv2/services/kit-settings.service';
-import { WebsocketService } from '../services/websocket.service';
-import { MatSnackBarService } from '../services/mat-snackbar.service';
-import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../constants/cvah.constants';
 
 /**
  * Component used for top navbar related functionality
@@ -50,7 +50,7 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
    * Creates an instance of TopNavbarComponent.
    *
    * @param {CookieService} cookieService_
-   * @param {ToolsService} toolService_
+   * @param {ToolsService} global_tools_service_
    * @param {NavBarService} navBarService_
    * @param {UserService} userService_
    * @param {KitService} kitService_
@@ -58,7 +58,7 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
    * @memberof TopNavbarComponent
    */
   constructor(private cookieService_: CookieService,
-              private toolService_: ToolsService,
+              private global_tools_service_: GlobalToolsService,
               private navBarService_: NavBarService,
               private userService_: UserService,
               private changeDetectorRef_: ChangeDetectorRef,
@@ -135,7 +135,7 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   buildNavBar(): void {
     this.sideNavigationButtons = getSideNavigationButtons(this.userService_, false, []);
     this.changeDetectorRef_.detectChanges();
-    forkJoin({ htmlSpaces: this.toolService_.getSpaces(), kitData: this.kitSettingsSrv.getKitStatus() })
+    forkJoin({ htmlSpaces: this.global_tools_service_.get_spaces(), kitData: this.kitSettingsSrv.getKitStatus() })
       .pipe(takeUntil(this.ngUnsubscribe$_))
       .subscribe((data: { htmlSpaces: string[]; kitData: KitStatusClass}) => {
         this.htmlSpaces = data.htmlSpaces;

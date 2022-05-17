@@ -69,6 +69,9 @@ export const environment = {
 
   GLOBAL_PCAP_SERVICE_GET_PCAPS: `/api/policy/pcaps`,
 
+  GLOBAL_TOOLS_SERVICE_GET_SPACES: `/api/tools/spaces`,
+  GLOBAL_TOOLS_SERVICE_GET_IFACE_STATES: `/api/tools/ifaces/`,
+
   PCAP_SERVICE_BASE: `/api/policy/pcap/`,
   PCAP_SERVICE_UPLOAD_PCAP: `/api/policy/pcap/upload`,
   PCAP_SERVICE_REPLAY_PCAP: `/api/policy/pcap/replay`,
@@ -77,13 +80,12 @@ export const environment = {
   PORTAL_SERVICE_ADD_USER_LINK: `/api/portal/user/links`,
   PORTAL_SERVICE_REMOVE_USER_LINK: `/api/portal/user/links/`,
   PORTAL_SERVICE_GET_USER_LINKS: `/api/portal/user/links`,
-  TOOLS_SERVICE_CHANGE_KIT_CLOCK: `/api/tools/change_kit_clock`,
+
   TOOLS_SERVICE_CHANGE_KIT_PASSWORD: `/api/tools/change-kit-password`,
   TOOLS_SERVICE_UPLOAD_DOCUMENTATION: `/api/tools/documentation/upload`,
-  TOOLS_SERVICE_ES_LICENSE: `/api/tools/es_license`,
-  TOOLS_SERVICE_GET_SPACES: `/api/tools/spaces`,
   TOOLS_SERVICE_MONITORING_INTERFACE: `/api/tools/monitoring-interfaces`,
-  TOOLS_SERVICE_CONFIGURE_REPOSITORY: `/api/tools/snapshot`,
+  TOOLS_SERVICE_REPO_SETTINGS_SNAPSHOT: `/api/tools/repo-settings-snapshot`,
+  TOOLS_SERVICE_ES_LICENSE: `/api/tools/es_license`,
 
   NAV_BAR_SERVICE_GET_CURRENT_DIP_TIME: `/api/tools/controller/datetime`,
 

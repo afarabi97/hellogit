@@ -7,19 +7,6 @@ import { Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import {
-  CONTINUE_DIALOG_OPTION,
-  DIALOG_HEIGHT_90VH,
-  DIALOG_WIDTH_35PERCENT,
-  DIALOG_WIDTH_80VW,
-  MAT_SNACKBAR_CONFIGURATION_60000_DUR,
-  MAT_SNACKBAR_CONFIGURATION_60000_DUR_OK,
-  TAKE_ME_BACK_DIALOG_OPTION
-} from '../../../../../../src/app/constants/cvah.constants';
-import {
-  NGXMonacoTextEditorComponent
-} from '../../../../../../src/app/modules/ngx-monaco-text-editor/ngx-monaco-text-editor.component';
-import { MatSnackBarService } from '../../../../../../src/app/services/mat-snackbar.service';
-import {
   ChartClass,
   ChartInfoClass,
   ErrorMessageClass,
@@ -33,6 +20,15 @@ import {
 } from '../../../../classes';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import {
+  CONTINUE_DIALOG_OPTION,
+  DIALOG_HEIGHT_90VH,
+  DIALOG_WIDTH_35PERCENT,
+  DIALOG_WIDTH_80VW,
+  MAT_SNACKBAR_CONFIGURATION_60000_DUR,
+  MAT_SNACKBAR_CONFIGURATION_60000_DUR_OK,
+  TAKE_ME_BACK_DIALOG_OPTION
+} from '../../../../constants/cvah.constants';
+import {
   CatalogHelmActionInterface,
   ConfirmDialogMatDialogDataInterface,
   GenerateFileInterface,
@@ -40,8 +36,10 @@ import {
   TextEditorConfigurationInterface
 } from '../../../../interfaces';
 import { CatalogService } from '../../../../services/catalog.service';
+import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { SortingService } from '../../../../services/sorting.service';
-import { ToolsService } from '../../../tools/services/tools.service';
+import { NGXMonacoTextEditorComponent } from '../../../ngx-monaco-text-editor/ngx-monaco-text-editor.component';
+import { GlobalToolsService } from '../../../../services/global-tools.service';
 import {
   CLOSE_CONFIRM_ACTION_CONFIGURATION,
   DEPLOYED,
@@ -118,9 +116,9 @@ export class CatalogPageComponent implements OnInit {
    * @param {Router} router_
    * @param {MatDialog} mat_dialog_
    * @param {CatalogService} catalog_service_
+   * @param {GlobalToolsService} global_tools_service_
    * @param {MatSnackBarService} mat_snackbar_service_
    * @param {SortingService} sorting_service_
-   * @param {ToolsService} tools_service_
    * @memberof CatalogPageComponent
    */
   constructor(private change_detector_ref_: ChangeDetectorRef,
@@ -128,9 +126,9 @@ export class CatalogPageComponent implements OnInit {
               private router_: Router,
               private mat_dialog_: MatDialog,
               private catalog_service_: CatalogService,
+              private global_tools_service_: GlobalToolsService,
               private mat_snackbar_service_: MatSnackBarService,
-              private sorting_service_: SortingService,
-              private tools_service_: ToolsService) {
+              private sorting_service_: SortingService) {
     this.catalog_page_component_class_ = HOST_BINDING_CLASS_CATALOG_PAGE_COMPONENT;
     this.is_linear = true;
     this.server_any_value = SERVER_ANY_VALUE;
@@ -1102,7 +1100,7 @@ export class CatalogPageComponent implements OnInit {
    * @memberof CatalogPageComponent
    */
   private api_get_iface_states_(node: NodeClass): void {
-    this.tools_service_.get_iface_states(node.hostname)
+    this.global_tools_service_.get_iface_states(node.hostname)
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: IFACEStateClass[]) => {

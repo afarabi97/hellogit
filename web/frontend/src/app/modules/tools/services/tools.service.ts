@@ -1,26 +1,37 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
-import { IFACEStateClass } from '../../../classes';
-import { EntityConfig } from '../../../interfaces';
+import { GenericJobAndKeyClass, SuccessMessageClass } from '../../../classes';
+import { EntityConfig, GenericJobAndKeyInterface, SuccessMessageInterface } from '../../../interfaces';
 import { ApiService } from '../../../services/abstract/api.service';
+import { ElasticLicenseClass } from '../classes/elastic-license.class';
+import { InitialDeviceStateClass } from '../classes/initial-device-state.class';
+import { NetworkDeviceStateClass } from '../classes/network-device-state.class';
+import { ElasticLicenseInterface } from '../interfaces/elastic-license.interface';
+import { InitialDeviceStateInterface } from '../interfaces/initial-device-states.interface';
+import { KitPasswordInterface } from '../interfaces/kit-password.interface';
+import { NetworkDeviceStateInterface } from '../interfaces/network-device-state.interface';
+import { RepoSettingsSnapshotInterface } from '../interfaces/repo-settings-snapshot.interface';
+import { ToolsServiceInterface } from '../interfaces/service-interfaces/tools-service.interface';
 
 const entityConfig: EntityConfig = { entityPart: '', type: 'ToolsService' };
 
+
 /**
- * Service used for various toll related rest calls
+ * Service used for various tool related rest calls
  *
  * @export
  * @class ToolsService
  * @extends {ApiService<any>}
+ * @implements {ToolsServiceInterface}
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: null
 })
-export class ToolsService extends ApiService<any> {
-  /**TODO - Add object structures, return types, method types interfaces, service interface */
+export class ToolsService extends ApiService<any> implements ToolsServiceInterface {
 
   /**
    * Creates an instance of ToolsService.
@@ -31,124 +42,96 @@ export class ToolsService extends ApiService<any> {
     super(entityConfig);
   }
 
-  /**
-   * REST call POST kit clock change
-   *
-   * @param {Object} timeObj
-   * @returns
-   * @memberof ToolsService
-   */
-  changeKitClock(timeObj: Object) {
-    return this.httpClient_.post(environment.TOOLS_SERVICE_CHANGE_KIT_CLOCK, timeObj)
-                           .pipe(catchError((err: any) => this.handleError('change_kit_clock', err)));
+   /**
+    * REST call to POST change kit password
+    *
+    * @param {KitPasswordInterface} kit_password
+    * @return {Observable<SuccessMessageClass>}
+    * @memberof ToolsService
+    */
+   change_kit_password(kit_password: KitPasswordInterface): Observable<SuccessMessageClass> {
+    return this.httpClient_.post<SuccessMessageInterface>(environment.TOOLS_SERVICE_CHANGE_KIT_PASSWORD, kit_password)
+      .pipe(map((response: SuccessMessageInterface) => new SuccessMessageClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('change kit passowrd', error)));
   }
 
   /**
-   * REST call to POST kit password
+   * REST call to PUT change remote network device state
    *
-   * @param {Object} passwordForm
-   * @param {Array<Object>} amendedPasswords
-   * @returns
-   * @memberof ToolsService
-   */
-  changeKitPassword(passwordForm: Object) {
-    delete passwordForm["re_password"];
-    return this.httpClient_.post(environment.TOOLS_SERVICE_CHANGE_KIT_PASSWORD, passwordForm)
-                           .pipe(catchError((err: any) => this.handleError('change-kit-password', err)));
-  }
-
-  /**
-   * REST call to POST an upload document
-   *
-   * @param {File} space_file
-   * @param {string} space_name
-   * @returns {Observable<Object>}
-   * @memberof ToolsService
-   */
-  uploadDocumentation(space_file: File, space_name: string): Observable<Object> {
-    const formData = new FormData();
-    formData.append('upload_file', space_file, space_file.name);
-    formData.append('space_name', space_name);
-
-    return this.httpClient_.post(environment.TOOLS_SERVICE_UPLOAD_DOCUMENTATION, formData)
-                           .pipe(catchError((err: any) => this.handleError('update_documentation', err)));
-  }
-
-  /**
-   * REST call to GET spaces
-   *
-   * @returns {Observable<string[]>}
-   * @memberof ToolsService
-   */
-  getSpaces(): Observable<string[]>{
-    return this.httpClient_.get<string[]>(environment.TOOLS_SERVICE_GET_SPACES, {})
-                           .pipe(catchError((err: any) => this.handleError('spaces', err)));
-  }
-
-  /**
-   * REST call to POST change state of network device
-   *
-   * @param {string} node
+   * @param {string} hostname
    * @param {string} device
    * @param {string} state
-   * @returns {Observable<Object>}
+   * @return {Observable<NetworkDeviceStateClass>}
    * @memberof ToolsService
    */
-  changStateofRemoteNetworkDevice(node: string, device: string, state: string): Observable<Object> {
-    const url = `/api/${node}/set-interface-state/${device}/${state}`;
+  change_remote_network_device_state(hostname: string, device: string, state: string): Observable<NetworkDeviceStateClass> {
+    const url: string = `/api/${hostname}/set-interface-state/${device}/${state}`;
 
-    return this.httpClient_.put(url, {})
-                           .pipe(catchError((err: any) => this.handleError(`${node}/set-interface-state/${device}/${state}`, err)));
+    return this.httpClient_.put<NetworkDeviceStateInterface>(url, {})
+      .pipe(map((response: NetworkDeviceStateInterface) => new NetworkDeviceStateClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('change remote network device state', error)));
   }
 
   /**
-   * REST call to GET monitoring interface
+   * REST call to GET initial device states
    *
-   * @returns {Observable<Object>}
+   * @return {Observable<InitialDeviceStateClass[]>}
    * @memberof ToolsService
    */
-  getMonitoringInterfaces(): Observable<Object> {
-    return this.httpClient_.get(environment.TOOLS_SERVICE_MONITORING_INTERFACE)
-                           .pipe(catchError((err: any) => this.handleError('monitoring-interfaces', err)));
-  }
-
-  get_iface_states(hostname: string): Observable<IFACEStateClass[]> {
-    const url = `/api/tools/ifaces/${hostname}`;
-    return this.httpClient_.get(url).pipe(catchError((err: any) => this.handleError('interfaces', err)));
+  get_initial_device_states(): Observable<InitialDeviceStateClass[]> {
+    return this.httpClient_.get<InitialDeviceStateInterface[]>(environment.TOOLS_SERVICE_MONITORING_INTERFACE)
+      .pipe(map((response: InitialDeviceStateInterface[]) => response.map((initial_device_state: InitialDeviceStateInterface) => new InitialDeviceStateClass(initial_device_state))),
+            catchError((error: HttpErrorResponse) => this.handleError('get initial device states', error)));
   }
 
   /**
-   * REST call to POST configure repository
+   * REST call to POST repo settings snapshot
    *
-   * @param {Object} repositorySettings
-   * @returns {Observable<Object>}
+   * @param {RepoSettingsSnapshotInterface} repo_settings_snapshot
+   * @return {Observable<GenericJobAndKeyClass>}
    * @memberof ToolsService
    */
-  configureRepository(repositorySettings: Object): Observable<Object> {
-    return this.httpClient_.post(environment.TOOLS_SERVICE_CONFIGURE_REPOSITORY, repositorySettings)
-                           .pipe(catchError((err: any) => this.handleErrorConsole(err)));
+  repo_settings_snapshot(repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass> {
+    return this.httpClient_.post<GenericJobAndKeyInterface>(environment.TOOLS_SERVICE_REPO_SETTINGS_SNAPSHOT, repo_settings_snapshot)
+      .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('repo settings snapshot', error)));
   }
 
   /**
-   * REST call to POST an Elastic License
+   * REST call to POST upload documentation
+   *
+   * @param {FormData} form_data
+   * @return {Observable<SuccessMessageClass>}
+   * @memberof ToolsService
+   */
+  upload_documentation(form_data: FormData): Observable<SuccessMessageClass> {
+    return this.httpClient_.post<SuccessMessageInterface>(environment.TOOLS_SERVICE_UPLOAD_DOCUMENTATION, form_data)
+      .pipe(map((response: SuccessMessageInterface) => new SuccessMessageClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('upload documentation', error)));
+  }
+
+  /**
+   * REST call to GET elastic license
+   *
+   * @return {Observable<ElasticLicenseClass>}
+   * @memberof ToolsService
+   */
+  get_elastic_license(): Observable<ElasticLicenseClass> {
+    return this.httpClient_.get<ElasticLicenseInterface>(environment.TOOLS_SERVICE_ES_LICENSE)
+      .pipe(map((response: ElasticLicenseInterface) => new ElasticLicenseClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('get elastic license', error)));
+  }
+
+  /**
+   * REST call to PUT upload elastic license
    *
    * @param {Object} license_data
-   * @returns {Observable<Object>}
+   * @return {Observable<SuccessMessageClass>}
    * @memberof ToolsService
    */
-  uploadEsLicense(license_data: Object): Observable<Object> {
-    return this.httpClient_.put(environment.TOOLS_SERVICE_ES_LICENSE, license_data)
-                           .pipe(catchError((err: any) => this.handleErrorAlt('update_es_license', err)));
-  }
-
-  /**
-   * REST call to Get the current Elastic License
-   *
-   * @returns {Observable<Object>}
-   * @memberof ToolsService
-   */
-  getEsLicense(): Observable<Object> {
-    return this.httpClient_.get(environment.TOOLS_SERVICE_ES_LICENSE)
-                           .pipe(catchError((err: any) => this.handleErrorAlt('get_es_license', err)));
+  upload_elastic_license(license_data: Object): Observable<SuccessMessageClass> {
+    return this.httpClient_.put<SuccessMessageInterface>(environment.TOOLS_SERVICE_ES_LICENSE, license_data)
+      .pipe(map((response: SuccessMessageInterface) => new SuccessMessageClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('upload elastic license', error)));
   }
 }

@@ -10,6 +10,7 @@ import { NodeMaintenanceFormComponent } from './components/node-maintenance-form
 import { RepositorySettingsComponent } from './components/repository-settings/repository-settings.component';
 import { UpdateDocsFormComponent } from './components/update-documentation-form/update-docs.component';
 import { UpdateEsLicenseComponent } from './components/update-es-license-form/update-es-license-form.component';
+import { ToolsService } from './services/tools.service';
 import { ToolsFormComponent } from './tools.component';
 
 @NgModule({
@@ -28,6 +29,9 @@ import { ToolsFormComponent } from './tools.component';
     UpdateDocsFormComponent,
     UpdateEsLicenseComponent,
     ToolsFormComponent
+  ],
+  providers: [
+    ToolsService
   ]
 })
 export class ToolsModule { }

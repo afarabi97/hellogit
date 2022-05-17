@@ -9,6 +9,8 @@ import { CookieService } from '../../services/cookies.service';
 import { CookieServiceSpy } from '../../services/cookies.service.spec';
 import { GlobalPCAPService } from '../../services/global-pcap.service';
 import { GlobalPCAPServiceSpy } from '../../services/global-pcap.service.spec';
+import { GlobalToolsService } from '../../services/global-tools.service';
+import { GlobalToolsServiceSpy } from '../../services/global-tools.service.spec';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { MatSnackbarServiceSpy } from '../../services/mat-snackbar.service.spec';
 import { PortalService } from '../../services/portal.service';
@@ -49,6 +51,8 @@ import { SystemVersionService } from '../pmo-support/services/system-version.ser
 import { SystemVersionServiceSpy } from '../pmo-support/services/system-version.service.spec';
 import { PolicyManagementService } from '../policy-management/services/policy-management.service';
 import { PolicyManagementServiceSpy } from '../policy-management/services/policy-management.service.spec';
+import { ToolsService } from '../tools/services/tools.service';
+import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
 
 @NgModule({
   imports: [
@@ -60,6 +64,7 @@ import { PolicyManagementServiceSpy } from '../policy-management/services/policy
     { provide: CookieService, useClass: CookieServiceSpy },
     { provide: MatSnackBarService, useClass: MatSnackbarServiceSpy },
     { provide: GlobalPCAPService, useClass: GlobalPCAPServiceSpy },
+    { provide: GlobalToolsService, useClass: GlobalToolsServiceSpy },
     { provide: PortalService, useClass: PortalServiceSpy },
     { provide: RulesService, useClass: RulesServiceSpy },
     { provide: SensorHostInfoService, useClass: SensorHostInfoServiceSpy },
@@ -78,7 +83,8 @@ import { PolicyManagementServiceSpy } from '../policy-management/services/policy
     { provide: NotificationService, useClass: NotificationServiceSpy },
     { provide: PCAPService, useClass: PCAPServiceSpy },
     { provide: DiagnosticsService, useClass: DiagnosticsServiceSpy },
-    { provide: SystemVersionService, useClass: SystemVersionServiceSpy }
+    { provide: SystemVersionService, useClass: SystemVersionServiceSpy },
+    { provide: ToolsService, useClass: ToolsServiceSpy }
     // { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open', 'closeAll', 'getDialogById']) },
     // { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', ['close', 'afterOpen', 'afterClosed', 'beforeClose', 'backdropClick', 'keydownEvents', 'updatePosition']) }
   ]

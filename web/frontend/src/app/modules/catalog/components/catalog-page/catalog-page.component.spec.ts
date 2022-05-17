@@ -37,7 +37,7 @@ import {
   MockStatusClassArkimeViewerDeployed,
   MockStatusClassSuricataDeployed
 } from '../../../../../../static-data/class-objects';
-import {MockChartInterfaceArray} from '../../../../../../static-data/interface-objects';
+import { MockChartInterfaceArray } from '../../../../../../static-data/interface-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { FormControlClass, NodeClass, ObjectUtilitiesClass, SavedValueClass, StatusClass } from '../../../../classes';
 import { CONTINUE_DIALOG_OPTION, TAKE_ME_BACK_DIALOG_OPTION } from '../../../../constants/cvah.constants';
@@ -242,9 +242,6 @@ describe('CatalogPageComponent', () => {
     const mockUrlTree = router.parseUrl('/application/arkime');
     // @ts-ignore: force this private property value for testing.
     router.currentUrlTree = mockUrlTree;
-
-    // Spy for tools service method call until service is unit tested
-    spyOn<any>(component['tools_service_'], 'get_iface_states').and.returnValue(of(MockIfaceStateClassArray));
 
     component.chart_info = MockChartInfoClassSuricata;
     component['initialize_process_form_group_']();
@@ -2532,15 +2529,15 @@ describe('CatalogPageComponent', () => {
         expect(component['api_get_iface_states_']).toHaveBeenCalled();
       });
 
-      it('should call tools_service_.get_iface_states() from api_get_iface_states_()', () => {
+      it('should call global_tools_service_.get_iface_states() from api_get_iface_states_()', () => {
         reset();
 
         component['api_get_iface_states_'](MockNodeClassArray.filter((v: NodeClass) => v.node_type === SENSOR_VALUE)[0]);
 
-        expect(component['tools_service_'].get_iface_states).toHaveBeenCalled();
+        expect(component['global_tools_service_'].get_iface_states).toHaveBeenCalled();
       });
 
-      it('should call tools_service_.get_iface_states() and set sensor_interface_states_[node.hostname] = ifaces', () => {
+      it('should call global_tools_service_.get_iface_states() and set sensor_interface_states_[node.hostname] = ifaces', () => {
         reset();
 
         component['sensor_interface_states_'] = {};
@@ -2549,12 +2546,12 @@ describe('CatalogPageComponent', () => {
         expect(Object.keys(component['sensor_interface_states_']).length).toBeGreaterThan(0);
       });
 
-      it('should call tools_service_.get_iface_states() and handle error', () => {
+      it('should call global_tools_service_.get_iface_states() and handle error', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['tools_service_'], 'get_iface_states').and.returnValue(throwError(mock_http_error_response));
+        spyOn<any>(component['global_tools_service_'], 'get_iface_states').and.returnValue(throwError(mock_http_error_response));
 
         component['api_get_iface_states_'](MockNodeClassArray.filter((v: NodeClass) => v.node_type === SENSOR_VALUE)[0]);
 

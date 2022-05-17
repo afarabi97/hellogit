@@ -1,13 +1,15 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { MatSnackbarConfigurationClass } from '../../../../classes';
+import { ErrorMessageClass, GenericJobAndKeyClass } from '../../../../classes';
+import { COMMON_VALIDATORS, MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../../../constants/cvah.constants';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
-import { WebsocketService } from '../../../../services/websocket.service';
-import { ToolsService } from '../../../../system-setupv2/services/tools.service';
-import { COMMON_VALIDATORS } from 'src/app/constants/cvah.constants'; '../../../../constants/cvah.constants';
 import { UserService } from '../../../../services/user.service';
+import { WebsocketService } from '../../../../services/websocket.service';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
+import { RepoSettingsSnapshotInterface } from '../../interfaces/repo-settings-snapshot.interface';
+import { ToolsService } from '../../services/tools.service';
 
 @Component({
     selector: 'app-repository-settings',
@@ -25,10 +27,10 @@ export class RepositorySettingsComponent {
     isCardVisible: boolean;
     controllerMaintainer: boolean;
 
-    constructor(private toolsSrv: ToolsService,
+    constructor(private tools_service_: ToolsService,
                 private userService: UserService,
                 private formBuilder: FormBuilder,
-                private matSnackBarService_: MatSnackBarService,
+                private mat_snackbar_service_: MatSnackBarService,
                 private _WebsocketService: WebsocketService) {
         this.hasTitle = true;
         this.controllerMaintainer = this.userService.isControllerMaintainer();
@@ -51,16 +53,23 @@ export class RepositorySettingsComponent {
       }
 
     update() {
-        const matSnackbarConfiguration: MatSnackbarConfigurationClass = { timeInMS: 60000, actionLabel: 'Close' };
         this.allowUpdate = false;
+        const repo_settings_snapshot: RepoSettingsSnapshotInterface = this.repoForm.getRawValue() as RepoSettingsSnapshotInterface;
 
-        this.toolsSrv.configureRepository(this.repoForm.value).subscribe(
-        data => {
-            this.matSnackBarService_.displaySnackBar('Updating repository settings.', matSnackbarConfiguration);
-        },
-        error => {
-          this.allowUpdate = true;
-        });
+        this.tools_service_.repo_settings_snapshot(repo_settings_snapshot)
+          .subscribe(
+            (response: GenericJobAndKeyClass) => {
+              this.mat_snackbar_service_.displaySnackBar('Updating repository settings.', MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            },
+            (error: ErrorMessageClass | HttpErrorResponse) => {
+              this.allowUpdate = true;
+              if (error instanceof ErrorMessageClass) {
+                this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+              } else {
+                const message: string = `updating repository settings snapshot`;
+                this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+              }
+            });
     }
 
     initializeForm() {

@@ -84,9 +84,9 @@ describe('TopNavbarComponent', () => {
   let spyGetCurrentDipTime: jasmine.Spy<any>;
 
   // TODO - remove when toolServiceSpy created
-  const htmlSpacesData: string[] = ['test'];
+  const htmlSpacesData: string[] = ['testdocs'];
 
-  const navGroupGood: NavGroupInterface = { id: '', label: 'test', children: [] };
+  const navGroupGood: NavGroupInterface = { id: '', label: 'testdocs', children: [] };
   const navGroupBad: NavGroupInterface = { id: '', label: undefined, children: [] };
   const formGroup: FormGroup = new FormGroup({ 'dropdown': new FormControl() });
   class MatDialogMock {
@@ -131,8 +131,7 @@ describe('TopNavbarComponent', () => {
     spySetClock = spyOn<any>(component, 'setClock_').and.callThrough();
     spyGetCurrentDipTime = spyOn<any>(component, 'getCurrentDipTime_').and.callThrough();
 
-    // TODO - Remove once toolService_, kitService has proper spy service in place
-    spyOn<any>(component['toolService_'], 'getSpaces').and.returnValue(of(htmlSpacesData));
+    // TODO - Remove once kitService has proper spy service in place
     spyOn<any>(component['kitSettingsSrv'], 'getKitStatus').and.returnValue(of(MockKitStatusClass));
 
     // Detect changes

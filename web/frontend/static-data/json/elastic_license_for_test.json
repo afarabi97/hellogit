@@ -1,0 +1,64 @@
+{
+    "license": {
+        "uid":"d78c756a-8ac0-4601-b0e8-b57a0b829396",
+        "type":"enterprise",
+        "issue_date_in_millis":1637107200000,
+        "start_date_in_millis":1551398400000,
+        "expiry_date_in_millis":1669852799999,
+        "max_instances":1,
+        "issued_to":"WS - CVA/H",
+        "issuer":"API",
+        "signature":"AAAAAwAAAA0EZedjDjnujbP4+9vbAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaEJGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUkk2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQAAAQAQQmsNpmwSroEw9doMbS/HAjjD5AqLm69CggTt3jx75ztdKwAxM6sBKLBJ2dwagc1LLXSLL2WU08TUr6SxSQTMmBtF881sCz9frzivSEmBiIqWGrMTEdUp37VFETu2dOsRv/LFVaiZp3dNg8UniBmkwBWfEkuBjFJcU4ZSSkso+Olsvly2h5BjO6wttXD3FzafE3UPaEcAqUkybEbYU+UtupDCl+UDLmXJf+58qSeFdP18yA9MIzFTn5I55Eip8lC6EMEM4+JERiVETzW/z3LxnkRX2usXV2RjXEqtCII4RWAaRTO+1EZbKy3n6XY+NRYSDt6ce4i4CI7YzIbgN5NI",
+        "cluster_licenses": [
+            {
+                "license": {
+                    "uid":"b23b8895-ad79-467f-bd93-8f05733e8538",
+                    "type":"platinum",
+                    "issue_date_in_millis":1637107200000,
+                    "expiry_date_in_millis":1593561599999,
+                    "max_nodes":100,
+                    "issued_to":"WS - CVA/H",
+                    "issuer":"API",
+                    "signature":"AAAAAwAAAA2Q9Nb6KgWlC6HKIfR7AAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaEJGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUkk2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQAAAQCoU95QqWtjmEzCExkuLOfxq7YFya6z7xyUt3xle4zRe8vu3I3lVcpr9+V8jibKOuYhF7/XJXPmTOvgq+bnsIE2Xt5QZnrXiMO1pO4UUeXezNCypZf6ABDOgH5Sld7yKSC3auDXwr2JZDly7QP2V3d8b3bVuROTRdOF+G7vlt7TQvpl41Ayj+k0IHm1Osy1mB2gpQqVnfqQBeegL4NMsA5CJcVulQpzk+Ylm/UFfzhrA+wg5Yb1q+L+zaS0o9tH/HbBIHzl/uzLhY1y8hrkMKNTWB3+O4NVreSYw4pN6zjcP+Hr2W/1e4qwYPdmKmZvq0Kvy3aXWechbmzNc4cYp2p/",
+                    "start_date_in_millis":1551398400000
+                }
+            }, {
+                "license": {
+                    "uid":"1a17f61d-0607-4c3a-87d2-dccb5cfd2a76",
+                    "type":"platinum",
+                    "issue_date_in_millis":1637107200000,
+                    "expiry_date_in_millis":1625097599999,
+                    "max_nodes":100,
+                    "issued_to":"WS - CVA/H",
+                    "issuer":"API",
+                    "signature":"AAAAAwAAAA1f06ZMmazZWHMpkJ9SAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaEJGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUkk2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQAAAQAVjFvFsnlZXmnd+KDoXqtSc5ieRC/d475gozw2Z5cmZqqhqCYX//CGOUsBSkUA9r4oJrGC2NjidN7WvPJeo4uKB1/fLGGALnU4jSWZzkj1A4HUs+k4ONjS5nwIB8taDvfFLk2n69FvxvmsjcWygr/T0AyCa7d7t0ZrlBynrOM6XKNE6Cs6ecTqhDYV23ohQzwcWnJyhgVkGfT+RgWSxz2izusbdY/gbtpr2dJ8BtTAXQaZOiyiuAuBFzOUklIE3IBvf3cO/IbP5jVfNin0rd2NY3ueydi+vccr9oN9WXO1EQ2LGHlOY/a99eLZhmpUnm2F7h7q2L2zTGxkwPyI4wxD",
+                    "start_date_in_millis":1583020800000
+                }
+            }, {
+                "license": {
+                    "uid":"1d1d08ae-e9ed-441b-9e57-338a35bd9879",
+                    "type":"platinum",
+                    "issue_date_in_millis":1637107200000,
+                    "expiry_date_in_millis":1656633599999,
+                    "max_nodes":100,
+                    "issued_to":"WS - CVA/H",
+                    "issuer":"API",
+                    "signature":"AAAAAwAAAA2oIWkqsGFwWSdVAaRWAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaEJGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUkk2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQAAAQBuPXYgHpt1zGfE9IyjraWO9gSzRnP//GEeHmGz0Y/t7kHDIl7g8Z5s6ROg9UWNjp9PsBZ2w5QlQzjfKJf9va/k7UqdkVzdRzeLTzlwNC98e5y/jlWVbrRitA8I7JRbld1KxTN9L6tKco7odC/clMUZ23tqcnj2z5Tt03+DH34piadvhrm27I7fckJWKOp6WxriPfB/svtKZpbiwYWrQ4kD4maTRhhxcM0UuEnNAClNvQg0WWQSjEjYZNTFAqlfvx4Np7iAcsG+JTDW3qBhfOc2OiEKQQxZSBrWwl8pNo1TOLJzQ+PsRiP1ezLb+nb20IUvdUiempYq5kT2PdJXd3OJ",
+                    "start_date_in_millis":1614556800000
+                }
+            }, {
+                "license": {
+                    "uid":"d84cae1e-7f72-4758-9d70-19f760eea23a",
+                    "type":"platinum",
+                    "issue_date_in_millis":1637107200000,
+                    "expiry_date_in_millis":1669852799999,
+                    "max_nodes":100,
+                    "issued_to":"WS - CVA/H",
+                    "issuer":"API",
+                    "signature":"AAAAAwAAAA0p1x6K0KpSv4WnAwOWAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaEJGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUkk2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQAAAQBQWp4F8HWXy787TqF7NJ2yQBUSTYuF/CBo7ILKZbp68L+3HygQS0vBaSTTX3/33Ujsuw2Iw/O46BUFsbkH4TCJLqmEUcJkHl5WJeht1exa3pZN8SGScpxhQzF4zEO3hXPlWT8eeRG+bWYY+S3GdQMddlflhW5CsG/Hc8Y803pLE5PJJe1UuVt6hQZOTN9Pb777WmKaH0CnkUpqeutyuUKizPvBfQ2ToDT98lAiY8R8xB3I86vypNJL3SPbV7OmWUyvvkPrzVf0PHtQBEGldoyQfdPFmbkOzqmfzQGO2RiShkdccjVCSSiuZ+K+HB1e7d5Nbg7eKraysU+JtlMTns4B",
+                    "start_date_in_millis":1646092800000
+                }
+            }
+        ]
+    }
+}

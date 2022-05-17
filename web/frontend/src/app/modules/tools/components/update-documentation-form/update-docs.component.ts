@@ -1,8 +1,11 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
+import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { ErrorMessageClass, SuccessMessageClass } from '../../../../classes';
+import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../../../constants/cvah.constants';
+import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { UserService } from '../../../../services/user.service';
 import { TopNavbarComponent } from '../../../../top-navbar/top-navbar.component';
 import { ToolsService } from '../../services/tools.service';
@@ -26,10 +29,10 @@ export class UpdateDocsFormComponent implements OnInit {
   controllerMaintainer: boolean;
   spaceFormControl: FormControl;
   matcher: MyErrorStateMatcher;
-  constructor(private snackBar: MatSnackBar,
-    private toolSrv: ToolsService,
-    private userService: UserService,
-    private navbar: TopNavbarComponent ) {
+  constructor(private toolSrv: ToolsService,
+              private mat_snackbar_service_: MatSnackBarService,
+              private userService: UserService,
+              private navbar: TopNavbarComponent) {
     this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
 
@@ -46,36 +49,29 @@ export class UpdateDocsFormComponent implements OnInit {
   }
 
   uploadFile() {
-    console.log(this.spaceFormControl.value);
-
-    this.displaySnackBar('Loading ' + this.zipToUpload.name + '...');
-    this.toolSrv.uploadDocumentation(this.zipToUpload, this.spaceFormControl.value).subscribe(data => {
-      this.displayServiceResponse(data);
-    });
+    this.mat_snackbar_service_.displaySnackBar('Loading ' + this.zipToUpload.name + '...', MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+    const form_data: FormData = new FormData();
+    form_data.append('upload_file', this.zipToUpload, this.zipToUpload.name);
+    form_data.append('space_name', this.spaceFormControl.value);
+    this.toolSrv.upload_documentation(form_data)
+      .subscribe(
+        (response: SuccessMessageClass) => {
+          this.spaceFormControl.reset();
+          this.zipToUpload = null;
+          this.navbar.buildNavBar();
+          this.mat_snackbar_service_.displaySnackBar(response.success_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = `uploading documentation`;
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        });
   }
 
   handleFileInput(files: FileList) {
     this.zipToUpload = files.item(0);
-  }
-
-  getErrorMessage(control: FormControl | AbstractControl): string {
-    return control.errors ? control.errors.error_message : '';
-  }
-
-  private displayServiceResponse(data: any) {
-    if (data['success_message']) {
-      this.displaySnackBar(data['success_message']);
-      this.spaceFormControl.reset();
-      this.zipToUpload = null;
-      this.navbar.buildNavBar();
-    } else if (data['error_message']) {
-      this.displaySnackBar(data['error_message']);
-    } else {
-      this.displaySnackBar('Failed for unknown reason');
-    }
-  }
-
-  private displaySnackBar(message: string, duration_seconds: number = 60) {
-    this.snackBar.open(message, 'Close', { duration: duration_seconds * 1000 });
   }
 }

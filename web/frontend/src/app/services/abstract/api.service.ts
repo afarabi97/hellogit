@@ -1,7 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
 
 import { ErrorMessageClass, MatSnackbarConfigurationClass, ObjectUtilitiesClass } from '../../classes';
 import { ApiServiceInterface, EntityConfig } from '../../interfaces';
@@ -39,111 +38,6 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
     this.type = entityConfig.type;
     this.httpClient_ = InjectorModule.rootInjector.get(HttpClient);
     this.matSnackBarService = InjectorModule.rootInjector.get(MatSnackBarService);
-  }
-
-  /**
-   * Create a entity of type T
-   *
-   * @param {T} param
-   * @returns {Observable<T>}
-   * @memberof ApiService
-   */
-  create(param: T): Observable<T> {
-    return this.httpClient_.post<T>(this.urlPath, param)
-                           .pipe(tap((_response: T) => this.handleSuccess(ObjectUtilitiesClass.notUndefNull(this.type) ? `${this.type} was successfully created!` : 'Successfully created!')),
-                                 catchError((err: any) => this.handleError('create', err)));
-  }
-
-  /**
-   * Update a entity of type T
-   *
-   * @param {*} param
-   * @returns {Observable<T>}
-   * @memberof ApiService
-   */
-  update(param: any): Observable<T> {
-    return this.httpClient_.put<T>(this.urlPath, param)
-                           .pipe(tap((_response: T) => this.handleSuccess(ObjectUtilitiesClass.notUndefNull(this.type) ? `${this.type} was successfully updated!` : 'Successfully updated!')),
-                                 catchError((err: any) => this.handleError('update', err)));
-  }
-
-  /**
-   * Delete a entity of type T
-   *
-   * @param {*} id
-   * @returns {Observable<T>}
-   * @memberof ApiService
-   */
-  delete(id: any): Observable<T> {
-    const url = `${this.urlPath}/${id}`;
-
-    return this.httpClient_.delete<T>(url, {})
-                           .pipe(tap((_response: T) => this.handleSuccess(ObjectUtilitiesClass.notUndefNull(this.type) ? `${this.type} was successfully deleted!` : 'Sucessfully deleted!')),
-                                 catchError((err: any) => this.handleError('delete', err)));
-  }
-
-  /**
-   * Delete all entities of type T
-   *
-   * @returns {Observable<T>}
-   * @memberof ApiService
-   */
-  deleteAll(): Observable<T> {
-    return this.httpClient_.delete<T>(this.urlPath, {})
-                           .pipe(tap((_response: T) => this.handleSuccess(ObjectUtilitiesClass.notUndefNull(this.type) ? `${this.type} all successfully deleted!` : 'Sucessfully deleted all!')),
-                                 catchError((err: any) => this.handleError('deleteAll', err)));
-  }
-
-  /**
-   * Return a entity of type T
-   *
-   * @returns {Observable<T>}
-   * @memberof ApiService
-   */
-  get(): Observable<T> {
-    return this.httpClient_.get<T>(this.urlPath)
-                           .pipe(catchError((err: any) => this.handleError('get', err)));
-  }
-
-  /**
-   * Return a entity by Id of type T
-   *
-   * @param {*} id
-   * @returns {Observable<T>}
-   * @memberof ApiService
-   */
-  getById(id: any): Observable<T> {
-    const url = `${this.urlPath}id/${id}`;
-
-    return this.httpClient_.get<T>(url)
-                           .pipe(catchError((err: any) => this.handleError('getById', err)));
-  }
-
-  /**
-   * Return a entity by string of type T
-   *
-   * @param {string} path
-   * @returns {Observable<T>}
-   * @memberof ApiService
-   */
-  getByString(path: string): Observable<T> {
-    const url = `${this.urlPath}${path}`;
-
-    return this.httpClient_.get<T>(url)
-                           .pipe(catchError((error: any) => this.handleError('getByString', error)));
-  }
-
-  /**
-   * Return all entities of type T
-   *
-   * @returns {Observable<T[]>}
-   * @memberof ApiService
-   */
-  getAll(): Observable<T[]> {
-    const url = `${this.urlPath}getAll`;
-
-    return this.httpClient_.get<T[]>(url)
-                           .pipe(catchError((error: any) => this.handleError('getAll', error)));
   }
 
   /**

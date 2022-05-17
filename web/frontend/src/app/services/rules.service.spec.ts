@@ -443,7 +443,7 @@ describe('RulesService', () => {
         service.delete_rule_set(MockRuleSetInterface._id)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
-            (response: ErrorMessageClass | SuccessMessageClass) => {},
+            (response: SuccessMessageClass) => {},
             (error: HttpErrorResponse) => {
               expect(error.error).toContain(errorRequest);
               expect(service.delete_rule_set).toHaveBeenCalled();

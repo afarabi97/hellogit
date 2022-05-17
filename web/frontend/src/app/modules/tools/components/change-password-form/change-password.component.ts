@@ -1,15 +1,18 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { ErrorMessageClass, SuccessMessageClass } from '../../../../classes';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
-import { COMMON_VALIDATORS } from '../../../../constants/cvah.constants';
+import { PasswordMessageComponent } from '../../../../components/password-message/password-message.component';
+import { COMMON_VALIDATORS, MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../../../constants/cvah.constants';
+import { ConfirmDialogMatDialogDataInterface } from '../../../../interfaces';
+import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { UserService } from '../../../../services/user.service';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
+import { KitPasswordInterface } from '../../interfaces/kit-password.interface';
 import { ToolsService } from '../../services/tools.service';
-import { ConfirmDialogMatDialogDataInterface } from '../../../../interfaces';
-import { PasswordMessageComponent } from '../../../../components/password-message/password-message.component';
 
 const DIALOG_WIDTH = '800px';
 
@@ -38,7 +41,7 @@ export class ChangePasswordFormComponent implements OnInit {
   constructor(private toolsSrv: ToolsService,
               private dialog: MatDialog,
               private formBuilder: FormBuilder,
-              private snackBar: MatSnackBar,
+              private mat_snackbar_service_: MatSnackBarService,
               private userService: UserService) {
     this.isCardVisible = false;
     this.controllerMaintainer = this.userService.isControllerMaintainer();
@@ -87,25 +90,22 @@ export class ChangePasswordFormComponent implements OnInit {
     });
   }
 
-  private displaySnackBar(message: string, duration_seconds: number = 60){
-    this.snackBar.open(message, 'Close', { duration: duration_seconds * 1000});
-  }
-
   private changePassword() {
-    this.toolsSrv.changeKitPassword(this.changePasswordForm.getRawValue()).subscribe(
-      data => {
-        this.displaySnackBar(data['success_message']);
-      },
-      error => {
-        console.error(error);
-        if (error.status === 404 || error.status === 409) {
-          this.displaySnackBar(error.error['error_message']);
-        } else if (error.status === 403) {
-          this.displaySnackBar('Authentication failure. Check the ssh key on the controller.');
-        } else {
-          this.displaySnackBar('Internal Server Error: Please ensure that the kit is fully built with all components online.');
-        }
-      }
-    );
+    const kit_password: KitPasswordInterface = this.changePasswordForm.getRawValue();
+    delete kit_password["re_password"];
+
+    this.toolsSrv.change_kit_password(kit_password)
+      .subscribe(
+        (response: SuccessMessageClass) => {
+          this.mat_snackbar_service_.displaySnackBar(response.success_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = `changing kit password`;
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        });
   }
 }

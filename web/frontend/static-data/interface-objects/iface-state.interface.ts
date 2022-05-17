@@ -10,3 +10,7 @@ export const MockIfaceStateInterfaceENS224: IFACEStateInterface = {
   state: 'up',
   link_up: true
 };
+export const MockIfaceStateInterfaceArray: IFACEStateInterface[] = [
+  MockIfaceStateInterfaceENS192,
+  MockIfaceStateInterfaceENS224
+];
