@@ -102,10 +102,15 @@ class RemoteNetworkDevice(object):
         self._node = node
         self._device = device
 
+    def device_validation(self, shell: FabricConnection) -> list:
+        cmd = 'basename -a /sys/class/net/*'
+        result = shell.run(cmd).stdout.split("\n")
+        return result
+
     def _is_link_up(self, shell: FabricConnection) -> bool:
         cmd = 'ethtool {} | grep "Link detected: yes"'.format(self._device)
         print(cmd)
-        result = shell.run(cmd, warn=True, shell=True)
+        result = shell.run(cmd, warn=True)
         return result.return_code == 0
 
     def set_up(self):
@@ -392,6 +397,12 @@ class ChangeStateOfRemoteNetworkDevice(Resource):
     @controller_maintainer_required
     def put(self, node: str, device: str, state: str):
         device = RemoteNetworkDevice(node, device)
+        device_list = RemoteNetworkDevice.device_validation(self)
+        if device in device_list:
+            pass
+        else:
+            return { "error_message": "An invalid input was provided. Input does not match list of provided interfaces." }, 400
+
         if state == "up":
             result = device.set_up()
             if result:
