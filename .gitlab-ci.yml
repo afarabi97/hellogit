@@ -210,6 +210,8 @@ variables:
   # Vars For Docker Images Used In Pipeline
   LATEST_CODE_CHECKER_IMAGE: "docker.nexus.sil.lab/tfplenum/code-checker:1.6"
 
+  #MIP VM Templates
+  KALI_TEMPLATE_TO_CLONE: "Kali_Template"
 stages:
   - commit-lint
   - test-compile

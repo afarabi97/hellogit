@@ -1,8 +1,7 @@
 import logging
 import sys
 import traceback
-from argparse import ArgumentParser, Namespace
-from ast import Sub
+from argparse import ArgumentParser
 
 from jobs.ctrl_setup import ControllerSetupJob, checkout_latest_code
 from jobs.drive_creation import DriveCreationJob, DriveHashCreationJob
@@ -10,9 +9,9 @@ from jobs.export import (ConfluenceExport, ControllerExport, GIPServiceExport,
                          MinIOExport, ReposyncServerExport)
 from jobs.gip_creation import GipCreationJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
+from jobs.vm_builder import StandAloneKali, StandAloneMinIO
 from jobs.kit import KitSettingsJob
 from jobs.manifest import BuildManifestJob, VerifyManifestJob
-from jobs.minio import StandAloneMinIO
 from jobs.oscap import OSCAPScanJob
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
 from models.common import RepoSettings
@@ -24,9 +23,9 @@ from models.export import ExportSettings
 from models.gip_settings import GIPServiceSettings
 from models.kit import KitSettingsV2
 from models.manifest import ManifestSettings
-from models.minio import MinIOSettings
 from models.node import NodeSettingsV2
 from models.rhel_repo_vm import RHELRepoSettings
+from models.vm_builder import VMBuilderSettings
 from util.ansible_util import delete_vms
 from util.constants import MINIO_PREFIX
 from util.yaml_util import YamlManager
@@ -138,7 +137,13 @@ class Runner:
         self._set_parser(
             SubCmd.setup_minio,
             "Creates a stand alone MinIO server.",
-            MinIOSettings
+            VMBuilderSettings
+        )
+
+        self._set_parser(
+            SubCmd.setup_kali,
+            "Creates a stand alone Kali VM",
+            VMBuilderSettings
         )
 
         self._set_parser(
@@ -167,11 +172,7 @@ class Runner:
         args = self.parser.parse_args()
 
         try:
-            if args.which == SubCmd.setup_minio:
-                minio_settings = MinIOSettings(args)
-                YamlManager.save_to_yaml(minio_settings)
-                StandAloneMinIO(minio_settings).create()
-            elif args.which == SubCmd.acceptance_tests:
+            if args.which == SubCmd.acceptance_tests:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
                 nodes = YamlManager.load_nodes_from_yaml_files(
@@ -205,7 +206,6 @@ class Runner:
                 executor_server = ReposyncServerExport(
                     server_repo_settings, export_settings.export_loc)
                 executor_server.export_reposync_server()
-
             elif args.which == SubCmd.export_gip_service_vm:
                 gip_service_settings = YamlManager.load_gip_service_settings_from_yaml()
                 export_settings = ExportSettings()
@@ -216,16 +216,13 @@ class Runner:
             elif args.which == SubCmd.create_gip_service_vm:
                 service_settings = GIPServiceSettings()
                 service_settings.from_namespace(args)
-
                 YamlManager.save_to_yaml(service_settings)
                 executor = GipCreationJob(service_settings)
                 executor.execute()
-
             elif args.which == SubCmd.setup_ctrl:
                 ctrl_settings = ControllerSetupSettings()
                 ctrl_settings.from_namespace(args)
                 YamlManager.save_to_yaml(ctrl_settings)
-
                 executor = ControllerSetupJob(ctrl_settings)
                 executor.setup_controller()
             elif args.which == SubCmd.run_kit_settings:
@@ -233,15 +230,12 @@ class Runner:
                 kit_settings = KitSettingsV2()
                 kit_settings.from_namespace(args)
                 YamlManager.save_to_yaml(kit_settings)
-
                 job = KitSettingsJob(ctrl_settings, kit_settings)
                 job.save_vmware_settings()
                 job.save_kit_settings()
-
             elif args.which == SubCmd.setup_control_plane:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
-
                 job = KitSettingsJob(ctrl_settings, kit_settings)
                 job.setup_control_plane()
             elif args.which == SubCmd.add_node:
@@ -249,7 +243,6 @@ class Runner:
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
                 nodes = NodeSettingsV2.initalize_node_array(kit_settings, args)
                 YamlManager.save_nodes_to_yaml_files(nodes)
-
                 job = KitSettingsJob(ctrl_settings, kit_settings)
                 job.add_node(nodes)
             elif args.which == SubCmd.deploy_kit:
@@ -262,7 +255,6 @@ class Runner:
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
                 job = OSCAPScanJob(ctrl_settings, kit_settings)
                 job.run_scan()
-
             elif args.which == SubCmd.run_disk_fillup_tests:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
@@ -345,6 +337,14 @@ class Runner:
                 manifest_settings.from_namespace(args)
                 executor = BuildManifestJob(manifest_settings)
                 executor.execute()
+            elif args.which == SubCmd.setup_minio:
+                minio_settings = VMBuilderSettings(args)
+                YamlManager.save_to_yaml(minio_settings)
+                StandAloneMinIO(minio_settings).create()
+            elif args.which == SubCmd.setup_kali:
+                vm_builds_settings = VMBuilderSettings(args)
+                YamlManager.save_to_yaml(vm_builds_settings)
+                StandAloneKali(vm_builds_settings).create()
             elif args.which == SubCmd.run_cleanup:
                 pass
                 # TODO

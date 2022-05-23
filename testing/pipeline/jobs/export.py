@@ -1,32 +1,31 @@
 import logging
 import os
-import tempfile
-import subprocess
 import shlex
 import shutil
+import subprocess
+import tempfile
+from pathlib import Path
+from typing import Tuple, Union
 
 from fabric import Connection
 from invoke.exceptions import UnexpectedExit
-from util.ansible_util import execute_playbook, take_snapshot
-from util.connection_mngs import FabricConnectionWrapper
-from uuid import uuid4
 from models import Model
-from models.export import ExportSettings, ExportLocSettings
+from models.common import VCenterSettings
 from models.ctrl_setup import ControllerSetupSettings
-from models.common import VCenterSettings
-from models.minio import MinIOSettings
-from models.common import VCenterSettings
-from pathlib import Path
-from typing import Tuple, Union
-from util.ansible_util import (power_on_vms, revert_to_baseline_and_power_on_vms)
-from util.docs_exporter import MyConfluenceExporter
-from util.ssh import test_nodes_up_and_alive
-from util.constants import (PIPELINE_DIR, SKIP_REPOSYNC_BUILD_AND_TEMPLATE,
-                            SKIP_CTRL_BUILD_AND_TEMPLATE, SKIP_MINIO_BUILD_AND_TEMPLATE,
-                            CONTROLLER_PREFIX, MINIO_PREFIX, REPO_SYNC_PREFIX)
+from models.export import ExportLocSettings, ExportSettings
 from models.gip_settings import GIPServiceSettings
 from models.rhel_repo_vm import RHELRepoSettings
-
+from models.vm_builder import VMBuilderSettings
+from util.ansible_util import (execute_playbook, power_on_vms,
+                               revert_to_baseline_and_power_on_vms,
+                               take_snapshot)
+from util.connection_mngs import FabricConnectionWrapper
+from util.constants import (CONTROLLER_PREFIX, MINIO_PREFIX, PIPELINE_DIR,
+                            REPO_SYNC_PREFIX, SKIP_CTRL_BUILD_AND_TEMPLATE,
+                            SKIP_MINIO_BUILD_AND_TEMPLATE,
+                            SKIP_REPOSYNC_BUILD_AND_TEMPLATE)
+from util.docs_exporter import MyConfluenceExporter
+from util.ssh import test_nodes_up_and_alive
 
 CTRL_EXPORT_PREP = PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"
 MINIO_EXPORT_PREP =  PIPELINE_DIR + "playbooks/minio_export_prep.yml"
@@ -128,7 +127,7 @@ def export(vcenter_settings: VCenterSettings,
 
 
 class MinIOExport:
-    def __init__(self, minio_settings: MinIOSettings):
+    def __init__(self, minio_settings: VMBuilderSettings):
         self.minio_settings = minio_settings
 
     def export_minio(self):

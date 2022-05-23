@@ -1,17 +1,18 @@
 import glob
-import sys
-import ruamel.yaml
-from typing import Union
-from models.common import NodeSettings, HwNodeSettings, VCenterSettings, Model, RepoSettings, ESXiSettings
-from models.remote_node import RemoteNodeSettings
-from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
-from models.kit import KitSettingsV2, KitSettingsDef
-from models.gip_settings import GIPServiceSettings
-from models.node import NodeSettingsV2, HardwareNodeSettingsV2, load_control_plane_nodes_from_mongo
-from models.rhel_repo_vm import RHELRepoSettings
-from models.minio import MinIOSettings
-from typing import Union, List
+from typing import List, Union
 
+import ruamel.yaml
+from models.common import (ESXiSettings, HwNodeSettings, Model, NodeSettings,
+                           RepoSettings, VCenterSettings)
+from models.ctrl_setup import (ControllerSetupSettings,
+                               HwControllerSetupSettings)
+from models.gip_settings import GIPServiceSettings
+from models.kit import KitSettingsDef, KitSettingsV2
+from models.node import (HardwareNodeSettingsV2, NodeSettingsV2,
+                         load_control_plane_nodes_from_mongo)
+from models.remote_node import RemoteNodeSettings
+from models.rhel_repo_vm import RHELRepoSettings
+from models.vm_builder import VMBuilderSettings
 
 YAML_FILE = "{}.yml"
 YAML_APPLICATION_FILE = "{}_{}.yml"
@@ -38,7 +39,7 @@ class YamlManager:
             cls.yaml.register_class(KitSettingsDef)
             cls.yaml.register_class(NodeSettingsV2)
             cls.yaml.register_class(HardwareNodeSettingsV2)
-            cls.yaml.register_class(MinIOSettings)
+            cls.yaml.register_class(VMBuilderSettings)
 
     @classmethod
     def save_to_yaml(cls, some_model: Model, yaml_name: str=None):
@@ -81,8 +82,8 @@ class YamlManager:
         return ret_val
 
     @classmethod
-    def load_minio_settings_from_yaml(cls) -> MinIOSettings:
-        return cls._load_from_yaml(f"{MinIOSettings.__name__.lower()}.yml")
+    def load_minio_settings_from_yaml(cls) -> VMBuilderSettings:
+        return cls._load_from_yaml(f"{VMBuilderSettings.__name__.lower()}.yml")
 
     @classmethod
     def load_ctrl_settings_from_yaml(cls) -> Union[ControllerSetupSettings,HwControllerSetupSettings]:

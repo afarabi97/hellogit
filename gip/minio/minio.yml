@@ -1,5 +1,0 @@
----
-- name: Installs a stand-alone MinIO server.
-  hosts: minio
-  roles:
-    - { role: "minio", tags: ["install"] }

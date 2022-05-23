@@ -1,0 +1,101 @@
+---
+- name: Set default VM name
+  set_fact:
+    default_vm_name: kali
+
+- name: Get VM kali uuid
+  vmware_guest_info:
+    hostname: "{{ vcenter.ipaddress }}"
+    username: "{{ vcenter.username }}"
+    password: "{{ vcenter.password }}"
+    datacenter: "{{ vcenter.datacenter }}"
+    folder: "{{ vcenter.datacenter }}/vm/{{ folder }}"
+    name: "{{ default_vm_name }}"
+    validate_certs: no
+  register: vm_facts
+
+- name: Rename {{ vmname }}
+  vmware_guest:
+    hostname: "{{ vcenter.ipaddress }}"
+    username: "{{ vcenter.username }}"
+    password: "{{ vcenter.password }}"
+    cluster: "{{ vcenter.cluster }}"
+    uuid: "{{ vm_facts.instance.hw_product_uuid }}"
+    name: "{{ vmname }}"
+    validate_certs: no
+
+- name: Reset network configuration {{ vmname }}
+  vmware_vm_shell:
+    hostname: "{{ vcenter.ipaddress }}"
+    username: "{{ vcenter.username }}"
+    password: "{{ vcenter.password }}"
+    vm_id: "{{ vmname }}"
+    vm_username: "root"
+    vm_password: "{{ password }}"
+    vm_shell: /usr/bin/nmcli
+    vm_shell_args: "{{ item }}"
+    validate_certs: no
+    wait_for_process: yes
+  with_items:
+    - con del 'Wired connection 1'
+    - con add type ethernet con-name "Wired connection 1" ifname eth0
+
+- name: Delete permit root login {{ vmname }}
+  vmware_vm_shell:
+    hostname: "{{ vcenter.ipaddress }}"
+    username: "{{ vcenter.username }}"
+    password: "{{ vcenter.password }}"
+    vm_id: "{{ vmname }}"
+    vm_username: "root"
+    vm_password: "{{ password }}"
+    vm_shell: /usr/bin/sed
+    vm_shell_args: -i '/PermitRootLogin yes/d' /etc/ssh/sshd_config
+    validate_certs: no
+    wait_for_process: yes
+
+- name: Set users password
+  vmware_vm_shell:
+    hostname: "{{ vcenter.ipaddress }}"
+    username: "{{ vcenter.username }}"
+    password: "{{ vcenter.password }}"
+    vm_id: "{{ vmname }}"
+    vm_username: "root"
+    vm_password: "{{ password }}"
+    vm_shell: /usr/sbin/usermod
+    vm_shell_args: "{{ item }}"
+    validate_certs: no
+  with_items:
+    - --password {{ export_password }} assessor
+    - --password {{ export_password }} root
+
+#VM shuts off too quickly without this task and root password will not be set
+- name: Wait for process to execute
+  wait_for:
+    timeout: 10
+  delegate_to: localhost
+
+- name: Power off {{ vmname }} to prepare for export
+  vmware_guest:
+    hostname: "{{ vcenter.ipaddress }}"
+    username: "{{ vcenter.username }}"
+    password: "{{ vcenter.password }}"
+    datacenter: "{{ vcenter.datacenter }}"
+    cluster: "{{ vcenter.cluster }}"
+    name: "{{ vmname }}"
+    folder: "{{ folder }}"
+    state: poweredoff
+    validate_certs: no
+
+- name: Create a directory {{ vm_dir }}
+  file:
+    path: "{{ vm_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Create ReadMe.txt
+  template:
+    src: readme.j2
+    dest: "{{ vm_dir }}/ReadMe.txt"
+    owner: root
+    group: root
+    mode: '0755'

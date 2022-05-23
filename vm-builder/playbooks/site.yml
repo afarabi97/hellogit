@@ -1,0 +1,61 @@
+---
+- name: Clone Kali VM
+  hosts: localhost
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - kali/clone
+  tags:
+    - kali
+
+- name: Configure Kali VM
+  hosts: kali
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - kali/config
+  tags:
+    - kali
+
+- name: Setup for for Kali export
+  hosts: localhost
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - kali/export
+  tags:
+    - kali-export
+
+- name: Create minio virtual machine from a template.
+  hosts: localhost
+  gather_facts: no
+  roles:
+    - minio/clone
+  tags:
+    - minio-clone
+
+- name: Installs a stand-alone MinIO server.
+  hosts: minio
+  gather_facts: no
+  roles:
+    - minio/config
+  tags:
+    - minio
+
+- name: Convert VM to template
+  hosts: localhost
+  tasks:
+    - name: Convert "{{ vmname }}" to template
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        folder: "{{ folder }}"
+        name: "{{ vmname }}"
+        validate_certs: no
+        state: present
+        is_template: yes
+  tags:
+    - template

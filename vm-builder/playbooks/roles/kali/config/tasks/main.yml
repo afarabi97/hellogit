@@ -1,0 +1,76 @@
+---
+- name: Create assessor user.
+  user:
+    name: assessor
+    groups:
+      - sudo
+      - adm
+      - dialout
+      - cdrom
+      - floppy
+      - audio
+      - dip
+      - video
+      - plugdev
+      - netdev
+      - wireshark
+      - bluetooth
+      - scanner
+      - kaboxer
+    append: yes
+    comment: Assessor
+    shell: /bin/zsh
+    password: "{{ password | password_hash('sha512') }}"
+
+- name: Update cache and clean up old dependencies
+  apt:
+    update_cache: yes
+    autoremove: yes
+
+- name: Install packages
+  apt:
+    name: "{{ kali_packages }}"
+    state: latest
+
+- name: Update all packages
+  apt:
+    upgrade: yes
+
+- name: Change display-manager file
+  shell: |
+    sed -i "s/lightdm/gdm3/g" /etc/X11/default-display-manager
+  register: results
+  changed_when: results.rc == 0
+
+- name: Set noninteractive setup for display-manager
+  shell: |
+    DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true dpkg-reconfigure lightdm
+  register: results
+  changed_when: results.rc == 0
+
+- name: Default to gdm3
+  shell: |
+    echo set shared/default-x-display-manager gdm3 | sudo debconf-communicate
+  register: results
+  changed_when: results.rc == 0
+
+- name: Remove the default 'kali' user
+  user:
+    name: kali
+    state: absent
+    remove: yes
+
+- name: Enable ssh before reboot
+  service:
+    name: ssh
+    enabled: yes
+
+- name: Reboot system {{ vmname }} to remove kali user from login
+  reboot:
+    reboot_timeout: 200
+    test_command: whoami
+
+- name: Disable ssh prior to shutdown
+  service:
+    name: ssh
+    enabled: no

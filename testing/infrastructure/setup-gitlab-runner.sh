@@ -48,7 +48,7 @@ function install_gitlab_runner {
 
 function install_worker_deps {
     run_cmd yum -y install git epel-release
-	run_cmd yum -y install python36.x86_64 python36-pip unzip gcc python36-devel
+	run_cmd yum -y install python36.x86_64 python36-pip unzip gcc python36-devel p7zip-full
 }
 
 

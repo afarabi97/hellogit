@@ -1,0 +1,10 @@
+---
+kali_packages:
+  - libwacom-common
+  - kali-desktop-gnome
+  - maltego
+  - starkiller
+  - zaproxy
+  - gnome-core
+  - kali-defaults
+  - desktop-base
