@@ -65,6 +65,17 @@ pull_request_rules:
           - "{{ author }}"
         labels:
           - "backport"
+  - name: backport patches to release/3.7.1.0 branch
+    conditions:
+      - merged
+      - label=backport-v3.7.1.0
+    actions:
+      backport:
+        branch: release/3.7.1.0
+        assignees:
+          - "{{ author }}"
+        labels:
+          - "backport"
 comment_rules:
   schedule_shortcuts:
     phuket:
