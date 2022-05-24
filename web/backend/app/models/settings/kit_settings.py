@@ -15,7 +15,7 @@ from app.models.settings.settings_base import (SettingsBase,
                                                validate_password_stigs)
 from app.utils.collections import mongo_settings
 from app.utils.constants import CORE_DIR, KIT_SETTINGS_ID, TEMPLATE_DIR
-from app.utils.utils import decode_password, encode_password
+from app.utils.utils import base64_to_string, string_to_base64
 from flask_restx import fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from marshmallow import Schema
@@ -90,7 +90,7 @@ class KitSettingsForm(SettingsBase):
         if mongo_document:
             # type: ignore type: KitSettingsForm
             kit_settings = cls.schema.load(mongo_document)
-            kit_settings.password = decode_password(
+            kit_settings.password = base64_to_string(
                 kit_settings.password)
             general_dict = GeneralSettingsForm.load_from_db().to_dict()
             kit_dict = cls.schema.dump(kit_settings)
@@ -106,7 +106,7 @@ class KitSettingsForm(SettingsBase):
         if mongo_document:
             # type: ignore type: KitSettingsForm
             kit_settings = cls.schema.load(mongo_document)
-            kit_settings.password = decode_password(  # type: ignore
+            kit_settings.password = base64_to_string(  # type: ignore
                 kit_settings.password)  # type: ignore
             return kit_settings  # type: ignore
         return None
@@ -117,13 +117,13 @@ class KitSettingsForm(SettingsBase):
 
         :param kit_settings_form: Dictionary for the Kit Settings form
         """
-        self.password = encode_password(self.password)
+        self.password = string_to_base64(self.password)
 
         kit_settings = self.schema.dump(self)
         mongo_settings().find_one_and_replace({"_id": KIT_SETTINGS_ID},
                                               kit_settings,
                                               upsert=True)  # type: InsertOneResult
-        self.password = decode_password(self.password)
+        self.password = base64_to_string(self.password)
         _generate_kit_settings_inventory()
         _generate_inventory()
 

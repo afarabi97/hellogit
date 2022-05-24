@@ -1,15 +1,17 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-
-import { ErrorMessageClass, GenericJobAndKeyClass, NotificationClass } from '../../../../classes';
-import { COMMON_VALIDATORS, MAT_SNACKBAR_CONFIGURATION_60000_DUR, WEBSOCKET_MESSAGE_STATUS_COMPLETED, WEBSOCKET_MESSAGE_STATUS_ERROR } from '../../../../constants/cvah.constants';
+import { ErrorMessageClass, GenericJobAndKeyClass, NotificationClass, ObjectUtilitiesClass } from '../../../../classes';
+import { COMMON_VALIDATORS, MAT_SNACKBAR_CONFIGURATION_60000_DUR,
+         WEBSOCKET_MESSAGE_STATUS_COMPLETED,
+         WEBSOCKET_MESSAGE_STATUS_ERROR } from '../../../../constants/cvah.constants';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { WebsocketService } from '../../../../services/websocket.service';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
 import { RepoSettingsSnapshotInterface } from '../../interfaces/repo-settings-snapshot.interface';
 import { ToolsService } from '../../services/tools.service';
+import { RepoSettingsSnapshotClass } from '../../classes/repo-settings-snapshot.class';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 /**
  * Component used for setting up repository settings
@@ -26,7 +28,7 @@ import { ToolsService } from '../../services/tools.service';
   ]
 })
 export class RepositorySettingsComponent {
-  repository_settings_form_group: FormGroup;
+  form_group: FormGroup;
   update_allowed: boolean;
 
   /**
@@ -38,32 +40,26 @@ export class RepositorySettingsComponent {
    * @param {WebsocketService} websocket_service_
    * @memberof RepositorySettingsComponent
    */
-  constructor(private formBuilder: FormBuilder,
-              private tools_service_: ToolsService,
+  constructor(private tools_service_: ToolsService,
+              private formBuilder: FormBuilder,
               private mat_snackbar_service_: MatSnackBarService,
               private websocket_service_: WebsocketService) {
     this.update_allowed = true;
   }
 
-  /**
-   * Used for initial setup
-   *
-   * @memberof RepositorySettingsComponent
-   */
-  ngOnInit(): void {
+  ngOnInit() {
     this.setup_websocket_onbroadcast_();
     this.initialize_repository_settings_form_group_();
   }
 
   /**
-   * Used for linking private api method call to a public
-   * method html can interact with
+   * Main form submission method used to process new MinIO settings.
    *
    * @memberof RepositorySettingsComponent
    */
-  update_button_click(): void {
+  update_button_click() {
     this.update_allowed = false;
-    const repo_settings_snapshot: RepoSettingsSnapshotInterface = this.repository_settings_form_group.getRawValue() as RepoSettingsSnapshotInterface;
+    const repo_settings_snapshot: RepoSettingsSnapshotInterface = this.form_group.getRawValue() as RepoSettingsSnapshotInterface;
     this.api_repo_settings_snapshot_(repo_settings_snapshot);
   }
 
@@ -78,33 +74,6 @@ export class RepositorySettingsComponent {
     return form_control.errors ? form_control.errors.error_message : '';
   }
 
-  /**
-   * Used for setting up the repository settings form group
-   *
-   * @private
-   * @memberof RepositorySettingsComponent
-   */
-  private initialize_repository_settings_form_group_(): void {
-    const repository_settings_form_group: FormGroup = this.formBuilder.group({
-      endpoint: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.isValidIP)])),
-      protocol: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
-      bucket: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
-      access_key: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
-      secret_key: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]))
-    });
-    this.set_repositiry_settings_form_group_(repository_settings_form_group);
-  }
-
-  /**
-   * Used for setting repository settings form group with passed value
-   *
-   * @private
-   * @param {FormGroup} repository_settings_form_group
-   * @memberof RepositorySettingsComponent
-   */
-  private set_repositiry_settings_form_group_(repository_settings_form_group: FormGroup): void {
-    this.repository_settings_form_group = repository_settings_form_group;
-  }
 
   /**
    * Used for setting up onbroadcast for websocket message responses
@@ -125,6 +94,30 @@ export class RepositorySettingsComponent {
         });
   }
 
+  private update_form(obj: RepoSettingsSnapshotClass){
+    this.form_group.setValue({ip_address: ObjectUtilitiesClass.notUndefNull(obj.ip_address) ? obj.ip_address : '',
+                   protocol: ObjectUtilitiesClass.notUndefNull(obj.protocol) ? obj.protocol : 'http',
+                   bucket: ObjectUtilitiesClass.notUndefNull(obj.bucket) ? obj.bucket : 'tfplenum',
+                   username: ObjectUtilitiesClass.notUndefNull(obj.username) ? obj.username : '',
+                   password: ObjectUtilitiesClass.notUndefNull(obj.password) ? obj.password : '',
+                   port: ObjectUtilitiesClass.notUndefNull(obj.port) ? obj.port : 9001})
+  }
+
+  initialize_repository_settings_form_group_() {
+    this.form_group = this.formBuilder.group({
+      ip_address: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.isValidIP)])),
+      protocol: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
+      bucket: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
+      username: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
+      password: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
+      port: new FormControl(null, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]))
+    });
+
+    this.tools_service_.get_repo_settings_snapshot().subscribe((response: RepoSettingsSnapshotClass) => {
+        this.update_form(response);
+    });
+  }
+
   /**
    * Used for making api rest call for repo settings snapshot
    *
@@ -137,7 +130,7 @@ export class RepositorySettingsComponent {
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: GenericJobAndKeyClass) => {
-          this.mat_snackbar_service_.displaySnackBar('Updating repository settings.', MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          this.mat_snackbar_service_.displaySnackBar('Updating repository settings. Check notifications for progress.', MAT_SNACKBAR_CONFIGURATION_60000_DUR);
         },
         (error: ErrorMessageClass | HttpErrorResponse) => {
           this.update_allowed = true;

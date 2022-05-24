@@ -15,6 +15,7 @@ back-end pylint and pytest:
     echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
     echo "TASK [pylint / pytest-cov: back-end] *******************************************"
     web/backend/run_pylint.sh
+    pip3 install --user --no-cache-dir -r requirements.txt
     web/backend/run_unit_tests.sh coverage
   artifacts:
     paths:

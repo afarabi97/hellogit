@@ -5,6 +5,7 @@ This module is for storing standard functions which can be reused anywhere withi
 import base64
 import hashlib
 import os
+import re
 import shutil
 import signal
 import zipfile
@@ -53,7 +54,7 @@ def filter_ip(ipaddress: str) -> bool:
     return False
 
 
-def encode_password(password: str) -> str:
+def string_to_base64(password: str) -> str:
     """
     Encodes a password and garbles is up.
 
@@ -64,7 +65,7 @@ def encode_password(password: str) -> str:
     return base64.b64encode(bytes(password, "utf-8")).decode("utf-8")
 
 
-def decode_password(password_enc: str) -> str:
+def base64_to_string(password_enc: str) -> str:
     """
     Decodes a password.
 
@@ -223,3 +224,16 @@ def get_app_context() -> AppContext:
     from app import create_app
 
     return create_app().app_context()
+
+
+def camel_case_split(some_string: str) -> str:
+    """Splits camel case into separate words. (EX: DeleteIndicies transforms ot Delete Indicies)
+
+    Args:
+        some_string (str): Any camel case string (EX: DeleteIndiciesNow)
+
+    Returns:
+        str: separate word with space in between each.
+    """
+    tokens = re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', some_string)
+    return ' '.join(tokens)

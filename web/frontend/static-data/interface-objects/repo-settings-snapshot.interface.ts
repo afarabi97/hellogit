@@ -1,9 +1,10 @@
 import { RepoSettingsSnapshotInterface } from '../../src/app/modules/tools/interfaces/repo-settings-snapshot.interface';
 
 export const MockRepoSettingsSnapshotInterface: RepoSettingsSnapshotInterface = {
-  access_key: 'username',
+  username: 'username',
   bucket: 's3-bucket',
-  endpoint: '10.10.10.10',
+  ip_address: '10.10.10.10',
   protocol: 'http',
-  secret_key: 'password'
+  password: 'password',
+  port: 9000
 };

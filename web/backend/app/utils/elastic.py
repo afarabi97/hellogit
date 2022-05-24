@@ -1,23 +1,41 @@
+import os
 from base64 import b64decode
-from typing import Dict, List
-
-from app.utils.utils import get_domain
+from datetime import datetime, timedelta
 from elasticsearch import Elasticsearch
-from elasticsearch.client import ClusterClient, IndicesClient, SnapshotClient
-from elasticsearch.exceptions import ConflictError
+from time import sleep
+from typing import Dict, Tuple
+from app.utils.constants import KUBE_CONFIG_LOCATION, CA_BUNDLE
+from app.utils.exceptions import ConfigNotFound
+from app.utils.utils import get_domain
 from kubernetes import client, config
 
-from .constants import CA_BUNDLE
 
 ELASTIC_OP_GROUP = "elasticsearch.k8s.elastic.co"
 ELASTIC_OP_VERSION = "v1"
 ELASTIC_OP_NAMESPACE = "default"
 ELASTIC_OP_NAME = "tfplenum"
 ELASTIC_OP_PLURAL = "elasticsearches"
-KUBE_CONFIG_LOCATION = "/root/.kube/config"
 
 
-def get_elastic_password(name="tfplenum-es-elastic-user", namespace="default"):
+class Timeout(Exception):
+    """Default timeout used for waiting.
+
+    Args:
+        Exception (_type_): _description_
+    """
+    pass
+
+
+def get_elastic_password(name="tfplenum-es-elastic-user", namespace="default") -> str:
+    """Retrieves the elasticsearch password from Kubernetes secrets.
+
+    Args:
+        name (str, optional): Name of the secret. Defaults to "tfplenum-es-elastic-user".
+        namespace (str, optional): Kubernetes namespace. Defaults to "default".
+
+    Returns:
+        str: elasticsearch admin password
+    """
     if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
         config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
     core_v1_api = client.CoreV1Api()
@@ -26,7 +44,16 @@ def get_elastic_password(name="tfplenum-es-elastic-user", namespace="default"):
     return password
 
 
-def get_elastic_service_ip(name="elasticsearch", namespace="default"):
+def get_elastic_service_ip(name="elasticsearch", namespace="default") -> Tuple[str, str]:
+    """Retrieves elasticsearchs external IP address from the Kubernetes service.
+
+    Args:
+        name (str, optional): Name of service. Defaults to "elasticsearch".
+        namespace (str, optional): Kubernetes namespace. Defaults to "default".
+
+    Returns:
+        Tuple[str, str]: _description_
+    """
     ip_address = None
     port = None
     if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
@@ -92,112 +119,65 @@ def ElasticWrapper(timeout: int = 30) -> Elasticsearch:
     )
 
 
-class ElasticsearchManager:
-    default_repo = "tfplenum"
-    managed_indicies = "logstash-*,endgame-*,filebeat-zeek-*,filebeat-suricata-*,winlogbeat-*,sessions2-*"
+def get_elasticsearch_status():
+    if not os.path.isfile(KUBE_CONFIG_LOCATION):
+        raise ConfigNotFound
+    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
+        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
+    api_instance = client.CustomObjectsApi()
+    api_response = api_instance.get_namespaced_custom_object_status(
+        group=ELASTIC_OP_GROUP,
+        version=ELASTIC_OP_VERSION,
+        plural=ELASTIC_OP_PLURAL,
+        namespace=ELASTIC_OP_NAMESPACE,
+        name=ELASTIC_OP_NAME,
+    )
+    return api_response
 
-    def __init__(self, elastic_ip: str):
-        self._elastic_ip = elastic_ip
-        password = get_elastic_password()
-        self._es = Elasticsearch(
-            [self._elastic_ip],
-            use_ssl=True,
-            verify_certs=False,
-            http_auth=("elastic", password),
-            scheme="https",
-        )
 
-        self._snapper = SnapshotClient(self._es)
-        self._cluster_client = ClusterClient(self._es)
-        self._indicies_client = IndicesClient(self._es)
+def get_number_of_elasticsearch_nodes():
+    elasticsearch = get_elasticsearch_status()
+    spec = elasticsearch["spec"]
+    node_sets = spec["nodeSets"]
 
-    def register_repository(
-        self, snap_body: Dict, repo_name: str = default_repo
-    ) -> Dict:
-        """
-        Registers the repository so snapshots can be made.
+    total = 0
+    for node in node_sets:
+        count = node["count"]
+        total += count
 
-        :return: {'acknowledged': True}
-        """
-        ret_val = self._snapper.create_repository(
-            repository=repo_name, body=snap_body)
-        return ret_val
+    return total
 
-    def get_repository(self, repo_name: str = default_repo) -> Dict:
-        """
-        Gets existing repository information.
 
-        :return: {'tfplenum': {'type': 'fs', 'settings': {'location': '/mnt/elastic_snapshots/'}}}
-        """
-        ret_val = self._snapper.get_repository(repository=repo_name)
-        return ret_val
+def wait_for_elastic_cluster_ready(minutes=20):
+    """Checks the elasticsearch nodes and ensure each one in kubernetes is in a ready state.
+    This function is primarly used when updating the deployment in kuberentes.
 
-    def take_snapshot(self, snapshot_name: str, repo_name: str = default_repo) -> Dict:
-        """
-        Take a snapshot of the data. This can be a very long operations.
+    Args:
+        minutes (int, optional): Timeout in minutes. Defaults to 10.
 
-        :return: {'accepted': True}
-        """
-        body = {
-            "ignore_unavailable": True,
-            "indices": self.managed_indicies,
-            "include_global_state": False,
-            "metadata": {
-                "taken_by": "tfplenum_ctrl",
-                "taken_because": "Backup of all related tfplenum indices which includes ecs-zeek-*,logstash-*,endgame-*,filebeat-*, and winlogbeat-*.",
-            },
-        }
-        ret_val = self._snapper.create(repo_name, snapshot_name, body)
-        return ret_val
+    Raises:
+        Timeout: Default Timeout exception
+    """
+    total_nodes = get_number_of_elasticsearch_nodes()
 
-    def verify_repository(self, repo_name: str = default_repo) -> Dict:
-        """
-        :return: {'nodes': {'SkxeVXeGSJO04_umeOJsdg': {'name': 'elasticsearch-master-0'},
-                  'n5_OWziJTS6TJI55jfqp0Q': {'name': 'elasticsearch-master-1'},
-                  'MpsJ0M3vSVmA_cUw_PkSSA': {'name': 'elasticsearch-master-2'}}}
-        """
-        ret_val = self._snapper.verify_repository(repo_name)
-        return ret_val
+    if minutes > 0:
+        # The operator doesn't work instantaneously.
+        sleep(30)
 
-    def snapshot_status(self, snap_name: str, repo_name: str = default_repo) -> str:
-        ret_val = self._snapper.status(repo_name, snap_name)
-        snapshot = ret_val["snapshots"][0]
-        return snapshot["state"]
+    future_time = datetime.utcnow() + timedelta(minutes=minutes)
 
-    def get_snapshots(self, repo_name: str = default_repo) -> List[Dict]:
-        ret_val = self._snapper.get(repo_name, "_all")
-        return ret_val["snapshots"]
+    check_cluster_status = True
+    while check_cluster_status:
+        elasticsearch = get_elasticsearch_status()
+        status = elasticsearch["status"]
+        available_nodes = status["availableNodes"]
+        health = status["health"]
+        phase = status["phase"]
 
-    def prep_for_restart(self):
-        # follows https://www.elastic.co/guide/en/elasticsearch/reference/7.0/restart-upgrade.html
-        body = {"persistent": {"cluster.routing.allocation.enable": "primaries"}}
-        ret_val = self._cluster_client.put_settings(body)
-        if ret_val["acknowledged"]:
-            try:
-                ret_val = self._indicies_client.flush_synced()
-            except ConflictError as e:
-                print(str(e))
+        if phase == "Ready" and health == "green" and available_nodes == total_nodes:
+            check_cluster_status = False
+        elif future_time <= datetime.utcnow():
+            raise Timeout(
+                "The Elastic cluster took longer to start than expected.")
         else:
-            raise Exception("Failed to set routing allocation.")
-
-    def reenable_allocation(self) -> bool:
-        # follows https://www.elastic.co/guide/en/elasticsearch/reference/7.0/restart-upgrade.html
-        body = {"persistent": {"cluster.routing.allocation.enable": None}}
-        ret_val = self._cluster_client.put_settings(body)
-        return ret_val["acknowledged"]
-
-    def is_cluster_green(self) -> bool:
-        try:
-            ret_val = self._cluster_client.health()
-            return ret_val["status"].lower() == "green"
-        except Exception:
-            pass
-        return False
-
-    def is_cluster_yellow(self) -> bool:
-        try:
-            ret_val = self._cluster_client.health()
-            return ret_val["status"].lower() == "yellow"
-        except Exception:
-            pass
-        return False
+            sleep(10)

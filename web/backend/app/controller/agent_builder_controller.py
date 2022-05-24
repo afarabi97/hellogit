@@ -21,7 +21,7 @@ from app.utils.collections import (mongo_windows_installer_configs,
 from app.utils.constants import (AGENT_PKGS_DIR, AGENT_UPLOAD_DIR,
                                  TARGET_STATES, TEMPLATE_DIR)
 from app.utils.logging import logger
-from app.utils.utils import encode_password, fix_hostname, sanitize_dictionary
+from app.utils.utils import string_to_base64, fix_hostname, sanitize_dictionary
 from bson import ObjectId
 from flask import Response, json, request, send_file
 from flask_restx import Namespace, Resource
@@ -234,7 +234,7 @@ class AgentInstallerConfigs(Resource):
     def post(self) -> Response:
         payload = request.get_json()
         sanitize_dictionary(payload)
-        payload['endgame_password'] = encode_password(
+        payload['endgame_password'] = string_to_base64(
             payload['endgame_password'])
         matches = win_install_cnxn.count(
             {"config_name": payload["config_name"]})

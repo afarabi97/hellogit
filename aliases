@@ -23,7 +23,6 @@ alias parse_cold_logs='/opt/tfplenum/scripts/process_offline_logs.py'
 alias run_flask_unit_tests='/opt/tfplenum/web/backend/run_unit_tests.sh'
 alias run_flask_unit_tests_with_coverage='/opt/tfplenum/web/backend/run_unit_tests.sh coverage'
 alias run_acceptance_tests='/opt/tfplenum/web/backend/run_acceptance_tests.sh'
-alias run_backend_unit_tests='/bin/bash ./web/backend/run_backend_tests.sh -T unit --with-coverage'
 alias update_local_helm_charts='/opt/tfplenum/.venv/bin/python3 /opt/tfplenum/component-builder/update_charts.py --chart local'
 function run_tfplenum_docker_test () {
     bname=$(basename "$PWD")

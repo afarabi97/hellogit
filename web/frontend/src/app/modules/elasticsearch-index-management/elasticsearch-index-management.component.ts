@@ -1,3 +1,4 @@
+import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, HostBinding, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
@@ -7,7 +8,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from 'src/app/constants/cvah.constants';
 
 import { ErrorMessageClass, SuccessMessageClass } from '../../classes';
-import { MatOptionInterface } from '../../interfaces';
+import { MatOptionInterface2 } from '../../interfaces';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import {
   ELASTICSEARCH_INDEX_MANAGEMENT_TITLE,
@@ -47,7 +48,8 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
   is_editable: boolean;
   is_loading: boolean;
   // Usewd for passing list of actions for mat option
-  actions: MatOptionInterface[];
+  actions: MatOptionInterface2[];
+  instructions: string;
 
   /**
    * Creates an instance of ElasticsearchIndexManagementComponent.
@@ -77,6 +79,24 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
   ngOnInit(): void {
     this.title_.setTitle(ELASTICSEARCH_INDEX_MANAGEMENT_TITLE);
     this.initialize_form_groups_();
+    this.index_management_service_.minio_check().subscribe(data => {
+      this.set_backup_option(false);
+    }, error => {
+      console.log(error);
+      if (error && error.error && error.error["error_message"]){
+        this.mat_snackbar_service_.displaySnackBar(error.error["error_message"]);
+      }
+      this.set_backup_option(true);
+    });
+  }
+
+  private set_backup_option(isDisabled: boolean){
+    for (let action of this.actions){
+      if (action.value === "BackupIndices"){
+        action.isDisabled = isDisabled;
+        break;
+      }
+    }
   }
 
   /**
@@ -106,16 +126,30 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
   next(): void {
     switch (this.index_management_actions_form_group.value.action) {
       case 'DeleteIndices':
+        this.instructions = "Select one or more Index to delete and click Update."
         this.is_loading = true;
         this.api_get_closed_indices_();
         break;
       case 'CloseIndices':
+        this.instructions = "Select one or more Index to close and click Update."
+        this.is_loading = true;
+        this.api_get_all_indices_();
+        break;
+      case 'BackupIndices':
+        this.instructions = "Select one or more Index to backup and click Update."
         this.is_loading = true;
         this.api_get_all_indices_();
         break;
       default:
         this.reset_form_();
         break;
+    }
+  }
+
+  stepper_change(event: StepperSelectionEvent) {
+    // Index List
+    if (event.selectedIndex === 1){
+      this.next();
     }
   }
 

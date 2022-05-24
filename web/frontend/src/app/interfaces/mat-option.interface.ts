@@ -9,3 +9,10 @@ export interface MatOptionInterface {
   value: string;
   name?: string;
 }
+
+
+export interface MatOptionInterface2 {
+  value: string;
+  name?: string;
+  isDisabled: boolean;
+}

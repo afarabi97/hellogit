@@ -6,13 +6,13 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 AGENT_PKGS_DIR = SCRIPT_DIR + '/../agent_pkgs/'
 
 sys.path.append(SCRIPT_DIR + "/../web/backend/")
-from app.utils.connection_mngs import KubernetesSecret, get_kubernetes_secret
+from app.utils.connection_mngs import KubernetesSecret, get_kubernetes_certifcate_secret
 from app.service.job_service import run_command2
 from pathlib import Path
 
 
 def retrieve_certificate(certificate_name: str):
-    secret = get_kubernetes_secret(certificate_name) # type: KubernetesSecret
+    secret = get_kubernetes_certifcate_secret(certificate_name) # type: KubernetesSecret
     folder = Path(SCRIPT_DIR + "/" + certificate_name)
     folder.mkdir(exist_ok=True)
     if secret:

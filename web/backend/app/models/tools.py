@@ -1,7 +1,6 @@
-from ipaddress import IPv4Address
-
 from app.models import Model
 from flask_restx import Namespace, fields
+
 
 TOOLS_NS = Namespace("tools", description="Tools page related operations.")
 
@@ -70,24 +69,3 @@ class InitialDeviceStatesModel(Model):
 
     def add_interface(self, item: NetworkInterfaceModel):
         self.interfaces.append(item)
-
-class RepoSettingsModel(Model):
-    DTO = TOOLS_NS.model('RepoSettings', {
-        "access_key": fields.String(example="user",
-                              description="Repo username"),
-        "bucket": fields.String(example="s3-bucket",
-                              description="S3 bucket name."),
-        "endpoint": fields.String(example="10.10.10.10",
-                              description="Repo IP Address."),
-        "protocol": fields.String(example="http",
-                              description="Web protocol http or https."),
-        "secret_key": fields.String(example="password",
-                              description="Repo password.")
-    })
-
-    def __init__(self, access_key: str, bucket: str, endpoint: IPv4Address, protocol: str, secret_key: str):
-        self.access_key = access_key
-        self.bucket = bucket
-        self.endpoint = endpoint
-        self.protocol = protocol
-        self.secret_key = secret_key

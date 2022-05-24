@@ -13,7 +13,7 @@ from app.models.settings.settings_base import (SettingsBase,
                                                validate_password_stigs)
 from app.utils.collections import mongo_settings
 from app.utils.constants import MIP_DIR, MIP_SETTINGS_ID, TEMPLATE_DIR
-from app.utils.utils import decode_password, encode_password
+from app.utils.utils import base64_to_string, string_to_base64
 from flask_restx import fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from marshmallow import Schema
@@ -78,10 +78,10 @@ class MipSettingsForm(SettingsBase):
         mongo_document = mongo_settings().find_one(query)
         if mongo_document:
             mip_settings = cls.schema.load(mongo_document, partial=("nodes",))
-            mip_settings.password = decode_password(mip_settings.password)
-            mip_settings.user_password = decode_password(
+            mip_settings.password = base64_to_string(mip_settings.password)
+            mip_settings.user_password = base64_to_string(
                 mip_settings.user_password)
-            mip_settings.luks_password = decode_password(
+            mip_settings.luks_password = base64_to_string(
                 mip_settings.luks_password)
             general_dict = GeneralSettingsForm.load_from_db().to_dict()
             mip_dict = cls.schema.dump(mip_settings)
@@ -95,18 +95,18 @@ class MipSettingsForm(SettingsBase):
         mongo_document = mongo_settings().find_one(query)
         if mongo_document:
             mip_settings = cls.schema.load(mongo_document, partial=("nodes",))
-            mip_settings.password = decode_password(mip_settings.password)
-            mip_settings.user_password = decode_password(
+            mip_settings.password = base64_to_string(mip_settings.password)
+            mip_settings.user_password = base64_to_string(
                 mip_settings.user_password)
-            mip_settings.luks_password = decode_password(
+            mip_settings.luks_password = base64_to_string(
                 mip_settings.luks_password)
             return mip_settings
         return None
 
     def save_to_db(self):
-        self.password = encode_password(self.password)
-        self.user_password = encode_password(self.user_password)
-        self.luks_password = encode_password(self.luks_password)
+        self.password = string_to_base64(self.password)
+        self.user_password = string_to_base64(self.user_password)
+        self.luks_password = string_to_base64(self.luks_password)
         mip_settings = self.schema.dump(self)
         mongo_settings().find_one_and_replace({"_id": MIP_SETTINGS_ID},
                                               mip_settings,

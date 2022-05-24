@@ -16,6 +16,7 @@ import { KitPasswordInterface } from '../interfaces/kit-password.interface';
 import { NetworkDeviceStateInterface } from '../interfaces/network-device-state.interface';
 import { RepoSettingsSnapshotInterface } from '../interfaces/repo-settings-snapshot.interface';
 import { ToolsServiceInterface } from '../interfaces/service-interfaces/tools-service.interface';
+import { RepoSettingsSnapshotClass } from '../classes/repo-settings-snapshot.class';
 
 const entityConfig: EntityConfig = { entityPart: '', type: 'ToolsService' };
 
@@ -92,9 +93,15 @@ export class ToolsService extends ApiService<any> implements ToolsServiceInterfa
    * @memberof ToolsService
    */
   repo_settings_snapshot(repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass> {
-    return this.httpClient_.post<GenericJobAndKeyInterface>(environment.TOOLS_SERVICE_REPO_SETTINGS_SNAPSHOT, repo_settings_snapshot)
+    return this.httpClient_.post<GenericJobAndKeyInterface>(environment.MINIO_REPOSITORY_SETTINGS_URL, repo_settings_snapshot)
       .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
             catchError((error: HttpErrorResponse) => this.handleError('repo settings snapshot', error)));
+  }
+
+  get_repo_settings_snapshot(): Observable<RepoSettingsSnapshotInterface> {
+    return this.httpClient_.get<RepoSettingsSnapshotInterface>(environment.MINIO_REPOSITORY_SETTINGS_URL)
+      .pipe(map((response: RepoSettingsSnapshotInterface) => new RepoSettingsSnapshotClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('get repo settings snapshot', error)));
   }
 
   /**

@@ -5,9 +5,10 @@
  * @interface RepoSettingsSnapshotInterface
  */
 export interface RepoSettingsSnapshotInterface {
-  endpoint: string;
+  ip_address: string;
   protocol: string;
   bucket: string;
-  access_key: string;
-  secret_key: string;
+  username: string;
+  password: string;
+  port: Number;
 }

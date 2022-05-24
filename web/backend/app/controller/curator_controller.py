@@ -1,12 +1,17 @@
 import re
 
 from app.middleware import controller_maintainer_required
+from app.models import PostValidationBasicError
 from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
+from app.models.curator import ElasticIndexModel, CURATOR_NS, CuratorProcessModel
+from app.models.settings.minio_settings import RepoSettingsModel
 from app.service.curator_service import execute_curator
-from app.utils.elastic import ElasticWrapper
+from app.utils.elastic import ElasticWrapper, wait_for_elastic_cluster_ready, Timeout
 from app.utils.logging import logger
+from app.utils.minio import MinIOManager
 from flask import Response, request
-from flask_restx import Namespace, Resource
+from flask_restx import Resource
+
 
 EXCLUDE_FILTER = (
     "^(.ml-config|.kibana|.monitoring|.watches|.apm|.triggered_watches|.security|.siem-signals|.security-tokens|"
@@ -16,7 +21,6 @@ EXCLUDE_FILTER = (
 DEFAULT_ERROR_MESSAGE_INDICES = {
     "error_message": "Something went wrong getting the Elasticsearch indices."
 }
-CURATOR_NS = Namespace("curator", description="Elasticsearch curator.")
 
 
 def check_read_only_allow_delete(client, index) -> bool:
@@ -37,15 +41,24 @@ def is_current_alias_writable(index, aliases) -> bool:
     return False
 
 
-@CURATOR_NS.route("/indices/closed")
-class GetClosedIndices(Resource):
-    @CURATOR_NS.response(200, "Closed Indices")
+@CURATOR_NS.route("/indices/<status>")
+class GetIndices(Resource):
+    VALID_PARAMS = ["open", "close"]
+
+    @CURATOR_NS.doc(description="Get Elastic index names and their sizes for close, backup and delete operations. \
+                                 This call excludes private indicies to ensure that users do not accidentally delete them.",
+                    params={"status": "Can be either open or close"})
+    @CURATOR_NS.response(200, "Closed Indices", [ElasticIndexModel.DTO])
     @CURATOR_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @CURATOR_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
-    def get(self) -> Response:
+    def get(self, status: str) -> Response:
+        if status not in self.VALID_PARAMS:
+            return {"error_message": f"Must be {str(self.VALID_PARAMS)}"}, 400
+
         try:
             regex = re.compile(EXCLUDE_FILTER)
-            deleteable_indices = []
+            indicies = []
             client = ElasticWrapper()
             indices = client.cat.indices(index="*", params={"format": "json"})
             filtered_idx_names = [
@@ -54,59 +67,18 @@ class GetClosedIndices(Resource):
             filtered = [i for i in indices if not regex.match(i["index"])]
             all_aliases = client.indices.get_alias(index=filtered_idx_names)
             for index in filtered:
-                size = None
-                if not index["store.size"]:
-                    size = ""
+                model = ElasticIndexModel.load_from_elastic(index)
+                if index["status"] == status:
+                    indicies.append(model.to_dict())
                 else:
-                    size = index["store.size"]
-                idx_name = index["index"]
-                aliases = all_aliases[idx_name]["aliases"]
-                data = {"index": idx_name, "size": size}
-                if index["status"] == "close":
-                    deleteable_indices.append(data)
-                else:
-                    if check_read_only_allow_delete(
-                        client, idx_name
-                    ) and not is_current_alias_writable(idx_name, aliases):
-                        deleteable_indices.append(data)
-            if deleteable_indices:
-                deleteable_indices = sorted(
-                    deleteable_indices, key=lambda d: d["index"]
-                )
-            return deleteable_indices
-        except Exception as exec:
-            print(str(exec))
-            logger.exception(exec)
-            return {
-                "error_message": "Something went wrong getting the Elasticsearch indices."
-            }, 500
+                    aliases = all_aliases[model.index]["aliases"]
+                    if check_read_only_allow_delete(client, model.index) \
+                        and not is_current_alias_writable(model.index, aliases):
+                            indicies.append(model.to_dict())
 
-
-@CURATOR_NS.route("/indices")
-class GetOpenedIndices(Resource):
-    @CURATOR_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
-    @CURATOR_NS.response(200, "Opened Indices")
-    @controller_maintainer_required
-    def get(self) -> Response:
-        try:
-            regex = re.compile(EXCLUDE_FILTER)
-            open_indices = []
-            client = ElasticWrapper()
-            indices = client.cat.indices(index="*", params={"format": "json"})
-            filtered = [i for i in indices if not regex.match(i["index"])]
-            for index in filtered:
-                idx_name = index["index"]
-                size = None
-                if not index["store.size"]:
-                    size = "0kb"
-                else:
-                    size = index["store.size"]
-                open_indices.append({"index": idx_name, "size": size})
-            if open_indices:
-                open_indices = sorted(open_indices, key=lambda d: d["index"])
-            return open_indices
+            indicies = sorted(indicies, key=lambda d: d["index"])
+            return indicies
         except Exception as exec:
-            print(str(exec))
             logger.exception(exec)
             return {
                 "error_message": "Something went wrong getting the Elasticsearch indices."
@@ -115,28 +87,50 @@ class GetOpenedIndices(Resource):
 
 @CURATOR_NS.route("/process")
 class IndexMangement(Resource):
+
+    @CURATOR_NS.doc(description="Main process function for processing the close, backup or \
+                                 delete operation on a list of inidicies passed in.")
     @CURATOR_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @CURATOR_NS.response(200, "Index Management", COMMON_SUCCESS_MESSAGE)
+    @CURATOR_NS.expect(CuratorProcessModel.DTO)
     @controller_maintainer_required
     def post(self) -> Response:
-        payload = request.get_json()
+        try:
+            payload = request.get_json()
+            model = CuratorProcessModel.load_from_request(payload)
+            model.post_validation()
+            execute_curator.delay(model)
+            return {
+                "success_message": "Curator job submitted check notifications for progress."
+            }
+        except PostValidationBasicError as e:
+            return e.error_payload, e.http_code
+        except Exception as e:
+            logger.exception(e)
+            return {"error_message": str(e)}, 500
 
-        if "action" not in payload or payload["action"] not in [
-            "DeleteIndices",
-            "CloseIndices",
-            "CleanUpOptimize",
-        ]:
-            return {"error_message": "Invalid value for action"}, 400
-        if "index_list" not in payload or payload["index_list"] is None:
-            return {"error_message": "Index required"}, 400
-        if len(payload["index_list"]) < 1:
-            return {"error_message": "Index list is empty"}, 400
 
-        units = "minutes"
-        age = "1"
-        action = payload["action"]
-        index_list = payload["index_list"]
-        execute_curator.delay(action, index_list, units, age)
-        return {
-            "success_message": "Curator job submitted check notifications for progress."
-        }
+@CURATOR_NS.route("/minio_check")
+class MinioMng(Resource):
+
+    @CURATOR_NS.doc(description="Does a simple minio connectivity check and \
+                                 ensures the saved credentials are also valid.")
+    @CURATOR_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @CURATOR_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
+    @controller_maintainer_required
+    def get(self) -> Response:
+        try:
+            wait_for_elastic_cluster_ready(minutes=0)
+            model = RepoSettingsModel.load_from_kubernetes_and_elasticsearch()
+            mng = MinIOManager(model)
+            is_connected, msg = mng.is_connected()
+            if is_connected:
+                return {"success_message": "MinIO is up!"}, 200
+            else:
+                return {"error_message": msg}, 500
+        except Timeout as e:
+            logger.exception(e)
+            return {"error_message": "Elastic cluster is not in a ready state."}, 500
+        except Exception as e:
+            logger.exception(e)
+            return {"error_message": str(e)}, 500

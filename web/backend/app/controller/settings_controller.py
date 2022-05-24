@@ -4,7 +4,6 @@ Main module for handling all of the Kit Configuration REST calls.
 import ssl
 from typing import Dict, List
 
-from app.common import ERROR_RESPONSE
 from app.middleware import controller_admin_required
 from app.models import DBModelNotFound, PostValidationError
 from app.models.common import COMMON_ERROR_DTO, COMMON_MESSAGE, JobID
@@ -13,15 +12,21 @@ from app.models.settings.general_settings import (SETINGS_NS,
                                                   GeneralSettingsForm)
 from app.models.settings.kit_settings import KitSettingsForm
 from app.models.settings.mip_settings import MipSettingsForm
+from app.models.common import COMMON_ERROR_MESSAGE, JobID
+from app.models.settings.minio_settings import RepoSettingsModel
+from app.service.elastic_service import setup_s3_repository
 from app.service.node_service import execute, send_notification
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.constants import DEPLOYMENT_JOBS
+from app.utils.elastic import wait_for_elastic_cluster_ready, Timeout
 from app.utils.logging import logger
+from app.utils.minio import MinIOManager
 from flask import Response
 from flask_restx import Resource
 from marshmallow.exceptions import ValidationError
 from pyVim.connect import Connect
 from pyVmomi import vim
+
 
 _JOB_NAME = "Settings"
 
@@ -196,26 +201,6 @@ class KitSettings(Resource):
         except DBModelNotFound:
             return {"message": "DBModelNotFound"}, 200
 
-    # TODO
-    # @SETINGS_NS.expect(Node.DTO)
-    # @SETINGS_NS.response(200, 'JobID Model', JobID.DTO)
-    # @SETINGS_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
-    # @controller_admin_required
-    # def put(self):
-    #     job = None
-    #     try:
-    #         kit_settings_form = KitSettingsForm.load_from_db()
-    #         _generate_inventory(kit_settings_form)
-    #         job = add_node.delay(node_payload=add_node_payload,
-    #                              password=kickstart_form.root_password)
-    #     except ValidationError as e:
-    #         return e.normalized_messages(), 400
-    #     except PostValidationError as e:
-    #         return {"post_validation": e.errors_msgs}, 400
-    #     except DBModelNotFound as e:
-    #         return {"post_validation": [str(e)]}, 400
-
-    #     return JobID(job).to_dict()
 
     @SETINGS_NS.expect(KitSettingsForm.DTO)
     @SETINGS_NS.response(200, "JobID Model", JobID.DTO)
@@ -361,3 +346,47 @@ class EsxiSettingsTest(Resource):
             return {"message": "DBModelNotFound"}, 200
 
         return _test_esxi_client(esxi_settings)
+
+
+@SETINGS_NS.route("/minio_repository")
+class ElasticSnapshot(Resource):
+
+    @SETINGS_NS.doc(description="Enables elastic snapshot functionality for MinIO on the Index Management page.")
+    @SETINGS_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @SETINGS_NS.response(400, "ErrorModel", COMMON_ERROR_DTO)
+    @SETINGS_NS.expect(RepoSettingsModel.DTO)
+    @controller_admin_required
+    def post(self) -> Response:
+        try:
+            wait_for_elastic_cluster_ready(minutes=0)
+            model = RepoSettingsModel.load_repo_settings_from_request(SETINGS_NS.payload)
+            mng = MinIOManager(model)
+            is_connected, error_message = mng.is_connected()
+            if not is_connected:
+                return {"error_message": error_message}, 500
+
+            mng.create_bucket(model.bucket)
+            job = setup_s3_repository.delay(model)
+            return JobID(job).to_dict(), 200
+        except Timeout as e:
+            logger.exception(e)
+            return {"error_message": "Elastic cluster is not in a ready state."}, 500
+        except ValidationError as e:
+            logger.exception(e)
+            return e.normalized_messages(), 400
+        except Exception as e:
+            logger.exception(e)
+            return {"error_message": str(e)}, 500
+
+    @SETINGS_NS.doc(description="Retrieves the MinIO settings object that was previously \
+                                 updated/saved or a default object.")
+    @SETINGS_NS.response(200, "RepoSettingsModel", RepoSettingsModel.DTO)
+    @SETINGS_NS.response(500, "ErrorMessage", COMMON_MESSAGE)
+    @controller_admin_required
+    def get(self) -> Response:
+        try:
+            model = RepoSettingsModel.load_from_kubernetes_and_elasticsearch()
+            return model.to_dict(), 200
+        except Exception as e:
+            logger.exception(e)
+            return {"error_message": str(e)}, 500

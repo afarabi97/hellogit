@@ -1,15 +1,17 @@
+import paramiko
 import socket
 import sys
+
 from base64 import b64decode
 from datetime import datetime
+
 from pathlib import Path
 from time import sleep
 from typing import Dict
 
-import paramiko
 from app.utils.constants import DATE_FORMAT_STR, KIT_SETTINGS_ID
 from app.utils.logging import logger
-from app.utils.utils import decode_password
+from app.utils.utils import base64_to_string
 from bson import ObjectId
 from fabric import Config, Connection
 from kubernetes import client, config
@@ -80,7 +82,7 @@ class FabricConnection:
 
     def _set_root_password(self) -> str:
         kit_settings = mongo_settings().find_one({"_id": KIT_SETTINGS_ID})
-        self._password = decode_password(kit_settings["password"])
+        self._password = base64_to_string(kit_settings["password"])
 
     def _establish_fabric_connection(self) -> None:
         if self._use_ssh_key:
@@ -235,7 +237,7 @@ class KubernetesSecret:
         tls_key.write_text(self.tls_key)
 
 
-def get_kubernetes_secret(
+def get_kubernetes_certifcate_secret(
     secret_name: str, namespace: str = "default", retries: int = 3
 ) -> KubernetesSecret:
     while retries != 0:

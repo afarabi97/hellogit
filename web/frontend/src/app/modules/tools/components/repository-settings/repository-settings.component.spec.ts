@@ -13,7 +13,7 @@ import { InjectorModule } from '../../../utilily-modules/injector.module';
 import { ToolsModule } from '../../tools.module';
 import { RepositorySettingsComponent } from './repository-settings.component';
 
-describe('RepositorySettingsComponent', () => {
+fdescribe('RepositorySettingsComponent', () => {
   let component: RepositorySettingsComponent;
   let fixture: ComponentFixture<RepositorySettingsComponent>;
 
@@ -22,7 +22,6 @@ describe('RepositorySettingsComponent', () => {
   let spyUpdateButtonClick: jasmine.Spy<any>;
   let spyGetErrorMessage: jasmine.Spy<any>;
   let spyInititalizeRepositorySettingsFormGroup: jasmine.Spy<any>;
-  let spySetRepositorySettingsFormGroup: jasmine.Spy<any>;
   let spySetupWebsocketOnbroadcast: jasmine.Spy<any>;
   let spyApiRepoSettingsSnapshot: jasmine.Spy<any>;
 
@@ -62,7 +61,6 @@ describe('RepositorySettingsComponent', () => {
     spyUpdateButtonClick = spyOn(component, 'update_button_click').and.callThrough();
     spyGetErrorMessage = spyOn(component, 'get_error_message').and.callThrough();
     spyInititalizeRepositorySettingsFormGroup = spyOn<any>(component, 'initialize_repository_settings_form_group_').and.callThrough();
-    spySetRepositorySettingsFormGroup = spyOn<any>(component, 'set_repositiry_settings_form_group_').and.callThrough();
     spySetupWebsocketOnbroadcast = spyOn<any>(component, 'setup_websocket_onbroadcast_').and.callThrough();
     spyApiRepoSettingsSnapshot = spyOn<any>(component, 'api_repo_settings_snapshot_').and.callThrough();
 
@@ -75,7 +73,6 @@ describe('RepositorySettingsComponent', () => {
     spyUpdateButtonClick.calls.reset();
     spyGetErrorMessage.calls.reset();
     spyInititalizeRepositorySettingsFormGroup.calls.reset();
-    spySetRepositorySettingsFormGroup.calls.reset();
     spySetupWebsocketOnbroadcast.calls.reset();
     spyApiRepoSettingsSnapshot.calls.reset();
   };
@@ -117,7 +114,7 @@ describe('RepositorySettingsComponent', () => {
       it('should call update_button_click()', () => {
         reset();
 
-        component.repository_settings_form_group = repository_settings_form_group;
+        component.form_group = repository_settings_form_group;
         component.update_button_click();
 
         expect(component.update_button_click).toHaveBeenCalled();
@@ -127,7 +124,7 @@ describe('RepositorySettingsComponent', () => {
         reset();
 
         component.update_allowed = true;
-        component.repository_settings_form_group = repository_settings_form_group;
+        component.form_group = repository_settings_form_group;
         component.update_button_click();
 
         expect(component.update_allowed).toBeFalse();
@@ -136,7 +133,7 @@ describe('RepositorySettingsComponent', () => {
       it('should call api_repo_settings_snapshot_() from update_button_click()', () => {
         reset();
 
-        component.repository_settings_form_group = repository_settings_form_group;
+        component.form_group = repository_settings_form_group;
         component.update_button_click();
 
         expect(component['api_repo_settings_snapshot_']).toHaveBeenCalled();
@@ -176,32 +173,6 @@ describe('RepositorySettingsComponent', () => {
         component['initialize_repository_settings_form_group_']();
 
         expect(component['initialize_repository_settings_form_group_']).toHaveBeenCalled();
-      });
-
-      it('should call set_repositiry_settings_form_group_() from initialize_repository_settings_form_group_()', () => {
-        reset();
-
-        component['initialize_repository_settings_form_group_']();
-
-        expect(component['set_repositiry_settings_form_group_']).toHaveBeenCalled();
-      });
-    });
-
-    describe('private set_repositiry_settings_form_group_()', () => {
-      it('should call set_repositiry_settings_form_group_()', () => {
-        reset();
-
-        component['set_repositiry_settings_form_group_'](repository_settings_form_group);
-
-        expect(component['set_repositiry_settings_form_group_']).toHaveBeenCalled();
-      });
-
-      it('should call set_repositiry_settings_form_group_() and set repository_settings_form_group with passed value', () => {
-        reset();
-
-        component['set_repositiry_settings_form_group_'](repository_settings_form_group);
-
-        expect(component.repository_settings_form_group).toEqual(repository_settings_form_group);
       });
     });
 

@@ -3,7 +3,7 @@ import re
 from typing import Dict
 
 from app.models import Model
-from app.utils.utils import decode_password
+from app.utils.utils import base64_to_string
 from marshmallow import ValidationError
 
 
@@ -67,7 +67,7 @@ def _is_base64(value: str):
     Returns decoded string if it's base64 encoded otherwise returns original string.
     """
     try:
-        return decode_password(value)
+        return base64_to_string(value)
     except binascii.Error:
         return value
 

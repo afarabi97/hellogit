@@ -1,0 +1,265 @@
+{
+  "arkime_sessions3-220529h18":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220523h18":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220522h12":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220529h06":{
+     "aliases":{
+
+     }
+  },
+  "winlogbeat-2022.05.20-000001":{
+     "aliases":{
+        "winlogbeat":{
+           "is_write_index":true
+        }
+     }
+  },
+  "arkime_sessions3-220529h12":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220527h12":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220530h12":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220528h00":{
+     "aliases":{
+
+     }
+  },
+  "filebeat-suricata-2022.05.24-000002":{
+     "aliases":{
+        "filebeat-suricata":{
+           "is_write_index":true
+        }
+     }
+  },
+  "arkime_sessions3-220531h12":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220525h00":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220524h06":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220530h06":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220527h06":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220530h18":{
+     "aliases":{
+
+     }
+  },
+  "filebeat-zeek-2022.05.24-000002":{
+     "aliases":{
+        "filebeat-zeek":{
+           "is_write_index":true
+        }
+     }
+  },
+  "arkime_sessions3-220526h12":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220522h06":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220527h00":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220525h18":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220531h06":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220526h18":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220523h12":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220528h12":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220525h12":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220529h00":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220528h06":{
+     "aliases":{
+
+     }
+  },
+  "filebeat-misp-2022.05.25-000002":{
+     "aliases":{
+        "filebeat-misp":{
+           "is_write_index":true
+        }
+     }
+  },
+  "arkime_sessions3-220521h12":{
+     "aliases":{
+
+     }
+  },
+  "auditbeat-internal-2022.05.31-000024":{
+     "aliases":{
+        "auditbeat-internal":{
+           "is_write_index":true
+        }
+     }
+  },
+  "filebeat-external-2022.05.20-000001":{
+     "aliases":{
+        "filebeat-external":{
+           "is_write_index":true
+        }
+     }
+  },
+  "arkime_sessions3-220531h00":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220524h12":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220530h00":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220521h00":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220524h18":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220526h06":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220522h18":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220524h00":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220527h18":{
+     "aliases":{
+
+     }
+  },
+  "filebeat-7.16.2-2022.05.20-000001":{
+     "aliases":{
+        "filebeat-7.16.2":{
+           "is_write_index":true
+        }
+     }
+  },
+  "metricbeat-7.16.2-2022.05.31-000068":{
+     "aliases":{
+        "metricbeat-7.16.2":{
+           "is_write_index":true
+        }
+     }
+  },
+  "auditbeat-external-2022.05.30-000011":{
+     "aliases":{
+        "auditbeat-external":{
+           "is_write_index":true
+        }
+     }
+  },
+  "arkime_sessions3-220522h00":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220528h18":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220521h18":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220525h06":{
+     "aliases":{
+
+     }
+  },
+  "arkime_sessions3-220526h00":{
+     "aliases":{
+
+     }
+  }
+}

@@ -4,7 +4,6 @@ from typing import Tuple
 
 
 GENERAL_SETTINGS_ID = "general_settings_form"
-KUBE_CONFIG_LOCATION = "/root/.kube/config"
 
 
 def get_domain(ctrl_ip: str) -> str:

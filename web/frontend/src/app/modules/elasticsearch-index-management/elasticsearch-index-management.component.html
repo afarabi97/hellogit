@@ -6,15 +6,21 @@
       </mat-card-header>
       <mat-progress-bar *ngIf="is_loading" mode="indeterminate"></mat-progress-bar>
       <mat-card-content fxLayout="column" fxLayoutAlign="space-around stretch">
-        <mat-horizontal-stepper #stepper linear="true">
+        <mat-horizontal-stepper #stepper linear="true" (selectionChange)="stepper_change($event)">
 
           <!-- Index Action -->
           <mat-step [stepControl]="index_management_actions_form_group" [editable]="is_editable">
             <ng-template matStepLabel>Index Action</ng-template>
             <div>
-              <p>Select an action; Close or Delete</p>
-              <p>Close: A closed index will block read / write operations and does not allow all operations that opened indices allow.</p>
-              <p>Delete: A delete index will delete all metadata in the index and clear out all shards and replicas tied to it.
+              <p>Select an action; <strong>Close</strong>, <strong>Backup and close</strong> or <strong>Delete</strong></p>
+              <p>Close: A closed index will block read / write operations and does
+                 not allow all operations that opened indices allow.  Additionally,
+                 if the index is being actively written to it will also be rolled over which
+                 means a new one will be created to prevent applications from crashing.</p>
+              <p>Backup and close: A backed up index will be saved in the configured MINIO
+                 server before being subsequently closed.</p>
+              <p>Delete: A delete index will delete all metadata in the index and clear out
+                 all shards and replicas tied to it.
                  To delete an index it must be closed first.</p>
             </div>
             <form [formGroup]="index_management_actions_form_group" #ima_form_directive="ngForm">
@@ -27,6 +33,7 @@
                               formControlName="action" required>
                     <mat-option *ngFor="let action of actions; let i = index;"
                                 id="{{ 'cvah-elasticsearch-index-management-action-mat-option-' + i }}"
+                                [disabled]="action.isDisabled"
                                 [value]="action.value">{{ action.name }}</mat-option>
                   </mat-select>
                 </mat-form-field>
@@ -43,7 +50,7 @@
           <mat-step [stepControl]="index_management_list_form_group" [editable]="is_editable">
             <ng-template matStepLabel>Index List</ng-template>
             <div>
-              <p>Select one or more Index and Click Update</p>
+              <p>{{ instructions }}</p>
             </div>
             <form [formGroup]="index_management_list_form_group" #iml_form_directive="ngForm">
               <div fxLayout="column" fxLayoutAlign="start stretch">

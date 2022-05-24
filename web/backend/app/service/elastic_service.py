@@ -1,17 +1,15 @@
-import base64
-import os
 import traceback
+import yaml
+
 from datetime import datetime, timedelta
 from time import sleep
 from typing import Dict
-
-import yaml
 from app.models.scale import read
+from app.models.settings.minio_settings import RepoSettingsModel
 from app.service.scale_service import check_scale_status
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.connection_mngs import REDIS_CLIENT
-from app.utils.constants import MINIO_API_PORT
-from app.utils.elastic import ElasticsearchManager, ElasticWrapper
+from app.utils.elastic import ElasticWrapper
 from app.utils.logging import logger, rq_logger
 from app.utils.utils import get_app_context
 from kubernetes import client, config
@@ -23,20 +21,6 @@ ELASTIC_OP_VERSION = "v1"
 ELASTIC_OP_NAMESPACE = "default"
 ELASTIC_OP_NAME = "tfplenum"
 ELASTIC_OP_PLURAL = "elasticsearches"
-KUBE_CONFIG_LOCATION = "/root/.kube/config"
-
-
-class ConfigNotFound(Exception):
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            "Config file does not exist: {}".format(KUBE_CONFIG_LOCATION),
-            *args,
-            **kwargs
-        )
-
-
-class Timeout(Exception):
-    pass
 
 
 def apply_es_deploy(run_check_scale_status: bool = True):
@@ -67,164 +51,30 @@ def apply_es_deploy(run_check_scale_status: bool = True):
     return False
 
 
-def string_to_base64(message):
-    message_bytes = message.encode("utf-8")
-    base64_bytes = base64.b64encode(message_bytes)
-    base64_message = base64_bytes.decode("utf-8")
-    return base64_message
-
-
-def get_secret(name, namespace="default"):
-    if not os.path.isfile(KUBE_CONFIG_LOCATION):
-        raise ConfigNotFound
-    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
-        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
-    api_instance = client.CoreV1Api()
-    api_response = api_instance.read_namespaced_secret(name, namespace)
-    return api_response
-
-
-def patch_secret(name, body, namespace="default"):
-    if not os.path.isfile(KUBE_CONFIG_LOCATION):
-        raise ConfigNotFound
-    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
-        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
-    api_instance = client.CoreV1Api()
-    api_response = api_instance.patch_namespaced_secret(name, namespace, body)
-    return api_response
-
-
-def create_s3_repository_settings(bucket, endpoint, protocol):
-    return {
-        "type": "s3",
-        "settings": {
-            "bucket": bucket,
-            "client": "default",
-            "endpoint": endpoint + ":" + MINIO_API_PORT,
-            "protocol": protocol,
-        },
-    }
-
-
-def get_elasticsearch_status():
-    if not os.path.isfile(KUBE_CONFIG_LOCATION):
-        raise ConfigNotFound
-    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
-        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
-    api_instance = client.CustomObjectsApi()
-    api_response = api_instance.get_namespaced_custom_object_status(
-        group=ELASTIC_OP_GROUP,
-        version=ELASTIC_OP_VERSION,
-        plural=ELASTIC_OP_PLURAL,
-        namespace=ELASTIC_OP_NAMESPACE,
-        name=ELASTIC_OP_NAME,
-    )
-    return api_response
-
-
-def get_number_of_elasticsearch_nodes():
-    elasticsearch = get_elasticsearch_status()
-    spec = elasticsearch["spec"]
-    node_sets = spec["nodeSets"]
-
-    total = 0
-    for node in node_sets:
-        count = node["count"]
-        total += count
-
-    return total
-
-
-def wait_for_elastic_cluster_ready(minutes=10):
-    total_nodes = get_number_of_elasticsearch_nodes()
-
-    if minutes > 0:
-        # The operator doesn't work instantaneously.
-        sleep(30)
-
-    future_time = datetime.utcnow() + timedelta(minutes=minutes)
-
-    check_cluster_status = True
-    while check_cluster_status:
-        elasticsearch = get_elasticsearch_status()
-        status = elasticsearch["status"]
-        available_nodes = status["availableNodes"]
-        health = status["health"]
-        phase = status["phase"]
-
-        if phase == "Ready" and health == "green" and available_nodes == total_nodes:
-            check_cluster_status = False
-        elif future_time <= datetime.utcnow():
-            raise Timeout(
-                "The Elastic cluster took longer to start than expected.")
-        else:
-            sleep(10)
-
-
 @job("default", connection=REDIS_CLIENT, timeout="30m")
-def setup_s3_repository(service_ip: str, repository_settings: Dict):
+def setup_s3_repository(settings: RepoSettingsModel):
+    """_summary_
+
+    Args:
+        settings (RepoSettingsModel): The MinIO repository object.
+    """
     get_app_context().push()
     notification = NotificationMessage(role=_JOB_NAME)
-    notification.set_message("Updating the Elastic S3 repository settings.")
-    notification.set_status(NotificationCode.IN_PROGRESS.name)
-    notification.post_to_websocket_api()
+    notification.set_and_send("Updating the Elastic S3 repository settings.",
+                              NotificationCode.IN_PROGRESS.name)
     try:
-        base64_s3_access_key = get_secret("s3-access-key").data[
-            "s3.client.default.access_key"
-        ]
-        base64_s3_secret_key = get_secret("s3-secret-key").data[
-            "s3.client.default.secret_key"
-        ]
-
-        s3_access_key = repository_settings["access_key"]
-        s3_secret_key = repository_settings["secret_key"]
-
-        secrets_changed = False
-
-        if base64_s3_access_key != string_to_base64(s3_access_key):
-            body = {
-                "data": {
-                    "s3.client.default.access_key": string_to_base64(s3_access_key)
-                }
-            }
-            patch_secret("s3-access-key", body)
-            secrets_changed = True
-
-        if base64_s3_secret_key != string_to_base64(s3_secret_key):
-            body = {
-                "data": {
-                    "s3.client.default.secret_key": string_to_base64(s3_secret_key)
-                }
-            }
-            patch_secret("s3-secret-key", body)
-            secrets_changed = True
-
-        if secrets_changed:
-            wait_for_elastic_cluster_ready()
-
-        elasticsearch_manager = ElasticsearchManager(service_ip)
-        body = create_s3_repository_settings(
-            repository_settings["bucket"],
-            repository_settings["endpoint"],
-            repository_settings["protocol"],
-        )
-        elasticsearch_manager.register_repository(body)
-
-        notification.set_message("Updated Elastic S3 repository settings.")
-        notification.set_status(NotificationCode.COMPLETED.name)
-        notification.post_to_websocket_api()
+        settings.save_to_kubernetes_and_elasticsearch()
+        notification.set_and_send("Updated Elastic S3 repository settings.",
+                                  NotificationCode.COMPLETED.name)
     except Exception as e:
-        rq_logger.debug(str(e))
-        traceback.print_exc()
-        notification.set_status(status=NotificationCode.ERROR.name)
-        if "repository_exception" in str(e):
-            notification.set_message("Confirm bucket name is correct in Repository Settings page")
-        else:
-            notification.set_message(str(e))
-        notification.post_to_websocket_api()
+        rq_logger.exception(e)
+        message = str(e)
+        if "repository_exception" in message:
+            message = "Confirm bucket name is correct in Repository Settings page"
+        notification.set_and_send(message, NotificationCode.ERROR.name)
 
 
-def get_elasticsearch_license() -> dict:
+def get_elasticsearch_license() -> Dict:
     client = ElasticWrapper()
     return client.license.get()
 

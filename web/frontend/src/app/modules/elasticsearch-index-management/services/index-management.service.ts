@@ -59,6 +59,10 @@ export class IndexManagementService extends ApiService<any> implements IndexMana
       .pipe(catchError((error: HttpErrorResponse) => this.handleError('get closed indices', error)));
   }
 
+  minio_check(): Observable<string[]> {
+    return this.httpClient_.get<string[]>(environment.INDEX_MANAGEMENT_SERVICE_CHECK_MINIO).pipe();
+  }
+
   /**
    * REST call to GET get opened indices
    *

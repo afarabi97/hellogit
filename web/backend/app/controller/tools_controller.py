@@ -8,7 +8,6 @@ from datetime import datetime
 from glob import glob
 from pathlib import Path
 from typing import Dict
-from xmlrpc.client import Boolean
 
 import kubernetes.client
 import yaml
@@ -16,32 +15,28 @@ from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.middleware import controller_maintainer_required
 from app.models import scale
 from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE,
-                               CurrentTimeMdl, JobID)
+                               CurrentTimeMdl)
 from app.models.nodes import Node
 from app.models.settings.kit_settings import KitSettingsForm
 from app.models.tools import (COMMON_TOOLS_RETURNS, TOOLS_NS,
                               InitialDeviceStatesModel,
                               NetworkDeviceStateModel, NetworkInterfaceModel,
-                              NewPasswordModel, RepoSettingsModel)
-from app.service.elastic_service import (Timeout, apply_es_deploy,
+                              NewPasswordModel)
+from app.service.elastic_service import (apply_es_deploy,
                                          check_elastic_license,
-                                         get_elasticsearch_license,
-                                         setup_s3_repository,
-                                         wait_for_elastic_cluster_ready)
+                                         get_elasticsearch_license)
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
-from app.service.tools_service import check_minio_conn
 from app.utils.collections import mongo_catalog_saved_values
 from app.utils.connection_mngs import FabricConnection, KubernetesWrapper
 from app.utils.constants import TFPLENUM_CONFIGS_PATH
-from app.utils.logging import rq_logger
+from app.utils.logging import logger
 from fabric.runners import Result
 from flask import Response, request
 from flask_restx import Resource
 from kubernetes.client.models.v1_service_list import V1ServiceList
 from kubernetes.client.rest import ApiException
 from paramiko.ssh_exception import AuthenticationException
-from requests.exceptions import ConnectionError
 from werkzeug.datastructures import FileStorage
 from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
@@ -338,7 +333,7 @@ class ElasticLicense(Resource):
                             secret.metadata.name, namespace
                         )
             except ApiException as e:
-                rq_logger.exception(e)
+                logger.exception(e)
                 return {
                     "error_message": "Something went wrong saving the Elastic license. See the logs."
                 }, 500
@@ -355,7 +350,7 @@ class ElasticLicense(Resource):
         try:
             return get_elasticsearch_license(), 200
         except Exception as e:
-            rq_logger.exception(e)
+            logger.exception(e)
             return {
                 "error_message": "Something went wrong getting the Elastic license.\nSee the logs."
             }, 500
@@ -504,7 +499,7 @@ class ElasticDeploy(Resource):
                     scale.create(d)
             return {"success_message": "Deploy config successfully loaded."}
         except Exception as e:
-            rq_logger.exception(e)
+            logger.exception(e)
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_message(str(e))
             notification.post_to_websocket_api()
@@ -522,30 +517,3 @@ class ElasticDeploy(Resource):
             return OK_RESPONSE
 
         return ERROR_RESPONSE
-
-
-# Unused on front-end may be able to be deleted from back-end
-@TOOLS_NS.route("/repo-settings-snapshot")
-class ElasticSnapshot(Resource):
-    @TOOLS_NS.doc(description="Enable elastic snapshot for minio.")
-    @TOOLS_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
-    @TOOLS_NS.response(403, "ErrorMessage", COMMON_ERROR_MESSAGE)
-    @TOOLS_NS.expect(RepoSettingsModel.DTO)
-    @controller_maintainer_required
-    def post(self) -> Response:
-        try:
-            repository_settings = TOOLS_NS.payload
-            check_minio_conn(repository_settings)
-            wait_for_elastic_cluster_ready(minutes=0)
-        except Timeout as e:
-            return {"error_message": "Elastic cluster is not in a ready state."}, 400
-        except ConnectionError as e:
-            return {"error_message": "Connection to Repo failed. Check Repo IP Address and username/password."}, 403
-        except Exception as e:
-            rq_logger.exception(e)
-            return {"error_message": str(e)}, 400
-        else:
-            elasticsearch_ip = retrieve_service_ip_address("elasticsearch")
-            job = setup_s3_repository.delay(
-                elasticsearch_ip, repository_settings)
-            return JobID(job).to_dict(), 200

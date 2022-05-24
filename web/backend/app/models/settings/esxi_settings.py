@@ -13,7 +13,7 @@ from app.models.settings.general_settings import SETINGS_NS
 from app.models.settings.settings_base import SettingsBase
 from app.utils.collections import mongo_settings
 from app.utils.constants import CORE_DIR, ESXI_SETTINGS_ID, TEMPLATE_DIR
-from app.utils.utils import decode_password, encode_password
+from app.utils.utils import base64_to_string, string_to_base64
 from flask_restx import fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from marshmallow import Schema
@@ -137,7 +137,7 @@ class EsxiSettingsForm(SettingsBase):
         mongo_document = mongo_settings().find_one(query)
         if mongo_document:
             esxi_settings = cls.schema.load(mongo_document, partial=("nodes",))
-            esxi_settings.password = decode_password(esxi_settings.password)
+            esxi_settings.password = base64_to_string(esxi_settings.password)
             return esxi_settings
         return None
 
@@ -147,13 +147,13 @@ class EsxiSettingsForm(SettingsBase):
 
         :param kit_settings_form: Dictionary for the Kit Settings form
         """
-        self.password = encode_password(self.password)
+        self.password = string_to_base64(self.password)
 
         esxi_settings = self.schema.dump(self)
         mongo_settings().find_one_and_replace(
             {"_id": ESXI_SETTINGS_ID}, esxi_settings, upsert=True
         )  # type: InsertOneResult
-        self.password = decode_password(self.password)
+        self.password = base64_to_string(self.password)
         _generate_esxi_inventory()
 
     def to_dict(self) -> Dict:

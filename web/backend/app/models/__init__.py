@@ -35,6 +35,13 @@ class PostValidationError(Exception):
         return len(self.errors_msgs) > 0
 
 
+class PostValidationBasicError(Exception):
+
+    def __init__(self, error_message: str, http_code: int):
+        self.error_payload = {"error_message": error_message}
+        self.http_code = http_code
+
+
 class Model:
     def _handle_lists(self, key: str) -> List:
         a_list = []

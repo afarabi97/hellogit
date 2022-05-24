@@ -15,13 +15,13 @@ import requests
 from app.service.socket_service import (NotificationCode, NotificationMessage,
                                         notify_page_refresh)
 from app.utils.collections import mongo_windows_target_lists
-from app.utils.connection_mngs import REDIS_CLIENT, get_kubernetes_secret
+from app.utils.connection_mngs import REDIS_CLIENT, get_kubernetes_certifcate_secret
 from app.utils.constants import (AGENT_PKGS_DIR, AGENT_UPLOAD_DIR,
                                  DATE_FORMAT_STR, TARGET_STATES)
 from app.utils.logging import rq_logger
 from app.utils.tfwinrm_util import (WindowsConnectionManager,
                                     WinrmCommandFailure)
-from app.utils.utils import decode_password, get_app_context, zip_package
+from app.utils.utils import base64_to_string, get_app_context, zip_package
 from bson import ObjectId
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from kubernetes.client.rest import ApiException
@@ -164,7 +164,7 @@ class AgentBuilder:
         agent_puller = EndgameAgentPuller(
             self._installer_config["endgame_server_ip"].strip(),
             self._installer_config["endgame_user_name"].strip(),
-            decode_password(self._installer_config["endgame_password"]),
+            base64_to_string(self._installer_config["endgame_password"]),
             self._installer_config["endgame_port"].strip(),
         )
 
@@ -196,7 +196,7 @@ class AgentBuilder:
     ):
         if kubernetes_dir.exists() and kubernetes_dir.is_dir():
             try:
-                secret = get_kubernetes_secret(
+                secret = get_kubernetes_certifcate_secret(
                     "{}-agent-certificate".format(application_name)
                 )
                 secret.write_to_file(folder_to_copy)

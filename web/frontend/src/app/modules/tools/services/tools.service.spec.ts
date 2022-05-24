@@ -30,6 +30,7 @@ import { InjectorModule } from '../../utilily-modules/injector.module';
 import { ElasticLicenseClass } from '../classes/elastic-license.class';
 import { InitialDeviceStateClass } from '../classes/initial-device-state.class';
 import { NetworkDeviceStateClass } from '../classes/network-device-state.class';
+import { RepoSettingsSnapshotClass } from '../classes/repo-settings-snapshot.class';
 import { KitPasswordInterface } from '../interfaces/kit-password.interface';
 import { RepoSettingsSnapshotInterface } from '../interfaces/repo-settings-snapshot.interface';
 import { ToolsServiceInterface } from '../interfaces/service-interfaces/tools-service.interface';
@@ -361,7 +362,7 @@ describe('ToolsService', () => {
             expect(service.repo_settings_snapshot).toHaveBeenCalled();
           });
 
-        const xhrURL: string = environment.TOOLS_SERVICE_REPO_SETTINGS_SNAPSHOT;
+        const xhrURL: string = environment.MINIO_REPOSITORY_SETTINGS_URL;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         expect(xhrRequest.request.method).toEqual(postType);
@@ -393,7 +394,7 @@ describe('ToolsService', () => {
               expect(service.repo_settings_snapshot).toHaveBeenCalled();
             });
 
-        const xhrURL: string = environment.TOOLS_SERVICE_REPO_SETTINGS_SNAPSHOT;
+        const xhrURL: string = environment.MINIO_REPOSITORY_SETTINGS_URL;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorMessageRequest, mockErrorResponse);
@@ -413,7 +414,7 @@ describe('ToolsService', () => {
               expect(service.repo_settings_snapshot).toHaveBeenCalled();
             });
 
-        const xhrURL: string = environment.TOOLS_SERVICE_REPO_SETTINGS_SNAPSHOT;
+        const xhrURL: string = environment.MINIO_REPOSITORY_SETTINGS_URL;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorRequest, mockErrorResponse);
@@ -672,6 +673,10 @@ export class ToolsServiceSpy implements ToolsServiceInterface {
     (repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass> => this.call_fake_repo_settings_snapshot(repo_settings_snapshot)
   );
 
+  get_repo_settings_snapshot = jasmine.createSpy('get_repo_settings_snapshot').and.callFake(
+    (): Observable<RepoSettingsSnapshotInterface> => this.call_fake_get_repo_settings_snapshot()
+  );
+
   upload_documentation = jasmine.createSpy('upload_documentation').and.callFake(
     (form_data: FormData): Observable<SuccessMessageClass> => this.call_fake_upload_documentation(form_data)
   );
@@ -698,6 +703,15 @@ export class ToolsServiceSpy implements ToolsServiceInterface {
 
   call_fake_repo_settings_snapshot(repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass> {
     return of(MockGenericJobAndKeyClass);
+  }
+
+  call_fake_get_repo_settings_snapshot(): Observable<RepoSettingsSnapshotInterface> {
+    let mock = {"ip_address": "10.40.12.20", "protocol": "http",
+                "bucket": "tfplenum", "username": "assessor",
+                "password": "password", "port": 9001};
+
+    let s = new RepoSettingsSnapshotClass(mock)
+    return of(s);
   }
 
   call_fake_upload_documentation(form_data: FormData): Observable<SuccessMessageClass> {

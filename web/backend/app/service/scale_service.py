@@ -9,6 +9,7 @@ from app.utils.connection_mngs import REDIS_CLIENT
 from app.utils.elastic import ElasticWrapper
 from app.utils.logging import logger
 from app.utils.utils import get_app_context
+from app.utils.constants import KUBE_CONFIG_LOCATION
 from kubernetes import client, config
 from pint import UnitRegistry
 from rq.decorators import job
@@ -19,7 +20,6 @@ ELASTIC_OP_VERSION = "v1"
 ELASTIC_OP_NAMESPACE = "default"
 ELASTIC_OP_NAME = "tfplenum"
 ELASTIC_OP_PLURAL = "elasticsearches"
-KUBE_CONFIG_LOCATION = "/root/.kube/config"
 
 
 def get_es_nodes():

@@ -36,7 +36,7 @@ COMMON_ERROR_DTO = COMMON_NS.model('CommonFieldErrorWithPostValidation', {
                                               description="<field_name> refers to one of the fields in the marshmallow's model. \
                                                Note: many of these can be defined within the dictionary. Loop over \
                                                all the keys of the dictionary to parse out all the validation logic")),
-    "post_validation": fields.List(fields.String(example="Kickstart form submission require at least 2 nodes to be defined before submission."),
+    "post_validation": fields.List(fields.String(example="Duplicate hostname found! sensor2.lan cannot have the same hostname as sensor2.lan"),
                                    required=False,
                                    description="Post validation is custom validation after marshmallows valdation logic is executed")
 })
