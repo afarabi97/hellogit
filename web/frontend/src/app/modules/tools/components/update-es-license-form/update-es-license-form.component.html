@@ -1,33 +1,44 @@
-<mat-card>
-  <mat-card-header>
-    <mat-card-title>
-      <a id="app-update-docs-form-mat-card-mat-card-header-mat-card-title-a" (click)="toggleCard()">
-        <em *ngIf="!isCardVisible" id="app-update-docs-form-mat-card-mat-card-header-mat-card-title-a-em-chevron-right"
-            class="material-icons">chevron_right</em>
-        <em *ngIf="isCardVisible" id="app-update-docs-form-mat-card-mat-card-header-mat-card-title-a-em-expand-more"
-            class="material-icons">expand_more</em>
-        <span style="vertical-align: top;">Update Elastic License</span>
-      </a>
-    </mat-card-title>
-  </mat-card-header>
-  <mat-card-content *ngIf="isCardVisible" fxLayout="column" fxLayoutAlign="space-around stretch">
-    <div>
-      Curent License Type: {{ currentLicense?.license?.type | titlecase }}
+<mat-expansion-panel id="cvah-update-es-license-form-expansion-panel">
+  <mat-expansion-panel-header>
+    <mat-panel-title>Update Elastic License</mat-panel-title>
+  </mat-expansion-panel-header>
+  <div fxLayout="column" fxLayoutGap="16px">
+    <div fxLayout="column">
+      <div id="cvah-update-es-license-form-license-type">Curent License Type: {{ elastic_license?.license?.type | titlecase }}</div>
+      <div id="cvah-update-es-license-form-license-status">Curent License Status: {{ elastic_license?.license?.status | titlecase }}</div>
+      <div id="cvah-update-es-license-form-license-expire-date">Curent License Expiration: {{ elastic_license?.license?.expiry_date | date:'long' }}</div>
     </div>
-    <div>
-      Curent License Status: {{ currentLicense?.license?.status | titlecase }}
+    <div fxLayout="row" fxLayoutGap="16px">
+      <button mat-raised-button
+              id="cvah-update-es-license-form-button-choose-json-license-file"
+              class="button-choose-json-license-file"
+              fxFlex="none"
+              color="primary"
+              (click)="fileInput.click()">Choose JSON License File</button>
+      <input hidden
+             #fileInput
+             fxFlex="0"
+             type="file"
+             accept=".json"
+             id="cvah-update-es-license-form-input-hidden"
+             (change)="handle_json_file_input($event.target.files)">
+      <mat-form-field fxFlex *ngIf="json_for_upload">
+        <mat-label>File Name</mat-label>
+        <input matInput
+               id="cvah-update-es-license-form-file-name-input"
+               [formControl]="file_name_form_control">
+      </mat-form-field>
     </div>
-    <div>
-      Curent License Expiration: {{ currentLicense?.license?.expiry_date | date:'long' }}
+
+    <!-- Action Button -->
+    <div mat-dialog-actions class="action-button-wrapper">
+      <button mat-raised-button
+              cdkFocusInitial
+              id="cvah-update-es-license-form-button-upload"
+              color="primary"
+              (click)="upload_button_click()"
+              [disabled]="!json_for_upload">Upload
+      </button>
     </div>
-  </mat-card-content>
-  <mat-card-actions *ngIf="isCardVisible">
-    <button mat-raised-button id="app-update-docs-form-mat-card-mat-card-actions-button-choose-zip-file"
-            color="primary" (click)="fileInput.click()">Choose JSON License File</button>
-    <input hidden #fileInput id="app-update-docs-form-mat-card-mat-card-actions-input-hidden"
-           (change)="handleFileInput($event.target.files)" type="file" id="zip_file_uploader" accept=".json">
-    <button mat-raised-button id="app-update-docs-form-mat-card-mat-card-actions-button-upload"
-            color="primary" style="margin-left: 10px;" (click)="uploadFile($event)" [disabled]="!fileToUpload" name="execute_kickstart">Upload{{  fileToUpload && fileToUpload.name ? ' ' + fileToUpload.name : '' }}
-    </button>
-  </mat-card-actions>
-</mat-card>
+  </div>
+</mat-expansion-panel>

@@ -1074,7 +1074,6 @@ export class AgentBuilderChooserComponent implements OnInit {
    * @memberof AgentBuilderChooserComponent
    */
   private api_agent_uninstall_(agent_target: AgentTargetInterface): void {
-    console.log("I am here");
     this.agent_builder_service_.agent_uninstall(agent_target)
       .pipe(untilDestroyed(this))
       .subscribe(

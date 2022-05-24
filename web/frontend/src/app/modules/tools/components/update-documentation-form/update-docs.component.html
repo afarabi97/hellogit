@@ -1,59 +1,67 @@
-<mat-card>
-  <mat-card-header>
-    <mat-card-title>
-      <a id="app-update-docs-form-mat-card-mat-card-header-mat-card-title-a" (click)="toggleCard()">
-        <em *ngIf="!isCardVisible" id="app-update-docs-form-mat-card-mat-card-header-mat-card-title-a-em-chevron-right"
-            class="material-icons">chevron_right</em>
-        <em *ngIf="isCardVisible" id="app-update-docs-form-mat-card-mat-card-header-mat-card-title-a-em-expand-more"
-            class="material-icons">expand_more</em>
-        <span style="vertical-align: top;">Update Controller Documentation</span>
-      </a>
-    </mat-card-title>
-  </mat-card-header>
-  <mat-card-content *ngIf="isCardVisible" fxLayout="column" fxLayoutAlign="space-around stretch">
-    <div>
-      <ol>
-        <li>Navigate to the required DI2E confluence space.</li>
-        <li>Use the PAGE TREE on the left menu to navigate to, and select the required page.</li>
-        <li>Click on the <strong style="font-size: 16px;">...</strong> button in the top right.</li>
-        <li>Click on <strong>Export to Html</strong> (Note: For offline documentation you can also select Export to PDF. You will need HTML documentation if you wanted to update the controller.)</li>
-        <li>A modal popup will appear make sure "Export Profile" is set to No Profile.</li>
-        <li>Ensure that "Select Content" is set to Current Page with all child pages.</li>
-        <li>Click Export button. The download will take some time to complete, so grab a cup of coffee.</li>
-        <li>Click on the <strong>Choose Zip File</strong> button at the bottom of this box.</li>
-        <li>Navigate to where you saved the downloaded documentation and select it. More than likely it will be in your downloads folder.</li>
-        <li>Add a Space Name</li>
-        <li>Click on the <strong>Upload &lt;documentation zip file&gt;</strong> button. Wait for confirmation message.</li>
-        <li>Finally select the <strong>Space Name</strong> link in the navigation bar!</li>
-      </ol>
+<mat-expansion-panel id="cvah-update-docs-form-expansion-panel">
+  <mat-expansion-panel-header>
+    <mat-panel-title>Update Controller Documentation</mat-panel-title>
+  </mat-expansion-panel-header>
+  <div fxLayout="column" fxLayoutGap="16px">
+    <div fxLayout="row">
+      <button mat-raised-button
+              id="cvah-update-docs-form-button-update-documentation-guide"
+              fxFlex="none"
+              color="accent"
+              (click)="open_update_documentation_message_dialog()">Documentation Guide
+      </button>
     </div>
     <div fxLayout="column" fxLayoutAlign="space-around stretch">
-      <form fxLayout="column" fxLayoutAlign="space-around stretch">
-        <!-- Space Name -->
-        <mat-form-field id="app-update-docs-form-mat-card-mat-card-content-div-form-mat-form-field-space-name">
-          <mat-label>Space Name</mat-label>
-          <input matInput id="app-update-docs-form-mat-card-mat-card-content-div-form-mat-form-field-space-name-input"
-                 [formControl]="spaceFormControl" [errorStateMatcher]="matcher" placeholder="THISISCVAH">
-          <mat-error *ngIf="spaceFormControl.hasError('pattern') && !spaceFormControl.hasError('required')"
-                     id="app-update-docs-form-mat-card-mat-card-content-div-form-mat-form-field-space-name-mat-error-valid-space-name">
-            Please enter a valid space name of 1-50 uppercase and lowercase letters
-          </mat-error>
-          <mat-error *ngIf="spaceFormControl.hasError('required')"
-                     id="app-update-docs-form-mat-card-mat-card-content-div-form-mat-form-field-space-name-mat-error-required">
-            Space name is <strong>required</strong>
-          </mat-error>
-        </mat-form-field>
-      </form>
+
+      <!-- Space Name -->
+      <mat-form-field>
+        <mat-label>Space Name</mat-label>
+        <input matInput
+               id="cvah-update-docs-form-space-name-input"
+               [formControl]="space_name_form_control"
+               placeholder="THISISCVAH">
+        <mat-icon matSuffix *ngIf="space_name_form_control.valid &&
+                                   space_name_form_control.touched"
+                  id="cvah-update-docs-form-space-name-mat-icon-check-circle"
+                  color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix *ngIf="space_name_form_control.invalid &&
+                                   space_name_form_control.touched"
+                  id="cvah-update-docs-form-space-name-mat-icon-error"
+                  color="warn">error</mat-icon>
+        <mat-error id="cvah-update-docs-form-space-name-mat-error">{{ get_error_message(space_name_form_control) }}</mat-error>
+      </mat-form-field>
     </div>
-  </mat-card-content>
-  <mat-card-actions *ngIf="isCardVisible">
-    <button mat-raised-button id="app-update-docs-form-mat-card-mat-card-actions-button-choose-zip-file"
-            color="primary" (click)="fileInput.click()">Choose Zip File</button>
-    <input hidden #fileInput id="app-update-docs-form-mat-card-mat-card-actions-input-hidden"
-           (change)="handleFileInput($event.target.files)" type="file" id="zip_file_uploader" accept=".zip">
-    <button mat-raised-button id="app-update-docs-form-mat-card-mat-card-actions-button-upload"
-            color="primary" style="margin-left: 10px;" (click)="uploadFile()" [disabled]="!zipToUpload || spaceFormControl.invalid" name="execute_kickstart">Upload
-      <span *ngIf="zipToUpload" id="app-update-docs-form-mat-card-mat-card-actions-button-upload-span-zip-file-name">&nbsp;{{ zipToUpload.name }}</span>
-    </button>
-  </mat-card-actions>
-</mat-card>
+    <div fxLayout="row" fxLayoutGap="16px">
+      <button mat-raised-button
+              id="cvah-update-docs-form-button-choose-zip-file"
+              class="button-choose-zip-file"
+              fxFlex="none"
+              color="primary"
+              (click)="fileInput.click()">Choose Zip File</button>
+      <input hidden
+             #fileInput
+             fxFlex="0"
+             id="cvah-update-docs-form-input-hidden"
+             type="file"
+             accept=".zip"
+             (change)="handle_zip_file_input($event.target.files)">
+      <mat-form-field fxFlex *ngIf="zip_for_upload">
+        <mat-label>File Name</mat-label>
+        <input matInput
+               id="cvah-update-docs-form-file-name-input"
+               [formControl]="file_name_form_control">
+      </mat-form-field>
+    </div>
+
+    <!-- Action Button -->
+    <div mat-dialog-actions class="action-button-wrapper">
+      <button mat-raised-button
+              cdkFocusInitial
+              id="cvah-update-docs-form-button-upload"
+              color="primary"
+              (click)="upload_button_click()"
+              [disabled]="!zip_for_upload || !space_name_form_control.valid || space_name_form_control.untouched">Upload
+      </button>
+    </div>
+  </div>
+</mat-expansion-panel>

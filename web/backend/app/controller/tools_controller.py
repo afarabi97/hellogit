@@ -47,7 +47,7 @@ from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
 _JOB_NAME = "tools"
-DEPLYMENT_TYPE_ISO = "Iso"
+MESSAGETYPE_PREFIX = "documentation upload" # type: str
 
 
 upload_parser = TOOLS_NS.parser()
@@ -61,13 +61,6 @@ upload_parser.add_argument(
     location="form",
     help="The name of the confluence space or some other arbirtrary name.",
 )
-
-
-def check_if_node_is_remote(hostname: str) -> Boolean:
-    node = Node.load_from_db_using_hostname(hostname)  # type: Node
-    if node:
-        return node.deployment_type == DEPLYMENT_TYPE_ISO
-    return False
 
 
 def update_password(config: Dict, password):
@@ -240,6 +233,9 @@ class UpdateDocs(Resource):
     @TOOLS_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
     def post(self):
+        notification = NotificationMessage(
+            role=MESSAGETYPE_PREFIX
+        )
         if "upload_file" not in request.files:
             return {
                 "error_message": "Failed to upload file. No file was found in the request."
@@ -283,6 +279,8 @@ class UpdateDocs(Resource):
             with zipfile.ZipFile(tmp_archive_path) as zip_ref:
                 zip_ref.extractall(new_docs_path)
 
+        notification.set_status(status=NotificationCode.COMPLETED.name)
+        notification.post_to_websocket_api()
         return {"success_message": "Successfully updated confluence documentation!"}
 
 
@@ -452,7 +450,6 @@ class MonitoringInterfaces(Resource):
                 except KeyError:
                     inital_states.add_interface(
                         NetworkInterfaceModel(interface))
-            if check_if_node_is_remote(hostname):
                 result.append(inital_states.to_dict())
 
         return result

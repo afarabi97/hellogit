@@ -2,8 +2,8 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@ang
 import { forkJoin, interval, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { KitStatusClass, ObjectUtilitiesClass } from '../classes';
-import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../constants/cvah.constants';
+import { KitStatusClass, NotificationClass, ObjectUtilitiesClass } from '../classes';
+import { MAT_SNACKBAR_CONFIGURATION_60000_DUR, WEBSOCKET_MESSAGE_STATUS_COMPLETED } from '../constants/cvah.constants';
 import { returnDate } from '../functions/cvah.functions';
 import { NotificationsComponent } from '../modules/notifications/notifications.component';
 import { CookieService } from '../services/cookies.service';
@@ -13,6 +13,7 @@ import { UserService } from '../services/user.service';
 import { WebsocketService } from '../services/websocket.service';
 import { KitSettingsService } from '../system-setupv2/services/kit-settings.service';
 import { DIPTimeClass } from './classes/dip-time.class';
+import { WEBSOCKET_MESSAGE_ROLE_DOCUMENNTATION_UPLOAD } from './constants/navbar.constants';
 import { getSideNavigationButtons } from './functions/navbar.functions';
 import { NavGroupInterface } from './interfaces';
 import { NavBarService } from './services/navbar.service';
@@ -63,7 +64,7 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
               private userService_: UserService,
               private changeDetectorRef_: ChangeDetectorRef,
               private kitSettingsSrv: KitSettingsService,
-              private _WebsocketService: WebsocketService,
+              private websocket_service_: WebsocketService,
               private mat_snackbar_service_: MatSnackBarService) {
     this.showLinkNames = true;
     this.kitStatus = false;
@@ -79,8 +80,9 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildNavBar();
     this.getCurrentDipTime_();
+    this.setup_websocket_onbroadcast_();
 
-    this._WebsocketService.getSocket().on('disk-pressure', (message) => {
+    this.websocket_service_.getSocket().on('disk-pressure', (message) => {
       this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
     });
   }
@@ -148,6 +150,25 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
         this.sideNavigationButtons = getSideNavigationButtons(this.userService_, this.kitStatus, this.htmlSpaces);
         this.changeDetectorRef_.detectChanges();
       });
+  }
+
+  /**
+   * Used for setting up onbroadcast for websocket message responses
+   * TODO - properly handle when websocket defined
+   *
+   * @private
+   * @memberof RepositorySettingsComponent
+   */
+  private setup_websocket_onbroadcast_(): void {
+    this.websocket_service_.onBroadcast()
+      .subscribe(
+        (response: NotificationClass) => {
+          /* istanbul ignore else */
+          if (response.status === WEBSOCKET_MESSAGE_STATUS_COMPLETED &&
+              response.role === WEBSOCKET_MESSAGE_ROLE_DOCUMENNTATION_UPLOAD) {
+            this.buildNavBar();
+          }
+        });
   }
 
   /**

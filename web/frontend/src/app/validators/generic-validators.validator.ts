@@ -83,13 +83,14 @@ export function passwordValidator(validatorObject: ValidatorObjectInterface, con
   if ((new Set(control.value)).size < 8) {
     return { password: validatorObject.error_message, error_message: `${subject} must have at least 8 unique characters.`};
   }
+
   if (consecutive(control.value)) {
     return { password: validatorObject.error_message, error_message: `${subject} must not have 3 consecutive characters that are the same`};
   }
 
 }
 
-function consecutive(password) {
+function consecutive(password: string) {
   let c;
   let same;
 
@@ -135,7 +136,11 @@ export function uniqueValidator(validatorObject: ValidatorObjectInterface, contr
 }
 
 export function inputFieldMatch(validatorObject: ValidatorObjectInterface, control: AbstractControl, ops?: any) {
-  return control.value === ops.parentControl.value ? null : new errorObject({ control: control, error_message: validatorObject.error_message });
+  if (!ops.parentControl.valid) {
+    return new errorObject({ control: control, error_message: 'Unable to validate when parent control invalid' });
+  } else {
+    return control.value === ops.parentControl.value ? null : new errorObject({ control: control, error_message: validatorObject.error_message });
+  }
 }
 
 export function validateIPAddress(validatorObject: ValidatorObjectInterface, control: AbstractControl, ops?: any) {

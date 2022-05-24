@@ -10,3 +10,4 @@ export const allSections: NavGroupInterface[] = [
   { id: 'confluence', label: 'Confluence', children: [] },
   { id: 'support', label: 'Support', children: [] }
 ];
+export const WEBSOCKET_MESSAGE_ROLE_DOCUMENNTATION_UPLOAD: string = 'documentation upload';

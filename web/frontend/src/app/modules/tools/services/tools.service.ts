@@ -65,7 +65,7 @@ export class ToolsService extends ApiService<any> implements ToolsServiceInterfa
    * @memberof ToolsService
    */
   change_remote_network_device_state(hostname: string, device: string, state: string): Observable<NetworkDeviceStateClass> {
-    const url: string = `/api/${hostname}/set-interface-state/${device}/${state}`;
+    const url: string = `/api/tools/${hostname}/set-interface-state/${device}/${state}`;
 
     return this.httpClient_.put<NetworkDeviceStateInterface>(url, {})
       .pipe(map((response: NetworkDeviceStateInterface) => new NetworkDeviceStateClass(response)),

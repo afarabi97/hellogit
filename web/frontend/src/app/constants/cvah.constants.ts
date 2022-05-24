@@ -2,15 +2,6 @@ import { HttpHeaders } from '@angular/common/http';
 
 import { MatSnackbarConfigurationClass } from '../classes';
 
-export const TIMEZONES2: string[] = [
-  'UTC',
-  'America/Chicago',
-  'America/Denver',
-  'America/Detroit',
-  'America/Los_Angeles',
-  'America/New_York'
-];
-
 // Used for passing button color to button
 export const PRIMARY_BUTTON_COLOR: string = 'primary';
 export const ACCENT_BUTTON_COLOR: string = 'accent';
@@ -24,6 +15,7 @@ export const DIALOG_WIDTH_35PERCENT: string = '35%';
 export const DIALOG_WIDTH_50PERCENT: string = '50%';
 export const DIALOG_WIDTH_500PX: string = '500px';
 export const DIALOG_WIDTH_800PX: string = '800px';
+export const DIALOG_MIN_WIDTH_400PX: string = '400px';
 export const DIALOG_MAX_HEIGHT_800PX: string = '800px';
 export const CONFIRM_DIALOG_OPTION: string = 'Confirm';
 export const CONTINUE_DIALOG_OPTION: string = 'Continue';
@@ -75,6 +67,7 @@ export const CIDR_CONSTRAINT =
   "any|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[1-9])";
 export const KUBE_CIDR_CONSTRAINT =
   '^((2[0-2][0-3])|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){2}\\.((2[0-3]\\d)|(1\\d\\d)|([1-9]?\\d))$';
+export const SPACE_NAME_CONSTRAINT: string = '^[a-zA-Z]{1,50}$';
 
 // MISC
 export const KIT_ID = "kit_form";
@@ -88,15 +81,21 @@ export const COMMON_VALIDATORS = {
     { error_message: 'Required field', validatorFn: 'required' }
   ],
   isValidIP: [
-    { ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' },
-    { error_message: 'Required field', validatorFn: 'required' }
+    { error_message: 'Required field', validatorFn: 'required' },
+    { ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' }
   ],
   root_password: [
+    { error_message: 'Required field', validatorFn: 'required' },
     { error_message: "Root password did not meet the password requirements.", validatorFn: 'password' }
   ],
   re_password: [
+    { error_message: 'Required field', validatorFn: 'required' },
     { error_message: "The passwords you entered do not match.  Please retype them carefully.", validatorFn: 'fieldMatch' }
   ],
+  is_valid_space_name: [
+    { error_message: 'Required field', validatorFn: 'required' },
+    { ops: { pattern: new RegExp(SPACE_NAME_CONSTRAINT) }, error_message: 'Please enter a valid space name of 1-50 uppercase and lowercase letters.', validatorFn: 'pattern' }
+  ]
 };
 export const PXE_TYPES: string[] = ['BIOS', 'UEFI'];
 export const MIP_PXE_TYPES: string[] = ['SCSI/SATA/USB', 'NVMe'];
@@ -107,6 +106,7 @@ export const WEBSOCKET_MESSAGE_ROLE_NODE: string = 'node';
 export const WEBSOCKET_MESSAGE_ROLE_RULE_SYNC: string = 'rulesync';
 export const WEBSOCKET_MESSAGE_STATUS_STARTED: string = 'STARTED';
 export const WEBSOCKET_MESSAGE_STATUS_COMPLETED: string = 'COMPLETED';
+export const WEBSOCKET_MESSAGE_STATUS_ERROR: string = 'ERROR';
 export const WEBSOCKET_MESSAGE_MESSAGE_REMOVE_NODE: string = 'Remove Node';
 export const WEBSOCKET_MESSAGE_MESSAGE_ADD_NODE: string = 'Add Node';
 export const WEBSOCKET_MESSAGE_MESSAGE_CREATE_VIRTUAL_MACHINE: string = 'Create Virtual Machine';

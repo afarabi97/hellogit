@@ -1,49 +1,38 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 
-import { UserService } from '../../services/user.service';
+import { TOOLS_FORM_COMPONENT_TITLE } from './constants/tools.constant';
 
-export const target_config_validators = {
-  required: [
-    { error_message: 'Required field', validatorFn: 'required' }
-  ],
-  url: [
-    { error_message: 'Required field', validatorFn: 'required' },
-    { error_message: `Link must start with either 'http://' or 'https://' without quotation marks.`,
-      validatorFn: 'pattern', ops: { pattern: /^(http:[/][/])|(https:[/][/])/ } }
-  ]
-};
-
+/**
+ * Component used for gather and displayting other child components with forms
+ *
+ * @export
+ * @class ToolsFormComponent
+ * @implements {OnInit}
+ */
 @Component({
-  selector: 'app-tools',
-  templateUrl: './tools.component.html'
+  selector: 'cvah-tools',
+  templateUrl: './tools.component.html',
+  styleUrls: [
+    './tools.component.scss'
+  ]
 })
 export class ToolsFormComponent implements OnInit {
 
-  resetClock: FormGroup;
-  controllerMaintainer: boolean;
+  /**
+   * Creates an instance of ToolsFormComponent.
+   *
+   * @param {Title} title_
+   * @memberof ToolsFormComponent
+   */
+  constructor(private title_: Title) { }
 
-  constructor(private title: Title,
-              private formBuilder: FormBuilder,
-              private userService: UserService) {
-    this.controllerMaintainer = this.userService.isControllerMaintainer();
+  /**
+   * Used for initial setup
+   *
+   * @memberof ToolsFormComponent
+   */
+  ngOnInit(): void {
+    this.title_.setTitle(TOOLS_FORM_COMPONENT_TITLE);
   }
-
-  ngOnInit() {
-    this.title.setTitle('Tools');
-    this.resetClock = this.formBuilder.group({
-      date: new FormControl(),
-      timezone: new FormControl('UTC')
-    });
-  }
-
-  getDate(): FormControl{
-    return this.resetClock.get('date') as FormControl;
-  }
-
-  getTimezone(): FormControl {
-    return this.resetClock.get('timezone') as FormControl;
-  }
-
 }

@@ -3,6 +3,8 @@ import { Observable, Subscriber } from 'rxjs';
 import * as socketIo from 'socket.io-client';
 
 import { environment } from '../../environments/environment';
+import { NotificationClass } from '../classes';
+import { NotificationInterface } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -24,23 +26,12 @@ export class WebsocketService {
     return this.webSocket_;
   }
 
-  send(message: any): void {
-    this.webSocket_.emit('message', message);
-  }
-
-  onBroadcast(): Observable<any> {
-    return new Observable<any>(
-      (observer: Subscriber<any>) => {
-        this.webSocket_.on('broadcast', (data: any) => {
-          observer.next(data);
+  onBroadcast(): Observable<NotificationClass> {
+    return new Observable<NotificationClass>(
+      (observer: Subscriber<NotificationClass>) => {
+        this.webSocket_.on('broadcast', (response: NotificationInterface) => {
+          observer.next(new NotificationClass(response));
         });
-      });
-  }
-
-  onEvent(event: any): Observable<any> {
-    return new Observable<any>(
-      (observer: Subscriber<any>) => {
-        this.webSocket_.on(event, () => observer.next());
       });
   }
 }

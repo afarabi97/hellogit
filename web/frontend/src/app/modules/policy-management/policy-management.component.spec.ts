@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 
 import {
   MockArrayRuleSetClass,
+  MockErrorMessageClass,
   MockJobClass,
   MockJobStatusDoneClass,
   MockRuleClass,
@@ -17,12 +18,11 @@ import {
 } from '../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import {
-  MockErrorMessageInterface,
   MockRuleInterface,
   MockRuleSetDisabledInterface,
   MockRuleSetInterface
 } from '../../../../static-data/interface-objects';
-import { ErrorMessageClass, RuleClass, RuleSetClass } from '../../classes';
+import { RuleClass, RuleSetClass } from '../../classes';
 import { CANCEL_DIALOG_OPTION, CONFIRM_DIALOG_OPTION } from '../../constants/cvah.constants';
 import { RuleSetInterface } from '../../interfaces';
 import { ApiService } from '../../services/abstract/api.service';
@@ -1150,7 +1150,7 @@ describe('PolicyManagementComponent', () => {
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['rules_service_'], 'create_rule_set').and.returnValue(throwError(new ErrorMessageClass(MockErrorMessageInterface)));
+        spyOn<any>(component['rules_service_'], 'create_rule_set').and.returnValue(throwError(MockErrorMessageClass));
 
         component['api_create_rule_set_'](MockRuleSetInterface);
 
@@ -1248,7 +1248,7 @@ describe('PolicyManagementComponent', () => {
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['rules_service_'], 'update_rule_set').and.returnValue(throwError(new ErrorMessageClass(MockErrorMessageInterface)));
+        spyOn<any>(component['rules_service_'], 'update_rule_set').and.returnValue(throwError(MockErrorMessageClass));
 
         component['api_update_rule_set_'](MockRuleSetInterface, false);
 
@@ -1260,7 +1260,7 @@ describe('PolicyManagementComponent', () => {
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['rules_service_'], 'update_rule_set').and.returnValue(throwError(new ErrorMessageClass(MockErrorMessageInterface)));
+        spyOn<any>(component['rules_service_'], 'update_rule_set').and.returnValue(throwError(MockErrorMessageClass));
 
         component['api_update_rule_set_'](MockRuleSetInterface, true);
 
@@ -1368,7 +1368,7 @@ describe('PolicyManagementComponent', () => {
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['rules_service_'], 'upload_rule_file').and.returnValue(throwError(new ErrorMessageClass(MockErrorMessageInterface)));
+        spyOn<any>(component['rules_service_'], 'upload_rule_file').and.returnValue(throwError(MockErrorMessageClass));
 
         component.rules_data_source.data = [MockRuleClass];
         component['api_upload_rule_file_'](form_data);
@@ -1452,7 +1452,7 @@ describe('PolicyManagementComponent', () => {
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['rules_service_'], 'toggle_rule').and.returnValue(throwError(new ErrorMessageClass(MockErrorMessageInterface)));
+        spyOn<any>(component['rules_service_'], 'toggle_rule').and.returnValue(throwError(MockErrorMessageClass));
 
         component['api_toggle_rule_'](MockRuleForToggleClass, MockRuleSetClass);
 
@@ -1526,7 +1526,7 @@ describe('PolicyManagementComponent', () => {
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['rules_service_'], 'delete_rule').and.returnValue(throwError(new ErrorMessageClass(MockErrorMessageInterface)));
+        spyOn<any>(component['rules_service_'], 'delete_rule').and.returnValue(throwError(MockErrorMessageClass));
 
         const rule_index: number = component['get_rule_index_'](MockRuleForDeleteClass);
 
@@ -1594,7 +1594,7 @@ describe('PolicyManagementComponent', () => {
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['rules_service_'], 'delete_rule_set').and.returnValue(throwError(new ErrorMessageClass(MockErrorMessageInterface)));
+        spyOn<any>(component['rules_service_'], 'delete_rule_set').and.returnValue(throwError(MockErrorMessageClass));
 
         component['api_delete_rule_set_'](MockRuleSetForDeleteClass);
 

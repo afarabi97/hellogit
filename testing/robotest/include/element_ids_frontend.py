@@ -239,21 +239,17 @@ APP_KIT_CLOCK__BUTTON_CHANGE_CLOCK = 'app-kit-clock-mat-card-mat-card-actions-bu
 
 
 # These are for change-password.component.html
-APP_CHANGE_PASSWORD_FORM__MAT_CARD_TITLE_A = 'app-change-password-form-mat-card-mat-card-header-mat-card-title-a' # a
-APP_CHANGE_PASSWORD_FORM__A_EM_CHEVRON_RIGHT = 'app-change-password-form-mat-card-mat-card-header-mat-card-title-a-em-chevron-right' # em
-APP_CHANGE_PASSWORD_FORM__A_EM_EXPAND_MORE = 'app-change-password-form-mat-card-mat-card-header-mat-card-title-a-em-expand-more' # em
-APP_CHANGE_PASSWORD_FORM__APP_PASSWORD_MESSAGE = 'app-change-password-form-mat-card-mat-card-content-cvah-password-message' # cvah-password-message (internal)
-APP_CHANGE_PASSWORD_FORM__MAT_FORM_FIELD_NEW_ROOT_PASSWORD = 'app-change-password-form-mat-card-mat-card-content-mat-form-field-new-root-password' # mat-form-field
-APP_CHANGE_PASSWORD_FORM__NEW_ROOT_PASSWORD_INPUT = 'app-change-password-form-mat-card-mat-card-content-mat-form-field-new-root-password-input' # input
-APP_CHANGE_PASSWORD_FORM__NEW_ROOT_PASSWORD_MAT_ICON_CHECK_CIRCLE = 'app-change-password-form-mat-card-mat-card-content-mat-form-field-new-root-password-mat-icon-check-circle' # mat-icon
-APP_CHANGE_PASSWORD_FORM__NEW_ROOT_PASSWORD_MAT_ICON_ERROR = 'app-change-password-form-mat-card-mat-card-content-mat-form-field-new-root-password-mat-icon-error' # mat-icon
-APP_CHANGE_PASSWORD_FORM__NEW_ROOT_PASSWORD_MAT_ERROR = 'app-change-password-form-mat-card-mat-card-content-mat-form-field-new-root-password-mat-error' # mat-error
-APP_CHANGE_PASSWORD_FORM__MAT_FORM_FIELD_RETYPE_PASSWORD = 'app-change-password-form-mat-card-mat-card-content-mat-form-field-retype-password' # mat-form-field
-APP_CHANGE_PASSWORD_FORM__RETYPE_PASSWORD_INPUT = 'app-change-password-form-mat-card-mat-card-content-mat-form-field-retype-password-input' # input
-APP_CHANGE_PASSWORD_FORM__RETYPE_PASSWORD_MAT_ICON_CHECK_CIRCLE = 'app-change-password-form-mat-card-mat-card-content-mat-form-field-retype-password-mat-icon-check-circle' # mat-icon
-APP_CHANGE_PASSWORD_FORM__RETYPE_PASSWORD_MAT_ICON_ERROR = 'app-change-password-form-mat-card-mat-card-content-mat-form-field-retype-password-mat-icon-error' # mat-icon
-APP_CHANGE_PASSWORD_FORM__RETYPE_PASSWORDMAT_ERROR = 'app-change-password-form-mat-card-mat-card-content-mat-form-field-retype-password-mat-error' # mat-error
-APP_CHANGE_PASSWORD_FORM__BUTTON_CHANGE_PASSWORD = 'app-change-password-form-mat-card-mat-card-actions-button-change-password' # button
+CVAH_CHANGE_PASSWORD_FORM__MAT_EXPANSION_PANEL = 'cvah-change-password-form-expansion-panel' # mat-expansion-panel
+CVAH_CHANGE_PASSWORD_FORM__NEW_ROOT_PASSWORD_INPUT = 'cvah-change-password-form-new-root-password-input' # input
+CVAH_CHANGE_PASSWORD_FORM__NEW_ROOT_PASSWORD_MAT_ICON_CHECK_CIRCLE = 'cvah-change-password-form-new-root-password-mat-icon-check-circle' # mat-icon
+CVAH_CHANGE_PASSWORD_FORM__NEW_ROOT_PASSWORD_MAT_ICON_ERROR = 'cvah-change-password-form-new-root-password-mat-icon-error' # mat-icon
+CVAH_CHANGE_PASSWORD_FORM__NEW_ROOT_PASSWORD_MAT_ICON_INFO = 'cvah-change-password-form-new-root-password-mat-icon-info' # mat-icon
+CVAH_CHANGE_PASSWORD_FORM__NEW_ROOT_PASSWORD_MAT_ERROR = 'cvah-change-password-form-new-root-password-mat-error' # mat-error
+CVAH_CHANGE_PASSWORD_FORM__RETYPE_PASSWORD_INPUT = 'cvah-change-password-form-retype-password-input' # input
+CVAH_CHANGE_PASSWORD_FORM__RETYPE_PASSWORD_MAT_ICON_CHECK_CIRCLE = 'cvah-change-password-form-retype-password-mat-icon-check-circle' # mat-icon
+CVAH_CHANGE_PASSWORD_FORM__RETYPE_PASSWORD_MAT_ICON_ERROR = 'cvah-change-password-form-retype-password-mat-icon-error' # mat-icon
+CVAH_CHANGE_PASSWORD_FORM__RETYPE_PASSWORD_MAT_ERROR = 'cvah-change-password-form-retype-password-mat-error' # mat-error
+CVAH_CHANGE_PASSWORD_FORM__BUTTON_UPDATE = 'cvah-change-password-form-button-update' # button
 
 
 # These are for chart-list.component.html
@@ -317,7 +313,7 @@ CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_BACK = 'cvah-catalog-page-values-step-butt
 CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN = 'cvah-catalog-page-values-step-button-run' # button
 
 
-# These are for confirm-dailog.component.html
+# These are for confirm-dialog.component.html
 CVAH_CONFIRM_DIALOG__TITLE = 'cvah-confirm-dialog-title' # h1
 CVAH_CONFIRM_DIALOG__MESSAGE = 'cvah-confirm-dialog-message' # span
 CVAH_CONFIRM_DIALOG__INPUT = 'cvah-confirm-dialog-input' # input
@@ -729,16 +725,14 @@ APP_MODAL_TABLE__BUTTON_CLOSE = 'app-modal-table-div-button-close' # button
 
 
 # These are for node-maintenance.component.html
-APP_NODE_MAINTENANCE_FORM__TITLE_A = 'app-node-maintenance-form-mat-card-mat-card-header-mat-card-title-a' # a
-APP_NODE_MAINTENANCE_FORM__A_EM_CHEVRON_RIGHT = 'app-node-maintenance-form-mat-card-mat-card-header-mat-card-title-a-em-chevron-right' # em
-APP_NODE_MAINTENANCE_FORM__A_EM_EXPAND_MORE = 'app-node-maintenance-form-mat-card-mat-card-header-mat-card-title-a-em-expand-more' # em
-# TODO app-node-maintenance-form-mat-card-mat-card-content-table-td-*-node # td
-# TODO app-node-maintenance-form-mat-card-mat-card-content-table-td-*-interface-state # td
-# TODO app-node-maintenance-form-mat-card-mat-card-content-table-td-*-interface-state-div-span-interface-name-state-* # span
-# TODO app-node-maintenance-form-mat-card-mat-card-content-table-td-*-interface-state-div-span-interface-name-error-* # span
-# TODO app-node-maintenance-form-mat-card-mat-card-content-table-td-*-slider-label-node # td
-# TODO app-node-maintenance-form-mat-card-mat-card-content-table-td-*-slider-label-node-mat-slide-toggle # mat-slide-toggle
-# TODO app-node-maintenance-form-mat-card-mat-card-content-table-tr-mat-row-* # tr
+CVAH_NODE_MAINTENANCE_FORM__MAT_EXPANSION_PANEL = 'cvah-node-maintenance-form-expansion-panel' # mat-expansion-panel
+# TODO cvah-node-maintenance-form-td-*-node # td
+# TODO cvah-node-maintenance-form-td-*-interface-*-name # span
+# TODO cvah-node-maintenance-form-td-*-interface-*-state # span
+# TODO cvah-node-maintenance-form-td-*-interface-*-link-up # span
+# TODO cvah-node-maintenance-form-td-*-interface-*-error # span
+# TODO cvah-node-maintenance-form-td-*-mat-slide-toggle # mat-slide-toggle
+# TODO cvah-node-maintenance-form-tr-mat-row-* # tr
 
 
 # These are for notifications.component.html
@@ -900,22 +894,28 @@ CVAH_REPLAY_PCAP_DIALOG__BUTTON_EXECUTE = 'cvah-replay-pcap-dialog-button-execut
 
 
 # These are for repository-settings.component.html
-APP_REPOSITORY_SETTINGS__TITLE_A = 'app-repository-settings-mat-card-mat-card-header-mat-card-title-a' # a
-APP_REPOSITORY_SETTINGS__A_EM_CHEVRON_RIGHT = 'app-repository-settings-mat-card-mat-card-header-mat-card-title-a-em-chevron-right' # em
-APP_REPOSITORY_SETTINGS__A_EM_EXPAND_MORE = 'app-repository-settings-mat-card-mat-card-header-mat-card-title-a-em-expand-more' # em
-APP_REPOSITORY_SETTINGS__MAT_FORM_FIELD_ENDPOINT = 'app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-endpoint' # mat-form-field
-APP_REPOSITORY_SETTINGS__ENDPOINT_INPUT = 'app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-endpoint-input' # input
-APP_REPOSITORY_SETTINGS__MAT_FORM_FIELD_PROTOCOL = 'app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-protocol' # mat-form-field
-APP_REPOSITORY_SETTINGS__PROTOCOL_MAT_SELECT = 'app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-protocol-mat-select' # mat-select
-APP_REPOSITORY_SETTINGS__PROTOCOL_MAT_SELECT_MAT_OPTION_HTTP = 'app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-protocol-mat-select-mat-option-http' # mat-option
-APP_REPOSITORY_SETTINGS__PROTOCOL_MAT_SELECT_MAT_OPTION_HTTPS = 'app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-protocol-mat-select-mat-option-https' # mat-option
-APP_REPOSITORY_SETTINGS__MAT_FORM_FIELD_BUCKET = 'app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-bucket' # mat-form-field
-APP_REPOSITORY_SETTINGS__BUCKET_INPUT = 'app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-bucket-input' # input
-APP_REPOSITORY_SETTINGS__MAT_FORM_FIELD_ACCESS_KEY = 'app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-access-key' # mat-form-field
-APP_REPOSITORY_SETTINGS__ACCESS_KEY_INPUT = 'app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-access-key-input' # input
-APP_REPOSITORY_SETTINGS__MAT_FORM_FIELD_SECRET_KEY = 'app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-secret-key' # mat-form-field
-APP_REPOSITORY_SETTINGS__SECRET_KEY_INPUT = 'app-repository-settings-mat-card-mat-card-content-form-div-mat-form-field-secret-key-input' # input
-APP_REPOSITORY_SETTINGS__BUTTON_UPDATE = 'app-repository-settings-mat-card-mat-card-actions-button-update' # button
+CVAH_REPOSITORY_SETTINGS__MAT_EXPANSION_PANEL = 'cvah-repository-settings-expansion-panel' # mat-expansion-panel
+CVAH_REPOSITORY_SETTINGS__ENDPOINT_INPUT = 'cvah-repository-settings-endpoint-input' # input
+CVAH_REPOSITORY_SETTINGS__ENDPOINT_MAT_ICON_CHECK_CIRCLE = 'cvah-repository-settings-endpoint-mat-icon-check-circle' # mat-icon
+CVAH_REPOSITORY_SETTINGS__ENDPOINT_MAT_ICON_ERROR = 'cvah-repository-settings-endpoint-mat-icon-error' # mat-icon
+CVAH_REPOSITORY_SETTINGS__ENDPOINT_MAT_ERROR = 'cvah-repository-settings-endpoint--mat-error' # mat-error
+CVAH_REPOSITORY_SETTINGS__PROTOCOL_MAT_SELECT = 'cvah-repository-settings-protocol-mat-select' # mat-select
+CVAH_REPOSITORY_SETTINGS__PROTOCOL_MAT_SELECT_MAT_OPTION_HTTP = 'cvah-repository-settings-protocol-mat-option-http' # mat-option
+CVAH_REPOSITORY_SETTINGS__PROTOCOL_MAT_SELECT_MAT_OPTION_HTTPS = 'cvah-repository-settings-protocol-mat-option-https' # mat-option
+CVAH_REPOSITORY_SETTINGS__PROTOCOL_MAT_ERROR = 'cvah-repository-settings-protocol-mat-error' # mat-error
+CVAH_REPOSITORY_SETTINGS__BUCKET_INPUT = 'cvah-repository-settings-bucket-input' # input
+CVAH_REPOSITORY_SETTINGS__BUCKET_MAT_ICON_CHECK_CIRCLE = 'cvah-repository-settings-bucket-mat-icon-check-circle' # mat-icon
+CVAH_REPOSITORY_SETTINGS__BUCKET_MAT_ICON_ERROR = 'cvah-repository-settings-bucket-mat-icon-error' # mat-icon
+CVAH_REPOSITORY_SETTINGS__BUCKET_MAT_ERROR = 'cvah-repository-settings-bucket--mat-error' # mat-error
+CVAH_REPOSITORY_SETTINGS__ACCESS_KEY_INPUT = 'cvah-repository-settings-access-key-input' # input
+CVAH_REPOSITORY_SETTINGS__ACCESS_KEY_MAT_ICON_CHECK_CIRCLE = 'cvah-repository-settings-access-key-mat-icon-check-circle' # mat-icon
+CVAH_REPOSITORY_SETTINGS__ACCESS_KEY_MAT_ICON_ERROR = 'cvah-repository-settings-access-key-mat-icon-error' # mat-icon
+CVAH_REPOSITORY_SETTINGS__ACCESS_KEY_MAT_ERROR = 'cvah-repository-settings-access-key--mat-error' # mat-error
+CVAH_REPOSITORY_SETTINGS__SECRET_KEY_INPUT = 'cvah-repository-settings-secret-key-input' # input
+CVAH_REPOSITORY_SETTINGS__SECRET_KEY_MAT_ICON_CHECK_CIRCLE = 'cvah-repository-settings-secret-key-mat-icon-check-circle' # mat-icon
+CVAH_REPOSITORY_SETTINGS__SECRET_KEY_MAT_ICON_ERROR = 'cvah-repository-settings-secret-key-mat-icon-error' # mat-icon
+CVAH_REPOSITORY_SETTINGS__SECRET_KEY_MAT_ERROR = 'cvah-repository-settings-secret-key--mat-error' # mat-error
+CVAH_REPOSITORY_SETTINGS__BUTTON_UPDATE = 'cvah-repository-settings-button-update' # button
 
 
 # These are for server-stdout.component.html
@@ -1025,11 +1025,6 @@ CVAH_PMO_SUPPORT__P_BUILD_DATE = 'cvah-pmo-support-build-date' # p
 
 
 # These are for tools.component.html
-APP_TOOLS__APP_NODE_MAINTENANCE_FORM = 'app-tools-div-app-node-maintenance-form' # app-node-maintenance-form (internal)
-APP_TOOLS__APP_KIT_CLOCK = 'app-tools-div-app-kit-clock' # app-kit-clock (internal)
-APP_TOOLS__APP_CHANGE_PASSWORD_FORM = 'app-tools-div-app-change-password-form' # app-change-password-form (internal)
-APP_TOOLS__APP_UPDATE_DOCS_FORM = 'app-tools-div-app-update-docs-form' # app-update-docs-form (internal)
-APP_TOOLS__APP_REPOSITORY_SETTINGS = 'app-tools-div-app-repository-settings' # app-repository-settings (internal)
 
 
 # These are for top-navbar.component.html
@@ -1113,17 +1108,27 @@ APP_KICKSTART_FORM__UNUSED_IPADDRESS_AUTOCOMPLETE_CTRL__FORM_INPUT_MAT_ICON_ERRO
 
 
 # These are for update-docs.component.html
-APP_UPDATE_DOCS_FORM__TITLE_A = 'app-update-docs-form-mat-card-mat-card-header-mat-card-title-a' # a
-APP_UPDATE_DOCS_FORM__A_EM_CHEVRON_RIGHT = 'app-update-docs-form-mat-card-mat-card-header-mat-card-title-a-em-chevron-right' # em
-APP_UPDATE_DOCS_FORM__A_EM_EXPAND_MORE = 'app-update-docs-form-mat-card-mat-card-header-mat-card-title-a-em-expand-more' # em
-APP_UPDATE_DOCS_FORM__MAT_FORM_FIELD_SPACE_NAME = 'app-update-docs-form-mat-card-mat-card-content-div-form-mat-form-field-space-name' # mat-form-field
-APP_UPDATE_DOCS_FORM__SPACE_NAME_INPUT = 'app-update-docs-form-mat-card-mat-card-content-div-form-mat-form-field-space-name-input' # input
-APP_UPDATE_DOCS_FORM__SPACE_NAME_MAT_ERROR_VALID_SPACE_NAME = 'app-update-docs-form-mat-card-mat-card-content-div-form-mat-form-field-space-name-mat-error-valid-space-name' # mat-error
-APP_UPDATE_DOCS_FORM__SPACE_NAME_MAT_ERROR_REQUIRED = 'app-update-docs-form-mat-card-mat-card-content-div-form-mat-form-field-space-name-mat-error-required' # mat-error
-APP_UPDATE_DOCS_FORM__BUTTON_CHOOSE_ZIP_FILE = 'app-update-docs-form-mat-card-mat-card-actions-button-choose-zip-file' # button
-APP_UPDATE_DOCS_FORM__INPUT_HIDDEN = 'app-update-docs-form-mat-card-mat-card-actions-input-hidden' # input
-APP_UPDATE_DOCS_FORM__BUTTON_UPLOAD = 'app-update-docs-form-mat-card-mat-card-actions-button-upload' # button
-APP_UPDATE_DOCS_FORM__BUTTON_UPLOADSPAN_ZIP_FILE_NAME = 'app-update-docs-form-mat-card-mat-card-actions-button-upload-span-zip-file-name' # span
+CVAH_UPDATE_DOCS_FORM__MAT_EXPANSION_PANEL = 'cvah-update-docs-form-expansion-panel' # mat-expansion-panel
+CVAH_UPDATE_DOCS_FORM__BUTTON_UPDATE_DOCUMENTATION_GUIDE = 'cvah-update-docs-form-button-update-documentaion-guide' # button
+CVAH_UPDATE_DOCS_FORM__SPACE_NAME_INPUT = 'cvah-update-docs-form-space-name-input' # input
+CVAH_UPDATE_DOCS_FORM__SPACE_NAME_MAT_ICON_CHECK_CIRCLE = 'cvah-update-docs-form-space-name-mat-icon-check-circle' # mat-icon
+CVAH_UPDATE_DOCS_FORM__SPACE_NAME_MAT_ICON_ERROR = 'cvah-update-docs-form-space-name-mat-icon-error' # mat-icon
+CVAH_UPDATE_DOCS_FORM__SPACE_NAME_MAT_ERROR = 'cvah-update-docs-form-space-name-mat-error' # mat-error
+CVAH_UPDATE_DOCS_FORM__BUTTON_CHOOSE_ZIP_FILE = 'cvah-update-docs-form-button-choose-zip-file' # button
+CVAH_UPDATE_DOCS_FORM__INPUT_HIDDEN = 'cvah-update-docs-form-input-hidden' # input
+CVAH_UPDATE_DOCS_FORM__FILE_NAME_INPUT = 'cvah-update-docs-form-file-name-input' # input
+CVAH_UPDATE_DOCS_FORM__BUTTON_UPLOAD = 'cvah-update-docs-form-button-upload' # button
+
+
+# These are for update-es-license-form.component.html
+CVAH_UPDATE_ES_LICENSE_FORM__MAT_EXPANSION_PANEL = 'cvah-update-es-license-form-expansion-panel' # mat-expansion-panel
+CVAH_UPDATE_ES_LICENSE_FORM__LICENSE_TYPE = 'cvah-update-es-license-form-license-type' # div
+CVAH_UPDATE_ES_LICENSE_FORM__LICENSE_STATUS = 'cvah-update-es-license-form-license-status' # div
+CVAH_UPDATE_ES_LICENSE_FORM__LICENSE_EXPIRE_DATE = 'cvah-update-es-license-form-license-expire-date' # div
+CVAH_UPDATE_ES_LICENSE_FORM__BUTTON_CHOOSE_JSON_LICENSE_FILE = 'cvah-update-es-license-form-button-choose-json-license-file' # button
+CVAH_UPDATE_ES_LICENSE_FORM__INPUT_HIDDEN = 'cvah-update-es-license-form-input-hidden' # button
+CVAH_UPDATE_ES_LICENSE_FORM__FILE_NAME_INPUT = 'cvah-update-es-license-form-file-name-input' # button
+CVAH_UPDATE_ES_LICENSE_FORM__BUTTON_UPLOAD = 'cvah-update-es-license-form-button-upload' # button
 
 
 # These are for upgrade.component.html

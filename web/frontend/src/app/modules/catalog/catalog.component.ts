@@ -174,17 +174,17 @@ export class CatalogComponent implements OnInit {
   private setup_websocket_onbroadcast_(): void {
     this.websocket_service_.onBroadcast()
       .pipe(untilDestroyed(this))
-      .subscribe((message: NotificationClass) => {
-        switch (message.role) {
+      .subscribe((response: NotificationClass) => {
+        switch (response.role) {
           case WEBSOCKET_MESSAGE_ROLE_CATALOG:
             /* istanbul ignore else */
-            if (ObjectUtilitiesClass.notUndefNull(message.data) &&
+            if (ObjectUtilitiesClass.notUndefNull(response.data) &&
                 ObjectUtilitiesClass.notUndefNull(this.charts_)) {
               this.charts_.forEach((chart: ChartClass) => {
                 /* istanbul ignore else */
-                if (chart.application === message.application.toLowerCase()) {
-                  const data_keys: string[] = Object.keys(message.data);
-                  const node_statuses: StatusClass[] = data_keys.map((key: string) => message.data[key]);
+                if (chart.application === response.application.toLowerCase()) {
+                  const data_keys: string[] = Object.keys(response.data);
+                  const node_statuses: StatusClass[] = data_keys.map((key: string) => response.data[key]);
                   chart.nodes = node_statuses;
                 }
               });
@@ -192,10 +192,10 @@ export class CatalogComponent implements OnInit {
             break;
           case WEBSOCKET_MESSAGE_ROLE_NODE:
             /* istanbul ignore else */
-            if (((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_REMOVE_NODE))) ||
-                ((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_CREATE_VIRTUAL_MACHINE))) ||
-                ((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_PROVISION_VIRTUAL_MACHINE))) ||
-                ((message.status === COMPLETED) && (message.message.includes(WEBSOCKET_MESSAGE_MESSAGE_ADD_NODE)))) {
+            if (((response.status === COMPLETED) && (response.message.includes(WEBSOCKET_MESSAGE_MESSAGE_REMOVE_NODE))) ||
+                ((response.status === COMPLETED) && (response.message.includes(WEBSOCKET_MESSAGE_MESSAGE_CREATE_VIRTUAL_MACHINE))) ||
+                ((response.status === COMPLETED) && (response.message.includes(WEBSOCKET_MESSAGE_MESSAGE_PROVISION_VIRTUAL_MACHINE))) ||
+                ((response.status === COMPLETED) && (response.message.includes(WEBSOCKET_MESSAGE_MESSAGE_ADD_NODE)))) {
               this.is_loading = true;
               this.filtered_charts = [];
               this.charts_ = [];
@@ -204,10 +204,10 @@ export class CatalogComponent implements OnInit {
             }
             break;
           case WEBSOCKET_MESSAGE_ROLE_RULE_SYNC:
-            if (message.status === WEBSOCKET_MESSAGE_STATUS_STARTED) {
+            if (response.status === WEBSOCKET_MESSAGE_STATUS_STARTED) {
               this.rule_sync = true;
             }
-            if (message.status === WEBSOCKET_MESSAGE_STATUS_COMPLETED) {
+            if (response.status === WEBSOCKET_MESSAGE_STATUS_COMPLETED) {
               this.rule_sync = false;
             }
             break;

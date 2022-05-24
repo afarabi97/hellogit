@@ -5,7 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { MatSnackbarConfigurationClass, ObjectUtilitiesClass } from '../../classes';
+import { MatSnackbarConfigurationClass, NotificationClass, ObjectUtilitiesClass } from '../../classes';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import {
   CONFIRM_DIALOG_OPTION,
@@ -157,9 +157,9 @@ export class ElasticsearchScaleComponent implements OnInit {
     this.websocket_service_.onBroadcast()
       .pipe(untilDestroyed(this))
       .subscribe(
-        (reponse: any) => {
+        (reponse: NotificationClass) => {
           /* istanbul ignore else */
-          if (reponse['status'] === 'COMPLETED' && reponse['message'] === WEBSOCKET_STATUS_COMPLETED_ELASTIC_MESSAGE) {
+          if (reponse.status === 'COMPLETED' && reponse.message === WEBSOCKET_STATUS_COMPLETED_ELASTIC_MESSAGE) {
             this.status = false;
             this.loading = false;
             this.api_get_elastic_nodes_();

@@ -301,9 +301,9 @@ export class NotificationsComponent implements OnInit {
     this.websocket_service_.onBroadcast()
       .pipe(untilDestroyed(this))
       .subscribe(
-        (response: NotificationInterface) => {
+        (response: NotificationClass) => {
           this.new_notifications.push(response);
-          this.add_notification_to_button_list_(new NotificationClass(response), true);
+          this.add_notification_to_button_list_(response, true);
         });
   }
 

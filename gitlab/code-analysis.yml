@@ -16,7 +16,7 @@ test playbooks:
   tags:
     - docker-runner
   stage: code-analysis
-  image: quay.io/ansible/toolset:3.4.0
+  image: docker.nexus.sil.lab/quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
@@ -28,7 +28,7 @@ bootstrap playbooks:
   tags:
     - docker-runner
   stage: code-analysis
-  image: quay.io/ansible/toolset:3.4.0
+  image: docker.nexus.sil.lab/quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
@@ -40,7 +40,7 @@ core playbooks:
   tags:
     - docker-runner
   stage: code-analysis
-  image: quay.io/ansible/toolset:3.4.0
+  image: docker.nexus.sil.lab/quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
@@ -52,7 +52,7 @@ remove node playbooks:
   tags:
     - docker-runner
   stage: code-analysis
-  image: quay.io/ansible/toolset:3.4.0
+  image: docker.nexus.sil.lab/quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
@@ -64,7 +64,7 @@ virtual node playbooks:
   tags:
     - docker-runner
   stage: code-analysis
-  image: quay.io/ansible/toolset:3.4.0
+  image: docker.nexus.sil.lab/quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
@@ -76,7 +76,7 @@ kickstart profiles playbooks:
   tags:
     - docker-runner
   stage: code-analysis
-  image: quay.io/ansible/toolset:3.4.0
+  image: docker.nexus.sil.lab/quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
@@ -88,7 +88,7 @@ controller playbooks:
   tags:
     - docker-runner
   stage: code-analysis
-  image: quay.io/ansible/toolset:3.4.0
+  image: docker.nexus.sil.lab/quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
@@ -100,7 +100,7 @@ control plane playbooks:
   tags:
     - docker-runner
   stage: code-analysis
-  image: quay.io/ansible/toolset:3.4.0
+  image: docker.nexus.sil.lab/quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
@@ -112,7 +112,7 @@ stigs playbooks:
   tags:
     - docker-runner
   stage: code-analysis
-  image: quay.io/ansible/toolset:3.4.0
+  image: docker.nexus.sil.lab/quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
@@ -124,7 +124,7 @@ mip playbooks:
   tags:
     - docker-runner
   stage: code-analysis
-  image: quay.io/ansible/toolset:3.4.0
+  image: docker.nexus.sil.lab/quay.io/ansible/toolset:3.4.0
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"

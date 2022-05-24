@@ -237,7 +237,7 @@ describe('ToolsService', () => {
             expect(service.change_remote_network_device_state).toHaveBeenCalled();
           });
 
-        const xhrURL: string = `/api/${hostname}/set-interface-state/${device}/${state}`;
+        const xhrURL: string = `/api/tools/${hostname}/set-interface-state/${device}/${state}`;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         expect(xhrRequest.request.method).toEqual(putType);
@@ -267,7 +267,7 @@ describe('ToolsService', () => {
               expect(service.change_remote_network_device_state).toHaveBeenCalled();
             });
 
-            const xhrURL: string = `/api/${hostname}/set-interface-state/${device}/${state}`;
+            const xhrURL: string = `/api/tools/${hostname}/set-interface-state/${device}/${state}`;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorMessageRequest, mockErrorResponse);
@@ -287,7 +287,7 @@ describe('ToolsService', () => {
               expect(service.change_remote_network_device_state).toHaveBeenCalled();
             });
 
-        const xhrURL: string = `/api/${hostname}/set-interface-state/${device}/${state}`;
+        const xhrURL: string = `/api/tools/${hostname}/set-interface-state/${device}/${state}`;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorRequest, mockErrorResponse);

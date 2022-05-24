@@ -1,62 +1,106 @@
-<mat-card [formGroup]="repoForm">
-  <mat-card-header *ngIf="hasTitle">
-    <mat-card-title>
-      <a id="app-settings-repository-settings-form-mat-card-mat-card-header-mat-card-title-a" (click)="toggleCard()">
-        <em *ngIf="!isCardVisible"
-            class="material-icons">chevron_right</em>
-        <em *ngIf="isCardVisible"
-            class="material-icons">expand_more</em>
-        <span style="vertical-align: top;">Repository Settings</span>
-        </a>
-    </mat-card-title>
-  </mat-card-header>
-  <mat-card-content *ngIf="isCardVisible || !hasTitle" fxLayout="column" fxLayoutAlign="space-around stretch">
-    <form [formGroup]="repoForm">
-      <div fxLayout="column" fxLayoutAlign="start stretch">
-        <!-- Endpoint -->
-        <mat-form-field>
-          <mat-label>Endpoint</mat-label>
-          <input matInput formControlName="endpoint" matTooltip="Enter MinIO IP Address"
-          placeholder="IP Address of repository">
-          <mat-error>{{ getErrorMessage(repoForm.get('endpoint')) }}</mat-error>
-        </mat-form-field>
-        <!-- Protocol -->
-        <mat-form-field>
-          <mat-label>Protocol</mat-label>
-          <mat-select formControlName="protocol">
-            <mat-option value="http">HTTP</mat-option>
-            <mat-option value="https">HTTPS</mat-option>
-          </mat-select>
-          <mat-error>{{ getErrorMessage(repoForm.get('protocol')) }}</mat-error>
-        </mat-form-field>
-        <!-- Bucket -->
-        <mat-form-field>
-          <mat-label>Bucket</mat-label>
-          <input matInput formControlName="bucket" matTooltip="Enter name of bucket"
-          placeholder="Bucket name created in repository">
-          <mat-error>{{ getErrorMessage(repoForm.get('bucket')) }}</mat-error>
-        </mat-form-field>
-        <!-- Access Key -->
-        <mat-form-field>
-          <mat-label>Access Key</mat-label>
-          <input matInput formControlName="access_key" matTooltip="Enter Repository username"
-          placeholder="Repository username">
-          <mat-error>{{ getErrorMessage(repoForm.get('access_key')) }}</mat-error>
-        </mat-form-field>
-        <!-- Secret Key -->
-        <mat-form-field>
-          <mat-label>Secret Key</mat-label>
-          <input matInput type="password" formControlName="secret_key" matTooltip="Enter Repository password"
-          placeholder="Repository password">
-          <mat-error>{{ getErrorMessage(repoForm.get('secret_key')) }}</mat-error>
-        </mat-form-field>
-      </div>
-    </form>
+<mat-expansion-panel id="cvah-repository-settings-expansion-panel">
+  <mat-expansion-panel-header>
+    <mat-panel-title>Repository Settings</mat-panel-title>
+  </mat-expansion-panel-header>
+  <form fxLayout="column"
+        [formGroup]="repository_settings_form_group"
+        (ngSubmit)="update_button_click()">
 
-  </mat-card-content>
-  <mat-card-actions *ngIf="isCardVisible">
-    <button mat-raised-button
-            color="primary" (click)="update()"
-            [disabled]="repoForm.invalid || (allowUpdate ? false : true)">Update</button>
-  </mat-card-actions>
-</mat-card>
+    <!-- Endpoint -->
+    <mat-form-field>
+      <mat-label>Endpoint</mat-label>
+      <input matInput
+             id="cvah-repository-settings-endpoint-input"
+             matTooltip="Enter MinIO IP Address"
+             placeholder="IP Address of repository"
+             formControlName="endpoint">
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('endpoint').valid &&
+                                 repository_settings_form_group.get('endpoint').touched"
+                id="cvah-repository-settings-endpoint-mat-icon-check-circle"
+                color="primary">check_circle</mat-icon>
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('endpoint').invalid &&
+                                 repository_settings_form_group.get('endpoint').touched"
+                id="cvah-repository-settings-endpoint-mat-icon-error"
+                color="warn">error</mat-icon>
+      <mat-error id="cvah-repository-settings-endpoint-mat-error">{{ get_error_message(repository_settings_form_group.get('endpoint')) }}</mat-error>
+    </mat-form-field>
+
+    <!-- Protocol -->
+    <mat-form-field>
+      <mat-label>Protocol</mat-label>
+      <mat-select id="cvah-repository-settings-protocol-mat-select" formControlName="protocol">
+        <mat-option id="cvah-repository-settings-protocol-mat-option-http" value="http">HTTP</mat-option>
+        <mat-option id="cvah-repository-settings-protocol-mat-option-https" value="https">HTTPS</mat-option>
+      </mat-select>
+      <mat-error id="cvah-repository-settings-protocol-mat-error">{{ get_error_message(repository_settings_form_group.get('protocol')) }}</mat-error>
+    </mat-form-field>
+
+    <!-- Bucket -->
+    <mat-form-field>
+      <mat-label>Bucket</mat-label>
+      <input matInput
+             id="cvah-repository-settings-bucket-input"
+             matTooltip="Enter name of bucket"
+             placeholder="Bucket name created in repository"
+             formControlName="bucket">
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('bucket').valid &&
+                                 repository_settings_form_group.get('bucket').touched"
+                id="cvah-repository-settings-bucket-mat-icon-check-circle"
+                color="primary">check_circle</mat-icon>
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('bucket').invalid &&
+                                 repository_settings_form_group.get('bucket').touched"
+                id="cvah-repository-settings-bucket-mat-icon-error"
+                color="warn">error</mat-icon>
+      <mat-error id="cvah-repository-settings-bucket-mat-error">{{ get_error_message(repository_settings_form_group.get('bucket')) }}</mat-error>
+    </mat-form-field>
+
+    <!-- Access Key -->
+    <mat-form-field>
+      <mat-label>Access Key</mat-label>
+      <input matInput
+             id="cvah-repository-settings-access_key-input"
+             matTooltip="Enter Repository username"
+             placeholder="Repository username"
+             formControlName="access_key">
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('access_key').valid &&
+                                 repository_settings_form_group.get('access_key').touched"
+                id="cvah-repository-settings-access_key-mat-icon-check-circle"
+                color="primary">check_circle</mat-icon>
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('access_key').invalid &&
+                                 repository_settings_form_group.get('access_key').touched"
+                id="cvah-repository-settings-access_key-mat-icon-error"
+                color="warn">error</mat-icon>
+      <mat-error id="cvah-repository-settings-access_key-mat-error">{{ get_error_message(repository_settings_form_group.get('access_key')) }}</mat-error>
+    </mat-form-field>
+
+    <!-- Secret Key -->
+    <mat-form-field>
+      <mat-label>Secret Key</mat-label>
+      <input matInput id="cvah-repository-settings-secret_key-input"
+             type="password"
+             autocomplete="false"
+             matTooltip="Enter Repository password"
+             placeholder="Repository password"
+             formControlName="secret_key">
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('secret_key').valid &&
+                                 repository_settings_form_group.get('secret_key').touched"
+                id="cvah-repository-settings-secret_key-mat-icon-check-circle"
+                color="primary">check_circle</mat-icon>
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('secret_key').invalid &&
+                                 repository_settings_form_group.get('secret_key').touched"
+                id="cvah-repository-settings-secret_key-mat-icon-error"
+                color="warn">error</mat-icon>
+      <mat-error id="cvah-repository-settings-secret_key-mat-error">{{ get_error_message(repository_settings_form_group.get('secret_key')) }}</mat-error>
+    </mat-form-field>
+
+    <!-- Action Button -->
+    <div mat-dialog-actions class="action-button-wrapper">
+      <button mat-raised-button
+              cdkFocusInitial
+              id="cvah-repository-settings-button-update"
+              color="primary"
+              type="submit"
+              [disabled]="!repository_settings_form_group.valid || repository_settings_form_group.untouched || !update_allowed">Update</button>
+    </div>
+  </form>
+</mat-expansion-panel>

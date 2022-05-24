@@ -1,0 +1,8 @@
+.main-content2 {
+  flex-direction: column;
+  box-sizing: border-box;
+  display: flex;
+  *:not(:last-child) {
+    margin-bottom: 2em;
+  }
+}

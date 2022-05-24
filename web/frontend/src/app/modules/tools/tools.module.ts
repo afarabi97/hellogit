@@ -8,6 +8,9 @@ import { MaterialModule } from '../utilily-modules/material.module';
 import { ChangePasswordFormComponent } from './components/change-password-form/change-password.component';
 import { NodeMaintenanceFormComponent } from './components/node-maintenance-form/node-maintenance.component';
 import { RepositorySettingsComponent } from './components/repository-settings/repository-settings.component';
+import {
+  UpdateDocumentationMessageComponent
+} from './components/update-documentation-form/components/update-documentation-message.component';
 import { UpdateDocsFormComponent } from './components/update-documentation-form/update-docs.component';
 import { UpdateEsLicenseComponent } from './components/update-es-license-form/update-es-license-form.component';
 import { ToolsService } from './services/tools.service';
@@ -26,6 +29,7 @@ import { ToolsFormComponent } from './tools.component';
     ChangePasswordFormComponent,
     NodeMaintenanceFormComponent,
     RepositorySettingsComponent,
+    UpdateDocumentationMessageComponent,
     UpdateDocsFormComponent,
     UpdateEsLicenseComponent,
     ToolsFormComponent
