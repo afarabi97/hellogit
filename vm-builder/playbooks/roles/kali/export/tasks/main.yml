@@ -65,8 +65,8 @@
     vm_shell_args: "{{ item }}"
     validate_certs: no
   with_items:
-    - --password {{ export_password }} assessor
-    - --password {{ export_password }} root
+    - --password {{ encrypted_password }} assessor
+    - --password {{ encrypted_password }} root
 
 #VM shuts off too quickly without this task and root password will not be set
 - name: Wait for process to execute

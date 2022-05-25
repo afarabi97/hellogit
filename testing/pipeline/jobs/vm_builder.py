@@ -9,6 +9,7 @@ from util.ansible_util import Target, execute_playbook
 from util.connection_mngs import FabricConnectionWrapper
 from util.constants import (MINIO_PREFIX, ROOT_DIR,
                             SKIP_MINIO_BUILD_AND_TEMPLATE, VM_BUILDER_DIR)
+from util.general import encryptPassword
 from util.ssh import wait_for_connection
 from util.vmware_util import get_vms_in_folder
 
@@ -82,6 +83,7 @@ class StandAloneKali:
         kali_vm_dir = os.path.join(export_dir, vm_version)
         self.settings.vmname = "kali-linux-{}".format(vm_version)
         ova_path = os.path.join(kali_vm_dir, (self.settings.vmname + ".ova"))
+        encrypted_password = encryptPassword(self.settings.export_password)
 
         if self._is_built_already(ova_path):
             print("{} has already been built. Skipping export".format(ova_path))
@@ -89,7 +91,7 @@ class StandAloneKali:
             execute_playbook([VM_BUILDER_PLAYBOOK],
                         extra_vars={'ansible_user': 'root', 'ansible_password': self.settings.password,
                                     'vm_version': vm_version,'cvah_version': cvah_version,
-                                    'vm_dir': kali_vm_dir, **self.settings.to_dict()},
+                                    'vm_dir': kali_vm_dir, 'encrypted_password': encrypted_password, **self.settings.to_dict()},
                         tags=['kali-export'],
                         timeout=1200)
             export_vm(self.settings, ova_path)

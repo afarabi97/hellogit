@@ -1,6 +1,9 @@
+import crypt
+import random
 import shlex
+import string
 import subprocess
-from typing import  Tuple
+from typing import Tuple
 
 
 def _open_proc(command: str,
@@ -28,3 +31,8 @@ def run_command(command: str,
     proc = _open_proc(command, working_dir, use_shell)
     sout, _ = proc.communicate()
     return sout.decode('utf-8'), proc.poll()
+
+def encryptPassword(password: str):
+    chars = string.ascii_letters + string.digits
+    salt = random.choice(chars) + random.choice(chars)
+    return crypt.crypt(password, salt)

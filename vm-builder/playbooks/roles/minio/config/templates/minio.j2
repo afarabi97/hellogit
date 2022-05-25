@@ -1,4 +1,4 @@
 MINIO_ACCESS_KEY="assessor"
 MINIO_VOLUMES="{{ minio_volumes }}"
 MINIO_OPTS="--address :{{ minio_binding_port }} --console-address :{{ minio_console_port }}"
-MINIO_SECRET_KEY="AFt3ch3nthusiasts!!"
+MINIO_SECRET_KEY="{{ export_password }}"

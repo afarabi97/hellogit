@@ -14,7 +14,7 @@ class VMBuilderSettings(Model):
         self.disk_size = namespace.disk_size
         self.dns_servers = namespace.dns_servers
         self.domain = namespace.domain
-        self.export_password = namespace.export_password
+        self.export_password = self.b64decode_string(namespace.export_password)
         self.folder = namespace.folder
         self.gateway = namespace.gateway
         self.hostname = namespace.hostname
