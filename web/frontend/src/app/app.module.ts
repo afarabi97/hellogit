@@ -40,10 +40,6 @@ import { UnusedIpAddressAutoCompleteComponent } from './system-setupv2/component
 import { CopyTokenModalDialogComponent } from './system-setupv2/copy-token-dialog/copy-token-dialog.component';
 import { VirtualNodeFormComponent } from './system-setupv2/virtual-node-form/virtual-node-form.component';
 
-// Kit Page
-
-import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
-
 // classes
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { ConfirmActionPopup } from './classes/ConfirmActionPopup';
@@ -73,6 +69,7 @@ import { PmoSupportModule } from './modules/pmo-support/pmo-support.module';
 import { PolicyManagementModule } from './modules/policy-management/policy-management.module';
 import { PortalModule } from './modules/portal/portal.module';
 import { SecurityAlertsModule } from './modules/security-alerts/security-alerts.module';
+import { ServerStdoutModule } from './modules/server-stdout/server-stdout.module';
 import { ToolsModule } from './modules/tools/tools.module';
 import { InjectorModule } from './modules/utilily-modules/injector.module';
 import { MaterialModule } from './modules/utilily-modules/material.module';
@@ -91,7 +88,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     SystemSettingsComponent,
     NodeManagementComponent,
     NodeStateProgressBarComponent,
-    ServerStdoutComponent,
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
     HealthDashboardModalDialogComponent,
@@ -138,6 +134,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     PolicyManagementModule,
     PortalModule,
     SecurityAlertsModule,
+    ServerStdoutModule,
     ToolsModule,
     InjectorModule,
     ChartsModule,

@@ -1,10 +1,10 @@
-import { Renderer2, Component, OnInit, Input } from '@angular/core';
-import { Node, Job, RetryJob } from '../models/kit';
-import { NodeManagementComponent } from '../node-mng/node-mng.component';
-import { MipManagementComponent } from '../mip-mng/mip-mng.component';
-import { MatSnackBarService } from '../../services/mat-snackbar.service';
-import { ServerStdoutService } from '../../server-stdout/server-stdout.service';
+import { Component, Input, OnInit, Renderer2 } from '@angular/core';
 
+import { ServerStdoutService } from '../../modules/server-stdout/services/server-stdout.service';
+import { MatSnackBarService } from '../../services/mat-snackbar.service';
+import { MipManagementComponent } from '../mip-mng/mip-mng.component';
+import { Job, RetryJob } from '../models/kit';
+import { NodeManagementComponent } from '../node-mng/node-mng.component';
 
 @Component({
   selector: 'app-node-state-progress-bar',

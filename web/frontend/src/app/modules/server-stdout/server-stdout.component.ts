@@ -1,11 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
-import { ServerStdoutService } from './server-stdout.service';
+import { ServerStdoutService } from './services/server-stdout.service';
 import { ActivatedRoute } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBarService } from '../services/mat-snackbar.service';
-import { ConfirmDialogMatDialogDataInterface } from '../interfaces';
+import { MatSnackBarService } from '../../services/mat-snackbar.service';
+import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
 
 @Component({
   selector: 'app-server-stdout',

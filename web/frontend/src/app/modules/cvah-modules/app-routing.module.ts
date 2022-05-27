@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from '../../guards';
 import { HealthDashboardComponent } from '../../health-dashboard/dashboard/health-dashboard.component';
-import { ServerStdoutComponent } from '../../server-stdout/server-stdout.component';
 import { MipManagementComponent } from '../../system-setupv2/mip-mng/mip-mng.component';
 import { NodeManagementComponent } from '../../system-setupv2/node-mng/node-mng.component';
 import { SystemSettingsComponent } from '../../system-setupv2/system-settings/system-settings.component';
@@ -22,6 +21,7 @@ import { PmoSupportComponent } from '../pmo-support/pmo-support.component';
 import { PolicyManagementComponent } from '../policy-management/policy-management.component';
 import { PortalComponent } from '../portal/portal.component';
 import { SecurityAlertsComponent } from '../security-alerts/security-alerts.component';
+import { ServerStdoutComponent } from '../server-stdout/server-stdout.component';
 import { ToolsFormComponent } from '../tools/tools.component';
 
 const routes: Routes = [
