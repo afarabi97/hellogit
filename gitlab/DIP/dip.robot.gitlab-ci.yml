@@ -300,6 +300,7 @@ robot:regression_testing:
   image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.4
   extends: .setup-robot-script
   script: |
+    curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
     python3 -m run.runner -c regression \
       -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
