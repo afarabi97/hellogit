@@ -2,6 +2,7 @@
 ${CATEGORY}                     integration  # default test category
 ${SSO_ADMIN_USERNAME}           admin
 ${NEW_SSO_ADMIN_PASSWORD}       1qaz2wsx!QAZ@WSX
+${NEW_KIT_PASSWORD}             1qaz2wsx!QAZ@WSX
 ${KIBANA_USERNAME}              elastic
 
 ${SSO_FILE}                     /opt/sso-idp/sso_admin_password.txt
@@ -22,6 +23,7 @@ ${PCAPs}                        https://${host}/pcaps
 ${NodeManagement}               https://${host}/node-mng
 ${Health}                       https://${host}/health
 ${Catalog}                      https://${host}/catalog
+${Tools}                        https://${host}/tools
 
 
 # First Login Screen
@@ -65,3 +67,6 @@ ${locServiceNowURL}             id=cvah-pmo-support-servicenow-website
 
 # Portal Page
 ${locElasticLoginButton}        xpath=(//p[@class="euiTitle euiTitle--xsmall secLoginCard__title"])[2]
+
+#Tools Page
+${locChangeKitPassExp}          xpath=//cvah-change-password-form/mat-expansion-panel

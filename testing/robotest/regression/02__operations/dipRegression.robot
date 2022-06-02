@@ -10,6 +10,7 @@ Resource    ../../lib/dipAlertsKeywords.resource
 Resource    ../../lib/dipCatalogKeywords.resource
 Resource    ../../lib/dipNodeMgmtKeywords.resource
 Resource    ../../lib/dipRulesetKeywords.resource
+Variables   ../../include/element_ids_frontend.py
 
 Library     SeleniumLibrary     15s
 Library     SSHLibrary          15s
@@ -35,34 +36,6 @@ Verify Correct System Version Number
     Sleep  2s  reason=Version number loads slightly after the element loads onto the page
     Element Should Contain  ${locSystemVersionNumber}  ${KIT_VERSION}
     Element Should Contain  ${locServiceNowURL}  https://afdco.servicenowservices.com/sp
-
-Install And Uninstall Apps From Catalog Page
-    [Tags]  THISISCVAH-10181
-    [Documentation]  Check functionality of the Catalog page by installing and uninstalling PMO supported apps.
-    Set Selenium Speed            0.5s
-    Install Dependent Apps        Arkime-viewer    Arkime
-    Install Independent Apps      Logstash    Suricata    Zeek    Rocketchat  Wikijs
-    Install Independent Apps      Mattermost    Nifi    Jcat-nifi    Redmine    Netflow-filebeat
-    Install Dependent Apps        Cortex    Misp    Hive
-
-Add Node - Virtual
-    [Tags]  THISISCVAH-10220
-    [Documentation]  Adds one of each type of virtual node (server, sensor, service) to the kit
-    Set Selenium Speed  0.5s
-    Navigate To Node Management
-    Enter Virtual Node Information  node_type=server  hostname=robottest-server
-    Enter Virtual Node Information  node_type=sensor  hostname=robottest-sensor
-    Enter Virtual Node Information  node_type=service  hostname=robottest-service
-    Verify Node Was Added  robottest-server  robottest-sensor  robottest-service
-
-Remove Node - Virtual
-    [Tags]  THISISCVAH-10221
-    [Documentation]  Removes virtual nodes that were added in the previous test
-    Set Selenium Speed  0.5s
-    Navigate To Node Management
-    Delete Node  text=robottest-sensor
-    Delete Node  text=robottest-service
-    Verify Node Was Deleted  robottest-sensor  robottest-service
 
 Sync Zeek And Suricata Rulesets
     [Tags]  THISISCVAH-10222
@@ -94,21 +67,33 @@ Play PCAPs Across Sensor
     Play Wannacry PCAP
 
 Validate Alerts Pages
-    [Tags]    THISISCVAH-10993
-    [Documentation]     Retest- Alerts Pages Validation after backend refactor
+    [Tags]  THISISCVAH-10993
+    [Documentation]  Retest- Alerts Pages Validation after backend refactor
     Set Selenium Speed  0.5s
-    Install Multiple Apps   Hive   Zeek    Suricata
+    Install Multiple Apps  Hive  Zeek  Suricata
     Obtain and Utilize Hive Keys
     Verify Play Stop and Refresh Button
     Verify Table Sorting
 
 Run Elastic Integration Test
-    [Tags]                           THISISCVAH-10191
-    [Documentation]                  Grab the elastic password and run some tests
-    Set Selenium Speed               1s
-    Install Multiple Apps            Logstash   Zeek    Suricata    Arkime-viewer    Arkime
+    [Tags]  THISISCVAH-10191
+    [Documentation]  Grab the elastic password and run some tests
+    Set Selenium Speed  1s
+    Install Multiple Apps  Logstash   Zeek    Suricata    Arkime-viewer    Arkime
     Log In To Kibana
     Navigate To PCAPs
     Play Wannacry PCAP
     Wait And Validate Kibana Hits
     Navigate To Portal
+
+Change Kit Password
+    [Tags]  THISISCVAH-12363
+    Set Selenium Speed  0.5s
+    Navigate To Tools
+    click  ${locChangeKitPassExp}
+    type  id=${CVAH_CHANGE_PASSWORD_FORM__NEW_ROOT_PASSWORD_INPUT}  ${NEW_KIT_PASSWORD}
+    type  id=${CVAH_CHANGE_PASSWORD_FORM__RETYPE_PASSWORD_INPUT}  ${NEW_KIT_PASSWORD}
+    Wait Until Element Is Enabled  id=${CVAH_CHANGE_PASSWORD_FORM__BUTTON_UPDATE}
+    click  id=${CVAH_CHANGE_PASSWORD_FORM__BUTTON_UPDATE}
+    click  id=${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
+    lookFor  Successfully changed the password of your Kit!

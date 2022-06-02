@@ -176,9 +176,12 @@ Navigate To ${page}
     ELSE IF     "${page}" == "Health"
         Go To           ${Health}
         lookFor         Managed Kits
-     ELSE IF     "${page}" == "Catalog"
+    ELSE IF     "${page}" == "Catalog"
         Go To           ${Catalog}
         lookFor         Catalog
+    ELSE IF     "${page}" == "Tools"
+        Go To           ${Tools}
+        lookFor         Node Maintenance
     END
 
 Get Kibana Credentials
