@@ -41,6 +41,7 @@ class NodeSettingsV2(Model):
         self.network_id = kit_settings.settings.network_id
         self.network_block_index = kit_settings.settings.network_block_index
         self.domain = kit_settings.settings.domain
+        self.gateway = kit_settings.settings.gateway
         self.dns_servers = []
         self.sensing_mac = ''
         self.index = 0

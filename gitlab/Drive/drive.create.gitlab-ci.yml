@@ -30,122 +30,67 @@ Clear GIP Staging Environment:
     variables:
       - $PIPELINE == "export-gip"
 
-Hash Master GIP Drive:
+Hash Master GIP Folder:
   stage: hashfiles
   tags:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive-hashes \
-    --drive-type "GIP" \
+    --create-drive-type "GIP" \
     --drive-creation-version "$TFPLENUM_EXPORT_VERSION" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
-    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
-    --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_GIP_DRIVE"
+    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
-      - $PIPELINE == "export-gip" && $CREATE_GIP_DRIVE == "yes"
+      - $PIPELINE == "export-gip"
+      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "GIP"
 
-Hash Check Master GIP Drive:
-  stage: checkhash
-  tags:
-    - tfplenum-buildv2
-  script: |
-    python3 testing/pipeline/pipeline.py run-export check-master-drive-hashes \
-    --drive-type "GIP" \
-    --drive-creation-version "$TFPLENUM_EXPORT_VERSION" \
-    --username "$MASTER_DRIVE_CREATION_USERNAME" \
-    --password "$MASTER_DRIVE_CREATION_PASSWORD" \
-    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
-    --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_GIP_DRIVE"
-  only:
-    variables:
-      - $PIPELINE == "export-gip" && $CREATE_GIP_DRIVE == "yes"
-
-Hash Master CPT Drive:
+Hash Master CPT Folder:
   stage: hashfiles
   tags:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive-hashes \
-    --drive-type "CPT" \
+    --create-drive-type "CPT" \
     --drive-creation-version "$TFPLENUM_EXPORT_VERSION" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
-    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
-    --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_CPT_DRIVE"
+    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
-      - $PIPELINE == "export-all" && $CREATE_CPT_DRIVE == "yes"
-      - $PIPELINE == "minor-release" && $CREATE_CPT_DRIVE == "yes"
-      - $PIPELINE == "drive-only" && $CREATE_CPT_DRIVE == "yes" && $EXPORT_PERFORM_CHECKSUM == "yes"
-      - $PIPELINE == "export-controller-only" && $CREATE_CPT_DRIVE == "yes"
+      - $PIPELINE == "export-all"
+      - $PIPELINE == "minor-release"
+      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "Mixed"
+      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "CPT"
+      - $PIPELINE == "export-controller-only"
 
-Hash Master MDT Drive:
+Hash Master MDT Folder:
   stage: hashfiles
   tags:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive-hashes \
-    --drive-type "MDT" \
+    --create-drive-type "MDT" \
     --drive-creation-version "$TFPLENUM_EXPORT_VERSION" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
-    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
-    --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_MDT_DRIVE"
+    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
-      - $PIPELINE == "export-all" && $CREATE_MDT_DRIVE == "yes"
-      - $PIPELINE == "minor-release" && $CREATE_MDT_DRIVE == "yes"
-      - $PIPELINE == "drive-only" && $CREATE_MDT_DRIVE == "yes" && $EXPORT_PERFORM_CHECKSUM == "yes"
-      - $PIPELINE == "export-controller-only" && $CREATE_MDT_DRIVE == "yes"
+      - $PIPELINE == "export-all"
+      - $PIPELINE == "minor-release"
+      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "Mixed"
+      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "MDT"
+      - $PIPELINE == "export-controller-only"
 
-Hash Check Master CPT Drive:
-  stage: checkhash
-  tags:
-    - tfplenum-buildv2
-  script: |
-    python3 testing/pipeline/pipeline.py run-export check-master-drive-hashes \
-    --drive-type "CPT" \
-    --drive-creation-version "$TFPLENUM_EXPORT_VERSION" \
-    --username "$MASTER_DRIVE_CREATION_USERNAME" \
-    --password "$MASTER_DRIVE_CREATION_PASSWORD" \
-    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
-    --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_CPT_DRIVE"
-  only:
-    variables:
-      - $PIPELINE == "export-all" && $CREATE_CPT_DRIVE == "yes"
-      - $PIPELINE == "minor-release" && $CREATE_CPT_DRIVE == "yes"
-      - $PIPELINE == "drive-only" && $CREATE_CPT_DRIVE == "yes"
-      - $PIPELINE == "export-controller-only" && $CREATE_CPT_DRIVE == "yes"
-
-Hash Check Master MDT Drive:
-  stage: checkhash
-  tags:
-    - tfplenum-buildv2
-  script: |
-    python3 testing/pipeline/pipeline.py run-export check-master-drive-hashes \
-    --drive-type "MDT" \
-    --drive-creation-version "$TFPLENUM_EXPORT_VERSION" \
-    --username "$MASTER_DRIVE_CREATION_USERNAME" \
-    --password "$MASTER_DRIVE_CREATION_PASSWORD" \
-    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
-    --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_MDT_DRIVE"
-  only:
-    variables:
-      - $PIPELINE == "export-all" && $CREATE_MDT_DRIVE == "yes"
-      - $PIPELINE == "minor-release" && $CREATE_MDT_DRIVE == "yes"
-      - $PIPELINE == "drive-only" && $CREATE_MDT_DRIVE == "yes"
-      - $PIPELINE == "export-controller-only" && $CREATE_MDT_DRIVE == "yes"
-
-Create Master CPT Drive:
+Create Drives:
   stage: publish
   tags:
     - tfplenum-buildv2
   script: |
-    python3 testing/pipeline/pipeline.py run-export create-master-drive \
-    --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_CPT_DRIVE" \
-    --drive-type "CPT" \
+    python3 testing/pipeline/pipeline.py run-export create-drives \
+    --create-drive-type "$CREATE_DRIVE_TYPE" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
@@ -153,44 +98,28 @@ Create Master CPT Drive:
     --burn-multiboot $CREATE_MULTIBOOT
   only:
     variables:
-      - $PIPELINE == "export-all" && $CREATE_CPT_DRIVE == "yes"
-      - $PIPELINE == "minor-release" && $CREATE_CPT_DRIVE == "yes"
-      - $PIPELINE == "drive-only" && $CREATE_CPT_DRIVE == "yes"
-      - $PIPELINE == "export-controller-only" && $CREATE_CPT_DRIVE == "yes"
+      - $PIPELINE == "export-all"
+      - $PIPELINE == "minor-release"
+      - $PIPELINE == "drive-only"
+      - $PIPELINE == "export-controller-only"
+      - $PIPELINE == "export-gip"
 
-Create Master MDT Drive:
-  stage: publish
+Check Drives:
+  stage: checkhash
   tags:
     - tfplenum-buildv2
   script: |
-    python3 testing/pipeline/pipeline.py run-export create-master-drive \
-    --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_MDT_DRIVE" \
-    --drive-type "MDT" \
+    python3 testing/pipeline/pipeline.py run-export check-master-drive-hashes \
+    --create-drive-type "$CREATE_DRIVE_TYPE" \
+    --drive-creation-version "$TFPLENUM_EXPORT_VERSION" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
-    --drive-creation-version "$TFPLENUM_EXPORT_VERSION" \
     --burn-multiboot $CREATE_MULTIBOOT
   only:
     variables:
-      - $PIPELINE == "export-all" && $CREATE_MDT_DRIVE == "yes"
-      - $PIPELINE == "minor-release" && $CREATE_MDT_DRIVE == "yes"
-      - $PIPELINE == "drive-only" && $CREATE_MDT_DRIVE == "yes"
-      - $PIPELINE == "export-controller-only" && $CREATE_MDT_DRIVE == "yes"
-
-Create Master GIP Drive:
-  stage: publish
-  tags:
-    - tfplenum-buildv2
-  script: |
-    python3 testing/pipeline/pipeline.py run-export create-master-drive \
-    --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_GIP_DRIVE" \
-    --drive-type "GIP" \
-    --username "$MASTER_DRIVE_CREATION_USERNAME" \
-    --password "$MASTER_DRIVE_CREATION_PASSWORD" \
-    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
-    --drive-creation-version "$TFPLENUM_EXPORT_VERSION" \
-    --burn-multiboot "no"
-  only:
-    variables:
-      - $PIPELINE == "export-gip" && $CREATE_GIP_DRIVE == "yes"
+      - $PIPELINE == "export-all"
+      - $PIPELINE == "minor-release"
+      - $PIPELINE == "drive-only"
+      - $PIPELINE == "export-controller-only"
+      - $PIPELINE == "export-gip"

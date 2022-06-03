@@ -19,7 +19,6 @@ class SubCmd:
     run_mandiant = 'run-mandiant'
     run_oscap_scans = 'run-oscap-scans'
     run_remote_node= 'run-remote-node'
-    run_stigs = 'run-stigs'
 
     setup_baremetal_ctrl = 'setup-baremetal-controller'
     setup_control_plane = 'setup-control-plane'
@@ -34,7 +33,7 @@ class SubCmd:
     # run-export subcommands
     add_docs_to_controller = 'add-docs-to-controller'
     check_master_drive_hashes = 'check-master-drive-hashes'
-    create_master_drive = 'create-master-drive'
+    create_drives = 'create-drives'
     create_master_drive_hashes = 'create-master-drive-hashes'
     export_ctrl = 'export-ctrl'
     export_gip_service_vm = 'export-gip-service-vm'

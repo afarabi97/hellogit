@@ -218,7 +218,7 @@ class GIPServiceExport(ControllerExport):
         export_prefix = "GIP_Services"
         export_name = self.export_loc.render_export_name(export_prefix, self.ctrl_settings.node.commit_hash)
         release_vm_name = export_name[0:len(export_name)-4]
-        payload["commands"] [
+        payload["commands"] = [
             {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete ens192'},
             {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete "Wired connection 1"'},
             {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password {export_password} root"}

@@ -15,6 +15,7 @@ Download GIP Documents:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$GIP_CONFLUENCE_DOCS"
   retry: 2
+  allow_failure: true
   only:
     variables:
       - $PIPELINE == "export-docs"

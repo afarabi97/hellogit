@@ -12,9 +12,8 @@ ROOT_DIR = TESTING_DIR + "/../"
 GIP_DIR = ROOT_DIR + "/gip/"
 SERVICES_DIR = GIP_DIR + "/services/"
 SERVICES_PLAYBOOK = SERVICES_DIR + 'site.yml'
-MINIO_DIR = GIP_DIR + "/minio/"
-MINIO_PLAYBOOK = MINIO_DIR + 'site.yml'
 CLONE_CTRL = PIPELINE_DIR + 'playbooks/clone_ctrl.yml'
+
 
 class GipCreationJob:
     def __init__(self, service_settings: GIPServiceSettings):
@@ -28,13 +27,6 @@ class GipCreationJob:
                          extra_vars=extra_vars,
                          targets=Target("gipsvc", self.service_settings.node.ipaddress),
                          tags=['required-packages'], timeout=300)
-
-        extra_vars['minio_binding_ip'] = self.service_settings.node.ipaddress
-        execute_playbook([MINIO_PLAYBOOK],
-                         extra_vars=extra_vars,
-                         targets=Target("minio", self.service_settings.node.ipaddress),
-                         tags=['install'],
-                         timeout=300)
 
     def _copy(self, src, dest, remote_shell: Connection):
         print("Copying {} to {}".format(src,dest))

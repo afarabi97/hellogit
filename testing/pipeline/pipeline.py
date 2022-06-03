@@ -4,7 +4,7 @@ import traceback
 from argparse import ArgumentParser
 
 from jobs.ctrl_setup import ControllerSetupJob, checkout_latest_code
-from jobs.drive_creation import DriveCreationJob, DriveHashCreationJob
+from jobs.drive_creation import DriveCreationJobv2, DriveHashCreationJob
 from jobs.export import (ConfluenceExport, ControllerExport, GIPServiceExport,
                          MinIOExport, ReposyncServerExport)
 from jobs.gip_creation import GipCreationJob
@@ -17,8 +17,7 @@ from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
 from models.common import RepoSettings
 from models.constants import SubCmd
 from models.ctrl_setup import ControllerSetupSettings
-from models.drive_creation import (DriveCreationHashSettings,
-                                   DriveCreationSettings)
+from models.drive_creation import DriveCreationSettingsv2
 from models.export import ExportSettings
 from models.gip_settings import GIPServiceSettings
 from models.kit import KitSettingsV2
@@ -313,19 +312,19 @@ class Runner:
                 executor.export_controller()
             elif args.which == SubCmd.create_master_drive_hashes:
                 print("Starting hash files")
-                drive_hash_settings = DriveCreationHashSettings()
+                drive_hash_settings = DriveCreationSettingsv2()
                 drive_hash_settings.from_namespace(args)
                 executor = DriveHashCreationJob(drive_hash_settings)
                 executor.execute()
             elif args.which == SubCmd.check_master_drive_hashes:
-                drive_hash_settings = DriveCreationHashSettings()
+                drive_hash_settings = DriveCreationSettingsv2()
                 drive_hash_settings.from_namespace(args)
                 executor = DriveHashCreationJob(drive_hash_settings)
                 executor.run_verification_script()
-            elif args.which == SubCmd.create_master_drive:
-                drive_settings = DriveCreationSettings()
+            elif args.which == SubCmd.create_drives:
+                drive_settings = DriveCreationSettingsv2()
                 drive_settings.from_namespace(args)
-                executor = DriveCreationJob(drive_settings)
+                executor = DriveCreationJobv2(drive_settings)
                 executor.execute()
             elif args.which == SubCmd.verify_manifest:
                 manifest_settings = ManifestSettings()

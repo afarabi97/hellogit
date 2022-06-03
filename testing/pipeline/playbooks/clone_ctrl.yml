@@ -83,3 +83,19 @@
             start_connected: True
       delegate_to: localhost
 
+    - name: Ping the gateway so ARP tables update on layer two
+      vmware_vm_shell:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        vm_id: "{{ node.hostname }}"
+        vm_username: "{{ node.username }}"
+        vm_password: "{{ node.password }}"
+        vm_shell: /usr/bin/sudo
+        vm_shell_args: "{{ item }}"
+        vm_shell_cwd: "/usr/sbin"
+        validate_certs: no
+      delegate_to: localhost
+      with_items:
+        - "ping {{ node.gateway }} -c 3"

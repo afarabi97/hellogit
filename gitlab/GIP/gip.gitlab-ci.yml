@@ -1,0 +1,36 @@
+Setup GIP Services VM:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "VM_PREFIX is $VM_PREFIX"
+
+    echo "Zipping up services Ansible code."
+    zip -r playbooks.zip gip/services/
+
+    python3 testing/pipeline/pipeline.py \
+    gip-setup create-gip-service-vm \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vm-folder "$VMWARE_FOLDER" \
+    --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
+    --commit-hash "$CI_COMMIT_SHORT_SHA" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --gateway "$VM_GATEWAY" \
+    --dns-servers $DNS_SERVERS \
+    --vm-datastore "$VCENTER_DATASTORE" \
+    --network-id "$NETWORK_ID" \
+    --vm-prefix "$VM_PREFIX-gip" \
+    --network-block-index $GIP_SERVICES_NETWORK_BLOCK_INDEX \
+    --export-password "$OVA_EXPORT_PASSWORD" \
+    --vm-template "$GIP_SVC_TEMPLATE_TO_CLONE"
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "developer-gip-svc"
+      - $PIPELINE == "export-gip"

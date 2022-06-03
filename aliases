@@ -53,3 +53,4 @@ function run_tfplenum_docker_test () {
 }
 alias run_backend_docker_unit_tests='run_tfplenum_docker_test -S backend -T unit'
 alias run_backend_docker_acceptance_tests='run_tfplenum_docker_test -S backend -T acceptance'
+alias run_debug_rqworker='systemctl stop rqworker@{1..20};redis-cli FLUSHDB;/opt/tfplenum/.venv/bin/rqworker --path /opt/tfplenum/web/backend/'

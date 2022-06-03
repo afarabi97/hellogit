@@ -10,7 +10,7 @@ variables:
   NETWORK_BLOCK_INDEX: 0
   MINIO_NETWORK_BLOCK_INDEX: 1
   RHEL_NETWORK_BLOCK_INDEX: 2
-  EXPORT_PERFORM_CHECKSUM: "yes"
+  GIP_SERVICES_NETWORK_BLOCK_INDEX: 2
 
   # Common varibles used across multiple pipelines
   DNS_SERVERS: "10.10.101.248 10.10.101.11 10.10.101.12"
@@ -63,9 +63,12 @@ variables:
   MINIO_USE_TLS: "no"
   # Creates multiboot partition on full drives, when doing a minor release make sure this is set to no
   CREATE_MULTIBOOT: "yes"
-  CREATE_CPT_DRIVE: "yes"
-  CREATE_MDT_DRIVE: "yes"
-  CREATE_GIP_DRIVE: "yes"
+
+  # Mixed means it will alternate between CPT and MDT drives
+  #(EX: 7 plugged in drives would yield 4 CPT and 3 MDT drives.)
+  # Valid values are CPT, MDT, GIP or Mixed.
+  # CPT would only produce CPT drives (EX: 2 plugged in drives would give you 2 CPT drives.)
+  CREATE_DRIVE_TYPE: "Mixed"
   RPM_BUILD: "no"
 
   # Breaking point variables
@@ -87,6 +90,9 @@ variables:
   MINIO_VM: "no"
   MINIO_TEMPLATE_TO_CLONE: "RHEL8 Template"
   MINIO_DISK_SIZE: 100
+
+  # GIP Services VM
+  GIP_SVC_TEMPLATE_TO_CLONE: "GIP SVC Template"
 
   # Hardware specific variables
   REDFISH_USER: "root"
@@ -117,11 +123,6 @@ variables:
   MASTER_DRIVE_CREATION_USERNAME: "drive_creator"
   MASTER_DRIVE_CREATION_IPADDRESS: "10.10.102.10"
   MASTER_DRIVE_CREATION_EXTERNAL_GIP_DRIVE: "/dev/sdb"
-  MASTER_DRIVE_CREATION_EXTERNAL_CPT_DRIVE: "/dev/sdb"
-  MASTER_DRIVE_CREATION_EXTERNAL_MDT_DRIVE: "/dev/sdc"
-  MASTER_DRIVE_CREATION_GIP_MOUNT_POINT: "/mnt/GIPData"
-  MASTER_DRIVE_CREATION_CPT_MOUNT_POINT: "/mnt/CPTData"
-  MASTER_DRIVE_CREATION_MDT_MOUNT_POINT: "/mnt/MDTData"
 
   #EXPORT Variables
   CONFLUENCE_SUP_DOCS: ""
@@ -304,6 +305,7 @@ include:
   - local: gitlab/DIP/dip.robot.gitlab-ci.yml
   - local: gitlab/DIP/dip.baremetal-gitlab-ci.yml
   - local: gitlab/MIP/mip.docs.gitlab-ci.yml
+  - local: gitlab/GIP/gip.gitlab-ci.yml
   - local: gitlab/GIP/gip.export.gitlab-ci.yml
   - local: gitlab/GIP/gip.docs.gitlab-ci.yml
   - local: gitlab/Drive/repo.gitlab-ci.yml

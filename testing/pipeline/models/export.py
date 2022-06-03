@@ -1,7 +1,7 @@
 from argparse import Namespace, ArgumentParser
 from models import Model, populate_model_from_namespace, add_args_from_instance
 from models.constants import SubCmd
-from models.drive_creation import DriveCreationSettings, DriveCreationHashSettings
+from models.drive_creation import DriveCreationSettingsv2
 
 
 class ConfluenceSettings(Model):
@@ -143,24 +143,19 @@ class ExportSettings(Model):
         drive_hash_parser = subparsers.add_parser(SubCmd.create_master_drive_hashes,
                                                   help=create_master_drive_hashes_help)
         drive_hash_parser.set_defaults(which=SubCmd.create_master_drive_hashes)
-        add_args_from_instance(drive_hash_parser, DriveCreationHashSettings(), True)
+        add_args_from_instance(drive_hash_parser, DriveCreationSettingsv2(), True)
 
         check_master_drive_hashes_help="This subcommand will create a shell script which can then be used to validate the drive."
         drive_check_parser = subparsers.add_parser(SubCmd.check_master_drive_hashes,
                                                    help=check_master_drive_hashes_help)
         drive_check_parser.set_defaults(which=SubCmd.check_master_drive_hashes)
-        add_args_from_instance(drive_check_parser, DriveCreationHashSettings(), True)
+        add_args_from_instance(drive_check_parser, DriveCreationSettingsv2(), True)
 
-        create_master_drive_help_1="This subcommand will create a master drive.  "
-        create_master_drive_help_2="Before running this subcommand please make sure you have an external "
-        create_master_drive_help_3="USB drive plugged into a Ubuntu server or desktop."
-        drive_parser = subparsers.add_parser(SubCmd.create_master_drive,
-                                             help="{}{}{}".
-                                                     format(create_master_drive_help_1,
-                                                            create_master_drive_help_2,
-                                                            create_master_drive_help_3))
-        drive_parser.set_defaults(which=SubCmd.create_master_drive)
-        add_args_from_instance(drive_parser, DriveCreationSettings(), True)
+        drive_parser2 = subparsers.add_parser(SubCmd.create_drives,
+                                              help="This subcommand will create multiple master drives. ")
+        drive_parser2.set_defaults(which=SubCmd.create_drives)
+        add_args_from_instance(drive_parser2, DriveCreationSettingsv2(), True)
+
 
         export_minio_name_help="Exports the MinIO server to the provided location."
         export_minio_parser = subparsers.add_parser(SubCmd.export_minio,
