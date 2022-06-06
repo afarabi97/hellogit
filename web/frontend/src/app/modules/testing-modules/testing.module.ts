@@ -1,8 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NgModule } from '@angular/core';
 
-import { HealthService } from '../../health-dashboard/services/health.service';
-import { HealthServiceSpy } from '../../health-dashboard/services/health.service.spec';
 import { CatalogService } from '../../services/catalog.service';
 import { CatalogServiceSpy } from '../../services/catalog.service.spec';
 import { CookieService } from '../../services/cookies.service';
@@ -41,6 +39,8 @@ import { IndexManagementService } from '../elasticsearch-index-management/servic
 import { IndexManagementServiceSpy } from '../elasticsearch-index-management/services/index-management.service.spec';
 import { ElasticsearchService } from '../elasticsearch-scale/services/elasticsearch.service';
 import { ElasticsearchServiceSpy } from '../elasticsearch-scale/services/elasticsearch.service.spec';
+import { HealthService } from '../health-dashboard/services/health.service';
+import { HealthServiceSpy } from '../health-dashboard/services/health.service.spec';
 import { NotificationService } from '../notifications/services/notification.service';
 import { NotificationServiceSpy } from '../notifications/services/notification.service.spec';
 import { PCAPService } from '../pcap-form/services/pcap.service';
@@ -59,7 +59,6 @@ import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
     HttpClientTestingModule,
   ],
   providers: [
-    { provide: HealthService, useClass: HealthServiceSpy },
     { provide: CatalogService, useClass: CatalogServiceSpy },
     { provide: CookieService, useClass: CookieServiceSpy },
     { provide: MatSnackBarService, useClass: MatSnackbarServiceSpy },
@@ -80,6 +79,7 @@ import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
     { provide: ColdLogIngestService, useClass: ColdLogIngestServiceSpy },
     { provide: IndexManagementService, useClass: IndexManagementServiceSpy },
     { provide: ElasticsearchService, useClass: ElasticsearchServiceSpy },
+    { provide: HealthService, useClass: HealthServiceSpy },
     { provide: NotificationService, useClass: NotificationServiceSpy },
     { provide: PCAPService, useClass: PCAPServiceSpy },
     { provide: DiagnosticsService, useClass: DiagnosticsServiceSpy },

@@ -1,12 +1,13 @@
-import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
-import { EntityConfig } from '../../interfaces';
-import { ApiService } from '../../services/abstract/api.service';
+
+import { environment } from '../../../../environments/environment';
+import { EntityConfig } from '../../../interfaces';
+import { ApiService } from '../../../services/abstract/api.service';
+import { KitTokenInterface } from '../../../system-setupv2/interfaces/kit-token.interface';
 import { HealthServiceInterface } from '../interfaces/service-interfaces/health-service.interface';
-import { KitTokenInterface} from '../../system-setupv2/interfaces/kit-token.interface';
 
 
 const entityConfig: EntityConfig = {
@@ -15,7 +16,7 @@ const entityConfig: EntityConfig = {
 };
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: null,
 })
 export class HealthService extends ApiService<any> implements HealthServiceInterface {
   constructor() {

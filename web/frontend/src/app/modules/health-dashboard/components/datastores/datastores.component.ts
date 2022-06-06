@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { HealthService } from '../services/health.service';
+
+import { HealthService } from '../../services/health.service';
 
 @Component({
     selector: 'app-health-dashboard-datastores',

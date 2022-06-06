@@ -1,9 +1,10 @@
-import { Component, OnChanges, Input } from '@angular/core';
-import { HealthService } from '../services/health.service';
-import { KitTokenClass } from '../../system-setupv2/classes/kit-token.class';
-import { ModalDialogDisplayMatComponent } from '../../modal-dialog-display-mat/modal-dialog-display-mat.component';
-import { MatDialog } from '@angular/material/dialog';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { Component, Input, OnChanges } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+
+import { ModalDialogDisplayMatComponent } from '../../../../modal-dialog-display-mat/modal-dialog-display-mat.component';
+import { KitTokenClass } from '../../../../system-setupv2/classes/kit-token.class';
+import { HealthService } from '../../services/health.service';
 
 @Component({
     selector: 'app-health-dashboard-node-table',
@@ -68,7 +69,7 @@ export class HealthDashboardNodeTableComponent implements OnChanges {
     }
 
     reload() {
-      if (this.expandedElement.length == 0) {
+      if (this.expandedElement.length === 0) {
         if (this.token && this.token.token == null) {
           this.nodes = [];
           return;

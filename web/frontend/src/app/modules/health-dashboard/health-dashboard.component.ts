@@ -1,18 +1,18 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { Title } from '@angular/platform-browser';
-import { HealthDashboardStatusService } from '../../system-setupv2/services/health-dashboard-status.service';
-import { HealthDashboardStatusClass } from '../../system-setupv2/classes';
-import { interval, Subscription } from 'rxjs';
-import { HealthDashboardNodeTableComponent } from '../node-table/node-table.component';
-import { HealthDashboardPodTableComponent } from '../pod-table/pod-table.component';
-import { HealthDashboardDatastoresComponent } from '../datastores/datastores.component';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { HealthDashboardModalDialogComponent } from '../../health-dashboard-dialog/health-dashboard-dialog.component';
-import { KitSettingsService } from '../../system-setupv2/services/kit-settings.service';
-import { Settings } from '../../system-setupv2//models/kit';
-import { MatSnackBar, TextOnlySnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { MatTabChangeEvent } from '@angular/material/tabs';
+import { Title } from '@angular/platform-browser';
+import { interval, Subscription } from 'rxjs';
 
+import { HealthDashboardStatusClass } from '../../system-setupv2/classes';
+import { Settings } from '../../system-setupv2/models/kit';
+import { HealthDashboardStatusService } from '../../system-setupv2/services/health-dashboard-status.service';
+import { KitSettingsService } from '../../system-setupv2/services/kit-settings.service';
+import { HealthDashboardDatastoresComponent } from './components/datastores/datastores.component';
+import { HealthDashboardModalDialogComponent } from './components/health-dashboard-dialog/health-dashboard-dialog.component';
+import { HealthDashboardNodeTableComponent } from './components/node-table/node-table.component';
+import { HealthDashboardPodTableComponent } from './components/pod-table/pod-table.component';
 
 @Component({
     selector: 'app-health-dashboard',
@@ -86,7 +86,7 @@ export class HealthDashboardComponent implements OnInit {
 
   tabChange(event: MatTabChangeEvent){
     if (event && event.index > 0 && this.remote_dashboard_status && this.remote_dashboard_status.length > 0){
-      let initial_token = this.remote_dashboard_status[0] as HealthDashboardStatusClass
+      const initial_token = this.remote_dashboard_status[0] as HealthDashboardStatusClass;
       this.kitSelected = initial_token.ipaddress;
       this.token = initial_token;
     } else {

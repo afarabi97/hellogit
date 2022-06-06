@@ -7,14 +7,17 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of as observableOf, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { environment } from '../../../environments/environment';
-import { InjectorModule } from '../../modules/utilily-modules/injector.module';
-import { ApiService } from '../../services/abstract/api.service';
-
-import { MockKitTokenInterface, MockNodeMetricsInterface, MockPodMetricsInterface } from '../../../../static-data/interface-objects';
+import {
+  MockKitTokenInterface,
+  MockNodeMetricsInterface,
+  MockPodMetricsInterface
+} from '../../../../../static-data/interface-objects';
+import { environment } from '../../../../environments/environment';
+import { ApiService } from '../../../services/abstract/api.service';
+import { KitTokenInterface } from '../../../system-setupv2/interfaces/kit-token.interface';
+import { InjectorModule } from '../../utilily-modules/injector.module';
 import { HealthServiceInterface } from '../interfaces/service-interfaces/health-service.interface';
 import { HealthService } from './health.service';
-import { KitTokenInterface } from 'src/app/system-setupv2/interfaces/kit-token.interface';
 
 
 describe('HealthService', () => {

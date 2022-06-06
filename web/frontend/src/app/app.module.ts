@@ -20,7 +20,6 @@ import { PasswordMessageComponent } from './components/password-message/password
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.component';
 import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal-dialog-display-mat.component';
-import { PodLogModalDialogComponent } from './pod-log-dialog/pod-log-dialog.component';
 
 // System Setup
 import { SystemSettingsComponent } from './system-setupv2/system-settings/system-settings.component';
@@ -45,13 +44,6 @@ import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { ConfirmActionPopup } from './classes/ConfirmActionPopup';
 import { UserClass } from './classes';
 
-// Health Dashboard
-import { HealthDashboardComponent } from './health-dashboard/dashboard/health-dashboard.component';
-import { HealthDashboardNodeTableComponent } from './health-dashboard/node-table/node-table.component';
-import { HealthDashboardPodTableComponent } from './health-dashboard/pod-table/pod-table.component';
-import { HealthDashboardDatastoresComponent } from './health-dashboard/datastores/datastores.component';
-import { HealthDashboardModalDialogComponent } from './health-dashboard-dialog/health-dashboard-dialog.component';
-
 // modules
 import { AgentBuilderChooserModule } from './modules/agent-builder-chooser/agent-builder-chooser.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
@@ -63,6 +55,7 @@ import { ElasticsearchColdLogIngestModule } from './modules/elasticsearch-cold-l
 import { ElasticsearchIndexManagementModule } from './modules/elasticsearch-index-management/elasticsearch-index-management.module';
 import { ElasticsearchScaleModule } from './modules/elasticsearch-scale/elasticsearch-scale.module';
 import { GenericDialogModule } from './modules/generic-dialog/generic-dialog.module';
+import { HealthDashboardModule } from './modules/health-dashboard/health-dashboard.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PCAPFormModule } from './modules/pcap-form/pcap-form.module';
 import { PmoSupportModule } from './modules/pmo-support/pmo-support.module';
@@ -90,13 +83,11 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     NodeStateProgressBarComponent,
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
-    HealthDashboardModalDialogComponent,
     CopyTokenModalDialogComponent,
     ConfirmDialogComponent,
     AddNodeDialogComponent,
     NodeInfoDialogComponent,
     PasswordMessageComponent,
-    PodLogModalDialogComponent,
     VMWareSettingsComponent,
     GeneralSettingsPaneComponent,
     KitSettingsPaneComponent,
@@ -105,10 +96,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     AddKitTokenComponent,
     AddMipDialogComponent,
     MipManagementComponent,
-    HealthDashboardComponent,
-    HealthDashboardNodeTableComponent,
-    HealthDashboardPodTableComponent,
-    HealthDashboardDatastoresComponent
   ],
   imports: [
     BrowserModule,
@@ -128,6 +115,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ElasticsearchIndexManagementModule,
     ElasticsearchScaleModule,
     GenericDialogModule,
+    HealthDashboardModule,
     NotificationsModule,
     PCAPFormModule,
     PmoSupportModule,
@@ -161,12 +149,10 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ConfirmDialogComponent,
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
-    HealthDashboardModalDialogComponent,
     CopyTokenModalDialogComponent,
     AddNodeDialogComponent,
     AddMipDialogComponent,
-    NodeInfoDialogComponent,
-    PodLogModalDialogComponent
+    NodeInfoDialogComponent
   ]
 })
 export class AppModule { }

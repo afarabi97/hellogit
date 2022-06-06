@@ -1,4 +1,4 @@
-import { NodeMetrics, PodMetrics } from "../../src/app/health-dashboard/interfaces/health"
+import { NodeMetrics, PodMetrics } from '../../src/app/modules/health-dashboard/interfaces/health';
 
 export const MockNodeMetricsInterface: NodeMetrics = {
   name: "blank-sensor1",
