@@ -81,9 +81,9 @@ export class AddNodeDialogComponent implements OnInit {
   }
 
   updateNodeStatus() {
-    const nodesHostnames = [];
-    const nodesIP = [];
-    const nodesMacAddress = [];
+    this.validationHostnames = [];
+    this.validationIPs = [];
+    this.validationMacs = [];
 
     this.kitSettingsSrv.getKitStatus().subscribe(data => {
       this.kitStatus = data;
@@ -93,30 +93,32 @@ export class AddNodeDialogComponent implements OnInit {
       this.settings = data;
       this.kitSettingsSrv.getUsedIPAddresses(this.settings.controller_interface, this.settings.netmask).subscribe((data2: string[]) => {
         for (const d of data2) {
-          nodesIP.push(d);
+          this.validationIPs.push(d);
         }
 
         this.kitSettingsSrv.getNodes().subscribe((response: Node[]) => {
           for (const node of response) {
-            nodesHostnames.push(node['hostname'].split('.')[0]);
-            nodesIP.push(node['ip_address']);
-            nodesMacAddress.push(node['mac_address']);
-            this.validationHostnames = nodesHostnames;
-            this.validationIPs = nodesIP;
-            this.validationMacs = nodesMacAddress;
+            this.validationHostnames.push(node['hostname'].split('.')[0]);
+            this.validationIPs.push(node['ip_address']);
+            this.validationMacs.push(node['mac_address']);
+          }
+          if (ObjectUtilitiesClass.notUndefNull(this.nodeForm)) {
+            this.nodeForm.get('hostname').clearValidators();
+            this.nodeForm.get('hostname').setValidators(Validators.compose([validateFromArray(addNodeValidators.hostname, { uniqueArray: this.validationHostnames })]));
+            this.nodeForm.get('ip_address').clearValidators();
+            this.nodeForm.get('ip_address').setValidators(Validators.compose([validateFromArray(addNodeValidators.ip_address, { uniqueArray: this.validationIPs })]));
+            this.nodeForm.get('ip_address').setValue('');
+            this.nodeForm.get('ip_address').markAsPristine();
+            this.nodeForm.get('ip_address').markAsUntouched();
+            this.nodeForm.get('ip_address').updateValueAndValidity();
+            this.availableIPs = [];
           }
           this.updateSelectableNodeIPAddresses();
         });
       });
     });
 
-    if (ObjectUtilitiesClass.notUndefNull(this.nodeForm)) {
-      this.nodeForm.get('ip_address').setValue('');
-      this.nodeForm.get('ip_address').markAsPristine();
-      this.nodeForm.get('ip_address').markAsUntouched();
-      this.nodeForm.get('ip_address').updateValueAndValidity();
-      this.availableIPs = [];
-    } else {
+    if (!ObjectUtilitiesClass.notUndefNull(this.nodeForm)) {
       this.initializeForm();
     }
   }
