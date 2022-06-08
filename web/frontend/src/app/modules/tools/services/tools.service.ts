@@ -86,6 +86,18 @@ export class ToolsService extends ApiService<any> implements ToolsServiceInterfa
   }
 
   /**
+   * REST call to GET repo settings snapshot
+   *
+   * @return {(Observable<RepoSettingsSnapshotClass>)}
+   * @memberof ToolsService
+   */
+  get_repo_settings_snapshot(): Observable<RepoSettingsSnapshotClass> {
+    return this.httpClient_.get<RepoSettingsSnapshotInterface>(environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS)
+      .pipe(map((response: RepoSettingsSnapshotInterface) => new RepoSettingsSnapshotClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('get repo settings snapshot', error)));
+  }
+
+  /**
    * REST call to POST repo settings snapshot
    *
    * @param {RepoSettingsSnapshotInterface} repo_settings_snapshot
@@ -93,15 +105,9 @@ export class ToolsService extends ApiService<any> implements ToolsServiceInterfa
    * @memberof ToolsService
    */
   repo_settings_snapshot(repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass> {
-    return this.httpClient_.post<GenericJobAndKeyInterface>(environment.MINIO_REPOSITORY_SETTINGS_URL, repo_settings_snapshot)
+    return this.httpClient_.post<GenericJobAndKeyInterface>(environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS, repo_settings_snapshot)
       .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
             catchError((error: HttpErrorResponse) => this.handleError('repo settings snapshot', error)));
-  }
-
-  get_repo_settings_snapshot(): Observable<RepoSettingsSnapshotInterface> {
-    return this.httpClient_.get<RepoSettingsSnapshotInterface>(environment.MINIO_REPOSITORY_SETTINGS_URL)
-      .pipe(map((response: RepoSettingsSnapshotInterface) => new RepoSettingsSnapshotClass(response)),
-            catchError((error: HttpErrorResponse) => this.handleError('get repo settings snapshot', error)));
   }
 
   /**

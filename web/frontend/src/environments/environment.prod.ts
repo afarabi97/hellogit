@@ -33,8 +33,8 @@ export const environment = {
 
   INDEX_MANAGEMENT_SERVICE_INDEX_MANAGEMENT: `/api/curator/process`,
   INDEX_MANAGEMENT_SERVICE_GET_CLOSED_INDICES: `/api/curator/indices/close`,
+  INDEX_MANAGEMENT_SERVICE_MINIO_CHECK: `/api/curator/minio_check`,
   INDEX_MANAGEMENT_SERVICE_GET_INDICES: `/api/curator/indices/open`,
-  INDEX_MANAGEMENT_SERVICE_CHECK_MINIO: `/api/curator/minio_check`,
 
   ELASTICSEARCH_SERVICE_GET_ELASTIC_NODES: `/api/scale/elastic/nodes`,
   ELASTICSEARCH_SERVICE_POST_ELASTIC_NODES: `/api/scale/elastic`,
@@ -85,8 +85,9 @@ export const environment = {
   TOOLS_SERVICE_CHANGE_KIT_PASSWORD: `/api/tools/change-kit-password`,
   TOOLS_SERVICE_UPLOAD_DOCUMENTATION: `/api/tools/documentation/upload`,
   TOOLS_SERVICE_MONITORING_INTERFACE: `/api/tools/monitoring-interfaces`,
-  MINIO_REPOSITORY_SETTINGS_URL: `/api/settings/minio_repository`,
   TOOLS_SERVICE_ES_LICENSE: `/api/tools/es_license`,
+
+  SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS: `/api/settings/minio_repository`,
 
   NAV_BAR_SERVICE_GET_CURRENT_DIP_TIME: `/api/tools/controller/datetime`,
 

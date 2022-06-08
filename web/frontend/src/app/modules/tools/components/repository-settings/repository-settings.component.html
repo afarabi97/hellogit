@@ -2,8 +2,9 @@
   <mat-expansion-panel-header>
     <mat-panel-title>Repository Settings</mat-panel-title>
   </mat-expansion-panel-header>
-  <form fxLayout="column"
-        [formGroup]="form_group"
+  <form *ngIf="repository_settings_form_group"
+        fxLayout="column"
+        [formGroup]="repository_settings_form_group"
         (ngSubmit)="update_button_click()">
 
     <!-- IP Address -->
@@ -14,15 +15,15 @@
              matTooltip="Enter MinIO IP Address"
              placeholder="IP Address of repository"
              formControlName="ip_address">
-      <mat-icon matSuffix *ngIf="form_group.get('ip_address').valid &&
-                                 form_group.get('ip_address').touched"
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('ip_address').valid &&
+                                 repository_settings_form_group.get('ip_address').touched"
                 id="cvah-repository-settings-endpoint-mat-icon-check-circle"
                 color="primary">check_circle</mat-icon>
-      <mat-icon matSuffix *ngIf="form_group.get('ip_address').invalid &&
-                                 form_group.get('ip_address').touched"
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('ip_address').invalid &&
+                                 repository_settings_form_group.get('ip_address').touched"
                 id="cvah-repository-settings-endpoint-mat-icon-error"
                 color="warn">error</mat-icon>
-      <mat-error id="cvah-repository-settings-endpoint-mat-error">{{ get_error_message(form_group.get('ip_address')) }}</mat-error>
+      <mat-error id="cvah-repository-settings-endpoint-mat-error">{{ get_error_message(repository_settings_form_group.get('ip_address')) }}</mat-error>
     </mat-form-field>
 
     <!-- Port -->
@@ -32,15 +33,15 @@
              formControlName="port"
              matTooltip="Enter MinIO UI Port"
              placeholder="Port of MinIO repository">
-      <mat-icon matSuffix *ngIf="form_group.get('port').valid &&
-                                 form_group.get('port').touched"
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('port').valid &&
+                                 repository_settings_form_group.get('port').touched"
                     id="cvah-repository-settings-port-mat-icon-check-circle"
                     color="primary">check_circle</mat-icon>
-      <mat-icon matSuffix *ngIf="form_group.get('port').invalid &&
-                                 form_group.get('port').touched"
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('port').invalid &&
+                                 repository_settings_form_group.get('port').touched"
                     id="cvah-repository-settings-port-mat-icon-error"
                     color="warn">error</mat-icon>
-      <mat-error>{{ get_error_message(form_group.get('port')) }}</mat-error>
+      <mat-error>{{ get_error_message(repository_settings_form_group.get('port')) }}</mat-error>
     </mat-form-field>
 
     <!-- Protocol -->
@@ -50,7 +51,7 @@
         <mat-option id="cvah-repository-settings-protocol-mat-option-http" value="http">HTTP</mat-option>
         <mat-option id="cvah-repository-settings-protocol-mat-option-https" value="https">HTTPS</mat-option>
       </mat-select>
-      <mat-error id="cvah-repository-settings-protocol-mat-error">{{ get_error_message(form_group.get('protocol')) }}</mat-error>
+      <mat-error id="cvah-repository-settings-protocol-mat-error">{{ get_error_message(repository_settings_form_group.get('protocol')) }}</mat-error>
     </mat-form-field>
 
     <!-- Bucket -->
@@ -61,15 +62,15 @@
              matTooltip="Enter name of bucket"
              placeholder="Bucket name to create in repository"
              formControlName="bucket">
-      <mat-icon matSuffix *ngIf="form_group.get('bucket').valid &&
-                                 form_group.get('bucket').touched"
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('bucket').valid &&
+                                 repository_settings_form_group.get('bucket').touched"
                 id="cvah-repository-settings-bucket-mat-icon-check-circle"
                 color="primary">check_circle</mat-icon>
-      <mat-icon matSuffix *ngIf="form_group.get('bucket').invalid &&
-                                 form_group.get('bucket').touched"
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('bucket').invalid &&
+                                 repository_settings_form_group.get('bucket').touched"
                 id="cvah-repository-settings-bucket-mat-icon-error"
                 color="warn">error</mat-icon>
-      <mat-error id="cvah-repository-settings-bucket-mat-error">{{ get_error_message(form_group.get('bucket')) }}</mat-error>
+      <mat-error id="cvah-repository-settings-bucket-mat-error">{{ get_error_message(repository_settings_form_group.get('bucket')) }}</mat-error>
     </mat-form-field>
 
     <!-- MinIO Username -->
@@ -80,15 +81,15 @@
              matTooltip="Enter Repository username"
              placeholder="Repository username"
              formControlName="username">
-      <mat-icon matSuffix *ngIf="form_group.get('username').valid &&
-                                 form_group.get('username').touched"
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('username').valid &&
+                                 repository_settings_form_group.get('username').touched"
                 id="cvah-repository-settings-username-mat-icon-check-circle"
                 color="primary">check_circle</mat-icon>
-      <mat-icon matSuffix *ngIf="form_group.get('username').invalid &&
-                                 form_group.get('username').touched"
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('username').invalid &&
+                                 repository_settings_form_group.get('username').touched"
                 id="cvah-repository-settings-username-mat-icon-error"
                 color="warn">error</mat-icon>
-      <mat-error id="cvah-repository-settings-username-mat-error">{{ get_error_message(form_group.get('username')) }}</mat-error>
+      <mat-error id="cvah-repository-settings-username-mat-error">{{ get_error_message(repository_settings_form_group.get('username')) }}</mat-error>
     </mat-form-field>
 
     <!-- Secret Key -->
@@ -100,15 +101,15 @@
              matTooltip="Enter Repository password"
              placeholder="Repository password"
              formControlName="password">
-      <mat-icon matSuffix *ngIf="form_group.get('password').valid &&
-                                 form_group.get('password').touched"
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('password').valid &&
+                                 repository_settings_form_group.get('password').touched"
                 id="cvah-repository-settings-password-mat-icon-check-circle"
                 color="primary">check_circle</mat-icon>
-      <mat-icon matSuffix *ngIf="form_group.get('password').invalid &&
-                                 form_group.get('password').touched"
+      <mat-icon matSuffix *ngIf="repository_settings_form_group.get('password').invalid &&
+                                 repository_settings_form_group.get('password').touched"
                 id="cvah-repository-settings-password-mat-icon-error"
                 color="warn">error</mat-icon>
-      <mat-error id="cvah-repository-settings-password-mat-error">{{ get_error_message(form_group.get('password')) }}</mat-error>
+      <mat-error id="cvah-repository-settings-password-mat-error">{{ get_error_message(repository_settings_form_group.get('password')) }}</mat-error>
     </mat-form-field>
 
     <!-- Action Button -->
@@ -118,7 +119,7 @@
               id="cvah-repository-settings-button-update"
               color="primary"
               type="submit"
-              [disabled]="!form_group.valid || form_group.untouched || !update_allowed">Update</button>
+              [disabled]="!repository_settings_form_group.valid || repository_settings_form_group.untouched || !update_allowed">Update</button>
     </div>
   </form>
 </mat-expansion-panel>

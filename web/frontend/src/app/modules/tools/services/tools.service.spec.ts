@@ -12,6 +12,7 @@ import {
   MockGenericJobAndKeyClass,
   MockInitialDeviceStateClassArray,
   MockNetworkDeviceStateClassUp,
+  MockRepoSettingsSnapshotClass,
   MockSuccessMessageClass
 } from '../../../../../static-data/class-objects';
 import {
@@ -58,6 +59,7 @@ describe('ToolsService', () => {
   let spyChangeKitPassword: jasmine.Spy<any>;
   let spyChangeRemoteNetworkDeviceState: jasmine.Spy<any>;
   let spyGetInitialDeviceStates: jasmine.Spy<any>;
+  let spyGetRepoSettingsSnapshot: jasmine.Spy<any>;
   let spyRepoSettingsSnapshot: jasmine.Spy<any>;
   let spyUploadDocumentation: jasmine.Spy<any>;
   let spyGetElasticLicense: jasmine.Spy<any>;
@@ -113,6 +115,7 @@ describe('ToolsService', () => {
     spyChangeKitPassword = spyOn(service, 'change_kit_password').and.callThrough();
     spyChangeRemoteNetworkDeviceState = spyOn(service, 'change_remote_network_device_state').and.callThrough();
     spyGetInitialDeviceStates = spyOn(service, 'get_initial_device_states').and.callThrough();
+    spyGetRepoSettingsSnapshot = spyOn(service, 'get_repo_settings_snapshot').and.callThrough();
     spyRepoSettingsSnapshot = spyOn(service, 'repo_settings_snapshot').and.callThrough();
     spyUploadDocumentation = spyOn(service, 'upload_documentation').and.callThrough();
     spyGetElasticLicense = spyOn(service, 'get_elastic_license').and.callThrough();
@@ -130,6 +133,7 @@ describe('ToolsService', () => {
     spyChangeKitPassword.calls.reset();
     spyChangeRemoteNetworkDeviceState.calls.reset();
     spyGetInitialDeviceStates.calls.reset();
+    spyGetRepoSettingsSnapshot.calls.reset();
     spyRepoSettingsSnapshot.calls.reset();
     spyUploadDocumentation.calls.reset();
     spyGetElasticLicense.calls.reset();
@@ -345,6 +349,84 @@ describe('ToolsService', () => {
       });
     });
 
+    describe('REST get_repo_settings_snapshot()', () => {
+      it('should call get_repo_settings_snapshot()', () => {
+        reset();
+
+        service.get_repo_settings_snapshot()
+          .pipe(takeUntil(ngUnsubscribe$))
+          .subscribe((response: RepoSettingsSnapshotClass) => {
+            const objectKeys: string[] = Object.keys(response);
+            objectKeys.forEach((key: string) => {
+              if (!(response[key] instanceof Array)) {
+                expect(response[key]).toEqual(MockRepoSettingsSnapshotClass[key]);
+              }
+            });
+
+            expect(service.get_repo_settings_snapshot).toHaveBeenCalled();
+          });
+
+        const xhrURL: string = environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS;
+        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
+
+        expect(xhrRequest.request.method).toEqual(getType);
+
+        xhrRequest.flush(MockRepoSettingsSnapshotInterface);
+
+        after();
+      });
+
+      it('should call get_repo_settings_snapshot() and handle error message error', () => {
+        reset();
+
+        service.get_repo_settings_snapshot()
+          .pipe(takeUntil(ngUnsubscribe$))
+          .subscribe(
+            (response: RepoSettingsSnapshotClass) => {},
+            (error: ErrorMessageClass | HttpErrorResponse) => {
+              if (error['error'] instanceof ErrorMessageClass) {
+                const objectKeys: string[] = Object.keys(error['error']);
+                objectKeys.forEach((key: string) => {
+                  if (!(error['error'][key] instanceof Array)) {
+                    expect(error['error'][key]).toEqual(errorMessageRequest[key]);
+                  }
+                });
+
+                expect(error['error']).toContain(errorMessageRequest);
+              }
+
+              expect(service.get_repo_settings_snapshot).toHaveBeenCalled();
+            });
+
+        const xhrURL: string = environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS;
+        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
+
+        xhrRequest.flush(errorMessageRequest, mockErrorResponse);
+
+        after();
+      });
+
+      it('should call get_repo_settings_snapshot() and handle error', () => {
+        reset();
+
+        service.get_repo_settings_snapshot()
+          .pipe(takeUntil(ngUnsubscribe$))
+          .subscribe(
+            (response: RepoSettingsSnapshotClass) => {},
+            (error: HttpErrorResponse) => {
+              expect(error.error).toContain(errorRequest);
+              expect(service.get_repo_settings_snapshot).toHaveBeenCalled();
+            });
+
+        const xhrURL: string = environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS;
+        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
+
+        xhrRequest.flush(errorRequest, mockErrorResponse);
+
+        after();
+      });
+    });
+
     describe('REST repo_settings_snapshot()', () => {
       it('should call repo_settings_snapshot()', () => {
         reset();
@@ -362,7 +444,7 @@ describe('ToolsService', () => {
             expect(service.repo_settings_snapshot).toHaveBeenCalled();
           });
 
-        const xhrURL: string = environment.MINIO_REPOSITORY_SETTINGS_URL;
+        const xhrURL: string = environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         expect(xhrRequest.request.method).toEqual(postType);
@@ -394,7 +476,7 @@ describe('ToolsService', () => {
               expect(service.repo_settings_snapshot).toHaveBeenCalled();
             });
 
-        const xhrURL: string = environment.MINIO_REPOSITORY_SETTINGS_URL;
+        const xhrURL: string = environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorMessageRequest, mockErrorResponse);
@@ -414,7 +496,7 @@ describe('ToolsService', () => {
               expect(service.repo_settings_snapshot).toHaveBeenCalled();
             });
 
-        const xhrURL: string = environment.MINIO_REPOSITORY_SETTINGS_URL;
+        const xhrURL: string = environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorRequest, mockErrorResponse);
@@ -669,12 +751,12 @@ export class ToolsServiceSpy implements ToolsServiceInterface {
     (): Observable<InitialDeviceStateClass[]> => this.call_fake_get_initial_device_states()
   );
 
-  repo_settings_snapshot = jasmine.createSpy('repo_settings_snapshot').and.callFake(
-    (repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass> => this.call_fake_repo_settings_snapshot(repo_settings_snapshot)
-  );
-
   get_repo_settings_snapshot = jasmine.createSpy('get_repo_settings_snapshot').and.callFake(
     (): Observable<RepoSettingsSnapshotInterface> => this.call_fake_get_repo_settings_snapshot()
+  );
+
+  repo_settings_snapshot = jasmine.createSpy('repo_settings_snapshot').and.callFake(
+    (repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass> => this.call_fake_repo_settings_snapshot(repo_settings_snapshot)
   );
 
   upload_documentation = jasmine.createSpy('upload_documentation').and.callFake(
@@ -701,17 +783,12 @@ export class ToolsServiceSpy implements ToolsServiceInterface {
     return of(MockInitialDeviceStateClassArray);
   }
 
-  call_fake_repo_settings_snapshot(repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass> {
-    return of(MockGenericJobAndKeyClass);
+  call_fake_get_repo_settings_snapshot(): Observable<RepoSettingsSnapshotInterface> {
+    return of(MockRepoSettingsSnapshotClass);
   }
 
-  call_fake_get_repo_settings_snapshot(): Observable<RepoSettingsSnapshotInterface> {
-    let mock = {"ip_address": "10.40.12.20", "protocol": "http",
-                "bucket": "tfplenum", "username": "assessor",
-                "password": "password", "port": 9001};
-
-    let s = new RepoSettingsSnapshotClass(mock)
-    return of(s);
+  call_fake_repo_settings_snapshot(repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass> {
+    return of(MockGenericJobAndKeyClass);
   }
 
   call_fake_upload_documentation(form_data: FormData): Observable<SuccessMessageClass> {

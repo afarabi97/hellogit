@@ -59,8 +59,16 @@ export class IndexManagementService extends ApiService<any> implements IndexMana
       .pipe(catchError((error: HttpErrorResponse) => this.handleError('get closed indices', error)));
   }
 
-  minio_check(): Observable<string[]> {
-    return this.httpClient_.get<string[]>(environment.INDEX_MANAGEMENT_SERVICE_CHECK_MINIO).pipe();
+  /**
+   * REST call to GET minio check
+   *
+   * @return {(Observable<SuccessMessageClass>)}
+   * @memberof IndexManagementService
+   */
+  minio_check(): Observable<SuccessMessageClass> {
+    return this.httpClient_.get<SuccessMessageInterface>(environment.INDEX_MANAGEMENT_SERVICE_MINIO_CHECK)
+      .pipe(map((response: SuccessMessageInterface) => new SuccessMessageClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('minio check', error)));
   }
 
   /**

@@ -35,6 +35,7 @@ export * from './job.interface';
 export * from './key-string-value-string-pair.interface';
 export * from './kit-form.interface';
 export * from './mat-option.interface';
+export * from './mat-option-alt.interface';
 export * from './node.interface';
 export * from './notification.interface';
 export * from './notification-data.interface';

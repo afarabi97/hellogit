@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { throwError } from 'rxjs';
 
-import { MockErrorMessageClass } from '../../../../../../static-data/class-objects';
+import { MockErrorMessageClass, MockRepoSettingsSnapshotClass } from '../../../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { MockRepoSettingsSnapshotInterface } from '../../../../../../static-data/interface-objects';
 import { COMMON_VALIDATORS } from '../../../../constants/cvah.constants';
@@ -13,7 +13,7 @@ import { InjectorModule } from '../../../utilily-modules/injector.module';
 import { ToolsModule } from '../../tools.module';
 import { RepositorySettingsComponent } from './repository-settings.component';
 
-fdescribe('RepositorySettingsComponent', () => {
+describe('RepositorySettingsComponent', () => {
   let component: RepositorySettingsComponent;
   let fixture: ComponentFixture<RepositorySettingsComponent>;
 
@@ -22,7 +22,9 @@ fdescribe('RepositorySettingsComponent', () => {
   let spyUpdateButtonClick: jasmine.Spy<any>;
   let spyGetErrorMessage: jasmine.Spy<any>;
   let spyInititalizeRepositorySettingsFormGroup: jasmine.Spy<any>;
+  let spySetRepositorySettingsFormGroup: jasmine.Spy<any>;
   let spySetupWebsocketOnbroadcast: jasmine.Spy<any>;
+  let spyApiGetRepoSettingsSnapshot: jasmine.Spy<any>;
   let spyApiRepoSettingsSnapshot: jasmine.Spy<any>;
 
   // Test Data
@@ -61,7 +63,9 @@ fdescribe('RepositorySettingsComponent', () => {
     spyUpdateButtonClick = spyOn(component, 'update_button_click').and.callThrough();
     spyGetErrorMessage = spyOn(component, 'get_error_message').and.callThrough();
     spyInititalizeRepositorySettingsFormGroup = spyOn<any>(component, 'initialize_repository_settings_form_group_').and.callThrough();
+    spySetRepositorySettingsFormGroup = spyOn<any>(component, 'set_repositiry_settings_form_group_').and.callThrough();
     spySetupWebsocketOnbroadcast = spyOn<any>(component, 'setup_websocket_onbroadcast_').and.callThrough();
+    spyApiGetRepoSettingsSnapshot = spyOn<any>(component, 'api_get_repo_settings_snapshot_').and.callThrough();
     spyApiRepoSettingsSnapshot = spyOn<any>(component, 'api_repo_settings_snapshot_').and.callThrough();
 
     // Detect changes
@@ -73,7 +77,9 @@ fdescribe('RepositorySettingsComponent', () => {
     spyUpdateButtonClick.calls.reset();
     spyGetErrorMessage.calls.reset();
     spyInititalizeRepositorySettingsFormGroup.calls.reset();
+    spySetRepositorySettingsFormGroup.calls.reset();
     spySetupWebsocketOnbroadcast.calls.reset();
+    spyApiGetRepoSettingsSnapshot.calls.reset();
     spyApiRepoSettingsSnapshot.calls.reset();
   };
 
@@ -101,12 +107,12 @@ fdescribe('RepositorySettingsComponent', () => {
         expect(component['setup_websocket_onbroadcast_']).toHaveBeenCalled();
       });
 
-      it('should call initialize_repository_settings_form_group_() from ngOnInit()', () => {
+      it('should call api_get_repo_settings_snapshot_() from ngOnInit()', () => {
         reset();
 
         component.ngOnInit();
 
-        expect(component['initialize_repository_settings_form_group_']).toHaveBeenCalled();
+        expect(component['api_get_repo_settings_snapshot_']).toHaveBeenCalled();
       });
     });
 
@@ -114,7 +120,7 @@ fdescribe('RepositorySettingsComponent', () => {
       it('should call update_button_click()', () => {
         reset();
 
-        component.form_group = repository_settings_form_group;
+        component.repository_settings_form_group = repository_settings_form_group;
         component.update_button_click();
 
         expect(component.update_button_click).toHaveBeenCalled();
@@ -124,7 +130,7 @@ fdescribe('RepositorySettingsComponent', () => {
         reset();
 
         component.update_allowed = true;
-        component.form_group = repository_settings_form_group;
+        component.repository_settings_form_group = repository_settings_form_group;
         component.update_button_click();
 
         expect(component.update_allowed).toBeFalse();
@@ -133,7 +139,7 @@ fdescribe('RepositorySettingsComponent', () => {
       it('should call api_repo_settings_snapshot_() from update_button_click()', () => {
         reset();
 
-        component.form_group = repository_settings_form_group;
+        component.repository_settings_form_group = repository_settings_form_group;
         component.update_button_click();
 
         expect(component['api_repo_settings_snapshot_']).toHaveBeenCalled();
@@ -170,9 +176,35 @@ fdescribe('RepositorySettingsComponent', () => {
       it('should call initialize_repository_settings_form_group_()', () => {
         reset();
 
-        component['initialize_repository_settings_form_group_']();
+        component['initialize_repository_settings_form_group_'](MockRepoSettingsSnapshotClass);
 
         expect(component['initialize_repository_settings_form_group_']).toHaveBeenCalled();
+      });
+
+      it('should call set_repositiry_settings_form_group_() from initialize_repository_settings_form_group_()', () => {
+        reset();
+
+        component['initialize_repository_settings_form_group_'](MockRepoSettingsSnapshotClass);
+
+        expect(component['set_repositiry_settings_form_group_']).toHaveBeenCalled();
+      });
+    });
+
+    describe('private set_repositiry_settings_form_group_()', () => {
+      it('should call set_repositiry_settings_form_group_()', () => {
+        reset();
+
+        component['set_repositiry_settings_form_group_'](repository_settings_form_group);
+
+        expect(component['set_repositiry_settings_form_group_']).toHaveBeenCalled();
+      });
+
+      it('should call set_repositiry_settings_form_group_() and set repository_settings_form_group with passed value', () => {
+        reset();
+
+        component['set_repositiry_settings_form_group_'](repository_settings_form_group);
+
+        expect(component.repository_settings_form_group).toEqual(repository_settings_form_group);
       });
     });
 
@@ -184,6 +216,56 @@ fdescribe('RepositorySettingsComponent', () => {
         component['setup_websocket_onbroadcast_']();
 
         expect(component['setup_websocket_onbroadcast_']).toHaveBeenCalled();
+      });
+    });
+
+    describe('private api_get_repo_settings_snapshot_()', () => {
+      it('should call api_get_repo_settings_snapshot_()', () => {
+        reset();
+
+        component['api_get_repo_settings_snapshot_']();
+
+        expect(component['api_get_repo_settings_snapshot_']).toHaveBeenCalled();
+      });
+
+      it('should call tools_service_.get_repo_settings_snapshot() from api_get_repo_settings_snapshot_()', () => {
+        reset();
+
+        component['api_get_repo_settings_snapshot_']();
+
+        expect(component['tools_service_'].get_repo_settings_snapshot).toHaveBeenCalled();
+      });
+
+      it('should call tools_service_.get_repo_settings_snapshot() and handle response and call initialize_repository_settings_form_group_()', () => {
+        reset();
+
+        component['api_get_repo_settings_snapshot_']();
+
+        expect(component['initialize_repository_settings_form_group_']).toHaveBeenCalled();
+      });
+
+      it('should call tools_service_.get_repo_settings_snapshot() and handle error response instance ErrorMessageClass', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['tools_service_'], 'get_repo_settings_snapshot').and.returnValue(throwError(MockErrorMessageClass));
+
+        component['api_get_repo_settings_snapshot_']();
+
+        expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
+      });
+
+      it('should call tools_service_.get_repo_settings_snapshot() and handle error', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['tools_service_'], 'get_repo_settings_snapshot').and.returnValue(throwError(mock_http_error_response));
+
+        component['api_get_repo_settings_snapshot_']();
+
+        expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
       });
     });
 

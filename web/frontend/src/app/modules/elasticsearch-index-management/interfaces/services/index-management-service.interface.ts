@@ -12,5 +12,6 @@ import { IndexManagementOptionInterface } from '../index-management-option.inter
 export interface IndexManagementServiceInterface {
     index_management(index_management_option: IndexManagementOptionInterface): Observable<SuccessMessageClass>;
     get_closed_indices(): Observable<string[]>;
+    minio_check(): Observable<SuccessMessageClass>;
     get_all_indices(): Observable<string[]>;
 }

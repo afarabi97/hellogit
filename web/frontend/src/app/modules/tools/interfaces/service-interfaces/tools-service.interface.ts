@@ -17,8 +17,8 @@ export interface ToolsServiceInterface {
   change_kit_password(kit_password: KitPasswordInterface): Observable<SuccessMessageClass>;
   change_remote_network_device_state(node: string, device: string, state: string): Observable<NetworkDeviceStateClass>;
   get_initial_device_states(): Observable<InitialDeviceStateClass[]>;
-  repo_settings_snapshot(repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass>;
   get_repo_settings_snapshot(): Observable<RepoSettingsSnapshotInterface>;
+  repo_settings_snapshot(repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass>;
   upload_documentation(form_data: FormData): Observable<SuccessMessageClass>;
   get_elastic_license(): Observable<ElasticLicenseClass>;
   upload_elastic_license(license_data: Object): Observable<SuccessMessageClass>;

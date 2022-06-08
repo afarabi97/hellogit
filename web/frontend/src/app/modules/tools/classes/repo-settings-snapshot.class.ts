@@ -1,7 +1,12 @@
-import { FormGroup } from '@angular/forms';
 import { RepoSettingsSnapshotInterface } from '../interfaces/repo-settings-snapshot.interface';
-import { ObjectUtilitiesClass } from 'src/app/classes';
 
+/**
+ * Class defines the Repo Settings Snapshot
+ *
+ * @export
+ * @class RepoSettingsSnapshotClass
+ * @implements {RepoSettingsSnapshotInterface}
+ */
 export class RepoSettingsSnapshotClass implements RepoSettingsSnapshotInterface {
   ip_address: string;
   protocol: string;
@@ -10,12 +15,18 @@ export class RepoSettingsSnapshotClass implements RepoSettingsSnapshotInterface 
   password: string;
   port: Number;
 
-  constructor(iface: any) {
-    this.ip_address = iface.ip_address;
-    this.protocol = iface.protocol;
-    this.bucket = iface.bucket;
-    this.username = iface.username;
-    this.password = iface.password;
-    this.port = iface.port;
+  /**
+   * Creates an instance of RepoSettingsSnapshotClass.
+   *
+   * @param {RepoSettingsSnapshotInterface} repo_settings_snapshot_interface
+   * @memberof RepoSettingsSnapshotClass
+   */
+  constructor(repo_settings_snapshot_interface: RepoSettingsSnapshotInterface) {
+    this.ip_address = repo_settings_snapshot_interface.ip_address;
+    this.protocol = repo_settings_snapshot_interface.protocol;
+    this.bucket = repo_settings_snapshot_interface.bucket;
+    this.username = repo_settings_snapshot_interface.username;
+    this.password = repo_settings_snapshot_interface.password;
+    this.port = repo_settings_snapshot_interface.port;
   }
 }

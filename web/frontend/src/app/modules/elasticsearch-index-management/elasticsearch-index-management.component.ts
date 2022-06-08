@@ -8,9 +8,12 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from 'src/app/constants/cvah.constants';
 
 import { ErrorMessageClass, SuccessMessageClass } from '../../classes';
-import { MatOptionInterface2 } from '../../interfaces';
+import { MatOptionAltInterface } from '../../interfaces';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import {
+  BACKUP_INDICES,
+  CLOSE_INDICES,
+  DELETE_INDICES,
   ELASTICSEARCH_INDEX_MANAGEMENT_TITLE,
   HOST_BINDING_CLASS,
   MAT_OPTION_ACTIONS
@@ -47,8 +50,9 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
   // Used for turning ON / OFF html features
   is_editable: boolean;
   is_loading: boolean;
-  // Usewd for passing list of actions for mat option
-  actions: MatOptionInterface2[];
+  // Used for passing list of actions for mat option
+  actions: MatOptionAltInterface[];
+  // Used for passing instructions to html
   instructions: string;
 
   /**
@@ -79,24 +83,7 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
   ngOnInit(): void {
     this.title_.setTitle(ELASTICSEARCH_INDEX_MANAGEMENT_TITLE);
     this.initialize_form_groups_();
-    this.index_management_service_.minio_check().subscribe(data => {
-      this.set_backup_option(false);
-    }, error => {
-      console.log(error);
-      if (error && error.error && error.error["error_message"]){
-        this.mat_snackbar_service_.displaySnackBar(error.error["error_message"]);
-      }
-      this.set_backup_option(true);
-    });
-  }
-
-  private set_backup_option(isDisabled: boolean){
-    for (let action of this.actions){
-      if (action.value === "BackupIndices"){
-        action.isDisabled = isDisabled;
-        break;
-      }
-    }
+    this.api_minio_check_();
   }
 
   /**
@@ -107,6 +94,19 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
    */
   is_index_list_empty(): boolean {
     return this.index_management_list_form_group.value.index_list.length === 0;
+  }
+
+  /**
+   * Used for checking if stepper changes and to call next() if a condition is met
+   *
+   * @param {StepperSelectionEvent} event
+   * @memberof ElasticsearchIndexManagementComponent
+   */
+  stepper_change(event: StepperSelectionEvent): void {
+    /* istanbul ignore else */
+    if (event.selectedIndex === 1) {
+      this.next();
+    }
   }
 
   /**
@@ -125,31 +125,24 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
    */
   next(): void {
     switch (this.index_management_actions_form_group.value.action) {
-      case 'DeleteIndices':
-        this.instructions = "Select one or more Index to delete and click Update."
+      case DELETE_INDICES:
+        this.instructions = 'Select one or more Index to delete and click Update.';
         this.is_loading = true;
         this.api_get_closed_indices_();
         break;
-      case 'CloseIndices':
-        this.instructions = "Select one or more Index to close and click Update."
+      case CLOSE_INDICES:
+        this.instructions = 'Select one or more Index to close and click Update.';
         this.is_loading = true;
         this.api_get_all_indices_();
         break;
-      case 'BackupIndices':
-        this.instructions = "Select one or more Index to backup and click Update."
+      case BACKUP_INDICES:
+        this.instructions = 'Select one or more Index to backup and click Update.';
         this.is_loading = true;
         this.api_get_all_indices_();
         break;
       default:
         this.reset_form_();
         break;
-    }
-  }
-
-  stepper_change(event: StepperSelectionEvent) {
-    // Index List
-    if (event.selectedIndex === 1){
-      this.next();
     }
   }
 
@@ -164,6 +157,23 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
       index_list: this.index_management_list_form_group.value.index_list
     };
     this.api_index_management_(index_management_option);
+  }
+
+  /**
+   * Used for setting the backup option for actions
+   *
+   * @private
+   * @param {boolean} is_disabled
+   * @memberof ElasticsearchIndexManagementComponent
+   */
+  private set_backup_option_(is_disabled: boolean): void {
+    for (const action of this.actions) {
+      /* istanbul ignore else */
+      if (action.value === BACKUP_INDICES) {
+        action.isDisabled = is_disabled;
+        break;
+      }
+    }
   }
 
   /**
@@ -248,6 +258,7 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: SuccessMessageClass) => {
+          /* istanbul ignore else */
           if (response instanceof SuccessMessageClass) {
             this.mat_snackbar_service_.displaySnackBar(response.success_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
             this.reset_form_();
@@ -282,6 +293,30 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
             this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           } else {
             const message: string = 'getting closed indices';
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        });
+  }
+
+  /**
+   * Used for making api rest call to get minio
+   *
+   * @private
+   * @memberof ElasticsearchIndexManagementComponent
+   */
+  private api_minio_check_(): void {
+    this.index_management_service_.minio_check()
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: SuccessMessageClass) => {
+          this.set_backup_option_(false);
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          this.set_backup_option_(true);
+          if (error instanceof ErrorMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = 'checking minio';
             this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           }
         });

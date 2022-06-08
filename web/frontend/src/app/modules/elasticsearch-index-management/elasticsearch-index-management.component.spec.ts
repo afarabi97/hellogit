@@ -1,14 +1,17 @@
+import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { throwError } from 'rxjs';
+import { MatOptionAltInterface } from 'src/app/interfaces';
 
 import { MockErrorMessageClass } from '../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import { MockIndexManagementOptionInterfaceDeleteIndices } from '../../../../static-data/interface-objects';
 import { MockClosedIndices } from '../../../../static-data/return-data';
 import { TestingModule } from '../testing-modules/testing.module';
+import { BACKUP_INDICES, CLOSE_INDICES, DELETE_INDICES } from './constants/index-management.constant';
 import { ElasticsearchIndexManagementComponent } from './elasticsearch-index-management.component';
 import { ElasticsearchIndexManagementModule } from './elasticsearch-index-management.module';
 
@@ -19,9 +22,11 @@ describe('ElasticsearchIndexManagementComponent', () => {
   // Setup spy references
   let spyNGOnInit: jasmine.Spy<any>;
   let spyIsIndexListEmpty: jasmine.Spy<any>;
+  let spyStepperChange: jasmine.Spy<any>;
   let spyBack: jasmine.Spy<any>;
   let spyNext: jasmine.Spy<any>;
   let spyUpdate: jasmine.Spy<any>;
+  let spySetBackupOption: jasmine.Spy<any>;
   let spyInitilaizeFormGroups: jasmine.Spy<any>;
   let spySetIndexManagementActionsFormGroup: jasmine.Spy<any>;
   let spySetIndexManagementListFormGroup: jasmine.Spy<any>;
@@ -29,6 +34,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
   let spyIndexcesReturnAction: jasmine.Spy<any>;
   let spyApiIndexManagement: jasmine.Spy<any>;
   let spyApiGetClosedIndices: jasmine.Spy<any>;
+  let spyApiMinioCheck: jasmine.Spy<any>;
   let spyApiGetAllIndices: jasmine.Spy<any>;
 
   // Test Error
@@ -40,8 +46,9 @@ describe('ElasticsearchIndexManagementComponent', () => {
   });
 
   // Test Data
-  const delete_indices: string = 'DeleteIndices';
-  const close_indices: string = 'CloseIndices';
+  const mat_stepper_change_index_1: StepperSelectionEvent = {
+    selectedIndex: 1
+  } as any;
   const index_management_actions_form_group: FormGroup = new FormGroup({});
   index_management_actions_form_group.addControl('action', new FormControl(null, Validators.required));
   const index_management_list_form_group: FormGroup = new FormGroup({});
@@ -66,9 +73,11 @@ describe('ElasticsearchIndexManagementComponent', () => {
     // Add method spies
     spyNGOnInit = spyOn(component, 'ngOnInit').and.callThrough();
     spyIsIndexListEmpty = spyOn(component, 'is_index_list_empty').and.callThrough();
+    spyStepperChange = spyOn(component, 'stepper_change').and.callThrough();
     spyBack = spyOn(component, 'back').and.callThrough();
     spyNext = spyOn(component, 'next').and.callThrough();
     spyUpdate = spyOn(component, 'update').and.callThrough();
+    spySetBackupOption = spyOn<any>(component, 'set_backup_option_').and.callThrough();
     spyInitilaizeFormGroups = spyOn<any>(component, 'initialize_form_groups_').and.callThrough();
     spySetIndexManagementActionsFormGroup = spyOn<any>(component, 'set_index_management_actions_form_group_').and.callThrough();
     spySetIndexManagementListFormGroup = spyOn<any>(component, 'set_index_management_list_form_group_').and.callThrough();
@@ -76,18 +85,32 @@ describe('ElasticsearchIndexManagementComponent', () => {
     spyIndexcesReturnAction = spyOn<any>(component, 'indices_return_actions_').and.callThrough();
     spyApiIndexManagement = spyOn<any>(component, 'api_index_management_').and.callThrough();
     spyApiGetClosedIndices = spyOn<any>(component, 'api_get_closed_indices_').and.callThrough();
+    spyApiMinioCheck = spyOn<any>(component, 'api_minio_check_').and.callThrough();
     spyApiGetAllIndices = spyOn<any>(component, 'api_get_all_indices_').and.callThrough();
 
     // Detect changes
     fixture.detectChanges();
   });
 
+  const grab_action_for_test = () => {
+    let action_for_test: MatOptionAltInterface;
+    component.actions.forEach((action: MatOptionAltInterface) => {
+      if (action.value === BACKUP_INDICES) {
+        action_for_test = action;
+      }
+    });
+
+    return action_for_test;
+  };
+
   const reset = () => {
     spyNGOnInit.calls.reset();
     spyIsIndexListEmpty.calls.reset();
+    spyStepperChange.calls.reset();
     spyBack.calls.reset();
     spyNext.calls.reset();
     spyUpdate.calls.reset();
+    spySetBackupOption.calls.reset();
     spyInitilaizeFormGroups.calls.reset();
     spySetIndexManagementActionsFormGroup.calls.reset();
     spySetIndexManagementListFormGroup.calls.reset();
@@ -95,6 +118,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
     spyIndexcesReturnAction.calls.reset();
     spyApiIndexManagement.calls.reset();
     spyApiGetClosedIndices.calls.reset();
+    spyApiMinioCheck.calls.reset();
     spyApiGetAllIndices.calls.reset();
   };
 
@@ -151,6 +175,24 @@ describe('ElasticsearchIndexManagementComponent', () => {
       });
     });
 
+    describe('stepper_change()', () => {
+      it('should call stepper_change()', () => {
+        reset();
+
+        component.stepper_change(mat_stepper_change_index_1);
+
+        expect(component.stepper_change).toHaveBeenCalled();
+      });
+
+      it('should call stepper_change() and call next()', () => {
+        reset();
+
+        component.stepper_change(mat_stepper_change_index_1);
+
+        expect(component.next).toHaveBeenCalled();
+      });
+    });
+
     describe('back()', () => {
       it('should call back()', () => {
         reset();
@@ -181,7 +223,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
       it('should call api_get_closed_indices_() from next()', () => {
         reset();
 
-        component.index_management_actions_form_group.get('action').setValue(delete_indices);
+        component.index_management_actions_form_group.get('action').setValue(DELETE_INDICES);
         component.next();
 
         expect(component['api_get_closed_indices_']).toHaveBeenCalled();
@@ -190,7 +232,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
       it('should call api_get_all_indices_() from next()', () => {
         reset();
 
-        component.index_management_actions_form_group.get('action').setValue(close_indices);
+        component.index_management_actions_form_group.get('action').setValue(CLOSE_INDICES);
         component.next();
 
         expect(component['api_get_all_indices_']).toHaveBeenCalled();
@@ -199,7 +241,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
       it('should call reset_form_() from next()', () => {
         reset();
 
-        component.index_management_actions_form_group.get('action').setValue(null);
+        component.index_management_actions_form_group.get('action').setValue('');
         component.next();
 
         expect(component['reset_form_']).toHaveBeenCalled();
@@ -218,11 +260,41 @@ describe('ElasticsearchIndexManagementComponent', () => {
       it('should call api_index_management_() from update()', () => {
         reset();
 
-        component.index_management_actions_form_group.get('action').setValue(delete_indices);
+        component.index_management_actions_form_group.get('action').setValue(DELETE_INDICES);
         component.index_management_list_form_group.get('index_list').setValue(MockClosedIndices);
         component.update();
 
         expect(component['api_index_management_']).toHaveBeenCalled();
+      });
+    });
+
+    describe('private set_backup_option_()', () => {
+      it('should call set_backup_option_()', () => {
+        reset();
+
+        component['set_backup_option_'](true);
+
+        expect(component['set_backup_option_']).toHaveBeenCalled();
+      });
+
+      it('should call set_backup_option_() and set component.actions[i].isDisabled with passed value = false', () => {
+        reset();
+
+        component['set_backup_option_'](false);
+
+        const action_for_test: MatOptionAltInterface = grab_action_for_test();
+
+        expect(action_for_test.isDisabled).toBeFalse();
+      });
+
+      it('should call set_backup_option_() and set component.actions[i].isDisabled with passed value = true', () => {
+        reset();
+
+        component['set_backup_option_'](true);
+
+        const action_for_test: MatOptionAltInterface = grab_action_for_test();
+
+        expect(action_for_test.isDisabled).toBeTrue();
       });
     });
 
@@ -328,7 +400,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
       it('should call reset_form_() and reset form groups', () => {
         reset();
 
-        component.index_management_actions_form_group.get('action').setValue(delete_indices);
+        component.index_management_actions_form_group.get('action').setValue(DELETE_INDICES);
         component.index_management_list_form_group.get('index_list').setValue(MockClosedIndices);
         component['reset_form_']();
 
@@ -470,6 +542,68 @@ describe('ElasticsearchIndexManagementComponent', () => {
         spyOn<any>(component['index_management_service_'], 'get_closed_indices').and.returnValue(throwError(mock_http_error_response));
 
         component['api_get_closed_indices_']();
+
+        expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
+      });
+    });
+
+    describe('private api_minio_check_()', () => {
+      it('should call api_minio_check_()', () => {
+        reset();
+
+        component['api_minio_check_']();
+
+        expect(component['api_minio_check_']).toHaveBeenCalled();
+      });
+
+      it('should call index_management_service_.minio_check() from api_minio_check_()', () => {
+        reset();
+
+        component['api_minio_check_']();
+
+        expect(component['index_management_service_'].minio_check).toHaveBeenCalled();
+      });
+
+      it('should call index_management_service_.minio_check() and handle response and call set_backup_option_()', () => {
+        reset();
+
+        component['api_minio_check_']();
+
+        expect(component['set_backup_option_']).toHaveBeenCalled();
+      });
+
+      it('should call index_management_service_.minio_check() and handle error  and call set_backup_option_()', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['index_management_service_'], 'minio_check').and.returnValue(throwError(mock_http_error_response));
+
+        component['api_minio_check_']();
+
+        expect(component['set_backup_option_']).toHaveBeenCalled();
+      });
+
+      it('should call index_management_service_.minio_check() and handle error response instanceof ErrorMessageClass', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['index_management_service_'], 'minio_check').and.returnValue(throwError(MockErrorMessageClass));
+
+        component['api_minio_check_']();
+
+        expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
+      });
+
+      it('should call index_management_service_.minio_check() and handle error response instanceof HttpErrorResponse', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['index_management_service_'], 'minio_check').and.returnValue(throwError(mock_http_error_response));
+
+        component['api_minio_check_']();
 
         expect(component['mat_snackbar_service_'].generate_return_error_snackbar_message).toHaveBeenCalled();
       });
