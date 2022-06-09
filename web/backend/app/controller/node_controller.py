@@ -14,7 +14,8 @@ from app.service.node_service import (execute, gather_device_facts,
                                       send_notification,
                                       update_device_facts_job)
 from app.service.vpn_service import VpnService
-from app.utils.collections import mongo_catalog_saved_values, mongo_node
+from app.utils.collections import mongo_catalog_saved_values
+from app.utils.logging import logger
 from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_CREATE,
                                  JOB_DEPLOY, JOB_PROVISION, JOB_REMOVE,
                                  MAC_BASE, NODE_TYPES, PXE_TYPES)
@@ -154,8 +155,7 @@ class NewNodeCtrl(Resource):
     def post(self) -> Response:
         try:
             settings = self._get_settings() # type: Dict
-            node = Node.load_node_from_request(
-                KIT_SETUP_NS.payload)  # type: Node
+            node = Node.load_node_from_request(KIT_SETUP_NS.payload)  # type: Node
             if not node.hostname.endswith(settings.domain):
                 node.hostname = "{}.{}".format(node.hostname, settings.domain)
             if node.deployment_type == DEPLOYMENT_TYPES.virtual.value:
@@ -167,10 +167,13 @@ class NewNodeCtrl(Resource):
             # Alert websocket to update the table
             send_notification()
         except ValidationError as e:
-            return {"post_validation": e.messages}, 400
+            logger.exception(e)
+            return e.normalized_messages(), 400
         except DBModelNotFound:
+            logger.exception(e)
             return {"error_message": "DBModelNotFound."}, 400
         except PostValidationError as e:
+            logger.exception(e)
             return {"post_validation": e.errors_msgs}, 400
 
         if node.deployment_type == DEPLOYMENT_TYPES.virtual.value:
@@ -299,7 +302,6 @@ class GenerateVpnConfigCtrl(Resource):
     @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
     def get(self, hostname: str) -> Response:
         try:
-            results = []
             node = Node.load_from_db_using_hostname(hostname)  # type: Node
             settings = GeneralSettingsForm.load_from_db()  # type: Dict
             vpn_service = VpnService(node, settings)  # type: VpnService
@@ -342,7 +344,7 @@ class ControlPlaneCtrl(Resource):
     def post(self) -> Response:
         try:
             mongo_catalog_saved_values().delete_many({})
-            mongo_node().delete_many({})
+            Node.delete_all_from_db()
             settings = GeneralSettingsForm.load_from_db()  # type: Dict
 
             control_plane = {

@@ -115,7 +115,7 @@ export class NodeManagementComponent implements OnInit {
   }
 
   canDeleteNode(node: Node){
-    if (node.node_type === 'Sensor' || node.node_type === 'Service') {
+    if (node.node_type === 'Sensor' || node.node_type === 'Service' || node.node_type === "MinIO") {
       return true;
     }
     if (node.node_type === 'Server' && !node.isDeployed) {

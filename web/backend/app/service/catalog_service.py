@@ -13,7 +13,7 @@ from app.service.job_service import run_command2
 from app.service.rulesync_service import perform_rulesync
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.service.system_info_service import get_auth_base
-from app.utils.collections import (mongo_catalog_saved_values, mongo_node,
+from app.utils.collections import (mongo_catalog_saved_values,
                                    mongo_ruleset)
 from app.utils.connection_mngs import REDIS_CLIENT, KubernetesWrapper
 from app.utils.constants import NODE_TYPES
@@ -74,10 +74,10 @@ def _get_drive_type() -> bool:
     """
     disks = []
     disk_rotation = []
-    sensors = list(mongo_node().find({"node_type": "Sensor"}))
+    sensors = Node.load_all_sensors_from_db()
 
     for sensor in sensors:
-        disks.append(sensor["deviceFacts"]["disks"])
+        disks.append(sensor.deviceFacts["disks"])
 
     for disk in disks:
         for rotation in disk:

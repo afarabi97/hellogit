@@ -8,7 +8,9 @@ from app.models.nodes import Command, Node, NodeJob
 from app.models.settings.esxi_settings import EsxiSettingsForm
 from app.models.settings.general_settings import GeneralSettingsForm
 from app.models.settings.kit_settings import KitSettingsForm
+from app.models.settings.minio_settings import RepoSettingsModel
 from app.models.settings.mip_settings import MipSettingsForm
+from app.service.elastic_service import setup_s3_repository
 from app.service.job_service import AsyncJob
 from app.service.rulesync_service import perform_rulesync
 from app.service.socket_service import (NotificationCode, NotificationMessage,
@@ -573,6 +575,16 @@ def execute(
         )
 
         is_successful = _execute_job(command)
+        if (is_successful
+            and node
+            and isinstance(node, Node)
+            and node.node_type == NODE_TYPES.minio.value
+            and stage == JOB_DEPLOY):
+
+            model = RepoSettingsModel.load_repo_settings_from_node(node)
+            log_to_console(_JOB_NAME_NOTIFICATION, job_id, "Setting up the S3 bucket.")
+            is_successful = setup_s3_repository(model)
+            log_to_console(_JOB_NAME_NOTIFICATION, job_id, "Completed S3 bucket configuration.")
 
         if is_successful:
             node_service.handle_success()

@@ -45,6 +45,11 @@ export class VirtualNodeFormComponent {
       this.nodeForm.get('virtual_cpu').setValue(8);
       this.nodeForm.get('virtual_mem').setValue(8);
       this.nodeForm.get('virtual_os').setValue(500);
+    } else if (nodeType == "MinIO") {
+      this.nodeForm.get('virtual_cpu').setValue(8);
+      this.nodeForm.get('virtual_mem').setValue(8);
+      this.nodeForm.get('virtual_os').setValue(100);
+      this.nodeForm.get('virtual_data').setValue(10000);
     }
   }
 

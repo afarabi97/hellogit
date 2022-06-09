@@ -6,17 +6,20 @@ from typing import Dict, Tuple
 from urllib3.exceptions import MaxRetryError
 from minio.error import S3Error, InvalidResponseError
 from app.models.settings.minio_settings import RepoSettingsModel
+from app.utils.connection_mngs import FabricConnectionManager
 
 
 class MinIOManager:
 
     def __init__(self, settings: RepoSettingsModel):
+        self._settings = settings
         timeout = 5
         http_client = urllib3.PoolManager(
             timeout=urllib3.util.Timeout(connect=timeout, read=timeout),
             maxsize=10,
-            cert_reqs='CERT_REQUIRED',
-            ca_certs=os.environ.get('SSL_CERT_FILE') or certifi.where(),
+            cert_reqs='CERT_NONE',
+            # cert_reqs='CERT_REQUIRED',
+            # ca_certs=os.environ.get('SSL_CERT_FILE') or certifi.where(),
             retries=urllib3.Retry(
                 total=1,
                 backoff_factor=0.2,
@@ -53,3 +56,21 @@ class MinIOManager:
     def create_bucket(self, bucket_name: str):
         if not self._client.bucket_exists(bucket_name):
             self._client.make_bucket(bucket_name)
+
+    def get_available_data_drive_space(self) -> int:
+        """Grabs available data drive space of the MinIO server
+
+        Raises:
+            Exception: Throws exception if it fails to find the data partition
+
+        Returns:
+            int: data drive size in Kilobytes
+        """
+        # buckets = self._client.list_buckets()
+        with FabricConnectionManager("root", self._settings.password, self._settings.ip_address) as shell:
+            ret_val = shell.sudo("df")
+            for line in ret_val.stdout.split("\n"):
+                if "/data" in line:
+                    return int(line.split()[3])
+
+        raise Exception("Failed to find data drive space on MinIO server.")

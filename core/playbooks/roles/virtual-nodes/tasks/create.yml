@@ -56,7 +56,7 @@
     - size_gb: "{{ hostvars[node].virtual_data_size }}"
       type: thin
       datastore: "{{ esxi.datastore }}"
-  when: hostvars[node].node_type == "Server" or hostvars[node].node_type == "Sensor" or hostvars[node].node_type == "Service"
+  when: hostvars[node].node_type == "Server" or hostvars[node].node_type == "Sensor" or hostvars[node].node_type == "Service" or hostvars[node].node_type == "MinIO"
 
 - set_fact: # noqa unnamed-task
     disks:

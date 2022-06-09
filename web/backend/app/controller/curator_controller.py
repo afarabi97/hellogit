@@ -123,6 +123,9 @@ class MinioMng(Resource):
         try:
             wait_for_elastic_cluster_ready(minutes=0)
             model = RepoSettingsModel.load_from_kubernetes_and_elasticsearch()
+            if not model.ip_address:
+                return {"error_message": "MinIO Server is not setup. Please go to Node Management page and add the node."}, 500
+
             mng = MinIOManager(model)
             is_connected, msg = mng.is_connected()
             if is_connected:

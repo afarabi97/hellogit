@@ -1,6 +1,4 @@
 ---
-
-dip_deployer_vars: "{{ tfplenum_config_dir }}/deployer/playbooks/inventory.yml"
 default_mip_disk_size: 500
 default_root_disk_size: 50
 default_data_disk_size: 100

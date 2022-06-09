@@ -83,6 +83,7 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
   ngOnInit(): void {
     this.title_.setTitle(ELASTICSEARCH_INDEX_MANAGEMENT_TITLE);
     this.initialize_form_groups_();
+    this.set_backup_option_(true, null);
     this.api_minio_check_();
   }
 
@@ -166,11 +167,16 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
    * @param {boolean} is_disabled
    * @memberof ElasticsearchIndexManagementComponent
    */
-  private set_backup_option_(is_disabled: boolean): void {
+  private set_backup_option_(is_disabled: boolean, error: ErrorMessageClass): void {
     for (const action of this.actions) {
       /* istanbul ignore else */
       if (action.value === BACKUP_INDICES) {
         action.isDisabled = is_disabled;
+        if (error){
+          action.toolTip = error.error_message;
+        } else{
+          action.toolTip = "";
+        }
         break;
       }
     }
@@ -309,10 +315,10 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: SuccessMessageClass) => {
-          this.set_backup_option_(false);
+          this.set_backup_option_(false, null);
         },
         (error: ErrorMessageClass | HttpErrorResponse) => {
-          this.set_backup_option_(true);
+          this.set_backup_option_(true, error as ErrorMessageClass);
           if (error instanceof ErrorMessageClass) {
             this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           } else {

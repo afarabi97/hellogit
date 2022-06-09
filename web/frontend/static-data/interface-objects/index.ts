@@ -55,7 +55,6 @@ export * from './ntlm.interface';
 export * from './pcap.interface';
 export * from './portal-link.interface';
 export * from './replay-pcap.interface';
-export * from './repo-settings-snapshot.interface';
 export * from './role-process.interface';
 export * from './rule-set.interface';
 export * from './rule-sync.interface';

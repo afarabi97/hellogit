@@ -1,9 +1,13 @@
 from typing import List
 
-from app.utils.collections import mongo_catalog_saved_values
+from app.models.nodes import Node
+from app.utils.logging import logger
+from app.utils.collections import mongo_catalog_saved_values, get_collection, Collections
 from app.utils.connection_mngs import KubernetesWrapper
 from app.utils.elastic import get_elastic_password
 from app.utils.utils import get_domain
+from app.utils.constants import NODE_TYPES
+
 
 DISCLUDES = (
     "elasticsearch",
@@ -35,7 +39,7 @@ def get_app_credentials(app: str, user_key: str, pass_key: str):
     return "??/??"
 
 
-def _append_portal_link(name: str, kit_domain: str, ip: str = None):
+def _append_portal_link(name: str, kit_domain: str, ip: str = None, type: str = None):
     logins = ""
     if name == "hive":
         logins = get_app_credentials(
@@ -56,7 +60,10 @@ def _append_portal_link(name: str, kit_domain: str, ip: str = None):
         logins = get_app_credentials("mattermost", "admin_user", "admin_pass")
     elif name == "rocketchat":
         logins = get_app_credentials("rocketchat", "admin_user", "admin_pass")
-    fip = HTTPS_STR + ip
+    elif type == NODE_TYPES.minio.value:
+        logins = "assessor/<kit password in system settings>"
+
+    fip = HTTPS_STR + str(ip)
     dns = HTTPS_STR + name + "." + kit_domain
     return {"ip": fip, "dns": dns, "logins": logins}
 
@@ -78,6 +85,10 @@ def get_portal_links():
     kit_domain = get_domain()
     portal_links = []
     try:
+        minio = Node.load_minio_from_db()
+        if minio:
+            hostname, domain = minio.hostname.split(".")
+            portal_links.append(_append_portal_link(hostname, domain, minio.ip_address, NODE_TYPES.minio.value))
         with KubernetesWrapper() as api:
             services = api.list_service_for_all_namespaces()
             for service in services.items:
@@ -86,9 +97,7 @@ def get_portal_links():
                     svc_ip = service.status.load_balancer.ingress[0].ip
                     if _is_discluded(name):
                         continue
-                    portal_links.append(
-                        _append_portal_link(name, kit_domain, svc_ip))
+                    portal_links.append(_append_portal_link(name, kit_domain, svc_ip))
     except Exception as e:
-        print(str(e))
-        pass
+        logger.exception(e)
     return portal_links

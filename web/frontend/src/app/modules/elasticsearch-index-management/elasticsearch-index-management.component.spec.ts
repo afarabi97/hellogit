@@ -4,6 +4,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { throwError } from 'rxjs';
+import { ErrorMessageClass } from 'src/app/classes';
 import { MatOptionAltInterface } from 'src/app/interfaces';
 
 import { MockErrorMessageClass } from '../../../../static-data/class-objects';
@@ -53,6 +54,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
   index_management_actions_form_group.addControl('action', new FormControl(null, Validators.required));
   const index_management_list_form_group: FormGroup = new FormGroup({});
   index_management_list_form_group.addControl('index_list', new FormControl([], Validators.required));
+  const error_message: ErrorMessageClass = new ErrorMessageClass({error_message: 'foo bar'})
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -144,6 +146,22 @@ describe('ElasticsearchIndexManagementComponent', () => {
         component.ngOnInit();
 
         expect(component['initialize_form_groups_']).toHaveBeenCalled();
+      });
+
+      it('should call api_minio_check_() from ngOnInit()', () => {
+        reset();
+
+        component.ngOnInit();
+
+        expect(component['api_minio_check_']).toHaveBeenCalled();
+      });
+
+      it('should call set_backup_option_() from ngOnInit()', () => {
+        reset();
+
+        component.ngOnInit();
+
+        expect(component['set_backup_option_']).toHaveBeenCalled();
       });
     });
 
@@ -272,7 +290,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
       it('should call set_backup_option_()', () => {
         reset();
 
-        component['set_backup_option_'](true);
+        component['set_backup_option_'](true, error_message);
 
         expect(component['set_backup_option_']).toHaveBeenCalled();
       });
@@ -280,7 +298,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
       it('should call set_backup_option_() and set component.actions[i].isDisabled with passed value = false', () => {
         reset();
 
-        component['set_backup_option_'](false);
+        component['set_backup_option_'](false, null);
 
         const action_for_test: MatOptionAltInterface = grab_action_for_test();
 
@@ -290,7 +308,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
       it('should call set_backup_option_() and set component.actions[i].isDisabled with passed value = true', () => {
         reset();
 
-        component['set_backup_option_'](true);
+        component['set_backup_option_'](true, error_message);
 
         const action_for_test: MatOptionAltInterface = grab_action_for_test();
 

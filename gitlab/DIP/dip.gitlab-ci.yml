@@ -177,7 +177,7 @@ Service Setup:
       - $PIPELINE == "developer-all"
       - $PIPELINE == "hw-developer-all"
 
-MIP Setup:
+MinIO Setup:
   stage: node-setup
   tags:
     - tfplenum-buildv2
@@ -186,6 +186,36 @@ MIP Setup:
     echo "Current working directory is $(pwd)"
     echo "VM_PREFIX is $VM_PREFIX"
     START_INDEX=$(($NUM_SERVERS+$NUM_SENSORS+$NUM_SERVICE_NODES+1))
+    echo "$START_INDEX"
+    python3 testing/pipeline/pipeline.py \
+    add-node \
+    --node-type MinIO \
+    --deployment-type Virtual \
+    --vm-prefix "$VM_PREFIX" \
+    --cpu $MINIO_CPU \
+    --memory $MINIO_MEM \
+    --start-index $START_INDEX \
+    --num-nodes 1 \
+    --os-raid "$VM_RAID" \
+    --dns-servers $DNS_SERVERS \
+    --data-drive-size $MINIO_SIZE_GB
+  retry: 2
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "developer-all"
+      - $PIPELINE == "hw-developer-all"
+
+MIP Setup:
+  stage: node-setup
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "VM_PREFIX is $VM_PREFIX"
+    START_INDEX=$(($NUM_SERVERS+$NUM_SENSORS+$NUM_SERVICE_NODES+2))
     echo "$START_INDEX"
     python3 testing/pipeline/pipeline.py \
     add-node \

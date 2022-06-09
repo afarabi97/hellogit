@@ -1,7 +1,6 @@
----
-- name: Set hostname.
+- name: Set MinIO hostname
   hostname:
-    name: "{{ hostname }}.{{ domain }}"
+    name: "{{ ansible_nodename }}"
 
 - name: Create a system acount for the MinIO server to run as.
   user:
@@ -80,10 +79,11 @@
   command: "setcap cap_net_bind_service=+ep {{ minio_local_bin }}"
 
 - import_tasks: create_certificate.yml
-  when: use_tls | default("no")
 
 - name: Start the MinIO service.
   systemd:
     name: minio
-    state: started
+    state: restarted
     enabled: yes
+
+- import_tasks: update_dns.yml

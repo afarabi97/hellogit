@@ -46,22 +46,6 @@
     - kali-export
     - remnux-export
 
-- name: Create minio virtual machine from a template.
-  hosts: localhost
-  gather_facts: no
-  roles:
-    - minio/clone
-  tags:
-    - minio-clone
-
-- name: Installs a stand-alone MinIO server.
-  hosts: minio
-  gather_facts: no
-  roles:
-    - minio/config
-  tags:
-    - minio
-
 - name: Convert VM to template
   hosts: localhost
   tasks:

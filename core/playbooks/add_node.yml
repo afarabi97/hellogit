@@ -165,6 +165,13 @@
   tags:
     - node-health
 
+- name: Setup MinIO
+  hosts:
+    - MinIO
+  gather_facts: no
+  roles:
+    - minio
+
 - name: Run Stigs
   hosts:
     - servers

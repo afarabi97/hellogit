@@ -15,21 +15,18 @@ from models.ctrl_setup import ControllerSetupSettings
 from models.export import ExportLocSettings, ExportSettings
 from models.gip_settings import GIPServiceSettings
 from models.rhel_repo_vm import RHELRepoSettings
-from models.vm_builder import VMBuilderSettings
 from util.ansible_util import (execute_playbook, power_on_vms,
                                revert_to_baseline_and_power_on_vms,
                                take_snapshot)
 from util.connection_mngs import FabricConnectionWrapper
-from util.constants import (CONTROLLER_PREFIX, MINIO_PREFIX, PIPELINE_DIR,
+from util.constants import (CONTROLLER_PREFIX, PIPELINE_DIR,
                             REPO_SYNC_PREFIX, SKIP_CTRL_BUILD_AND_TEMPLATE,
-                            SKIP_MINIO_BUILD_AND_TEMPLATE,
                             SKIP_REPOSYNC_BUILD_AND_TEMPLATE)
 from util.docs_exporter import MyConfluenceExporter
 from util.general import encryptPassword
 from util.ssh import test_nodes_up_and_alive
 
 CTRL_EXPORT_PREP = PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"
-MINIO_EXPORT_PREP =  PIPELINE_DIR + "playbooks/minio_export_prep.yml"
 
 
 def create_export_path(export_loc: ExportLocSettings) -> Tuple[Path]:
@@ -125,24 +122,6 @@ def export(vcenter_settings: VCenterSettings,
     clear_based_on_pattern(str(mdt_export_path), export_prefix + "*")
     mdt_destination_path = "{}/{}".format(str(mdt_export_path), export_name)
     shutil.copy2(cpt_destination_path, mdt_destination_path)
-
-
-class MinIOExport:
-    def __init__(self, minio_settings: VMBuilderSettings):
-        self.minio_settings = minio_settings
-
-    def export_minio(self):
-        if not Path(SKIP_MINIO_BUILD_AND_TEMPLATE).exists():
-            export_password = encryptPassword(self.minio_settings.export_password)
-            execute_playbook([MINIO_EXPORT_PREP], {
-                "commands": [
-                    {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete ens192'},
-                    {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete "Wired connection 1"'},
-                    {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password {export_password} root"}
-                ],
-                **self.minio_settings.to_dict()
-            })
-        export(self.minio_settings.vcenter, self.minio_settings.export_loc, self.minio_settings.release_template_name, MINIO_PREFIX)
 
 
 class ControllerExport:

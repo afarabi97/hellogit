@@ -34,6 +34,8 @@
                     <mat-option *ngFor="let action of actions; let i = index;"
                                 id="{{ 'cvah-elasticsearch-index-management-action-mat-option-' + i }}"
                                 [disabled]="action.isDisabled"
+                                matTooltip="{{ action.toolTip }}"
+                                [matTooltipPosition]="'left'"
                                 [value]="action.value">{{ action.name }}</mat-option>
                   </mat-select>
                 </mat-form-field>

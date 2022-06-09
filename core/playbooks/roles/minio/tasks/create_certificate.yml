@@ -20,7 +20,8 @@
       subjectAltName = @alt_names
 
       [alt_names]:
-      DNS.1 = {{ hostname }}.{{ domain }}
+      IP.1 = {{ ansible_default_ipv4["address"] }}
+      DNS.1 = {{ ansible_nodename }}
 
 - name: Generate private key with RSA
   command: "openssl genrsa -out {{ minio_certs_dir }}/private.key 2048"
@@ -29,3 +30,4 @@
   command: "openssl req -new -x509 -nodes -days 730 -key {{ minio_certs_dir }}/private.key -out {{ minio_certs_dir }}/public.crt -config {{ minio_certs_dir }}/CAs/openssl.conf"
   register: result
   changed_when: result.rc == 0
+

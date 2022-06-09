@@ -1,3 +1,33 @@
+- name: Get closed indexes
+  uri:
+    url: "{{ elastic_uri }}/_cat/indices?h=status,index"
+    return_content: yes
+    validate_certs: no
+    headers:
+      Accept: "application/json"
+      Content-Type: "application/json"
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: yes
+    method: GET
+  register: indexes
+  ignore_errors: yes
+
+- name: Delete closed indexes
+  uri:
+    url: "{{ elastic_uri }}/{{ item.index }}"
+    headers:
+      Accept: "application/json"
+      Content-Type: "application/json"
+    return_content: no
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: yes
+    method: DELETE
+  loop: "{{ indexes.json }}"
+  when: "{{ item.status == 'close' }}"
+  ignore_errors: yes
+
 - name: Check Suricata and Zeek Traffic
   uri:
     url: "{{ elastic_uri }}/filebeat-{{ item.app }}*/_search"

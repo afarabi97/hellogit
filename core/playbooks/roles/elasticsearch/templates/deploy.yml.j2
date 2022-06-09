@@ -112,7 +112,7 @@ spec:
               fieldRef:
                 fieldPath: spec.nodeName
           - name: ES_JAVA_OPTS
-            value: {{ node_set.es_java_opts }}
+            value: {{ node_set.es_java_opts }} -Dcom.amazonaws.sdk.disableCertChecking=true
           resources:
             requests:
               cpu: {{ node_set.min_cpu | string }}

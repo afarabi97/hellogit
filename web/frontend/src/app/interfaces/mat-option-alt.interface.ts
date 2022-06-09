@@ -8,4 +8,5 @@ export interface MatOptionAltInterface {
   value: string;
   name?: string;
   isDisabled: boolean;
+  toolTip: string;
 };

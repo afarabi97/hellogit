@@ -356,13 +356,13 @@ CVAH_ELASTICSEARCH_COLD_LOG_INGEST__BUTTON_UPLOAD = 'cvah-elasticsearch-cold-log
 
 
 # These are for elasticsearch-index-management.component.html
-CVAH_ELASTICSEARCH_INDEX_MANAGEMENT__MAT_SELECT_ACTION = 'cvah-elasticsearch-index-management-mat-select-action' # mat-select
+CVAH_ELASTICSEARCH_INDEX_MANAGEMENT_MAT_SELECT_ACTION = 'cvah-elasticsearch-index-management-mat-select-action' # mat-select
 # TODO cvah-elasticsearch-index-management-action-mat-option-* # mat-option
-CVAH_ELASTICSEARCH_INDEX_MANAGEMENT__BUTTON_NEXT = 'cvah-elasticsearch-index-management-button-next' # button
-CVAH_ELASTICSEARCH_INDEX_MANAGEMENT__MAT_SELECT_LIST = 'cvah-elasticsearch-index-management-mat-select-list' # mat-select
+CVAH_ELASTICSEARCH_INDEX_MANAGEMENT_BUTTON_NEXT = 'cvah-elasticsearch-index-management-button-next' # button
+CVAH_ELASTICSEARCH_INDEX_MANAGEMENT_MAT_SELECT_LIST = 'cvah-elasticsearch-index-management-mat-select-list' # mat-select
 # TODO cvah-elasticsearch-index-management-list-mat-option-* # mat-option
-CVAH_ELASTICSEARCH_INDEX_MANAGEMENT__BUTTON_BACK = 'cvah-elasticsearch-index-management-button-back' # button
-CVAH_ELASTICSEARCH_INDEX_MANAGEMENT__BUTTON_UPDATE = 'cvah-elasticsearch-index-management-button-update' # button
+CVAH_ELASTICSEARCH_INDEX_MANAGEMENT_BUTTON_BACK = 'cvah-elasticsearch-index-management-button-back' # button
+CVAH_ELASTICSEARCH_INDEX_MANAGEMENT_BUTTON_UPDATE = 'cvah-elasticsearch-index-management-button-update' # button
 
 
 # These are for elasticsearch-scale.component.html
@@ -891,32 +891,6 @@ CVAH_REPLAY_PCAP_DIALOG__IFACE_MAT_SELECT = 'cvah-replay-pcap-dialog-div-mat-for
 CVAH_REPLAY_PCAP_DIALOG__MAT_ERROR_IFACE = 'cvah-replay-pcap-dialog-div-mat-error-iface' # mat-error
 CVAH_REPLAY_PCAP_DIALOG__BUTTON_CANCEL = 'cvah-replay-pcap-dialog-button-cancel' # button
 CVAH_REPLAY_PCAP_DIALOG__BUTTON_EXECUTE = 'cvah-replay-pcap-dialog-button-execute' # button
-
-
-# These are for repository-settings.component.html
-CVAH_REPOSITORY_SETTINGS__MAT_EXPANSION_PANEL = 'cvah-repository-settings-expansion-panel' # mat-expansion-panel
-CVAH_REPOSITORY_SETTINGS__ENDPOINT_INPUT = 'cvah-repository-settings-endpoint-input' # input
-CVAH_REPOSITORY_SETTINGS__ENDPOINT_MAT_ICON_CHECK_CIRCLE = 'cvah-repository-settings-endpoint-mat-icon-check-circle' # mat-icon
-CVAH_REPOSITORY_SETTINGS__ENDPOINT_MAT_ICON_ERROR = 'cvah-repository-settings-endpoint-mat-icon-error' # mat-icon
-CVAH_REPOSITORY_SETTINGS__ENDPOINT_MAT_ERROR = 'cvah-repository-settings-endpoint--mat-error' # mat-error
-CVAH_REPOSITORY_SETTINGS__PROTOCOL_MAT_SELECT = 'cvah-repository-settings-protocol-mat-select' # mat-select
-CVAH_REPOSITORY_SETTINGS__PROTOCOL_MAT_SELECT_MAT_OPTION_HTTP = 'cvah-repository-settings-protocol-mat-option-http' # mat-option
-CVAH_REPOSITORY_SETTINGS__PROTOCOL_MAT_SELECT_MAT_OPTION_HTTPS = 'cvah-repository-settings-protocol-mat-option-https' # mat-option
-CVAH_REPOSITORY_SETTINGS__PROTOCOL_MAT_ERROR = 'cvah-repository-settings-protocol-mat-error' # mat-error
-CVAH_REPOSITORY_SETTINGS__BUCKET_INPUT = 'cvah-repository-settings-bucket-input' # input
-CVAH_REPOSITORY_SETTINGS__BUCKET_MAT_ICON_CHECK_CIRCLE = 'cvah-repository-settings-bucket-mat-icon-check-circle' # mat-icon
-CVAH_REPOSITORY_SETTINGS__BUCKET_MAT_ICON_ERROR = 'cvah-repository-settings-bucket-mat-icon-error' # mat-icon
-CVAH_REPOSITORY_SETTINGS__BUCKET_MAT_ERROR = 'cvah-repository-settings-bucket--mat-error' # mat-error
-CVAH_REPOSITORY_SETTINGS__ACCESS_KEY_INPUT = 'cvah-repository-settings-access-key-input' # input
-CVAH_REPOSITORY_SETTINGS__ACCESS_KEY_MAT_ICON_CHECK_CIRCLE = 'cvah-repository-settings-access-key-mat-icon-check-circle' # mat-icon
-CVAH_REPOSITORY_SETTINGS__ACCESS_KEY_MAT_ICON_ERROR = 'cvah-repository-settings-access-key-mat-icon-error' # mat-icon
-CVAH_REPOSITORY_SETTINGS__ACCESS_KEY_MAT_ERROR = 'cvah-repository-settings-access-key--mat-error' # mat-error
-CVAH_REPOSITORY_SETTINGS__SECRET_KEY_INPUT = 'cvah-repository-settings-secret-key-input' # input
-CVAH_REPOSITORY_SETTINGS__SECRET_KEY_MAT_ICON_CHECK_CIRCLE = 'cvah-repository-settings-secret-key-mat-icon-check-circle' # mat-icon
-CVAH_REPOSITORY_SETTINGS__SECRET_KEY_MAT_ICON_ERROR = 'cvah-repository-settings-secret-key-mat-icon-error' # mat-icon
-CVAH_REPOSITORY_SETTINGS__SECRET_KEY_MAT_ERROR = 'cvah-repository-settings-secret-key--mat-error' # mat-error
-CVAH_REPOSITORY_SETTINGS__BUTTON_UPDATE = 'cvah-repository-settings-button-update' # button
-
 
 # These are for server-stdout.component.html
 APP_SERVER_STDOUT__TITLE_BUTTON_KILL_JOB = 'app-server-stdout-div-mat-card-mat-card-header-mat-card-title-button-kill-job' # button

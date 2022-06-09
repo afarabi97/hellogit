@@ -53,11 +53,6 @@ def mongo_settings() -> Collection:
     return mongo.db.settings
 
 
-def mongo_node() -> Collection:
-    """Deprication warning. Please use collections.get_colletion()"""
-    return mongo.db.nodes
-
-
 def mongo_jobs() -> Collection:
     """Deprication warning. Please use collections.get_colletion()"""
     return mongo.db.jobs

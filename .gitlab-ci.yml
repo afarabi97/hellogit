@@ -8,7 +8,6 @@ variables:
   VMWARE_FOLDER: "Testing"
   NETWORK_ID: "10.40.12.0"
   NETWORK_BLOCK_INDEX: 0
-  MINIO_NETWORK_BLOCK_INDEX: 1
   RHEL_NETWORK_BLOCK_INDEX: 2
   GIP_SERVICES_NETWORK_BLOCK_INDEX: 2
 
@@ -43,6 +42,10 @@ variables:
   SENSOR_MEM: 16384
   SERVICE_CPU: 24
   SERVICE_MEM: 32
+  MINIO_CPU: 8
+  MINIO_MEM: 8
+  MINIO_SIZE_GB: 10000
+
   MIP_CPU: 16
   MIP_MEM: 24576
   NUM_MIPS: 1
@@ -60,7 +63,7 @@ variables:
   UPDATE_CODE: "yes"
   IS_CLEANUP: "no"
   RUN_REGRESSION: "no"
-  MINIO_USE_TLS: "no"
+
   # Creates multiboot partition on full drives, when doing a minor release make sure this is set to no
   CREATE_MULTIBOOT: "yes"
 
@@ -82,14 +85,6 @@ variables:
   # Repo Sync variables
   REPO_SERVER_TEMPLATE_TO_CLONE: RHEL8 Template
   REPO_SERVER_DISK_SIZE: 175
-
-  # MinIO
-  MINIO_STORAGE_SIZE: 250
-  MINIO_MEMORY: 8192
-  MINIO_CPU: 2
-  MINIO_VM: "no"
-  MINIO_TEMPLATE_TO_CLONE: "RHEL8 Template"
-  MINIO_DISK_SIZE: 100
 
   # GIP Services VM
   GIP_SVC_TEMPLATE_TO_CLONE: "GIP SVC Template"
@@ -122,7 +117,6 @@ variables:
   #Master Drive Creation Variables
   MASTER_DRIVE_CREATION_USERNAME: "drive_creator"
   MASTER_DRIVE_CREATION_IPADDRESS: "10.10.102.10"
-  MASTER_DRIVE_CREATION_EXTERNAL_GIP_DRIVE: "/dev/sdb"
 
   #EXPORT Variables
   CONFLUENCE_SUP_DOCS: ""

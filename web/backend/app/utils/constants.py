@@ -62,6 +62,7 @@ class NODE_TYPES(Enum):
     control_plane = "Control-Plane"
     service_node = "Service"
     mip = "MIP"
+    minio = "MinIO"
 
 
 class DEPLOYMENT_TYPES(Enum):
@@ -76,7 +77,6 @@ class DEPLOYMENT_JOBS(Enum):
     remove_node = "Remove Node"
     setup_control_plane = "Setup Control Plane"
     kickstart_profiles = "Kickstart Profiles"
-    setup_minio = "Setup Minio"
     setup_controller = "Setup Controller"
     setup_controller_kit_settings = "Setup Controller Kit Settings"
     mip_deploy = "Deploy MIP"

@@ -8,7 +8,7 @@ import base64
 import json
 from argparse import Namespace
 from ipaddress import IPv4Address
-from typing import Dict, List
+from typing import Dict, List, Union
 
 
 class DBModelNotFound(Exception):
@@ -26,10 +26,16 @@ class PostValidationError(Exception):
     """
 
     def __init__(self):
-        self.errors_msgs = []
+        self.errors_msgs = {}
 
-    def append_error(self, msg: str):
-        self.errors_msgs.append(msg)
+    def append_error(self, key: str, msg: Union[str, List[str]]):
+        if isinstance(msg, str):
+            msg = [msg]
+
+        if key in self.errors_msgs:
+            self.errors_msgs[key] += msg
+        else:
+            self.errors_msgs[key] = msg
 
     def has_errors(self):
         return len(self.errors_msgs) > 0

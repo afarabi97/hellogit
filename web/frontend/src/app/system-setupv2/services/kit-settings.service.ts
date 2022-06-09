@@ -87,18 +87,8 @@ export class KitSettingsService {
     return this.http.post(url, settingsForm).pipe();
   }
 
-  getMinio(): Observable<Object> {
-    const url = `/api/minio`;
-    return this.http.get(url).pipe();
-  }
-
   getControlPlane(): Observable<Object> {
     const url = `/api/kit/control-plane`;
-    return this.http.get(url).pipe();
-  }
-
-  setupMinio() : Observable<Object> {
-    const url = `/api/minio`;
     return this.http.get(url).pipe();
   }
 
@@ -114,13 +104,13 @@ export class KitSettingsService {
 
   addNode(payload): Observable<Object> {
     const url = `/api/kit/node`;
-    if ('boot_drives' in payload){
+    if ('boot_drives' in payload && typeof payload['boot_drives'] === 'string'){
       payload['boot_drives'] = payload['boot_drives'].split(',');
     }
-    if ('data_drives' in payload){
+    if ('data_drives' in payload && typeof payload['data_drives'] === 'string'){
       payload['data_drives'] = payload['data_drives'].split(',');
     }
-    if ('os_raid' in payload){
+    if ('os_raid' in payload ){
       if (payload['os_raid']){
         if (!Array.isArray(payload['raid_drives'])) {
           payload['raid_drives'] = payload['raid_drives'].split(',');

@@ -42,7 +42,6 @@ export * from './notification.class';
 export * from './ntlm.class';
 export * from './pcap.class';
 export * from './portal-link.class';
-export * from './repo-settings-snapshot.class';
 export * from './rule-set.class';
 export * from './rule-sync.class';
 export * from './rule.class';

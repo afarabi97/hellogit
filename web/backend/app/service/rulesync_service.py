@@ -461,10 +461,11 @@ class RuleSynchronization:
 
     def _get_worse_state_from_sensor_states(self, rule_set: RuleSetModel.DTO) -> str:
         state = RULESET_STATES[2]
-        for sensor_state in rule_set["sensor_states"]:
-            if sensor_state["state"] == RULESET_STATES[3]:
-                state = RULESET_STATES[3]
-                break
+        if "sensor_states" in rule_set:
+            for sensor_state in rule_set["sensor_states"]:
+                if sensor_state["state"] == RULESET_STATES[3]:
+                    state = RULESET_STATES[3]
+                    break
         return state
 
     def _can_sync(self, node: Node) -> bool:

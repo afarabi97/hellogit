@@ -1,21 +1,23 @@
-from ipaddress import IPv4Address
-from typing import Dict
-
 from app.models import Model
-from app.utils.elastic import ElasticWrapper, wait_for_elastic_cluster_ready
-from app.utils.kubernetes import (create_or_patch_kubernetes_secret,
-                                  get_kubernetes_secret,
-                                  patch_kubernetes_secret)
+from app.models.settings.general_settings import SETINGS_NS
+from app.utils.elastic import ElasticWrapper
+from app.utils.kubernetes import (get_kubernetes_secret,
+                                  patch_kubernetes_secret,
+                                  create_or_patch_kubernetes_secret)
 from app.utils.logging import rq_logger
-from app.utils.namespaces import SETINGS_NS
 from app.utils.utils import base64_to_string, string_to_base64
 from elasticsearch.exceptions import ConnectionError, NotFoundError
 from flask_restx import fields
-from kubernetes.client.exceptions import ApiException
+from ipaddress import IPv4Address
 from kubernetes.config.config_exception import ConfigException
+from kubernetes.client.exceptions import ApiException
 from marshmallow import Schema
 from marshmallow import fields as marsh_fields
 from marshmallow import post_load, validate
+from typing import Dict
+from app.utils.elastic import wait_for_elastic_cluster_ready
+from app.models.nodes import Node
+from app.models.settings.kit_settings import KitSettingsForm
 
 
 class RepoSettingsSchema(Schema):
@@ -29,6 +31,8 @@ class RepoSettingsSchema(Schema):
     @post_load
     def create_RepoSettings(self, data: Dict, many: bool, partial: bool):
         return RepoSettingsModel(**data)
+
+
 class RepoSettingsModel(Model):
     DTO = SETINGS_NS.model('RepoSettings', {
         "username": fields.String(example="user",
@@ -39,7 +43,7 @@ class RepoSettingsModel(Model):
                                     description="Repo IP Address."),
         "port": fields.String(example="9001",
                               description="MinIO repository port."),
-        "protocol": fields.String(example="http",
+        "protocol": fields.String(example="https",
                                   description="Web protocol http or https."),
         "bucket": fields.String(example="tfplenum",
                                 description="S3 bucket name and elasticsearch backup respository name."),
@@ -134,6 +138,17 @@ class RepoSettingsModel(Model):
         return cls.schema.load(payload)  # type: ignore
 
     @classmethod
+    def load_repo_settings_from_node(cls, node: Node):
+        settings = KitSettingsForm.load_from_db()
+        payload = {"ip_address": node.ip_address,
+                   "port": 9001,
+                   "protocol": "https",
+                   "bucket": "elasticsearch",
+                   "username": "assessor",
+                   "password": settings.password}
+        return cls.schema.load(payload)  # type: ignore
+
+    @classmethod
     def load_from_kubernetes_and_elasticsearch(cls) -> 'RepoSettingsModel':
         """
         {'tfplenum': {'type': 's3', 'uuid': 'K8LmDYhtSxGEGCpqz4UyWA', 'settings':
@@ -152,4 +167,4 @@ class RepoSettingsModel(Model):
             protocol = repo[bucket]["settings"]["protocol"]
             return RepoSettingsModel(username, password, ip_address, port, protocol, bucket)
         except (ConnectionError, ConfigException, ApiException, NotFoundError) as e:
-            return RepoSettingsModel("", "", "", 9001, "http", "tfplenum")
+            return RepoSettingsModel("", "", "", 9001, "https", "elasticsearch")

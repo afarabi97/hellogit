@@ -5,6 +5,7 @@ Resource    ../../lib/dipRulesetKeywords.resource
 Library    SeleniumLibrary    15s
 Library    SSHLibrary         15s
 Library    String
+Library    Collections
 
 
 Suite Setup       Open SSH Connection      ${HOST}                ${HOST_USERNAME}                ${HOST_PASSWORD}
@@ -25,3 +26,30 @@ Run Elastic Integration Test
     Play Wannacry PCAP
     Wait And Validate Kibana Hits
     Navigate To Portal
+
+Check MinIO (Elastic) Backup Capability
+    Set Selenium Speed  0.5s
+    Go To  https://${host}/index_management
+    click  ${CVAH_ELASTICSEARCH_INDEX_MANAGEMENT_MAT_SELECT_ACTION}
+    click  xpath=//span[text() = "Backup and close"]
+    click  ${CVAH_ELASTICSEARCH_INDEX_MANAGEMENT_BUTTON_NEXT}
+    click  ${CVAH_ELASTICSEARCH_INDEX_MANAGEMENT_MAT_SELECT_LIST}
+    ${index_name_list} =  Create List
+    Wait Until Element Is Visible  xpath=//mat-option
+    ${index_elements} =  Get WebElements  xpath=//mat-option
+    FOR  ${element}  IN  @{index_elements}
+        ${element_text} =  Get Text  ${element}
+        ${name}  ${size} =  Split String  ${element_text}
+        Append To List  ${index_name_list}  ${name}
+        click  ${element}
+    END
+    Press Keys  None  ESCAPE
+    log  ${index_name_list}
+    click  ${CVAH_ELASTICSEARCH_INDEX_MANAGEMENT_BUTTON_UPDATE}
+    Sleep  5s
+    lookFor  Curator job submitted check notifications for progress.
+    click  ${APP_TOP_NAVBAR__MAT_LIST_ITEM_NOTIFICATIONS_MAT_ICON}
+    Wait Until Element Contains  ${locTopNotificationMsg}  Curator Backup Indices job completed.
+    ${closed_list} =  Get Closed Elastic Indexes  ${HOST}  ${HOST_PASSWORD}
+    log  ${closed_list}
+    Lists Should Be Equal  ${index_name_list}  ${closed_list}  ignore_order=True

@@ -19,7 +19,7 @@ MAC_BASE = "00:0a:29:00:00:00"
 
 class NodeSettingsV2(Model):
     DEPLOYMENT_TYPES = ["Baremetal", "Virtual"]
-    NODE_TYPES = ["Server", "Sensor", "Service", "MIP", "Control-Plane"]
+    NODE_TYPES = ["Server", "Sensor", "Service", "MIP", "Control-Plane", "MinIO"]
 
     def __init__(self,
                  kit_settings: KitSettingsV2):
@@ -52,6 +52,7 @@ class NodeSettingsV2(Model):
         self.memory = 0
         self.cpu = 0
         self.device_facts = {}
+        self.virtual_data = 500
 
     def get_monitoring_interfaces_from_mongo(self) -> List[str]:
         with MongoConnectionManager(self.kit_settings.settings.controller_interface) as mongo:
@@ -101,6 +102,7 @@ class NodeSettingsV2(Model):
             ret_val["mac_address"] = None
             ret_val["virtual_cpu"] = self.cpu
             ret_val["virtual_mem"] = self.memory
+            ret_val["virtual_data"] = self.virtual_data
 
         return ret_val
 
@@ -198,6 +200,7 @@ class NodeSettingsV2(Model):
         parser.add_argument('--start-index', type=int, dest="start_index", required=True,
                             help="The index of the server or sensor.", default=1)
         parser.add_argument('--num-nodes', type=int, dest="num_nodes", required=True)
+        parser.add_argument('--data-drive-size',type=int, dest="virtual_data", required=False, help="The size of the data drive in GB", default=500)
 
 
 class HardwareNodeSettingsV2(NodeSettingsV2):
@@ -354,7 +357,7 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
         parser.add_argument('--dns-servers', dest='dns_servers', nargs="+", required=True, help="The dns servers that will be used for nodes created.")
         parser.add_argument('--node-type', dest='node_type',
                             required=True, help="The type of node",
-                            choices=["Server", "Sensor", "Service", "MIP"])
+                            choices=NodeSettingsV2.NODE_TYPES)
         parser.add_argument('--deployment-type', dest='deployment_type',
                             required=True, help="The deployment type for node.",
                             choices=["Baremetal"])

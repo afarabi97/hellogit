@@ -5,7 +5,6 @@ import { throwError } from 'rxjs';
 
 import { MockErrorMessageClass } from '../../../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
-import { MockRepoSettingsSnapshotInterface } from '../../../../../../static-data/interface-objects';
 import { COMMON_VALIDATORS } from '../../../../constants/cvah.constants';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
 import { TestingModule } from '../../../testing-modules/testing.module';
@@ -62,11 +61,7 @@ describe('UpdateDocsFormComponent', () => {
   form_control.markAsTouched();
   const generic_form_control: FormControl = new FormControl('');
   generic_form_control.markAsTouched();
-  const repository_settings_keys: string[] = Object.keys(MockRepoSettingsSnapshotInterface);
-  const repository_settings_form_group: FormGroup = new FormGroup({});
-  repository_settings_keys.forEach((key: string) => {
-    repository_settings_form_group.addControl(key, new FormControl(MockRepoSettingsSnapshotInterface[key]));
-  });
+
   const mock_file: MockFile = {
     name: 'FakeFileName.zip',
     body: 'FakeFileBody',

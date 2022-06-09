@@ -444,7 +444,7 @@ def get_zeek_stats(sensor: str) -> dict:
         body=_create_body(sensor_hostname),
         index="filebeat-zeek*",
         doc_type=None,
-        params=None,
+        params={'ignore_unavailable': 'true'},
         headers=None,
         request_timeout=20,
     )

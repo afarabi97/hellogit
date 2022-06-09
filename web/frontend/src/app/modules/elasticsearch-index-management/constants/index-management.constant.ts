@@ -12,16 +12,19 @@ export const MAT_OPTION_ACTIONS: MatOptionAltInterface[] = [
   {
     value: CLOSE_INDICES,
     name: 'Close',
-    isDisabled: false
+    isDisabled: false,
+    toolTip: ""
   },
   {
     value: BACKUP_INDICES,
     name: 'Backup and close',
-    isDisabled: true
+    isDisabled: true,
+    toolTip: "MinIO is not configured."
   },
   {
     value: DELETE_INDICES,
     name: 'Delete',
-    isDisabled: false
+    isDisabled: false,
+    toolTip: ""
   }
 ];

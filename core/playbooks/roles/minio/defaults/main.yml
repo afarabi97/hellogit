@@ -1,0 +1,11 @@
+minio_server_binary_url: "http://{{ ansible_controller_hostname }}/offlinerepo/minio"
+minio_system_account: minio-user
+minio_local_bin: /usr/local/bin/minio
+minio_client: /root/minio-binaries
+minio_client_url: http://{{ ansible_controller_hostname }}/offlinerepo//mc
+minio_volumes: /data/minio
+minio_certs_dir: /root/.minio/certs
+minio_configuration_directory: /etc/minio
+minio_systemd_service: minio.service
+minio_binding_port: 9001
+minio_console_port: 443

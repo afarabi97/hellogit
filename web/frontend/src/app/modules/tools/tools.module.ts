@@ -7,7 +7,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { ChangePasswordFormComponent } from './components/change-password-form/change-password.component';
 import { NodeMaintenanceFormComponent } from './components/node-maintenance-form/node-maintenance.component';
-import { RepositorySettingsComponent } from './components/repository-settings/repository-settings.component';
 import {
   UpdateDocumentationMessageComponent
 } from './components/update-documentation-form/components/update-documentation-message.component';
@@ -28,7 +27,6 @@ import { ToolsFormComponent } from './tools.component';
   declarations: [
     ChangePasswordFormComponent,
     NodeMaintenanceFormComponent,
-    RepositorySettingsComponent,
     UpdateDocumentationMessageComponent,
     UpdateDocsFormComponent,
     UpdateEsLicenseComponent,

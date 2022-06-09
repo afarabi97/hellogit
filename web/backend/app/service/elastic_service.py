@@ -11,9 +11,11 @@ from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.connection_mngs import REDIS_CLIENT
 from app.utils.elastic import ElasticWrapper
 from app.utils.logging import logger, rq_logger
+from app.utils.minio import MinIOManager
 from app.utils.utils import get_app_context
 from kubernetes import client, config
 from rq.decorators import job
+
 
 _JOB_NAME = "tools"
 ELASTIC_OP_GROUP = "elasticsearch.k8s.elastic.co"
@@ -52,20 +54,27 @@ def apply_es_deploy(run_check_scale_status: bool = True):
 
 
 @job("default", connection=REDIS_CLIENT, timeout="30m")
-def setup_s3_repository(settings: RepoSettingsModel):
+def setup_s3_repository(settings: RepoSettingsModel) -> bool:
     """_summary_
 
     Args:
         settings (RepoSettingsModel): The MinIO repository object.
     """
     get_app_context().push()
-    notification = NotificationMessage(role=_JOB_NAME)
+    notification = NotificationMessage(role="nodes")
     notification.set_and_send("Updating the Elastic S3 repository settings.",
                               NotificationCode.IN_PROGRESS.name)
     try:
+        mng = MinIOManager(settings)
+        is_connected, error_message = mng.is_connected()
+        if not is_connected:
+            raise Exception(f"Failed to connect to MinIO server MSG: {error_message}")
+
+        mng.create_bucket(settings.bucket)
         settings.save_to_kubernetes_and_elasticsearch()
         notification.set_and_send("Updated Elastic S3 repository settings.",
                                   NotificationCode.COMPLETED.name)
+        return True
     except Exception as e:
         rq_logger.exception(e)
         message = str(e)
@@ -73,6 +82,7 @@ def setup_s3_repository(settings: RepoSettingsModel):
             message = "Confirm bucket name is correct in Repository Settings page"
         notification.set_and_send(message, NotificationCode.ERROR.name)
 
+    return False
 
 def get_elasticsearch_license() -> Dict:
     client = ElasticWrapper()

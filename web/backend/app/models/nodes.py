@@ -12,7 +12,7 @@ from app.calculations import (get_sensors_from_list, get_servers_from_list,
                               server_and_sensor_count)
 from app.models import Model, PostValidationError
 from app.models.device_facts import DeviceFacts
-from app.utils.collections import mongo_jobs, mongo_node
+from app.utils.collections import Collections, get_collection, mongo_jobs
 from app.utils.constants import (CORE_DIR, DEPLOYMENT_TYPES, JOB_CREATE,
                                  JOB_DEPLOY, JOB_PROVISION, JOB_REMOVE,
                                  MIP_DIR, NODE_TYPES, TEMPLATE_DIR)
@@ -68,10 +68,21 @@ def validate_hostname_fn(value: str):
                               " Special characters are not allowed with the exception of dashes (IE -).".format(fqdn_length))
 
 
+def _generate_minio_inventory():
+    ctx = {"nodes": []}
+    minio_node = Node.load_minio_from_db()  # type: List[Node]
+    if minio_node:
+        ctx = {"nodes": [minio_node.to_dict()]}
+
+    generic_template_generator = GenericInventoryGenerator(ctx)
+    generic_template_generator.generate("minio.yml")
+
+
 def _generate_inventory():
     _generate_nodes_inventory()
     _generate_cp_inventory()
     _generate_mip_nodes_inventory()
+    _generate_minio_inventory()
 
 
 def _generate_nodes_inventory():
@@ -88,9 +99,8 @@ def _generate_cp_inventory():
     nodes = Node.load_control_plane_from_db()  # type: List[Node]
     for node_var in nodes:
         nodes_list.append(node_var.to_dict())
-    control_plane_generator = ControlPlaneInventoryGenerator(
-        {"nodes": nodes_list})
-    control_plane_generator.generate()
+    generic_template_generator = GenericInventoryGenerator({"nodes": nodes_list})
+    generic_template_generator.generate('control_plane.yml')
 
 
 def _generate_mip_nodes_inventory():
@@ -100,22 +110,6 @@ def _generate_mip_nodes_inventory():
         mips_list.append(mip_var.to_dict())
     mip_kickstart_generator = MIPNodesInventoryGenerator({"mips": mips_list})
     mip_kickstart_generator.generate()
-
-
-class NodeBaseModel(Model):
-
-    @classmethod
-    def load_from_db(cls, node_ids: List[str]) -> List[Model]:
-        ret_val = []
-        for node in mongo_node().find({"_id": {"$in": node_ids}}):
-            ret_val.append(cls.schema.load(node))
-
-        return ret_val
-
-    @classmethod
-    def load_from_request(cls, payload: Dict) -> Model:
-        new_node = cls.schema.load(payload)  # type: KitSettingsForm
-        return new_node
 
 
 class Command(Model):
@@ -143,7 +137,7 @@ class NodeSchema(Schema):
     os_raid = marsh_fields.Bool(required=False, allow_none=True)
     os_raid_root_size = marsh_fields.Integer(required=False)
     node_type = marsh_fields.Str(required=False, validate=validate.OneOf(
-        ["Server", "Sensor", "Undefined", "Control-Plane", "Minio", "MIP", "Service"]))
+        ["Server", "Sensor", "Undefined", "Control-Plane", "MinIO", "MIP", "Service"]))
     error = marsh_fields.Str()
     deviceFacts = marsh_fields.Dict()
     deployment_type = marsh_fields.String(required=False, allow_none=True)
@@ -190,7 +184,7 @@ class NodeSchema(Schema):
         validate_hostname_fn(value)
 
 
-class Node(NodeBaseModel):
+class Node(Model):
     schema = NodeSchema()
     DTO = KIT_SETUP_NS.model('Node', {
         "hostname": fields.String(required=True, example="server1", description="The hostname of the node."),
@@ -219,9 +213,9 @@ class Node(NodeBaseModel):
         "vpn_status": fields.Boolean(required=True, default=False, description="When the Node is connected or disconnected from vpn"),
 
         "virtual_cpu": fields.Integer(description="The number of virtual CPU cores."),
-        "virtual_mem": fields.Integer(description="The number of virtual CPU cores."),
-        "virtual_os": fields.Integer(description="The number of virtual CPU cores."),
-        "virtual_data": fields.Integer(description="The number of virtual CPU cores.")
+        "virtual_mem": fields.Integer(description="The amount of system ram in GB."),
+        "virtual_os": fields.Integer(description="The size of the OS drive in GB."),
+        "virtual_data": fields.Integer(description="The size of the data drive in GB.")
     })
 
     def __init__(self,
@@ -271,7 +265,7 @@ class Node(NodeBaseModel):
 
     def create(self):
         # Create initial node
-        doc = mongo_node().find_one_and_replace({"_id": self._id}, self.schema.dump(
+        doc = get_collection(Collections.NODES).find_one_and_replace({"_id": self._id}, self.schema.dump(
             self), upsert=True, return_document=ReturnDocument.AFTER)
         node = self.schema.load(doc)
         if node.node_type == NODE_TYPES.sensor.value and node.deployment_type == DEPLOYMENT_TYPES.iso.value:
@@ -308,12 +302,12 @@ class Node(NodeBaseModel):
             else:
                 self.hostname = f"{self.hostname[:pos]}.{domain}"
 
-        mongo_node().find_one_and_replace(
+        get_collection(Collections.NODES).find_one_and_replace(
             {"_id": self._id}, self.schema.dump(self), upsert=True)
         _generate_inventory()
 
     def find_one_and_update(self) -> Model:
-        node = mongo_node().find_one_and_update({"hostname": self.hostname},
+        node = get_collection(Collections.NODES).find_one_and_update({"hostname": self.hostname},
                                                 {"$set": {
                                                     "node_type": self.node_type,
                                                     # "error": self.error,
@@ -325,32 +319,32 @@ class Node(NodeBaseModel):
 
     @classmethod
     def delete_all_from_db(cls):
-        mongo_node().drop()
+        get_collection(Collections.NODES).drop()
         _generate_inventory()
 
     def delete(self) -> None:
         mongo_jobs().delete_many({"node_id": self._id})
-        mongo_node().delete_one({"_id": self._id})
+        get_collection(Collections.NODES).delete_one({"_id": self._id})
         _generate_inventory()
 
     @classmethod
-    def load_from_db(cls, node_ids: List[str]) -> List[Model]:
+    def load_from_db(cls, node_ids: List[str]) -> List['Node']:
         ret_val = []
-        for node in mongo_node().find({"_id": {"$in": node_ids}}):
+        for node in get_collection(Collections.NODES).find({"_id": {"$in": node_ids}}):
             ret_val.append(cls.schema.load(node))
 
         return ret_val
 
     @classmethod
-    def load_from_db_using_hostname(cls, hostname: str) -> Model:
-        node = mongo_node().find_one({"hostname": hostname})
+    def load_from_db_using_hostname(cls, hostname: str) -> 'Node':
+        node = get_collection(Collections.NODES).find_one({"hostname": hostname})
         if node:
             return cls.schema.load(node)
         return {}
 
     @classmethod
     def load_from_db_using_hostname_with_jobs(cls, hostname: str) -> dict:
-        node = mongo_node().find_one({"hostname": hostname})
+        node = get_collection(Collections.NODES).find_one({"hostname": hostname})
         if node:
             job_list = []
             for job in mongo_jobs().find({"node_id": node["_id"]}):
@@ -360,10 +354,10 @@ class Node(NodeBaseModel):
         return {}
 
     @classmethod
-    def load_control_plane_from_db(cls) -> List[Model]:
+    def load_control_plane_from_db(cls) -> List['Node']:
         ret_val = []
         query = {"node_type": "Control-Plane"}
-        for node in mongo_node().find(query):
+        for node in get_collection(Collections.NODES).find(query):
             ret_val.append(cls.schema.load(node))
         return ret_val
 
@@ -371,15 +365,15 @@ class Node(NodeBaseModel):
     def load_mips_from_db(cls) -> List[Model]:
         ret_val = []
         query = {"node_type": "MIP"}
-        for node in mongo_node().find(query):
+        for node in get_collection(Collections.NODES).find(query):
             ret_val.append(cls.schema.load(node))
         return ret_val
 
     @classmethod
-    def load_deployable_mips_from_db(cls) -> List[Model]:
+    def load_deployable_mips_from_db(cls) -> List['Node']:
         ret_val = []
         query = {"node_type": "MIP"}
-        for node in mongo_node().find(query):
+        for node in get_collection(Collections.NODES).find(query):
             ret_val.append(cls.schema.load(node))
         for node in ret_val:
             job = NodeJob.load_job_by_node(node, JOB_DEPLOY)
@@ -388,42 +382,46 @@ class Node(NodeBaseModel):
         return ret_val
 
     @classmethod
-    def load_minio_from_db(cls) -> List[Model]:
+    def load_minio_from_db(cls) -> 'Node':
+        query = {"node_type": NODE_TYPES.minio.value}
+        node = get_collection(Collections.NODES).find_one(query)
+        if node:
+            return cls.schema.load(node)
+        return None
+
+    @classmethod
+    def _load_node_types_from_db(cls, node_types: List[str]) -> List['Node']:
         ret_val = []
-        query = {"node_type": "Minio"}
-        for node in mongo_node().find(query):
+        query = {"node_type": {"$in": node_types}}
+        for node in get_collection(Collections.NODES).find(query):
             ret_val.append(cls.schema.load(node))
         return ret_val
 
     @classmethod
-    def load_all_servers_sensors_from_db(cls) -> List[Model]:
-        ret_val = []
-        query = {"node_type": {"$in": ["Server", "Sensor", "Service"]}}
-        for node in mongo_node().find(query):
-            ret_val.append(cls.schema.load(node))
-        return ret_val
+    def load_all_servers_sensors_from_db(cls) -> List['Node']:
+        node_types = [NODE_TYPES.server.value, NODE_TYPES.sensor.value, NODE_TYPES.service_node.value]
+        return cls._load_node_types_from_db(node_types)
 
     @classmethod
-    def load_all_servers_from_db(cls) -> List[Model]:
-        ret_val = []
-        query = {"node_type": {"$in": ["Server"]}}
-        for node in mongo_node().find(query):
-            ret_val.append(cls.schema.load(node))
-        return ret_val
+    def load_all_servers_from_db(cls) -> List['Node']:
+        node_types = [NODE_TYPES.server.value]
+        return cls._load_node_types_from_db(node_types)
+
+    @classmethod
+    def load_all_sensors_from_db(cls) -> List['Node']:
+        node_types = [NODE_TYPES.sensor.value]
+        return cls._load_node_types_from_db(node_types)
 
     @classmethod
     def load_dip_nodes_from_db(cls) -> List['Node']:
-        ret_val = []
-        query = {"node_type": {
-            "$in": ["Server", "Sensor", "Service", "Control-Plane"]}}
-        for node in mongo_node().find(query):
-            ret_val.append(cls.schema.load(node))
-        return ret_val
+        node_types = [NODE_TYPES.server.value, NODE_TYPES.sensor.value,
+                      NODE_TYPES.service_node.value, NODE_TYPES.control_plane.value]
+        return cls._load_node_types_from_db(node_types)
 
     @classmethod
     def load_all_from_db(cls) -> List['Node']:
         ret_val = []
-        for node in mongo_node().find({}):
+        for node in get_collection(Collections.NODES).find({}):
             ret_val.append(cls.schema.load(node))
         return ret_val
 
@@ -438,6 +436,11 @@ class Node(NodeBaseModel):
     def load_node_from_request(cls, payload: Dict) -> 'Node':
         return cls.schema.load(payload)  # type: ignore
 
+    @classmethod
+    def load_from_request(cls, payload: Dict) -> 'Node':
+        new_node = cls.schema.load(payload)
+        return new_node
+
     def post_validation(self):
         """
         These are other validation performed that cannot be done through marshmallow.
@@ -445,16 +448,20 @@ class Node(NodeBaseModel):
         exc = PostValidationError()
         servers = self.load_all_servers_from_db()
 
-        if self.node_type == "Server" and self.deployment_type == "Virtual":
+        if self.node_type == NODE_TYPES.server.value and self.deployment_type == "Virtual":
             for server in servers:
                 if server.deployment_type == "Virtual":
                     if server.virtual_cpu != self.virtual_cpu:
-                        exc.append_error("CPU Cores must match {} resources.  Set CPU Core to {}\n".format(
+                        exc.append_error("cpu", "CPU Cores must match {} resources.  Set CPU Core to {}\n".format(
                             server.hostname, server.virtual_cpu))
 
                     if server.virtual_mem != self.virtual_mem:
-                        exc.append_error("Memory must match {} resources.  Set Memory to {}\n".format(
+                        exc.append_error("memory", "Memory must match {} resources.  Set Memory to {}\n".format(
                             server.hostname, server.virtual_mem))
+
+        if self.node_type == NODE_TYPES.minio.value:
+            if self.load_minio_from_db():
+                exc.append_error("minio", "MinIO has already been added. Only one is allowed.")
 
         if exc.has_errors():
             raise exc
@@ -601,7 +608,7 @@ class NodeJob(Model):
     @classmethod
     def load_jobs_by_hostname(cls, hostname: str) -> List[Model]:
         query = {"hostname": hostname}
-        node = mongo_node().find(query)  # type: Node
+        node = get_collection(Collections.NODES).find(query)  # type: Node
         results = []
         for job in mongo_jobs().find({"node_id": node._id}):
             results.append(cls.schema.load(job))
@@ -636,7 +643,7 @@ class NodeJob(Model):
         return results
 
 
-class ControlPlaneInventoryGenerator:
+class GenericInventoryGenerator:
     """
     The Esxi Inventory generator class.
     """
@@ -644,19 +651,19 @@ class ControlPlaneInventoryGenerator:
     def __init__(self, nodes):
         self._template_ctx = nodes
 
-    def generate(self) -> None:
+    def generate(self, template_file_name: str) -> None:
         """
         Generates the Kickstart inventory file in
         :return:
         """
-        template = JINJA_ENV.get_template('control_plane.yml')
-        cp_template = template.render(template_ctx=self._template_ctx)
+        template = JINJA_ENV.get_template(template_file_name)
+        generic_template = template.render(template_ctx=self._template_ctx)
 
         if not os.path.exists(str(CORE_DIR / 'playbooks/inventory')):
             os.makedirs(str(CORE_DIR / 'playbooks/inventory'))
 
-        with open(str(CORE_DIR / 'playbooks/inventory/control_plane.yml'), "w") as settings_file:
-            settings_file.write(cp_template)
+        with open(str(CORE_DIR / f'playbooks/inventory/{template_file_name}'), "w") as settings_file:
+            settings_file.write(generic_template)
 
 
 class NodeInventoryGenerator:

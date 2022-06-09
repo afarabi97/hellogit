@@ -9,31 +9,25 @@ import { takeUntil } from 'rxjs/operators';
 
 import {
   MockElasticLicenseClass,
-  MockGenericJobAndKeyClass,
   MockInitialDeviceStateClassArray,
   MockNetworkDeviceStateClassUp,
-  MockRepoSettingsSnapshotClass,
   MockSuccessMessageClass
 } from '../../../../../static-data/class-objects';
 import {
   MockElasticLicenseInterface,
-  MockGenericJobAndKeyInterface,
   MockInitialDeviceStateInterfaceArray,
   MockNetworkDeviceStateInterfaceUp,
-  MockRepoSettingsSnapshotInterface,
   MockSuccessMessageInterface
 } from '../../../../../static-data/interface-objects';
 import * as mock_elastic_license from '../../../../../static-data/json/elastic_license_for_test.json';
 import { environment } from '../../../../environments/environment';
-import { ErrorMessageClass, GenericJobAndKeyClass, SuccessMessageClass } from '../../../classes';
+import { ErrorMessageClass, SuccessMessageClass } from '../../../classes';
 import { ApiService } from '../../../services/abstract/api.service';
 import { InjectorModule } from '../../utilily-modules/injector.module';
 import { ElasticLicenseClass } from '../classes/elastic-license.class';
 import { InitialDeviceStateClass } from '../classes/initial-device-state.class';
 import { NetworkDeviceStateClass } from '../classes/network-device-state.class';
-import { RepoSettingsSnapshotClass } from '../classes/repo-settings-snapshot.class';
 import { KitPasswordInterface } from '../interfaces/kit-password.interface';
-import { RepoSettingsSnapshotInterface } from '../interfaces/repo-settings-snapshot.interface';
 import { ToolsServiceInterface } from '../interfaces/service-interfaces/tools-service.interface';
 import { ToolsService } from './tools.service';
 
@@ -59,8 +53,6 @@ describe('ToolsService', () => {
   let spyChangeKitPassword: jasmine.Spy<any>;
   let spyChangeRemoteNetworkDeviceState: jasmine.Spy<any>;
   let spyGetInitialDeviceStates: jasmine.Spy<any>;
-  let spyGetRepoSettingsSnapshot: jasmine.Spy<any>;
-  let spyRepoSettingsSnapshot: jasmine.Spy<any>;
   let spyUploadDocumentation: jasmine.Spy<any>;
   let spyGetElasticLicense: jasmine.Spy<any>;
   let spyUploadElasticLicense: jasmine.Spy<any>;
@@ -115,8 +107,6 @@ describe('ToolsService', () => {
     spyChangeKitPassword = spyOn(service, 'change_kit_password').and.callThrough();
     spyChangeRemoteNetworkDeviceState = spyOn(service, 'change_remote_network_device_state').and.callThrough();
     spyGetInitialDeviceStates = spyOn(service, 'get_initial_device_states').and.callThrough();
-    spyGetRepoSettingsSnapshot = spyOn(service, 'get_repo_settings_snapshot').and.callThrough();
-    spyRepoSettingsSnapshot = spyOn(service, 'repo_settings_snapshot').and.callThrough();
     spyUploadDocumentation = spyOn(service, 'upload_documentation').and.callThrough();
     spyGetElasticLicense = spyOn(service, 'get_elastic_license').and.callThrough();
     spyUploadElasticLicense = spyOn(service, 'upload_elastic_license').and.callThrough();
@@ -133,8 +123,6 @@ describe('ToolsService', () => {
     spyChangeKitPassword.calls.reset();
     spyChangeRemoteNetworkDeviceState.calls.reset();
     spyGetInitialDeviceStates.calls.reset();
-    spyGetRepoSettingsSnapshot.calls.reset();
-    spyRepoSettingsSnapshot.calls.reset();
     spyUploadDocumentation.calls.reset();
     spyGetElasticLicense.calls.reset();
     spyUploadElasticLicense.calls.reset();
@@ -341,162 +329,6 @@ describe('ToolsService', () => {
             });
 
         const xhrURL: string = environment.TOOLS_SERVICE_MONITORING_INTERFACE;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        xhrRequest.flush(errorRequest, mockErrorResponse);
-
-        after();
-      });
-    });
-
-    describe('REST get_repo_settings_snapshot()', () => {
-      it('should call get_repo_settings_snapshot()', () => {
-        reset();
-
-        service.get_repo_settings_snapshot()
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: RepoSettingsSnapshotClass) => {
-            const objectKeys: string[] = Object.keys(response);
-            objectKeys.forEach((key: string) => {
-              if (!(response[key] instanceof Array)) {
-                expect(response[key]).toEqual(MockRepoSettingsSnapshotClass[key]);
-              }
-            });
-
-            expect(service.get_repo_settings_snapshot).toHaveBeenCalled();
-          });
-
-        const xhrURL: string = environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        expect(xhrRequest.request.method).toEqual(getType);
-
-        xhrRequest.flush(MockRepoSettingsSnapshotInterface);
-
-        after();
-      });
-
-      it('should call get_repo_settings_snapshot() and handle error message error', () => {
-        reset();
-
-        service.get_repo_settings_snapshot()
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (response: RepoSettingsSnapshotClass) => {},
-            (error: ErrorMessageClass | HttpErrorResponse) => {
-              if (error['error'] instanceof ErrorMessageClass) {
-                const objectKeys: string[] = Object.keys(error['error']);
-                objectKeys.forEach((key: string) => {
-                  if (!(error['error'][key] instanceof Array)) {
-                    expect(error['error'][key]).toEqual(errorMessageRequest[key]);
-                  }
-                });
-
-                expect(error['error']).toContain(errorMessageRequest);
-              }
-
-              expect(service.get_repo_settings_snapshot).toHaveBeenCalled();
-            });
-
-        const xhrURL: string = environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        xhrRequest.flush(errorMessageRequest, mockErrorResponse);
-
-        after();
-      });
-
-      it('should call get_repo_settings_snapshot() and handle error', () => {
-        reset();
-
-        service.get_repo_settings_snapshot()
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (response: RepoSettingsSnapshotClass) => {},
-            (error: HttpErrorResponse) => {
-              expect(error.error).toContain(errorRequest);
-              expect(service.get_repo_settings_snapshot).toHaveBeenCalled();
-            });
-
-        const xhrURL: string = environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        xhrRequest.flush(errorRequest, mockErrorResponse);
-
-        after();
-      });
-    });
-
-    describe('REST repo_settings_snapshot()', () => {
-      it('should call repo_settings_snapshot()', () => {
-        reset();
-
-        service.repo_settings_snapshot(MockRepoSettingsSnapshotInterface)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: GenericJobAndKeyClass) => {
-            const objectKeys: string[] = Object.keys(response);
-            objectKeys.forEach((key: string) => {
-              if (!(response[key] instanceof Array)) {
-                expect(response[key]).toEqual(MockGenericJobAndKeyClass[key]);
-              }
-            });
-
-            expect(service.repo_settings_snapshot).toHaveBeenCalled();
-          });
-
-        const xhrURL: string = environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        expect(xhrRequest.request.method).toEqual(postType);
-
-        xhrRequest.flush(MockGenericJobAndKeyInterface);
-
-        after();
-      });
-
-      it('should call repo_settings_snapshot() and handle error message error', () => {
-        reset();
-
-        service.repo_settings_snapshot(MockRepoSettingsSnapshotInterface)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (response: GenericJobAndKeyClass) => {},
-            (error: ErrorMessageClass | HttpErrorResponse) => {
-              if (error['error'] instanceof ErrorMessageClass) {
-                const objectKeys: string[] = Object.keys(error['error']);
-                objectKeys.forEach((key: string) => {
-                  if (!(error['error'][key] instanceof Array)) {
-                    expect(error['error'][key]).toEqual(errorMessageRequest[key]);
-                  }
-                });
-
-                expect(error['error']).toContain(errorMessageRequest);
-              }
-
-              expect(service.repo_settings_snapshot).toHaveBeenCalled();
-            });
-
-        const xhrURL: string = environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        xhrRequest.flush(errorMessageRequest, mockErrorResponse);
-
-        after();
-      });
-
-      it('should call repo_settings_snapshot() and handle error', () => {
-        reset();
-
-        service.repo_settings_snapshot(MockRepoSettingsSnapshotInterface)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (response: GenericJobAndKeyClass) => {},
-            (error: HttpErrorResponse) => {
-              expect(error.error).toContain(errorRequest);
-              expect(service.repo_settings_snapshot).toHaveBeenCalled();
-            });
-
-        const xhrURL: string = environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorRequest, mockErrorResponse);
@@ -751,14 +583,6 @@ export class ToolsServiceSpy implements ToolsServiceInterface {
     (): Observable<InitialDeviceStateClass[]> => this.call_fake_get_initial_device_states()
   );
 
-  get_repo_settings_snapshot = jasmine.createSpy('get_repo_settings_snapshot').and.callFake(
-    (): Observable<RepoSettingsSnapshotInterface> => this.call_fake_get_repo_settings_snapshot()
-  );
-
-  repo_settings_snapshot = jasmine.createSpy('repo_settings_snapshot').and.callFake(
-    (repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass> => this.call_fake_repo_settings_snapshot(repo_settings_snapshot)
-  );
-
   upload_documentation = jasmine.createSpy('upload_documentation').and.callFake(
     (form_data: FormData): Observable<SuccessMessageClass> => this.call_fake_upload_documentation(form_data)
   );
@@ -781,14 +605,6 @@ export class ToolsServiceSpy implements ToolsServiceInterface {
 
   call_fake_get_initial_device_states(): Observable<InitialDeviceStateClass[]> {
     return of(MockInitialDeviceStateClassArray);
-  }
-
-  call_fake_get_repo_settings_snapshot(): Observable<RepoSettingsSnapshotInterface> {
-    return of(MockRepoSettingsSnapshotClass);
-  }
-
-  call_fake_repo_settings_snapshot(repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass> {
-    return of(MockGenericJobAndKeyClass);
   }
 
   call_fake_upload_documentation(form_data: FormData): Observable<SuccessMessageClass> {

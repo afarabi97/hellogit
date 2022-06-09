@@ -62,7 +62,7 @@ ${locToolsNavIcon}              xpath=//mat-icon[following-sibling::div/h4[text(
 ${locSupportPageNavIcon}        xpath=//mat-icon[following-sibling::div/h4[text() = "PMO Support"]]
 
 ${locNotificationsPopup}        xpath=//*[contains(@id, "mat-dialog-")]
-${locTopNotification}           id=cvah-notifications-dialog_window-0-0-statusactionapp
+${locTopNotificationMsg}        id=cvah-notifications-dialog_window-0-0-message
 
 # Portal Page
 ${locAddLinkNameInput}          xpath=//input[following-sibling::span//mat-label[text() = "Link Name"]]

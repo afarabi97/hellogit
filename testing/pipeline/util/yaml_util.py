@@ -82,10 +82,6 @@ class YamlManager:
         return ret_val
 
     @classmethod
-    def load_minio_settings_from_yaml(cls) -> VMBuilderSettings:
-        return cls._load_from_yaml(f"{VMBuilderSettings.__name__.lower()}.yml")
-
-    @classmethod
     def load_ctrl_settings_from_yaml(cls) -> Union[ControllerSetupSettings,HwControllerSetupSettings]:
         yaml_name = "{}.yml".format(ControllerSetupSettings.__name__.lower())
         try:

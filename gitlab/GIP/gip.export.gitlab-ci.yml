@@ -30,20 +30,3 @@ Export GIP Controller:
   only:
     variables:
       - $PIPELINE == "export-gip"
-
-Export GIP MinIO:
-  stage: export
-  needs: ["Create a standalone MinIO server"]
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py \
-    run-export export-minio \
-    --cpt-export-path "$GIP_EXPORT_LOC" \
-    --staging-export-path "$DRIVE_GIP_STAGING_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION"
-  only:
-    variables:
-      - $PIPELINE == "export-gip"

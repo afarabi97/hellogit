@@ -1,0 +1,26 @@
+- name: Update dnsmasq.conf
+  lineinfile:
+    path: "/etc/dnsmasq.conf"
+    regexp: '^hostsdir='
+    line: 'hostsdir=/etc/dnsmasq_static'
+  delegate_to: localhost
+
+- name: Create /etc/dnsmasq_static folder
+  file:
+    path: /etc/dnsmasq_static
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+
+- name: Copy the content
+  copy:
+    content: "{{ hostvars[groups['MinIO'][0]]['ansible_default_ipv4']['address'] }}	{{ hostvars[groups['MinIO'][0]]['ansible_fqdn'] }}"
+    dest: /etc/dnsmasq_static/minio
+    force: yes
+  delegate_to: localhost
+
+- name: Restart the dnsmasq service
+  systemd:
+    name: dnsmasq
+    state: restarted
+  delegate_to: localhost

@@ -4,8 +4,8 @@ import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
-import { GenericJobAndKeyClass, SuccessMessageClass } from '../../../classes';
-import { EntityConfig, GenericJobAndKeyInterface, SuccessMessageInterface } from '../../../interfaces';
+import { SuccessMessageClass } from '../../../classes';
+import { EntityConfig, SuccessMessageInterface } from '../../../interfaces';
 import { ApiService } from '../../../services/abstract/api.service';
 import { ElasticLicenseClass } from '../classes/elastic-license.class';
 import { InitialDeviceStateClass } from '../classes/initial-device-state.class';
@@ -14,9 +14,8 @@ import { ElasticLicenseInterface } from '../interfaces/elastic-license.interface
 import { InitialDeviceStateInterface } from '../interfaces/initial-device-states.interface';
 import { KitPasswordInterface } from '../interfaces/kit-password.interface';
 import { NetworkDeviceStateInterface } from '../interfaces/network-device-state.interface';
-import { RepoSettingsSnapshotInterface } from '../interfaces/repo-settings-snapshot.interface';
 import { ToolsServiceInterface } from '../interfaces/service-interfaces/tools-service.interface';
-import { RepoSettingsSnapshotClass } from '../classes/repo-settings-snapshot.class';
+
 
 const entityConfig: EntityConfig = { entityPart: '', type: 'ToolsService' };
 
@@ -83,31 +82,6 @@ export class ToolsService extends ApiService<any> implements ToolsServiceInterfa
     return this.httpClient_.get<InitialDeviceStateInterface[]>(environment.TOOLS_SERVICE_MONITORING_INTERFACE)
       .pipe(map((response: InitialDeviceStateInterface[]) => response.map((initial_device_state: InitialDeviceStateInterface) => new InitialDeviceStateClass(initial_device_state))),
             catchError((error: HttpErrorResponse) => this.handleError('get initial device states', error)));
-  }
-
-  /**
-   * REST call to GET repo settings snapshot
-   *
-   * @return {(Observable<RepoSettingsSnapshotClass>)}
-   * @memberof ToolsService
-   */
-  get_repo_settings_snapshot(): Observable<RepoSettingsSnapshotClass> {
-    return this.httpClient_.get<RepoSettingsSnapshotInterface>(environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS)
-      .pipe(map((response: RepoSettingsSnapshotInterface) => new RepoSettingsSnapshotClass(response)),
-            catchError((error: HttpErrorResponse) => this.handleError('get repo settings snapshot', error)));
-  }
-
-  /**
-   * REST call to POST repo settings snapshot
-   *
-   * @param {RepoSettingsSnapshotInterface} repo_settings_snapshot
-   * @return {Observable<GenericJobAndKeyClass>}
-   * @memberof ToolsService
-   */
-  repo_settings_snapshot(repo_settings_snapshot: RepoSettingsSnapshotInterface): Observable<GenericJobAndKeyClass> {
-    return this.httpClient_.post<GenericJobAndKeyInterface>(environment.SETTINGS_SERVICE_MINIO_REPOSITORY_SETTINGS, repo_settings_snapshot)
-      .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
-            catchError((error: HttpErrorResponse) => this.handleError('repo settings snapshot', error)));
   }
 
   /**

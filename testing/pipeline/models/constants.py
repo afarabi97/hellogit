@@ -24,7 +24,6 @@ class SubCmd:
     setup_control_plane = 'setup-control-plane'
     setup_ctrl = 'setup-controller'
     setup_kali = 'setup-kali'
-    setup_minio = 'setup-minio'
     setup_remnux = 'setup-remnux'
     simulate_power_failure = 'simulate-power-failure'
 
@@ -39,7 +38,6 @@ class SubCmd:
     export_ctrl = 'export-ctrl'
     export_gip_service_vm = 'export-gip-service-vm'
     export_html_docs = 'export-html-docs'
-    export_minio = 'export-minio'
     export_mip_ctrl = 'export-mip-ctrl'
     export_reposync_server = 'export-reposync-server'
     export_single_page_pdf = 'export-single-page-pdf'

@@ -4,6 +4,12 @@ from app.models import Model, PostValidationBasicError
 from app.utils.namespaces import CURATOR_NS
 from app.utils.utils import camel_case_split
 from flask_restx import fields
+from typing import List, Dict
+from app.utils.elastic import ElasticWrapper
+from app.utils.minio import MinIOManager
+from app.utils.logging import logger
+from app.models.settings.minio_settings import RepoSettingsModel
+
 
 ELASTIC_INDEX_DESC = "The name of the index stored in Elasticsearch."
 ELASIC_INDEX_EXAMPLE = "auditbeat-internal-2022.05.30-000022"
@@ -53,6 +59,21 @@ class CuratorProcessModel(Model):
 
     def get_readable_action(self):
         return camel_case_split(self.action)
+
+    def _check_index_size(self):
+        client = ElasticWrapper()
+        indexes = ','.join(self.index_list)
+        stats = client.indices.stats(indexes)
+        settings = RepoSettingsModel.load_from_kubernetes_and_elasticsearch()
+        mng = MinIOManager(settings)
+
+        available_space_in_kilobytes = mng.get_available_data_drive_space()
+        primary_size_in_bytes = stats["_all"]["primaries"]["store"]["size_in_bytes"]
+        primary_size_in_kilobytes = primary_size_in_bytes / 1024
+
+        logger.debug(f"available_space_in_kilobytes {available_space_in_kilobytes} primary_size_in_kilobytes: {primary_size_in_kilobytes}")
+        if primary_size_in_kilobytes >= available_space_in_kilobytes:
+            raise PostValidationBasicError("The indexes you selected are too large for the MinIO Server", 400)
 
     def post_validation(self):
         if self.action is None or self.action not in [

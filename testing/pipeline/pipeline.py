@@ -6,14 +6,14 @@ from argparse import ArgumentParser
 from jobs.ctrl_setup import ControllerSetupJob, checkout_latest_code
 from jobs.drive_creation import DriveCreationJobv2, DriveHashCreationJob
 from jobs.export import (ConfluenceExport, ControllerExport, GIPServiceExport,
-                         MinIOExport, ReposyncServerExport)
+                         ReposyncServerExport)
 from jobs.gip_creation import GipCreationJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
 from jobs.kit import KitSettingsJob
 from jobs.manifest import BuildManifestJob, VerifyManifestJob
 from jobs.oscap import OSCAPScanJob
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
-from jobs.vm_builder import StandAloneKali, StandAloneMinIO, StandAloneREMnux
+from jobs.vm_builder import StandAloneKali, StandAloneREMnux
 from models.common import RepoSettings
 from models.constants import SubCmd
 from models.ctrl_setup import ControllerSetupSettings
@@ -26,7 +26,6 @@ from models.node import NodeSettingsV2
 from models.rhel_repo_vm import RHELRepoSettings
 from models.vm_builder import VMBuilderSettings
 from util.ansible_util import delete_vms
-from util.constants import MINIO_PREFIX
 from util.yaml_util import YamlManager
 
 
@@ -134,12 +133,6 @@ class Runner:
         GIPServiceSettings.add_args(gip_setup_subparsers)
 
         self._set_parser(
-            SubCmd.setup_minio,
-            "Creates a stand alone MinIO server.",
-            VMBuilderSettings
-        )
-
-        self._set_parser(
             SubCmd.setup_kali,
             "Creates a stand alone Kali VM",
             VMBuilderSettings
@@ -185,14 +178,6 @@ class Runner:
                 executor = IntegrationTestsJob(
                     ctrl_settings, kit_settings, nodes)
                 executor.setup_acceptance_tests()
-            elif args.which == SubCmd.export_minio:
-                minio_settings = YamlManager.load_minio_settings_from_yaml()
-                export_settings = ExportSettings()
-                export_settings.from_namespace(args)
-                minio_settings.export_loc = export_settings.export_loc
-                minio_settings.release_template_name = minio_settings.export_loc.render_export_name(
-                    MINIO_PREFIX, minio_settings.commit_hash)[0:-4]
-                MinIOExport(minio_settings).export_minio()
             elif args.which == SubCmd.test_server_repository_vm:
                 repo_settings = RHELRepoSettings()
                 repo_settings.from_namespace(args)
@@ -342,10 +327,6 @@ class Runner:
                 manifest_settings.from_namespace(args)
                 executor = BuildManifestJob(manifest_settings)
                 executor.execute()
-            elif args.which == SubCmd.setup_minio:
-                minio_settings = VMBuilderSettings(args)
-                YamlManager.save_to_yaml(minio_settings)
-                StandAloneMinIO(minio_settings).create()
             elif args.which == SubCmd.setup_kali:
                 vm_builds_settings = VMBuilderSettings(args)
                 YamlManager.save_to_yaml(vm_builds_settings)
