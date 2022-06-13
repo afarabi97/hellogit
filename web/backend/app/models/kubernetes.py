@@ -13,7 +13,7 @@ class DockerImageMetadataModel(Model):
                 example="219ee5171f80", description="The hash of the docker image."
             ),
             "image_size": fields.Float(
-                example=9.63, description="The hash of the docker image."
+                example=9.63, description="The size of the docker image."
             ),
             "tag": fields.String(
                 example="1.8.4", description="The tag or version of the docker image."
@@ -30,11 +30,11 @@ class DockerImageModel(Model):
         "DockerImage",
         {
             "name": fields.String(
-                example="busybox", description="The name of the docker image."
+                example="busybox", description="The container image name."
             ),
             "metadata": fields.List(
                 fields.Nested(DockerImageMetadataModel.DTO),
-                description="The metadata of the docker image.",
+                description="The container image metadata.",
             ),
         },
     )
