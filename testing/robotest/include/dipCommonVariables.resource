@@ -39,6 +39,9 @@ ${locSubmitButton}              css=input[class*='btn']
 # DoD Banner
 ${locBannerAcceptButton}        id=kc-accept
 
+# Test PCAP Files
+${locDeletePcapBtn}             xpath=//td[text()="~"]/following-sibling::td/button[@mattooltip="Delete PCAP"]
+
 # Playing PCAP Dialog Box
 ${locPcapPlayBtn}               xpath=//button[@id="cvah-pcap-form-td-7-action-button-play-arrow"]
 ${locPcapSensorHostname}        id=cvah-replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select

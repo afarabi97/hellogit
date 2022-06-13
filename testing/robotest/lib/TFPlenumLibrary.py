@@ -13,6 +13,7 @@ class TFPlenumLibrary:
     ZEEK_CHART_STATUS_ENDPOINT = "/catalog/chart/zeek/status"
     SURICATA_CHART_STATUS_ENDPOINT = "/catalog/chart/suricata/status"
     EVERY_CHART_STATUS_ENDPOINT = "/catalog/charts/status"
+    PCAP_UPLOAD_ENDPOINT = "/policy/pcap/upload"
     KIT_NODES_ENDPOINT = "/kit/nodes"
 
     def __init__(self):
@@ -208,8 +209,13 @@ class TFPlenumLibrary:
                 ruleset_id = ruleset['_id']
 
         rules_file = {"upload_file": open(f'/usr/src/robot/{file_name}','rb')}
-        data = {"ruleSetForm": '{"_id": "' + ruleset_id + '"}'}
-        return self.api_post_rule_to_ruleset(file=rules_file, data=data, jsonify=False)
+        ruleset_model = {"ruleSetForm": '{"_id": "' + ruleset_id + '"}'}
+        return self.api_post_rule_to_ruleset(rules_file, ruleset_model, jsonify=False)
+
+    @keyword
+    def upload_pcap(self, file_name: str):
+        pcap_file = {"upload_file": open(f'/usr/src/robot/{file_name}','rb')}
+        return self.api_post_pcap_to_controller(pcap_file, jsonify=False)
 
     # API Calls (not to be used in robot tests directly)
 
@@ -231,10 +237,17 @@ class TFPlenumLibrary:
     def api_get_kit_nodes_info(self, jsonify=True):
         return self.execute_request(self.KIT_NODES_ENDPOINT, jsonify=jsonify)
 
-    def api_post_rule_to_ruleset(self, file={}, data={}, jsonify=True):
-        return self.execute_request(self.RULE_UPLOAD_ENDPOINT, request_type="POST", files=file, payload=data, jsonify=jsonify)
+    def api_post_rule_to_ruleset(self, rules_file, ruleset_model, jsonify=True):
+        return self.execute_request(self.RULE_UPLOAD_ENDPOINT, request_type="POST",
+                                    files=rules_file, payload=ruleset_model, jsonify=jsonify)
 
-    def execute_request(self, endpoint, request_type="GET", files={}, payload={}, jsonify=True):
+    def api_post_pcap_to_controller(self, pcap_file, jsonify=True):
+        return self.execute_request(self.PCAP_UPLOAD_ENDPOINT, request_type="POST",
+                                    files=pcap_file, jsonify=jsonify)
+
+    def execute_request(self, endpoint, request_type="GET", files=None, payload=None, jsonify=True):
+        files = files or {}
+        payload = payload or {}
         self._tfplenum_lib_test_setup()
         # TODO: Actully handle exceptions correctly
         try:

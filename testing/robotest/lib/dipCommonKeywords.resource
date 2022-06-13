@@ -230,6 +230,17 @@ Log In To Kibana
     lookFor     Welcome to Stack Management
     shoot       StackManagement
 
+Upload And Delete PCAP File
+    [Arguments]  ${pcap_file_name}
+    Upload PCAP  ${pcap_file_name}
+    reload
+    lookFor  ${pcap_file_name}
+    ${pcap_del_btn} =  Inject  ${locDeletePcapBtn}  ${pcap_file_name}
+    scroll  ${pcap_del_btn}
+    click  ${pcap_del_btn}
+    click  id=${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
+    lookFor  PCAP successfully deleted.
+
 Play ${pcap} PCAP
     ${sensor_name} =  Check For Sensor With Available Interface
     IF      "${pcap}" == "Wannacry"

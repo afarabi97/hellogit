@@ -64,6 +64,7 @@ Play PCAPs Across Sensor
     [Documentation]  Grab the elastic password and run some tests
     Set Selenium Speed  0.5s
     Navigate To PCAPs
+    Upload And Delete PCAP File  data-with-image_robot.pcap
     Play Wannacry PCAP
 
 Validate Alerts Pages
