@@ -2,8 +2,8 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { Component, Input, OnChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
+import { KitTokenClass } from '../../../../classes';
 import { ModalDialogDisplayMatComponent } from '../../../../modal-dialog-display-mat/modal-dialog-display-mat.component';
-import { KitTokenClass } from '../../../../system-setupv2/classes/kit-token.class';
 import { HealthService } from '../../services/health.service';
 
 @Component({

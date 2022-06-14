@@ -2,10 +2,9 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { Component, Input, OnChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
-import { ObjectUtilitiesClass } from '../../../../classes';
+import { KitTokenClass, ObjectUtilitiesClass } from '../../../../classes';
 import { ModalDialogDisplayMatComponent } from '../../../../modal-dialog-display-mat/modal-dialog-display-mat.component';
 import { SortingService } from '../../../../services/sorting.service';
-import { KitTokenClass } from '../../../../system-setupv2/classes/kit-token.class';
 import { HealthService } from '../../services/health.service';
 import { PodLogModalDialogComponent } from './components/pod-log-dialog/pod-log-dialog.component';
 

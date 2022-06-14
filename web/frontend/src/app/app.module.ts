@@ -21,24 +21,6 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
 import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.component';
 import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal-dialog-display-mat.component';
 
-// System Setup
-import { SystemSettingsComponent } from './system-setupv2/system-settings/system-settings.component';
-import { NodeManagementComponent } from './system-setupv2/node-mng/node-mng.component';
-import { NodeStateProgressBarComponent } from './system-setupv2/node-state-progress-bar/node-state-progress-bar.component';
-import { VMWareSettingsComponent } from './system-setupv2/system-settings/vmware-settings/vmware-settings.component';
-import { GeneralSettingsPaneComponent } from './system-setupv2/system-settings/general-settings/general-settings-pane.component';
-import { KitSettingsPaneComponent } from './system-setupv2/system-settings/kit-settings/kit-settings-pane.component';
-import { MIPSettingsPaneComponent } from './system-setupv2/system-settings/mip-settings/mip-settings-pane.component';
-import { KitTokenSettingsPaneComponent } from './system-setupv2/system-settings/kit-token-settings/kit-token-settings-pane.component';
-import { AddNodeDialogComponent } from './system-setupv2/add-node-dialog/add-node-dialog.component';
-import { NodeInfoDialogComponent } from './system-setupv2/node-info-dialog/node-info-dialog.component';
-import { AddKitTokenComponent } from './system-setupv2/add-kit-token-dialog/add-kit-token.component';
-import { AddMipDialogComponent } from './system-setupv2/add-mip-dialog/add-mip-dialog.component';
-import { MipManagementComponent } from './system-setupv2/mip-mng/mip-mng.component';
-import { UnusedIpAddressAutoCompleteComponent } from './system-setupv2/components/unused-ipaddress-autocomplete-ctrl.component';
-import { CopyTokenModalDialogComponent } from './system-setupv2/copy-token-dialog/copy-token-dialog.component';
-import { VirtualNodeFormComponent } from './system-setupv2/virtual-node-form/virtual-node-form.component';
-
 // classes
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { ConfirmActionPopup } from './classes/ConfirmActionPopup';
@@ -56,6 +38,8 @@ import { ElasticsearchIndexManagementModule } from './modules/elasticsearch-inde
 import { ElasticsearchScaleModule } from './modules/elasticsearch-scale/elasticsearch-scale.module';
 import { GenericDialogModule } from './modules/generic-dialog/generic-dialog.module';
 import { HealthDashboardModule } from './modules/health-dashboard/health-dashboard.module';
+import { MipMngModule } from './modules/mip-mng/mip-mng.module';
+import { NodeMngModule } from './modules/node-mng/node-mng.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PCAPFormModule } from './modules/pcap-form/pcap-form.module';
 import { PmoSupportModule } from './modules/pmo-support/pmo-support.module';
@@ -63,6 +47,7 @@ import { PolicyManagementModule } from './modules/policy-management/policy-manag
 import { PortalModule } from './modules/portal/portal.module';
 import { SecurityAlertsModule } from './modules/security-alerts/security-alerts.module';
 import { ServerStdoutModule } from './modules/server-stdout/server-stdout.module';
+import { SystemSettingsModule } from './modules/system-settings/system-settings.module';
 import { ToolsModule } from './modules/tools/tools.module';
 import { InjectorModule } from './modules/utilily-modules/injector.module';
 import { MaterialModule } from './modules/utilily-modules/material.module';
@@ -76,26 +61,10 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
   declarations: [
     AppComponent,
     TopNavbarComponent,
-    UnusedIpAddressAutoCompleteComponent,
-    VirtualNodeFormComponent,
-    SystemSettingsComponent,
-    NodeManagementComponent,
-    NodeStateProgressBarComponent,
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
-    CopyTokenModalDialogComponent,
     ConfirmDialogComponent,
-    AddNodeDialogComponent,
-    NodeInfoDialogComponent,
-    PasswordMessageComponent,
-    VMWareSettingsComponent,
-    GeneralSettingsPaneComponent,
-    KitSettingsPaneComponent,
-    MIPSettingsPaneComponent,
-    KitTokenSettingsPaneComponent,
-    AddKitTokenComponent,
-    AddMipDialogComponent,
-    MipManagementComponent,
+    PasswordMessageComponent
   ],
   imports: [
     BrowserModule,
@@ -116,6 +85,8 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ElasticsearchScaleModule,
     GenericDialogModule,
     HealthDashboardModule,
+    MipMngModule,
+    NodeMngModule,
     NotificationsModule,
     PCAPFormModule,
     PmoSupportModule,
@@ -123,6 +94,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     PortalModule,
     SecurityAlertsModule,
     ServerStdoutModule,
+    SystemSettingsModule,
     ToolsModule,
     InjectorModule,
     ChartsModule,
@@ -138,9 +110,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     { provide: HTTP_INTERCEPTORS, useClass: UnauthorizedInterceptor, multi: true },
     ControllerAdminRequiredGuard,
     ControllerMaintainerRequiredGuard,
-    OperatorRequiredGuard,
-    NodeManagementComponent,
-    MipManagementComponent
+    OperatorRequiredGuard
   ],
   bootstrap: [
     AppComponent
@@ -148,11 +118,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
   entryComponents: [
     ConfirmDialogComponent,
     ModalDialogMatComponent,
-    ModalDialogDisplayMatComponent,
-    CopyTokenModalDialogComponent,
-    AddNodeDialogComponent,
-    AddMipDialogComponent,
-    NodeInfoDialogComponent
+    ModalDialogDisplayMatComponent
   ]
 })
 export class AppModule { }

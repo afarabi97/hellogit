@@ -4,9 +4,8 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
-import { EntityConfig } from '../../../interfaces';
+import { EntityConfig, KitTokenInterface } from '../../../interfaces';
 import { ApiService } from '../../../services/abstract/api.service';
-import { KitTokenInterface } from '../../../system-setupv2/interfaces/kit-token.interface';
 import { HealthServiceInterface } from '../interfaces/service-interfaces/health-service.interface';
 
 

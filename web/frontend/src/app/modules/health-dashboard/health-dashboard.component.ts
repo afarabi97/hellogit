@@ -5,14 +5,14 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 import { Title } from '@angular/platform-browser';
 import { interval, Subscription } from 'rxjs';
 
-import { HealthDashboardStatusClass } from '../../system-setupv2/classes';
-import { Settings } from '../../system-setupv2/models/kit';
-import { HealthDashboardStatusService } from '../../system-setupv2/services/health-dashboard-status.service';
-import { KitSettingsService } from '../../system-setupv2/services/kit-settings.service';
+import { KitSettingsClass } from '../../classes';
+import { KitSettingsService } from '../../services/kit-settings.service';
+import { HealthDashboardStatusClass } from './classes';
 import { HealthDashboardDatastoresComponent } from './components/datastores/datastores.component';
 import { HealthDashboardModalDialogComponent } from './components/health-dashboard-dialog/health-dashboard-dialog.component';
 import { HealthDashboardNodeTableComponent } from './components/node-table/node-table.component';
 import { HealthDashboardPodTableComponent } from './components/pod-table/pod-table.component';
+import { HealthDashboardStatusService } from './services/health-dashboard-status.service';
 
 @Component({
     selector: 'app-health-dashboard',
@@ -58,7 +58,7 @@ export class HealthDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.title.setTitle('Health');
-    this.kit_settings_service.getKitSettings().subscribe((data: Settings) => {
+    this.kit_settings_service.getKitSettings().subscribe((data: KitSettingsClass) => {
       this.is_gip = data.is_gip ? true : false;
       this.update_subscription = interval(30000).subscribe((number) => {
         if (this.is_gip && !this.token) {

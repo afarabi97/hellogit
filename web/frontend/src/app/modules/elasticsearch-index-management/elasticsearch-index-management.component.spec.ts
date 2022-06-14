@@ -54,7 +54,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
   index_management_actions_form_group.addControl('action', new FormControl(null, Validators.required));
   const index_management_list_form_group: FormGroup = new FormGroup({});
   index_management_list_form_group.addControl('index_list', new FormControl([], Validators.required));
-  const error_message: ErrorMessageClass = new ErrorMessageClass({error_message: 'foo bar'})
+  const error_message: ErrorMessageClass = new ErrorMessageClass({error_message: 'foo bar'});
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -298,11 +298,31 @@ describe('ElasticsearchIndexManagementComponent', () => {
       it('should call set_backup_option_() and set component.actions[i].isDisabled with passed value = false', () => {
         reset();
 
-        component['set_backup_option_'](false, null);
+        component['set_backup_option_'](false);
 
         const action_for_test: MatOptionAltInterface = grab_action_for_test();
 
         expect(action_for_test.isDisabled).toBeFalse();
+      });
+
+      it('should call set_backup_option_() and set component.actions[i].tooltip with passed error_message', () => {
+        reset();
+
+        component['set_backup_option_'](false, error_message);
+
+        const action_for_test: MatOptionAltInterface = grab_action_for_test();
+
+        expect(action_for_test.toolTip).toEqual(error_message.error_message);
+      });
+
+      it('should call set_backup_option_() and set component.actions[i].tooltip to empty string', () => {
+        reset();
+
+        component['set_backup_option_'](false);
+
+        const action_for_test: MatOptionAltInterface = grab_action_for_test();
+
+        expect(action_for_test.toolTip).toEqual('');
       });
 
       it('should call set_backup_option_() and set component.actions[i].isDisabled with passed value = true', () => {
@@ -590,12 +610,12 @@ describe('ElasticsearchIndexManagementComponent', () => {
         expect(component['set_backup_option_']).toHaveBeenCalled();
       });
 
-      it('should call index_management_service_.minio_check() and handle error  and call set_backup_option_()', () => {
+      it('should call index_management_service_.minio_check() and handle error response instanceof ErrorMessageClass and call set_backup_option_()', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['index_management_service_'], 'minio_check').and.returnValue(throwError(mock_http_error_response));
+        spyOn<any>(component['index_management_service_'], 'minio_check').and.returnValue(throwError(MockErrorMessageClass));
 
         component['api_minio_check_']();
 

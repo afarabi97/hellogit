@@ -32,6 +32,8 @@ export class NodeClass implements NodeInterface {
   virtual_mem: number;
   virtual_os: number;
   vpn_status: string;
+  isDeployed?: boolean;
+  isRemoving?: boolean;
   status?: StatusClass;
 
   /**

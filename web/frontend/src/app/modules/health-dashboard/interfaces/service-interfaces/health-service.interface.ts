@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 
-import { KitTokenInterface } from '../../../../system-setupv2/interfaces/kit-token.interface';
+import { KitTokenInterface } from '../../../../interfaces';
 
 export interface HealthServiceInterface {
   get_nodes_status(remote?: KitTokenInterface): Observable<Array<Object>>;

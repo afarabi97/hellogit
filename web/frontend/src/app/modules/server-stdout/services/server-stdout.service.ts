@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
+import { GenericJobAndKeyClass } from '../../../classes';
+import { GenericJobAndKeyInterface } from '../../../interfaces';
 import { WebsocketService } from '../../../services/websocket.service';
 
 @Injectable({
@@ -40,8 +42,8 @@ export class ServerStdoutService {
     return this.http.delete(url);
   }
 
-  retryJob(jobId: string){
+  retryJob(jobId: string): Observable<GenericJobAndKeyClass> {
     const url = `/api/jobs/${jobId}/retry`;
-    return this.http.put(url, null);
+    return this.http.put<GenericJobAndKeyInterface>(url, null);
   }
 }

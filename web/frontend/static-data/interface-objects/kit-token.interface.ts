@@ -1,4 +1,4 @@
-import { KitTokenInterface } from "../../src/app/system-setupv2/interfaces/kit-token.interface";
+import { KitTokenInterface } from '../../src/app/interfaces';
 
 export const MockKitTokenInterface: KitTokenInterface = {
   ipaddress: "10.101.35.15",

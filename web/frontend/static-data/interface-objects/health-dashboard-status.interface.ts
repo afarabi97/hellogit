@@ -1,4 +1,6 @@
-import { HealthDashboardStatusInterface } from "../../src/app/system-setupv2/interfaces/health-dashboard-status.interface";
+import {
+  HealthDashboardStatusInterface
+} from '../../src/app/modules/health-dashboard/interfaces/health-dashboard-status.interface';
 
 export const MockHealthDashboardStatusInterface: HealthDashboardStatusInterface = {
   kibana_status: "green",

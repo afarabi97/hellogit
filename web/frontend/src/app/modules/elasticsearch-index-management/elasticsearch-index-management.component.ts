@@ -7,7 +7,7 @@ import { Title } from '@angular/platform-browser';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from 'src/app/constants/cvah.constants';
 
-import { ErrorMessageClass, SuccessMessageClass } from '../../classes';
+import { ErrorMessageClass, ObjectUtilitiesClass, SuccessMessageClass } from '../../classes';
 import { MatOptionAltInterface } from '../../interfaces';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import {
@@ -83,7 +83,7 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
   ngOnInit(): void {
     this.title_.setTitle(ELASTICSEARCH_INDEX_MANAGEMENT_TITLE);
     this.initialize_form_groups_();
-    this.set_backup_option_(true, null);
+    this.set_backup_option_(true);
     this.api_minio_check_();
   }
 
@@ -167,15 +167,15 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
    * @param {boolean} is_disabled
    * @memberof ElasticsearchIndexManagementComponent
    */
-  private set_backup_option_(is_disabled: boolean, error: ErrorMessageClass): void {
+  private set_backup_option_(is_disabled: boolean, error: ErrorMessageClass = null): void {
     for (const action of this.actions) {
       /* istanbul ignore else */
       if (action.value === BACKUP_INDICES) {
         action.isDisabled = is_disabled;
-        if (error){
+        if (ObjectUtilitiesClass.notUndefNull(error) && error instanceof ErrorMessageClass) {
           action.toolTip = error.error_message;
         } else{
-          action.toolTip = "";
+          action.toolTip = '';
         }
         break;
       }
@@ -315,11 +315,11 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: SuccessMessageClass) => {
-          this.set_backup_option_(false, null);
+          this.set_backup_option_(false);
         },
         (error: ErrorMessageClass | HttpErrorResponse) => {
-          this.set_backup_option_(true, error as ErrorMessageClass);
           if (error instanceof ErrorMessageClass) {
+            this.set_backup_option_(true, error);
             this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           } else {
             const message: string = 'checking minio';

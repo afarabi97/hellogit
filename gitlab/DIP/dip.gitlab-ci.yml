@@ -248,6 +248,19 @@ Perform Security Scans:
     untracked: true
   allow_failure: true
 
+Disk Stress Test:
+  stage: disk-test
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py run-disk-fillup-tests
+  only:
+    variables:
+      - $RUN_DISK_TEST == "yes" && $PIPELINE == "developer-all"
+  allow_failure: true
+
 System Function Testing:
   stage: integration-test
   tags:
@@ -259,6 +272,8 @@ System Function Testing:
   needs:
     - job: robot:rulesets:sync
       optional: true
+    - job: robot:elastic:alerts
+      optional: true
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
@@ -267,19 +282,6 @@ System Function Testing:
       - "./*.xml"
     reports:
       junit: "./*.xml"
-
-Disk Stress Test:
-  stage: disk-test
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-disk-fillup-tests
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-  allow_failure: true
 
 Simulate Power Failure:
   stage: test-powerfailure

@@ -27,30 +27,6 @@ Ship Phyical Stack Build:
       - $PIPELINE == "export-all"
 
 
-# Add Docs to DIP Controller:
-#   stage: docs
-#   needs: ["Build DIP Offline Documentation", "Setup Controller"]
-#   tags:
-#     - tfplenum-buildv2
-#   script: |
-#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-#     echo "Current working directory is $(pwd)"
-#     python3 testing/pipeline/pipeline.py \
-#     run-export add-docs-to-controller \
-#     --username "$CONFLUENCE_USERNAME" \
-#     --password "$CONFLUENCE_PASSWORD" \
-#     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC" \
-#     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC" \
-#     --staging-export-path "$DRIVE_STAGING_FOLDER" \
-#     --export-version "$TFPLENUM_EXPORT_VERSION" \
-#     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
-#   only:
-#     variables:
-#       - $PIPELINE == "export-all"
-#   retry: 2
-#   artifacts:
-#     untracked: true
-
 Export DIP Controller:
   stage: export
   needs: ["Setup Controller"]

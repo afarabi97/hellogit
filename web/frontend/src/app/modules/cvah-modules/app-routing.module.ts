@@ -2,9 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from '../../guards';
-import { MipManagementComponent } from '../../system-setupv2/mip-mng/mip-mng.component';
-import { NodeManagementComponent } from '../../system-setupv2/node-mng/node-mng.component';
-import { SystemSettingsComponent } from '../../system-setupv2/system-settings/system-settings.component';
 import { AgentBuilderChooserComponent } from '../agent-builder-chooser/agent-builder-chooser.component';
 import { CatalogComponent } from '../catalog/catalog.component';
 import { CatalogPageComponent } from '../catalog/components/catalog-page/catalog-page.component';
@@ -16,12 +13,15 @@ import {
 } from '../elasticsearch-index-management/elasticsearch-index-management.component';
 import { ElasticsearchScaleComponent } from '../elasticsearch-scale/elasticsearch-scale.component';
 import { HealthDashboardComponent } from '../health-dashboard/health-dashboard.component';
+import { MipManagementComponent } from '../mip-mng/mip-mng.component';
+import { NodeManagementComponent } from '../node-mng/node-mng.component';
 import { PcapFormComponent } from '../pcap-form/pcap-form.component';
 import { PmoSupportComponent } from '../pmo-support/pmo-support.component';
 import { PolicyManagementComponent } from '../policy-management/policy-management.component';
 import { PortalComponent } from '../portal/portal.component';
 import { SecurityAlertsComponent } from '../security-alerts/security-alerts.component';
 import { ServerStdoutComponent } from '../server-stdout/server-stdout.component';
+import { SystemSettingsComponent } from '../system-settings/system-settings.component';
 import { ToolsFormComponent } from '../tools/tools.component';
 
 const routes: Routes = [

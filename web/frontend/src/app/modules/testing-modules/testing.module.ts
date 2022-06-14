@@ -19,10 +19,6 @@ import { SensorHostInfoService } from '../../services/sensor-host-info.service';
 import { SensorHostInfoServiceSpy } from '../../services/sensor-host-info.service.spec';
 import { UserService } from '../../services/user.service';
 import { UserServiceSpy } from '../../services/user.service.spec';
-import { HealthDashboardStatusService } from '../../system-setupv2/services/health-dashboard-status.service';
-import { HealthDashboardStatusServiceSpy } from '../../system-setupv2/services/health-dashboard-status.service.spec';
-import { KitTokenSettingsService } from '../../system-setupv2/services/kit-token-settings.service';
-import { KitTokenSettingsServiceSpy } from '../../system-setupv2/services/kit-token-settings.service.spec';
 import { NavBarService } from '../../top-navbar/services/navbar.service';
 import { NavbarServiceSpy } from '../../top-navbar/services/navbar.service.spec';
 import { AgentBuilderService } from '../agent-builder-chooser/services/agent-builder.service';
@@ -39,6 +35,8 @@ import { IndexManagementService } from '../elasticsearch-index-management/servic
 import { IndexManagementServiceSpy } from '../elasticsearch-index-management/services/index-management.service.spec';
 import { ElasticsearchService } from '../elasticsearch-scale/services/elasticsearch.service';
 import { ElasticsearchServiceSpy } from '../elasticsearch-scale/services/elasticsearch.service.spec';
+import { HealthDashboardStatusService } from '../health-dashboard/services/health-dashboard-status.service';
+import { HealthDashboardStatusServiceSpy } from '../health-dashboard/services/health-dashboard-status.service.spec';
 import { HealthService } from '../health-dashboard/services/health.service';
 import { HealthServiceSpy } from '../health-dashboard/services/health.service.spec';
 import { NotificationService } from '../notifications/services/notification.service';
@@ -51,6 +49,8 @@ import { SystemVersionService } from '../pmo-support/services/system-version.ser
 import { SystemVersionServiceSpy } from '../pmo-support/services/system-version.service.spec';
 import { PolicyManagementService } from '../policy-management/services/policy-management.service';
 import { PolicyManagementServiceSpy } from '../policy-management/services/policy-management.service.spec';
+import { KitTokenSettingsService } from '../system-settings/services/kit-token-settings.service';
+import { KitTokenSettingsServiceSpy } from '../system-settings/services/kit-token-settings.service.spec';
 import { ToolsService } from '../tools/services/tools.service';
 import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
 
@@ -68,9 +68,6 @@ import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
     { provide: RulesService, useClass: RulesServiceSpy },
     { provide: SensorHostInfoService, useClass: SensorHostInfoServiceSpy },
     { provide: UserService, useClass: UserServiceSpy },
-    { provide: HealthDashboardStatusService, useClass: HealthDashboardStatusServiceSpy },
-    { provide: KitTokenSettingsService, useClass: KitTokenSettingsServiceSpy },
-    { provide: PolicyManagementService, useClass: PolicyManagementServiceSpy },
     { provide: NavBarService, useClass: NavbarServiceSpy },
     { provide: AgentBuilderService, useClass: AgentBuilderServiceSpy },
     { provide: EndgameService, useClass: EndgameServiceSpy },
@@ -79,11 +76,14 @@ import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
     { provide: ColdLogIngestService, useClass: ColdLogIngestServiceSpy },
     { provide: IndexManagementService, useClass: IndexManagementServiceSpy },
     { provide: ElasticsearchService, useClass: ElasticsearchServiceSpy },
+    { provide: HealthDashboardStatusService, useClass: HealthDashboardStatusServiceSpy },
     { provide: HealthService, useClass: HealthServiceSpy },
     { provide: NotificationService, useClass: NotificationServiceSpy },
     { provide: PCAPService, useClass: PCAPServiceSpy },
     { provide: DiagnosticsService, useClass: DiagnosticsServiceSpy },
     { provide: SystemVersionService, useClass: SystemVersionServiceSpy },
+    { provide: PolicyManagementService, useClass: PolicyManagementServiceSpy },
+    { provide: KitTokenSettingsService, useClass: KitTokenSettingsServiceSpy },
     { provide: ToolsService, useClass: ToolsServiceSpy }
     // { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open', 'closeAll', 'getDialogById']) },
     // { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', ['close', 'afterOpen', 'afterClosed', 'beforeClose', 'backdropClick', 'keydownEvents', 'updatePosition']) }
