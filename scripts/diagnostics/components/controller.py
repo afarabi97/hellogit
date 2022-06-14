@@ -51,7 +51,7 @@ def check_services_status(service: str) -> Tuple[bool, dict]:
             get_service_logs(service)
         return (return_flag, return_text)
     except:
-        return (False, "Error checking {} service".format(service))
+        return (False, { "name": "Error checking {} service".format(service)})
 
 @add_spinner
 def check_controller_services():

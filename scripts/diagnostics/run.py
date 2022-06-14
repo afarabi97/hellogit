@@ -8,12 +8,18 @@ import time
 import configparser
 
 def get_version():
-    config = configparser.ConfigParser()
-    config.read("/etc/tfplenum/tfplenum.ini")
-    return config["tfplenum"]["version"]
+    try:
+        config = configparser.ConfigParser()
+        config.read("/etc/tfplenum/tfplenum.ini")
+        return config["tfplenum"]["version"]
+    except:
+        return None
 
 def collect_logs():
-    tar_name = "tfplenum-logs-{}-{}.tar.gz".format(date.today(), get_version())
+    if get_version():
+        tar_name = "tfplenum-logs-{}-{}.tar.gz".format(date.today(), get_version())
+    else:
+        tar_name = "tfplenum-logs-{}.tar.gz".format(date.today())
     os.system("mkdir -p /var/www/html/downloads > /dev/null 2>&1")
     os.system(f"tar -czvf /var/www/html/downloads/{tar_name} -C /var/log . > /dev/null 2>&1")
     print("=====> {} created in /var/www/html/downloads".format(tar_name))

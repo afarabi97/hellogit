@@ -40,15 +40,19 @@ def remove_file(log_path:str):
         os.remove(log_path)
 
 def log_append(log_path:str, data:str):
-
-    with open(log_path, "a") as log:
-        log.write(data)
-        log.write("\n")
+    try:
+        with open(log_path, "a") as log:
+            log.write(data)
+            log.write("\n")
+    except FileNotFoundError:
+        pass
 
 def log_write(log_path:str, data:str):
-
-    with open(log_path, "w") as log:
-        log.write(data)
+    try:
+        with open(log_path, "w") as log:
+            log.write(data)
+    except FileNotFoundError:
+        pass
 
 def run_command(command: str):
     proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
