@@ -102,7 +102,7 @@
   ignore_unreachable: yes
   tasks:
     - name: Reset Kubernetes
-      include_role: 
+      include_role:
         name: kubernetes/reset
       when: node_type != "MIP"
     - name: Reboot system # noqa 301

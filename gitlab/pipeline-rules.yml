@@ -1,15 +1,3 @@
-.analysis:
-  rules:
-    - if: $PIPELINE == "static_analysis_only"
-    - if: $PIPELINE == "developer-all"
-    - if: $PIPELINE == "developer-mip"
-
-.code-checks:
-  rules:
-    - if: $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-    - if: $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-    - if: $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
-
 .all-and-mip:
   rules:
     - if: $PIPELINE == "developer-all"

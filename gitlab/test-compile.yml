@@ -14,6 +14,6 @@ compile front-end:
     echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
     ansible-playbook bootstrap/playbooks/site.yml --connection=local -i localhost, -t install_angular,build_frontend
   allow_failure: false
-  extends: .analysis
+  extends: .all-and-mip
   retry: 2
   timeout: 5m

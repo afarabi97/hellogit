@@ -312,6 +312,7 @@ include:
   - local: gitlab/MIP/mip.docs.gitlab-ci.yml
   - local: gitlab/RPM/tfplenum.rpm.gitlab-ci.yml
   - local: gitlab/code-analysis.yml
+  - local: gitlab/commit-lint.yml
   - local: gitlab/lint-and-unit-test.yml
   - local: gitlab/pipeline-rules.yml
   - local: gitlab/test-compile.yml
