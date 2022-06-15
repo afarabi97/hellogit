@@ -268,7 +268,7 @@ def _authenticate_with_kinit(username: str, password: str, dns_suffix: str):
     cmd = "echo '{password}' | kinit {username}@{dns_suffix}".format(password=password,
                                                                      username=username,
                                                                      dns_suffix=dns_suffix)
-    output, ret_val = run_command2(cmd, use_shell=True)
+    output, ret_val = run_command2(cmd)
     if ret_val != 0:
         raise ValueError(output)
 
