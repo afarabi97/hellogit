@@ -218,7 +218,6 @@ stages:
   - test-compile
   - lint-unit-test
   - code-analysis
-  - publish-to-confluence
   - clean-staging-env
   - verify-manifest
   - build-manifest
@@ -296,7 +295,6 @@ include:
   - local: gitlab/test-compile.yml
   - local: gitlab/lint-and-unit-test.yml
   - local: gitlab/code-analysis.yml
-  - local: gitlab/confluence-publish.yml
   - local: gitlab/DIP/dip.gitlab-ci.yml
   - local: gitlab/DIP/dip.acceptance.gitlab-ci.yml
   - local: gitlab/DIP/dip.export.gitlab-ci.yml

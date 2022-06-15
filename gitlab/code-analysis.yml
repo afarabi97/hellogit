@@ -143,25 +143,18 @@ sonar-scan testing pipeline:
   except:
     - tags
     - schedules
+  dependencies:
+    - pipeline pylint
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     PATH_PWD=$(pwd)
-    echo "TASK [pylint: pipeline] ********************************************************"
-    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD $LATEST_CODE_CHECKER_IMAGE $PATH_PWD/testing/pipeline/pylint_pipeline.sh
-    echo "TASK [sonar-scanner: pipeline ingestion] ***************************************"
+    echo "TASK [sonar-scanner: pipeline ingestion] ************************************************"
     sonar-scanner \
       -Dsonar.qualitygate.wait=true \
       -Dsonar.python.pylint.reportPath=$PATH_PWD/testing/pipeline/pylint-pipeline.txt \
       -Dsonar.projectKey=tfplenum-test \
-      -Dsonar.sources=testing/pipeline/> >(tee $PATH_PWD/testing/pipeline/sonar-report.txt) 2> >(tee $PATH_PWD/testing/pipeline/sonar-report.txt >&2)
-    cat $PATH_PWD/testing/pipeline/sonar-report.txt | grep QUALITY >> $PATH_PWD/testing/pipeline/testing-sonarlink.txt
-    cat $PATH_PWD/testing/pipeline/sonar-report.txt | grep -i "total time" >> $PATH_PWD/testing/pipeline/testing-scantime.txt
-  artifacts:
-    paths:
-      - testing/pipeline/testing-sonarlink.txt
-      - testing/pipeline/testing-scantime.txt
-      - testing/pipeline/*.png
+      -Dsonar.sources=testing/pipeline/
   allow_failure: false
 
 sonar-scan back-end code base:
@@ -191,13 +184,7 @@ sonar-scan back-end code base:
       -Dsonar.python.coveragePlugin=cobertura \
       -Dsonar.python.coverage.reportPaths=web/backend/pytest-coverage-report.xml \
       -Dsonar.projectKey=tfplenum-backend \
-      -Dsonar.sources=web/backend/> >(tee web/backend/sonar-report.txt) 2> >(tee web/backend/sonar-report.txt >&2)
-    cat web/backend/sonar-report.txt | grep QUALITY >> web/backend/backend-sonarlink.txt
-    cat web/backend/sonar-report.txt | grep -i "total time" >> web/backend/backend-scantime.txt
-  artifacts:
-    paths:
-      - web/backend/backend-sonarlink.txt
-      - web/backend/backend-scantime.txt
+      -Dsonar.sources=web/backend/
   allow_failure: false
 
 sonar-scan front-end code base:
@@ -211,26 +198,18 @@ sonar-scan front-end code base:
   except:
     - tags
     - schedules
+  dependencies:
+    - front-end eslint and unit test
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     PATH_PWD=$(pwd)
-    echo "TASK [setup: front-end] ********************************************************"
-    docker run --rm -v $(pwd):/opt/tfplenum $LATEST_CODE_CHECKER_IMAGE /opt/tfplenum/web/setup/setup_frontend.sh
-    echo "TASK [unit-test / coverage: front-end] *****************************************"
-    docker run --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD $LATEST_CODE_CHECKER_IMAGE $PATH_PWD/web/setup/eslint_test_coverage_frontend.sh
-    echo "TASK [sonar-scanner: front-end code-base ingestion] **************************************"
+    echo "TASK [sonar-scanner: front-end code-base ingestion] *************************************"
     sonar-scanner \
       -Dsonar.qualitygate.wait=true \
-      -Dsonar.eslint.reportPaths=$PATH_PWD/web/frontend/report.json \
+      -Dsonar.eslint.reportPaths=$PATH_PWD/web/frontend/eslint-report.json \
       -Dsonar.javascript.lcov.reportPaths=$PATH_PWD/web/frontend/test-coverage/lcov.info \
       -Dsonar.typescript.tsconfigPath=$PATH_PWD/web/frontend/src/tsconfig.app.json \
       -Dsonar.projectKey=tfplenum-frontend \
-      -Dsonar.sources=$PATH_PWD/web/frontend/src/app/> >(tee $PATH_PWD/web/frontend/sonar-report.txt) 2> >(tee $PATH_PWD/web/frontend/sonar-report.txt >&2)
-    cat $PATH_PWD/web/frontend/sonar-report.txt | grep QUALITY >> $PATH_PWD/web/frontend/frontend-sonarlink.txt
-    cat $PATH_PWD/web/frontend/sonar-report.txt | grep -i "total time" >> $PATH_PWD/web/frontend/frontend-scantime.txt
-  artifacts:
-    paths:
-      - web/frontend/frontend-sonarlink.txt
-      - web/frontend/frontend-scantime.txt
+      -Dsonar.sources=$PATH_PWD/web/frontend/src/app/
   allow_failure: false

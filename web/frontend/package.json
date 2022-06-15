@@ -12,7 +12,7 @@
     "test-firefoxheadless": "ng test --browsers FirefoxHeadless",
     "lint": "exitzero eslint -c .eslintrc.js --ext .ts ./src",
     "lint-fix": "exitzero eslint --fix -c .eslintrc.js --ext .ts ./src",
-    "lint-pipeline": "exitzero eslint -c .eslintrc.js --ext .ts ./src -f json -o report.json",
+    "lint-pipeline": "exitzero eslint -c .eslintrc.js --ext .ts ./src -f json -o eslint-report.json",
     "test-coverage": "ng test --code-coverage",
     "test-documentation": "ng test --code-coverage --browsers ChromeHeadless --reporters html",
     "test-ci-chromeheadless": "ng test --browsers ChromeHeadlessNoSandbox --watch=false --progress=false --code-coverage",

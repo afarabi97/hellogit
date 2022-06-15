@@ -37,11 +37,3 @@
 - name: npm | Install npm packages
   npm:
     path: "{{ web_install_dir }}/frontend"
-
-# - name: npm | audit fix
-#   shell: |
-#     npm audit fix
-#   args:
-#     chdir: "{{ web_install_dir }}/frontend"
-#   register: results
-#   changed_when: results.rc == 0

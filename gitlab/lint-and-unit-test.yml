@@ -1,3 +1,27 @@
+pipeline pylint:
+  tags:
+    - docker-runner
+  stage: lint-unit-test
+  only:
+    changes:
+      - testing/pipeline/*
+      - testing/pipeline/**/*
+  except:
+    - tags
+    - schedules
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
+    echo "TASK [pylint: pipeline] ********************************************************"
+    testing/pipeline/pylint_pipeline.sh
+  artifacts:
+    paths:
+      - testing/pipeline/pylint-pipeline.txt
+  image: $LATEST_CODE_CHECKER_IMAGE
+  allow_failure: false
+
+
 back-end pylint and pytest:
   tags:
     - docker-runner
@@ -23,5 +47,33 @@ back-end pylint and pytest:
       - web/backend/pylint-backend.txt
     reports:
       junit: web/backend/*.xml
+  image: $LATEST_CODE_CHECKER_IMAGE
+  allow_failure: false
+
+
+front-end eslint and unit test:
+  tags:
+    - docker-runner
+  stage: lint-unit-test
+  only:
+    changes:
+      - web/frontend/*
+      - web/frontend/**/*
+  except:
+    - tags
+    - schedules
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
+    echo "TASK [setup: front-end] ********************************************************"
+    ansible-playbook bootstrap/playbooks/site.yml --connection=local -i localhost, -t install_angular
+    echo "TASK [eslint / unit test: front-end] *******************************************"
+    web/setup/eslint_test_coverage_frontend.sh
+  artifacts:
+    paths:
+      - web/frontend/eslint-report.json
+      - web/frontend/test-coverage/lcov.info
+      - web/frontend/src/tsconfig.app.json
   image: $LATEST_CODE_CHECKER_IMAGE
   allow_failure: false

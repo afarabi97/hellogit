@@ -17,11 +17,11 @@ function run_cmd {
     fi
 }
 
-pushd / > /dev/null
+pushd $TFPLENUM_DIR/testing/pipeline/ > /dev/null
 # runs python pylint checking
-run_cmd pylint --exit-zero --rcfile=$PATH_PWD/pylint.rc\
-  $PATH_PWD/testing/pipeline/*.py $PATH_PWD/testing/pipeline/**/*.py\
-  --msg-template="'{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'" > $PATH_PWD/testing/pipeline/pylint-pipeline.txt
+run_cmd pylint --exit-zero --rcfile=../../pylint.rc\
+  *.py **/*.py\
+  --msg-template="'{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'" > pylint-pipeline.txt
 popd > /dev/null
 
 exit 0

@@ -165,7 +165,7 @@ class Runner:
 
         self._set_parser(
             SubCmd.acceptance_tests,
-            "Setups up envirnonment to run acceptance tests."
+            "Setups up environment to run acceptance tests."
         )
 
         args = self.parser.parse_args()
