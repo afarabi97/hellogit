@@ -1,6 +1,6 @@
 ---
 - debug:
-    msg: "Kali Template root password should be set to {{ password }}, otherwise playbook will fail."
+    msg: "{{ vmname }} Template root password should be set to {{ password }}, otherwise playbook will fail."
 
 - name: Remove {{ vmname }}
   vmware_guest:
@@ -28,12 +28,12 @@
     networks:
       - name: "{{ portgroup }}"
         start_connected: yes
-    annotation:  "kali-linux CVA/H build | username: assessor | password: <PMO PASSWORD>"
+    annotation:  "{{ vmname }} CVA/H build | username: {{ username }} | password: <PMO PASSWORD>"
     state: poweredon
     validate_certs: no
 
 - debug:
-    msg: "A bug in the next module will cause the tasks to fail if {{ vmname }} exists in vcenter cluster."
+    msg: "A bug in the next module will cause the tasks to fail if VM name {{ vmname }} exists in vcenter cluster."
 
 - name: Wait for VMware tools to become available on {{ vmname }}
   vmware_guest_tools_wait:
@@ -57,16 +57,34 @@
     validate_certs: no
     wait_for_process: yes
   with_items:
-    - con mod 'Wired connection 1' ipv4.address {{ ip }}/24
-    - con mod 'Wired connection 1' ipv4.gateway {{ gateway }}
-    - con mod 'Wired connection 1' ipv4.dns {{ dns_servers[0] }}
-    - con mod 'Wired connection 1' connection.autoconnect yes
-    - con mod 'Wired connection 1' ipv4.method manual
+    - con mod '{{ interface_name }}' ipv4.address {{ ip }}/24
+    - con mod '{{ interface_name }}' ipv4.gateway {{ gateway }}
+    - con mod '{{ interface_name }}' ipv4.dns {{ dns_servers[0] }}
+    - con mod '{{ interface_name }}' connection.autoconnect yes
+    - con mod '{{ interface_name }}' ipv4.method manual
     - con reload
-    - con down 'Wired connection 1'
-    - con up 'Wired connection 1'
+    - con down '{{ interface_name }}'
+    - con up '{{ interface_name }}'
+  when: interface_name | length > 0
 
-- name: Permit root login
+- name: Set network cofiguration for {{ vmname }}
+  vmware_vm_shell:
+    hostname: "{{ vcenter.ipaddress }}"
+    username: "{{ vcenter.username }}"
+    password: "{{ vcenter.password }}"
+    vm_id: "{{ vmname }}"
+    vm_username: "root"
+    vm_password: "{{ password }}"
+    vm_shell: /usr/sbin/ip
+    vm_shell_args: "{{ item }}"
+    validate_certs: no
+    wait_for_process: yes
+  with_items:
+    - address add {{ ip }}/24 dev {{ device_name }}
+    - route add default via {{ gateway }}
+  when: not interface_name
+
+- name: Permit root login - {{ vmname }}
   vmware_vm_shell:
     hostname: "{{ vcenter.ipaddress }}"
     username: "{{ vcenter.username }}"
@@ -78,7 +96,7 @@
     vm_shell_args: PermitRootLogin yes >> /etc/ssh/sshd_config
     validate_certs: no
 
-- name: Start ssh server in {{ vmname }}
+- name: Start ssh service - {{ vmname }}
   vmware_vm_shell:
     hostname: "{{ vcenter.ipaddress }}"
     username: "{{ vcenter.username }}"
@@ -87,6 +105,6 @@
     vm_username: "root"
     vm_password: "{{ password }}"
     vm_shell: /usr/bin/systemctl
-    vm_shell_args: "start ssh"
+    vm_shell_args: start ssh
     validate_certs: no
     wait_for_process: yes

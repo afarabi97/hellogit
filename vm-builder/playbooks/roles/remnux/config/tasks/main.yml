@@ -1,0 +1,63 @@
+---
+#https://docs.remnux.org/install-distro/get-virtual-appliance
+#https://docs.remnux.org/install-distro/keep-the-distro-up-to-date
+
+- name: Set up netplan
+  template:
+    src: templates/network-up.j2
+    dest: /etc/netplan/01-netcfg.yaml
+
+- name: Apply netplan
+  command: netplan apply
+  register: result
+  changed_when: result.rc == 0
+
+- name: Enable ssh before reboot
+  service:
+    name: ssh
+    state: started
+    enabled: yes
+
+- name: Clean up old dependencies
+  ignore_errors: yes
+  apt:
+    update_cache: no
+    autoremove: yes
+
+- name: Reboot system {{ vmname }}
+  reboot:
+    reboot_timeout: 100
+    test_command: whoami
+
+- debug:
+    msg: "Upgrading REMnux will take time to complete..."
+
+- name: Upgrade REMnux
+  command: sudo remnux upgrade --user={{ username }}
+  register: result
+  changed_when: result.rc == 0
+  until: result.rc == 0
+  retries: 2
+  delay: 10
+
+- name: Change default remnux info
+  command: "usermod {{ username }} --comment assessor"
+  register: result
+  changed_when: result.rc == 0
+
+- name: Disable auto login
+  replace:
+    path: /etc/gdm3/custom.conf
+    regexp: '^AutomaticLoginEnable = true'
+    replace: 'AutomaticLoginEnable = false'
+
+- name: Revert netplan
+  template:
+    src: templates/network-down.j2
+    dest: "/etc/netplan/01-netcfg.yaml"
+
+- name: Disable ssh prior to shutdown
+  service:
+    name: ssh
+    state: started
+    enabled: no

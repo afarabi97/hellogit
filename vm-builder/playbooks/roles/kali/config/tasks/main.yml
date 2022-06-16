@@ -1,7 +1,7 @@
 ---
-- name: Create assessor user.
+- name: Create {{ username }} user.
   user:
-    name: assessor
+    name: "{{ username }}"
     groups:
       - sudo
       - adm
@@ -63,6 +63,7 @@
 - name: Enable ssh before reboot
   service:
     name: ssh
+    state: started
     enabled: yes
 
 - name: Reboot system {{ vmname }} to remove kali user from login
@@ -73,4 +74,5 @@
 - name: Disable ssh prior to shutdown
   service:
     name: ssh
+    state: started
     enabled: no

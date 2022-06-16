@@ -1,0 +1,26 @@
+- name: Apply reverted netplan {{ default_vm_name }}
+  vmware_vm_shell:
+    hostname: "{{ vcenter.ipaddress }}"
+    username: "{{ vcenter.username }}"
+    password: "{{ vcenter.password }}"
+    vm_id: "{{ default_vm_name }}"
+    vm_username: "root"
+    vm_password: "{{ password }}"
+    vm_shell: /usr/sbin/netplan
+    vm_shell_args: apply
+    validate_certs: no
+    wait_for_process: yes
+
+- name: Restart network manager {{ default_vm_name }}
+  vmware_vm_shell:
+    hostname: "{{ vcenter.ipaddress }}"
+    username: "{{ vcenter.username }}"
+    password: "{{ vcenter.password }}"
+    vm_id: "{{ default_vm_name }}"
+    vm_username: "root"
+    vm_password: "{{ password }}"
+    vm_password: "{{ password }}"
+    vm_shell: /usr/bin/systemctl
+    vm_shell_args: restart NetworkManager
+    validate_certs: no
+    wait_for_process: yes

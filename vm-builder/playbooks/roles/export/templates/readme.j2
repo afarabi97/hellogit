@@ -1,4 +1,10 @@
+Name: {{ default_vm_name }}
 Version: {{ vm_version }}
 CVA/H Build: {{ cvah_version }}
+{% if default_vm_name == "Kali" %}
 Documentation: Documentation and guides are found on the system by running <tool> --help
 Notes: Additional information can be found at: https://tools.kali.org/tools-listing
+{% elif default_vm_name == "REMnux" %}
+Documentation: Data\CVAH {{ cvah_version }}\Documentation\VMs\REMnuX\
+Notes: N/A
+{% endif %}

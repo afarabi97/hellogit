@@ -25,6 +25,7 @@ class SubCmd:
     setup_ctrl = 'setup-controller'
     setup_kali = 'setup-kali'
     setup_minio = 'setup-minio'
+    setup_remnux = 'setup-remnux'
     simulate_power_failure = 'simulate-power-failure'
 
     test_server_repository_vm = 'test-server-repository-vm'

@@ -213,6 +213,8 @@ variables:
 
   #MIP VM Templates
   KALI_TEMPLATE_TO_CLONE: "Kali_Template"
+  REMNUX_TEMPLATE_TO_CLONE: "REMnux_Template"
+
 stages:
   - commit-lint
   - test-compile
@@ -291,24 +293,25 @@ stages:
       fi
 
 include:
+  - local: component-builder/builder.gitlab-ci.yml
+  - local: gitlab/DIP/dip.acceptance.gitlab-ci.yml
+  - local: gitlab/DIP/dip.baremetal-gitlab-ci.yml
+  - local: gitlab/DIP/dip.docs.gitlab-ci.yml
+  - local: gitlab/DIP/dip.export.gitlab-ci.yml
+  - local: gitlab/DIP/dip.gitlab-ci.yml
+  - local: gitlab/DIP/dip.manifest.gitlab-ci.yml
+  - local: gitlab/DIP/dip.robot.gitlab-ci.yml
+  - local: gitlab/DIP/dip.vm-builder-gitlab-ci.yml
+  - local: gitlab/Drive/drive.create.gitlab-ci.yml
+  - local: gitlab/Drive/powershell.gitlab-export.yml
+  - local: gitlab/Drive/repo.export.gitlab-ci.yml
+  - local: gitlab/Drive/repo.gitlab-ci.yml
+  - local: gitlab/GIP/gip.docs.gitlab-ci.yml
+  - local: gitlab/GIP/gip.export.gitlab-ci.yml
+  - local: gitlab/GIP/gip.gitlab-ci.yml
+  - local: gitlab/MIP/mip.docs.gitlab-ci.yml
+  - local: gitlab/RPM/tfplenum.rpm.gitlab-ci.yml
+  - local: gitlab/code-analysis.yml
+  - local: gitlab/lint-and-unit-test.yml
   - local: gitlab/pipeline-rules.yml
   - local: gitlab/test-compile.yml
-  - local: gitlab/lint-and-unit-test.yml
-  - local: gitlab/code-analysis.yml
-  - local: gitlab/DIP/dip.gitlab-ci.yml
-  - local: gitlab/DIP/dip.acceptance.gitlab-ci.yml
-  - local: gitlab/DIP/dip.export.gitlab-ci.yml
-  - local: gitlab/DIP/dip.manifest.gitlab-ci.yml
-  - local: gitlab/DIP/dip.docs.gitlab-ci.yml
-  - local: gitlab/DIP/dip.robot.gitlab-ci.yml
-  - local: gitlab/DIP/dip.baremetal-gitlab-ci.yml
-  - local: gitlab/MIP/mip.docs.gitlab-ci.yml
-  - local: gitlab/GIP/gip.gitlab-ci.yml
-  - local: gitlab/GIP/gip.export.gitlab-ci.yml
-  - local: gitlab/GIP/gip.docs.gitlab-ci.yml
-  - local: gitlab/Drive/repo.gitlab-ci.yml
-  - local: gitlab/Drive/repo.export.gitlab-ci.yml
-  - local: gitlab/Drive/powershell.gitlab-export.yml
-  - local: gitlab/Drive/drive.create.gitlab-ci.yml
-  - local: gitlab/RPM/tfplenum.rpm.gitlab-ci.yml
-  - local: component-builder/builder.gitlab-ci.yml

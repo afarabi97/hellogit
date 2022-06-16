@@ -1,9 +1,5 @@
 ---
-- name: Set default VM name
-  set_fact:
-    default_vm_name: kali
-
-- name: Get VM kali uuid
+- name: Get VM {{ default_vm_name }} uuid
   vmware_guest_info:
     hostname: "{{ vcenter.ipaddress }}"
     username: "{{ vcenter.username }}"
@@ -14,7 +10,20 @@
     validate_certs: no
   register: vm_facts
 
-- name: Rename {{ vmname }}
+- name: Remove {{ vmname }}
+  vmware_guest:
+    hostname: "{{ vcenter.ipaddress }}"
+    username: "{{ vcenter.username }}"
+    password: "{{ vcenter.password }}"
+    datacenter: "{{ vcenter.datacenter }}"
+    cluster: "{{ vcenter.cluster }}"
+    folder: "{{ folder }}"
+    name: "{{ vmname }}"
+    state: absent
+    force: yes
+    validate_certs: no
+
+- name: Rename {{ default_vm_name }}
   vmware_guest:
     hostname: "{{ vcenter.ipaddress }}"
     username: "{{ vcenter.username }}"
@@ -23,22 +32,6 @@
     uuid: "{{ vm_facts.instance.hw_product_uuid }}"
     name: "{{ vmname }}"
     validate_certs: no
-
-- name: Reset network configuration {{ vmname }}
-  vmware_vm_shell:
-    hostname: "{{ vcenter.ipaddress }}"
-    username: "{{ vcenter.username }}"
-    password: "{{ vcenter.password }}"
-    vm_id: "{{ vmname }}"
-    vm_username: "root"
-    vm_password: "{{ password }}"
-    vm_shell: /usr/bin/nmcli
-    vm_shell_args: "{{ item }}"
-    validate_certs: no
-    wait_for_process: yes
-  with_items:
-    - con del 'Wired connection 1'
-    - con add type ethernet con-name "Wired connection 1" ifname eth0
 
 - name: Delete permit root login {{ vmname }}
   vmware_vm_shell:
@@ -53,7 +46,24 @@
     validate_certs: no
     wait_for_process: yes
 
-- name: Set users password
+- name: Reset network configuration {{ vmname }}
+  vmware_vm_shell:
+    hostname: "{{ vcenter.ipaddress }}"
+    username: "{{ vcenter.username }}"
+    password: "{{ vcenter.password }}"
+    vm_id: "{{ vmname }}"
+    vm_username: "root"
+    vm_password: "{{ password }}"
+    vm_shell: /usr/bin/nmcli
+    vm_shell_args: "{{ item }}"
+    validate_certs: no
+    wait_for_process: yes
+  with_items:
+    - con del '{{ interface_name }}'
+    - con add type ethernet con-name '{{ interface_name }}' ifname {{ device_name }}
+  when: interface_name | length > 0
+
+- name: Set {{ username }} && root password
   vmware_vm_shell:
     hostname: "{{ vcenter.ipaddress }}"
     username: "{{ vcenter.username }}"
@@ -65,7 +75,7 @@
     vm_shell_args: "{{ item }}"
     validate_certs: no
   with_items:
-    - --password {{ encrypted_password }} assessor
+    - --password {{ encrypted_password }} {{ username }}
     - --password {{ encrypted_password }} root
 
 #VM shuts off too quickly without this task and root password will not be set
@@ -73,6 +83,18 @@
   wait_for:
     timeout: 10
   delegate_to: localhost
+
+- name: Restart {{ vmname }} to prepare for export
+  vmware_guest:
+    hostname: "{{ vcenter.ipaddress }}"
+    username: "{{ vcenter.username }}"
+    password: "{{ vcenter.password }}"
+    datacenter: "{{ vcenter.datacenter }}"
+    cluster: "{{ vcenter.cluster }}"
+    name: "{{ vmname }}"
+    folder: "{{ folder }}"
+    state: rebootguest
+    validate_certs: no
 
 - name: Power off {{ vmname }} to prepare for export
   vmware_guest:

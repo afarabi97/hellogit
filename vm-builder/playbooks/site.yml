@@ -1,12 +1,13 @@
 ---
-- name: Clone Kali VM
+- name: Clone {{ vmname }} VM
   hosts: localhost
   gather_facts: no
   any_errors_fatal: true
   roles:
-    - kali/clone
+    - clone
   tags:
     - kali
+    - remnux
 
 - name: Configure Kali VM
   hosts: kali
@@ -17,14 +18,33 @@
   tags:
     - kali
 
-- name: Setup for for Kali export
+- name: Configure REMnux VM
+  hosts: remnux
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - remnux/config
+  tags:
+    - remnux
+
+- name: Post configure REMnux VM
   hosts: localhost
   gather_facts: no
   any_errors_fatal: true
   roles:
-    - kali/export
+    - remnux/post-config
+  tags:
+    - remnux-export
+
+- name: Setup for for {{ vmname }} export
+  hosts: localhost
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - export
   tags:
     - kali-export
+    - remnux-export
 
 - name: Create minio virtual machine from a template.
   hosts: localhost

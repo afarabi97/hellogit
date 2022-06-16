@@ -9,11 +9,11 @@ from jobs.export import (ConfluenceExport, ControllerExport, GIPServiceExport,
                          MinIOExport, ReposyncServerExport)
 from jobs.gip_creation import GipCreationJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
-from jobs.vm_builder import StandAloneKali, StandAloneMinIO
 from jobs.kit import KitSettingsJob
 from jobs.manifest import BuildManifestJob, VerifyManifestJob
 from jobs.oscap import OSCAPScanJob
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
+from jobs.vm_builder import StandAloneKali, StandAloneMinIO, StandAloneREMnux
 from models.common import RepoSettings
 from models.constants import SubCmd
 from models.ctrl_setup import ControllerSetupSettings
@@ -142,6 +142,12 @@ class Runner:
         self._set_parser(
             SubCmd.setup_kali,
             "Creates a stand alone Kali VM",
+            VMBuilderSettings
+        )
+
+        self._set_parser(
+            SubCmd.setup_remnux,
+            "Creates a stand alone REMnux VM",
             VMBuilderSettings
         )
 
@@ -344,6 +350,10 @@ class Runner:
                 vm_builds_settings = VMBuilderSettings(args)
                 YamlManager.save_to_yaml(vm_builds_settings)
                 StandAloneKali(vm_builds_settings).create()
+            elif args.which == SubCmd.setup_remnux:
+                vm_builds_settings = VMBuilderSettings(args)
+                YamlManager.save_to_yaml(vm_builds_settings)
+                StandAloneREMnux(vm_builds_settings).create()
             elif args.which == SubCmd.run_cleanup:
                 pass
                 # TODO
