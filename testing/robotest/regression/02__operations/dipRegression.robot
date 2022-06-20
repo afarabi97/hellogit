@@ -29,13 +29,13 @@ Suite Teardown    Close All Connections
 Verify Correct System Version Number
     [Tags]  THISISCVAH-8225
     [Documentation]  Test to check that controller has correct system name and version number.
-    ...              Also checks that the Service Now web address is correct.
+    ...              Also checks that the Service Now web & email address are correct.
     log     Verifying the version number listed on the Support page
-    Wait Until Element Is Visible  ${locSupportPageNavIcon}
-    Click Element  ${locSupportPageNavIcon}
+    Navigate To Support
     Sleep  2s  reason=Version number loads slightly after the element loads onto the page
-    Element Should Contain  ${locSystemVersionNumber}  ${KIT_VERSION}
-    Element Should Contain  ${locServiceNowURL}  https://afdco.servicenowservices.com/sp
+    Element Should Contain  ${CVAH_PMO_SUPPORT__P_VERSION}  ${KIT_VERSION}
+    Element Should Contain  ${CVAH_PMO_SUPPORT__A_SERVICENOW_WEBSITE}  https://afdco.servicenowservices.com/sp
+    Element Should Contain  ${CVAH_PMO_SUPPORT__A_SERVICENOW_MAIL}  afdco@servicenowservices.com
 
 Sync Zeek And Suricata Rulesets
     [Tags]  THISISCVAH-10222
@@ -92,9 +92,21 @@ Change Kit Password
     Set Selenium Speed  0.5s
     Navigate To Tools
     click  ${locChangeKitPassExp}
-    type  id=${CVAH_CHANGE_PASSWORD_FORM__NEW_ROOT_PASSWORD_INPUT}  ${NEW_KIT_PASSWORD}
-    type  id=${CVAH_CHANGE_PASSWORD_FORM__RETYPE_PASSWORD_INPUT}  ${NEW_KIT_PASSWORD}
-    Wait Until Element Is Enabled  id=${CVAH_CHANGE_PASSWORD_FORM__BUTTON_UPDATE}
-    click  id=${CVAH_CHANGE_PASSWORD_FORM__BUTTON_UPDATE}
-    click  id=${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
+    type  ${CVAH_CHANGE_PASSWORD_FORM__NEW_ROOT_PASSWORD_INPUT}  ${NEW_KIT_PASSWORD}
+    type  ${CVAH_CHANGE_PASSWORD_FORM__RETYPE_PASSWORD_INPUT}  ${NEW_KIT_PASSWORD}
+    Wait Until Element Is Enabled  ${CVAH_CHANGE_PASSWORD_FORM__BUTTON_UPDATE}
+    click  ${CVAH_CHANGE_PASSWORD_FORM__BUTTON_UPDATE}
+    click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
     lookFor  Successfully changed the password of your Kit!
+
+Add And Delete Portal Link
+    [Tags]  THISISCVAH-11520
+    [Documentation]  Validates the functionality of the "add link" button located on the top-right
+    ...              header section of the portal page.
+    Navigate To Portal
+    ${name} =  Set Variable  Google
+    ${url} =  Set Variable  https://www.google.com/
+    ${desc} =  Set Variable  Link to Google's search page.
+    Add User Link  ${name}  ${url}  ${desc}
+    Verify Link Works  ${name}  ${url}
+    Delete User Link

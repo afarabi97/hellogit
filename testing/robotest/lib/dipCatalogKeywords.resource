@@ -158,8 +158,8 @@ Install App
         lookForElement  xpath=//span[text()="${sensor_name}"]
         click  xpath=//span[text()="${sensor_name}"]
         Press Keys  None  TAB
-        Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}
-        Click Button  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}  # Next btn
+        Wait Until Element Is Enabled  ${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}
+        Click Button  ${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}  # Next btn
         Run Keyword if  '${application_name}' == 'Arkime' and ${IS_BARE_METAL_KIT} is ${False}
         ...             type  ${locMemLimitInput}  6Gi  # If virtual kit decrease memory limit from 20Gi to 6Gi
         Run Keyword if  '${application_name}' == 'Suricata'
@@ -168,20 +168,20 @@ Install App
         Sleep  10s
         click  ${locInterfaceOptionConnected}
         Press Keys  None  TAB
-        Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
-        Click Button  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
-        Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
-        Click Button  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
+        Wait Until Element Is Enabled  ${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
+        Click Button  ${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
+        Wait Until Element Is Enabled  ${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
+        Click Button  ${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
     ELSE
-        Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}
-        Click Button  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}  # Next btn
+        Wait Until Element Is Enabled  ${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}
+        Click Button  ${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_NEXT}  # Next btn
         Run Keyword if  '${application_name}' == 'Logstash' and ${IS_BARE_METAL_KIT} is ${False}
         ...             type  ${locHeapSizeInput}  4  # If virtual kit decrease heap_size from 12 to 4
         lookFor  server
-        Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
-        click  id=${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
-        Wait Until Element Is Enabled  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
-        click  id=${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
+        Wait Until Element Is Enabled  ${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}
+        click  ${CVAH_CATALOG_PAGE__CONFIG_STEP_BUTTON_NEXT}  # Next btn
+        Wait Until Element Is Enabled  ${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}
+        click  ${CVAH_CATALOG_PAGE__VALUES_STEP_BUTTON_RUN}  # Run btn
     END
     Sleep  10s
     Verify App Has Been Installed  ${application_name}    ${asynchronous}
@@ -218,7 +218,7 @@ Check Notifications For App
     [Arguments]  ${application_name}
     [Documentation]  Check Notifications to see if app has been installed on controller
     log     Checking Notifications For App ${application_name}
-    click  ${locNotificationsNavIcon}
+    click  ${CVAH_NOTIFICATIONS_OPEN_DIALOG_WINDOW}
     Wait Until Element Contains  ${locTopNotification}  COMPLETED Installing ${application_name}  10m
     Press Keys  None  ESCAPE
     Sleep  5s
@@ -281,10 +281,10 @@ Uninstall App
     ...  Run Keywords  click  ${locNodeSelection}
     ...  AND  click  ${locFirstNodeOption}
     ...  AND  Press Keys  None  TAB
-    Click Button  id=${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_RUN}
+    Click Button  ${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_RUN}
     ${application_card} =  Set Variable  id=cvah-chart-list-div-cvah-application-card-${index}
     Wait Until Keyword Succeeds  5x  5s  Check App Card Status  ${application_name}  Not Installed
-    click  ${locNotificationsNavIcon}
+    click  ${CVAH_NOTIFICATIONS_OPEN_DIALOG_WINDOW}
     Wait Until Element Contains  ${locTopNotification}  COMPLETED Uninstalling ${application_name}  10m
     Press Keys  None  ESCAPE
     Sleep  10s

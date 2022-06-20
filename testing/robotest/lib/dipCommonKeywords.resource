@@ -1,7 +1,7 @@
 *** Settings ***
 Resource    ../include/dipCommonVariables.resource
 Resource    ./dipCatalogKeywords.resource
-Variables    ../include/element_ids_frontend.py
+Variables   ../include/element_ids_frontend.py
 
 Library     Loggy.py            ${CATEGORY}    WITH NAME    loggy_obj
 Library     SeleniumLibrary     15s    run_on_failure= loggy_obj.failure
@@ -148,46 +148,76 @@ Stay Or Go To ${page}
 
 Navigate To ${page}
     log         "Navigating To: ${page} Page"
+    Check For Snack Bar Container
 
-    IF          "${page}" == "Portal"
-        Go To       ${Portal}
-        lookFor         Portal
-    ELSE IF     "${page}" == "Rulesets"
-        Go To           ${Rulesets}
-        lookFor         Rule
-    ELSE IF     "${page}" == "Kibana"
-        Get Kibana Credentials
-        Go To           ${KIBANA_IP}
-        lookFor         Welcome to Elastic
-    ELSE IF     "${page}" == "Hive"
-        Get Hive IP
-        Go To           ${HIVE_IP}
-        lookFor         Sign in to start your session
-    ELSE IF     "${page}" == "PCAPs"
-        Go To       ${PCAPs}
-        lookFor         Test Files
-    ELSE IF     "${page}" == "Node Management"
-        Go To           ${NodeManagement}
-        lookFor         Node Management
-        whenVisible     ${locNodeMgmtTable}     timeout=60s     error=Node Management Page did not load within 60s
-    ELSE IF     "${page}" == "Alerts"
-        Go To    ${Alerts}
-        lookFor  Hive Settings
-    ELSE IF     "${page}" == "Health"
-        Go To           ${Health}
-        lookFor         Managed Kits
-    ELSE IF     "${page}" == "Catalog"
-        Go To           ${Catalog}
-        lookFor         Catalog
-    ELSE IF     "${page}" == "Tools"
-        Go To           ${Tools}
-        lookFor         Node Maintenance
+    ${nav_arrow_text} =  Get Text  ${APP_TOP_NAVBAR__SIDENAV}
+    @{arrow_status} =  Split String  ${nav_arrow_text}  max_split=1
+    IF  '${arrow_status[0]}' == 'arrow_forward'
+        click  ${APP_TOP_NAVBAR__SIDENAV_TRIGGER_MAT_ICON_ARROW_FORWARD}
     END
 
+    IF  "${page}" == "Portal"
+        click  ${locPortalPageNavIcon}
+        lookFor  Add Link
+        Location Should Be  ${Portal_url}
+    ELSE IF  "${page}" == "Alerts"
+        click  ${locAlertsPageNavIcon}
+        lookFor  Security Alerts
+        Location Should Be  ${Alerts_url}
+    ELSE IF  "${page}" == "Node Management"
+        click  ${locNodeMgmtPageNavIcon}
+        lookFor  Kit Setup
+        whenVisible  ${locNodeMgmtTable}  timeout=60s  error=Node Management Page did not load within 60s
+        Location Should Be  ${NodeManagement_url}
+    ELSE IF  "${page}" == "Catalog"
+        click  ${locCatalogPageNavIcon}
+        lookFor  PMO Supported Applications
+        Location Should Be  ${Catalog_url}
+    ELSE IF  "${page}" == "Health"
+        click  ${locHealthPageNavIcon}
+        lookFor  Managed Kits
+        Location Should Be  ${Health_url}
+    ELSE IF  "${page}" == "Rulesets"
+        click  ${locRulesetNavIcon}
+        lookFor  Rule Sync
+        Location Should Be  ${Rulesets_url}
+    ELSE IF  "${page}" == "PCAPs"
+        click  ${locPcapNavIcon}
+        lookFor  Test Files
+        Location Should Be  ${PCAPs_url}
+    ELSE IF  "${page}" == "Tools"
+        click  ${locToolsNavIcon}
+        lookFor  Node Maintenance
+        Location Should Be  ${Tools_url}
+    ELSE IF  "${page}" == "Support"
+        click  ${locSupportPageNavIcon}
+        lookFor  Version Information
+        Location Should Be  ${Support_url}
+    ELSE IF  "${page}" == "Kibana"
+        Get Kibana Credentials
+        Go To  ${KIBANA_IP}
+        lookFor  Welcome to Elastic
+    ELSE IF  "${page}" == "Hive"
+        Get Hive IP
+        Go To  ${HIVE_IP}
+        lookFor  Sign in to start your session
+    END
+
+Check For Snack Bar Container
+    [Documentation]  Checks for message at bottom of screen contained in snack bar element. If present, clicks
+    ...              the close button. This keyword also temporarily sets the "Run On Failure" setting for
+    ...              SeleniumLibrary to "None" so the Loggy object does not log the check as a "FAIL" if the
+    ...              snack bar element is not present.
+    ${previous_kw} =  Register Keyword To Run On Failure  None
+    ${snack_bar_visible} =  Run Keyword And Return Status
+    ...                     Page Should Contain Element  xpath=//snack-bar-container//button/span[text() = "Close"]
+    ...                     message=Snack bar container message not visible.
+    Run Keyword If  ${snack_bar_visible}  click  xpath=//snack-bar-container//button/span[text() = "Close"]
+    Register Keyword To Run On Failure  ${previous kw}
+
 Get Kibana Credentials
-    log         Retrieving Kibana Username and Password
-    Go To       ${Portal}
-    lookFor     Portal
+    log  Retrieving Kibana Username and Password
+    Navigate To Portal
 
     ${index} =  Find Portal App index  kibana
     ${locKibanaUserPassword} =  Set Variable  id=cvah-portal-portal-link-${index}-logins
@@ -202,10 +232,35 @@ Get Kibana Credentials
     Set Global Variable     ${KIBANA_IP}
     Set Global Variable     ${KIBANA_PASSWORD}
 
+Add User Link
+    [Arguments]  ${name}  ${url}  ${description}
+    click  ${CVAH_PORTAL_TITLE_BUTTON_ADD_LINK}
+    type  ${locAddLinkNameInput}  ${name}
+    type  ${locAddLinkUrlInput}  ${url}
+    type  ${locAddLinkDescInput}  ${description}
+    click  ${APP_MODAL_DIALOG_MAT__BUTTON_CONFIRM}
+    ${loc_link_name} =  Inject  ${CVAH_PORTAL_USER_PORTAL_LINK_NAME}  0  replacement_pattern=*
+    lookForElement  ${loc_link_name}
+    Element Should Contain  ${loc_link_name}  ${name}
+
+Verify Link Works
+    [Arguments]  ${name}  ${url}
+    ${loc_link_url} =  Inject  ${CVAH_PORTAL_USER_PORTAL_LINK_URL}  0  replacement_pattern=*
+    click  ${loc_link_url}
+    Switch Window  NEW
+    Location Should Be  ${url}
+    Wait Until Page Contains  ${name}
+    Switch Window  MAIN
+
+Delete User Link
+    ${delete_btn} =  Inject  ${CVAH_PORTAL_USER_PORTAL_LINK_BUTTON_DELETE}  0  replacement_pattern=*
+    click  ${delete_btn}
+    click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
+    Wait Until Page Does Not Contain  ${locUserLinkFirstTile}
+
 Get Hive IP
-    log         Retrieving Hive Username and Password
-    Go To       ${Portal}
-    lookFor     Portal
+    log  Retrieving Hive Username and Password
+    Navigate To Portal
 
     ${index} =  Find Portal App index  hive
     ${locHiveKitIP} =  Set Variable  id=cvah-portal-portal-link-${index}-ip
@@ -229,6 +284,7 @@ Log In To Kibana
     click       //span[@title="Stack Management"]
     lookFor     Welcome to Stack Management
     shoot       StackManagement
+    Go To       https://${host}/  # Navigate back to Controller
 
 Upload And Delete PCAP File
     [Arguments]  ${pcap_file_name}
@@ -238,21 +294,22 @@ Upload And Delete PCAP File
     ${pcap_del_btn} =  Inject  ${locDeletePcapBtn}  ${pcap_file_name}
     scroll  ${pcap_del_btn}
     click  ${pcap_del_btn}
-    click  id=${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
+    click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
     lookFor  PCAP successfully deleted.
 
 Play ${pcap} PCAP
     ${sensor_name} =  Check For Sensor With Available Interface
     IF      "${pcap}" == "Wannacry"
         click    ${locPcapPlayBtn}
-        click    ${locPcapSensorHostname}
-        click    xpath=//span[contains(text(),"${sensor_name}")]
+        click    ${CVAH_REPLAY_PCAP_DIALOG__SENSOR_HOSTNAME_MAT_SELECT}
+        ${sensor_option} =  Inject  ${locPcapDialogHostnameOpt}  ${sensor_name}
+        click    ${sensor_option}
         click    ${locPcapPreserveTimestamp}
-        click    ${locPcapSensorInterface}
+        click    ${CVAH_REPLAY_PCAP_DIALOG__IFACE_MAT_SELECT}
         click    ${locPcapSensorInterfaceOptn}
         Press Keys  None  TAB
         shoot    Play Pcap Options
-        Click Button    id=${CVAH_REPLAY_PCAP_DIALOG__BUTTON_EXECUTE}  # execute btn
+        Click Button    ${CVAH_REPLAY_PCAP_DIALOG__BUTTON_EXECUTE}  # execute btn
     END
 
 Wait And Validate Kibana Hits
@@ -265,6 +322,7 @@ Wait And Validate Kibana Hits
     shoot       KibanaHits
     Sleep       10s
     shoot       KibinaHitsResults
+    Go To       https://${host}/  # Navigate back to Controller
 
 Find Portal App Index
     [Arguments]  ${application_name}

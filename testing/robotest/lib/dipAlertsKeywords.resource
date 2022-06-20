@@ -57,8 +57,7 @@ Obtain and Utilize Hive Keys
     ${resp}=  POST On Session    Hive    /api/v1/user/${org_admin_id}/key/renew  headers=${headers}
     ${org_admin_api_key}=  Set Variable  ${resp.text}
     Set Global Variable  ${org_admin_api_key}
-    Go To    ${Alerts}
-    lookFor  Security Alerts
+    Navigate To Alerts
     click    ${locHiveSettings}
     lookFor  Hive Settings
     type     ${locHiveAdminAPIKeyInput}   ${admin_api_key}

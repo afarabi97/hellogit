@@ -69,6 +69,6 @@ Verify Node Was Deleted
     [Arguments]  @{node_names}
     FOR  ${node}  IN  @{node_names}
         log  Waiting for node to be deleted: ${node}
-        gone  ${node}  wait_time=10m
+        gone  ${node}  wait_time=15m
         log  Delete Node was a success!
     END

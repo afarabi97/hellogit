@@ -16,14 +16,15 @@ ${API_HEADER_VALUE}             Bearer {bearer_token}
 ${API_BASE_URL}                 http://${host}/api{endpoint}
 
 # Pages start with a capital
-${Portal}                       https://${host}/portal
-${Alerts}                       https://${host}/alerts
-${Rulesets}                     https://${host}/rulesets
-${PCAPs}                        https://${host}/pcaps
-${NodeManagement}               https://${host}/node-mng
-${Health}                       https://${host}/health
-${Catalog}                      https://${host}/catalog
-${Tools}                        https://${host}/tools
+${Portal_url}                   https://${host}/portal
+${Alerts_url}                   https://${host}/alerts
+${NodeManagement_url}           https://${host}/node-mng
+${Catalog_url}                  https://${host}/catalog
+${Health_url}                   https://${host}/health
+${Rulesets_url}                 https://${host}/rulesets
+${PCAPs_url}                    https://${host}/pcaps
+${Tools_url}                    https://${host}/tools
+${Support_url}                  https://${host}/support
 
 
 # First Login Screen
@@ -43,32 +44,31 @@ ${locBannerAcceptButton}        id=kc-accept
 ${locDeletePcapBtn}             xpath=//td[text()="~"]/following-sibling::td/button[@mattooltip="Delete PCAP"]
 
 # Playing PCAP Dialog Box
-${locPcapPlayBtn}               xpath=//button[@id="cvah-pcap-form-td-7-action-button-play-arrow"]
-${locPcapSensorHostname}        id=cvah-replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select
-${locPcapPreserveTimestamp}     xpath=//mat-checkbox[@id='mat-checkbox-1']/label/div
-${locPcapSensorInterface}       xpath=//mat-select[@id='cvah-replay-pcap-dialog-div-mat-form-field-iface-mat-select']/div/div[2]/div
-${locPcapSensorInterfaceOptn}   xpath=//mat-option[@id='cvah-replay-pcap-dialog-div-mat-form-field-iface-mat-select-mat-option-0']/mat-pseudo-checkbox
-${locOverlayClick}              xpath=//div[3]/div[3]
+${locPcapPlayBtn}               xpath=//td[text() = "wannacry.pcap"]/following-sibling::td/button//em[text() = "play_arrow"]
+${locPcapDialogHostnameOpt}     xpath=//mat-option/span[contains(text(),"~")]
+${locPcapPreserveTimestamp}     xpath=//mat-checkbox//div[following-sibling::span[contains(text(), "Preserve timestamp")]]
+${locPcapSensorInterfaceOptn}   xpath=//mat-pseudo-checkbox[following-sibling::span[text() = "ens224"]]
 
 ### DIP Controller Variables ###
 # Side Nav Buttons
-${locNotificationsNavIcon}      id=cvah-notifications-open-dialog-window
+${locPortalPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Portal"]]
+${locAlertsPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Alerts"]]
+${locNodeMgmtPageNavIcon}       xpath=//mat-icon[following-sibling::div/h4[text() = "Node Management"]]
+${locCatalogPageNavIcon}        xpath=//mat-icon[following-sibling::div/h4[text() = "Catalog"]]
+${locHealthPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Health"]]
+${locRulesetNavIcon}            xpath=//mat-icon[following-sibling::div/h4[text() = "Rule Set"]]
+${locPcapNavIcon}               xpath=//mat-icon[following-sibling::div/h4[text() = "Test PCAP Files"]]
+${locToolsNavIcon}              xpath=//mat-icon[following-sibling::div/h4[text() = "Tools"]]
+${locSupportPageNavIcon}        xpath=//mat-icon[following-sibling::div/h4[text() = "PMO Support"]]
+
 ${locNotificationsPopup}        xpath=//*[contains(@id, "mat-dialog-")]
 ${locTopNotification}           id=cvah-notifications-dialog_window-0-0-statusactionapp
-${locExpandSideNavIcon}         id=app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav-trigger-mat-icon-arrow-forward
-
-
-${locCatalogPageNavIcon}        id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-1-mat-list-item-5-mat-icon
-${locHealthPageNavIcon}         id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-2-mat-list-item-0-mat-icon
-${locSupportPageNavIcon}        id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-6-mat-list-item-0-mat-icon
-${locPortalPageNavIcon}         id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-0-mat-list-item-2-mat-icon
-${locRulesetNavIcon}            id=app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-3-mat-list-item-0-mat-icon
-
-# Support Page
-${locSystemVersionNumber}       id=cvah-pmo-support-version
-${locServiceNowURL}             id=cvah-pmo-support-servicenow-website
 
 # Portal Page
+${locAddLinkNameInput}          xpath=//input[following-sibling::span//mat-label[text() = "Link Name"]]
+${locAddLinkUrlInput}           xpath=//input[following-sibling::span//mat-label[text() = "Link URL"]]
+${locAddLinkDescInput}          xpath=//input[following-sibling::span//mat-label[text() = "Link Description"]]
+${locUserLinkFirstTile}         xpath=//mat-grid-list/div[h3[text() = "User Links"]]/mat-grid-tile[1]
 ${locElasticLoginButton}        xpath=(//p[@class="euiTitle euiTitle--xsmall secLoginCard__title"])[2]
 
 #Tools Page

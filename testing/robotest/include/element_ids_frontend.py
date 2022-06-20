@@ -736,10 +736,10 @@ CVAH_NODE_MAINTENANCE_FORM__MAT_EXPANSION_PANEL = 'cvah-node-maintenance-form-ex
 
 
 # These are for notifications.component.html
-CVAH_NOTIFICATIONS__OPEN_DIALOG_WINDOW = 'cvah-notifications-open-dialog-window' # div
-CVAH_NOTIFICATIONS__LENGTH = 'cvah-notifications-length' # a
+CVAH_NOTIFICATIONS_OPEN_DIALOG_WINDOW = 'cvah-notifications-open-dialog-window' # div
+CVAH_NOTIFICATIONS_LENGTH = 'cvah-notifications-length' # a
 # TODO cvah-notifications-dialog_window-button-name-* # button
-CVAH_NOTIFICATIONS_DIALOG_WINDOW__BUTTON_CLEAR_ALL = 'cvah-notifications-dialog_window-button-clear-all' # button
+CVAH_NOTIFICATIONS_DIALOG_WINDOW_BUTTON_CLEAR_ALL = 'cvah-notifications-dialog_window-button-clear-all' # button
 # TODO cvah-notifications-dialog_window-*-*--statusactionapp # div
 # TODO cvah-notifications-dialog_window-*-message # div
 # TODO cvah-notifications-dialog_window-*-exception # div
@@ -856,14 +856,14 @@ CVAH_RULES_UPLOAD__BUTTON_UPLOAD = 'cvah-rules-upload-div-button-upload' # uploa
 
 
 # These are for portal.component.html
-CVAH_PORTAL__TITLE_BUTTON_ADD_LINK = 'cvah-portal-title-button-add-link' # button
+CVAH_PORTAL_TITLE_BUTTON_ADD_LINK = 'cvah-portal-title-button-add-link' # button
 # TODO cvah-portal-portal-link-*-dns # a
 # TODO cvah-portal-portal-link-*-ip # a
 # TODO cvah-portal-portal-link-*-logins # div
-# TODO cvah-portal-user-portal-link-*-name # div
-# TODO cvah-portal-user-portal-link-*-url # div
+CVAH_PORTAL_USER_PORTAL_LINK_NAME = 'cvah-portal-user-portal-link-*-name' # div
+CVAH_PORTAL_USER_PORTAL_LINK_URL = 'cvah-portal-user-portal-link-*-url' # div
 # TODO cvah-portal-user-portal-link-*-description # div
-# TODO cvah-portal-user-portal-link-*-button-delete # button
+CVAH_PORTAL_USER_PORTAL_LINK_BUTTON_DELETE = 'cvah-portal-user-portal-link-*-button-delete' # button
 # TODO cvah-portal-user-portal-link-*-description-substring # div
 
 
