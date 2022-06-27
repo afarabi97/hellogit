@@ -5,25 +5,12 @@ from app.models.nodes import NodeJob
 from app.service.job_service import delete_job, get_all_jobs, transform_jobs
 from app.utils.collections import mongo_console
 from app.utils.connection_mngs import REDIS_CLIENT, REDIS_QUEUE
+from app.utils.namespaces import JOB_NS
 from flask import Response
-from flask_restx import Namespace, Resource
+from flask_restx import Resource
 from rq import Worker
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
-
-JOB_NS = Namespace('jobs', description="Job Queue related operations.")
-
-#Endpoint for developer debugging
-@JOB_NS.route('/workers')
-class RedisWorker(Resource):
-
-    @JOB_NS.response(200, 'Success', [WorkerModel.DTO])
-    def get(self):
-        ret_val = []
-        workers = Worker.all(queue=REDIS_QUEUE)
-        for worker in workers:
-            ret_val.append(WorkerModel(worker).to_dict())
-        return ret_val
 
 
 @JOB_NS.route('/<job_id>')
@@ -89,18 +76,6 @@ class RedisJobs(Resource):
             job.delete()
 
         return ret_val
-
-
-@JOB_NS.route('/process/<process_name>')
-class RedisJobsByProcess(Resource):
-
-    @JOB_NS.response(200, 'BackgroundJob', [BackgroundJob.DTO])
-    def get(self, process_name: str):
-        jobs = []
-        for job in get_all_jobs():
-            if "tags" in job.meta and process_name in job.meta["tags"]:
-                jobs.append(job)
-        return transform_jobs(jobs)
 
 
 @JOB_NS.route('/log/<job_id>')

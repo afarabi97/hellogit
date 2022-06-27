@@ -6,9 +6,10 @@ from typing import Dict
 from app.middleware import controller_admin_required
 from app.models import DBModelNotFound
 from app.models.common import COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE, JobID
-from app.models.nodes import KIT_SETUP_NS, Node
+from app.models.nodes import Node
 from app.service.node_service import execute, get_kit_status
 from app.utils.constants import DEPLOYMENT_JOBS, JOB_DEPLOY
+from app.utils.namespaces import KIT_SETUP_NS
 from flask import Response
 from flask_restx import Resource
 

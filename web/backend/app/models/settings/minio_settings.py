@@ -1,21 +1,21 @@
+from ipaddress import IPv4Address
+from typing import Dict
+
 from app.models import Model
-from app.models.settings.general_settings import SETINGS_NS
-from app.utils.elastic import ElasticWrapper
-from app.utils.kubernetes import (get_kubernetes_secret,
-                                  patch_kubernetes_secret,
-                                  create_or_patch_kubernetes_secret)
+from app.utils.elastic import ElasticWrapper, wait_for_elastic_cluster_ready
+from app.utils.kubernetes import (create_or_patch_kubernetes_secret,
+                                  get_kubernetes_secret,
+                                  patch_kubernetes_secret)
 from app.utils.logging import rq_logger
+from app.utils.namespaces import SETINGS_NS
 from app.utils.utils import base64_to_string, string_to_base64
 from elasticsearch.exceptions import ConnectionError, NotFoundError
 from flask_restx import fields
-from ipaddress import IPv4Address
-from kubernetes.config.config_exception import ConfigException
 from kubernetes.client.exceptions import ApiException
+from kubernetes.config.config_exception import ConfigException
 from marshmallow import Schema
 from marshmallow import fields as marsh_fields
 from marshmallow import post_load, validate
-from typing import Dict
-from app.utils.elastic import wait_for_elastic_cluster_ready
 
 
 class RepoSettingsSchema(Schema):
@@ -29,8 +29,6 @@ class RepoSettingsSchema(Schema):
     @post_load
     def create_RepoSettings(self, data: Dict, many: bool, partial: bool):
         return RepoSettingsModel(**data)
-
-
 class RepoSettingsModel(Model):
     DTO = SETINGS_NS.model('RepoSettings', {
         "username": fields.String(example="user",

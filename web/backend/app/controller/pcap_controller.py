@@ -7,16 +7,16 @@ from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE,
                                JobID)
 from app.models.nodes import Node
 from app.models.pcap import PcapModel
-from app.models.ruleset import POLICY_NS, PCAPMetadata, PCAPReplayModel
+from app.models.ruleset import PCAPMetadata, PCAPReplayModel
 from app.models.settings.kit_settings import KitSettingsForm
 from app.service.pcap_service import (replay_pcap_using_preserve_timestamp,
                                       replay_pcap_using_tcpreplay)
 from app.utils.constants import DATE_FORMAT_STR, NODE_TYPES, PCAP_UPLOAD_DIR
+from app.utils.namespaces import POLICY_NS
 from app.utils.utils import hash_file
 from flask import Response, request
 from flask_restx import Resource
 from werkzeug.datastructures import FileStorage
-
 
 upload_parser = POLICY_NS.parser()
 upload_parser.add_argument(

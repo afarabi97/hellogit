@@ -1,8 +1,6 @@
 from app.models import Model
-from flask_restx import Namespace, fields
-
-
-TOOLS_NS = Namespace("tools", description="Tools page related operations.")
+from app.utils.namespaces import TOOLS_NS
+from flask_restx import fields
 
 COMMON_TOOLS_RETURNS = TOOLS_NS.model('Spaces', {
     "spaces": fields.List(fields.String(example="THISISCVAH"),

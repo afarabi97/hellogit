@@ -3,15 +3,11 @@ from typing import Dict
 from app.models import Model
 from app.utils.collections import mongo_hive_settings
 from app.utils.constants import HIVE_ID
-from flask_restx import Namespace, fields
+from app.utils.namespaces import ALERTS_NS, HIVE_NS
+from flask_restx import fields
 from marshmallow import Schema, ValidationError
 from marshmallow import fields as marsh_fields
 from marshmallow import post_load, validates
-
-ALERTS_NS = Namespace("alerts",
-                      description="Alerts related operations that allow operators to display or Acknowledge or Escalate alert events that come in.")
-
-HIVE_NS = Namespace("hive", description="Hive related webhook operations.")
 
 
 class AlertsModel(Model):

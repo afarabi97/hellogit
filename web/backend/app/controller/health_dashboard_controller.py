@@ -2,12 +2,12 @@ import time
 
 import urllib3
 from app.common import ERROR_RESPONSE
-from app.models.health import APP_NS, HEALTH_NS
 from app.service.health_service import client_session, get_kibana_ipaddress
 from app.utils.collections import mongo_kit_tokens, mongo_settings
 from app.utils.connection_mngs import KubernetesWrapper
 from app.utils.elastic import ElasticWrapper, get_elastic_password
 from app.utils.logging import logger
+from app.utils.namespaces import APP_NS, HEALTH_NS
 from app.utils.utils import get_domain
 from flask import Response
 from flask_restx import Resource, fields

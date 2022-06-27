@@ -26,7 +26,7 @@ except ImportError:
 INI = "/etc/tfplenum/tfplenum.ini"
 
 
-def get_version() -> dict:
+def get_version() -> str:
     config = configparser.ConfigParser()
     config.read(INI)
     try:
@@ -35,7 +35,7 @@ def get_version() -> dict:
         return None
 
 
-def get_build_date() -> dict:
+def get_build_date() -> str:
     config = configparser.ConfigParser()
     config.read(INI)
     try:

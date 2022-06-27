@@ -18,8 +18,7 @@ from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE,
                                CurrentTimeMdl)
 from app.models.nodes import Node
 from app.models.settings.kit_settings import KitSettingsForm
-from app.models.tools import (COMMON_TOOLS_RETURNS, TOOLS_NS,
-                              InitialDeviceStatesModel,
+from app.models.tools import (COMMON_TOOLS_RETURNS, InitialDeviceStatesModel,
                               NetworkDeviceStateModel, NetworkInterfaceModel,
                               NewPasswordModel)
 from app.service.elastic_service import (apply_es_deploy,
@@ -31,6 +30,7 @@ from app.utils.collections import mongo_catalog_saved_values
 from app.utils.connection_mngs import FabricConnection, KubernetesWrapper
 from app.utils.constants import TFPLENUM_CONFIGS_PATH
 from app.utils.logging import logger
+from app.utils.namespaces import TOOLS_NS
 from fabric.runners import Result
 from flask import Response, request
 from flask_restx import Resource

@@ -3,11 +3,12 @@ import traceback
 import yaml
 from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.middleware import controller_maintainer_required
-from app.models.scale import SCALE_NS, read, update
+from app.models.scale import read, update
 from app.service.scale_service import (es_cluster_status,
                                        get_allowable_scale_count, get_es_nodes,
                                        parse_nodes)
 from app.utils.logging import logger
+from app.utils.namespaces import SCALE_NS
 from flask import Response, request
 from flask_restx.resource import Resource
 

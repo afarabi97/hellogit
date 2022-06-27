@@ -1,11 +1,12 @@
 from typing import Dict
 
 from app.models.common import JobID
-from app.models.nodes import KIT_SETUP_NS, Node
+from app.models.nodes import Node
 from app.models.settings.kit_settings import GeneralSettingsForm
 from app.service.node_service import execute, send_notification
 from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_CREATE,
                                  MAC_BASE, NODE_TYPES, PXE_TYPES)
+from app.utils.namespaces import KIT_SETUP_NS
 from flask import Response
 from flask_restx import Resource
 from randmac import RandMac

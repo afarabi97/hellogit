@@ -1,11 +1,9 @@
 from app.models import Model
-from flask_restx import Namespace, fields
+from app.utils.namespaces import COMMON_NS
+from flask_restx import fields
 from rq.exceptions import NoSuchJobError
 from rq.job import Job, JobStatus
 from rq.worker import Worker
-
-COMMON_NS = Namespace("common", path="/",
-                      description="Common related operations.")
 
 """
 Example of the common Error format.

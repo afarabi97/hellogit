@@ -1,9 +1,8 @@
 from typing import List, Set
 
 from app.middleware import controller_maintainer_required
-from app.models.catalog import (CATALOG_NS, ChartInfoModel, ChartModel,
-                                ChartNodeModel, HELMActionModel,
-                                SavedHelmValuesModel)
+from app.models.catalog import (ChartInfoModel, ChartModel, ChartNodeModel,
+                                HELMActionModel, SavedHelmValuesModel)
 from app.models.common import COMMON_ERROR_MESSAGE, JobID
 from app.models.nodes import Node
 from app.service.catalog_service import (chart_info, delete_helm_apps,
@@ -15,6 +14,7 @@ from app.service.catalog_service import (chart_info, delete_helm_apps,
 from app.utils.collections import mongo_catalog_saved_values
 from app.utils.connection_mngs import objectify
 from app.utils.logging import logger
+from app.utils.namespaces import CATALOG_NS
 from flask import Response, request
 from flask_restx import Resource, fields
 

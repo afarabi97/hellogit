@@ -46,7 +46,7 @@ export const environment = {
   DIAGNOSTICS_SERVICE_DIAGNOSTICS: `/api/diagnostics`,
   DIAGNOSTICS_SERVICE_DIAGNOSTICS_DOWNLOAD: `/api/diagnostics/download/`,
 
-  SYSTEM_VERSION_SERVICE_SYSTEM_VERSION: `/api/version`,
+  SYSTEM_VERSION_SERVICE_SYSTEM_VERSION: `/api/version/information`,
 
   USER_SERVICE_CURRENT_USER: `/api/current_user`,
 

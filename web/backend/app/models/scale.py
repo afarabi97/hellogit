@@ -1,9 +1,6 @@
 from typing import Dict
 
 from app.utils.collections import mongo_elastic_deploy
-from flask_restx import Namespace
-
-SCALE_NS = Namespace("scale", description="Elastic scale related operations.")
 
 DEFAULT_QUERY = {"kind": "Elasticsearch"}
 

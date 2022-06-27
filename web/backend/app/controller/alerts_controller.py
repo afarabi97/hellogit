@@ -4,12 +4,12 @@ Main module for handling all of the config map REST calls.
 from collections import OrderedDict
 from typing import Dict, List
 
-from app.models.alerts import (ALERTS_NS, HIVE_NS, AlertsModel,
-                               HiveSettingsModel, UpdateAlertsModel)
+from app.models.alerts import AlertsModel, HiveSettingsModel, UpdateAlertsModel
 from app.models.common import COMMON_ERROR_DTO1
 from app.service.hive_service import (HiveFailureError, HiveService,
                                       configure_webhook)
 from app.utils.elastic import ElasticWrapper
+from app.utils.namespaces import ALERTS_NS, HIVE_NS
 from elasticsearch.exceptions import ConnectionTimeout, RequestError
 from flask import Response, request
 from flask_restx import Resource, fields

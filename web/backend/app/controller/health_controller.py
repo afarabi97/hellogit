@@ -8,8 +8,8 @@ from typing import Dict, List
 import requests
 from app.common import ERROR_RESPONSE, NO_CONTENT
 from app.middleware import login_required_roles
-from app.models.health import APP_NS, HEALTH_NS, DatastoreModel
-from app.models.kubernetes import (KUBERNETES_NS, KubernetesNodeMetricsModel,
+from app.models.health import DatastoreModel
+from app.models.kubernetes import (KubernetesNodeMetricsModel,
                                    KubernetesPodMetricsModel,
                                    NodeOrPodStatusModel, PodLogsModel)
 from app.models.nodes import Node
@@ -26,6 +26,7 @@ from app.utils.connection_mngs import KubernetesWrapper
 from app.utils.constants import NODE_TYPES
 from app.utils.elastic import ElasticWrapper
 from app.utils.logging import logger
+from app.utils.namespaces import APP_NS, HEALTH_NS, KUBERNETES_NS
 from bson import ObjectId
 from flask import Response, request
 from flask_restx import Resource, fields

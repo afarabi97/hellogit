@@ -3,7 +3,7 @@ from typing import Dict, List
 from app.middleware import controller_admin_required, login_required_roles
 from app.models import DBModelNotFound, PostValidationError
 from app.models.common import COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE, JobID
-from app.models.nodes import KIT_SETUP_NS, Node, NodeJob
+from app.models.nodes import Node, NodeJob
 from app.models.settings.kit_settings import (GeneralSettingsForm,
                                               KitSettingsForm)
 from app.models.settings.mip_settings import MipSettingsForm
@@ -18,6 +18,7 @@ from app.utils.collections import mongo_catalog_saved_values, mongo_node
 from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_CREATE,
                                  JOB_DEPLOY, JOB_PROVISION, JOB_REMOVE,
                                  MAC_BASE, NODE_TYPES, PXE_TYPES)
+from app.utils.namespaces import KIT_SETUP_NS
 from flask import Response, send_file
 from flask_restx import Resource
 from marshmallow.exceptions import ValidationError

@@ -7,11 +7,10 @@ from app.common import cursor_to_json_response
 from app.middleware import operator_required
 from app.service.portal_service import get_portal_links
 from app.utils.collections import mongo_user_links
+from app.utils.namespaces import PORTAL_NS
 from bson import ObjectId
 from flask import Response, request
-from flask_restx import Namespace, Resource
-
-PORTAL_NS = Namespace("portal", description="Portal related operations.")
+from flask_restx import Resource
 
 
 @PORTAL_NS.route("/links")

@@ -1,19 +1,12 @@
 from pathlib import Path
 
-from app.common import NOTFOUND_RESPONSE
-from app.models.common import JobID, COMMON_ERROR_MESSAGE
-from app.utils.logging import logger
+from app.models.common import COMMON_ERROR_MESSAGE, JobID
 from app.service.diagnostics_service import run_diagnostics
 from app.utils.collections import mongo_console
+from app.utils.logging import logger
+from app.utils.namespaces import DIAGNOSTICS_NS
 from flask import send_file
-from flask_restx import Namespace, Resource
-
-from app.models import Model
-
-DIAGNOSTICS_NS = Namespace(
-    "diagnostics",
-    description="Run diagnostics to help service desk troubleshoot tickets.",
-)
+from flask_restx import Resource
 
 DOWNLOAD_DIR = "/var/www/html/downloads"
 
@@ -26,7 +19,7 @@ class Diagnostics(Resource):
     def post(self):
         try:
             job = run_diagnostics.delay()
-            return JobID(job).to_dict()                 
+            return JobID(job).to_dict()
         except Exception as e:
             logger.exception(e)
             return {"error_message": str(e)}, 500

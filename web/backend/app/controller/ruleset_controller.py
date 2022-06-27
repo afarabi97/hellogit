@@ -8,8 +8,7 @@ from app.common import ERROR_RESPONSE
 from app.middleware import operator_required
 from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_MESSAGE,
                                COMMON_SUCCESS_MESSAGE, JobID)
-from app.models.ruleset import (POLICY_NS, RuleModel, RuleSetModel,
-                                TestAgainstPcap)
+from app.models.ruleset import RuleModel, RuleSetModel, TestAgainstPcap
 from app.service.ruleset_service import (InvalidRuleSyntax, ProhibitedExecFunc,
                                          check_zeek_exec_module,
                                          create_rule_from_file,
@@ -28,6 +27,7 @@ from app.service.rulesync_service import perform_rulesync
 from app.utils.collections import mongo_rule, mongo_ruleset
 from app.utils.constants import DATE_FORMAT_STR, RULE_TYPES, RULESET_STATES
 from app.utils.logging import logger
+from app.utils.namespaces import POLICY_NS
 from flask import Response, request
 from flask_restx import Resource
 from pymongo import ReturnDocument

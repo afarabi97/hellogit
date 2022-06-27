@@ -2,8 +2,9 @@ from typing import List, Tuple
 
 import requests
 from app.models.common import COMMON_ERROR_MESSAGE
-from app.models.kubernetes import KUBERNETES_NS, DockerImageModel
+from app.models.kubernetes import DockerImageModel
 from app.utils.logging import logger
+from app.utils.namespaces import KUBERNETES_NS
 from flask import Response
 from flask_restx import Resource
 

@@ -16,7 +16,8 @@ from app.utils.collections import mongo_jobs, mongo_node
 from app.utils.constants import (CORE_DIR, DEPLOYMENT_TYPES, JOB_CREATE,
                                  JOB_DEPLOY, JOB_PROVISION, JOB_REMOVE,
                                  MIP_DIR, NODE_TYPES, TEMPLATE_DIR)
-from flask_restx import Namespace, fields
+from app.utils.namespaces import KIT_SETUP_NS
+from flask_restx import fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from marshmallow import Schema, ValidationError
 from marshmallow import fields as marsh_fields
@@ -27,8 +28,6 @@ JINJA_ENV = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR)),
     autoescape=select_autoescape(['html', 'xml'])
 )
-
-KIT_SETUP_NS = Namespace("kit", description="Kit setup related operations.")
 
 
 def has_consecutive_chars(password: str) -> bool:

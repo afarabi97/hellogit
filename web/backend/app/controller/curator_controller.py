@@ -3,15 +3,16 @@ import re
 from app.middleware import controller_maintainer_required
 from app.models import PostValidationBasicError
 from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
-from app.models.curator import ElasticIndexModel, CURATOR_NS, CuratorProcessModel
+from app.models.curator import CuratorProcessModel, ElasticIndexModel
 from app.models.settings.minio_settings import RepoSettingsModel
 from app.service.curator_service import execute_curator
-from app.utils.elastic import ElasticWrapper, wait_for_elastic_cluster_ready, Timeout
+from app.utils.elastic import (ElasticWrapper, Timeout,
+                               wait_for_elastic_cluster_ready)
 from app.utils.logging import logger
 from app.utils.minio import MinIOManager
+from app.utils.namespaces import CURATOR_NS
 from flask import Response, request
 from flask_restx import Resource
-
 
 EXCLUDE_FILTER = (
     "^(.ml-config|.kibana|.monitoring|.watches|.apm|.triggered_watches|.security|.siem-signals|.security-tokens|"

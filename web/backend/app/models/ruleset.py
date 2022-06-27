@@ -2,10 +2,8 @@ from typing import Dict
 
 from app.models import Model
 from app.utils.constants import RULE_TYPES, RULESET_STATES
-from flask_restx import Namespace, fields
-
-POLICY_NS = Namespace(
-    'policy', description="Policy management related operations for Suricata and Zeek.")
+from app.utils.namespaces import POLICY_NS
+from flask_restx import fields
 
 
 class SimpleSensor(Model):

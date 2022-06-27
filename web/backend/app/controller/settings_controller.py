@@ -6,27 +6,26 @@ from typing import Dict, List
 
 from app.middleware import controller_admin_required
 from app.models import DBModelNotFound, PostValidationError
-from app.models.common import COMMON_ERROR_DTO, COMMON_MESSAGE, JobID
+from app.models.common import (COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE,
+                               COMMON_MESSAGE, JobID)
 from app.models.settings.esxi_settings import EsxiSettingsForm
-from app.models.settings.general_settings import (SETINGS_NS,
-                                                  GeneralSettingsForm)
+from app.models.settings.general_settings import GeneralSettingsForm
 from app.models.settings.kit_settings import KitSettingsForm
-from app.models.settings.mip_settings import MipSettingsForm
-from app.models.common import COMMON_ERROR_MESSAGE, JobID
 from app.models.settings.minio_settings import RepoSettingsModel
+from app.models.settings.mip_settings import MipSettingsForm
 from app.service.elastic_service import setup_s3_repository
 from app.service.node_service import execute, send_notification
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.constants import DEPLOYMENT_JOBS
-from app.utils.elastic import wait_for_elastic_cluster_ready, Timeout
+from app.utils.elastic import Timeout, wait_for_elastic_cluster_ready
 from app.utils.logging import logger
 from app.utils.minio import MinIOManager
+from app.utils.namespaces import SETINGS_NS
 from flask import Response
 from flask_restx import Resource
 from marshmallow.exceptions import ValidationError
 from pyVim.connect import Connect
 from pyVmomi import vim
-
 
 _JOB_NAME = "Settings"
 

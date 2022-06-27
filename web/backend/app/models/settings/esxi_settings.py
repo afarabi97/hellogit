@@ -9,10 +9,10 @@ from ipaddress import IPv4Address
 from typing import Dict
 
 from app.models import Model
-from app.models.settings.general_settings import SETINGS_NS
 from app.models.settings.settings_base import SettingsBase
 from app.utils.collections import mongo_settings
 from app.utils.constants import CORE_DIR, ESXI_SETTINGS_ID, TEMPLATE_DIR
+from app.utils.namespaces import SETINGS_NS
 from app.utils.utils import base64_to_string, string_to_base64
 from flask_restx import fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape

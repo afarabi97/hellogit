@@ -1,10 +1,10 @@
+from typing import Dict, List
+
 from app.models import Model, PostValidationBasicError
+from app.utils.namespaces import CURATOR_NS
 from app.utils.utils import camel_case_split
-from flask_restx import fields, Namespace
-from typing import List, Dict
+from flask_restx import fields
 
-
-CURATOR_NS = Namespace("curator", description="Elasticsearch curator.")
 ELASTIC_INDEX_DESC = "The name of the index stored in Elasticsearch."
 ELASIC_INDEX_EXAMPLE = "auditbeat-internal-2022.05.30-000022"
 

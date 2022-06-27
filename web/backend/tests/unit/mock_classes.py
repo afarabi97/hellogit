@@ -1,9 +1,9 @@
 import json
+from typing import Tuple
 
 from app.models import Model
 from app.models.settings.minio_settings import RepoSettingsModel
 from kubernetes import client
-from typing import Tuple
 from tests.unit import TEST_SAMPLES_DIR
 
 

@@ -4,11 +4,8 @@ from typing import Dict
 from app.models import Model
 from app.utils.collections import mongo_configurations
 from app.utils.constants import WINDOWS_COLD_LOG_CONFIG_ID
-from flask_restx import Namespace
 from werkzeug.datastructures import FileStorage, ImmutableMultiDict
 from werkzeug.utils import secure_filename
-
-COLDLOG_NS = Namespace("coldlog", description="Cold log service operations.")
 
 
 class ColdLogUploadModel(Model):

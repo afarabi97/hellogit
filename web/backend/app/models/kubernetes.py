@@ -1,8 +1,6 @@
 from app.models import Model
-from flask_restx import Namespace, fields
-
-KUBERNETES_NS = Namespace(
-    "kubernetes", description="Kubernetes related operations.")
+from app.utils.namespaces import KUBERNETES_NS
+from flask_restx import fields
 
 
 class DockerImageMetadataModel(Model):

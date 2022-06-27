@@ -11,7 +11,8 @@ from app.models import Model
 from app.models.settings.settings_base import SettingsBase
 from app.utils.collections import mongo_settings
 from app.utils.constants import CORE_DIR, GENERAL_SETTINGS_ID, TEMPLATE_DIR
-from flask_restx import Namespace, fields
+from app.utils.namespaces import SETINGS_NS
+from flask_restx import fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from marshmallow import Schema, ValidationError
 from marshmallow import fields as marsh_fields
@@ -21,8 +22,6 @@ JINJA_ENV = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR)),
     autoescape=select_autoescape(['html', 'xml'])
 )
-
-SETINGS_NS = Namespace('settings', description="Kit setup related operations.")
 
 
 def _generate_general_settings_inventory():

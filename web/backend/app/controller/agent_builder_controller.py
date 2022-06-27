@@ -21,18 +21,16 @@ from app.utils.collections import (mongo_windows_installer_configs,
 from app.utils.constants import (AGENT_PKGS_DIR, AGENT_UPLOAD_DIR,
                                  TARGET_STATES, TEMPLATE_DIR)
 from app.utils.logging import logger
-from app.utils.utils import string_to_base64, fix_hostname, sanitize_dictionary
+from app.utils.namespaces import AGENT_NS
+from app.utils.utils import fix_hostname, sanitize_dictionary, string_to_base64
 from bson import ObjectId
 from flask import Response, json, request, send_file
-from flask_restx import Namespace, Resource
+from flask_restx import Resource
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pymongo import ReturnDocument
 
 win_install_cnxn = mongo_windows_installer_configs()
 win_targets_cnxn = mongo_windows_target_lists()
-
-AGENT_NS = Namespace(
-    "agent", description="Create and deploy various agent installations.")
 
 JINJA_ENV = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR)),
@@ -357,8 +355,7 @@ class AgentInstall(Resource):
 @AGENT_NS.route('/reinstall')
 class AgentReinstall(Resource):
 
-    AGENT_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
-
+    @AGENT_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
     @operator_required
     def post(self) -> Response:
         payload = request.get_json()

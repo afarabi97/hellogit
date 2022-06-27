@@ -3,9 +3,10 @@ import subprocess
 from app.common import (CONFLICT_RESPONSE, ERROR_RESPONSE, NO_CONTENT,
                         NOTFOUND_RESPONSE)
 from app.middleware import login_required_roles
-from app.models.kit_tokens import TOKEN_NS, kit_token, kit_token_list
+from app.models.kit_tokens import kit_token, kit_token_list
 from app.utils.collections import mongo_kit_tokens
 from app.utils.logging import logger
+from app.utils.namespaces import TOKEN_NS
 from bson import ObjectId
 from flask import Response, request
 from flask_restx import Resource

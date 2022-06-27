@@ -5,11 +5,11 @@ from typing import List, Union
 
 from app.middleware import controller_maintainer_required
 from app.models.common import COMMON_ERROR_MESSAGE
-from app.models.kubernetes import (KUBERNETES_NS, AssociatedPodModel,
-                                   ConfigMapSave)
+from app.models.kubernetes import AssociatedPodModel, ConfigMapSave
 from app.service.configmap_service import bounce_pods
 from app.utils.connection_mngs import KitFormNotFound, KubernetesWrapper
 from app.utils.logging import logger
+from app.utils.namespaces import KUBERNETES_NS
 from flask import Response, jsonify, request
 from flask_restx import Resource
 from kubernetes import client

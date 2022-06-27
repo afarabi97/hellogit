@@ -6,9 +6,10 @@ from typing import List
 
 import netifaces
 from app.middleware import Auth
-from app.models.common import COMMON_NS, COMMON_RETURNS
+from app.models.common import COMMON_RETURNS
 from app.service.job_service import run_command
 from app.utils.constants import CONTROLLER_INTERFACE_NAME
+from app.utils.namespaces import COMMON_NS
 from app.utils.utils import filter_ip
 from flask import Response
 from flask_restx import Resource
