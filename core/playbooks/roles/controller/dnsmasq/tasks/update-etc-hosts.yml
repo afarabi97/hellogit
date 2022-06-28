@@ -49,24 +49,6 @@
       - kube_hosts is defined
     notify: "Restart Dnsmasq"
 
-  - name: Set Hardware URLs
-    vars:
-      oct: "{{ ansible_default_ipv4.address.split('.')[1] }}"
-    set_fact:
-      hardware_url:
-        - "10.{{ oct }}.2.67 SANManagement"
-        - "10.{{ oct }}.2.68 SANNic1"
-        - "10.{{ oct }}.2.69 SANNic2"
-
-  - name: Add Hardware devices to Host
-    blockinfile:
-      path: /etc/hosts
-      marker: "# {mark} SAN {{ item.split(' ')[1] }}"
-      block: |
-        {{ item }}
-    loop: "{{ hardware_url }}"
-    notify: "Restart Dnsmasq"
-
   - name: Get External Kube DNS
     shell: |
       kubectl get svc -n kube-system kube-dns-external -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
