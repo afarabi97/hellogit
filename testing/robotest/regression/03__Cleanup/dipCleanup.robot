@@ -26,21 +26,17 @@ Suite Teardown    Close All Connections
 
 
 *** Test Cases ***
-Install Apps From Catalog Page
+Uninstall Apps From Catalog Page
     [Tags]  THISISCVAH-10181
     [Documentation]  Check functionality of the Catalog page by installing and uninstalling PMO supported apps.
     Set Selenium Speed            0.5s
-    Install Dependent Apps        Arkime-viewer    Arkime
-    Install Independent Apps      Logstash    Suricata    Zeek    Rocketchat  Wikijs
-    Install Independent Apps      Mattermost    Nifi    Jcat-nifi    Redmine    Netflow-filebeat
-    Install Dependent Apps        Cortex    Misp    Hive
+    Clean Up Catalog Page
 
-Add Node - Virtual
-    [Tags]  THISISCVAH-10220
-    [Documentation]  Adds one of each type of virtual node (server, sensor, service) to the kit
+Remove Node - Virtual
+    [Tags]  THISISCVAH-10221
+    [Documentation]  Removes virtual nodes that were added in the previous test
     Set Selenium Speed  0.5s
     Navigate To Node Management
-    Enter Virtual Node Information  node_type=server  hostname=robottest-server
-    Enter Virtual Node Information  node_type=sensor  hostname=robottest-sensor
-    Enter Virtual Node Information  node_type=service  hostname=robottest-service
-    Verify Node Was Added  robottest-server  robottest-sensor  robottest-service
+    Delete Node  text=robottest-sensor
+    Delete Node  text=robottest-service
+    Verify Node Was Deleted  robottest-sensor  robottest-service

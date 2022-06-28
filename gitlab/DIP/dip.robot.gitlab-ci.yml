@@ -7,8 +7,7 @@ robot:sso_login:
   script: |
     OUTPUT=$(python3 -m run.runner -c integration \
       -t "000_initial_login/00_dipInitialSSOLogin" \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
@@ -32,8 +31,7 @@ robot:catalog:independents:
   script: |
     OUTPUT=$(python3 -m run.runner -c integration \
       -t "010_install_catalog_apps/00_installPMOApps" \
-      -r INTEGRATION \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
@@ -65,8 +63,7 @@ robot:catalog:community:
   script: |
     OUTPUT=$(python3 -m run.runner -c integration \
       -t "010_install_catalog_apps/00_installCommunityApps" \
-      -r INTEGRATION \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
@@ -98,8 +95,7 @@ robot:catalog:arkime:
   script: |
     OUTPUT=$(python3 -m run.runner -c integration \
       -t "010_install_catalog_apps/00_installArkime" \
-      -r INTEGRATION \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
@@ -131,8 +127,7 @@ robot:catalog:CHM:
   script: |
     OUTPUT=$(python3 -m run.runner -c integration \
       -t "010_install_catalog_apps/00_installCortexMispHive" \
-      -r INTEGRATION \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
@@ -165,8 +160,7 @@ robot:rulesets:sync:
     curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
     OUTPUT=$(python3 -m run.runner -c integration \
       -t "011_rulesets/01_dipSyncRulesets" \
-      -r INTEGRATION \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
@@ -200,8 +194,7 @@ robot:elastic:alerts:
   script: |
     OUTPUT=$(python3 -m run.runner -c integration \
       -t "012_elastic/00_dipAlerts" \
-      -r INTEGRATION \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
@@ -225,8 +218,7 @@ robot:add_virtual_sensor:
   script: |
     OUTPUT=$(python3 -m run.runner -c integration \
       -t "013_sensors/00_addVirtualSensor" \
-      -r INTEGRATION \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
@@ -250,8 +242,7 @@ robot:cleanup:virtual_sensor:
   script: |
     OUTPUT=$(python3 -m run.runner -c integration \
       -t "cleanup/01_dipRemoveSensor" \
-      -r INTEGRATION \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
@@ -278,8 +269,7 @@ robot:regression_testing:
     curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
     curl -k -o /usr/src/robot/data-with-image_robot.pcap  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/pcap/data-with-image_robot.pcap
     OUTPUT=$(python3 -m run.runner -c regression \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
+      -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
@@ -292,6 +282,6 @@ robot:regression_testing:
   allow_failure: true
   only:
     variables:
-      - $RUN_REGRESSION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
+      - ($RUN_REGRESSION == "yes" && $RUN_INTEGRATION == "no") && $PIPELINE == "developer-all"
+      - ($RUN_REGRESSION == "yes" && $RUN_INTEGRATION == "no") && $PIPELINE == "hw-developer-all"
   retry: 2

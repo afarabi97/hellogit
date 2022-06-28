@@ -5,35 +5,6 @@ Variables   ../include/element_ids_frontend.py
 
 
 *** Keywords ***
-Install/Uninstall Every App
-    [Documentation]  Installs apps from Catalog page and verifies successful install by checking the app card, notifications
-    ...              and the Health page. The app is then immediately uninstalled.
-    Set Selenium Speed  0.5s
-    Navigate To Catalog
-    log     Installing all applications on Catalog page
-    ${skip_apps} =  Create List  Arkime-viewer  Remote-health-agent  Hive  Misp
-    Wait Until Element Is Visible  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
-    ${app_name_count} =  Get Element Count  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
-    FOR  ${index}  IN RANGE  ${app_name_count}
-        ${app_name} =  Get Text  id=cvah-chart-list-${index}-cvah-application-card-div-div-div-h3-chart-application
-        IF  '${app_name}' == 'Arkime'
-            Install App  Arkime-viewer
-            Install App  ${app_name}
-            Uninstall App  ${app_name}
-            Uninstall App  Arkime-viewer
-        ELSE IF  '${app_name}' == 'Cortex'
-            Install App  ${app_name}
-            Install App  Misp
-            Install App  Hive
-            Uninstall App  Hive
-            Uninstall App  Misp
-            Uninstall App  ${app_name}
-        ELSE IF  $app_name not in $skip_apps
-            Install App  ${app_name}
-            Uninstall App  ${app_name}
-        END
-    END
-
 Install Multiple Apps
     [Arguments]  @{application_list}    ${asynchronous}=${TRUE}    ${retry}=60x    ${retry_interval}=10s    ${SKIP_ALL_VERIFICATION}=${FALSE}
     [Documentation]  Installs one or many apps from Catalog page. If the applications
@@ -257,9 +228,10 @@ Uninstall App
     [Arguments]  ${application_name}
     [Documentation]  Uninstalls specified app via the Catalog page
     Navigate To Catalog
+    Check For Snack Bar Container
     ${index} =  Find App index  ${application_name}
 
-    ${app_card_status} =  Set Variable  xpath=//*[@id="cvah-chart-list-div-cvah-application-card-${index}"]/div/div[2]/div[1]/div[2]/p
+    ${app_card_status} =  Set Variable  xpath=//*[@id="cvah-chart-list-div-cvah-application-card-${index}"]/div/div[2]/div[1]/div[2]
     lookForElement  ${app_card_status}
     ${app_status_text} =  Get Text  ${app_card_status}
     ${app_status_text} =  Fetch From Right  ${app_status_text}  :
@@ -267,43 +239,41 @@ Uninstall App
     Return From Keyword If  '${app_status_text}' == 'Not Installed'  # App does not need to be uninstalled
 
     ${config_app_button} =  Inject  ${CVAH_CHART_LIST__CVAH_APPLICATION_CARD__BUTTON_CONFIGURE_APPLICATION}  ${index}  replacement_pattern=*
-    lookForElement  ${config_app_button}
-    Click Button  ${config_app_button}
-    Run Keyword If  '${application_name}' == 'Arkime'
-    ...  Run Keywords    Run Keyword And Ignore Error    lookForElement    ${locArkimeIsDependent}    timeout=2s
-    ...  AND     Run Keyword And Ignore Error    click    ${locArkimeIsDependentContBtn}
-    lookForElement  ${locSelectProcessDropdown}
+    click  ${config_app_button}
+    IF  '${application_name}' == 'Arkime'
+        Run Keyword And Ignore Error    lookForElement    ${locArkimeIsDependent}    timeout=2s
+        Run Keyword And Ignore Error    click    ${locArkimeIsDependentContBtn}
+    END
     click  ${locSelectProcessDropdown}
     ${process_select_options} =  Get WebElements  xpath=//*[contains(@id, "-form-field-process-mat-select-mat-option-")]
     ${uninstall_button} =  Set Variable  ${process_select_options[-1]}  # Uninstall btn should be last index position of options list
     click  ${uninstall_button}
-    Run Keyword if  '${application_name}' == 'Arkime' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
-    ...  Run Keywords  click  ${locNodeSelection}
-    ...  AND  click  ${locFirstNodeOption}
-    ...  AND  Press Keys  None  TAB
+    IF  '${application_name}' == 'Arkime' or '${application_name}' == 'Suricata' or '${application_name}' == 'Zeek'
+        click  ${locNodeSelection}
+        click  ${locFirstNodeOption}
+        Press Keys  None  TAB
+    END
     Click Button  ${CVAH_CATALOG_PAGE__PROCESS_STEP_BUTTON_RUN}
-    ${application_card} =  Set Variable  id=cvah-chart-list-div-cvah-application-card-${index}
-    Wait Until Keyword Succeeds  5x  5s  Check App Card Status  ${application_name}  Not Installed
-    click  ${CVAH_NOTIFICATIONS_OPEN_DIALOG_WINDOW}
-    Wait Until Element Contains  ${locTopNotification}  COMPLETED Uninstalling ${application_name}  10m
-    Press Keys  None  ESCAPE
-    Sleep  10s
 
 Clean Up Catalog Page
     [Documentation]  Uninstalls all apps that have been installed on the Catalog page.
     Set Selenium Speed  0.5s
-    Runner Open Browser  ${HOST}  ${BROWSER}
-    Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
-    lookFor    Portal
     Navigate To Catalog
+    lookForElement  ${CVAH_CATALOG__MAT_SLIDE_TOGGLE_COMMUNITY_APPLICATIONS_INPUT}
+    ${comm_app_is_checked} =  Get Element Attribute  ${CVAH_CATALOG__MAT_SLIDE_TOGGLE_COMMUNITY_APPLICATIONS_INPUT}  aria-checked
+    Run Keyword If  '${comm_app_is_checked}' == 'false'  click  ${CVAH_CATALOG__MAT_SLIDE_TOGGLE_COMMUNITY_APPLICATIONS}
 
+    @{app_name_list} =  Create List
     Wait Until Element Is Visible  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
     ${app_name_count} =  Get Element Count  xpath=//*[contains(@id, "-cvah-application-card-div-div-div-h3-chart-application")]
     FOR  ${index}  IN RANGE  ${app_name_count}
         ${app_name} =  Get Text  id=cvah-chart-list-${index}-cvah-application-card-div-div-div-h3-chart-application
+        Append To List  ${app_name_list}  ${app_name}
         Uninstall App  ${app_name}
     END
-    Close Browser
+    FOR  ${app_name}  IN  @{app_name_list}
+        Wait Until Keyword Succeeds  5x  5s  Check App Card Status  ${app_name}  Not Installed
+    END
 
 Find App index
     [Arguments]  ${application_name}

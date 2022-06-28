@@ -72,7 +72,10 @@ ${locToolsNavIcon}              xpath=//mat-icon[following-sibling::div/h4[text(
 ${locSupportPageNavIcon}        xpath=//mat-icon[following-sibling::div/h4[text() = "PMO Support"]]
 
 ${locNotificationsPopup}        xpath=//*[contains(@id, "mat-dialog-")]
+${locTopNotificationStatus}     id=cvah-notifications-dialog_window-0-0-statusactionapp
 ${locTopNotificationMsg}        id=cvah-notifications-dialog_window-0-0-message
+
+${locSnackBarContainerBtn}      xpath=//snack-bar-container//button/span[text() = "Close" or text() = "OK"]
 
 # Portal Page
 ${locAddLinkNameInput}          xpath=//input[following-sibling::span//mat-label[text() = "Link Name"]]

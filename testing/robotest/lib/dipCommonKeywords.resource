@@ -215,9 +215,11 @@ Check For Snack Bar Container
     ...              snack bar element is not present.
     ${previous_kw} =  Register Keyword To Run On Failure  None
     ${snack_bar_visible} =  Run Keyword And Return Status
-    ...                     Page Should Contain Element  xpath=//snack-bar-container//button/span[text() = "Close"]
+    ...                     Page Should Contain Element  ${locSnackBarContainerBtn}
     ...                     message=Snack bar container message not visible.
-    Run Keyword If  ${snack_bar_visible}  click  xpath=//snack-bar-container//button/span[text() = "Close"]
+    IF  ${snack_bar_visible}
+        Run Keyword And Continue On Failure  click  ${locSnackBarContainerBtn}
+    END
     Register Keyword To Run On Failure  ${previous kw}
 
 Get Kibana Credentials
@@ -307,6 +309,8 @@ Play ${pcap} PCAP
     # The interface will not show up with Preserve Timestamp On, Only with it unselected
     # so if Preserve Timewstamp is checked off, do not select an interface
     IF      "${pcap}" == "Wannacry"
+        lookForElement  ${locPcapPlayBtn}
+        Scroll Element Into View  ${locPcapPlayBtn}
         click    ${locPcapPlayBtn}
         click    ${CVAH_REPLAY_PCAP_DIALOG__SENSOR_HOSTNAME_MAT_SELECT}
         click    ${locPcapDialogHostnameOpt}  injector=${sensor_name}
