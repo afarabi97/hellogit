@@ -1,4 +1,5 @@
 import { ValidatorFn, Validators } from '@angular/forms';
+import { ConfirmActionConfigurationInterface } from 'src/app/interfaces';
 
 import { COMMON_VALIDATORS } from '../../../constants/cvah.constants';
 import { validateFromArray } from '../../../validators/generic-validators.validator';
@@ -41,3 +42,23 @@ export const LOGSTASH_NOT_DEPLOYED_STATE_MESSAGE: string = 'Logstash is not in a
 export const LOGSTASH_NO_DATA_MESSAGE: string = 'Before using this page, it is recommended that you install Logstash on your Kubernetes cluster. ' +
                                                 'Please go to the Catalog page and install it. Failing to install it will cause Winlogbeats and ' +
                                                 'Endgame agent data capture to Elasticsearch to fail.';
+
+export const SAVE_CONFIRM_ACTION_CONFIGURATION: ConfirmActionConfigurationInterface = {
+  title: 'Close and save',
+  message: 'Are you sure you want to save this configuration?',
+  confirmButtonText: 'Save',
+  successText: `Successfully saved the config.`,
+  failText: 'Could not save',
+  useGeneralActionFunc: true,
+  actionFunc: () => {}
+};
+
+export const CLOSE_CONFIRM_ACTION_CONFIGURATION: ConfirmActionConfigurationInterface = {
+  title: 'Close without updating',
+  message: 'Are you sure you want to close this editor? All changes will be discarded.',
+  confirmButtonText: 'Close',
+  successText: 'Closed without updating',
+  failText: '',
+  useGeneralActionFunc: true,
+  actionFunc: () => {}
+};

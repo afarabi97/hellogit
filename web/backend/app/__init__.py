@@ -16,6 +16,7 @@ from app.utils.collections import mongo
 from app.utils.logging import init_loggers
 from flask import Flask
 from flask_cors import CORS
+from pathlib import Path
 
 init_loggers()
 
@@ -53,3 +54,6 @@ def create_app(test_config=None) -> Flask:
     flask_app.register_blueprint(api_blueprint, url_prefix="/api")
 
     return flask_app
+
+
+PROJECT_ROOT_DIR = str(Path(__file__).parent.parent.parent.parent.absolute())

@@ -16,5 +16,7 @@
             "required": true,
             "default_value": "5045"
         }
-    ]
+    ],
+    "hasEditableConfig": false,
+    "configLocation": "templates/filebeat.yml"
 }

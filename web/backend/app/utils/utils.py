@@ -105,6 +105,23 @@ def hash_file(some_path: Union[str, Path], chunk_size=8192) -> Dict:
     }
 
 
+def hash_string(content: str) -> Dict:
+    content = bytes(content, "utf-8")
+    md5 = hashlib.md5()
+    sha1 = hashlib.sha1()
+    sha256 = hashlib.sha256()
+
+    md5.update(content)
+    sha1.update(content)
+    sha256.update(content)
+
+    return {
+        "md5": md5.hexdigest(),
+        "sha1": sha1.hexdigest(),
+        "sha256": sha256.hexdigest(),
+    }
+
+
 def tar_folder(folder_to_tar: str, path_of_archive: str):
     folder = Path(folder_to_tar)
     if folder.exists() and folder.is_dir():

@@ -8,5 +8,12 @@ import { ElementSpecInterface } from './element-spec.interface';
  */
 export interface AppConfigInterface {
   name: string;
+  hasEditableConfig?: boolean;
+  configLocation?: string;
   form?: ElementSpecInterface[];
+}
+
+export interface AppConfigContentInterface {
+  filename: string;
+  content: string;
 }

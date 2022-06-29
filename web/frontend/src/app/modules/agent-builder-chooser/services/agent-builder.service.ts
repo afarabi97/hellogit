@@ -8,12 +8,13 @@ import { SuccessMessageClass } from '../../../classes';
 import { HTTP_OPTIONS } from '../../../constants/cvah.constants';
 import { EntityConfig, SuccessMessageInterface } from '../../../interfaces';
 import { ApiService } from '../../../services/abstract/api.service';
-import { AgentInstallerConfigurationClass, AppConfigClass, HostClass, IPTargetListClass } from '../classes';
+import { AgentInstallerConfigurationClass, AppConfigClass, AppConfigContentClass, HostClass, IPTargetListClass } from '../classes';
 import {
   AgentBuilderServiceInterface,
   AgentInstallerConfigurationInterface,
   AgentInterface,
   AgentTargetInterface,
+  AppConfigContentInterface,
   AppConfigInterface,
   HostInterface,
   IPTargetListInterface
@@ -228,5 +229,23 @@ export class AgentBuilderService extends ApiService<any> implements AgentBuilder
     return this.httpClient_.get<AppConfigInterface[]>(environment.AGENT_BUILDER_SERVICE_AGENT_CONFIGS)
       .pipe(map((response: AppConfigInterface[]) => response.map((ac: AppConfigInterface) => new AppConfigClass(ac))),
             catchError((error: HttpErrorResponse) => this.handleError('get app configs', error)));
+  }
+
+  /**
+   * REST call to get app config content
+   *
+   * @param config_type
+   * @returns
+   */
+  get_config_content(config_name: string, config_type: string): Observable<any> {
+    return this.httpClient_.get<AppConfigContentInterface>(environment.AGENT_BUILDER_SERVICE_AGENT_CONFIG_CONTENT + `${config_name}/${config_type}`)
+              .pipe(map((response: AppConfigContentInterface) => new AppConfigContentClass(response)),
+                catchError((error: HttpErrorResponse) => this.handleError('get app configs', error)));
+  }
+
+  post_config_content(config_name: string, config_type: string, config_content: string): Observable<any> {
+    return this.httpClient_.post<SuccessMessageInterface>(environment.AGENT_BUILDER_SERVICE_AGENT_CONFIG_CONTENT + `${config_name}/${config_type}`, config_content)
+              .pipe(map((response: SuccessMessageInterface) => new SuccessMessageClass(response)),
+                catchError((error: HttpErrorResponse) => this.handleError('get app configs', error)));
   }
 }

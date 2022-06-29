@@ -1,3 +1,5 @@
 {
-    "name": "Sysmon"
+    "name": "Sysmon",
+    "hasEditableConfig": true,
+    "configLocation": "templates/sysmonconfig-export.xml"
 }

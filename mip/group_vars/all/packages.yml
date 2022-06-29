@@ -96,6 +96,7 @@ packages:
   - protobuf-c
   - criu
   - runc
+  - podman
 
 dependent_packages:
   - gtk3-immodule-xim

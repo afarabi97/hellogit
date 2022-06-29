@@ -14,11 +14,13 @@ import {
   CANCEL_DIALOG_OPTION,
   COMMON_VALIDATORS,
   CONFIRM_DIALOG_OPTION,
+  DIALOG_HEIGHT_90VH,
   DIALOG_MAX_HEIGHT_800PX,
   DIALOG_WIDTH_800PX,
+  DIALOG_WIDTH_80VW,
   MAT_SNACKBAR_CONFIGURATION_60000_DUR
 } from '../../constants/cvah.constants';
-import { BackingObjectInterface, ConfirmDialogMatDialogDataInterface } from '../../interfaces';
+import { BackingObjectInterface, ConfirmDialogMatDialogDataInterface, TextEditorConfigurationInterface } from '../../interfaces';
 import {
   DialogControlTypes,
   DialogFormControl,
@@ -29,9 +31,11 @@ import { CatalogService } from '../../services/catalog.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
+import { NGXMonacoTextEditorComponent } from '../ngx-monaco-text-editor/ngx-monaco-text-editor.component';
 import {
   AgentInstallerConfigurationClass,
   AppConfigClass,
+  AppConfigContentClass,
   CustomPackageClass,
   HostClass,
   IPTargetListClass,
@@ -55,17 +59,17 @@ import {
   UNINSTALL,
   UNINSTALL_WINDOWS_HOST,
   UNINSTALL_WINDOWS_HOSTS,
-  UNINSTALLS
+  UNINSTALLS,
+  CLOSE_CONFIRM_ACTION_CONFIGURATION,
+  SAVE_CONFIRM_ACTION_CONFIGURATION
 } from './constants/agent-builder-chooser.constant';
 import {
   AgentDetailsDialogDataInterface,
-  AgentInstallerConfigurationInterface,
   AgentInstallerDialogDataInterface,
   AgentInterface,
   AgentTargetInterface,
   AppNameAppConfigPairInterface,
   HostInterface,
-  IPTargetListInterface,
   MatTableRowIPTargetListInterface
 } from './interfaces';
 import { AgentBuilderService } from './services/agent-builder.service';
@@ -362,6 +366,48 @@ export class AgentBuilderChooserComponent implements OnInit {
             this.api_agent_delete_config_(agent_installer_configuration);
           }
         });
+  }
+
+  open_config_text_editor_(agent_installer_configuration: AgentInstallerConfigurationClass,
+                           config_type: string,
+                           sub_config: any): void {
+    const is_editable = sub_config['hasEditableConfig'];
+    this.agent_builder_service_.get_config_content(agent_installer_configuration.config_name, config_type).subscribe(data => {
+      if (data && data instanceof AppConfigContentClass){
+        const text_editor_configuration: TextEditorConfigurationInterface = {
+          show_options: true,
+          is_read_only: !is_editable,
+          title: `Editing ${config_type}.yml`,
+          text: data.content,
+          use_language: 'yaml',
+          disable_save: !is_editable,
+          confirm_save: SAVE_CONFIRM_ACTION_CONFIGURATION,
+          confirm_close: CLOSE_CONFIRM_ACTION_CONFIGURATION
+        };
+        const mat_dialog_ref: MatDialogRef<NGXMonacoTextEditorComponent, any> = this.mat_dialog_.open(NGXMonacoTextEditorComponent, {
+          height: DIALOG_HEIGHT_90VH,
+          width: DIALOG_WIDTH_80VW,
+          disableClose: true,
+          data: text_editor_configuration,
+        });
+
+        mat_dialog_ref.afterClosed()
+          .pipe(untilDestroyed(this))
+          .subscribe(
+            (response: string) => {
+              /* istanbul ignore else */
+              if (ObjectUtilitiesClass.notUndefNull(response)) {
+                this.agent_builder_service_.post_config_content(agent_installer_configuration.config_name, config_type, response).subscribe(message => {
+                  if (message && message instanceof SuccessMessageClass){
+                    this.mat_snackbar_service_.displaySnackBar(message.success_message)
+                  } else {
+                    this.mat_snackbar_service_.displaySnackBar("Unexpected. This was suppose to return a message from the server.")
+                  }
+                });
+              }
+            });
+      }
+    });
   }
 
   /**

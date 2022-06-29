@@ -9,6 +9,7 @@ export const environment = {
   AGENT_BUILDER_SERVICE_AGENTS_UNINSTALL: `/api/agent/uninstall`,
   AGENT_BUILDER_SERVICE_AGENT_REINSTALL: `/api/agent/reinstall`,
   AGENT_BUILDER_SERVICE_AGENT_CONFIGS: `/api/agent/configs`,
+  AGENT_BUILDER_SERVICE_AGENT_CONFIG_CONTENT: `/api/agent/config_content/`,
 
   SENSOR_HOST_INFO_SERVICE_GET_SENSOR_HOST_INFO: `/api/policy/sensor/info`,
 

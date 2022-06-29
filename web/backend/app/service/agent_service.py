@@ -18,18 +18,17 @@ from app.utils.collections import mongo_windows_target_lists
 from app.utils.connection_mngs import REDIS_CLIENT, get_kubernetes_certifcate_secret
 from app.utils.constants import (AGENT_PKGS_DIR, AGENT_UPLOAD_DIR,
                                  DATE_FORMAT_STR, TARGET_STATES)
-from app.utils.logging import rq_logger
+from app.utils.logging import rq_logger, logger
 from app.utils.tfwinrm_util import (WindowsConnectionManager,
                                     WinrmCommandFailure)
 from app.utils.utils import base64_to_string, get_app_context, zip_package
 from bson import ObjectId
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader, select_autoescape, BaseLoader
 from kubernetes.client.rest import ApiException
 from rq.decorators import job
 from urllib3.connectionpool import log
 
 _JOB_NAME = "agent"
-
 
 class EndgameAgentException(Exception):
     pass
@@ -149,6 +148,49 @@ class AgentBuilder:
         with open(str(Path(out_file_path)), "w") as out_file:
             out_file.write(template_out)
 
+    def _create_config_from_mongo(self,
+                                  config_type: str,
+                                  template_ctx: Dict) -> bool:
+        """Creates the config from mongo
+
+        Args:
+            config_type (str): winlogbeat,sysmon, etc
+            template_ctx (Dict): the context of the template.
+
+        Returns:
+            bool: False if it fails to return a template rendering, True otherwise.
+        """
+        if ("customPackages" not in self._installer_config or
+            config_type.capitalize() not in self._installer_config["customPackages"]):
+            return False
+
+        sub_config = self._installer_config["customPackages"][config_type.capitalize()]
+        if ("content" not in sub_config or
+            "configLocation" not in sub_config or
+            len(sub_config["configLocation"]) == 0):
+            return False
+
+        config_location = sub_config["configLocation"]
+        template_path = AGENT_PKGS_DIR / f"{config_type}/{config_location}"
+        if not template_path.exists():
+            logger.warn(str(template) + " does not exist.")
+            return False
+
+        pos = str(template_path).rfind("/")
+        template_dir = str(template_path)[: pos + 1]
+        template_name = template_path.name
+        out_file_path = template_dir + "../" + template_name
+        template = Environment(
+            loader=BaseLoader(),
+            autoescape=select_autoescape(["html", "xml"]),
+        ).from_string(sub_config["content"])
+
+        template_out = template.render(template_ctx=template_ctx)
+        with open(str(Path(out_file_path)), "w") as out_file:
+            out_file.write(template_out)
+
+        return True
+
     def _copy_package(self, folder_to_copy: str, dst_folder: str):
         pos = folder_to_copy.rfind("/")
         shutil.copytree(folder_to_copy, dst_folder + folder_to_copy[pos:])
@@ -203,11 +245,12 @@ class AgentBuilder:
             except ApiException:
                 pass
 
-    def _process_templates_dir(self, tpl_dir: Path, tpl_context: Dict):
+    def _process_templates_dir(self, application_name: str, tpl_dir: Path, tpl_context: Dict):
         if tpl_dir.exists() and tpl_dir.is_dir():
             templates = tpl_dir.glob("*")
             for template in templates:
-                self._create_config(template, tpl_context)
+                if not self._create_config_from_mongo(application_name, tpl_context):
+                    self._create_config(template, tpl_context)
 
     def _copy_zip_packages_from_offlinerepo(self, application_name:str):
         for fname in glob.glob(f"/var/www/html/offlinerepo/beats/{application_name}/*.zip"):
@@ -223,7 +266,7 @@ class AgentBuilder:
         tpl_dir = pkg_folder / "templates"
         kubernetes_dir = pkg_folder / "kubernetes"
         folder_to_copy = str(pkg_folder)
-        self._process_templates_dir(tpl_dir, tpl_context)
+        self._process_templates_dir(application_name, tpl_dir, tpl_context)
         self._process_kubernetes_dir(
             kubernetes_dir, application_name, folder_to_copy)
         self._copy_zip_packages_from_offlinerepo(application_name)

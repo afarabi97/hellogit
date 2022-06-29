@@ -8,6 +8,9 @@ from app.common import FORBIDDEN_RESPONSE
 from app.utils.constants import (CONTROLLER_ADMIN_ROLE,
                                  CONTROLLER_MAINTAINER_ROLE, OPERATOR_ROLE,
                                  REALM_ADMIN_ROLE, WEB_DIR)
+from app.utils.logging import logger
+from marshmallow.exceptions import ValidationError
+from app.models import PostValidationError, DBModelNotFound
 from werkzeug.wrappers import Request, Response
 
 JWT_DIR = "/opt/sso-idp/jwt/"
@@ -256,6 +259,26 @@ def operator_required(f):
         return f(*args, **kwargs)
 
     return wrap
+
+
+def handle_errors(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except ValidationError as e:
+            logger.exception(e)
+            return e.normalized_messages(), 400
+        except PostValidationError as e:
+            logger.exception(e)
+            return {"post_validation": e.errors_msgs}, 400
+        except DBModelNotFound as e:
+            logger.exception(e)
+            return {"post_validation": [str(e)]}, 400
+        except Exception as e:
+            logger.exception(e)
+            return {"error_message": str(e)}, 500
+    return wrapper
 
 
 # @login_required_roles(['operator','asdf'], all_roles_req=True)

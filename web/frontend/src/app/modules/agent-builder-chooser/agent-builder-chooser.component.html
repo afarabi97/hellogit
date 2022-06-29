@@ -63,8 +63,13 @@
         <!-- Action -->
         <ng-container matColumnDef="actions">
           <th scope="col" mat-header-cell *matHeaderCellDef>Action</th>
-          <td mat-cell *matCellDef="let config; let z = index;"
-              id="{{ 'app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-content-table-td-' + z + '-actions' }}">
+          <td mat-cell *matCellDef="let config; let z = index;">
+            <button mat-icon-button
+                    [matMenuTriggerFor]="configMenu"
+                    [matMenuTriggerData]="{ config: config }"
+                    (click)="$event.stopPropagation()">
+              <mat-icon>more_vert</mat-icon>
+            </button>
             <button mat-icon-button id="{{ 'app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-content-table-td-' + z + '-actions-button' }}"
                     (click)="delete_agent_installer_configuration_confirm_dialog(config)">
               <em id="{{ 'app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-content-table-td-' + z + '-actions-button-em-delete' }}"
@@ -86,8 +91,6 @@
         <em id="app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-actions-button-download-installer-em-cloud-download"
             class="material-icons" style="padding-right: 0.5em;">cloud_download</em>Download Installer
       </button>
-      <button mat-raised-button id="app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-actions-button-details"
-              color="primary" [disabled]="agent_installer_configuration_selection && check_custom_packages(agent_installer_configuration_selection) ? false : true" (click)="show_agent_installer_configuration(agent_installer_configuration_selection)">Details</button>
     </mat-card-actions>
   </mat-card>
   <br>
@@ -252,5 +255,20 @@
             (click)="remove_hosts_from_ip_target_list(target_config, host_list, host, host_index)">
       <mat-icon id="{{ element_id + '-button-remove-agent-entry-mat-icon-delete-forever' }}">delete_forever</mat-icon><span>Remove Agent entry</span>
     </button>
+  </ng-template>
+</mat-menu>
+
+<mat-menu #configMenu="matMenu">
+  <ng-template matMenuContent let-config="config">
+    <button mat-menu-item
+            [disabled]="config && check_custom_packages(config) ? false : true"
+            (click)="show_agent_installer_configuration(config)">
+      <mat-icon style="color: lightblue;">info</mat-icon><span>Config Details</span>
+    </button>
+    <div *ngFor="let item of config.customPackages | keyvalue">
+      <button *ngIf="item.value.configLocation" mat-menu-item (click)="open_config_text_editor_(config, item.key, item.value)">
+        <mat-icon style="color: #1eb980;">edit</mat-icon><span>Edit {{ item.key }} config</span>
+      </button>
+    </div>
   </ng-template>
 </mat-menu>

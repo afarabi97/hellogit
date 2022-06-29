@@ -28,7 +28,8 @@ function CheckService([string]$service_name) {
 function install_sysmon() {
     Try {
         _unzip "$Script:script_path\Sysmon.zip" "C:\Program Files\Sysmon"
-        & C:\'Program Files'\Sysmon\$Script:service_name.exe -i -accepteula 2> $null
+        Copy-Item -Path .\sysmonconfig-export.xml -Destination "C:\Program Files\Sysmon\sysmonconfig-export.xml" -Force
+        & C:\'Program Files'\Sysmon\$Script:service_name.exe -i "C:\Program Files\Sysmon\sysmonconfig-export.xml" -accepteula 2> $null
         CheckService -service_name $Script:service_name
     } Catch {
         Write-Host "Caught exception installing sysmon: ", $_.Exception

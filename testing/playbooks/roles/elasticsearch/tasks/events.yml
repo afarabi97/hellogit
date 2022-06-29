@@ -25,7 +25,7 @@
     force_basic_auth: yes
     method: DELETE
   loop: "{{ indexes.json }}"
-  when: "{{ item.status == 'close' }}"
+  when: item.status == 'close'
   ignore_errors: yes
 
 - name: Check Suricata and Zeek Traffic

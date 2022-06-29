@@ -10,8 +10,9 @@ from typing import Dict, List, Union
 
 import requests
 import urllib3
+from app import PROJECT_ROOT_DIR
 from app.common import cursor_to_json_response
-from app.middleware import operator_required
+from app.middleware import operator_required, handle_errors
 from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
 from app.service.agent_service import (build_agent_if_not_exists,
                                        perform_agent_reinstall)
@@ -366,3 +367,34 @@ class AgentReinstall(Resource):
         _create_and_run_celery_tasks(payload, hostname)
         return {"success_message": "Initiated reinstall task on {}. \
                                     Open the notification manager to track its progress.".format(hostname)}
+
+
+@AGENT_NS.route('/config_content/<config_name>/<config_type>')
+class ConfigurationEditor(Resource):
+
+    @AGENT_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
+    @handle_errors
+    def get(self, config_name: str, config_type: str):
+        main_config = win_install_cnxn.find_one({"config_name": config_name})
+        sub_config = main_config["customPackages"][config_type]
+        config_location = sub_config["configLocation"]
+        if "content" in sub_config and len(sub_config["content"]) > 0:
+            return {"filename": config_location, "content": sub_config["content"]}, 200
+
+        config_type = config_type.lower()
+        with open(f"{PROJECT_ROOT_DIR}/agent_pkgs/{config_type}/{config_location}", "r") as f:
+            content = f.read()
+
+        return {"filename": config_location, "content": content}, 200
+
+    @operator_required
+    @handle_errors
+    def post(self, config_name: str, config_type: str):
+        main_config = win_install_cnxn.find_one({"config_name": config_name})
+        sub_config = main_config["customPackages"][config_type]
+        sub_config["content"] = request.data.decode()
+        win_install_cnxn.find_one_and_replace({"config_name": config_name},
+                                              main_config,
+                                              return_document=ReturnDocument.AFTER)
+
+        return {"success_message": f"Successfully saved the {config_type} configuration!"}, 200
