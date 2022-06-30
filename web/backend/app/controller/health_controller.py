@@ -276,7 +276,9 @@ class ZeekPackets(Resource):
             nodes = get_k8s_app_nodes("zeek")
             if nodes:
                 for sensor in nodes:
-                    stats = get_zeek_stats(sensor["node_name"])
+                    # ignores closed but not deleted indices
+                    stats = get_zeek_stats(
+                        sensor["node_name"], ignore_unavailable=True)
 
                     if stats["hits"]["total"]["value"] > 0:
                         packets_dropped = int(

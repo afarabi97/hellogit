@@ -437,16 +437,26 @@ def get_kibana_ipaddress():
     return ERROR_RESPONSE
 
 
-def get_zeek_stats(sensor: str) -> dict:
+def get_zeek_stats(sensor: str, ignore_unavailable: bool = True) -> dict:
+    """
+    Get Zeek Stats for the given sensor hostname from Elasticsearch. Ignore unavailable nodes by default.
+
+    Args:
+        sensor (str): _description_
+        ignore_unavailable (bool, optional): Ignores unavailable indices. Defaults to True.
+
+    Returns:
+        dict: The Zeek stats in dictionary format.
+    """
     client = ElasticWrapper()
     sensor_hostname = sensor
     stats = client.search(
         body=_create_body(sensor_hostname),
         index="filebeat-zeek*",
         doc_type=None,
-        params={'ignore_unavailable': 'true'},
         headers=None,
         request_timeout=20,
+        ignore_unavailable=ignore_unavailable
     )
     return stats
 

@@ -24,33 +24,13 @@ alias run_flask_unit_tests='/opt/tfplenum/web/backend/run_unit_tests.sh'
 alias run_flask_unit_tests_with_coverage='/opt/tfplenum/web/backend/run_unit_tests.sh coverage'
 alias run_acceptance_tests='/opt/tfplenum/web/backend/run_acceptance_tests.sh'
 alias update_local_helm_charts='/opt/tfplenum/.venv/bin/python3 /opt/tfplenum/component-builder/update_charts.py --chart local'
-function run_tfplenum_docker_test () {
-    bname=$(basename "$PWD")
-    TEST_TYPE="${unit:+"acceptance"}"
-    TEST_SECTION="${backend:+frontend}"
-    while [[ $# -gt 0 ]]; do
-        key="$1"
-        case $key in
-            -S|--section)
-                TEST_SECTION=${2}
-                shift 2
-            ;;
-
-            -T|--type)
-                TEST_TYPE=${2}
-                shift 2
-            ;;
-        esac
-    done
-    if [[ "${bname}" == "tfplenum" ]]; then
-        docker run --rm --volume="$PWD"/web/:/opt/tfplenum/web/ -it docker.nexus.sil.lab/tfplenum/code-checker:1.6 /bin/bash -c "pushd /opt/tfplenum/web/ && ./run_tfplenum_tests.sh -T $TEST_TYPE -S $TEST_SECTION --from-code-checker --with-coverage"
-    else
-        # This will try to switch to the root directory and run again. If the root directory doesn't exit it exits
-        echo "Assuming we're on the controller, not a local development environment"
-        echo "This is best ran from the root tfplenum directory"
-        pushd /opt/tfplenum/ > /dev/null && docker run --rm --volume="$PWD"/web:/opt/tfplenum/web/ -it docker.nexus.sil.lab/tfplenum/code-checker:1.6 /bin/bash -c "pushd /opt/tfplenum/web/ && ./run_tfplenum_tests.sh -T $TEST_TYPE -S $TEST_SECTION --from-code-checker --with-coverage"
-    fi
-}
 alias run_backend_docker_unit_tests='run_tfplenum_docker_test -S backend -T unit'
 alias run_backend_docker_acceptance_tests='run_tfplenum_docker_test -S backend -T acceptance'
 alias run_debug_rqworker='systemctl stop rqworker@{1..20};redis-cli FLUSHDB;/opt/tfplenum/.venv/bin/rqworker --path /opt/tfplenum/web/backend/'
+alias start_rq_workers='systemctl start rqworker@{1..20};'
+alias refresh='source /root/.bashrc'
+
+if [ -f "/opt/tfplenum/.dev_bash_functions" ]; then
+    # shellcheck disable=SC1091
+    source "/opt/tfplenum/.dev_bash_functions"
+fi

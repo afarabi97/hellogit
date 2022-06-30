@@ -201,6 +201,11 @@ Navigate To ${page}
         Get Hive IP
         Go To  ${HIVE_IP}
         lookFor  Sign in to start your session
+    ELSE IF  "${page}" == "Index Management"
+        ${locIndexManagementPageNavIcon} =  Inject  ${locNavIconTmpl}  ${page}
+        click  ${locIndexManagementPageNavIcon}
+        lookFor  ElasticSearch Index Management
+        Location Should Be  ${IndexManagement_url}
     END
 
 Check For Snack Bar Container

@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+
+# These are dev commands that are used in the dev environment.
+# They are not used in the production environment.
+# They are not included in the rpm package.
+
+
+function pip_install_through_nexus() {
+    #/ Usage: pip_install_through_nexus [<flags_or_pypackages>]
+    #/
+    #/ Runs one pip install command through the nexus proxy.
+    #/ Replaces the reference to the offline repo in the pip.conf file with
+    #/ the nexus repo proxy. Executes pip install and restores the pip.conf file.
+    #/
+    #/ Output: contents of pip freeze to stdout if there was a change in requirements
+    local root_pip_conf_dir="/root/.pip/"
+    local root_pip_conf_file="/root/.pip/pip.conf"
+    local root_pip_conf_bkup_file="/root/.pip/pip.conf.bkup"
+    local root_pip_conf_temp_nexus_file="/root/.pip/pip.conf.nexus"
+    local root_pip_conf_nexus_content="[global]\nindex-url = https://nexus.sil.lab/repository/pypi/simple\ntrusted-host = nexus.sil.lab"
+    local tfplenum_pyactivate="/opt/tfplenum/.venv/bin/activate"
+    local exit_code=0
+    local pip_freeze
+
+    # Activate Python Environment
+    # shellcheck disable=SC1090
+    source $tfplenum_pyactivate
+
+    # Move into /root/.pip/ directory
+    pushd $root_pip_conf_dir > /dev/null || exit
+
+    # Backup pip.conf to pip.conf.bkup. Update
+    # pip.conf to use the Nexus Repository Pull Through Proxy.
+    mv -f $root_pip_conf_file $root_pip_conf_bkup_file > /dev/null || exit
+    printf "%b" "$root_pip_conf_nexus_content" 2>/dev/null 1>>  $root_pip_conf_file
+
+    local orig_pip_freeze=$(pip freeze 2> /dev/null)
+
+    # Run Installation arguments to install the package(s)
+    pip install -q "$@" 2> /dev/null || exit_code=$?; if [ $exit_code -ne 0 ]; then echo -e "\nPip install encountered an error!\nExit Code:\t$exit_code\n"; else pip_freeze=$(pip freeze 2> /dev/null); fi;
+
+    # Restore pip.conf
+    mv -f $root_pip_conf_file $root_pip_conf_temp_nexus_file > /dev/null || exit
+    mv $root_pip_conf_bkup_file $root_pip_conf_file 2> /dev/null
+
+    # Remove the temporary nexus pip.conf file
+    rm -f $root_pip_conf_temp_nexus_file 2> /dev/null
+
+    # Return to the original directory
+    popd > /dev/null || exit
+
+    # Deactivate Python Environment
+    # shellcheck disable=SC1090
+    deactivate 2>/dev/null
+
+    # If pip_freeze result is not empty, AND
+    # If orig_pip_freeze is not equal to pip_freeze,
+    # Then echo pip_freeze to stdout.
+    if [[ -n "${pip_freeze}" && "${pip_freeze}" != "${orig_pip_freeze}" ]]; then
+        echo "$pip_freeze"
+    fi
+}
+
+function pip_requirements () {
+    #/ Usage: pip_requirements
+    #/
+    #/ Runs pip install on all the requirements files in the requirements directory.
+    local IS_HELP=no
+    local tfplenum_pyactivate="/opt/tfplenum/.venv/bin/activate"
+
+    function _show_help () {
+        echo "
+        Usage: pip_requirements - Runs pip freeze on the tfplenum Python environment
+
+        Arguments:
+        -h, --help              show this help message and exit
+        -s, --source-path       Path to the virtual environments activate script.
+                                defaults to /opt/tfplenum/.venv/bin/activate
+
+        Output: pip freeze output to stdout
+        "
+    }
+
+
+    POSITIONAL=()
+    while (( $# > 0 )); do
+        case "${1}" in
+
+            -h|--help)
+                IS_HELP=yes
+                shift
+            ;;
+
+            -s|--source-path)
+                numOfArgs=1 # number of switch arguments
+                if (( $# < numOfArgs + 1 )); then
+                    IS_HELP=yes
+                    shift $#
+                else
+
+                    echo "source_path: ${1} with value: ${2}"
+                    if [ -f "${2}" ]; then
+                        tfplenum_pyactivate="${2}"
+                    else
+                        IS_HELP=yes
+                        echo "ERROR: ${2} is not a file"
+                    fi
+
+                    shift $((numOfArgs + 1)) # shift 'numOfArgs + 1' to bypass switch and its value
+                fi
+            ;;
+            *) # unknown flag/switch
+                IS_HELP=yes
+                shift
+            ;;
+        esac
+    done
+    set -- "${POSITIONAL[@]}" # restore positional params
+
+    if [[ $IS_HELP == "no" ]]; then
+        # shellcheck disable=SC1090
+        source "$tfplenum_pyactivate"
+        local pip_freeze=$(pip freeze 2> /dev/null)
+        echo "$pip_freeze"
+    else
+        _show_help
+    fi
+
+}
+
+function run_tfplenum_docker_test () {
+    bname=$(basename "$PWD")
+    TEST_TYPE="${unit:+"acceptance"}"
+    TEST_SECTION="${backend:+frontend}"
+    while [[ $# -gt 0 ]]; do
+        key="$1"
+        case $key in
+            -S|--section)
+                TEST_SECTION=${2}
+                shift 2
+            ;;
+
+            -T|--type)
+                TEST_TYPE=${2}
+                shift 2
+            ;;
+        esac
+    done
+    if [[ "${bname}" == "tfplenum" ]]; then
+        docker run --rm --volume="$PWD"/web/:/opt/tfplenum/web/ -it docker.nexus.sil.lab/tfplenum/code-checker:1.6 /bin/bash -c "pushd /opt/tfplenum/web/ && ./run_tfplenum_tests.sh -T $TEST_TYPE -S $TEST_SECTION --from-code-checker --with-coverage"
+    else
+        # This will try to switch to the root directory and run again. If the root directory doesn't exit it exits
+        echo "Assuming we're on the controller, not a local development environment"
+        echo "This is best ran from the root tfplenum directory"
+        pushd /opt/tfplenum/ > /dev/null && docker run --rm --volume="$PWD"/web:/opt/tfplenum/web/ -it docker.nexus.sil.lab/tfplenum/code-checker:1.6 /bin/bash -c "pushd /opt/tfplenum/web/ && ./run_tfplenum_tests.sh -T $TEST_TYPE -S $TEST_SECTION --from-code-checker --with-coverage"
+    fi
+}

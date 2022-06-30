@@ -1,6 +1,7 @@
+from typing import Dict, List, Optional
 from robot.libraries.BuiltIn import BuiltIn
 from robot.api import logger
-import requests
+from requests import request, Response
 from robot.api.deco import library, keyword
 from typing import List
 from fabric import Connection, Config
@@ -74,6 +75,7 @@ class TFPlenumLibrary:
     RULE_UPLOAD_ENDPOINT = "/policy/rule/upload"
     SENSOR_INFO_ENDPOINT = "/policy/sensor/info"
     ZEEK_CHART_STATUS_ENDPOINT = "/catalog/chart/zeek/status"
+    APP_PACKET_HEALTH_ENDPOINT = "/app/{}/packets"
     SURICATA_CHART_STATUS_ENDPOINT = "/catalog/chart/suricata/status"
     EVERY_CHART_STATUS_ENDPOINT = "/catalog/charts/status"
     PCAP_UPLOAD_ENDPOINT = "/policy/pcap/upload"
@@ -113,7 +115,8 @@ class TFPlenumLibrary:
         if len(injections) > 1:
             rcount = 1
         for injection in injections:
-            injection = injection if isinstance(injection, str) else str(injection)
+            injection = injection if isinstance(
+                injection, str) else str(injection)
             ret_string = ret_string.replace(
                 replacement_pattern, injection, rcount)
         print("TFPlenum Library | inject | Injection was successful!")
@@ -306,14 +309,39 @@ class TFPlenumLibrary:
             if ruleset['name'] == ruleset_name:
                 ruleset_id = ruleset['_id']
 
-        rules_file = {"upload_file": open(f'/usr/src/robot/{file_name}','rb')}
+        rules_file = {"upload_file": open(f'/usr/src/robot/{file_name}', 'rb')}
         ruleset_model = {"ruleSetForm": '{"_id": "' + ruleset_id + '"}'}
         return self.api_post_rule_to_ruleset(rules_file, ruleset_model, jsonify=False)
 
     @keyword
     def upload_pcap(self, file_name: str):
-        pcap_file = {"upload_file": open(f'/usr/src/robot/{file_name}','rb')}
+        pcap_file = {"upload_file": open(f'/usr/src/robot/{file_name}', 'rb')}
         return self.api_post_pcap_to_controller(pcap_file, jsonify=False)
+
+    @keyword
+    def check_app_packet_health(self, app_name: str) -> Optional[Dict]:
+        """
+        Gets the packet health of the specified app. As of now, this applies only to Zeek and Suricata.
+        This is to see how many packets were dropped by the app.
+
+        Args:
+            app_name (str): The name of the app you are querying for. (Suricata, Zeek)
+
+        Returns:
+            int: status code of the request
+        """
+        assert app_name.lower() == "suricata" or "zeek", "The app name must be either Suricata or Zeek"
+        try:
+            response = self.api_get_packet_health(
+                self.APP_PACKET_HEALTH_ENDPOINT.format(app_name.lower()), jsonify=False)
+            json_response = response.json()  # type: ignore
+
+            # TODO: Figure out if we want to accept only a certain amount of dropped packets
+            if response.status_code == 200 and json_response:  # type: ignore
+                return {"is_healthy": True, "content": json_response}
+        except AttributeError:
+            self._alogger("check_app_packet_health", "No response from API")
+        return None
 
     # API Calls (not to be used in robot tests directly)
 
@@ -343,7 +371,10 @@ class TFPlenumLibrary:
         return self.execute_request(self.PCAP_UPLOAD_ENDPOINT, request_type="POST",
                                     files=pcap_file, jsonify=jsonify)
 
-    def execute_request(self, endpoint, request_type="GET", files=None, payload=None, jsonify=True):
+    def api_get_packet_health(self, endpoint, jsonify=True):
+        return self.execute_request(endpoint, jsonify=jsonify)
+
+    def execute_request(self, endpoint, request_type="GET", files=None, payload=None, jsonify=True) -> Optional[Response | Dict | List]:
         files = files or {}
         payload = payload or {}
         self._tfplenum_lib_test_setup()
@@ -352,12 +383,12 @@ class TFPlenumLibrary:
             request_type = request_type.upper()
             endpoint = endpoint.strip().lstrip("/")
             url = f"{self.BASE_API_URL}/{endpoint}"
-            response = requests.request(
+            response = request(
                 request_type, url, headers=self.HEADERS, files=files, data=payload
             )
             response.raise_for_status()
-        except:
-            self._alogger("THERE WAS AN ERROR", endpoint, request_type)
+        except Exception as e:
+            self._alogger(e, endpoint, request_type)
         else:
             if jsonify:
                 self._alogger(response.json(), endpoint, request_type)

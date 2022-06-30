@@ -1,6 +1,7 @@
 *** Settings ***
 Resource    ../../lib/dipCommonKeywords.resource
 Resource    ../../lib/dipRulesetKeywords.resource
+Resource    ../../lib/dipElasticKeywords.resource
 
 Library    SeleniumLibrary    15s
 Library    SSHLibrary         15s
@@ -53,3 +54,10 @@ Check MinIO (Elastic) Backup Capability
     ${closed_list} =  Get Closed Elastic Indexes  ${HOST}  ${HOST_PASSWORD}
     log  ${closed_list}
     Lists Should Be Equal  ${index_name_list}  ${closed_list}  ignore_order=True
+Run Index Management Test
+    [Tags]                           THISISCVAH-12853
+    [Documentation]                  Run Index Management Tests
+    Set Selenium Speed               0.5s
+    Install Multiple Apps            Zeek    Suricata
+    Close Indexes And Validate       Zeek    Suricata
+

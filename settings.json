@@ -1,10 +1,16 @@
 {
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true,
-    "python.linting.pylintArgs": [
-        "--enable=F,E,C,R,W",
-        "--disable="
-    ],
-    "python.linting.lintOnSave": true,
-    "editor.formatOnSave": false,
+  "python.linting.pylintEnabled": true,
+  "python.linting.enabled": true,
+  "python.linting.pylintArgs": ["--enable=F,E,C,R,W", "--disable="],
+  "python.linting.lintOnSave": true,
+  "editor.formatOnSave": false,
+  "yaml.customTags": [
+    "!ControllerSetupSettings mapping",
+    "!NodeSettings mapping",
+    "!NodeSettingsV2 mapping",
+    "!VCenterSettings mapping",
+    "!RepoSettings mapping",
+    "!KitSettingsV2 mapping",
+    "!KitSettingsDef mapping"
+  ]
 }

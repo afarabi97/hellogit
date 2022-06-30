@@ -25,6 +25,7 @@ ${Rulesets_url}                 https://${host}/rulesets
 ${PCAPs_url}                    https://${host}/pcaps
 ${Tools_url}                    https://${host}/tools
 ${Support_url}                  https://${host}/support
+${IndexManagement_url}          https://${host}/index_management
 
 
 # First Login Screen
@@ -59,6 +60,7 @@ ${locPreserveTimestampCheckbox}  xpath=//mat-checkbox[@formcontrolname="preserve
 
 ### DIP Controller Variables ###
 # Side Nav Buttons
+${locNavIconTmpl}               xpath=//mat-icon[following-sibling::div/h4[text() = "~"]]
 ${locPortalPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Portal"]]
 ${locAlertsPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Alerts"]]
 ${locNodeMgmtPageNavIcon}       xpath=//mat-icon[following-sibling::div/h4[text() = "Node Management"]]
