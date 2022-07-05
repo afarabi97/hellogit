@@ -20,3 +20,4 @@ def run_diagnostics():
     )
     rc = job.run_async_command()
     notify_diag(rc)
+

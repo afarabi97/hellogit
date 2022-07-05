@@ -8,3 +8,11 @@ class ConfigNotFound(Exception):
             *args,
             **kwargs
         )
+
+
+class NoSuchNodeJobError(Exception):
+    pass
+
+
+class NoDiagnosticLogError(Exception):
+    pass

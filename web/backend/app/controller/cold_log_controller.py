@@ -3,8 +3,8 @@ import shutil
 import zipfile
 
 from app.models.cold_log import ColdLogUploadModel, WinlogbeatInstallModel
-from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE,
-                               JobID)
+from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
+from app.models.job_id import JobIDModel
 from app.service.cold_log_service import (install_winlogbeat_srv,
                                           process_cold_logs)
 from app.utils.constants import ColdLogModules
@@ -70,7 +70,7 @@ class ColdLogUpload(Resource):
                 pass
             raise exception
 
-        return JobID(job).to_dict(), 200
+        return JobIDModel(job).to_dict(), 200
 
 
 @COLDLOG_NS.route("/module/info")
@@ -113,4 +113,4 @@ class InstallWinlogbeat(Resource):
         model.from_request(request.get_json())
         model.save_to_mongo()
         job = install_winlogbeat_srv.delay()
-        return JobID(job).to_dict(), 200
+        return JobIDModel(job).to_dict(), 200

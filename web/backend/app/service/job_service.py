@@ -1,17 +1,23 @@
 import os
 import shlex
 import subprocess
-from typing import Callable, List, Tuple
+from typing import Callable, Dict, List, Tuple
 
-from app.models.common import BackgroundJob, JobID, WorkerModel
+from app.models.background_job import BackgroundJobModel
+from app.models.job_id import JobIDModel
+from app.models.job_log import JobLogModel
 from app.models.nodes import Node, NodeJob
+from app.models.worker import WorkerModel
 from app.service.socket_service import log_to_console
+from app.utils.collections import mongo_console
 from app.utils.connection_mngs import REDIS_CLIENT, REDIS_QUEUE
 from app.utils.constants import DEPLOYMENT_JOBS
+from app.utils.exceptions import NoSuchNodeJobError
 from app.utils.logging import rq_logger
 from app.utils.utils import kill_child_processes
 from rq import Worker
 from rq.command import send_stop_job_command
+from rq.exceptions import NoSuchJobError
 from rq.job import Job
 from rq.registry import (DeferredJobRegistry, FailedJobRegistry,
                          FinishedJobRegistry, StartedJobRegistry)
@@ -74,7 +80,7 @@ class AsyncJob:
         self._working_dir = working_dir
         self._use_shell = use_shell
 
-    def _run_output_func(self, msg: bytes, is_stderr=False) -> None:
+    def _run_output_func(self, msg: bytes) -> None:
         rq_logger.debug(msg.strip("\n"))
         self._output_fn(self._job_name, self._job_id, msg)
 
@@ -118,12 +124,11 @@ def run_command(command: str, working_dir: str = None, use_shell: bool = False) 
     return sout.decode("utf-8")
 
 
-def run_command2(
-    command: str, working_dir: str = None, use_shell: bool = False
-) -> Tuple[str, int]:
+def run_command2(command: str, working_dir: str = None, use_shell: bool = False) -> Tuple[str, int]:
     proc = _open_proc(command, working_dir, use_shell)
     sout, _ = proc.communicate()
     return sout.decode("utf-8"), proc.poll()
+
 
 
 def check_gather_device_facts_job(node: Node) -> str:
@@ -131,22 +136,75 @@ def check_gather_device_facts_job(node: Node) -> str:
     started_jobs = Job.fetch_many(
         all_jobs, connection=REDIS_CLIENT)  # type: List[Job]
     for job in started_jobs:
-        if (
-            "node_id" in job.meta
+        if ("node_id" in job.meta
             and job.meta["node_id"] == node._id
             and "job_name" in job.meta
-            and job.meta["job_name"] == DEPLOYMENT_JOBS.gather_device_facts.value
-        ):
+            and job.meta["job_name"] == DEPLOYMENT_JOBS.gather_device_facts.value):
             return job.id
     return None
 
 
-def cancel_job(job_id, txt):
+def cancel_job(job_id, txt) -> None:
     log_to_console(job_name="nodes", jobid=job_id, text=txt, color="red")
     send_stop_job_command(connection=REDIS_CLIENT, job_id=job_id)
 
+def get_all_jobs() -> List[BackgroundJobModel]:
+    waiting_registery = DeferredJobRegistry('default', connection=REDIS_CLIENT)
+    started_registry = StartedJobRegistry('default', connection=REDIS_CLIENT)
+    finished_registry = FinishedJobRegistry('default', connection=REDIS_CLIENT)
+    failed_registery = FailedJobRegistry('default', connection=REDIS_CLIENT)
+    all_jobs = waiting_registery.get_job_ids()
+    all_jobs += started_registry.get_job_ids()
+    all_jobs += finished_registry.get_job_ids()
+    all_jobs += failed_registery.get_job_ids()
+    return _transform_jobs(Job.fetch_many(all_jobs, connection=REDIS_CLIENT))
 
-def delete_job(job_id):
+
+def get_job_with_job_id(job_id: str) -> BackgroundJobModel:
+    jobs = get_all_jobs()
+    for job in jobs:
+        if job["job_id"] == job_id:
+            return job
+    return {}
+
+
+def delete_job_with_job_id(job_id: str) -> JobIDModel:
+    job = Job.fetch(job_id, connection=REDIS_CLIENT) # type: Job
+    if job:
+        return _delete_job(job_id)
+    raise NoSuchJobError
+
+
+def put_job_retry(job_id: str) -> JobIDModel:
+    job = Job.fetch(job_id, connection=REDIS_CLIENT) # type: Job
+    if job:
+        job.requeue()
+        job_obj = NodeJob.load_jobs_by_job_id(job_id) # type: NodeJob
+        if job_obj:
+            job_obj.set_inprogress(job_id)
+            return JobIDModel(job).to_dict()
+        raise NoSuchNodeJobError
+    raise NoSuchJobError
+
+
+def get_job_log(job_id: str) -> List[JobLogModel]:
+    job_list = {"jobid": job_id} # type: Dict[str, str]
+    if job_list:
+        logs = list(mongo_console().find(job_list, {'_id': False}))
+        return logs
+    raise NoSuchJobError
+
+
+def _transform_jobs(job_objects: List[Job]) -> List[BackgroundJobModel]:
+    ret_val = []
+    for job in job_objects:
+        if job:
+            ret_val.append(BackgroundJobModel(job).to_dict())
+
+    return ret_val
+
+
+def _delete_job(job_id) -> JobIDModel:
     job_obj = NodeJob.load_jobs_by_job_id(job_id) # type: NodeJob
     if job_obj:
         job_obj.set_error("Job killed by User")
@@ -157,30 +215,8 @@ def delete_job(job_id):
             kill_child_processes(worker.pid)
             job = Job.fetch(job_id, connection=REDIS_CLIENT)
             job.delete()
-            return JobID(job).to_dict()
+            return JobIDModel(job).to_dict()
 
     job = Job.fetch(job_id, connection=REDIS_CLIENT)
     job.delete()
-    return JobID(job).to_dict()
-
-def transform_jobs(job_objects: List[Job]):
-    ret_val = []
-    for job in job_objects:
-        if job:
-            ret_val.append(BackgroundJob(job).to_dict())
-
-    return ret_val
-
-def get_all_jobs() -> List[Job]:
-    finished_registry = FinishedJobRegistry('default', connection=REDIS_CLIENT)
-    started_registry = StartedJobRegistry('default', connection=REDIS_CLIENT)
-    failed_registery = FailedJobRegistry('default', connection=REDIS_CLIENT)
-    waiting_registery = DeferredJobRegistry('default', connection=REDIS_CLIENT)
-
-    all_jobs = waiting_registery.get_job_ids()
-    all_jobs += started_registry.get_job_ids()
-    all_jobs += finished_registry.get_job_ids()
-    all_jobs += failed_registery.get_job_ids()
-
-    return Job.fetch_many(all_jobs, connection=REDIS_CLIENT)
-
+    return JobIDModel(job).to_dict()

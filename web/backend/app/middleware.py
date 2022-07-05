@@ -5,12 +5,14 @@ from functools import wraps
 import jwt
 import yaml
 from app.common import FORBIDDEN_RESPONSE
+from app.models import DBModelNotFound, PostValidationError
 from app.utils.constants import (CONTROLLER_ADMIN_ROLE,
                                  CONTROLLER_MAINTAINER_ROLE, OPERATOR_ROLE,
                                  REALM_ADMIN_ROLE, WEB_DIR)
+from app.utils.exceptions import NoSuchNodeJobError
 from app.utils.logging import logger
 from marshmallow.exceptions import ValidationError
-from app.models import PostValidationError, DBModelNotFound
+from rq.exceptions import NoSuchJobError
 from werkzeug.wrappers import Request, Response
 
 JWT_DIR = "/opt/sso-idp/jwt/"
@@ -266,18 +268,24 @@ def handle_errors(f):
     def wrapper(*args, **kwargs):
         try:
             return f(*args, **kwargs)
-        except ValidationError as e:
-            logger.exception(e)
-            return e.normalized_messages(), 400
-        except PostValidationError as e:
-            logger.exception(e)
-            return {"post_validation": e.errors_msgs}, 400
-        except DBModelNotFound as e:
-            logger.exception(e)
-            return {"post_validation": [str(e)]}, 400
-        except Exception as e:
-            logger.exception(e)
-            return {"error_message": str(e)}, 500
+        except ValidationError as validation_error:
+            logger.exception(validation_error)
+            return validation_error.normalized_messages(), 400
+        except PostValidationError as post_validation_error:
+            logger.exception(post_validation_error)
+            return {"post_validation": post_validation_error.errors_msgs}, 400
+        except DBModelNotFound as db_model_not_found:
+            logger.exception(db_model_not_found)
+            return {"post_validation": [str(db_model_not_found)]}, 400
+        except NoSuchJobError:
+            logger.exception("ErrorMessage: Job does not exist")
+            return {"error_message": "Job does not exist."}, 404
+        except NoSuchNodeJobError:
+            logger.exception("ErrorMessage: Node job does not exist")
+            return {"error_message": "Node job does not exist."}, 404
+        except Exception as exception:
+            logger.exception(exception)
+            return {"error_message": str(exception)}, 500
     return wrapper
 
 

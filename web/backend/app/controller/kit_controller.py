@@ -5,7 +5,8 @@ from typing import Dict
 
 from app.middleware import controller_admin_required
 from app.models import DBModelNotFound
-from app.models.common import COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE, JobID
+from app.models.common import COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE
+from app.models.job_id import JobIDModel
 from app.models.nodes import Node
 from app.service.node_service import execute, get_kit_status
 from app.utils.constants import DEPLOYMENT_JOBS, JOB_DEPLOY
@@ -35,9 +36,9 @@ class KitCtrl(Resource):
         job = execute.delay(
             node=nodes, exec_type=DEPLOYMENT_JOBS.base_kit, stage=JOB_DEPLOY
         )
-        return JobID(job).to_dict()
+        return JobIDModel(job).to_dict()
 
-    @KIT_SETUP_NS.response(200, "JobID Model", JobID.DTO)
+    @KIT_SETUP_NS.response(200, "JobIDModel", JobIDModel.DTO)
     @KIT_SETUP_NS.response(400, "Error Model", COMMON_ERROR_DTO)
     @controller_admin_required
     def get(self) -> Response:

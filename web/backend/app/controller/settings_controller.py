@@ -7,7 +7,8 @@ from typing import Dict, List
 from app.middleware import controller_admin_required
 from app.models import DBModelNotFound, PostValidationError
 from app.models.common import (COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE,
-                               COMMON_MESSAGE, JobID)
+                               COMMON_MESSAGE)
+from app.models.job_id import JobIDModel
 from app.models.settings.esxi_settings import EsxiSettingsForm
 from app.models.settings.general_settings import GeneralSettingsForm
 from app.models.settings.kit_settings import KitSettingsForm
@@ -140,7 +141,7 @@ def _test_esxi_client(esxi_settings: EsxiSettingsForm) -> dict:
 class GeneralSettings(Resource):
     def _execute_job(self) -> Dict:
         job = execute.delay(exec_type=DEPLOYMENT_JOBS.setup_controller)
-        return JobID(job).to_dict()
+        return JobIDModel(job).to_dict()
 
     @SETINGS_NS.response(200, "GeneralSettingsForm Model", GeneralSettingsForm.DTO)
     def get(self) -> Response:
@@ -152,7 +153,7 @@ class GeneralSettings(Resource):
             return {"message": "DBModelNotFound"}, 200
 
     @SETINGS_NS.expect(GeneralSettingsForm.DTO)
-    @SETINGS_NS.response(200, "JobID Model", JobID.DTO)
+    @SETINGS_NS.response(200, "JobIDModel", JobIDModel.DTO)
     @SETINGS_NS.response(400, "Error Model", COMMON_ERROR_DTO)
     @controller_admin_required
     def post(self) -> Response:
@@ -189,7 +190,7 @@ class KitSettings(Resource):
     def _execute_job(self) -> Dict:
         job = execute.delay(
             exec_type=DEPLOYMENT_JOBS.setup_controller_kit_settings)
-        return JobID(job).to_dict()
+        return JobIDModel(job).to_dict()
 
     @SETINGS_NS.response(200, "KitSettingsForm Model", KitSettingsForm.DTO)
     def get(self) -> Response:
@@ -202,7 +203,7 @@ class KitSettings(Resource):
 
 
     @SETINGS_NS.expect(KitSettingsForm.DTO)
-    @SETINGS_NS.response(200, "JobID Model", JobID.DTO)
+    @SETINGS_NS.response(200, "JobIDModel", JobIDModel.DTO)
     @SETINGS_NS.response(400, "Error Model", COMMON_ERROR_DTO)
     @controller_admin_required
     def post(self) -> Response:
@@ -288,7 +289,7 @@ class EsxiSettings(Resource):
             return {"message": "DBModelNotFound"}, 200
 
     @SETINGS_NS.expect(EsxiSettingsForm.DTO)
-    @SETINGS_NS.response(200, "JobID Model", JobID.DTO)
+    @SETINGS_NS.response(200, "JobIDModel", JobIDModel.DTO)
     @SETINGS_NS.response(400, "Error Model", COMMON_ERROR_DTO)
     @controller_admin_required
     def post(self) -> Response:
@@ -329,7 +330,7 @@ class EsxiSettingsTest(Resource):
             return {"message": "DBModelNotFound"}, 200
 
     @SETINGS_NS.expect(EsxiSettingsForm.DTO)
-    @SETINGS_NS.response(200, "JobID Model", JobID.DTO)
+    @SETINGS_NS.response(200, "JobIDModel", JobIDModel.DTO)
     @SETINGS_NS.response(400, "Error Model", COMMON_ERROR_DTO)
     @SETINGS_NS.response(422, "Message", COMMON_MESSAGE)
     @controller_admin_required

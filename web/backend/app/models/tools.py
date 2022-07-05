@@ -67,3 +67,16 @@ class InitialDeviceStatesModel(Model):
 
     def add_interface(self, item: NetworkInterfaceModel):
         self.interfaces.append(item)
+
+
+class CurrentTimeModel(Model):
+    DTO = TOOLS_NS.model('CurrentTimeModel', {
+        "timezone": fields.String(required=True, example="UTC",
+                                  description="The timezone the controller is configured to use. Defaults to UTC."),
+        "datetime": fields.String(required=True, example="12-28-2020 17:18:16",
+                                  description="The actual key that is stored in Redis database queue.")
+    })
+
+    def __init__(self, timezone: str, datetime: str):
+        self.timezone = timezone
+        self.datetime = datetime

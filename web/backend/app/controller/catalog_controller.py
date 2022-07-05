@@ -1,9 +1,11 @@
 from typing import List, Set
 
 from app.middleware import controller_maintainer_required
-from app.models.catalog import (ChartInfoModel, ChartModel, ChartNodeModel,
-                                HELMActionModel, SavedHelmValuesModel)
-from app.models.common import COMMON_ERROR_MESSAGE, JobID
+from app.models.catalog import (ChartInfoModel, ChartModel,
+                                ChartNodeModel, HELMActionModel,
+                                SavedHelmValuesModel)
+from app.models.common import COMMON_ERROR_MESSAGE
+from app.models.job_id import JobIDModel
 from app.models.nodes import Node
 from app.service.catalog_service import (chart_info, delete_helm_apps,
                                          generate_values, get_app_state,
@@ -67,7 +69,7 @@ class HELMInstallCtrl(Resource):
 
     @CATALOG_NS.doc(description="Installs an application using helm.")
     @CATALOG_NS.expect(HELMActionModel.DTO)
-    @CATALOG_NS.response(200, "JobID", JobID.DTO)
+    @CATALOG_NS.response(200, "JobIDModel", JobIDModel.DTO)
     @CATALOG_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
     def post(self) -> Response:
@@ -81,7 +83,7 @@ class HELMInstallCtrl(Resource):
         if process == "install":
             job = install_helm_apps.delay(
                 application, NAMESPACE, node_affinity=node_affinity, values=values)  # type: list
-            return JobID(job).to_dict(), 200
+            return JobIDModel(job).to_dict(), 200
 
         logger.error("Executing /api/catalog/install has failed.")
         return {'error_message': 'Failed to install catalog application using helm'}, 500
@@ -92,7 +94,7 @@ class HELMDeleteCtrl(Resource):
 
     @CATALOG_NS.doc(description="Delete an application using helm")
     @CATALOG_NS.expect(HELMActionModel.DTO)
-    @CATALOG_NS.response(200, "JobID", JobID.DTO)
+    @CATALOG_NS.response(200, "JobIDModel", JobIDModel.DTO)
     @CATALOG_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
     def post(self) -> Response:
@@ -105,7 +107,7 @@ class HELMDeleteCtrl(Resource):
         if process == "uninstall":
             job = delete_helm_apps.delay(
                 application=application, namespace=NAMESPACE, nodes=nodes)  # type: Response
-            return JobID(job).to_dict(), 200
+            return JobIDModel(job).to_dict(), 200
 
         logger.error("Executing /api/catalog/uninstall has failed.")
         return {'error_message': 'Failed to uninstall catalog application using helm'}, 500
@@ -116,7 +118,7 @@ class HELMReinstallCtrl(Resource):
 
     @CATALOG_NS.doc(description="Reinstall an application using helm")
     @CATALOG_NS.expect(HELMActionModel.DTO)
-    @CATALOG_NS.response(200, "JobID", JobID.DTO)
+    @CATALOG_NS.response(200, "JobIDModel", JobIDModel.DTO)
     @CATALOG_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
     def post(self) -> Response:
@@ -131,7 +133,7 @@ class HELMReinstallCtrl(Resource):
         if process == "reinstall":
             job = reinstall_helm_apps.delay(application=application, namespace=NAMESPACE, nodes=nodes,
                                             node_affinity=node_affinity, values=values)
-            return JobID(job).to_dict(), 200
+            return JobIDModel(job).to_dict(), 200
 
         logger.error("Executing /api/catalog/reinstall has failed.")
         return {'error_message': 'Failed to reinstall catalog application using helm'}, 500

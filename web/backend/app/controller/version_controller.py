@@ -4,6 +4,7 @@ from app.service.system_info_service import (get_build_date, get_commit_hash,
                                              get_version)
 from app.utils.logging import logger
 from app.utils.namespaces import VERSION_NS
+from flask import Response
 from flask_restx.resource import Resource
 
 

@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from time import sleep
 from typing import Dict, List, Union
 
-from app.models.common import JobID
 from app.models.device_facts import (DeviceFacts,
                                      create_device_facts_from_ansible_setup)
 from app.models.nodes import Command, Node, NodeJob, _generate_inventory

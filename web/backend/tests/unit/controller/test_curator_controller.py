@@ -1,7 +1,7 @@
-from pytest_mock.plugin import MockerFixture
-from flask.testing import FlaskClient
-from tests.unit.mock_classes import MockElasticsearch, MockMinIOManager
 from app.models.settings.minio_settings import RepoSettingsModel
+from flask.testing import FlaskClient
+from pytest_mock.plugin import MockerFixture
+from tests.unit.mock_classes import MockElasticsearch, MockMinIOManager
 
 
 def test_curator_indices_get(client: FlaskClient, mocker: MockerFixture):

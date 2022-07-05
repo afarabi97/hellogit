@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from app.models.common import COMMON_ERROR_MESSAGE, JobID
+from app.models.common import COMMON_ERROR_MESSAGE
+from app.models.job_id import JobIDModel
 from app.service.diagnostics_service import run_diagnostics
 from app.utils.collections import mongo_console
 from app.utils.logging import logger
@@ -14,12 +15,12 @@ DOWNLOAD_DIR = "/var/www/html/downloads"
 @DIAGNOSTICS_NS.route("")
 class Diagnostics(Resource):
     @DIAGNOSTICS_NS.doc(description="Runs diagnostics on the controller.")
-    @DIAGNOSTICS_NS.response(200, "RunDiagnostics", JobID.DTO)
+    @DIAGNOSTICS_NS.response(200, "RunDiagnostics", JobIDModel.DTO)
     @DIAGNOSTICS_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     def post(self):
         try:
             job = run_diagnostics.delay()
-            return JobID(job).to_dict()
+            return JobIDModel(job).to_dict()
         except Exception as e:
             logger.exception(e)
             return {"error_message": str(e)}, 500
@@ -49,4 +50,6 @@ class Diagnostics(Resource):
         except Exception as e:
             logger.exception(e)
             return {"error_message": str(e)}, 500
+
+
 

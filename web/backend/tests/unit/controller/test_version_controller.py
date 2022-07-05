@@ -2,7 +2,7 @@ from flask.testing import FlaskClient
 from pytest_mock.plugin import MockerFixture
 
 
-def test_get_version(client: FlaskClient, mocker: MockerFixture):
+def test_get_version(client: FlaskClient, mocker: MockerFixture) -> None:
     version = "3.7.0"
     build_date = "june 09, 2022"
     commit_hash = "48d1ce15"
@@ -13,7 +13,7 @@ def test_get_version(client: FlaskClient, mocker: MockerFixture):
     assert response.status_code == 200
     assert response.json["version"] == version
 
-def test_get_version_500(client: FlaskClient, mocker: MockerFixture):
+def test_get_version_500(client: FlaskClient, mocker: MockerFixture) -> None:
     build_date = "june 09, 2022"
     commit_hash = "48d1ce15"
     mocker.patch("app.controller.version_controller.get_version", side_effect=Exception('mocked error'))

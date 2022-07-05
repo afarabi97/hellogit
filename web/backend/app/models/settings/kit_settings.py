@@ -120,7 +120,7 @@ class KitSettingsForm(SettingsBase):
         kit_settings = self.schema.dump(self)
         mongo_settings().find_one_and_replace({"_id": KIT_SETTINGS_ID},
                                               kit_settings,
-                                              upsert=True)  # type: InsertOneResult
+                                              upsert=True)
         self.password = base64_to_string(self.password)
         _generate_kit_settings_inventory()
 

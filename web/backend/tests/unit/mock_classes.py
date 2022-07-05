@@ -1,7 +1,6 @@
 import json
 from typing import Tuple
 
-from app.models import Model
 from app.models.settings.minio_settings import RepoSettingsModel
 from kubernetes import client
 from tests.unit import TEST_SAMPLES_DIR
@@ -15,38 +14,6 @@ def mock_get_kubernetes_secret(name, namespace="default"):
     elif name == RepoSettingsModel.KUBECTL_MINIO_PASSWORD_SECRET_NAME:
         return client.V1Secret(data =  {'s3.client.default.secret_key': 'cGFzc3dvcmQ='})
 
-
-class MockWorker(Model):
-
-    def __init__(self, name, hostname, pid, state, last_heart_beat,
-                birth_date,successful_job_count,failed_job_count,total_working_time) -> None:
-        self.name = name
-        self.hostname = hostname
-        self.pid = pid
-        self.state = state
-        self.last_heartbeat = last_heart_beat
-        self.birth_date = birth_date
-        self.successful_job_count = successful_job_count
-        self.failed_job_count = failed_job_count
-        self.total_working_time = total_working_time
-        self.current_job = self.get_current_job()
-
-    def get_current_job(self):
-        return None
-
-
-class MockJobID(Model):
-
-    def __init__(self, job_id, redis_key) -> None:
-        self.job_id = job_id
-        self.redis_key = redis_key
-
-
-class MockJobID2(Model):
-
-    def __init__(self, unused_param):
-        self.job_id = 'bd19eeb80-5499-4223-8685-a5103bcf47e8'
-        self.redis_key = 'rq:job:bd19eeb80-5499-4223-8685-a5103bcf47e8'
 
 
 class MockSnapshotClient:

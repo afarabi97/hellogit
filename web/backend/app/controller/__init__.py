@@ -11,12 +11,11 @@ from flask_restx import Api
 from . import (agent_builder_controller, alerts_controller, catalog_controller,
                cold_log_controller, common_controller, configmap_controller,
                curator_controller, diagnostics_controller, health_controller,
-               health_dashboard_controller, kit_controller,
+               health_dashboard_controller, job_controller, kit_controller,
                kit_tokens_controller, mip_controller, node_controller,
                notification_controller, pcap_controller, portal_controller,
                registry_controller, ruleset_controller, scale_controller,
-               settings_controller, task_controller, tools_controller,
-               version_controller)
+               settings_controller, tools_controller, version_controller)
 
 api_blueprint = Blueprint("api", __name__)
 api = Api(
@@ -36,8 +35,8 @@ api.add_namespace(CURATOR_NS)
 api.add_namespace(DEVICE_FACTS_NS)
 api.add_namespace(DIAGNOSTICS_NS)
 api.add_namespace(HEALTH_NS)
-api.add_namespace(HIVE_NS)
 api.add_namespace(POLICY_NS)
+api.add_namespace(HIVE_NS)
 api.add_namespace(JOB_NS)
 api.add_namespace(KIT_SETUP_NS)
 api.add_namespace(KUBERNETES_NS)

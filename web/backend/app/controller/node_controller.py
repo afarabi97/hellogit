@@ -2,7 +2,8 @@ from typing import Dict, List
 
 from app.middleware import controller_admin_required, login_required_roles
 from app.models import DBModelNotFound, PostValidationError
-from app.models.common import COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE, JobID
+from app.models.common import COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE
+from app.models.job_id import JobIDModel
 from app.models.nodes import Node, NodeJob
 from app.models.settings.kit_settings import (GeneralSettingsForm,
                                               KitSettingsForm)
@@ -47,7 +48,7 @@ class NodeCtrl(Resource):
     def _remove_node(self, node: Node) -> Dict:
         job = execute.delay(node=node, stage=JOB_REMOVE,
                             exec_type=DEPLOYMENT_JOBS.remove_node)
-        return JobID(job).to_dict()
+        return JobIDModel(job).to_dict()
 
     def _get_settings(self):
         return GeneralSettingsForm.load_from_db()
@@ -138,18 +139,18 @@ class NewNodeCtrl(Resource):
     def _execute_kickstart_profile_job(self, node: Node) -> Dict:
         job = execute.delay(
             node=node, exec_type=DEPLOYMENT_JOBS.kickstart_profiles)
-        return JobID(job).to_dict()
+        return JobIDModel(job).to_dict()
 
     def _execute_create_virtual_job(self, node: Node) -> Dict:
         job = execute.delay(
             node=node, exec_type=DEPLOYMENT_JOBS.create_virtual)
-        return JobID(job).to_dict()
+        return JobIDModel(job).to_dict()
 
     def _get_settings(self):
         return GeneralSettingsForm.load_from_db()
 
     @KIT_SETUP_NS.expect(Node.DTO)
-    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
+    @KIT_SETUP_NS.response(200, 'JobIDModel', JobIDModel.DTO)
     @KIT_SETUP_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_admin_required
     def post(self) -> Response:
@@ -273,10 +274,10 @@ class NodeCtrlRebuild(Resource):
 
     def _execute_kickstart_profile_job(self, node: Node) -> Dict:
         job = execute.delay(node=node, exec_type=DEPLOYMENT_JOBS)
-        return JobID(job).to_dict()
+        return JobIDModel(job).to_dict()
 
     @KIT_SETUP_NS.expect(Node.DTO)
-    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
+    @KIT_SETUP_NS.response(200, 'JobIDModel', JobIDModel.DTO)
     @KIT_SETUP_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @KIT_SETUP_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @controller_admin_required
@@ -287,7 +288,7 @@ class NodeCtrlRebuild(Resource):
             node = Node.load_from_db_using_hostname(hostname)  # type: Node
             if node and kit_settings:
                 job_id = gather_device_facts.delay(node, kit_settings)
-                return JobID(job_id).to_dict(), 200
+                return JobIDModel(job_id).to_dict(), 200
             # Alert websocket to update the table
             send_notification()
         except DBModelNotFound:
@@ -318,7 +319,7 @@ class ControlPlaneCtrl(Resource):
     def _execute_control_plane_job(self, node: Node) -> Dict:
         job = execute.delay(
             node=node, exec_type=DEPLOYMENT_JOBS.setup_control_plane)
-        return JobID(job).to_dict()
+        return JobIDModel(job).to_dict()
 
     @KIT_SETUP_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
@@ -338,7 +339,7 @@ class ControlPlaneCtrl(Resource):
         except DBModelNotFound:
             return {"error_message": "DBModelNotFound."}, 400
 
-    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
+    @KIT_SETUP_NS.response(200, 'JobIDModel', JobIDModel.DTO)
     @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
     def post(self) -> Response:
@@ -382,7 +383,7 @@ class KitRefresh(Resource):
     def _refresh_kit(self, new_nodes: List[Node], control_plane: List[Node]):
         job = refresh_kit.delay(
             nodes=new_nodes, new_control_plane=control_plane)
-        return JobID(job).to_dict()
+        return JobIDModel(job).to_dict()
 
     def post(self) -> Response:
         cp = Node.load_control_plane_from_db()  # type: List[Node]

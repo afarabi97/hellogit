@@ -3,8 +3,8 @@ from pathlib import Path
 from typing import Dict, List
 
 from app.middleware import operator_required
-from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE,
-                               JobID)
+from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE)
+from app.models.job_id import JobIDModel
 from app.models.nodes import Node
 from app.models.pcap import PcapModel
 from app.models.ruleset import PCAPMetadata, PCAPReplayModel
@@ -106,7 +106,7 @@ class ReplayPcapCtrl(Resource):
         else:
             job = replay_pcap_using_tcpreplay.delay(payload, kit_settings.password)
 
-        return JobID(job).to_dict(), 200
+        return JobIDModel(job).to_dict(), 200
 
 
 @POLICY_NS.route("/sensor/info")

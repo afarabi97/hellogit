@@ -14,13 +14,12 @@ import yaml
 from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.middleware import controller_maintainer_required
 from app.models import scale
-from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE,
-                               CurrentTimeMdl)
+from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE)
 from app.models.nodes import Node
 from app.models.settings.kit_settings import KitSettingsForm
 from app.models.tools import (COMMON_TOOLS_RETURNS, InitialDeviceStatesModel,
                               NetworkDeviceStateModel, NetworkInterfaceModel,
-                              NewPasswordModel)
+                              NewPasswordModel, CurrentTimeModel)
 from app.service.elastic_service import (apply_es_deploy,
                                          check_elastic_license,
                                          get_elasticsearch_license)
@@ -158,7 +157,7 @@ class RemoteNetworkDevice(object):
 
 @TOOLS_NS.route("/controller/datetime")
 class CurrentTime(Resource):
-    @TOOLS_NS.response(200, "CurrentTime", CurrentTimeMdl.DTO)
+    @TOOLS_NS.response(200, "CurrentTimeModel", CurrentTimeModel.DTO)
     @TOOLS_NS.response(500, "Empty 500 return.")
     @TOOLS_NS.doc(description="Gets the Current time of the controller.")
     def get(self):
@@ -177,7 +176,7 @@ class CurrentTime(Resource):
         if ret_val != 0:
             return ERROR_RESPONSE
 
-        return CurrentTimeMdl(timezone, date_stdout.replace("\n", "")).to_dict()
+        return CurrentTimeModel(timezone, date_stdout.replace("\n", "")).to_dict()
 
 
 @TOOLS_NS.route("/change-kit-password")

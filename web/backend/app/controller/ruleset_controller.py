@@ -7,7 +7,8 @@ from pathlib import Path
 from app.common import ERROR_RESPONSE
 from app.middleware import operator_required
 from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_MESSAGE,
-                               COMMON_SUCCESS_MESSAGE, JobID)
+                               COMMON_SUCCESS_MESSAGE)
+from app.models.job_id import JobIDModel
 from app.models.ruleset import RuleModel, RuleSetModel, TestAgainstPcap
 from app.service.ruleset_service import (InvalidRuleSyntax, ProhibitedExecFunc,
                                          check_zeek_exec_module,
@@ -326,14 +327,14 @@ class SyncRuleSets(Resource):
 
     def _perform_operation(self):
         job = perform_rulesync.delay()
-        return JobID(job).to_dict()
+        return JobIDModel(job).to_dict()
 
-    @POLICY_NS.response(200, 'JobID', JobID.DTO)
+    @POLICY_NS.response(200, 'JobIDModel', JobIDModel.DTO)
     @operator_required
     def post(self) -> Response:
         return self._perform_operation()
 
-    @POLICY_NS.response(200, 'JobID', JobID.DTO)
+    @POLICY_NS.response(200, 'JobIDModel', JobIDModel.DTO)
     @operator_required
     def get(self) -> Response:
         return self._perform_operation()

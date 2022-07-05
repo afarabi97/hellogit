@@ -1,12 +1,12 @@
-import pytest
 from ipaddress import IPv4Address
-from app.models.common import JobID
+
+import pytest
 from app.models.settings.general_settings import GeneralSettingsForm
 from app.utils.collections import Collections, get_collection
-from tests.unit.static_data.node import (get_node_expected, jobs_collection,
-                                         nodes_collection)
 from flask.testing import FlaskClient
 from pytest_mock.plugin import MockerFixture
+from tests.unit.static_data.node import (get_node_expected, jobs_collection,
+                                         nodes_collection)
 
 
 class Settings:

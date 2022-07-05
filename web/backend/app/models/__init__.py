@@ -37,13 +37,13 @@ class PostValidationError(Exception):
         else:
             self.errors_msgs[key] = msg
 
-    def has_errors(self):
+    def has_errors(self) -> bool:
         return len(self.errors_msgs) > 0
 
 
 class PostValidationBasicError(Exception):
 
-    def __init__(self, error_message: str, http_code: int):
+    def __init__(self, error_message: str, http_code: int) -> None:
         self.error_payload = {"error_message": error_message}
         self.http_code = http_code
 
@@ -80,7 +80,7 @@ class Model:
                 ret_val[key] = self.__dict__[key]
         return ret_val
 
-    def from_dict(self, some_dict: Dict):
+    def from_dict(self, some_dict: Dict) -> None:
         for key in some_dict:
             if isinstance(some_dict[key], Model):
                 self.__dict__[key] = some_dict[key].to_dict()
@@ -95,13 +95,13 @@ class Model:
     def to_compact_str(self) -> str:
         return json.dumps(self.to_dict())
 
-    def from_namespace(self, namespace: Namespace):
+    def from_namespace(self, namespace: Namespace) -> None:
         for key in self.__dict__:
             value = getattr(namespace, key)
             if value:
                 self.__dict__[key] = value
 
-    def b64decode_string(self, some_str: str):
+    def b64decode_string(self, some_str: str) -> str:
         ret_val = base64.b64decode(some_str.encode())
         return ret_val.decode("utf-8")
 
