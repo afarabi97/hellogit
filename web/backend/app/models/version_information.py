@@ -2,7 +2,6 @@ from app.models import Model
 from app.utils.namespaces import VERSION_NS
 from flask_restx import Namespace, fields
 
-VERSION_NS = Namespace("version", description="Version related operations.")
 
 class VersionInformationModel(Model):
     DTO = VERSION_NS.model('VersionInformationModel', {
