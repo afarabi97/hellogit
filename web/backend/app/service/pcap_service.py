@@ -371,9 +371,11 @@ class ArkimeReplayer:
             lines = fhandle.readlines()
 
         line_index_to_change = -1
+        line_to_modify = ""
         for index, line in enumerate(lines):
             if "elasticsearch" in line:
                 line_index_to_change = index
+                line_to_modify = line
                 break
 
         if line_index_to_change == -1:
@@ -382,7 +384,7 @@ class ArkimeReplayer:
 
         lines[
             line_index_to_change
-        ] = "elasticsearch=https://arkime:password@tfplenum-es-data-0.tfplenum-es-data.default.svc.cluster.local:9200\n"
+        ] = line_to_modify.split(",")[0] + "\n"
         with open(self.arkime_config, "w") as fhandle:
             fhandle.writelines(lines)
 

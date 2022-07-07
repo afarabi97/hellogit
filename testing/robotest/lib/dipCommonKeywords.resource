@@ -299,16 +299,28 @@ Upload And Delete PCAP File
 
 Play ${pcap} PCAP
     ${sensor_name} =  Check For Sensor With Available Interface
+    # The interface will not show up with Preserve Timestamp On, Only with it unselected
+    # so if Preserve Timewstamp is checked off, do not select an interface
     IF      "${pcap}" == "Wannacry"
         click    ${locPcapPlayBtn}
         click    ${CVAH_REPLAY_PCAP_DIALOG__SENSOR_HOSTNAME_MAT_SELECT}
-        ${sensor_option} =  Inject  ${locPcapDialogHostnameOpt}  ${sensor_name}
-        click    ${sensor_option}
-        click    ${locPcapPreserveTimestamp}
+        click    ${locPcapDialogHostnameOpt}  injector=${sensor_name}
+
+        # determine if  preserve timestamp checked or unchecked
+        ${raw_is_checked_str}=     Get Element Attribute    locator=${locPcapPreserveTimestampInput}    attribute=aria-checked
+
+        ${is_checked_str}=     lower   ${raw_is_checked_str}
+        IF      '${is_checked_str}' == 'true'
+            log         UNCHECKING PRESERVE TIMESTAMP
+            click       ${locPcapPreserveTimestamp}
+        END
+
         click    ${CVAH_REPLAY_PCAP_DIALOG__IFACE_MAT_SELECT}
-        click    ${locPcapSensorInterfaceOptn}
-        Press Keys  None  TAB
-        shoot    Play Pcap Options
+        log     Selecting the first interface option since interface names are different on virtual and hardware
+        click    ${locPcapSensorInterfaceOptionOne}
+        escape      Play Pcap Options
+
+        log     Executing PCAP
         Click Button    ${CVAH_REPLAY_PCAP_DIALOG__BUTTON_EXECUTE}  # execute btn
     END
 
@@ -357,7 +369,12 @@ getType
     [Return]           ${object_type}
 
 click
-    [Arguments]     ${element}     ${timeout}=30s
+    [Arguments]     ${element}     ${timeout}=30s   ${injector}=None
+    IF  '${injector}' != '${None}'
+        log     injecting before click: ${injector}
+        ${element} =  Inject  ${element}  ${injector}
+    END
+
     Wait Until Page Contains Element    ${element}  timeout=${timeout}
     Click Element   ${element}
     log     Clicked element: ${element}
@@ -367,14 +384,40 @@ failTest
     fail
 
 clickElements
-    [Arguments]     ${elements_locator}     ${timeout}=30s
+    [Arguments]     ${elements_locator}     ${timeout}=30s    ${injector}=None
     log     Retrieving Elements using locator: ${elements_locator}
+    # Passing in an injector makes clickElements treat the element_locator
+    # like a templatized locator.  The injector is a string that is injected
+    IF  '${injector}' != '${None}'
+        log     Injector Text Was Found: ${injector}
+        log     Injecting the injector into the elements_locator template
+        ${elements_locator} =  Inject  ${elements_locator}  ${injector}
+    END
+
+    # Loop through the list of elements and click each one
     ${elements} =      Get Web Elements    ${elements_locator}
     FOR  ${element}  IN  @{elements}
         click   ${element}
     END
     log     Finished Clicking Elements Retrieved using locator: ${elements_locator}
 
+escape
+    [Arguments]         ${screenshot_text}=None
+    [Documentation]     Escape Button Press. Use to avoid ElementClickInterceptExceptions
+    log     Pressing Escape in efforts to change element focus
+    IF  '${screenshot_text}'!='${None}'
+        log     Capturing Pre-Escape Screenshot
+        shoot   ${screenshot_text}
+
+        Press Keys  None  ESCAPE
+        log     Escape Pressed!
+
+        log     Capturing Post-Escape Screenshot
+        shoot   ${screenshot_text}
+    ELSE
+        Press Keys  None  ESCAPE
+        log     Escape Pressed!
+    END
 
 type
     [Arguments]     ${element}      ${value}        ${clear_before}=${FALSE}
@@ -487,8 +530,12 @@ uncheck
     Select Checkbox     ${box}
 
 clickAndWaitOnEnable
-    [Arguments]     ${button}    ${wait_time}=3m
+    [Arguments]     ${button}    ${wait_time}=3m  ${injector}=None
     log     Clicking Element And Waiting For It To Be Enabled ${button}
+    IF  '${injector}' != '${None}'
+        log     Injecting Before Click: ${injector}
+        ${button} =  Inject  ${button}  ${injector}
+    END
     lookForElement    ${button}
     Wait Until Element Is Enabled   ${button}   timeout=${wait_time}
     click  ${button}

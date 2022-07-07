@@ -47,7 +47,15 @@ ${locDeletePcapBtn}             xpath=//td[text()="~"]/following-sibling::td/but
 ${locPcapPlayBtn}               xpath=//td[text() = "wannacry.pcap"]/following-sibling::td/button//em[text() = "play_arrow"]
 ${locPcapDialogHostnameOpt}     xpath=//mat-option/span[contains(text(),"~")]
 ${locPcapPreserveTimestamp}     xpath=//mat-checkbox//div[following-sibling::span[contains(text(), "Preserve timestamp")]]
+
+${locPcapPreserveTimestampInput}     xpath=//mat-checkbox//div[following-sibling::span[contains(text(), "Preserve timestamp")]]/input
 ${locPcapSensorInterfaceOptn}   xpath=//mat-pseudo-checkbox[following-sibling::span[text() = "ens224"]]
+
+${locPcapSensorInterfaceOptionOne}      xpath=//mat-pseudo-checkbox[following-sibling::span][1]
+
+${locPreserveTimestampCheckbox}  xpath=//mat-checkbox[@formcontrolname="preserve_timestamp"]//input[@type='checkbox']
+
+
 
 ### DIP Controller Variables ###
 # Side Nav Buttons
