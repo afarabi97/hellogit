@@ -25,7 +25,8 @@ def generate_api_key(ipaddress: str):
 
 @TOKEN_NS.route("")
 class KitTokens(Resource):
-    @TOKEN_NS.response(200, "Kit Token list", kit_token_list)
+    @TOKEN_NS.response(200, "The request succeeded, list kit tokens.", kit_token_list)
+    @TOKEN_NS.response(500, "The request failed, internal server error.")
     @login_required_roles(
         ["controller-admin", "controller-maintainer"], all_roles_req=False
     )
@@ -39,9 +40,10 @@ class KitTokens(Resource):
             return response
         except Exception as e:
             logger.exception(e)
-        return ERROR_RESPONSE
+        return ERROR_RESPONSE, 500
 
-    @TOKEN_NS.response(200, "Kit Token", kit_token)
+    @TOKEN_NS.response(201, "The request succeeded, and a kit token was created.", kit_token)
+    @TOKEN_NS.response(500, "The request failed, internal server error.")
     @TOKEN_NS.expect(kit_token, validate=True)
     @login_required_roles(
         ["controller-admin", "controller-maintainer"], all_roles_req=False
@@ -65,12 +67,13 @@ class KitTokens(Resource):
             return (kit_token, 201)
         except Exception as e:
             logger.exception(e)
-        return ERROR_RESPONSE
+        return ERROR_RESPONSE, 500
 
 
 @TOKEN_NS.route("/<kit_token_id>")
 class KitTokens(Resource):
-    @TOKEN_NS.response(204, "")
+    @TOKEN_NS.response(204, "Request succeeded, There is no content to return.")
+    @TOKEN_NS.response(500, "The request failed, internal server error.")
     @login_required_roles(
         ["controller-admin", "controller-maintainer"], all_roles_req=False
     )
@@ -84,4 +87,4 @@ class KitTokens(Resource):
                 return NO_CONTENT
         except Exception as e:
             logger.exception(e)
-        return ERROR_RESPONSE
+        return ERROR_RESPONSE, 500
