@@ -1,0 +1,15 @@
+
+- name: Wait for metallb controller to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "pods"
+    namespace: "metallb-system"
+    resource_name: ""
+    label: "component=controller"
+
+- name: Apply MetalLB Custom Resources
+  command: kubectl apply -f {{ kube_dir }}/metallb_custom_resources.yml
+  register: result
+  changed_when: result.rc == 0

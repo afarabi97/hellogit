@@ -68,22 +68,6 @@
   tags:
     - openvpn
 
-# - name: API Mesh
-#   hosts:
-#     - control_planes
-#   gather_facts: no
-#   any_errors_fatal: true
-#   pre_tasks:
-#     - name: Run gather facts
-#       setup:
-#   tasks:
-#     - import_role:
-#         name: api_mesh
-#       when: enable_kube_ha
-#   tags:
-#     - api-mesh
-#     - kubernetes
-
 - name: Setup CRI-O
   hosts:
     - servers

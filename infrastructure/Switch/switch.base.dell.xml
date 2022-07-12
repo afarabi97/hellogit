@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config
   xmlns:ncx="http://netconfcentral.org/ns/yuma-ncx"
-  ncx:last-modified="2022-04-08T14:31:27Z" ncx:etag="6637"
+  ncx:last-modified="2022-07-12T14:06:02Z" ncx:etag="6648"
   xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
   <aaa xmlns="http://www.dellemc.com/networking/os10/dell-system">
     <authentication>
@@ -2026,6 +2026,40 @@
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>41</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.233.0.0</destination-address>
+            <destination-mask>255.255.0.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>51</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.233.0.0</source-address>
+            <source-mask>255.255.0.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>4</ip-protocol>
           </match-ip>
         </condition>
         <action>

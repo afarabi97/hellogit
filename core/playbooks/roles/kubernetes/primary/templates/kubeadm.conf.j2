@@ -1,5 +1,5 @@
 ---
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: InitConfiguration
 nodeRegistration:
   criSocket: unix:///var/run/crio/crio.sock
@@ -8,7 +8,7 @@ localAPIEndpoint:
   bindPort: 6443
 
 ---
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 imageRepository: {{ docker_registry_repo }}
 dns:
@@ -23,11 +23,6 @@ controllerManager:
 apiServer:
   extraArgs:
     event-ttl: 6h0m0s
-{% if kube_virtual_ip is defined %}
-  certSANs:
-  - "{{ kube_virtual_ip }}"
-controlPlaneEndpoint: "{{ kube_virtual_ip }}:8443"
-{% endif %}
 
 ---
 apiVersion: kubeproxy.config.k8s.io/v1alpha1

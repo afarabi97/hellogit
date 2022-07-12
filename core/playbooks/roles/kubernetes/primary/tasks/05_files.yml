@@ -24,7 +24,7 @@
     group: root
     mode: 0644
   with_items:
-    - metallb_configmap.yml
+    - metallb_custom_resources.yml
     - metallb_deployment.yml
     - calico.yml
     - kubeadm.conf

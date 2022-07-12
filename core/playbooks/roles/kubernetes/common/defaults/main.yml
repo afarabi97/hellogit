@@ -1,16 +1,4 @@
 ---
-
-kube_cert_dir: /etc/kubernetes/pki
-cgroup_manager: cgroupfs
-kubelet_kubelet_cgroups: "/systemd/system.slice"
-kubelet_runtime_cgroups: "/systemd/system.slice"
-kubelet_status_update_frequency: 10s
-kubelet_fail_swap_on: true
-kube_config_dir: /etc/kubernetes
-kube_manifest_dir: "{{kube_config_dir}}/manifest"
-kubelet_rotate_certificates: true
-kube_log_level: 2
 kubeconfig_dir: ~/.kube
 kubeconfig_path: "{{kubeconfig_dir}}/config"
-
 ...

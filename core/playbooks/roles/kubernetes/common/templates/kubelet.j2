@@ -1,1 +1,8 @@
-KUBELET_EXTRA_ARGS="--cgroup-driver=systemd --read-only-port=10255 --node-ip={{ management_ipv4 }}"
+{% set kubelet_args_base -%}
+--cgroup-driver=systemd \
+--read-only-port=10255 \
+--node-ip={{ management_ipv4 }} \
+--container-log-max-size=-1 \
+--pod-max-pids=1024
+{% endset %}
+KUBELET_EXTRA_ARGS="{{ kubelet_args_base }}"

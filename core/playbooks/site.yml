@@ -207,6 +207,18 @@
     - kube-node
     - kubernetes
 
+- name: MetalLB Custom Resources
+  hosts: control_plane
+  gather_facts: no
+  any_errors_fatal: true
+  tasks:
+    - name: Apply MetalLB Custom Resources
+      import_role:
+        name: kubernetes/primary
+        tasks_from: 30_metallb_custom_resources
+  tags:
+    - kubernetes
+
 - name: Install Cert Manager
   hosts: localhost
   any_errors_fatal: true

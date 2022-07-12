@@ -2,7 +2,6 @@
 ###################  Kubernetes Install ###############
 #######################################################
 ---
-
 - set_fact:
     kube_dirs:
       - "/var/lib/etcd"
@@ -28,6 +27,7 @@
       - "lvm2"
       - "ebtables"
       - "ethtool"
+      - "iproute-tc"
     state: installed
     allow_downgrade: yes
   register: installed_packages
@@ -52,5 +52,4 @@
     name: kubelet
     enabled: yes
     state: started
-
 ...

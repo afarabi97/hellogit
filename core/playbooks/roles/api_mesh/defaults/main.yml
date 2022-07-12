@@ -1,4 +1,0 @@
----
-
-kube_api_port: 6443
-external_api_port: 8443
