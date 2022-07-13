@@ -115,10 +115,6 @@ spec:
           value: '{"username":"uid", "email":"email", "name":"displayName"}'
         - name: OVERWRITE_SETTING_SAML_Custom_Default_default_user_role
           value: user
-        - name: OVERWRITE_SETTING_SAML_Custom_Default_role_attribute_name
-          value: rocketchat_role
-        - name: OVERWRITE_SETTING_SAML_Custom_Default_role_attribute_sync
-          value: "true"
         - name: Accounts_TwoFactorAuthentication_By_Email_Auto_Opt_In
           value: "False"
         - name: Accounts_TwoFactorAuthentication_By_Email_Enabled
@@ -168,4 +164,3 @@ spec:
       - name: rocket-data
         persistentVolumeClaim:
           claimName: {{ .Release.Name }}-pvc
-

@@ -118,7 +118,7 @@ helm_versions:
   nifi: 1.0.4
   redmine: 1.0.5
   remote_health_agent: 1.0.2
-  rocketchat: 1.1.18
+  rocketchat: 1.1.19
   suricata: 1.0.3
   wikijs: 1.0.4
   zeek: 1.1.6
