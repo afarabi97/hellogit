@@ -4,68 +4,6 @@ from robot.api import logger
 from requests import request, Response
 from robot.api.deco import library, keyword
 from typing import List
-from fabric import Connection, Config
-from elasticsearch import Elasticsearch
-
-#pip install elasticsearch==7.16.2
-#pip install fabric==2.4.0
-
-class FabricConnectionWrapper:
-
-    def __init__(self, username: str, password: str, ipaddress: str):
-        """
-        Initializes the fabric connection manager.
-
-        :param username: The username of the box we wish to connect too
-        :param password: The password of the user account
-        :param ipaddress: The Ip we are trying to gain access too.
-        """
-        self._connection = None  # type: Connection
-        self._username = username
-        self._password = password
-        self._ipaddress = ipaddress
-        self._establish_fabric_connection()
-        self._sudo_config = None # type: Config
-
-    def _establish_fabric_connection(self) -> None:
-        if not self._connection:
-            self._sudo_config = Config(overrides={'sudo': {'password': self._password}})
-            self._connection = Connection(self._ipaddress,
-                                          user=self._username,
-                                          connect_timeout=60,
-                                          config=self._sudo_config,
-                                          connect_kwargs={'password': self._password,
-                                                          'allow_agent': False,
-                                                          'look_for_keys': False})
-
-    @property
-    def connection(self):
-        return self._connection
-
-    def close(self):
-        if self._connection:
-            self._connection.close()
-
-    def __enter__(self):
-        self._establish_fabric_connection()
-        return self._connection
-
-    def __exit__(self, *exc):
-        self.close()
-
-def execute_cmd(controller_shell: Connection, cmd: str) -> str:
-    ret_val = controller_shell.run(cmd, hide=True)
-    if ret_val.failed:
-        raise Exception(f"Failed to run {cmd} with stdout: {ret_val.stdout} and stderr: {ret_val.stderr}")
-    return ret_val.stdout.strip()
-
-def get_elastic_password(controller_shell: Connection) -> str:
-    cmd = "kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode"
-    return execute_cmd(controller_shell, cmd)
-
-def get_elastic_ip_address(controller_shell: Connection):
-    cmd = "kubectl get services | grep elasticsearch | grep -i LoadBalancer | awk '{print $4}'"
-    return execute_cmd(controller_shell, cmd)
 
 
 @library(scope="SUITE", version="0.1")
@@ -134,41 +72,6 @@ class TFPlenumLibrary:
             f"TFPlenumLibrary | Convert Ruleset Key To Robot String | Returning {robot_string}"
         )
         return robot_string
-
-    @keyword()
-    def get_closed_elastic_indexes(self, controller_ip: str, controller_password: str) -> List[str]:
-        """Gets the closed elasticsearch indexes.
-
-        Args:
-            controller_ip (str): The IP address of the controller
-            controller_password (str): The password of the controllers root ssh terminal.
-
-        Returns:
-            List[str]: ['close_index1', 'closed_index2', 'etc..']
-        """
-        elastic_password = None
-        elastic_ip = None
-        ret_val = []
-        with FabricConnectionWrapper("root", controller_password, controller_ip) as shell:
-            elastic_password = get_elastic_password(shell)
-            elastic_ip = get_elastic_ip_address(shell)
-
-        elastic = Elasticsearch(elastic_ip,
-                                use_ssl=True,
-                                verify_certs=False,
-                                http_auth=('elastic', elastic_password),
-                                port=9200,
-                                scheme="https")
-        indexes = elastic.cat.indices(params={"h": "status,index"})
-        for line in indexes.split("\n"):
-            try:
-                status, idx_name = line.split()
-                if status == "close":
-                    ret_val.append(idx_name)
-            except ValueError:
-                #Failes on line.split() because the last element in array is empty
-                continue
-        return ret_val
 
     @keyword()
     def get_rulesets_state_machine(self, use_cached=True):

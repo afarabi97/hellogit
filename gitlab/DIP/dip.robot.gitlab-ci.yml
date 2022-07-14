@@ -12,7 +12,7 @@ robot:sso_login:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -37,7 +37,7 @@ robot:catalog:independents:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -70,7 +70,7 @@ robot:catalog:community:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -103,7 +103,7 @@ robot:catalog:arkime:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -136,7 +136,7 @@ robot:catalog:CHM:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -170,7 +170,7 @@ robot:rulesets:sync:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -191,31 +191,6 @@ robot:rulesets:sync:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
   retry: 2
 
-robot:elastic:minio:
-  stage: robot-test-elastic
-  tags:
-    - docker-runner
-  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
-  extends: .setup-robot-script
-  script: |
-    OUTPUT=$(python3 -m run.runner -c integration \
-      -t "012_elastic/00_dipElastic" \
-      -r INTEGRATION \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: true
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
 robot:elastic:alerts:
   stage: robot-test-elastic
   tags:
@@ -230,7 +205,7 @@ robot:elastic:alerts:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -255,7 +230,7 @@ robot:add_virtual_sensor:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -280,7 +255,7 @@ robot:cleanup:virtual_sensor:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -310,7 +285,7 @@ robot:regression_testing:
       -v HOST_PASSWORD:$password \
       -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE \
-      -v CATEGORY:regression | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
+      -v CATEGORY:regression | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always

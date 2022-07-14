@@ -26,7 +26,6 @@
     method: DELETE
   loop: "{{ indexes.json }}"
   when: item.status == 'close'
-  ignore_errors: yes
 
 - name: Check Suricata and Zeek Traffic
   uri:
@@ -51,7 +50,7 @@
   retries: 90
   delay: 10
   loop:
-    - { app: 'zeek', type: 'event' }
-    - { app: 'zeek', type: 'alert' }
-    - { app: 'suricata', type: 'event' }
-    - { app: 'suricata', type: 'alert' }
+    - { app: "zeek", type: "event" }
+    - { app: "zeek", type: "alert" }
+    - { app: "suricata", type: "event" }
+    - { app: "suricata", type: "alert" }

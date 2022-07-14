@@ -87,3 +87,8 @@
     enabled: yes
 
 - import_tasks: update_dns.yml
+
+- name: Install scap-security-guide
+  dnf:
+    name: "scap-security-guide"
+    state: installed
