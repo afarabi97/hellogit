@@ -127,7 +127,7 @@ query:(language:kuery,query:'_id:%20%22${id}%22%20'),sort:!())`;
     }
 
     if (alert['_source'] && alert['_source']['network'] && alert['_source']['network']['community_id']){
-      const communityID = alert['_source']['network']['community_id'];
+      const communityID = encodeURIComponent(alert['_source']['network']['community_id']);
       const url = `${prefix}/sessions?expression=communityId%20%3D%3D%20%22${communityID}%22&date=${hourAmount}`;
       const win = window.open(url, '_blank');
       win.focus();
