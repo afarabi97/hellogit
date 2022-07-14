@@ -5,14 +5,14 @@ robot:sso_login:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c integration \
+    OUTPUT=$(python3 -m run.runner -c integration \
       -t "000_initial_login/00_dipInitialSSOLogin" \
       -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -30,14 +30,14 @@ robot:catalog:independents:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c integration \
+    OUTPUT=$(python3 -m run.runner -c integration \
       -t "010_install_catalog_apps/00_installPMOApps" \
       -r INTEGRATION \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -63,14 +63,14 @@ robot:catalog:community:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c integration \
+    OUTPUT=$(python3 -m run.runner -c integration \
       -t "010_install_catalog_apps/00_installCommunityApps" \
       -r INTEGRATION \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -96,14 +96,14 @@ robot:catalog:arkime:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c integration \
+    OUTPUT=$(python3 -m run.runner -c integration \
       -t "010_install_catalog_apps/00_installArkime" \
       -r INTEGRATION \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -129,14 +129,14 @@ robot:catalog:CHM:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c integration \
+    OUTPUT=$(python3 -m run.runner -c integration \
       -t "010_install_catalog_apps/00_installCortexMispHive" \
       -r INTEGRATION \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -163,14 +163,14 @@ robot:rulesets:sync:
   extends: .setup-robot-script
   script: |
     curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
-    python3 -m run.runner -c integration \
+    OUTPUT=$(python3 -m run.runner -c integration \
       -t "011_rulesets/01_dipSyncRulesets" \
       -r INTEGRATION \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -198,14 +198,14 @@ robot:elastic:minio:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c integration \
+    OUTPUT=$(python3 -m run.runner -c integration \
       -t "012_elastic/00_dipElastic" \
       -r INTEGRATION \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -223,14 +223,14 @@ robot:elastic:alerts:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c integration \
+    OUTPUT=$(python3 -m run.runner -c integration \
       -t "012_elastic/00_dipAlerts" \
       -r INTEGRATION \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -248,14 +248,14 @@ robot:add_virtual_sensor:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c integration \
+    OUTPUT=$(python3 -m run.runner -c integration \
       -t "013_sensors/00_addVirtualSensor" \
       -r INTEGRATION \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -273,14 +273,14 @@ robot:cleanup:virtual_sensor:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c integration \
+    OUTPUT=$(python3 -m run.runner -c integration \
       -t "cleanup/01_dipRemoveSensor" \
       -r INTEGRATION \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
@@ -302,7 +302,7 @@ robot:regression_testing:
   script: |
     curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
     curl -k -o /usr/src/robot/data-with-image_robot.pcap  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/pcap/data-with-image_robot.pcap
-    python3 -m run.runner -c regression \
+    OUTPUT=$(python3 -m run.runner -c regression \
       -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION -h -b $ROBOT_BROWSER \
       -v HOST:$controller_ip \
@@ -310,7 +310,7 @@ robot:regression_testing:
       -v HOST_PASSWORD:$password \
       -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE \
-      -v CATEGORY:regression || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+      -v CATEGORY:regression | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && exit $exit_code; fi;
   artifacts:
     untracked: true
     when: always
