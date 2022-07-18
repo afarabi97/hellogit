@@ -1,14 +1,12 @@
-import paramiko
 import socket
 import sys
-
 from base64 import b64decode
 from datetime import datetime
-
 from pathlib import Path
 from time import sleep
 from typing import Dict
 
+import paramiko
 from app.utils.constants import DATE_FORMAT_STR, KIT_SETTINGS_ID
 from app.utils.logging import logger
 from app.utils.utils import base64_to_string
@@ -135,7 +133,7 @@ class KubernetesWrapper:
         """
         return self._kube_apiv1
 
-    def __exit__(self, *exc) -> None:
+    def __exit__(self, *exec) -> None:
         return self
 
 

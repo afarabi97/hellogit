@@ -150,7 +150,7 @@ class ConfigMapMetadataModel(Model):
 
 class ConfigMapModel(Model):
     DTO = KUBERNETES_NS.model(
-        "ConfigMap",
+        "ConfigMapModel",
         {
             "name": fields.String(
                 example="addon-resizer", description="The name of the docker image."
@@ -251,14 +251,17 @@ class ConfigMapSavePods(Model):
     )
 
 
-class ConfigMapSave(Model):
-    DTO = KUBERNETES_NS.model(
-        "ConfigMapSave_Post",
-        {
-            "configMap": fields.Nested(ConfigMapSaveConfigMap.DTO),
-            "associatedPods": fields.Nested(ConfigMapSavePods.DTO),
-        },
-    )
+class ConfigMapSaveModel(Model):
+    DTO = KUBERNETES_NS.model("ConfigMapSave_Post", {
+        "configMap": fields.Nested(ConfigMapSaveConfigMap.DTO),
+        "associatedPods": fields.Nested(ConfigMapSavePods.DTO)
+    })
+
+
+class ConfigMapSavedModel(Model):
+    DTO = KUBERNETES_NS.model("ConfigMapSavedModel", {
+        "name": fields.String(example="addon-resizer")
+    })
 
 
 class ConfigMapCreateDataNested(Model):
@@ -279,12 +282,53 @@ class ConfigMapCreateMetaData(Model):
 
 
 class AssociatedPodModel(Model):
+    DTO = KUBERNETES_NS.model("AssociatedPodModel", {
+        "podName": fields.String(example="coredns-977b74bc6-cj4br"),
+        "namespace": fields.String(example="kube-system")
+    })
+
+
+class ConfigMappingModel(Model):
+    DTO = KUBERNETES_NS.model("ConfigMappingModel", {
+        "api_version": fields.String(),
+        "binary_data": fields.Raw(),
+        "data": fields.Raw(),
+        "kind": fields.String(),
+        "metadata": fields.Raw()
+    })
+
+
+class ConfigMapListModel(Model):
+    DTO = KUBERNETES_NS.model("ConfigMapListModel", {
+        "api_version": fields.String(example="v1"),
+        "items": fields.List(fields.Nested(ConfigMappingModel.DTO)),
+        "kind": fields.String(example="ConfigMapList"),
+        "metadata": fields.Raw()
+    })
+
+
+class ConfigMap(Model):
     DTO = KUBERNETES_NS.model(
-        "AssociatedPod",
+        "ConfigMap",
         {
-            "podName": fields.String(example="coredns-977b74bc6-cj4br"),
-            "namespace": fields.String(example="kube-system"),
-        },
+            "api_version": fields.String(),
+            "binary_data": fields.Raw(),
+            "data": fields.Raw(),
+            "kind": fields.String(),
+            "metadata": fields.Raw()
+        }
+    )
+
+
+class ConfigMapList(Model):
+    DTO = KUBERNETES_NS.model(
+        "ConfigMapList",
+        {
+            "api_version": fields.String(example="v1"),
+            "items": fields.List(fields.Nested(ConfigMap.DTO)),
+            "kind": fields.String(example="ConfigMapList"),
+            "metadata": fields.Raw()
+        }
     )
 
 
