@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config
   xmlns:ncx="http://netconfcentral.org/ns/yuma-ncx"
-  ncx:last-modified="2022-07-12T14:06:02Z" ncx:etag="6648"
+  ncx:last-modified="2022-07-13T20:04:50Z" ncx:etag="6648"
   xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
   <aaa xmlns="http://www.dellemc.com/networking/os10/dell-system">
     <authentication>
@@ -682,56 +682,6 @@
         </action>
       </rule>
       <rule>
-        <seq-no>110</seq-no>
-        <remark>management to endgame (2 lines)</remark>
-      </rule>
-      <rule>
-        <seq-no>120</seq-no>
-        <condition>
-          <match-ip>
-            <destination-address>10.20.138.200</destination-address>
-            <destination-mask>255.255.255.255</destination-mask>
-            <source-address>10.20.136.0</source-address>
-            <source-mask>255.255.255.0</source-mask>
-            <src-address-format>prefix</src-address-format>
-            <dst-address-format>host</dst-address-format>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <lower-port>443</lower-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>130</seq-no>
-        <condition>
-          <match-ip>
-            <destination-address>10.20.138.200</destination-address>
-            <destination-mask>255.255.255.255</destination-mask>
-            <source-address>10.20.136.0</source-address>
-            <source-mask>255.255.255.0</source-mask>
-            <src-address-format>prefix</src-address-format>
-            <dst-address-format>host</dst-address-format>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <lower-port>22</lower-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
         <seq-no>140</seq-no>
         <remark>management to internal remote access (5 lines)</remark>
       </rule>
@@ -1095,6 +1045,102 @@
             <match-tcp>
               <source-port-range>
                 <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>110</seq-no>
+        <remark>management to dmz (2 lines)</remark>
+      </rule>
+      <rule>
+        <seq-no>120</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.138.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>130</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.138.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.136.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>22</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>121</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.138.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>443</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>131</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.136.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.138.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>22</lower-port>
                 <comparator>eq</comparator>
               </source-port-range>
             </match-tcp>
@@ -2421,7 +2467,7 @@
     </interface>
     <interface>
       <name>ethernet1/1/5</name>
-      <description>Internal Network</description>
+      <description>DMZ Network</description>
       <type
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
       <enabled>true</enabled>
@@ -2860,7 +2906,6 @@
       <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/14:2</untagged-ports>
       <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/14:3</untagged-ports>
       <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/14:4</untagged-ports>
-      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/5</untagged-ports>
       <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/6</untagged-ports>
       <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/7</untagged-ports>
       <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/8</untagged-ports>
@@ -2891,6 +2936,7 @@
         xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:l2vlan</type>
       <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/1</tagged-ports>
       <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/15</tagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/5</untagged-ports>
     </interface>
     <interface>
       <name>vlan688</name>

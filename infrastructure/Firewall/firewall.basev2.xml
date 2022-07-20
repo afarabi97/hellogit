@@ -122,6 +122,7 @@
 			<enable>enabled</enable>
 		</ssh>
 		<hn_altq_enable></hn_altq_enable>
+		<pkg_repo_conf_path>/usr/local/share/pfSense/pkg/repos/pfSense-repo.conf</pkg_repo_conf_path>
 	</system>
 	<interfaces>
 		<wan>
@@ -747,6 +748,39 @@
 			<updated>
 				<time>1649253329</time>
 				<username><![CDATA[assessor@10.2.2.215 (Local Database)]]></username>
+			</updated>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1656512004</tracker>
+			<type>pass</type>
+			<interface>lan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>tcp</protocol>
+			<source>
+				<network>lan</network>
+			</source>
+			<destination>
+				<network>opt2</network>
+				<port>TCP_MGMT</port>
+			</destination>
+			<descr><![CDATA[For management of dmz hosts]]></descr>
+			<created>
+				<time>1656512004</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
+			</created>
+			<updated>
+				<time>1657728411</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -2130,9 +2164,9 @@
 	</unbound>
 	<dyndnses></dyndnses>
 	<revision>
-		<time>1649360958</time>
-		<description><![CDATA[assessor@10.2.2.19 (Local Database): Firewall: Rules - saved/edited a firewall rule.]]></description>
-		<username><![CDATA[assessor@10.2.2.19 (Local Database)]]></username>
+		<time>1657728411</time>
+		<description><![CDATA[assessor@10.2.2.89 (Local Database): Firewall: Rules - saved/edited a firewall rule.]]></description>
+		<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 	</revision>
 	<ppps></ppps>
 	<ntpd>
@@ -2262,6 +2296,9 @@
 			</tabs>
 			<include_file>/usr/local/pkg/openvpn-client-export.inc</include_file>
 		</package>
+		<vpn_openvpn_export>
+			<config></config>
+		</vpn_openvpn_export>
 		<service>
 			<name>vmware-guestd</name>
 			<rcfile>vmware-guestd.sh</rcfile>
@@ -2274,8 +2311,5 @@
 			<custom_php_service_status_command>mwexec(&quot;/usr/local/etc/rc.d/vmware-kmod status&quot;) == 0;</custom_php_service_status_command>
 			<description><![CDATA[VMware Kernel Modules]]></description>
 		</service>
-		<vpn_openvpn_export>
-			<config></config>
-		</vpn_openvpn_export>
 	</installedpackages>
 </pfsense>
