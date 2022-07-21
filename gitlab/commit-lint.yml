@@ -1,7 +1,7 @@
 Commit Lint:
   stage: commit-lint
   image:
-    name: docker.nexus.sil.lab/tfplenum/vommit:0.1
+    name: docker.nexus.sil.lab/tfplenum/vommit:0.2
     entrypoint: [""]
   tags:
     - docker-runner

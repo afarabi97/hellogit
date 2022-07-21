@@ -11,8 +11,7 @@ TRAILER_FIELDS_REGEXP = re.compile(
     r"^(Issue|Test|More Information|Documentation|Docs|Co-Authored By|Closes)[:][\s]")
 
 TRAILER_ISSUE_REGEXP = re.compile(
-    r"^(Issue:[\s]https://jira.di2e.net/browse/THISISCVAH-[0-9]{,6}$)")
-
+    r"^(Issue:[\s]https://jira.*/browse/THISISCVAH-[0-9]{,6}$)")
 
 class TitleCommitType(CommitRule):
     """ This rule will enforce that the type of commit is valid

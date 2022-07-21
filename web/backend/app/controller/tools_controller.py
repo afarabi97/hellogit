@@ -195,7 +195,7 @@ class ChangeKitPassword(Resource):
         current_config = KitSettingsForm.load_from_db()  # type: Dict
         if current_config == None:
             return {"error_message": "Couldn't find kit configuration."}, 404
-        nodes = Node.load_all_servers_sensors_from_db()
+        nodes = Node.load_dip_nodes_from_db()
         for node in nodes:  # type: Node
             try:
                 with FabricConnection(str(node.ip_address), use_ssh_key=True) as shell:
