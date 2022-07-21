@@ -28,7 +28,7 @@ export class HealthDashboardPodTableComponent implements OnChanges {
     pod_header_column = [
       { def: 'namespace', remote_access: true },
       { def: 'name', remote_access: true },
-      { def: 'status', remote_access: true },
+      { def: 'container_states', remote_access: true },
       { def: 'restart_count', remote_access: true },
       { def: 'actions', remote_access: false },
     ];
@@ -164,4 +164,21 @@ export class HealthDashboardPodTableComponent implements OnChanges {
        }
       );
     }
+
+    getContainerStatus(container_status): string {
+      if (container_status.state.running) {
+        return "running";
+      }
+
+      if (container_status.state.terminated) {
+        return container_status.state.terminated.reason ? `terminated: ${container_status.state.terminated.reason}` : 'terminated';
+      }
+
+      if (container_status.state.waiting) {
+        return container_status.state.waiting.reason ? `waiting: ${container_status.state.waiting.reason}` : 'waiting';
+      }
+
+      return "";
+    }
+
 }

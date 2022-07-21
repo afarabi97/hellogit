@@ -31,3 +31,11 @@ table {
 ::ng-deep .mat-tooltip {
   font-size: 14px;
 }
+
+.containerStatus {
+  color: #4caf50;
+}
+
+.podErrors {
+  color: #f44336;
+}
