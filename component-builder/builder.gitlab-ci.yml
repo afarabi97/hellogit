@@ -9,12 +9,15 @@ image: docker.nexus.sil.lab/tfplenum/pipeline-builder:1.3
   script: |
     cmd="python3 component-builder/build.py helm-build -n ${NAME} --nexus-user \"$NEXUS_USER\" --nexus-password \"$NEXUS_PASSWORD\""
     echo "$cmd"
-    eval $cmd
+    OUTPUT=$(eval $cmd | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"Cannot override"* ]]; then echo "Helm Chart Build Warning. The version can not be overriden since it already exists on the Nexus Server" && exit 3; else echo "Helm Chart Build Failed" && exit $exit_code; fi;
   artifacts:
     when: always
     paths:
       - ./*.tgz
     expire_in: 30 minutes
+  allow_failure:
+    exit_codes:
+      - 3
 
 .docker-build-super:
   stage: build-docker
@@ -29,10 +32,13 @@ image: docker.nexus.sil.lab/tfplenum/pipeline-builder:1.3
   script: |
     cmd="python3 component-builder/build.py rpm-build -n ${NAME} -v \"${RPM_VERSION}\" -r \"${RPM_RELEASE_NUM}\" -u \"${REGISTRY_URL}\" --nexus-user \"$NEXUS_USER\" --nexus-password \"$NEXUS_PASSWORD\""
     echo "$cmd"
-    eval $cmd
+    OUTPUT=$(eval $cmd | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"Cannot override"* ]]; then echo "RPM Build Warning. The version can not be overriden since it aready exists on the Nexus Server" && exit 3; else echo "RPM Build Failed" && exit $exit_code; fi;
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+    - if: "$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/"
       when: always
+  allow_failure:
+    exit_codes:
+      - 3
 
 ############################################
 
@@ -72,7 +78,7 @@ release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/'
+    - if: "$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/"
   script: |
     cmd="release-cli --project-id $CI_PROJECT_ID --server-url \"$CI_SERVER_URL\" --private-token \"$RELEASE_PRIVATE_TOKEN\" create --name \"Release $CI_COMMIT_TAG\" --tag-name \"$CI_COMMIT_TAG\""
 
