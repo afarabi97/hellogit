@@ -2,7 +2,6 @@
 image: 'tfplenum/arkime'
 port: "8005"
 domain: lan
-busyboxImage: busybox:{{ context["docker_versions"]["busybox_version"] }}
 
 # Location of arkime dirs/files
 dir: '/opt/tfplenum/arkime'
@@ -39,5 +38,5 @@ tpacketv3BlockSize: 8388608
 tpacketv3NumThreads: 2
 maxPacketsInQueue: "400000"
 es_user: arkime
-es_password: "SK2snS121nsk12s"
+es_password: password
 rotateIndex: "hourly6"

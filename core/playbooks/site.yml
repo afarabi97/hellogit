@@ -315,6 +315,21 @@
   tags:
     - metrics
 
+- name: Deploy Arkime
+  hosts:
+    - localhost
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - name: Deploy Arkime pre_tasks
+      setup:
+  tasks:
+    - name: arkime
+      import_role:
+        name: arkime
+  tags:
+    - arkime
+
 - name: Setup Log Management
   hosts: sensors
   gather_facts: no

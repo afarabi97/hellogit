@@ -1,0 +1,61 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: arkime-bootstrap
+  labels:
+    component: arkime
+spec:
+  template:
+    metadata:
+      labels:
+        component: arkime
+    spec:
+      containers:
+      - name: "arkime"
+        image: "{{ arkime_image }}:{{ docker_versions.arkime_version }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CONTAINER_TYPE
+          value: "BOOTSTRAP"
+        - name: ELASTICSEARCH_USERNAME
+          value: "{{ es_arkime_user }}"
+        - name: ELASTICSEARCH_PASSWORD
+          value: "{{ es_arkime_password }}"
+        - name: ELASTICSEARCH_FQDN
+          value: "{{ elastic_fqdn }}"
+        - name: ELASTICSEARCH_PORT
+          value: "{{ elastic_port }}"
+        - name: NUM_OF_SHARDS
+          value: "{{ number_of_shards }}"
+        - name: NUM_OF_REPLICAS
+          value: "{{ number_of_replicas }}"
+        - name: SHARDS_PER_NODE
+          value: "{{ number_of_shards_per_node }}"
+        - name: FORCE_MERGE
+          value: "25h"
+        - name: DELETE
+          value: "60d"
+        - name: HISTORY
+          value: "30"
+        - name: ILM_REPLICAS
+          value: "1"
+        volumeMounts:
+        - name: configini
+          subPath: config.ini
+          mountPath: {{ arkime_path }}/etc/config.ini
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+      volumes:
+      - name: configini
+        configMap:
+          name: arkime-bootstrap
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: webca-certificate
+      nodeSelector:
+        role: server
+      restartPolicy: Never

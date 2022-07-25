@@ -106,8 +106,8 @@ setup_package_list:
   - tcpreplay-4.4.0-1.el8
 
 helm_versions:
-  arkime: 1.1.0
-  arkime_viewer: 1.1.0
+  arkime: 1.0.4
+  arkime_viewer: 1.0.4
   cortex: 1.0.5
   hive: 1.0.6
   jcat_nifi: 1.0.3
@@ -150,13 +150,13 @@ custom_rpm_packages:
     app_version: "{{ docker_versions.arkime_version }}"
     containers:
       - "docker.nexus.sil.lab/tfplenum/arkime:{{ docker_versions.arkime_version }}"
-    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-busybox, tfplenum-python"
+    rpm_requirements: "{{ other.rpm_common_requirements }}"
   - name: "arkime-viewer"
     helm_version: "{{ helm_versions.arkime_viewer }}"
     app_version: "{{ docker_versions.arkime_version }}"
     containers:
       - "docker.nexus.sil.lab/tfplenum/arkime:{{ docker_versions.arkime_version }}"
-    rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-python"
+    rpm_requirements: "{{ other.rpm_common_requirements }}"
   - name: "cortex"
     helm_version: "{{ helm_versions.cortex }}"
     app_version: "{{ docker_versions.hive_cortex_version }}"

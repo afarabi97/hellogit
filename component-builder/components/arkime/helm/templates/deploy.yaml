@@ -20,17 +20,6 @@ spec:
     spec:
       hostNetwork: true
       initContainers:
-      - name: directory-init
-        image: "{{ .Values.busyboxImage }}"
-        securityContext:
-          runAsUser: 0
-        command:
-        - "/bin/sh"
-        - "-c"
-        - "chown -R 1000:1000 /arkime-data"
-        volumeMounts:
-        - name: data
-          mountPath: /arkime-data
       - name: init-sync-files
         image: "{{ .Values.image }}:{{ .Values.version }}"
         volumeMounts:
@@ -127,3 +116,4 @@ spec:
                 values:
                 - arkime-capture
             topologyKey: "kubernetes.io/hostname"
+

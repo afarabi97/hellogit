@@ -1,0 +1,18 @@
+{
+    "cluster": [
+        "monitor",
+        "manage_index_templates",
+        "transport_client",
+        "manage"
+    ],
+    "indices": [
+        {
+            "names": [
+                "arkime_*"
+            ],
+            "privileges": [
+                "all"
+            ]
+        }
+    ]
+}
