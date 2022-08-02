@@ -231,6 +231,7 @@ CPT:
     - Repo/CPT/AppStore/TFTP Server/5.2-27.fc30
     - Repo/CPT/AppStore/Windows 10 Enterprise (x64)_v1809/1809
     - Repo/CPT/AppStore/Windows Server 2012 R2 Standard x64_v6.3(Build9600)/6.3
+    - Repo/Shared/AppStore/Citrix/2207
     - Repo/Shared/AppStore/Elastic Stack/7.16.2
     - Repo/Shared/AppStore/Grassmarlin/3.3
     - Repo/Shared/AppStore/Metasponse/1.6.2.0
@@ -282,6 +283,7 @@ CPT:
     - Repo/CPT/Documentation/AppStore/RegRipper/master
     - Repo/CPT/Documentation/AppStore/Secure Host Baseline/2019
     - Repo/CPT/Documentation/AppStore/Snowflake/3.0.1
+    - Repo/Shared/Documentation/AppStore/Citrix/2207
     - Repo/Shared/Documentation/AppStore/Grassmarlin/master
     - Repo/Shared/Documentation/AppStore/Metasponse/1.6.2.0
     - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
@@ -374,6 +376,7 @@ MDT:
     - Repo/MDT/AppStore/Powershell Community Extensions/3.3.2
     - Repo/MDT/AppStore/Powershell Remote Registry (PSRR)/3.0
     - Repo/MDT/AppStore/SCAP Compliance Checker/4.2
+    - Repo/Shared/AppStore/Citrix/2207
     - Repo/Shared/AppStore/Elastic Stack/7.16.2
     - Repo/Shared/AppStore/Grassmarlin/3.3
     - Repo/Shared/AppStore/Metasponse/1.6.2.0
@@ -411,6 +414,7 @@ MDT:
     - Repo/MDT/Documentation/AppStore/p7zip/16.02
     - Repo/MDT/Documentation/AppStore/Powershell Remote Registry (PSRR)/3.0.0
     - Repo/MDT/Documentation/AppStore/SCAP Compliance Checker/4.2
+    - Repo/Shared/Documentation/AppStore/Citrix/2207
     - Repo/Shared/Documentation/AppStore/Grassmarlin/master
     - Repo/Shared/Documentation/AppStore/Metasponse/1.6.2.0
     - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
