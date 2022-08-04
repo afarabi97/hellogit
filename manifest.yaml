@@ -210,7 +210,7 @@ CPT:
     - Repo/CPT/AppStore/Netflow Realtime/10.8.0.5
     - Repo/CPT/AppStore/Netmon to Libpcap/2.1
     - Repo/CPT/AppStore/Nfsshell/09cdd52
-    - Repo/CPT/AppStore/Nipper Studio/2.12.1
+    - Repo/CPT/AppStore/Nipper Studio/2.13.0
     - Repo/CPT/AppStore/OpenVAS/10.0
     - Repo/CPT/AppStore/openVPN/2.10.0
     - Repo/CPT/AppStore/PE.Explorer/1.99R6
@@ -277,7 +277,7 @@ CPT:
     - Repo/CPT/Documentation/AppStore/File Checksum Integrity Verifier FCIV/master
     - Repo/CPT/Documentation/AppStore/FTKImager/4.5.0.3
     - Repo/CPT/Documentation/AppStore/Hashcat/6.2.4
-    - Repo/CPT/Documentation/AppStore/Nipper Studio/2.12.1
+    - Repo/CPT/Documentation/AppStore/Nipper Studio/2.13.0
     - Repo/CPT/Documentation/AppStore/Redline/2.0
     - Repo/CPT/Documentation/AppStore/RegRipper/master
     - Repo/CPT/Documentation/AppStore/Secure Host Baseline/2019
