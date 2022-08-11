@@ -199,6 +199,23 @@ def update_device_facts_job(
     return True
 
 
+def run_last_deploy_job(node: Node):
+    kit_status = get_kit_status()
+    if (node.node_type == NODE_TYPES.ltac.value or
+        node.node_type == NODE_TYPES.xsoar.value):
+        execute.delay(
+            node=node,
+            exec_type=DEPLOYMENT_JOBS.add_node,
+            stage=JOB_DEPLOY,
+        )
+    elif kit_status["base_kit_deployed"]:
+        execute.delay(
+            node=node,
+            exec_type=DEPLOYMENT_JOBS.add_node,
+            stage=JOB_DEPLOY,
+        )
+
+
 @job("default", connection=REDIS_CLIENT, timeout="120m")
 def gather_device_facts(node: Node, settings: Union[KitSettingsForm, MipSettingsForm]):
     get_app_context().push()
@@ -257,13 +274,7 @@ def gather_device_facts(node: Node, settings: Union[KitSettingsForm, MipSettings
                         stage=JOB_DEPLOY,
                     )
                 else:
-                    kit_status = get_kit_status()
-                    if kit_status["base_kit_deployed"]:
-                        execute.delay(
-                            node=node,
-                            exec_type=DEPLOYMENT_JOBS.add_node,
-                            stage=JOB_DEPLOY,
-                        )
+                    run_last_deploy_job(node)
                 break
             elif future_time <= datetime.utcnow():
                 msg = "ERROR:{}: Unable to find {} provisioning timeout.".format(
@@ -533,7 +544,7 @@ class NodeService:
         send_notification()
 
 
-@job("default", connection=REDIS_CLIENT, timeout="120m")
+@job("default", connection=REDIS_CLIENT, timeout="240m")
 def execute(
     exec_type: DEPLOYMENT_JOBS = DEPLOYMENT_JOBS.base_kit,
     stage: str = JOB_CREATE,

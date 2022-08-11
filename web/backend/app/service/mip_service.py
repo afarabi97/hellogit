@@ -10,6 +10,7 @@ from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_CREATE,
 def add_mip_to_database(configuration: Dict) -> Node:
     configuration['node_type'] = NODE_TYPES.mip.value
     mip = Node.load_node_from_request(configuration)
+    mip.post_validation()
     mip.create()
     send_notification()
     return mip

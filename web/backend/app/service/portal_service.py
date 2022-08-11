@@ -62,6 +62,8 @@ def _append_portal_link(name: str, kit_domain: str, ip: str = None, type: str = 
         logins = get_app_credentials("rocketchat", "admin_user", "admin_pass")
     elif type == NODE_TYPES.minio.value:
         logins = "assessor/<kit password in system settings>"
+    elif type == NODE_TYPES.ltac.value:
+        logins = "Requires browser certificate. Reference documentation for access."
 
     fip = HTTPS_STR + str(ip)
     dns = HTTPS_STR + name + "." + kit_domain
@@ -89,6 +91,12 @@ def get_portal_links():
         if minio:
             hostname, domain = minio.hostname.split(".")
             portal_links.append(_append_portal_link(hostname, domain, minio.ip_address, NODE_TYPES.minio.value))
+
+        ltac = Node.load_ltac_from_db()
+        if ltac:
+            hostname, domain = ltac.hostname.split(".")
+            portal_links.append(_append_portal_link(hostname, domain, ltac.ip_address, NODE_TYPES.ltac.value))
+
         with KubernetesWrapper() as api:
             services = api.list_service_for_all_namespaces()
             for service in services.items:

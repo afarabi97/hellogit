@@ -3,7 +3,7 @@ import { AbstractControl, FormGroup, Validators } from '@angular/forms';
 import { MatRadioChange } from '@angular/material/radio';
 
 import { ObjectUtilitiesClass } from '../../../../classes';
-import { MINIO, MIP, SENSOR, SERVER, SERVICE, VIRTUAL } from '../../../../constants/cvah.constants';
+import { MINIO, MIP, SENSOR, SERVER, SERVICE, VIRTUAL, LTAC } from '../../../../constants/cvah.constants';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
 import { addNodeValidators } from '../../../../validators/add-node.validator';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
@@ -74,6 +74,11 @@ export class VirtualNodeFormComponent {
       this.node_form_group.get('virtual_mem').setValue(8);
       this.node_form_group.get('virtual_os').setValue(100);
       this.node_form_group.get('virtual_data').setValue(10000);
+    } else if (node_type == LTAC) {
+      this.node_form_group.get('virtual_cpu').setValue(16);
+      this.node_form_group.get('virtual_mem').setValue(64);
+      this.node_form_group.get('virtual_os').setValue(256);
+      this.node_form_group.setControl('virtual_data', null);
     }
   }
 

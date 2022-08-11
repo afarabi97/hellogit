@@ -113,16 +113,19 @@ class KitSettingsJob:
         await test_nodes_up_and_alive_async(node, 30)
         await self._install_vmware_tools(node)
         if node.node_type == "Sensor" or node.node_type == "Service":
-            wait_for_next_job_in_chain(self.ctrl_settings.node.ipaddress, {"hostname": node.hostname})
+            wait_for_next_job_in_chain(self.ctrl_settings.node.ipaddress, {"hostname": node.hostname}, 180)
 
     async def _run_add_node_virtual(self, node: NodeSettingsV2):
         logging.info("Adding virtual node {}".format(node.hostname))
         self.api = APITesterV2(self.ctrl_settings, self.kit_settings)
+        timeout = 180
         if node.is_mip():
             self.api.run_add_virtual_mip_post(node)
         else:
             self.api.run_add_virtual_node_post(node)
-        wait_for_next_job_in_chain(self.ctrl_settings.node.ipaddress, {"hostname": node.hostname})
+            if node.is_ltac():
+                timeout = 210
+        wait_for_next_job_in_chain(self.ctrl_settings.node.ipaddress, {"hostname": node.hostname}, timeout=timeout)
 
     async def _do_virtual_add_node_work(self, nodes: List[NodeSettingsV2]):
         tasks = []

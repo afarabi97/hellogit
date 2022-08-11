@@ -24,6 +24,9 @@ appstream_dir: "{{ TFPLENUM_REPO_DIR }}/AppStream"
 extras_dir: "{{ TFPLENUM_REPO_DIR }}/Extras"
 
 dod_nmil_file: "Certificates_PKCS7_v5.9_DoD_DoD_Root_CA_3.pem"
+
+LTAC_REPO_DIR: "{{ tfplenumoffline_dir }}/ltac"
+
 dod_smil_file: "Certificates_PKCS7_v5.5_SIPR.pem"
 offline_cert_dir: "{{ tfplenumoffline_dir }}/dod_certs"
 
@@ -34,6 +37,11 @@ iso_rhel_server_name: "rhel-{{ iso_rhel_version }}-x86_64-dvd.iso"
 iso_rhel_server_path: "/root/{{ iso_rhel_server_name }}"
 iso_rhel_server_url_labrepo: "{{ tfplenum_repo }}/isos/{{ iso_rhel_server_name }}"
 iso_rhel_server_checksum: 7fdfed9c7cced4e526a362e64ed06bcdc6ce0394a98625a40e7d05db29bf7b86
+
+iso_ltac_server_name: "LTAC-4.4.5-1.iso"
+iso_ltac_server_path: "/root/{{ iso_ltac_server_name }}"
+iso_ltac_server_url_labrepo: "{{ tfplenum_repo }}/isos/{{ iso_ltac_server_name }}"
+iso_ltac_server_checksum: e1a59a66996b3d8327639672b420c019043149b18d51d39c9647a6cd3cb76b7b
 
 ansible_controller_hostname: "{{ ansible_nodename }}"
 

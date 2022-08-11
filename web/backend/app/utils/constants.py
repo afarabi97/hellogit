@@ -63,6 +63,8 @@ class NODE_TYPES(Enum):
     service_node = "Service"
     mip = "MIP"
     minio = "MinIO"
+    ltac = "LTAC"
+    xsoar = "XSOAR"
 
 
 class DEPLOYMENT_TYPES(Enum):

@@ -81,11 +81,22 @@ def _generate_minio_inventory():
     generic_template_generator.generate("minio.yml")
 
 
+def _generate_ltac_inventory():
+    ctx = {"nodes": []}
+    ltac_node = Node.load_ltac_from_db()  # type: List[Node]
+    if ltac_node:
+        ctx = {"nodes": [ltac_node.to_dict()]}
+
+    generic_template_generator = GenericInventoryGenerator(ctx)
+    generic_template_generator.generate("ltac.yml")
+
+
 def _generate_inventory():
     _generate_nodes_inventory()
     _generate_cp_inventory()
     _generate_mip_nodes_inventory()
     _generate_minio_inventory()
+    _generate_ltac_inventory()
 
 
 def _generate_nodes_inventory():
@@ -139,7 +150,7 @@ class NodeSchema(Schema):
     os_raid = marsh_fields.Bool(required=False, allow_none=True)
     os_raid_root_size = marsh_fields.Integer(required=False)
     node_type = marsh_fields.Str(required=False, validate=validate.OneOf(
-        ["Server", "Sensor", "Undefined", "Control-Plane", "MinIO", "MIP", "Service"]))
+        ["Server", "Sensor", "Undefined", "Control-Plane", "MinIO", "MIP", "Service", "LTAC"]))
     error = marsh_fields.Str()
     deviceFacts = marsh_fields.Dict()
     deployment_type = marsh_fields.String(required=False, allow_none=True)
@@ -236,7 +247,7 @@ class Node(Model):
                  vpn_status: bool = None,
                  virtual_cpu: int = 16,
                  virtual_mem: int = 16,
-                 virtual_os: int = 100,
+                 virtual_os: int = 50,
                  virtual_data: int = 500,
                  _id: str = None):
         self._id = _id or uuid.uuid4().hex
@@ -401,6 +412,14 @@ class Node(Model):
         return None
 
     @classmethod
+    def load_ltac_from_db(cls) -> 'Node':
+        query = {"node_type": NODE_TYPES.ltac.value}
+        node = get_collection(Collections.NODES).find_one(query)
+        if node:
+            return cls.schema.load(node)
+        return None
+
+    @classmethod
     def _load_node_types_from_db(cls, node_types: List[str]) -> List['Node']:
         ret_val = []
         query = {"node_type": {"$in": node_types}}
@@ -419,8 +438,18 @@ class Node(Model):
         return cls._load_node_types_from_db(node_types)
 
     @classmethod
+    def load_all_service_nodes_from_db(cls) -> List['Node']:
+        node_types = [NODE_TYPES.service_node.value]
+        return cls._load_node_types_from_db(node_types)
+
+    @classmethod
     def load_all_sensors_from_db(cls) -> List['Node']:
         node_types = [NODE_TYPES.sensor.value]
+        return cls._load_node_types_from_db(node_types)
+
+    @classmethod
+    def load_all_mips_from_db(cls) -> List['Node']:
+        node_types = [NODE_TYPES.mip.value]
         return cls._load_node_types_from_db(node_types)
 
     @classmethod
@@ -433,7 +462,7 @@ class Node(Model):
     def load_stateful_dip_nodes_from_db(cls) -> List['Node']:
         node_types = [NODE_TYPES.server.value, NODE_TYPES.sensor.value,
                       NODE_TYPES.service_node.value, NODE_TYPES.control_plane.value,
-                      NODE_TYPES.minio.value]
+                      NODE_TYPES.minio.value, NODE_TYPES.ltac.value]
         return cls._load_node_types_from_db(node_types)
 
     @classmethod
@@ -468,6 +497,8 @@ class Node(Model):
 
         if self.node_type == NODE_TYPES.server.value and self.deployment_type == "Virtual":
             for server in servers:
+                if self.ip_address == server.ip_address or self.hostname == server.hostname:
+                    exc.append_error("server", "Duplicate server IP or hostname found.  Only one is allowed.")
                 if server.deployment_type == "Virtual":
                     if server.virtual_cpu != self.virtual_cpu:
                         exc.append_error("cpu", "CPU Cores must match {} resources.  Set CPU Core to {}\n".format(
@@ -477,9 +508,27 @@ class Node(Model):
                         exc.append_error("memory", "Memory must match {} resources.  Set Memory to {}\n".format(
                             server.hostname, server.virtual_mem))
 
-        if self.node_type == NODE_TYPES.minio.value:
+        if self.node_type == NODE_TYPES.sensor.value:
+            sensors = self.load_all_sensors_from_db()
+            for sensor in sensors:
+                if self.ip_address == sensor.ip_address or self.hostname == sensor.hostname:
+                    exc.append_error("sensor", "Duplicate sensor IP or hostname found. Only one is allowed.")
+        elif self.node_type == NODE_TYPES.service_node.value:
+            services = self.load_all_service_nodes_from_db()
+            for service in services:
+                if self.ip_address == service.ip_address or self.hostname == service.hostname:
+                    exc.append_error("service", "Duplicate service IP or hostname found. Only one is allowed.")
+        elif self.node_type == NODE_TYPES.minio.value:
             if self.load_minio_from_db():
                 exc.append_error("minio", "MinIO has already been added. Only one is allowed.")
+        elif self.node_type == NODE_TYPES.ltac.value:
+            if self.load_ltac_from_db():
+                exc.append_error("ltac", "LTAC has already been added. Only one is allowed.")
+        elif self.node_type == NODE_TYPES.mip.value:
+            mips = self.load_all_mips_from_db()
+            for mip in mips:
+                if self.ip_address == mip.ip_address or self.hostname == mip.hostname:
+                    exc.append_error("mip", "Duplicate mip IP or hostname found. Only one is allowed.")
 
         if exc.has_errors():
             raise exc

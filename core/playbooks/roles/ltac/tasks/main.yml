@@ -1,0 +1,84 @@
+- name: Create cloud init path file
+  file:
+    path: "{{ ltac_cloudinit_path }}"
+    state: directory
+
+- name: Copy Nifi enabled cloud-init file
+  template:
+    src: templates/user-data.txt
+    dest: "{{ ltac_cloudinit_path }}/user-data.txt"
+
+- name: Patch ltac_init install file so root can still login.
+  lineinfile:
+    path: "/var/bdp/bin/ltac_init"
+    insertbefore: 'reboot[(][)]'
+    firstmatch: yes
+    state: present
+    line: "    os.system(\"sed -i 's/PermitRootLogin no/PermitRootLogin yes/' /etc/ssh/sshd_config\")"
+
+- import_tasks: update_dns.yml
+
+- debug:
+    msg: "Installing LTAC phase 1 this can take up to 30 minutes.  Please wait while the install finishes."
+
+- name: Install LTAC
+  block:
+    - name: Run LTAC installer first time
+      command: "/var/bdp/bin/ltac_init"
+      register: result
+      changed_when: (result.rc == 0)
+  rescue:
+    - debug:
+        msg: "Ignore previous failure. LTAC is rebooting please wait."
+
+    - name: Wait for LTAC to come back up
+      wait_for:
+        port: 22
+        host: "{{ hostvars[inventory_hostname].management_ipv4 }}"
+        timeout: 3600
+      delegate_to: localhost
+
+    - name: Copy LTAC values template file
+      template:
+        src: templates/ltac-values-template.yaml
+        dest: "{{ ltac_bdp_config_path }}/ltac-values-template.yaml"
+
+    - debug:
+        msg: "Installing LTAC phase 2 this can take up to 2 hours.  Please wait while the install finishes."
+
+    - name: Run LTAC installer for a second time in the background
+      shell: "nohup /var/bdp/bin/ltac_init >/var/bdp/bin/ltac_init_install.log 2>&1 &"
+
+    - name:  Wait for install to be completed
+      stat:
+        path: /etc/bdp/bootstrap_status/done
+      register: stat_result
+      ignore_errors: yes
+      retries: 180
+      delay: 60
+      until: stat_result.stat.exists
+
+    - fail:
+        msg: "The job timed out. The /etc/bdp/bootstrap_status/done does not exist."
+      when: not stat_result.stat.exists
+
+- name: Create LTAC Admin User Certificate
+  command: "{{ create_cert_cmd }} {{ ltac_admin_user }}"
+  register: result
+  changed_when: (result.rc == 0)
+  tags:
+    - ltac_cert
+
+- name: Create Citadel LTAC Admin User Account
+  command: "citadel user:add -u {{ ltac_admin_user }} -a AUTH:U -a AUTH:FOUO -a AUTH:USA -a ROLE:UNITY -a ROLE:LTAC_ADMIN"
+  register: result
+  changed_when: (result.rc == 0)
+  tags:
+    - ltac_citadel_user_create
+
+- name: Copy LTAC Admin User Certificate to Controller
+  ansible.builtin.fetch:
+    src: /root/{{ ltac_admin_user_cert }}
+    dest: /var/www/html/frontend/assets
+  tags:
+    - copy_ltac_cert

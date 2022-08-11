@@ -181,7 +181,7 @@ class CurrentTime(Resource):
 
 @TOOLS_NS.route("/change-kit-password")
 class ChangeKitPassword(Resource):
-    @TOOLS_NS.doc(description="Changes the Kit's ssh root/password on all nodes.")
+    @TOOLS_NS.doc(description="Changes the Kit's ssh root/password on all nodes except LTAC node.")
     @TOOLS_NS.expect(NewPasswordModel.DTO)
     @TOOLS_NS.response(200, "Success Message", COMMON_SUCCESS_MESSAGE)
     @TOOLS_NS.response(403, "Authentication failure on Node", Node.DTO)
@@ -196,21 +196,22 @@ class ChangeKitPassword(Resource):
             return {"error_message": "Couldn't find kit configuration."}, 404
         nodes = Node.load_stateful_dip_nodes_from_db()
         for node in nodes:  # type: Node
-            try:
-                with FabricConnection(str(node.ip_address), use_ssh_key=True) as shell:
-                    result = shell.run("echo '{}' | passwd --stdin root".format(model.root_password), warn=True)  # type: Result
+            if node.node_type != "LTAC":  # Need to skip LTAC node since it has more stringent password requirements
+                try:
+                    with FabricConnection(str(node.ip_address), use_ssh_key=True) as shell:
+                        result = shell.run("echo '{}' | passwd --stdin root".format(model.root_password), warn=True)  # type: Result
 
-                    if result.return_code != 0:
-                        _result = shell.run("journalctl SYSLOG_IDENTIFIER=pwhistory_helper --since '10s ago'")
-                        if _result.stdout.count("\n") == 2:
-                            return {"error_message": "Password has already been used. You must try another password."}, 409
-                        else:
-                            return {"error_message": "Internal Server Error"}, 500
+                        if result.return_code != 0:
+                            _result = shell.run("journalctl SYSLOG_IDENTIFIER=pwhistory_helper --since '10s ago'")
+                            if _result.stdout.count("\n") == 2:
+                                return {"error_message": "Password has already been used. You must try another password."}, 409
+                            else:
+                                return {"error_message": "Internal Server Error"}, 500
 
-            except AuthenticationException:
-                return { "error_message": "Authentication failure. Check the ssh key on the controller." }, 403
+                except AuthenticationException:
+                    return { "error_message": "Authentication failure. Check the ssh key on the controller." }, 403
 
-        update_password(current_config, model.root_password)
+        update_password(current_config, model.root_password) # LTAC password will be different than kit password set here
         return {"success_message": "Successfully changed the password of your Kit!"}
 
 

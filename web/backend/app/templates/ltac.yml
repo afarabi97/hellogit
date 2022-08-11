@@ -1,0 +1,28 @@
+---
+all:
+  children:
+    LTAC:
+        hosts:
+          {%- for node in template_ctx.nodes %}
+          {%- if node.node_type == "LTAC" %}
+          {{ node.hostname }}:
+            ansible_user: root
+            ansible_connection: ssh
+            management_ipv4: "{{ node.ip_address }}"
+            mac: {{ node.mac_address }}
+            boot_drive: {{ node.boot_drives }}
+            data_drive: {{ node.data_drives }}
+            pxe_type: {{ node.pxe_type | lower() }}
+            os_raid: {{ node.os_raid }}
+            os_raid_root_size: {{ node.os_raid_root_size | default(100) }}
+            raid_drives: {{ node.raid_drives }}
+            node_type: {{ node.node_type }}
+            deployment_type: {{ node.deployment_type }}
+            {%- if node.deployment_type == "Virtual" %}
+            memory: {{ node.virtual_mem * 1024 }}
+            cpu: {{ node.virtual_cpu }}
+            virtual_os_size: {{ node.virtual_os }}
+            virtual_data_size: {{ node.virtual_data }}
+            {%- endif %}
+          {%- endif %}
+          {%- endfor %}

@@ -65,6 +65,13 @@
       datastore: "{{ esxi.datastore }}"
   when: hostvars[node].node_type == "MIP"
 
+- set_fact: # noqa unnamed-task
+    disks:
+    - size_gb: "{{ hostvars[node].virtual_os_size }}"
+      type: thin
+      datastore: "{{ esxi.datastore }}"
+  when: hostvars[node].node_type == "LTAC"
+
 - name: "Create Virtual Node"
   block:
     - name: Create Virtual Node on VSphere {{ node }}

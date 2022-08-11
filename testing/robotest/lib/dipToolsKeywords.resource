@@ -33,7 +33,7 @@ Check SSH Connection For All Nodes
     &{nodes_list} =  Get Nodes
     ${node_tuples} =  Get Dictionary Values  ${nodes_list}  # (ip_address, node_type)
     FOR  ${node}  IN  @{node_tuples}
-        IF  '${node[1]}' != 'MIP'
+        IF  '${node[1]}' != 'MIP' and '${node[1]}' != 'LTAC'
             Open Connection  ${node[0]}
             Login            ${host_username}  ${ssh_pw}
             log  Successfully logged into node with IP address ${node[0]}

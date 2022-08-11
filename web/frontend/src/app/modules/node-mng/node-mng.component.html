@@ -101,6 +101,12 @@
                   <em class="material-icons">refresh</em>
                 </button>
 
+                <button *ngIf="canDownloadCert(node)" mat-icon-button
+                         matTooltip="Download User Certificate" color="primary"
+                         (click)="downloadCert(node)">
+                  <em class="material-icons">cloud_download</em>
+                </button>
+
               <!--BUTTONS WILL BE REPLACED WITH JOB PROGRESS BAR-->
 
                 <button *ngIf="isISOButtonGroup(node)" mat-icon-button

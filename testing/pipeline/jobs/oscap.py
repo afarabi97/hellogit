@@ -31,16 +31,17 @@ class OSCAPScanJob:
         with MongoConnectionManager(self.ctrl_settings.node.ipaddress) as mongo_manager:
             nodes = mongo_manager.mongo_node.find({})
             for node in nodes: # type : Dict
-                ipaddress = node["ip_address"]
-                hostname = node["hostname"]
+                if node["node_type"] != "LTAC": # Need to skip LTAC since kit password doesn't match after robot tests run
+                    ipaddress = node["ip_address"]
+                    hostname = node["hostname"]
 
-                username = "root"
-                user_dir = "/root"
-                report_name = "oscap_report_{}.html".format(hostname)
-                with FabricConnectionWrapper(username,
-                                             self.kit_settings.settings.password,
-                                             ipaddress) as client:
-                    with client.cd(user_dir):
-                        client.run(cmd.format(report_name), warn=True, shell=True)
-                        client.get("{}/{}".format(user_dir, report_name), report_name)
+                    username = "root"
+                    user_dir = "/root"
+                    report_name = "oscap_report_{}.html".format(hostname)
+                    with FabricConnectionWrapper(username,
+                                                self.kit_settings.settings.password,
+                                                ipaddress) as client:
+                        with client.cd(user_dir):
+                            client.run(cmd.format(report_name), warn=True, shell=True)
+                            client.get("{}/{}".format(user_dir, report_name), report_name)
 

@@ -156,6 +156,13 @@
   roles:
     - minio
 
+- name: Setup LTAC
+  hosts:
+    - LTAC
+  gather_facts: no
+  roles:
+    - ltac
+
 - name: Run Stigs
   hosts:
     - servers

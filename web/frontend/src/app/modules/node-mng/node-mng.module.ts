@@ -8,6 +8,7 @@ import { GlobalComponentsModule } from '../global-components/global-components.m
 import { ServerStdoutModule } from '../server-stdout/server-stdout.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { AddNodeDialogComponent } from './components/add-node-dialog/add-node-dialog.component';
+import { CertInstallDialogComponent } from './components/cert-install-dialog/cert-install-dialog.component';
 import { NodeManagementComponent } from './node-mng.component';
 
 @NgModule({
@@ -23,10 +24,12 @@ import { NodeManagementComponent } from './node-mng.component';
   ],
   declarations: [
     NodeManagementComponent,
-    AddNodeDialogComponent
+    AddNodeDialogComponent,
+    CertInstallDialogComponent
   ],
   entryComponents: [
-    AddNodeDialogComponent
+    AddNodeDialogComponent,
+    CertInstallDialogComponent
   ],
   providers: [
     NodeManagementComponent

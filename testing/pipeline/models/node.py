@@ -19,7 +19,7 @@ MAC_BASE = "00:0a:29:00:00:00"
 
 class NodeSettingsV2(Model):
     DEPLOYMENT_TYPES = ["Baremetal", "Virtual"]
-    NODE_TYPES = ["Server", "Sensor", "Service", "MIP", "Control-Plane", "MinIO"]
+    NODE_TYPES = ["Server", "Sensor", "Service", "MIP", "Control-Plane", "MinIO", "LTAC"]
 
     def __init__(self,
                  kit_settings: KitSettingsV2):
@@ -51,6 +51,7 @@ class NodeSettingsV2(Model):
         self.sensing_mac = ''
         self.start_index = 0
         self.username = 'root'
+        self.virtual_os = 50
         self.virtual_data = 500
         self.vm_prefix = ''
 
@@ -80,6 +81,9 @@ class NodeSettingsV2(Model):
     def is_mip(self) -> bool:
         return self.node_type.lower() == "mip"
 
+    def is_ltac(self) -> bool:
+        return self.node_type.lower() == "ltac"
+
     def set_hostname(self, vm_prefix: str, node_type: str="ctrl"):
         self.hostname = "{}-{}{}.{}".format(vm_prefix, node_type.lower(), self.index, self.domain)
 
@@ -105,6 +109,7 @@ class NodeSettingsV2(Model):
             ret_val["mac_address"] = None
             ret_val["virtual_cpu"] = self.cpu
             ret_val["virtual_mem"] = self.memory
+            ret_val["virtual_os"] = self.virtual_os
             ret_val["virtual_data"] = self.virtual_data
 
         return ret_val
@@ -156,6 +161,8 @@ class NodeSettingsV2(Model):
         self.mac_address = str(RandMac(MAC_BASE)).strip("'")
         self.dns_servers = namespace.dns_servers
         self.sensing_mac = str(RandMac(MAC_BASE)).strip("'")
+        self.virtual_os = namespace.virtual_os
+        self.virtual_data = namespace.virtual_data
 
         try:
             self.memory = int(namespace.memory)
@@ -188,6 +195,7 @@ class NodeSettingsV2(Model):
     def add_args(cls, parser: ArgumentParser):
         parser.add_argument('--cpu', type=int, dest="cpu", choices=range(2, 64), required=True,
                             help="The default CPUs assigned to each server.")
+        parser.add_argument('--os-drive-size',type=int, dest="virtual_os", required=False, help="The size of the OS drive in GB", default=50)
         parser.add_argument('--data-drive-size',type=int, dest="virtual_data", required=False, help="The size of the data drive in GB", default=500)
         parser.add_argument('--deployment-type', dest='deployment_type',
                             required=True, help="The deployment type for node.",
