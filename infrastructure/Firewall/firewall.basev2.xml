@@ -1108,20 +1108,20 @@
 			<os></os>
 			<protocol>tcp</protocol>
 			<source>
-				<address>Endgame</address>
+				<network>opt2</network>
 			</source>
 			<destination>
 				<address>Elasticsearch</address>
 				<port>Elasticsearch_Port</port>
 			</destination>
-			<descr><![CDATA[Allow Endgame on DMZ to access Elasticsearch on Internal]]></descr>
+			<descr><![CDATA[Allow DMZ Hosts to access Elasticsearch on port 9200]]></descr>
 			<created>
 				<time>1584064872</time>
 				<username><![CDATA[assessor@10.20.136.243]]></username>
 			</created>
 			<updated>
-				<time>1584065078</time>
-				<username><![CDATA[assessor@10.20.136.243]]></username>
+				<time>1660347380</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -2164,7 +2164,7 @@
 	</unbound>
 	<dyndnses></dyndnses>
 	<revision>
-		<time>1657728411</time>
+		<time>1660347380</time>
 		<description><![CDATA[assessor@10.2.2.89 (Local Database): Firewall: Rules - saved/edited a firewall rule.]]></description>
 		<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 	</revision>

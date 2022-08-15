@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config
   xmlns:ncx="http://netconfcentral.org/ns/yuma-ncx"
-  ncx:last-modified="2022-07-13T20:04:50Z" ncx:etag="6648"
+  ncx:last-modified="2022-08-12T20:29:23Z" ncx:etag="6677"
   xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
   <aaa xmlns="http://www.dellemc.com/networking/os10/dell-system">
     <authentication>
@@ -343,33 +343,6 @@
         </action>
       </rule>
       <rule>
-        <seq-no>180</seq-no>
-        <remark>Endgame to elasticsearch (1 line)</remark>
-      </rule>
-      <rule>
-        <seq-no>190</seq-no>
-        <condition>
-          <match-ip>
-            <destination-address>10.20.137.0</destination-address>
-            <destination-mask>255.255.255.0</destination-mask>
-            <source-address>10.20.138.200</source-address>
-            <source-mask>255.255.255.255</source-mask>
-            <src-address-format>host</src-address-format>
-            <dst-address-format>prefix</dst-address-format>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <lower-port>9200</lower-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
         <seq-no>200</seq-no>
         <remark>endgame dns/ntp to controller</remark>
       </rule>
@@ -575,6 +548,33 @@
             <src-address-format>prefix</src-address-format>
             <dst-address-format>prefix</dst-address-format>
             <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>180</seq-no>
+        <remark>DMZ to Elasticsearch (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>190</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.137.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.138.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <lower-port>9200</lower-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
           </match-ip>
         </condition>
         <action>
@@ -1172,10 +1172,6 @@
         </action>
       </rule>
       <rule>
-        <seq-no>30</seq-no>
-        <remark>dell switches need these two lines</remark>
-      </rule>
-      <rule>
         <seq-no>40</seq-no>
         <condition>
           <match-ip>
@@ -1250,33 +1246,6 @@
             <match-tcp>
               <destination-port-range>
                 <lower-port>22</lower-port>
-                <comparator>eq</comparator>
-              </destination-port-range>
-            </match-tcp>
-          </match-ip>
-        </condition>
-        <action>
-          <packet-handling>permit</packet-handling>
-        </action>
-      </rule>
-      <rule>
-        <seq-no>90</seq-no>
-        <remark>allow elasticsearch to endgame (1 line)</remark>
-      </rule>
-      <rule>
-        <seq-no>100</seq-no>
-        <condition>
-          <match-ip>
-            <destination-address>10.20.138.200</destination-address>
-            <destination-mask>255.255.255.255</destination-mask>
-            <source-address>10.20.137.4</source-address>
-            <source-mask>255.255.255.255</source-mask>
-            <src-address-format>host</src-address-format>
-            <dst-address-format>host</dst-address-format>
-            <ip-protocol>6</ip-protocol>
-            <match-tcp>
-              <destination-port-range>
-                <lower-port>9200</lower-port>
                 <comparator>eq</comparator>
               </destination-port-range>
             </match-tcp>
@@ -2111,6 +2080,37 @@
         <action>
           <packet-handling>permit</packet-handling>
         </action>
+      </rule>
+      <rule>
+        <seq-no>90</seq-no>
+        <remark>Elasticsearch to DMZ (1 line)</remark>
+      </rule>
+      <rule>
+        <seq-no>100</seq-no>
+        <condition>
+          <match-ip>
+            <destination-address>10.20.138.0</destination-address>
+            <destination-mask>255.255.255.0</destination-mask>
+            <source-address>10.20.137.0</source-address>
+            <source-mask>255.255.255.0</source-mask>
+            <src-address-format>prefix</src-address-format>
+            <dst-address-format>prefix</dst-address-format>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <lower-port>9200</lower-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>30</seq-no>
+        <remark>dell switches need these four lines</remark>
       </rule>
     </access-list>
     <access-list>
