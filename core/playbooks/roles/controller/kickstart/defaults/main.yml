@@ -1,7 +1,7 @@
 ---
 # defaults file for roles/kickstart
 #
-tftp_pkgs: tftp-server,syslinux,xinetd
+tftp_pkgs: dnsmasq,syslinux
 tftp_pxe:
  - /usr/share/syslinux/pxelinux.0
  - /usr/share/syslinux/vesamenu.c32
@@ -13,4 +13,4 @@ tftp_pxe:
 
 tftp_uefi:
  - "{{ TFPLENUM_REPO_DIR }}/EFI/BOOT/BOOTX64.EFI"
- - "{{ TFPLENUM_REPO_DIR }}/EFI/BOOT/grubx64.efi"
+ - "{{ extras_dir }}/Packages/grubx64.efi"

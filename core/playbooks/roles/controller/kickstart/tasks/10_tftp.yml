@@ -12,7 +12,7 @@
     owner: root
     group: root
     mode: 0755
-    setype: cobbler_var_lib_t
+    setype: tftpdir_rw_t
     path: "{{ tftp_dir }}/pxelinux.cfg"
 
 - name: Create uefi dir
@@ -21,14 +21,14 @@
     owner: root
     group: root
     mode: 0755
-    setype: cobbler_var_lib_t
-    path: "{{ tftp_dir }}/uefi"
+    setype: tftpdir_rw_t
+    path: "{{ tftp_dir }}/EFI/redhat"
 
 - name: Place rhel pxe files
   copy:
     src: "{{ item }}"
     dest: "{{ tftp_dir }}"
-    setype: cobbler_var_lib_t
+    setype: tftpdir_rw_t
   register: tftp
   with_items:
     - "{{ tftp_pxe }}"
@@ -36,36 +36,9 @@
 - name: Place uefi pxe files
   copy:
     src: "{{ item }}"
-    dest: "{{ tftp_dir }}/uefi"
-    setype: cobbler_var_lib_t
+    dest: "{{ tftp_dir }}/EFI/redhat"
+    setype: tftpdir_rw_t
+    mode: 0644
   register: tftp
   with_items:
     - "{{ tftp_uefi }}"
-
-# - name: Default pxe menu
-#   template:
-#     src: "{{ item.src }}"
-#     dest: "{{ item.dest }}"
-#     owner: root
-#     group: root
-#     mode: 0644
-#     setype: "{{ item.setype }}"
-#   register: tftp
-#   with_items:
-#   - { src: 'tftp.j2', dest: '/etc/xinetd.d/tftp', setype: 'etc_t'}
-
-- name: TFTP Services # noqa 503
-  service:
-    name: tftp.socket
-    state: started
-    enabled: yes
-  when: tftp.changed
-
-- name: TFTP Firewall
-  firewalld:
-    zone: public
-    service: tftp
-    state: enabled
-    immediate: yes
-    permanent: yes
-  notify: "Restart Docker"

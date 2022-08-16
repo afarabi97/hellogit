@@ -105,6 +105,10 @@ direct_download_package_names:
     url: "{{ tfplenum_repo }}/dod_certs"
     dest: "{{ offline_cert_dir }}"
     mode: "644"
+  - name: "grubx64.efi"
+    url: "{{ tfplenum_repo }}/packages"
+    dest: "{{ extras_dir }}/Packages"
+    mode: "644"
   - name: "minio"
     url: "{{ tfplenum_raw_group_repo }}/server/minio/release/linux-amd64"
     dest: "{{ tfplenumoffline_dir }}/minio"
@@ -113,5 +117,4 @@ direct_download_package_names:
     url: "{{ tfplenum_raw_group_repo }}/client/mc/release/linux-amd64"
     dest: "{{ tfplenumoffline_dir }}/mc"
     mode: "644"
-
 ...

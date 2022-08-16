@@ -17,31 +17,24 @@
     src: "grub.cfg.j2"
     # This takes the mac address from the inventory file for each node.
     # Replaces the colon with a dash and makes it lower case
-    dest: "{{ tftp_dir }}/uefi/grub.cfg-01-{{ hostvars[node_index].mac | regex_replace(':', '-') | lower }}"
+    dest: "{{ tftp_dir }}/EFI/redhat/grub.cfg-01-{{ hostvars[node_index].mac | regex_replace(':', '-') | lower }}"
     owner: root
     group: root
     mode: 0644
-    setype: "cobbler_var_lib_t"
+    setype: "tftpdir_rw_t"
   register: tftp
   when: hostvars[node_index].pxe_type == 'uefi'
 
 - name: Add {{ node_index }} to DHCP
   blockinfile:
-    path: /etc/dhcp/dhcpd.conf
+    path: /etc/dnsmasq.d/30-dnsmasq-pxeclients.conf
     marker: "# {mark} {{ node_index }}"
     block: |
-      host {{ node_index }} {
-        hardware ethernet {{ hostvars[node_index].mac }};
-        filename "uefi/BOOTX64.EFI"; }
+      dhcp-host={{ hostvars[node_index].mac }},set:custompxe
   when:
     - hostvars[node_index].mac
     - hostvars[node_index].mac != "None"
     - hostvars[node_index].mac != "none"
-
-- name: Restart Dhcpd
-  service:
-    name: dhcpd
-    state: restarted
 
 - name: Add {{ node_index }} to Host file
   blockinfile:

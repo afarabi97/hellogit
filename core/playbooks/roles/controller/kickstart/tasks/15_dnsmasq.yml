@@ -1,9 +1,9 @@
 # Configure dhcp service
 ---
 
-- name: Install dhcp package
+- name: Install dnsmasq package
   yum:
-    name: dhcp-server
+    name: dnsmasq
     state: present
 
 - name: set default dhcp network and netmask
@@ -20,44 +20,49 @@
     and hostvars[inventory_hostname]['ansible_' + item].ipv4.address == server_ip
   with_items: "{{ ansible_interfaces }}"
 
-- name: dhcpd template
+- name: dnsmasq template
   template:
-    src: dhcpd.conf.j2
-    dest: /etc/dhcp/dhcpd.conf
+    src: 20-dnsmasq-pxe.conf.j2
+    dest: /etc/dnsmasq.d/20-dnsmasq-pxe.conf
     owner: root
     group: root
     mode: 0644
-  register: dhcp_config
+  register: dnsmasq_config
 
-- name: Update DHCP
+- name: pxeclient template
+  template:
+    src: 30-dnsmasq-pxeclients.conf.j2
+    dest: /etc/dnsmasq.d/30-dnsmasq-pxeclients.conf
+    owner: root
+    group: root
+    mode: 0644
+  register: dnsmasq_config
+
+- name: Update dnsmasq PXE
   blockinfile:
-    path: /etc/dhcp/dhcpd.conf
+    path: /etc/dnsmasq.d/30-dnsmasq-pxeclients.conf
     marker: "# {mark} Node {{ item }}"
     block: |
-      host {{ item }} {
-        hardware ethernet {{ hostvars[item].mac }};
-        filename {% if hostvars[item].pxe_type == 'uefi' %}"uefi/BOOTX64.EFI";{% else %}"pxelinux.0";{% endif %} }
+      dhcp-host={{ hostvars[item].mac }},set:custompxe
   loop: "{{ groups['nodes'] }}"
   when:
     - "'nodes' in groups"
     - (hostvars[item].deployment_type == "Virtual" or hostvars[item].deployment_type == "Baremetal") and hostvars[item].mac
-  notify: "Restart Dhcpd"
+  notify: "Restart dnsmasq"
 
-- name: Update MIP DHCP
+- name: Update MIP dnsmasq PXE
   blockinfile:
-    path: /etc/dhcp/dhcpd.conf
+    path: /etc/dnsmasq.d/30-dnsmasq-pxeclients.conf
     marker: "# {mark} {{ item }}"
     block: |
-      host {{ item }} {
-        hardware ethernet {{ hostvars[item].mac }};
-        filename "uefi/BOOTX64.EFI"; }
+      dhcp-host={{ hostvars[item].mac }},set:custompxe
   loop: "{{ groups['mips'] }}"
   when:
     - "'mips' in groups"
     - hostvars[item].mac
-  notify: "Restart Dhcpd"
+  notify: "Restart dnsmasq"
 
-- name: Configure the firewall
+- name: Configure the firewall for dnsmasq DHCP
   firewalld:
     zone: public
     service: dhcp
@@ -66,8 +71,26 @@
     state: enabled
   notify: "Restart Docker"
 
-- name: Restart dhcp service
+- name: Configure the firewall for dnsmasq PROXY DHCP (PXE)
+  firewalld:
+    zone: public
+    service: proxy-dhcp
+    immediate: yes
+    permanent: yes
+    state: enabled
+  notify: "Restart Docker"
+
+- name: Configure the firewall for dnsmasq TFTP
+  firewalld:
+    zone: public
+    service: tftp
+    state: enabled
+    immediate: yes
+    permanent: yes
+  notify: "Restart Docker"
+
+- name: Restart dnsmasq service
   systemd:
-    name: dhcpd
+    name: dnsmasq
     enabled: yes
     state: restarted

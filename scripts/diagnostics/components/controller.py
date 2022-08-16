@@ -9,7 +9,7 @@ from time import sleep
 CONTROLLER_SERVICES = [
         "tfplenum-backend.service", "redis.service", "mongod.service",
         "keycloak.service", "httpd.service", "shibd.service",
-        "auditbeat.service", "dnsmasq.service", "dhcpd.service",
+        "auditbeat.service", "dnsmasq.service",
         "system-rqworker.slice"
     ]
 

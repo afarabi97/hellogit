@@ -95,7 +95,7 @@ Open Firefox
 Login Into DIP Controller
     [Arguments]  ${username}  ${password}
     [Documentation]     Log into the DIP Controller before or after initial SSO
-    Maximize Browser Window
+    Set Window Size  1920  1080
     IF  '${password}' == '${NEW_SSO_ADMIN_PASSWORD}'
     # If this is the new admin password then try it
         click  ${locUsernameInput}

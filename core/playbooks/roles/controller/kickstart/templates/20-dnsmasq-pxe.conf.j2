@@ -1,0 +1,32 @@
+# Don't function as a DNS server:
+#port=0
+
+# Log lots of extra information about DHCP transactions.
+log-dhcp
+
+# Enable tftp server
+enable-tftp
+
+# Set the root directory for files available via FTP.
+tftp-root=/var/lib/tftpboot
+
+# Disable re-use of the DHCP servername and filename fields as extra
+# option space. That's to avoid confusing some old or broken DHCP clients.
+dhcp-no-override
+dhcp-option=66,"{{ server_ip }}"
+
+# inspect the vendor class string and match the text to set the tag
+dhcp-vendorclass=BIOS,PXEClient:Arch:00000
+dhcp-vendorclass=UEFI32,PXEClient:Arch:00006
+dhcp-vendorclass=UEFI,PXEClient:Arch:00007
+dhcp-vendorclass=UEFI64,PXEClient:Arch:00009
+
+# The known types are x86PC, PC98, IA64_EFI, Alpha, Arc_x86,
+# Intel_Lean_Client, IA32_EFI, BC_EFI, Xscale_EFI and X86-64_EFI
+# This option is first and will be the default if there is no input from the user.
+
+pxe-service=X86PC, "Boot to X86PC PXE", pxelinux.0
+pxe-service=X86-64_EFI, "Boot to X86-64_EFI PXE", EFI/redhat/BOOTX64.EFI
+pxe-service=BC_EFI, "Boot to BC_EFI PXE", EFI/redhat/BOOTX64.EFI
+
+dhcp-range=tag:custompxe,{{ server_ip }},proxy
