@@ -135,8 +135,18 @@ class DriveCreationThread(DriveSuperThread):
 
     def _burn_image_to_disk(self):
         self.print_std_message("Burning the MULTIBOOT partition. This may take a while...")
-        self.remote_sudo_cmd(f"dd bs=65536 if={self.multiboot_img_staging} of={self.drive_path} status=none")
-        self.remote_sudo_cmd("sync")
+        try:
+            self.remote_sudo_cmd(f"dd bs=65536 if={self.multiboot_img_staging} of={self.drive_path} status=none")
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
+        try:
+            self.remote_sudo_cmd("sync")
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
         self.print_std_message("Finished burning the MULTIBOOT partition to drive.")
 
     def _fix_partition_five_and_six(self):
@@ -144,18 +154,37 @@ class DriveCreationThread(DriveSuperThread):
         Deletes partion 5 and 6 because they are jacked and recreates them
         with appropriate partition IDs.
         """
-        cmd=f"parted {self.drive_path} mkpart logical ntfs 32.2GB 400.2GB"
-        self.remote_sudo_cmd(cmd)
-        cmd=f"parted {self.drive_path} mkpart logical xfs 400.2GB 2000GB"
-        self.remote_sudo_cmd(cmd)
-
+        try:
+            cmd=f"parted {self.drive_path} mkpart logical ntfs 32.2GB 400.2GB"
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
+            self.remote_sudo_cmd(cmd)
+        try:
+            cmd=f"parted {self.drive_path} mkpart logical xfs 400.2GB 2000GB"
+            self.remote_sudo_cmd(cmd)
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
         sleep(5)
-        self.remote_sudo_cmd(f"partprobe {self.drive_path}")
+        try:
+            self.remote_sudo_cmd(f"partprobe {self.drive_path}")
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
         sleep(10)
 
     def _create_ntfs_data_partition(self):
         cmd = f"mkfs.ntfs {self.drive_path}5 -f -L NTFSDATA"
-        self.remote_sudo_cmd(cmd)
+        try:
+            self.remote_sudo_cmd(cmd)
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
         sleep(5)
 
     def _create_xfs_data_partition(self):
@@ -165,18 +194,38 @@ class DriveCreationThread(DriveSuperThread):
             drive = f"{self.drive_path}6"
         cmd = f"mkfs.xfs -f {drive} -L Data"
 
-        self.remote_sudo_cmd(cmd)
-        self.remote_sudo_cmd("sync")
+        try:
+            self.remote_sudo_cmd(cmd)
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
+        try:
+            self.remote_sudo_cmd("sync")
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
         sleep(5)
 
     def _mount(self):
         if self.drive_settings.is_burn_multiboot():
-            self.remote_sudo_cmd(f"mount {self.drive_path}1 {self.multi1_path}")
-            self.remote_sudo_cmd(f"mount {self.drive_path}2 {self.multi2_path}")
-            self.remote_sudo_cmd(f"mount {self.drive_path}5 {self.ntfs_data_path}")
-            self.remote_sudo_cmd(f"mount {self.drive_path}6 {self.xfs_data_path}")
+            try:
+                self.remote_sudo_cmd(f"mount {self.drive_path}1 {self.multi1_path}")
+                self.remote_sudo_cmd(f"mount {self.drive_path}2 {self.multi2_path}")
+                self.remote_sudo_cmd(f"mount {self.drive_path}5 {self.ntfs_data_path}")
+                self.remote_sudo_cmd(f"mount {self.drive_path}6 {self.xfs_data_path}")
+            except Exception as e:
+                traceback.print_exc()
+                self._return_value = 1
+                exit(self._return_value)
         else:
-            self.remote_sudo_cmd(f"mount {self.drive_path} {self.xfs_data_path}")
+            try:
+                self.remote_sudo_cmd(f"mount {self.drive_path} {self.xfs_data_path}")
+            except Exception as e:
+                traceback.print_exc()
+                self._return_value = 1
+                exit(self._return_value)
         sleep(3)
 
     def _remove_txt_files(self, folder: str):
@@ -187,7 +236,12 @@ class DriveCreationThread(DriveSuperThread):
                                      source_path: str,
                                      dest_path: str):
         cmd = f"cp {source_path} {dest_path}"
-        self.remote_sudo_cmd(cmd)
+        try:
+            self.remote_sudo_cmd(cmd)
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
 
     def _sudo_copy_from_buffer_to_drive_creation(self,
                                                  source_buffer: str,
@@ -197,7 +251,12 @@ class DriveCreationThread(DriveSuperThread):
         Output.write(source_buffer)
         Output.close()
         self._sudo_copy_to_drive_creation(file_path, dest_path)
-        self.remote_sudo_cmd("rm -fr {}".format(file_path))
+        try:
+            self.remote_sudo_cmd("rm -fr {}".format(file_path))
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
 
     def _create_menus(self) -> List[str]:
         """
@@ -247,21 +306,41 @@ class DriveCreationThread(DriveSuperThread):
     def _copy_multiboot_files(self):
         #Copy ISOs and their associated txt files.
         cmd=f"rsync -tr --stats {self.multiboot_path}/isos/*.iso {self.multi1_path}/_ISO/MAINMENU/"
-        self.remote_sudo_cmd(cmd)
+        try:
+            self.remote_sudo_cmd(cmd)
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
 
         #Copy EXEs
         exes_files = self.multiboot_path + "/exes/*[Ee][Xx][Ee]"
-        self.remote_sudo_cmd(f"cp -v {exes_files} {self.multi2_path}")
+        try:
+            self.remote_sudo_cmd(f"cp -v {exes_files} {self.multi2_path}")
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
 
         #Copy kickstart file to root of all Fat32 partitions.
-        self._sudo_copy_to_drive_creation(self.ROOT_DIR + "/infrastructure/ESXi/ks.cfg",
-                                          self.multi2_path + "/ks.cfg")
-        self.remote_sudo_cmd("sync")
+        try:
+            self._sudo_copy_to_drive_creation(self.ROOT_DIR + "/infrastructure/ESXi/ks.cfg",
+                                              self.multi2_path + "/ks.cfg")
+            self.remote_sudo_cmd("sync")
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
 
     def _rsync_data_files(self):
         self.print_std_message("Copying files to Data partition...")
-        self.remote_sudo_cmd(f"rsync -ah --numeric-ids --stats {self.rsync_source} {self.xfs_data_path}")
-        self.remote_sudo_cmd("sync")
+        try:
+            self.remote_sudo_cmd(f"rsync -ah --numeric-ids --stats {self.rsync_source} {self.xfs_data_path}")
+            self.remote_sudo_cmd("sync")
+        except Exception as e:
+            traceback.print_exc()
+            self._return_value = 1
+            exit(self._return_value)
 
     def run(self):
         fabric = FabricConnectionWrapper(self.drive_settings.username,
