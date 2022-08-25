@@ -17,7 +17,6 @@ class Settings:
 def settings():
     return Settings()
 
-
 def test_node(client: FlaskClient, mocker: MockerFixture, settings: Settings):
     mocker.patch("app.controller.node_controller.NodeCtrl._get_settings", return_value=settings)
     get_collection(Collections.NODES).insert_many(nodes_collection)
@@ -37,6 +36,7 @@ def test_add_minio(client: FlaskClient, mocker: MockerFixture):
     mocker.patch("app.controller.node_controller.NewNodeCtrl._get_settings", return_value=settings_mock)
     mocker.patch("app.controller.node_controller.NewNodeCtrl._execute_create_virtual_job", return_value=mock_job)
     mocker.patch("app.controller.node_controller.NewNodeCtrl._execute_kickstart_profile_job", return_value=mock_job)
+    mocker.patch("app.models.settings.kit_settings.GeneralSettingsForm.load_from_db", return_value=settings_mock)
 
     node_post = "/api/kit/node"
     minio_payload = {

@@ -1,7 +1,10 @@
+from typing import Dict
 from app.utils.collections import Collections, get_collection
 from tests.unit.static_data.node import (nodes_collection,
                                          nodes_collection_node_sensor_install,
                                          suricata_saved_values)
+from pytest_mock.plugin import MockerFixture
+import pytest
 
 # class ConfiguredIfaces(Resource):
 
@@ -15,14 +18,23 @@ def test__configured_ifaces_get__suricata(client):
 
 # class NodeDetails(Resource):
 
+class Settings():
+    domain = "kit200"
+
+@pytest.fixture
+def settings():
+    return Settings()
+
 # def get(self) -> Response:
-def test__node_details_get(client):
+def test__node_details_get(client, mocker, settings):
+    mocker.patch("app.models.settings.kit_settings.GeneralSettingsForm.load_from_db", return_value=settings)
     get_collection(Collections.NODES).insert_many(nodes_collection)
     results = client.get("/api/catalog/nodes")
     assert nodes_collection == results.get_json()
 
 
-def test__node_details_get__new_node_install(client):
+def test__node_details_get__new_node_install(client, mocker, settings):
+    mocker.patch("app.models.settings.kit_settings.GeneralSettingsForm.load_from_db", return_value=settings)
     get_collection(Collections.NODES).insert_many(nodes_collection_node_sensor_install)
     results = client.get("/api/catalog/nodes")
     assert nodes_collection == results.get_json()

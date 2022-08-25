@@ -12,10 +12,12 @@ from app.calculations import (get_sensors_from_list, get_servers_from_list,
                               server_and_sensor_count)
 from app.models import Model, PostValidationError
 from app.models.device_facts import DeviceFacts
+from app.models.settings.kit_settings import GeneralSettingsForm
 from app.utils.collections import Collections, get_collection, mongo_jobs
 from app.utils.constants import (CORE_DIR, DEPLOYMENT_TYPES, JOB_CREATE,
                                  JOB_DEPLOY, JOB_PROVISION, JOB_REMOVE,
-                                 MIP_DIR, NODE_TYPES, TEMPLATE_DIR)
+                                 MAC_BASE, MIP_DIR, NODE_TYPES, PXE_TYPES,
+                                 TEMPLATE_DIR)
 from app.utils.namespaces import KIT_SETUP_NS
 from flask_restx import fields
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -23,12 +25,13 @@ from marshmallow import Schema, ValidationError
 from marshmallow import fields as marsh_fields
 from marshmallow import post_load, validate, validates
 from pymongo import ReturnDocument
+from pyrsistent import s
+from randmac import RandMac
 
 JINJA_ENV = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR)),
     autoescape=select_autoescape(['html', 'xml'])
 )
-
 
 def has_consecutive_chars(password: str) -> bool:
     """
@@ -122,7 +125,6 @@ class Command(Model):
 
 class NodeSchema(Schema):
     _id = marsh_fields.Str()
-    # TODO we need more validation here
     hostname = marsh_fields.Str(required=True)
     ip_address = marsh_fields.IPv4(required=True)
     mac_address = marsh_fields.Str(required=False, allow_none=True)
@@ -219,10 +221,10 @@ class Node(Model):
     })
 
     def __init__(self,
-                 hostname: str,
-                 ip_address: str,
-                 mac_address: str,
-                 pxe_type: str,
+                 hostname: str = None,
+                 ip_address: str = None,
+                 pxe_type: str = None,
+                 mac_address: str = None,
                  os_raid: bool = None,
                  data_drives: List[str] = [],
                  boot_drives: List[str] = [],
@@ -238,13 +240,13 @@ class Node(Model):
                  virtual_data: int = 500,
                  _id: str = None):
         self._id = _id or uuid.uuid4().hex
-        self.hostname = hostname
+        self.hostname = self._set_hostname(hostname)
         self.ip_address = ip_address
-        self.mac_address = mac_address
+        self.mac_address = self._set_mac_address(mac_address, node_type)
         self.data_drives = data_drives
         self.boot_drives = boot_drives
         self.raid_drives = raid_drives
-        self.pxe_type = pxe_type
+        self.pxe_type = PXE_TYPES.scsi_sata_usb.value if node_type == NODE_TYPES.mip.value else pxe_type
         self.os_raid = os_raid
         self.os_raid_root_size = os_raid_root_size
         # Kit specific fields add later on
@@ -257,6 +259,15 @@ class Node(Model):
         self.virtual_mem = virtual_mem
         self.virtual_os = virtual_os
         self.virtual_data = virtual_data
+
+    def _set_hostname(self, hostname: str) -> str:
+        settings = GeneralSettingsForm.load_from_db()
+        return f"{hostname}.{settings.domain}" if not hostname.endswith(
+            settings.domain) else hostname
+
+    def _set_mac_address(self, mac_address, node_type: str) -> str:
+        return str(RandMac(MAC_BASE, True)).strip(
+            "'") if not mac_address and node_type == NODE_TYPES.mip.value else mac_address
 
     def update_kit_specific_fields(self, payload: Dict):
         self.node_type = payload["node_type"]

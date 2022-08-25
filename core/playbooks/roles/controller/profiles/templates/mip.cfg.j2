@@ -1,13 +1,4 @@
 #version=RHEL8
-# Determine what drives to use based on inventory file
-{% if node_index is defined %}{% set boot_drive = hostvars[node_index].boot_drive %}{% else %}{% set boot_drive = default_boot_drive %}{% endif %}
-
-{% if node_index is defined %}
-{% set root_partition = hostvars[node_index].root_partition %}
-{% else %}
-{% set root_partition = default_root_partition %}
-{% endif %}
-
 # System authorization information
 
 # Use CDROM installation media
@@ -55,20 +46,43 @@ LUKS_PASSWORD=$(echo '{{ luks_password }}')
 {% if node_index is defined and hostvars[node_index].deployment_type != "Virtual" %}
 curl -XPOST -k -H 'Authorization: Bearer {{ node_state_api_key }}' -H 'Content-Type: application/json' https://{{ server_ip }}/api/kit/node/{{ node_index }}/status -d '{ "name": "provision", "inprogress": true, "error": false, "message": "" }'
 {% endif %}
+
+# look for possible boot drives: /dev/sda, /dev/nvme0n1 (can expand to all /dev/sd* and all /dev/nvme* if we need to)
+boot_drive=
+root_partition=
+if [ -b /dev/nvme0n1 ] ; then
+        boot_drive=nvme0n1
+elif [ -b /dev/sda ] ; then
+        boot_drive=sda
+fi
+# Set root_partition based on drive type... nvme drives have an extra p before the partition number...
+if [ $boot_drive = nvme0n1 ] ; then
+    root_partition=p3
+else
+    root_partition=3
+fi
+
+# save boot variables for other pre/post scripts...
+cat <<EOF > /tmp/bootvars.sh
+#!/bin/bash
+boot_drive=$boot_drive
+root_partition=$root_partition
+EOF
+
 cat <<EOF > /tmp/partition_layout
 
 # System bootloader configuration
 
-bootloader --location=mbr --boot-drive={{ boot_drive }} --password=default --append='modprobe.blacklist=nouveau'
+bootloader --location=mbr --boot-drive=${boot_drive} --password=default --append='modprobe.blacklist=nouveau'
 
 # Partition clearing information
 zerombr
-clearpart --all --initlabel --drives={{ boot_drive }}
+clearpart --all --initlabel --drives=${boot_drive}
 
 # Disk partitioning information
-part /boot/efi --fstype="vfat" --ondisk={{ boot_drive }} --size=200
-part /boot --fstype="xfs" --ondisk={{ boot_drive }} --size=1024
-part pv.238 --fstype="lvmpv" --ondisk={{ boot_drive }} --size=100 --grow --encrypted --passphrase=$LUKS_PASSWORD
+part /boot/efi --fstype="vfat" --ondisk=${boot_drive} --size=200
+part /boot --fstype="xfs" --ondisk=${boot_drive} --size=1024
+part pv.238 --fstype="lvmpv" --ondisk=${boot_drive} --size=100 --grow --encrypted --passphrase=$LUKS_PASSWORD
 volgroup rhel --pesize=4096 pv.238
 logvol /  --fstype="xfs" --size=1 --name=root --vgname=rhel --grow
 EOF
@@ -114,7 +128,17 @@ perl
 
 %end
 
+%post --nochroot --log=/mnt/sysimage/var/log/ks-post-nochroot-1.log
+
+# move bootvars.sh into production tmp folder...
+mv /tmp/bootvars.sh /mnt/sysimage/tmp/bootvars.sh
+
+%end
+
 %post --log=/tmp/kick.log
+
+#import boot variables
+source /tmp/bootvars.sh
 
 # Add controller public key
 mkdir /root/.ssh
@@ -129,7 +153,7 @@ echo -n "blah" > /etc/mypasswdfile
 sed -i -e 's:none:/etc/mypasswdfile:' /etc/crypttab
 
 # add my password file as a valid key for the luks device
-echo '{{ luks_password }}' | cryptsetup luksAddKey /dev/{{ boot_drive }}{{ root_partition }} /etc/mypasswdfile
+echo '{{ luks_password }}' | cryptsetup luksAddKey /dev/${boot_drive}${root_partition} /etc/mypasswdfile
 
 # configure dracut to add the following 2 items to the initramfs (so accessible at boot)
 echo 'install_items="/etc/mypasswdfile /etc/crypttab"' > /etc/dracut.conf.d/99-mypwfile.conf

@@ -10,7 +10,7 @@ scenarios("../features/finding_11719.feature")
 
 @fixture
 def mip(ctrl_ip):
-    mip = {"hostname": "miper22", "ip_address": "", "mac_address": None, "pxe_type": None,
+    mip = {"hostname": "miper22", "ip_address": "", "mac_address": None,
            "deployment_type": "Virtual", "virtual_cpu": 8, "virtual_mem": 8, "virtual_os": 500}
     mip["ip_address"] = str(ip_address(ctrl_ip) - 22)
     return mip

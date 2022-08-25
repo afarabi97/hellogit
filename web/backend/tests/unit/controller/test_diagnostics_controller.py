@@ -6,7 +6,9 @@ from fakeredis import FakeStrictRedis
 from rq import SimpleWorker, Queue
 from app.service.diagnostics_service import run_diagnostics
 
+import pytest
 
+@pytest.mark.skip(reason="Too long.")
 def test_download_diagnostics(client: FlaskClient, mocker: MockerFixture):
     fake_redis = FakeStrictRedis()
     queue = Queue(is_async=False, connection=FakeStrictRedis())

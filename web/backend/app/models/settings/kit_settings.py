@@ -8,7 +8,6 @@ from ipaddress import IPv4Address, ip_network
 from typing import Dict
 
 from app.models import DBModelNotFound, Model
-from app.models.nodes import _generate_inventory
 from app.models.settings.general_settings import GeneralSettingsForm
 from app.models.settings.settings_base import (SettingsBase,
                                                validate_password_stigs)
@@ -124,7 +123,6 @@ class KitSettingsForm(SettingsBase):
                                               upsert=True)  # type: InsertOneResult
         self.password = base64_to_string(self.password)
         _generate_kit_settings_inventory()
-        _generate_inventory()
 
 
 class KitSettingsInventoryGenerator:

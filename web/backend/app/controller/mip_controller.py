@@ -1,42 +1,62 @@
-from typing import Dict
+from functools import wraps
 
-from app.models.common import JobID
-from app.models.nodes import Node
-from app.models.settings.kit_settings import GeneralSettingsForm
-from app.service.node_service import execute, send_notification
-from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_CREATE,
-                                 MAC_BASE, NODE_TYPES, PXE_TYPES)
+from app.models import DBModelNotFound, PostValidationError
+from app.service.mip_service import add_mip_to_database, deploy_mip
+from app.utils.logging import logger
 from app.utils.namespaces import KIT_SETUP_NS
-from flask import Response
+from flask import Response, request
 from flask_restx import Resource
-from randmac import RandMac
+from marshmallow import Schema, ValidationError
+from marshmallow import fields as marsh_fields
+
+def required_params(schema):
+    def decorator(fn):
+
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            try:
+                schema.load(request.get_json())
+            except ValidationError as err:
+                error = {
+                    "status": "error",
+                    "messages": err.messages
+                }
+                return error, 400
+            return fn(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+class MIPSchema(Schema):
+    hostname = marsh_fields.Str(required=True)
+    ip_address = marsh_fields.IPv4(required=True)
+    deployment_type = marsh_fields.String(required=True)
+
+    # if baremetal
+    mac_address = marsh_fields.Str(required=False, allow_none=True) # required if baremetal
+
+    # if virtual
+    virtual_cpu = marsh_fields.Integer(required=False, allow_none=True)
+    virtual_mem = marsh_fields.Integer(required=False, allow_none=True)
+    virtual_os = marsh_fields.Integer(required=False, allow_none=True)
 
 
 @KIT_SETUP_NS.route("/mip")
 class MipCtrl(Resource):
-    def _execute_mip_kickstart_job(self, mip: Node):
-        job = execute.delay(
-            node=mip, exec_type=DEPLOYMENT_JOBS.kickstart_profiles, stage=JOB_CREATE
-        )
-        return JobID(job).to_dict()
-
-    def _execute_create_virtual_job(self, node: Node) -> Dict:
-        job = execute.delay(
-            node=node, exec_type=DEPLOYMENT_JOBS.create_virtual)
-        return JobID(job).to_dict()
-
+    @required_params(MIPSchema())
     def post(self) -> Response:
-        settings = GeneralSettingsForm.load_from_db()  # type: Model
-        mip = Node.load_node_from_request(KIT_SETUP_NS.payload)  # type: Node
-        if not mip.hostname.endswith(settings.domain):
-            mip.hostname = "{}.{}".format(mip.hostname, settings.domain)
-        mip.node_type = NODE_TYPES.mip.value
-        if mip.deployment_type == DEPLOYMENT_TYPES.virtual.value:
-            mip.mac_address = str(RandMac(MAC_BASE)).strip("'")
-            mip.pxe_type = PXE_TYPES.scsi_sata_usb.value
-        mip.create()
-        send_notification()
-
-        if mip.deployment_type == DEPLOYMENT_TYPES.virtual.value:
-            return self._execute_create_virtual_job(mip), 200
-        return self._execute_mip_kickstart_job(mip), 200
+        try:
+            mip = add_mip_to_database(KIT_SETUP_NS.payload)
+            job = deploy_mip(mip)
+            return job, 202
+        except ValidationError as e:
+            logger.exception(e)
+            return e.normalized_messages(), 400
+        except DBModelNotFound:
+            logger.exception(e)
+            return {"error_message": "DBModelNotFound."}, 400
+        except PostValidationError as e:
+            logger.exception(e)
+            return {"post_validation": e.errors_msgs}, 400
+        except:
+            return "error", 500

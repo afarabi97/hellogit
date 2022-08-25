@@ -55,17 +55,6 @@
                   color="warn">error</mat-icon>
         <mat-error>{{ getErrorMessage(nodeForm.get("mac_address")) }}</mat-error>
       </mat-form-field>
-
-      <!-- PXE Type -->
-      <mat-form-field>
-        <mat-label>PXE Type</mat-label>
-        <mat-select disableRipple
-                    formControlName="pxe_type"
-                    matTooltip="{{ getTooltip('pxe_type') }}">
-          <mat-option *ngFor="let pxe of pxe_types; let i = index;"
-                      [value]="pxe">{{ pxe }}</mat-option>
-        </mat-select>
-      </mat-form-field>
     </ng-container>
 
     <div mat-dialog-actions>

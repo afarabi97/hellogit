@@ -71,7 +71,6 @@ export class AddMipDialogComponent implements OnInit {
       // Baremetal form fields
       mac_address: new FormControl(undefined, Validators.compose([validateFromArray(addNodeValidators.mac_address,
         { uniqueArray: this.validationMacs })])),
-      pxe_type: this.nodeForm ? this.nodeForm.value.pxe_type : new FormControl(),
       deployment_type: this.nodeForm ? this.nodeForm.value.deployment_type :
         new FormControl(undefined, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
 
@@ -103,19 +102,15 @@ export class AddMipDialogComponent implements OnInit {
 
     this.updateNodeStatus();
     const mac_address = this.nodeForm.get('mac_address');
-    const pxe_type = this.nodeForm.get('pxe_type');
 
     if (event.value === 'Baremetal'){
       mac_address.setValidators(Validators.compose([validateFromArray(addNodeValidators.mac_address,
         { uniqueArray: this.validationMacs })]));
-      pxe_type.setValidators(Validators.compose([validateFromArray(addNodeValidators.pxe_type)]));
     } else {
       mac_address.setValidators(null);
-      pxe_type.setValidators(null);
     }
 
     mac_address.updateValueAndValidity();
-    pxe_type.updateValueAndValidity();
 
     this.virtualNodeForm.setVirtualFormValidation(event);
     this.virtualNodeForm.setDefaultValues("MIP");

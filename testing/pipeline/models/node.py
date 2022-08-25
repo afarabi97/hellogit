@@ -110,7 +110,6 @@ class NodeSettingsV2(Model):
         return {"hostname": self.hostname,
                 "ip_address": self.ip_address,
                 "mac_address": None,
-                "pxe_type": None,
                 "deployment_type": self.deployment_type}
 
     def to_vmware_playbook_payload(self) -> Dict:

@@ -2,9 +2,10 @@ from datetime import datetime, timedelta
 from time import sleep
 from typing import Dict, List, Union
 
+from app.models.common import JobID
 from app.models.device_facts import (DeviceFacts,
                                      create_device_facts_from_ansible_setup)
-from app.models.nodes import Command, Node, NodeJob
+from app.models.nodes import Command, Node, NodeJob, _generate_inventory
 from app.models.settings.esxi_settings import EsxiSettingsForm
 from app.models.settings.general_settings import GeneralSettingsForm
 from app.models.settings.kit_settings import KitSettingsForm
@@ -424,6 +425,7 @@ class NodeService:
             kit_settings.job_id = self.job_id
             kit_settings.job_completed = False
             kit_settings.save_to_db()
+            _generate_inventory()
             self.cmd = (
                 "export ANSIBLE_LOG_PATH={log_path}/kit-setting.log;"
                 "ansible-playbook controller_playbook.yml -i inventory -i {mip_dir} "
@@ -472,6 +474,9 @@ class NodeService:
                 execute.delay(
                     node=self.node, exec_type=self.exec_type, stage=JOB_DEPLOY
                 )
+        elif self.exec_type == DEPLOYMENT_JOBS.kickstart_profiles:
+            kit_settings = KitSettingsForm.load_from_db()
+            gather_device_facts(self.node, kit_settings)
         elif self.exec_type == DEPLOYMENT_JOBS.remove_node:
             self.node.delete()
             if self.node.node_type == "Sensor":

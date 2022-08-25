@@ -55,7 +55,7 @@ def post_request(url: str, payload: Dict) -> Union[List, Dict]:
     headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
     # root_ca = check_web_ca()
     response = requests.post(url, json=payload, verify=False, headers=headers)
-    if response.status_code == 200:
+    if response.status_code == 200 or response.status_code == 202:
         return response.json()
     else:
         raise APIFailure(url + ' FAILED!\n' + str(response.status_code))
