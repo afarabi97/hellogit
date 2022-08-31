@@ -476,7 +476,6 @@ class NodeService:
                 )
         elif self.exec_type == DEPLOYMENT_JOBS.kickstart_profiles:
             kit_settings = KitSettingsForm.load_from_db()
-            gather_device_facts(self.node, kit_settings)
         elif self.exec_type == DEPLOYMENT_JOBS.remove_node:
             self.node.delete()
             if self.node.node_type == "Sensor":
