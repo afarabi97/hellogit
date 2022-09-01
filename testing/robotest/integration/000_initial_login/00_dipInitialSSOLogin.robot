@@ -20,4 +20,4 @@ Perform Initial SSO for DIP Controller
     ...                          Logs into the DIP controller, accepts banner
     ...                          page, and updates the password when prompted.
     ${sso_pword} =               Execute Command                                   cat ${SSO_FILE}    # Retrieves the SSO password from the text file
-    Login Into DIP Controller    ${SSO_ADMIN_USERNAME}                             ${sso_pword}
+    Log Into DIP Controller    ${SSO_ADMIN_USERNAME}                             ${sso_pword}

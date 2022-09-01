@@ -10,7 +10,7 @@ Library    String
 Suite Setup       Open SSH Connection      ${HOST}                ${HOST_USERNAME}                ${HOST_PASSWORD}
 Test Setup        Run Keywords             Runner Open Browser    ${HOST}                         ${BROWSER}
                   ...                      AND                    Set DIP Kit Global Variables
-                  ...                      AND                    Login Into DIP Controller    ${SSO_ADMIN_USERNAME}    ${NEW_SSO_ADMIN_PASSWORD}
+                  ...                      AND                    Log Into DIP Controller    ${SSO_ADMIN_USERNAME}    ${NEW_SSO_ADMIN_PASSWORD}
 Test Teardown     Close Browser
 Suite Teardown    Close All Connections
 

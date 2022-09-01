@@ -1,10 +1,6 @@
 *** Variables ***
-${index_action_dropdown}                        xpath=//div[@id='mat-select-value-1']/span
-${locIndexMgmtIndexActionDropdown}              xpath=//mat-select[@id="cvah-elasticsearch-index-management-mat-select-action"]
-
-# ${index_action_dropdown_close_selection}        xpath=//mat-option[@id='cvah-elasticsearch-index-management-action-mat-option-0']/span
-# ${locIndexMgmtIndexActionDropdownItemTmpl}      xpath=//mat-option[@role="option"]/span[text()="~"]
-${locIndexMgmtIndexActionDropdownCloseItem}     xpath=//mat-option[@role="option"]/span[text()="Close"]
+${locIndexMgmtActionCloseOption}                xpath=//mat-option[@role="option"]/span[text()="Close"]
+${locIndexMgmtActionBackupAndCloseOption}       xpath=//mat-option[@role="option"]/span[text()="Backup and close"]
 
 ${locIndexMgmtIndexActionBtnTmpl}               xpath=//button[@id='cvah-elasticsearch-index-management-button-~']/span
 

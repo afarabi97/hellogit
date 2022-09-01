@@ -234,11 +234,11 @@ stages:
   - security_scans
   - robot-test-regression
   - robot-test-setup
+  - robot-test-operations
   - integration-test
   - disk-test
   - test-powerfailure
   - rerun-integration-test
-  - robot-test-operations
   - robot-test-cleanup
   - export
   - cleanup

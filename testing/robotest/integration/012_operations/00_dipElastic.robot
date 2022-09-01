@@ -12,7 +12,7 @@ Library    Collections
 Suite Setup       Open SSH Connection      ${HOST}                ${HOST_USERNAME}                ${HOST_PASSWORD}
 Test Setup        Run Keywords             Runner Open Browser    ${HOST}                         ${BROWSER}
                   ...                      AND                    Set DIP Kit Global Variables
-                  ...                      AND                    Login Into DIP Controller  ${SSO_ADMIN_USERNAME}    ${NEW_SSO_ADMIN_PASSWORD}
+                  ...                      AND                    Log Into DIP Controller  ${SSO_ADMIN_USERNAME}    ${NEW_SSO_ADMIN_PASSWORD}
 Test Teardown     Close Browser
 Suite Teardown    Close All Connections
 
@@ -35,3 +35,9 @@ Run Index Management Test
     Install Multiple Apps            Zeek    Suricata
     Close Indexes And Validate       Zeek    Suricata
 
+Check MinIO (Elastic) Backup Capability
+    [Tags]  THISISCVAH-12832
+    [Documentation]  Tests the "Backup and close" option on the Index Management page
+    Set Selenium Speed  0.5s
+    Navigate To Index Management
+    Backup And Close Indexes

@@ -92,7 +92,7 @@ Open Firefox
     [Arguments]                ${host}  ${browser}
     Open Browser               https://${host}            browser=${browser}
 
-Login Into DIP Controller
+Log Into DIP Controller
     [Arguments]  ${username}  ${password}
     [Documentation]     Log into the DIP Controller before or after initial SSO
     Set Window Size  1920  1080
