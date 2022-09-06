@@ -114,11 +114,15 @@ amd_driver: amdgpu-pro-20.10-1101037-rhel-8.1.tar.xz
 #Third Party Software
 chrome_file: google-chrome-stable_current_x86_64_94.0.4606.71.rpm
 gitkraken_file: gitkraken-amd64_8.1.0.rpm
-vmware_file: VMware-Workstation-Full-16.2.0-18760230.x86_64.bundle
+vmware_file: VMware-Workstation-Full-16.2.4-20089737.x86_64.bundle
 vscode_file: code-1.59.1-1629375274.el8.x86_64.rpm
 
 # Redhat Microcode Software
 microcode_file: microcode_ctl-20210608-1.el8.x86_64.rpm
 
+# RHEL Kernel Update
+kernel_file: kernel-4.18.0-372.19.tar.gz
+
 software:
   - "{{ web_server }}/{{ vmware_file }}"
+  - "{{ web_server }}/{{ kernel_file }}"

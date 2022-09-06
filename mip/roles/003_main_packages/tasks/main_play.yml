@@ -17,6 +17,31 @@
     timeout: 120
   loop: "{{ software }}"
 
+- name: Extract new kernel files
+  unarchive:
+    src: "{{ tmp_apps }}/{{ kernel_file }}"
+    dest: "{{ tmp_apps }}"
+    remote_src: yes
+
+- name: Install New Kernel files
+  command:
+    argv:
+      - dnf
+      - -y
+      - localinstall
+      - kernel-4.18.0-372.19.1.el8_6.x86_64.rpm
+      - kernel-core-4.18.0-372.19.1.el8_6.x86_64.rpm
+      - kernel-devel-4.18.0-372.19.1.el8_6.x86_64.rpm
+      - kernel-headers-4.18.0-372.19.1.el8_6.x86_64.rpm
+      - kernel-modules-4.18.0-372.19.1.el8_6.x86_64.rpm
+      - kernel-tools-4.18.0-372.19.1.el8_6.x86_64.rpm
+      - kernel-tools-libs-4.18.0-372.19.1.el8_6.x86_64.rpm
+      - linux-firmware-20220210-107.git6342082c.el8.noarch.rpm
+    chdir: "{{ tmp_apps }}/kernel/"
+  register: result
+  changed_when: result.rc == 0
+  failed_when: result.rc > 0
+
 - name: Find and register kernel version
   command: uname -r
   register: kernel_results
@@ -27,7 +52,7 @@
   file:
     path: /usr/bin/dumpcap
     mode: o+rx
-  
+
 - name: Reboot system and utilize new kernel
   reboot:
     reboot_timeout: 2000
