@@ -156,6 +156,7 @@ class DriveCreationThread(DriveSuperThread):
         """
         try:
             cmd=f"parted {self.drive_path} mkpart logical ntfs 32.2GB 400.2GB"
+            self.remote_sudo_cmd(cmd)
         except Exception as e:
             traceback.print_exc()
             self._return_value = 1

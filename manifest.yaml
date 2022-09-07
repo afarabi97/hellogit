@@ -435,7 +435,7 @@ MDT:
     - Repo/Firmware/HP DL160/DL160
     - Repo/Firmware/Supermicro x10 X10DRLi/3_86
     - Repo/Firmware/Thinkmate x8 X8DTL3/313
-  dest: staging/v3.7/CPT/Data/CVAH 3.7/Firmware
+  dest: staging/v3.7/MDT/Data/CVAH 3.7/Firmware
 
 GIP:
 - app: jcat
