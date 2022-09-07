@@ -171,6 +171,7 @@ class AlertsFieldsCtrl(Resource):
                 "fields": default_fields + ",suricata.*"},
             {"index": "filebeat-zeek-*", "fields": default_fields + ",zeek.*"},
             {"index": ".siem-signals-default", "fields": "signal.rule.name"},
+            {"index": "endgame-*", "fields": default_fields + ",endgame.*"},
         ]
         for ind in index_list:
             if elastic.indices.exists(index=ind["index"], allow_no_indices=False):

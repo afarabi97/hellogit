@@ -747,7 +747,10 @@ Please check the /var/log/tfplenum logs for more information`);
       if (alert['event.module'] ) {
         if (alert['event.module'] === 'zeek' || alert['event.module'] === 'suricata'){
           page = 'network/external-alerts';
-        } else if (alert['event.module'] === 'endgame' || alert['event.module'] === 'system' || alert['event.module'] === 'sysmon'){
+        } else if (alert['event.module'] === 'endgame') {
+          // Since Endgame alerts do not show up on the SIEM engine page as we would expect we will instead pivot to the discover page only for this type of alert.
+          return `${prefix}/app/discover#/?_g=(filters:!(),query:(language:kuery,query:''),refreshInterval:(pause:!t,value:0),time:(from:%27${startDateTime}%27,to:%27${endDateTime}%27))&_a=(columns:!(),filters:!(),index:endgame-dashboard-index-pattern,interval:auto,query:(language:kuery,query:'${query}'),sort:!(!('@timestamp',desc)))`
+        } else if (alert['event.module'] === 'system' || alert['event.module'] === 'sysmon') {
           page = 'hosts/alerts';
         }
       }
