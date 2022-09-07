@@ -80,7 +80,6 @@ release:
   rules:
     - if: "$CI_COMMIT_TAG =~ /^v[1-9]+.[0-9]+.[0-9]+(dev|)-[0-9]+$/"
   script: |
-    ip a
     cmd="release-cli --project-id $CI_PROJECT_ID --server-url \"$CI_SERVER_URL\" --private-token \"$RELEASE_PRIVATE_TOKEN\" create --name \"Release $CI_COMMIT_TAG\" --tag-name \"$CI_COMMIT_TAG\""
     binary_name=tfplenum-$RPM_VERSION-$RPM_RELEASE_NUM.el8.x86_64.rpm
     cmd="$cmd --assets-link \"{\\\"name\\\":\\\"${binary_name}\\\",\\\"url\\\":\\\"${REGISTRY_URL}/${binary_name}\\\"}\""

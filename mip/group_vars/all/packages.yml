@@ -105,7 +105,7 @@ dependent_packages:
 
 #tars
 mip_images_tar: MIP_Images_v1.tar
-twofa_tar: ans_2fa_rhel8_scripts_v2.tar.gz
+twofa_tar: ans_2fa_rhel8_scripts_v3.tar.gz
 
 #Drivers
 nvidia_driver: NVIDIA_Quadro_RHEL82_440_64.tar.gz
