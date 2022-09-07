@@ -5,13 +5,15 @@ robot:sso_login:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    OUTPUT=$(python3 -m run.runner -c integration \
+    python3 -m run.runner -c integration \
       -t "000_initial_login/00_dipInitialSSOLogin" \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -29,13 +31,15 @@ robot:catalog:independents:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    OUTPUT=$(python3 -m run.runner -c integration \
+    python3 -m run.runner -c integration \
       -t "010_install_catalog_apps/00_installPMOApps" \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -44,8 +48,6 @@ robot:catalog:independents:
     - job: "Sensor Setup"
       optional: true
     - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "robot:regression_testing"
       optional: true
     - job: "Service Setup"
   only:
@@ -61,13 +63,15 @@ robot:catalog:community:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    OUTPUT=$(python3 -m run.runner -c integration \
+    python3 -m run.runner -c integration \
       -t "010_install_catalog_apps/00_installCommunityApps" \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -76,8 +80,6 @@ robot:catalog:community:
     - job: "Sensor Setup"
       optional: true
     - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "robot:regression_testing"
       optional: true
     - job: "Service Setup"
   only:
@@ -93,13 +95,15 @@ robot:catalog:arkime:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    OUTPUT=$(python3 -m run.runner -c integration \
+    python3 -m run.runner -c integration \
       -t "010_install_catalog_apps/00_installArkime" \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -108,8 +112,6 @@ robot:catalog:arkime:
     - job: "Sensor Setup"
       optional: true
     - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "robot:regression_testing"
       optional: true
     - job: "Service Setup"
   only:
@@ -125,13 +127,15 @@ robot:catalog:CHM:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    OUTPUT=$(python3 -m run.runner -c integration \
+    python3 -m run.runner -c integration \
       -t "010_install_catalog_apps/00_installCortexMispHive" \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -140,8 +144,6 @@ robot:catalog:CHM:
     - job: "Sensor Setup"
       optional: true
     - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "robot:regression_testing"
       optional: true
     - job: "Service Setup"
   only:
@@ -158,13 +160,15 @@ robot:rulesets:sync:
   extends: .setup-robot-script
   script: |
     curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
-    OUTPUT=$(python3 -m run.runner -c integration \
+    python3 -m run.runner -c integration \
       -t "011_rulesets/01_dipSyncRulesets" \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -176,8 +180,6 @@ robot:rulesets:sync:
       optional: true
     - job: "Service Setup"
     - job: robot:catalog:independents
-      optional: true
-    - job: "robot:regression_testing"
       optional: true
   only:
     variables:
@@ -192,13 +194,15 @@ robot:elastic:alerts:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    OUTPUT=$(python3 -m run.runner -c integration \
+    python3 -m run.runner -c integration \
       -t "012_elastic/00_dipAlerts" \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -216,13 +220,15 @@ robot:add_virtual_sensor:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    OUTPUT=$(python3 -m run.runner -c integration \
+    python3 -m run.runner -c integration \
       -t "013_sensors/00_addVirtualSensor" \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
@@ -240,20 +246,19 @@ robot:cleanup:virtual_sensor:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    OUTPUT=$(python3 -m run.runner -c integration \
+    python3 -m run.runner -c integration \
       -t "cleanup/01_dipRemoveSensor" \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
   allow_failure: true
-  needs:
-    - job: robot:add_virtual_sensor
-      optional: true
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
@@ -263,19 +268,21 @@ robot:regression_testing:
   stage: robot-test-regression
   tags:
     - docker-runner
-  image: docker.nexus.sil.lab/tfplenum/robot-automator:1.5.6
+  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
     curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
     curl -k -o /usr/src/robot/data-with-image_robot.pcap  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/pcap/data-with-image_robot.pcap
-    OUTPUT=$(python3 -m run.runner -c regression \
+    python3 -m run.runner -c regression \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
       -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE \
-      -v CATEGORY:regression | tee /dev/stderr) || exit_code=$?; [ $? -ge 0 ] && if [[ "${OUTPUT}" == *"0 failed"* ]]; then echo "Test Passed. But, The Jira Ticket Was Not Uploaded" &&  /bin/cp -rf /usr/src/robot/output $build_path/; else echo "Test Failed. Also, The Jira Ticket Was Not Uploaded" && /bin/cp -rf /usr/src/robot/output $build_path/ && exit $exit_code; fi;
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always

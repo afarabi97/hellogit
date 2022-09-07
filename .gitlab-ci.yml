@@ -180,9 +180,6 @@ variables:
   MIP_SOFTWARE_FOLDERS: "$MIP_SOFTWARE_FOLDER"
   REPO_SYNC_FOLDERS: "RhelRepo"
 
-  # Robot Test Integration
-  JIRA_PROJECT_KEY: "THISISCVAH"
-
   # Mandiant Automation
   MANDIANT_IPADDRESS: "10.30.207.200"
   MANDIANT_USERNAME: "sil-adm@range.sil"
@@ -196,15 +193,16 @@ variables:
   RELEASE_REGISTRY_URL: "https://nexus.sil.lab/repository/tfplenum-stable"
   REGISTRY_URL: "$DEV_REGISTRY_URL"
 
-  # ROBOT flags
-  ROBOT_BROWSER: Firefox
+  # Robot flags
+  JIRA_PROJECT_KEY: "THISISCVAH"
+  ROBOT_BROWSER: chrome
   ROBOT_REGRESSION_CATEGORY: integration
   ROBOT_REGRESSION_ZEPHYR_CYCLE: INTEGRATION
   ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION: Unscheduled
 
   # Vars For Docker Images Used In Pipeline
   LATEST_CODE_CHECKER_IMAGE: "docker.nexus.sil.lab/tfplenum/code-checker:1.6"
-  LATEST_ROBOT_AUTOMATOR_IMAGE: "docker.nexus.sil.lab/tfplenum/robot-automator:1.5.6"
+  LATEST_ROBOT_AUTOMATOR_IMAGE: "docker.nexus.sil.lab/tfplenum/robot-automator:1.6.0"
 
   #MIP VM Templates
   KALI_TEMPLATE_TO_CLONE: "Kali_Template"
