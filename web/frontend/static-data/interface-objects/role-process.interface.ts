@@ -96,7 +96,7 @@ export const MockRoleProcessInterfaceSensor: RoleProcessInterface = {
             complete: true,
             inprogress: false,
             error: false,
-            description: 'Installing RHLE8',
+            description: 'Installing RHEL8',
             job_id: 'fe5a02b6-27aa-4c32-b89a-d959deffdf74',
             exec_type: null
           },
@@ -219,7 +219,7 @@ export const MockRoleProcessInterfaceServer: RoleProcessInterface = {
             complete: true,
             inprogress: false,
             error: false,
-            description: 'Installing RHLE8',
+            description: 'Installing RHEL8',
             job_id: '0d0f9a19-c17c-45b6-848b-a90d4526661c',
             exec_type: 'DEPLOYMENT_JOBS.setup_control_plane'
           },

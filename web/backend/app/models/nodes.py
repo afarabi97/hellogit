@@ -290,7 +290,7 @@ class Node(Model):
             # Create default jobs
             createdjob = NodeJob(node_id=node._id, job_id=None, description="Creating Kickstart Profiles", name=JOB_CREATE, pending=True,
                                  error=False, inprogress=False, complete=False, message=None)
-            installjob = NodeJob(node_id=node._id, job_id=None, description="Installing RHLE8", name=JOB_PROVISION, pending=True,
+            installjob = NodeJob(node_id=node._id, job_id=None, description="Installing RHEL8", name=JOB_PROVISION, pending=True,
                                  error=False, inprogress=False, complete=False, message=None)
             deployjob = NodeJob(node_id=node._id, job_id=None, description="Deploying Node", name=JOB_DEPLOY, pending=True,
                                 error=False, inprogress=False, complete=False, message=None)

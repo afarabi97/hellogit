@@ -50,7 +50,7 @@ export const MockNodeServerInterface: NodeInterface = {
           "complete": true,
           "inprogress": false,
           "error": false,
-          "description": "Installing RHLE8",
+          "description": "Installing RHEL8",
           "job_id": "4e912bbb-d5d9-461a-98e8-3c559a6c0414",
           "exec_type": null
       },
@@ -118,7 +118,7 @@ export const MockNodeSensorInterface: NodeInterface = {
           "complete": true,
           "inprogress": false,
           "error": false,
-          "description": "Installing RHLE8",
+          "description": "Installing RHEL8",
           "job_id": "9f93af60-851f-4a48-86da-e6a75ba715b8",
           "exec_type": null
       },
