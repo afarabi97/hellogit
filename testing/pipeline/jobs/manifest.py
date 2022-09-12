@@ -108,7 +108,7 @@ class BuildManifestJob():
                 src_path = os.path.join(self.manifest.drive_creation_path, src)
                 dest_path = os.path.join(self.manifest.drive_creation_path, path['dest'])
 
-                if path['app'] == 'AppStore' or path['app'] == 'Documentation' or path['app'] == 'archive':
+                if path['app'] == 'AppStore' or path['app'] == 'Documentation' or path['app'] == 'archive' or path['app'] == 'firmware':
                     app_folder = self.find_app_dir(src_path)
                 else:
                     pos = src_path.rfind("/")

@@ -293,17 +293,17 @@ CPT:
 
 - app: firmware
   src:
-    - Repo/Firmware/Cisco 3850 Switch
-    - Repo/Firmware/Common Node
-    - Repo/Firmware/Dell 4112 Switch
-    - Repo/Firmware/Dell 7720
-    - Repo/Firmware/Dell 7730
-    - Repo/Firmware/Dell 7750
-    - Repo/Firmware/Dell M6800
-    - Repo/Firmware/Dell R440
-    - Repo/Firmware/HP DL160
-    - Repo/Firmware/Supermicro x10 X10DRLi
-    - Repo/Firmware/Thinkmate x8 X8DTL3
+    - Repo/Firmware/Cisco 3850 Switch/universalk9.SPA.03.07.05.E.152-3.E5
+    - Repo/Firmware/Common Node/2.10.2
+    - Repo/Firmware/Dell 4112 Switch/CVAH 3.7
+    - Repo/Firmware/Dell 7720/1.22.0
+    - Repo/Firmware/Dell 7730/1.18.2
+    - Repo/Firmware/Dell 7750/1.11.1
+    - Repo/Firmware/Dell M6800/M6800A26
+    - Repo/Firmware/Dell R440/BIOS 2.11.2 Contents
+    - Repo/Firmware/HP DL160/DL160
+    - Repo/Firmware/Supermicro x10 X10DRLi/3_86
+    - Repo/Firmware/Thinkmate x8 X8DTL3/313
   dest: staging/v3.7/CPT/Data/CVAH 3.7/Firmware
 
 MDT:
@@ -424,18 +424,18 @@ MDT:
 
 - app: firmware
   src:
-    - Repo/Firmware/Cisco 3850 Switch
-    - Repo/Firmware/Common Node
-    - Repo/Firmware/Dell 4112 Switch
-    - Repo/Firmware/Dell 7720
-    - Repo/Firmware/Dell 7730
-    - Repo/Firmware/Dell 7750
-    - Repo/Firmware/Dell M6800
-    - Repo/Firmware/Dell R440
-    - Repo/Firmware/HP DL160
-    - Repo/Firmware/Supermicro x10 X10DRLi
-    - Repo/Firmware/Thinkmate x8 X8DTL3
-  dest: staging/v3.7/MDT/Data/CVAH 3.7/Firmware
+    - Repo/Firmware/Cisco 3850 Switch/universalk9.SPA.03.07.05.E.152-3.E5
+    - Repo/Firmware/Common Node/2.10.2
+    - Repo/Firmware/Dell 4112 Switch/CVAH 3.7
+    - Repo/Firmware/Dell 7720/1.22.0
+    - Repo/Firmware/Dell 7730/1.18.2
+    - Repo/Firmware/Dell 7750/1.11.1
+    - Repo/Firmware/Dell M6800/M6800A26
+    - Repo/Firmware/Dell R440/BIOS 2.11.2 Contents
+    - Repo/Firmware/HP DL160/DL160
+    - Repo/Firmware/Supermicro x10 X10DRLi/3_86
+    - Repo/Firmware/Thinkmate x8 X8DTL3/313
+  dest: staging/v3.7/CPT/Data/CVAH 3.7/Firmware
 
 GIP:
 - app: jcat
