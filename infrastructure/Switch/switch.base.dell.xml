@@ -3468,6 +3468,11 @@
       <ip-pool-list>
         <pool-name>INTERNAL</pool-name>
         <ip-range>10.20.137.0/24</ip-range>
+        <lease-time>
+          <lease_days>0</lease_days>
+          <lease_hours>2</lease_hours>
+          <lease_mins>0</lease_mins>
+        </lease-time>
         <dhcp-options>
           <router>10.20.137.1</router>
           <domain-name>dmss</domain-name>
