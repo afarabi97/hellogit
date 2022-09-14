@@ -739,12 +739,12 @@ CVAH_NODE_MAINTENANCE_FORM__MAT_EXPANSION_PANEL = 'cvah-node-maintenance-form-ex
 CVAH_NOTIFICATIONS_OPEN_DIALOG_WINDOW = 'cvah-notifications-open-dialog-window' # div
 CVAH_NOTIFICATIONS_LENGTH = 'cvah-notifications-length' # a
 # TODO cvah-notifications-dialog_window-button-name-* # button
-CVAH_NOTIFICATIONS_DIALOG_WINDOW_BUTTON_CLEAR_ALL = 'cvah-notifications-dialog_window-button-clear-all' # button
-# TODO cvah-notifications-dialog_window-*-*--statusactionapp # div
-# TODO cvah-notifications-dialog_window-*-message # div
-# TODO cvah-notifications-dialog_window-*-exception # div
-# TODO cvah-notifications-dialog_window-*-displaytime # div
-# TODO cvah-notifications-dialog_window-*-button-delete # button
+CVAH_NOTIFICATIONS_DIALOG_WINDOW_BUTTON_CLEAR_ALL = 'cvah-notifications-dialog-window-button-clear-all' # button
+# TODO cvah-notifications-dialog-window-*-*--statusactionapp # div
+# TODO cvah-notifications-dialog-window-*-message # div
+# TODO cvah-notifications-dialog-window-*-exception # div
+# TODO cvah-notifications-dialog-window-*-displaytime # div
+# TODO cvah-notifications-dialog-window-*-button-delete # button
 
 
 # These are for passwored-mangement.component.html

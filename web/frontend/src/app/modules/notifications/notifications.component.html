@@ -13,13 +13,13 @@
     <!--Buttons-->
     <mat-card fxFlex="30%" class="messageList__card messageList__buttonGroup" fxLayoutGap="10px" fxLayout="column" fxLayoutAlign="start center">
       <button mat-raised-button *ngFor="let notification_button of notification_button_list"
-              id="{{ 'cvah-notifications-dialog_window-button-name-' + notification_button.name.toLowerCase() }}"
+              id="{{ 'cvah-notifications-dialog-window-button-name-' + notification_button.name.toLowerCase() }}"
               [color]="get_selected_button_color(notification_button)" class="messageList__buttonGroup__button"
               (click)="button_select(notification_button)">
         <mat-icon style="font-size: 24px; margin-right: 10px;">{{ notification_button.icon }}</mat-icon>
         {{ notification_button.name }}
       </button>
-      <button mat-raised-button id="cvah-notifications-dialog_window-button-clear-all"
+      <button mat-raised-button id="cvah-notifications-dialog-window-button-clear-all"
               fxFlex="0 1 auto" color="warn" class="messageList__buttonGroup__button"
               (click)="open_delete_all_notification_dialog_window()" [disabled]="!controller_maintainer">
         Delete All
@@ -51,14 +51,14 @@
                 </div>
                 <div class="message-and-delete-wrapper" fxLayout="row" fxLayoutAlign="space-between center">
                   <div class="messageCenter__center__outerCard__innerCard__left" fxFlex>
-                    <div id="{{ 'cvah-notifications-dialog_window-' + i + '-' + j + '-statusactionapp' }}">{{ notification.status }}&nbsp;{{ notification.action }}&nbsp;{{notification.application}}</div>
-                    <div id="{{ 'cvah-notifications-dialog_window-' + i + '-' + j + '-message' }}">{{ notification.message }}</div>
-                    <div id="{{ 'cvah-notifications-dialog_window-' + i + '-' + j + '-exception' }}">{{ notification.exception }}</div>
-                    <div id="{{ 'cvah-notifications-dialog_window-' + i + '-' + j + '-timestamp' }}">{{ notification.timestamp }}</div>
-                    <div id="{{ 'cvah-notifications-dialog_window-' + i + '-' + j + '-displaytime' }}">{{ notification.displayTime }}</div>
+                    <div id="{{ 'cvah-notifications-dialog-window-' + i + '-' + j + '-statusactionapp' }}">{{ notification.status }}&nbsp;{{ notification.action }}&nbsp;{{notification.application}}</div>
+                    <div id="{{ 'cvah-notifications-dialog-window-' + i + '-' + j + '-message' }}">{{ notification.message }}</div>
+                    <div id="{{ 'cvah-notifications-dialog-window-' + i + '-' + j + '-exception' }}">{{ notification.exception }}</div>
+                    <div id="{{ 'cvah-notifications-dialog-window-' + i + '-' + j + '-timestamp' }}">{{ notification.timestamp }}</div>
+                    <div id="{{ 'cvah-notifications-dialog-window-' + i + '-' + j + '-displaytime' }}">{{ notification.displayTime }}</div>
                   </div>
                   <div class="messageCenter__center__outerCard__innerCard__right" *ngIf="controller_maintainer" fxFlex="none">
-                    <button mat-icon-button id="{{ 'cvah-notifications-dialog_window-' + i + '-' + j + '-button-delete' }}"
+                    <button mat-icon-button id="{{ 'cvah-notifications-dialog-window-' + i + '-' + j + '-button-delete' }}"
                             (click)="delete_notification(notification)">
                       <mat-icon>delete</mat-icon>
                     </button>
