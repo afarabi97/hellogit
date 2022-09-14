@@ -10,7 +10,6 @@ import {
   ChartInfoClass,
   GenericJobAndKeyClass,
   NodeClass,
-  ObjectUtilitiesClass,
   SavedValueClass,
   StatusClass,
 } from '../classes';
@@ -74,7 +73,7 @@ export class CatalogService extends ApiService<any> implements CatalogServiceInt
    * @memberof CatalogService
    */
   get_chart_info(path_value: string): Observable<ChartInfoClass> {
-    const url = `${environment.CATALOG_SERVICE_BASE}chart/${path_value}/info`;
+    const url: string = `${environment.CATALOG_SERVICE_BASE}chart/${path_value}/info`;
 
     return this.httpClient_.get<ChartInfoInterface>(url)
       .pipe(map((response: ChartInfoInterface) => new ChartInfoClass(response)),
@@ -89,7 +88,7 @@ export class CatalogService extends ApiService<any> implements CatalogServiceInt
    * @memberof CatalogService
    */
   get_chart_statuses(path_value: string): Observable<StatusClass[]> {
-    const url = `${environment.CATALOG_SERVICE_BASE}chart/${path_value}/status`;
+    const url: string = `${environment.CATALOG_SERVICE_BASE}chart/${path_value}/status`;
 
     return this.httpClient_.get<StatusInterface[]>(url)
       .pipe(map((response: StatusInterface[]) => response.map((s: StatusInterface) => new StatusClass(s))),
@@ -104,7 +103,7 @@ export class CatalogService extends ApiService<any> implements CatalogServiceInt
    * @memberof CatalogService
    */
   get_saved_values(path_value: string): Observable<SavedValueClass[]> {
-    const url = `${environment.CATALOG_SERVICE_BASE}${path_value}/saved-values`;
+    const url: string = `${environment.CATALOG_SERVICE_BASE}${path_value}/saved-values`;
 
     return this.httpClient_.get<SavedValueInterface[]>(url)
       .pipe(map((response: SavedValueInterface[]) => response.map((s: SavedValueInterface) => new SavedValueClass(s))),
@@ -119,7 +118,7 @@ export class CatalogService extends ApiService<any> implements CatalogServiceInt
    * @memberof CatalogService
    */
   get_installed_apps(path_value: string): Observable<AppClass[]> {
-    const url = `${environment.CATALOG_SERVICE_BASE}${path_value}/apps`;
+    const url: string = `${environment.CATALOG_SERVICE_BASE}${path_value}/apps`;
 
     return this.httpClient_.get<AppInterface[]>(url)
       .pipe(map((response: AppInterface[]) => response.map((a: AppInterface) => new AppClass(a))),
@@ -193,11 +192,12 @@ export class CatalogService extends ApiService<any> implements CatalogServiceInt
    * REST call to GET configured ifaces
    *
    * @param {string} sensor_hostname
-   * @return {*}  {Observable<string[]>}
+   * @return {Observable<string[]>}
    * @memberof CatalogService
    */
   get_configured_ifaces(sensor_hostname: string): Observable<string[]> {
-    const url = `${environment.CATALOG_SERVICE_GET_CONFIGURED_IFACES}${sensor_hostname}`;
+    const url: string = `${environment.CATALOG_SERVICE_GET_CONFIGURED_IFACES}${sensor_hostname}`;
+
     return this.httpClient_.get<string[]>(url)
       .pipe(catchError((error: HttpErrorResponse) => this.handleError('retrieving configured ifaces', error)));
   }

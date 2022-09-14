@@ -5,6 +5,8 @@ import { CatalogService } from '../../services/catalog.service';
 import { CatalogServiceSpy } from '../../services/catalog.service.spec';
 import { CookieService } from '../../services/cookies.service';
 import { CookieServiceSpy } from '../../services/cookies.service.spec';
+import { GlobalJobService } from '../../services/global-job.service';
+import { GlobalJobServiceSpy } from '../../services/global-job.service.spec';
 import { GlobalPCAPService } from '../../services/global-pcap.service';
 import { GlobalPCAPServiceSpy } from '../../services/global-pcap.service.spec';
 import { GlobalToolsService } from '../../services/global-tools.service';
@@ -49,6 +51,8 @@ import { SystemVersionService } from '../pmo-support/services/system-version.ser
 import { SystemVersionServiceSpy } from '../pmo-support/services/system-version.service.spec';
 import { PolicyManagementService } from '../policy-management/services/policy-management.service';
 import { PolicyManagementServiceSpy } from '../policy-management/services/policy-management.service.spec';
+import { JobService } from '../server-stdout/services/job.service';
+import { JobServiceSpy } from '../server-stdout/services/job.service.spec';
 import { KitTokenSettingsService } from '../system-settings/services/kit-token-settings.service';
 import { KitTokenSettingsServiceSpy } from '../system-settings/services/kit-token-settings.service.spec';
 import { ToolsService } from '../tools/services/tools.service';
@@ -62,6 +66,7 @@ import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
     { provide: CatalogService, useClass: CatalogServiceSpy },
     { provide: CookieService, useClass: CookieServiceSpy },
     { provide: MatSnackBarService, useClass: MatSnackbarServiceSpy },
+    { provide: GlobalJobService, useClass: GlobalJobServiceSpy },
     { provide: GlobalPCAPService, useClass: GlobalPCAPServiceSpy },
     { provide: GlobalToolsService, useClass: GlobalToolsServiceSpy },
     { provide: PortalService, useClass: PortalServiceSpy },
@@ -83,6 +88,7 @@ import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
     { provide: DiagnosticsService, useClass: DiagnosticsServiceSpy },
     { provide: SystemVersionService, useClass: SystemVersionServiceSpy },
     { provide: PolicyManagementService, useClass: PolicyManagementServiceSpy },
+    { provide: JobService, useClass: JobServiceSpy },
     { provide: KitTokenSettingsService, useClass: KitTokenSettingsServiceSpy },
     { provide: ToolsService, useClass: ToolsServiceSpy }
     // { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open', 'closeAll', 'getDialogById']) },

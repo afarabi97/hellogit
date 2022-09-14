@@ -3,6 +3,7 @@ export * from './service-interfaces/app-load-service.interface';
 export * from './service-interfaces/catalog-service.interface';
 export * from './service-interfaces/cookie-service.interface';
 export * from './service-interfaces/generic-dialog-factory-service.interface';
+export * from './service-interfaces/global-job-service.interface';
 export * from './service-interfaces/global-pcap-service.interface';
 export * from './service-interfaces/global-tools-service.interface';
 export * from './service-interfaces/mat-snackbar-service.interface';

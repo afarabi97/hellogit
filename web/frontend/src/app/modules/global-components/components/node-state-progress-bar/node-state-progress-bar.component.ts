@@ -1,10 +1,12 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnInit, Renderer2 } from '@angular/core';
 
-import { GenericJobAndKeyClass, JobClass } from '../../../../classes';
+import { ErrorMessageClass, GenericJobAndKeyClass, JobClass } from '../../../../classes';
+import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../../../constants/cvah.constants';
+import { GlobalJobService } from '../../../../services/global-job.service';
+import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { MipManagementComponent } from '../../../mip-mng/mip-mng.component';
 import { NodeManagementComponent } from '../../../node-mng/node-mng.component';
-import { ServerStdoutService } from '../../../server-stdout/services/server-stdout.service';
-import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 
 @Component({
   selector: 'app-node-state-progress-bar',
@@ -24,9 +26,9 @@ export class NodeStateProgressBarComponent implements OnInit {
 
   constructor(
     private nodeMng: NodeManagementComponent,
-    private stdoutService: ServerStdoutService,
+    private global_job_service_: GlobalJobService,
     private mipMng: MipManagementComponent,
-    private matSnackBarService: MatSnackBarService,
+    private mat_snackbar_service_: MatSnackBarService,
     private renderer: Renderer2
   ) {
     this.toggleDropDown = false;
@@ -77,23 +79,20 @@ export class NodeStateProgressBarComponent implements OnInit {
   }
 
   retryJob(job: JobClass) {
-    this.stdoutService.retryJob(job.job_id).subscribe(
-      (data: GenericJobAndKeyClass) => {
-        if (data) {
-          this.matSnackBarService.displaySnackBar(`Retry job started ${data.job_id}`);
-        }
-      },
-      (err) => {
-        if (err && err.error && err.error['error_message']) {
-          this.matSnackBarService.displaySnackBar(err.error['error_message']);
-        } else {
-          console.error(err);
-          this.matSnackBarService.displaySnackBar(
-            'Failed for an unknown reason.'
-          );
-        }
-      }
-    );
+    this.global_job_service_.job_retry(job.job_id)
+      .subscribe(
+        (response: GenericJobAndKeyClass) => {
+          const message: string = 'requested system to retry job.';
+          this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = 'requesting retry job';
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        });
   }
 
   openJobConsole(job: JobClass) {

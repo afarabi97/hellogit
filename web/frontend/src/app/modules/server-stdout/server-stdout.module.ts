@@ -3,8 +3,10 @@ import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { GlobalJobService } from '../../services/global-job.service';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { ServerStdoutComponent } from './server-stdout.component';
+import { JobService } from './services/job.service';
 
 @NgModule({
   imports: [
@@ -18,6 +20,10 @@ import { ServerStdoutComponent } from './server-stdout.component';
   ],
   exports: [
     ServerStdoutComponent
+  ],
+  providers: [
+    GlobalJobService,
+    JobService
   ]
 })
 export class ServerStdoutModule { }

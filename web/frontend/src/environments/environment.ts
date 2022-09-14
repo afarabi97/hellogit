@@ -51,6 +51,9 @@ export const environment = {
   DIAGNOSTICS_SERVICE_DIAGNOSTICS: `/api/diagnostics`,
   DIAGNOSTICS_SERVICE_DIAGNOSTICS_DOWNLOAD: `/api/diagnostics/download/`,
 
+  JOB_SERVICE_BASE: `/api/jobs/`,
+  JOB_SERVICE_LOG: `/api/jobs/log/`,
+
   SYSTEM_VERSION_SERVICE_SYSTEM_VERSION: `/api/version/information`,
 
   USER_SERVICE_CURRENT_USER: `/api/current_user`,
@@ -72,6 +75,8 @@ export const environment = {
   DOCKER_REGISTRY_SERVICE_GET_DOCKER_REGISTRY: `/api/kubernetes/docker/registry`,
 
   NOTIFICATION_SERVICE_BASE_URL: `/api/notifications`,
+
+  GLOBAL_JOB_SERVICE_BASE: `/api/jobs/`,
 
   GLOBAL_PCAP_SERVICE_GET_PCAPS: `/api/policy/pcaps`,
 
