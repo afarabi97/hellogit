@@ -1,11 +1,12 @@
 import os
+from typing import Dict
 
 from app.utils.connection_mngs import KubernetesWrapper
 from app.utils.constants import KUBE_CONFIG_LOCATION
 from app.utils.exceptions import ConfigNotFound
+from app.utils.logging import rq_logger
 from kubernetes import client, config
 from kubernetes.client.exceptions import ApiException
-from typing import Dict
 
 
 def _get_pod_name(ip_address: str, component: str) -> str:
@@ -17,9 +18,10 @@ def _get_pod_name(ip_address: str, component: str) -> str:
                     if component == pod["metadata"]["labels"]["component"]:
                         return pod["metadata"]["name"]
                 except KeyError:
+                    rq_logger.exception("key error in get pod name")
                     pass
 
-    raise ValueError("Failed to find %s pod name." % component)
+    raise ValueError(f"Failed to find {component} pod name.")
 
 
 def get_suricata_pod_name(ip_address: str) -> str:

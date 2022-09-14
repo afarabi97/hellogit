@@ -173,7 +173,7 @@ class NodeSchema(Schema):
         self.validate_drive(value, "Data drive")
 
     @validates("raid_drives")
-    def validate_data_drive(self, value: List[str]):
+    def validate_raid_drive(self, value: List[str]):
         self.validate_drive(value, "Raid drive")
 
     @validates("mac_address")

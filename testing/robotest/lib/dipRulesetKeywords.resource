@@ -96,12 +96,23 @@ Sync Rules
         ${sensor_name_len} =  Get Length  ${assigned_sensor}
         ${state_loc} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${i}-state
         ${sensor_states_loc} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${i}-sensor-states
-        IF  ${sensor_name_len} > 0
+        ${expansion_rules_table} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${i}-rule-set-name-a-em-chevron-right
+        click  ${expansion_rules_table}
+        ${count} =  Get Element Count  xpath=//table[contains(@class,'mat-table')]
+        ${count} =  Evaluate  ${count} - 1
+        log  Count: ${count} Assigned Sensor Length: ${sensor_name_len}
+        IF  (${count} > 0) and (${sensor_name_len} > 0)
             Element Should Contain  ${state_loc}  Synced
             Element Should Contain  ${sensor_states_loc}  Synced
+        ELSE IF  (${count} == 0) and (${sensor_name_len} > 0)
+            Element Should Contain  ${state_loc}  Error
+            Element Should Contain  ${sensor_states_loc}  Error
+        ELSE IF  (${count} > 0) and (${sensor_name_len} == 0)
+            Element Should Contain  ${state_loc}  Error
+            Element Should Contain  ${sensor_states_loc}  ${EMPTY}
         ELSE
-            Element Should Contain  ${state_loc}  Synced
-            Element Should Not Contain  ${sensor_states_loc}  Synced
+            Element Should Contain  ${state_loc}  Error
+            Element Should Not Contain  ${sensor_states_loc}  ${EMPTY}
         END
     END
     log  Rulesync Successful

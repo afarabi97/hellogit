@@ -460,6 +460,18 @@ describe('PolicyManagementComponent', () => {
 
         expect(component['get_rule_index_']).toHaveBeenCalled();
       });
+
+      it('should call api_get_rule_sets_() after mat dialog ref closed from within edit_rule()', () => {
+        reset();
+
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(MockRuleClass) } as MatDialogRef<typeof component>);
+
+        MockRuleSetClass.rules = [MockRuleClass];
+
+        component.edit_rule(MockRuleSetClass, MockRuleClass);
+
+        expect(component['api_get_rule_sets_']).toHaveBeenCalled();
+      });
     });
 
     describe('enable_rule_set()', () => {

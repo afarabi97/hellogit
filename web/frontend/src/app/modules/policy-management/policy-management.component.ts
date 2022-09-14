@@ -174,7 +174,7 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
     this.rules_visible_ = new Array(rule_sets.length).fill(false);
 
     // Clear ruleSetRules
-    for (const ruleSet of rule_sets){
+    for (const ruleSet of rule_sets) {
       ruleSet.rules = null;
     }
 
@@ -225,6 +225,7 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
           if (ObjectUtilitiesClass.notUndefNull(response)) {
             const rule_index: number = this.get_rule_index_(rule);
             this.rules_data_source.data[rule_index] = response;
+            this.api_get_rule_sets_();
           }
         });
   }
