@@ -6,7 +6,7 @@ from app.service.diagnostics_service import run_diagnostics
 from app.utils.collections import mongo_console
 from app.utils.logging import logger
 from app.utils.namespaces import DIAGNOSTICS_NS
-from flask import send_file
+from flask import Response, send_file
 from flask_restx import Resource
 
 DOWNLOAD_DIR = "/var/www/html/downloads"
@@ -17,7 +17,7 @@ class Diagnostics(Resource):
     @DIAGNOSTICS_NS.doc(description="Runs diagnostics on the controller.")
     @DIAGNOSTICS_NS.response(200, "RunDiagnostics", JobIDModel.DTO)
     @DIAGNOSTICS_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
-    def post(self):
+    def post(self) -> Response:
         try:
             job = run_diagnostics.delay()
             return JobIDModel(job).to_dict()
@@ -32,7 +32,7 @@ class Diagnostics(Resource):
     @DIAGNOSTICS_NS.response(200, "FileDownload", DIAGNOSTICS_NS.schema_model('Diagnostics', {'type': 'file'}))
     @DIAGNOSTICS_NS.response(404, "FileNotFound", COMMON_ERROR_MESSAGE)
     @DIAGNOSTICS_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
-    def get(self, job_id):
+    def get(self, job_id) -> Response:
         try:
             log = mongo_console().find_one(
                 {"jobid": job_id, "log": {"$regex": "tfplenum-logs"}}, {"_id": False}

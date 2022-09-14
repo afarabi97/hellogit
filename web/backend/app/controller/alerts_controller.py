@@ -201,7 +201,7 @@ class AlertsDetailedCtrl(Resource):
     @ALERTS_NS.doc(description="Get all the alerts from Elasticsearch.")
     @ALERTS_NS.response(500, "Error")
     @ALERTS_NS.expect(UpdateAlertsModel.DTO)
-    def post(self, count_override: int):
+    def post(self, count_override: int) -> Response:
         es = ElasticWrapper()
         search_index = DEFAULT_INDEXES
         payload = ALERTS_NS.payload

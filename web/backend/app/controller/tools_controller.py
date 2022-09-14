@@ -160,7 +160,7 @@ class CurrentTime(Resource):
     @TOOLS_NS.response(200, "CurrentTimeModel", CurrentTimeModel.DTO)
     @TOOLS_NS.response(500, "Empty 500 return.")
     @TOOLS_NS.doc(description="Gets the Current time of the controller.")
-    def get(self):
+    def get(self) -> Response:
         timezone_stdout, ret_val = run_command2(
             'timedatectl | grep "Time zone:"', use_shell=True
         )
@@ -189,7 +189,7 @@ class ChangeKitPassword(Resource):
     @TOOLS_NS.response(409, "Password has already been used. You must try another password.", COMMON_ERROR_MESSAGE)
     @TOOLS_NS.response(500, "Internal Server Error", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
-    def post(self):
+    def post(self) -> Response:
         model = NewPasswordModel(TOOLS_NS.payload["root_password"])
         current_config = KitSettingsForm.load_from_db()  # type: Dict
         if current_config == None:
@@ -231,7 +231,7 @@ class UpdateDocs(Resource):
     @TOOLS_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
     @TOOLS_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
-    def post(self):
+    def post(self) -> Response:
         notification = NotificationMessage(
             role=MESSAGETYPE_PREFIX
         )
@@ -368,7 +368,7 @@ class GetSpaces(Resource):
                                Also, anything showing in this list will appear on the navbar on the UI."
     )
     @TOOLS_NS.response(200, "SpacesList", COMMON_TOOLS_RETURNS["spaces"])
-    def get(self):
+    def get(self) -> Response:
         directories = glob("/var/www/html/docs/*")
         all_spaces = [os.path.basename(dir) for dir in directories]
         try:
@@ -394,7 +394,7 @@ class ChangeStateOfRemoteNetworkDevice(Resource):
     @TOOLS_NS.response(200, "NetworkDeviceState", NetworkDeviceStateModel.DTO)
     @TOOLS_NS.response(500, "ErrorMessage: Something went wrong", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
-    def put(self, node: str, device: str, state: str):
+    def put(self, node: str, device: str, state: str) -> Response:
         device = RemoteNetworkDevice(node, device)
         device_list = RemoteNetworkDevice.device_validation(self)
         if device in device_list:
@@ -423,7 +423,7 @@ class ChangeStateOfRemoteNetworkDevice(Resource):
 class MonitoringInterfaces(Resource):
     @TOOLS_NS.doc(description="Retrieves a list of node hostnames with their associated network interfaces.")
     @TOOLS_NS.response(200, "InitialDeviceStates", [InitialDeviceStatesModel.DTO])
-    def get(self):
+    def get(self) -> Response:
         nodes = {}
         applications = ["arkime", "zeek", "suricata"]
 
@@ -464,7 +464,7 @@ class MonitoringInterfaces(Resource):
 class AllIfaces(Resource):
     @TOOLS_NS.doc(description="Retrieves a list of network interfaces with their states.")
     @TOOLS_NS.response(200, "InitialDeviceStates", [NetworkInterfaceModel.DTO])
-    def get(self, hostname: str):
+    def get(self, hostname: str) -> Response:
         node = Node.load_from_db_using_hostname(hostname)
         result = []
         for iface in node.deviceFacts["interfaces"]:
