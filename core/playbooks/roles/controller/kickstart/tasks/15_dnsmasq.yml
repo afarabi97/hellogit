@@ -48,7 +48,7 @@
   when:
     - "'nodes' in groups"
     - (hostvars[item].deployment_type == "Virtual" or hostvars[item].deployment_type == "Baremetal") and hostvars[item].mac
-  notify: "Restart dnsmasq"
+  notify: "Restart Dnsmasq"
 
 - name: Update MIP dnsmasq PXE
   blockinfile:
@@ -60,7 +60,7 @@
   when:
     - "'mips' in groups"
     - hostvars[item].mac
-  notify: "Restart dnsmasq"
+  notify: "Restart Dnsmasq"
 
 - name: Configure the firewall for dnsmasq DHCP
   firewalld:
