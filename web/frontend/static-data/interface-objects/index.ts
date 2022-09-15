@@ -62,6 +62,7 @@ export * from './rule-set.interface';
 export * from './rule-sync.interface';
 export * from './rule.interface';
 export * from './saved-value.interface';
+export * from './server-stdout-mat-dialog-data.interface';
 export * from './smb.interface';
 export * from './status.interface';
 export * from './success-message.interface';

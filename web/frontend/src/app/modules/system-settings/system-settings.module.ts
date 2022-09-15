@@ -4,6 +4,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { ServerStdoutModule } from '../server-stdout/server-stdout.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { GeneralSettingsPaneComponent } from './components/general-settings/general-settings-pane.component';
 import { KitSettingsPaneComponent } from './components/kit-settings/kit-settings-pane.component';
@@ -25,7 +26,8 @@ import { SystemSettingsComponent } from './system-settings.component';
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    ServerStdoutModule
   ],
   declarations: [
     GeneralSettingsPaneComponent,

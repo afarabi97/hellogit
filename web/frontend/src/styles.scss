@@ -5,6 +5,10 @@ body {
       box-shadow: unset !important;
       padding: unset !important;
     }
+    cvah-server-stdout {
+      height: inherit;
+      overflow: hidden;
+    }
     cvah-ngx-monaco-text-editor,
     cvah-rule-add-edit {
       flex-direction: column;

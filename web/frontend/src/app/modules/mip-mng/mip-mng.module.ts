@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { GlobalComponentsModule } from '../global-components/global-components.module';
+import { ServerStdoutModule } from '../server-stdout/server-stdout.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { AddMipDialogComponent } from './components/add-mip-dialog/add-mip-dialog.component';
 import { MipManagementComponent } from './mip-mng.component';
@@ -17,7 +18,8 @@ import { MipManagementComponent } from './mip-mng.component';
     ReactiveFormsModule,
     MaterialModule,
     BrowserAnimationsModule,
-    GlobalComponentsModule
+    GlobalComponentsModule,
+    ServerStdoutModule
   ],
   declarations: [
     AddMipDialogComponent,

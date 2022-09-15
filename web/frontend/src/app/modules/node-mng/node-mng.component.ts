@@ -6,13 +6,14 @@ import * as FileSaver from 'file-saver';
 
 import { JobClass, KitSettingsClass, KitStatusClass, NodeClass } from '../../classes';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
+import { ConfirmDialogMatDialogDataInterface, ServerStdoutMatDialogDataInterface } from '../../interfaces';
 import { CatalogService } from '../../services/catalog.service';
 import { KitSettingsService } from '../../services/kit-settings.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { UserService } from '../../services/user.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { NodeInfoDialogComponent } from '../global-components/components/node-info-dialog/node-info-dialog.component';
+import { ServerStdoutComponent } from '../server-stdout/server-stdout.component';
 import { AddNodeDialogComponent } from './components/add-node-dialog/add-node-dialog.component';
 
 const DIALOG_WIDTH = '1000px';
@@ -208,8 +209,15 @@ export class NodeManagementComponent implements OnInit {
     }
   }
 
-  openConsole(job_id: string=''): void {
-    this.router.navigate([`/stdout/${job_id}`]);
+  openConsole(job_id: string): void {
+    const server_stdout_mat_dialog_data: ServerStdoutMatDialogDataInterface = {
+      job_id: job_id
+    };
+    this.dialog.open(ServerStdoutComponent, {
+      height: '90vh',
+      width: '75vw',
+      data: server_stdout_mat_dialog_data
+    });
   }
 
   redeployKit(){
@@ -231,7 +239,7 @@ export class NodeManagementComponent implements OnInit {
       if (response === option2) {
         this.kitSettingsSvc.deployKit().subscribe(data => {
           const job_id = data['job_id'];
-          this.router.navigate([`/stdout/${job_id}`]);
+          this.openConsole(job_id);
         });
       }
     });
@@ -243,7 +251,7 @@ export class NodeManagementComponent implements OnInit {
     } else {
       this.kitSettingsSvc.deployKit().subscribe(data => {
         const job_id = data['job_id'];
-        this.router.navigate([`/stdout/${job_id}`]);
+        this.openConsole(job_id);
       });
     }
   }

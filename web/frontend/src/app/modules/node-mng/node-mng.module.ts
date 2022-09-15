@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { GlobalComponentsModule } from '../global-components/global-components.module';
+import { ServerStdoutModule } from '../server-stdout/server-stdout.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { AddNodeDialogComponent } from './components/add-node-dialog/add-node-dialog.component';
 import { NodeManagementComponent } from './node-mng.component';
@@ -17,7 +18,8 @@ import { NodeManagementComponent } from './node-mng.component';
     ReactiveFormsModule,
     MaterialModule,
     BrowserAnimationsModule,
-    GlobalComponentsModule
+    GlobalComponentsModule,
+    ServerStdoutModule
   ],
   declarations: [
     NodeManagementComponent,

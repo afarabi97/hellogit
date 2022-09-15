@@ -6,12 +6,13 @@ import { Router } from '@angular/router';
 
 import { JobClass, MIPClass, MipSettingsClass, NodeClass } from '../../classes';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
+import { ConfirmDialogMatDialogDataInterface, ServerStdoutMatDialogDataInterface } from '../../interfaces';
 import { KitSettingsService } from '../../services/kit-settings.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { UserService } from '../../services/user.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { NodeInfoDialogComponent } from '../global-components/components/node-info-dialog/node-info-dialog.component';
+import { ServerStdoutComponent } from '../server-stdout/server-stdout.component';
 import { AddMipDialogComponent } from './components/add-mip-dialog/add-mip-dialog.component';
 
 const DIALOG_WIDTH = '1000px';
@@ -148,8 +149,15 @@ export class MipManagementComponent implements OnInit {
     });
   }
 
-  openConsole(job_id: string=''): void {
-    this.router.navigate([`/stdout/${job_id}`]);
+  openConsole(job_id: string): void {
+    const server_stdout_mat_dialog_data: ServerStdoutMatDialogDataInterface = {
+      job_id: job_id
+    };
+    this.dialog.open(ServerStdoutComponent, {
+      height: '90vh',
+      width: '75vw',
+      data: server_stdout_mat_dialog_data
+    });
   }
 
   getCurrentStatus(job: JobClass): string {

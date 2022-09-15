@@ -1,16 +1,16 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
 
 import { GeneralSettingsClass, KitSettingsClass, KitStatusClass, ObjectUtilitiesClass } from '../../../../classes';
 import { PasswordMessageComponent } from '../../../../components/password-message/password-message.component';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
-import { KitStatusInterface } from '../../../../interfaces';
+import { KitStatusInterface, ServerStdoutMatDialogDataInterface } from '../../../../interfaces';
+import { KitSettingsService } from '../../../../services/kit-settings.service';
 import { UserService } from '../../../../services/user.service';
 import { WebsocketService } from '../../../../services/websocket.service';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
-import { KitSettingsService } from '../../../../services/kit-settings.service';
+import { ServerStdoutComponent } from '../../../server-stdout/server-stdout.component';
 import { kitSettingsValidators } from '../../validators/kit-settings.validator';
 
 @Component({
@@ -45,7 +45,6 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
   constructor(private websocket_service_: WebsocketService,
               private kitSettingsSrv: KitSettingsService,
               private userService: UserService,
-              private router: Router,
               private dialog: MatDialog) {
     this.hasTitle = true;
     this.controllerMaintainer = this.userService.isControllerMaintainer();
@@ -163,9 +162,15 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
     });
   }
 
-  openPreviousJob() {
-    const job_id = this.job_id;
-    this.router.navigate([`/stdout/${job_id}`]);
+  openPreviousJob(): void {
+    const server_stdout_mat_dialog_data: ServerStdoutMatDialogDataInterface = {
+      job_id: this.job_id
+    };
+    this.dialog.open(ServerStdoutComponent, {
+      height: '90vh',
+      width: '75vw',
+      data: server_stdout_mat_dialog_data
+    });
   }
 
   setKubernetes(dhcp_range) {

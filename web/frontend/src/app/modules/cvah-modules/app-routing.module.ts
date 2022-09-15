@@ -20,7 +20,6 @@ import { PmoSupportComponent } from '../pmo-support/pmo-support.component';
 import { PolicyManagementComponent } from '../policy-management/policy-management.component';
 import { PortalComponent } from '../portal/portal.component';
 import { SecurityAlertsComponent } from '../security-alerts/security-alerts.component';
-import { ServerStdoutComponent } from '../server-stdout/server-stdout.component';
 import { SystemSettingsComponent } from '../system-settings/system-settings.component';
 import { ToolsFormComponent } from '../tools/tools.component';
 
@@ -34,7 +33,6 @@ const routes: Routes = [
   { path: 'node-mng', component: NodeManagementComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'mip-mng', component: MipManagementComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'configmaps', component: ConfigmapsComponent, canActivate: [ OperatorRequiredGuard ] },
-  { path: 'stdout/:id', component: ServerStdoutComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'registry', component: DockerRegistryComponent },
   { path: 'windows_agent_deployer', component: AgentBuilderChooserComponent, canActivate: [ OperatorRequiredGuard ] },
   { path: 'rulesets', component: PolicyManagementComponent, canActivate: [ OperatorRequiredGuard ] },

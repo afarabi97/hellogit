@@ -208,6 +208,8 @@
 
   .container-fluid {
     width: 100%;
+    height: 100%;
+    overflow: hidden;
 
     mat-card {
       background-color: map-get($theme, first-elevation-dark-background);

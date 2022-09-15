@@ -3,30 +3,44 @@
     <mat-card-header>
       <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
         <div>
-          <button mat-icon-button color="warn" (click)="openRetryJobModal()"
-            matTooltip="Retry Job" [disabled]="!allowRetry">
+          <button mat-icon-button id="cvah-server-stdout-button-retry"
+                  color="warn" matTooltip="Retry Job" [disabled]="!allow_retry"
+                  (click)="retry_job_confirm_dialog()">
             <span class="material-icons">
               refresh
             </span>
           </button>
         </div>
         <div>
-          <button mat-icon-button *ngIf="!scrollStatus" id="app-server-stdout-div-mat-card-mat-card-header-mat-mat-card-title-button-play-scroll"
-                  color="accent" (click)="pauseScroll()" style="margin-right: 10px;" matTooltip="Follow Console Output">
-            <span class="material-icons" >vertical_align_bottom</span>
+          <button mat-icon-button *ngIf="!scroll_status" id="cvah-server-stdout-button-start-scroll"
+                  color="accent" style="margin-right: 10px;" matTooltip="Follow Console Output"
+                  (click)="start_scroll()">
+            <span class="material-icons">
+              vertical_align_bottom
+            </span>
           </button>
-          <button mat-icon-button *ngIf="scrollStatus" id="app-server-stdout-div-mat-card-mat-card-header-mat-mat-card-title-button-stop-scroll"
-                  color="accent" (click)="pauseScroll()" style="margin-right: 10px;" matTooltip="Stop Following Console Output">
-            <span class="material-icons" >pause</span>
+          <button mat-icon-button *ngIf="scroll_status" id="cvah-server-stdout-button-stop-scroll"
+                  color="accent" style="margin-right: 10px;" matTooltip="Stop Following Console Output"
+                  (click)="stop_scroll()">
+            <span class="material-icons">
+              pause
+            </span>
           </button>
-          <button mat-icon-button id="app-server-stdout-div-mat-card-mat-card-header-mat-card-title-button-kill-job"
-                  color="warn" (click)="openKillModal()" matTooltip="Kill Running Job"><span class="material-icons">stop</span></button>
+          <button mat-icon-button id="cvah-server-stdout-button-kill-job"
+                  color="warn" matTooltip="Kill Running Job"
+                  (click)="stop_job_confirm_dialog()">
+            <span class="material-icons">
+              stop
+            </span>
+          </button>
         </div>
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <div #console class="card-body console">
-        <p *ngFor="let log of logs; let i = index;"><span id="{{ 'app-server-stdout-div-mat-card-mat-card-content-div-p-' + i + '-span-msg' }}" [style.color]="log.color">{{ log.log }}</span></p>
+        <p *ngFor="let job_log of job_logs;">
+          <span [style.color]="job_log.color">{{ job_log.log }}</span>
+        </p>
       </div>
     </mat-card-content>
   </mat-card>

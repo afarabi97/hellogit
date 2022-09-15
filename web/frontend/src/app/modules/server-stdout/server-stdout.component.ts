@@ -1,188 +1,231 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, Params } from '@angular/router';
+import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { ErrorMessageClass, GenericJobAndKeyClass } from '../../classes';
+import { ErrorMessageClass, GenericJobAndKeyClass, ObjectUtilitiesClass } from '../../classes';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../constants/cvah.constants';
-import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
+import {
+  CONFIRM_DIALOG_OPTION,
+  DIALOG_WIDTH_35PERCENT,
+  MAT_SNACKBAR_CONFIGURATION_60000_DUR
+} from '../../constants/cvah.constants';
+import { ServerStdoutMatDialogDataInterface } from '../../interfaces';
 import { GlobalJobService } from '../../services/global-job.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { BackgroundJobClass, JobLogClass } from './classes';
+import {
+  CONFIRM_DIALOG_MAT_DIALOG_DATA_RETRY_JOB,
+  CONFIRM_DIALOG_MAT_DIALOG_DATA_STOP_JOB
+} from './constants/server-stdout.constant';
 import { JobLogInterface } from './interfaces';
 import { JobService } from './services/job.service';
 
+/**
+ * Component used for displaying job console output and job reltaed calls
+ *
+ * @export
+ * @class ServerStdoutComponent
+ * @implements {OnInit}
+ */
+@UntilDestroy({ checkProperties: true })
 @Component({
-  selector: 'app-server-stdout',
+  selector: 'cvah-server-stdout',
   templateUrl: './server-stdout.component.html',
-  styleUrls: ['./server-stdout.component.css']
+  styleUrls: ['./server-stdout.component.scss']
 })
 export class ServerStdoutComponent implements OnInit {
-
-  @ViewChild('console') private consoleDiv: ElementRef;
-  scrollStatus: Boolean = true;
-  allowRetry: boolean;
-  logs: JobLogClass[];
+  // Used for retrieving element ref for console output from server
+  @ViewChild('console') private console_output_: ElementRef;
+  // Used for passing boolean value for the ability to start/stop job scrolling
+  scroll_status: Boolean;
+  // Used for allowing the ability to retry a job
+  allow_retry: boolean;
+  // Used for holding all of the console log entries for a server job
+  // Also used to pass logs to html
+  job_logs: JobLogClass[];
+  // Passed job id as dialog data
   private job_id_: string;
 
-  constructor(private route: ActivatedRoute,
-              private title: Title,
-              private dialog: MatDialog,
+  /**
+   * Creates an instance of ServerStdoutComponent.
+   *
+   * @param {MatDialog} mat_dialog_
+   * @param {JobService} job_service_
+   * @param {GlobalJobService} global_job_service_
+   * @param {MatSnackBarService} mat_snackbar_service_
+   * @param {WebsocketService} websocket_service_
+   * @param {ServerStdoutMatDialogDataInterface} mat_dialog_data
+   * @memberof ServerStdoutComponent
+   */
+  constructor(private mat_dialog_: MatDialog,
               private job_service_: JobService,
               private global_job_service_: GlobalJobService,
               private mat_snackbar_service_: MatSnackBarService,
-              private websocket_service_: WebsocketService) {
-    this.title.setTitle('Console Output');
-    this.logs = [];
+              private websocket_service_: WebsocketService,
+              @Inject(MAT_DIALOG_DATA) public mat_dialog_data: ServerStdoutMatDialogDataInterface) {
+    this.scroll_status = true;
+    this.job_logs = [];
+    this.job_id_ = mat_dialog_data.job_id;
   }
 
   /**
-   * Triggers when the browser window resizes.
-   * @param event
+   * Used for making subscription calls for initializing the component
+   *
+   * @memberof ServerStdoutComponent
    */
-  @HostListener('window:resize', ['$event'])
-  onResize(event){
-     this.resizeConsole();
+  ngOnInit(): void {
+    this.setup_websocket_get_socket_on_message_();
+    this.api_job_logs_();
   }
 
-  ngOnInit() {
-    this.route.params.subscribe((params: Params) => {
-      this.job_id_ = params['id'];
-      this.api_job_logs_();
-      this.setup_websocket__get_socket_on_message();
-      this.api_job_get_();
-    });
+  /**
+   * Used for setting the scroll to true
+   *
+   * @memberof ServerStdoutComponent
+   */
+  start_scroll(): void {
+    this.scroll_status = true;
   }
 
-  ngAfterViewInit(){
-    this.resizeConsole();
+  /**
+   * Used for setting the scroll to false
+   *
+   * @memberof ServerStdoutComponent
+   */
+  stop_scroll(): void {
+    this.scroll_status = false;
   }
 
-  scrollToBottom(){
-    if(this.scrollStatus) {
-      this.consoleDiv.nativeElement.scrollTop = this.consoleDiv.nativeElement.scrollHeight;
-    }
-  }
-
-  openKillModal(){
-    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
-      title: 'Kill',
-      message: 'Are you sure you want to kill this job?',
-      option1: 'Cancel',
-      option2: 'Yes'
-    };
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '35%',
-      data: confirm_dialog,
+  /**
+   * Used for calling confirm dialog to stop a job
+   *
+   * @memberof ServerStdoutComponent
+   */
+  stop_job_confirm_dialog(): void {
+    const mat_dialog_ref: MatDialogRef<ConfirmDialogComponent, any> = this.mat_dialog_.open(ConfirmDialogComponent, {
+      width: DIALOG_WIDTH_35PERCENT,
+      data: CONFIRM_DIALOG_MAT_DIALOG_DATA_STOP_JOB
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if(result === confirm_dialog.option2) {
-        this.api_job_delete_();
-      }
+    mat_dialog_ref.afterClosed()
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: string) => {
+          /* istanbul ignore else */
+          if (response === CONFIRM_DIALOG_OPTION) {
+            this.api_job_delete_();
+          }
+        });
+  }
+
+  /**
+   * Used for calling confirm dialog to retry a job
+   *
+   * @memberof ServerStdoutComponent
+   */
+  retry_job_confirm_dialog(): void {
+    const mat_dialog_ref: MatDialogRef<ConfirmDialogComponent, any> = this.mat_dialog_.open(ConfirmDialogComponent, {
+      width: DIALOG_WIDTH_35PERCENT,
+      data: CONFIRM_DIALOG_MAT_DIALOG_DATA_RETRY_JOB
     });
+
+    mat_dialog_ref.afterClosed()
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: string) => {
+          /* istanbul ignore else */
+          if (response === CONFIRM_DIALOG_OPTION) {
+            this.api_job_retry_();
+          }
+        });
   }
 
-  pauseScroll() {
-    this.scrollStatus = !this.scrollStatus;
-  }
-
-  openRetryJobModal() {
-    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
-      title: 'Retry Job',
-      message: 'Are you sure you want to rerun this job?',
-      option1: 'Cancel',
-      option2: 'Yes'
-    };
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '35%',
-      data: confirm_dialog,
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === confirm_dialog.option2) {
-        this.api_job_retry_();
-        this.api_job_get_();
-      }
-    });
-  }
-
-  private resizeConsole(){
-    let height: string = '';
-    if (window.innerHeight > 400){
-      height = (window.innerHeight - 64) + 'px';
-    } else {
-      height = '100px';
-    }
-    this.consoleDiv.nativeElement.style.maxHeight = height;
-    this.consoleDiv.nativeElement.style.height = height;
-  }
-
-  private setup_websocket__get_socket_on_message(): void {
+  /**
+   * Used to setup the websocket on message
+   *
+   * @private
+   * @memberof ServerStdoutComponent
+   */
+  private setup_websocket_get_socket_on_message_(): void {
     this.websocket_service_.getSocket().on('message', (response: JobLogInterface) => {
+      /* istanbul ignore else */
       if (response.jobid === this.job_id_) {
         const job_log: JobLogInterface = new JobLogClass(response);
-        this.logs.push(job_log);
-        this.scrollToBottom();
+        this.job_logs.push(job_log);
       }
     });
   }
 
+  /**
+   * Used for making api rest call to get job logs
+   *
+   * @private
+   * @memberof ServerStdoutComponent
+   */
   private api_job_logs_(): void {
     this.job_service_.job_logs(this.job_id_)
+      .pipe(untilDestroyed(this))
       .subscribe(
         (response: JobLogClass[]) => {
-          response.forEach((job_log: JobLogClass) => {
-            this.logs.push(job_log);
-          });
-          setTimeout(() => {
-            this.scrollToBottom();
-          }, 1000);
-        });
-  }
-
-  private api_job_get_(): void {
-    this.job_service_.job_get(this.job_id_)
-      .subscribe(
-        (response: BackgroundJobClass) => {
-          if (response && !response.status || response.status === 'started') {
-            this.allowRetry = false;
-
-            setTimeout(() => {
-              this.api_job_get_();
-            }, response.timeout || 7200);
-          }
-
-          if (response.status === 'failed') {
-            this.allowRetry = true;
-          }
-        });
-  }
-
-  private api_job_retry_(): void {
-    this.global_job_service_.job_retry(this.job_id_)
-      .subscribe(
-        (response: GenericJobAndKeyClass) => {
-          const message: string = 'requested system to retry job.';
-          this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          this.job_logs = response;
+          this.api_job_get_();
         },
         (error: ErrorMessageClass | HttpErrorResponse) => {
           if (error instanceof ErrorMessageClass) {
             this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           } else {
-            const message: string = 'requesting retry job';
+            const message: string = 'retrieving job logs';
             this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           }
         });
   }
 
+  /**
+   * Used for making api rest call to get job
+   *
+   * @private
+   * @memberof ServerStdoutComponent
+   */
+  private api_job_get_(): void {
+    this.job_service_.job_get(this.job_id_)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: BackgroundJobClass) => {
+          /* istanbul ignore else */
+          if (ObjectUtilitiesClass.notUndefNull(response) && !ObjectUtilitiesClass.notUndefNull(response.status) ||
+              ObjectUtilitiesClass.notUndefNull(response.status) && response.status === 'started') {
+            this.allow_retry = false;
+          }
+
+          /* istanbul ignore else */
+          if (ObjectUtilitiesClass.notUndefNull(response.status) && response.status === 'failed') {
+            this.allow_retry = true;
+          }
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = 'retrieving job';
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        });
+  }
+
+  /**
+   * Used for making api rest call to delete job
+   *
+   * @private
+   * @memberof ServerStdoutComponent
+   */
   private api_job_delete_(): void {
     this.job_service_.job_delete(this.job_id_)
+      .pipe(untilDestroyed(this))
       .subscribe(
         (response: GenericJobAndKeyClass) => {
+          this.job_logs = [];
           const message: string = `deleted job ${response.job_id}`;
           this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
         },
@@ -191,6 +234,32 @@ export class ServerStdoutComponent implements OnInit {
             this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           } else {
             const message: string = 'requesting delete job';
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        });
+  }
+
+  /**
+   * Used for making api rest call to retry job
+   *
+   * @private
+   * @memberof ServerStdoutComponent
+   */
+  private api_job_retry_(): void {
+    this.global_job_service_.job_retry(this.job_id_)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: GenericJobAndKeyClass) => {
+          this.job_logs = [];
+          this.api_job_get_();
+          const message: string = 'requested system to retry job.';
+          this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = 'requesting retry job';
             this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           }
         });

@@ -398,10 +398,10 @@ export class AgentBuilderChooserComponent implements OnInit {
               /* istanbul ignore else */
               if (ObjectUtilitiesClass.notUndefNull(response)) {
                 this.agent_builder_service_.post_config_content(agent_installer_configuration.config_name, config_type, response).subscribe(message => {
-                  if (message && message instanceof SuccessMessageClass){
-                    this.mat_snackbar_service_.displaySnackBar(message.success_message)
+                  if (message && message instanceof SuccessMessageClass) {
+                    this.mat_snackbar_service_.displaySnackBar(message.success_message);
                   } else {
-                    this.mat_snackbar_service_.displaySnackBar("Unexpected. This was suppose to return a message from the server.")
+                    this.mat_snackbar_service_.displaySnackBar("Unexpected. This was suppose to return a message from the server.");
                   }
                 });
               }

@@ -893,9 +893,10 @@ CVAH_REPLAY_PCAP_DIALOG__BUTTON_CANCEL = 'cvah-replay-pcap-dialog-button-cancel'
 CVAH_REPLAY_PCAP_DIALOG__BUTTON_EXECUTE = 'cvah-replay-pcap-dialog-button-execute' # button
 
 # These are for server-stdout.component.html
-APP_SERVER_STDOUT__TITLE_BUTTON_KILL_JOB = 'app-server-stdout-div-mat-card-mat-card-header-mat-card-title-button-kill-job' # button
-APP_SERVER_STDOUT__TITLE_BUTTON_CLEAR_CONSOLE = 'app-server-stdout-div-mat-card-mat-card-header-mat-mat-card-title-button-clear-console' # button
-# TODO app-server-stdout-div-mat-card-mat-card-content-div-p-*-span-msg # span
+CVAH_SERVER_STDOUT__BUTTON_RETRY = 'cvah-server-stdout-button-retry' # button
+CVAH_SERVER_STDOUT__BUTTON_START_SCROLL = 'cvah-server-stdout-button-start-scroll' # button
+CVAH_SERVER_STDOUT__BUTTON_STOP_SCROLL = 'cvah-server-stdout-button-stop-scroll' # button
+CVAH_SERVER_STDOUT__BUTTON_KILL_JOB = 'cvah-server-stdout-button-kill-job' # button
 
 
 # These are for support.component.html
