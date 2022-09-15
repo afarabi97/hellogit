@@ -220,7 +220,7 @@ Check For Snack Bar Container
     IF  ${snack_bar_visible}
         Run Keyword And Continue On Failure  click  ${locSnackBarContainerBtn}
     END
-    Register Keyword To Run On Failure  ${previous kw}
+    Register Keyword To Run On Failure  ${previous_kw}
 
 Get Kibana Credentials
     log  Retrieving Kibana Username and Password

@@ -97,6 +97,7 @@ Sync Rules
         ${state_loc} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${i}-state
         ${sensor_states_loc} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${i}-sensor-states
         ${expansion_rules_table} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${i}-rule-set-name-a-em-chevron-right
+        Check For Snack Bar Container
         click  ${expansion_rules_table}
         ${count} =  Get Element Count  xpath=//table[contains(@class,'mat-table')]
         ${count} =  Evaluate  ${count} - 1
