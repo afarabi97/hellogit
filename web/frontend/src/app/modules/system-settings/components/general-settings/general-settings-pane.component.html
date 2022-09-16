@@ -44,16 +44,6 @@
           <mat-label>Netmask</mat-label>
           <input readonly matInput formControlName="netmask" placeholder="Please enter a valid Netmask">
         </mat-form-field>
-        <!-- DHCP Range -->
-        <mat-form-field>
-          <mat-label>DHCP Range</mat-label>
-          <mat-select formControlName="dhcp_range" (selectionChange)="checkDhcpRange()">
-            <mat-option *ngFor="let option of dhcp_range_options; let j = index;" [value]="option">{{ option }}
-            </mat-option>
-          </mat-select>
-          <mat-icon matSuffix *ngIf="dhcp_used_ips" matTooltip="The following IPs are in use: {{ dhcp_used_ips }}"
-            color="warn">warning</mat-icon>
-        </mat-form-field>
       </div>
     </form>
   </mat-card-content>

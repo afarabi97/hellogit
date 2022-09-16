@@ -56,7 +56,6 @@ export class GeneralSettingsPaneComponent implements OnInit, OnChanges {
     }
     if (this.kitStatus.control_plane_deployed) {
       this.generalSettingsForm.get('domain').disable();
-      this.generalSettingsForm.get('dhcp_range').disable();
     }
     if(this.controllerInfo){
       this.gatherControllerFacts();
@@ -80,7 +79,6 @@ export class GeneralSettingsPaneComponent implements OnInit, OnChanges {
           this.generalSettingsForm.enable();
           if (this.kitStatus.control_plane_deployed) {
             this.generalSettingsForm.get('domain').disable();
-            this.generalSettingsForm.get('dhcp_range').disable();
           }
         }
       },
@@ -115,20 +113,6 @@ export class GeneralSettingsPaneComponent implements OnInit, OnChanges {
     this.router.navigate([`/stdout/${job_id}`]);
   }
 
-  checkDhcpRange() {
-    const subnet = '255.255.255.224';
-    if (this.generalSettingsForm) {
-      if (this.generalSettingsForm.get('dhcp_range').valid) {
-        const dhcp_range = this.generalSettingsForm.get('dhcp_range').value;
-        this.kitSettingsSrv.getUsedIPAddresses(dhcp_range, subnet).subscribe(data => {
-          let ips = data.toString();
-          ips = ips.split(',').join('\n');
-          this.dhcp_used_ips = ips;
-        });
-      }
-    }
-  }
-
   private createFormGroup(generalSettingsForm?) {
     this.generalSettingsForm = new FormGroup({
       'domain': new FormControl(generalSettingsForm ? generalSettingsForm.domain : '',
@@ -137,9 +121,7 @@ export class GeneralSettingsPaneComponent implements OnInit, OnChanges {
       'netmask': new FormControl(generalSettingsForm ? generalSettingsForm.netmask : '255.255.255.0',
         Validators.compose([validateFromArray(kitSettingsValidators.netmask)])),
       'gateway': new FormControl(generalSettingsForm ? generalSettingsForm.gateway : '',
-        Validators.compose([validateFromArray(kitSettingsValidators.gateway)])),
-      'dhcp_range': new FormControl(generalSettingsForm ? generalSettingsForm.dhcp_range : '',
-        Validators.compose([validateFromArray(kitSettingsValidators.dhcp_range)]))
+        Validators.compose([validateFromArray(kitSettingsValidators.gateway)]))
     });
   }
 
@@ -155,6 +137,7 @@ export class GeneralSettingsPaneComponent implements OnInit, OnChanges {
       this.generalSettingsForm.get('gateway').setValue(this.controllerInfo['gateway']);
       this.generalSettingsForm.get('netmask').setValue(this.controllerInfo['netmask']);
       this.dhcp_range_options = this.controllerInfo['cidrs'];
+      this.generalSettings.dhcp_range = this.controllerInfo['dhcp_range'];
       this.unused_ip_addresses = this.controllerInfo['cidrs'];
   }
 }

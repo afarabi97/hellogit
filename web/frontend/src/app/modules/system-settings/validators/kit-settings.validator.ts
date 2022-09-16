@@ -23,9 +23,6 @@ export const kitSettingsValidators = {
   controller_interface: [
     { error_message: 'Controller Interface is required', validatorFn: 'required' }
   ],
-  dhcp_range: [
-    { error_message: 'DHCP Range is required', validatorFn: 'required' }
-  ],
   upstream_dns: [
     { ops: { pattern: new RegExp(IP_CONSTRAINT) },
              error_message: 'You must enter a valid IP address.',

@@ -27,13 +27,16 @@ class ControllerInfo(Resource):
             "{}/{}".format(controller_ip, interface_info["netmask"]), strict=False
         )
         cidr_ranges = {}
+        dhcp_range = None
         for x in ip_address.subnets(new_prefix=27):
             cidr_ranges[format(x[0])] = {"first": format(
                 x[0]), "last": format(x[-1])}
+            dhcp_range = format(x[0])
         filtered = filter(
             lambda x: ipaddress.ip_address(gateway_ip) not in x
-            and ipaddress.ip_address(controller_ip) not in x,
-            ip_address.subnets(new_prefix=27),
+            and ipaddress.ip_address(controller_ip) not in x
+            and ipaddress.ip_address(dhcp_range) not in x,
+            ip_address.subnets(new_prefix=27)
         )
         valid_cidrs = list(map(lambda x: format(x[0]), filtered))
 
@@ -47,6 +50,7 @@ class ControllerInfo(Resource):
             "netmask": interface_info["netmask"],
             "name": CONTROLLER_INTERFACE_NAME,
             "cidrs": valid_cidrs,
+            "dhcp_range": dhcp_range,
             "cidr_ranges": cidr_ranges,
         }
         return info, 200
