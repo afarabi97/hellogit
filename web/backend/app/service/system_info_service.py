@@ -12,7 +12,7 @@ try:
         try:
             repo = Repo(str(PROJECT_ROOT_DIR))
             sha = repo.head.commit.hexsha
-            return repo.git.rev_parse(sha, short=8)
+            return repo.git.rev_parse(sha, short=9)
         except InvalidGitRepositoryError:
             pass
         return "None"
