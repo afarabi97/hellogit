@@ -69,6 +69,7 @@ ${locHealthPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text(
 ${locRulesetNavIcon}            xpath=//mat-icon[following-sibling::div/h4[text() = "Rule Set"]]
 ${locPcapNavIcon}               xpath=//mat-icon[following-sibling::div/h4[text() = "Test PCAP Files"]]
 ${locToolsNavIcon}              xpath=//mat-icon[following-sibling::div/h4[text() = "Tools"]]
+${locApiDocsNavIcon}            xpath=//mat-icon[following-sibling::div/h4[text() = "API Docs"]]
 ${locSupportPageNavIcon}        xpath=//mat-icon[following-sibling::div/h4[text() = "PMO Support"]]
 
 ${locNotificationsPopup}        xpath=//*[contains(@id, "mat-dialog-")]

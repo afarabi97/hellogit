@@ -187,15 +187,14 @@ robot:rulesets:sync:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
   retry: 2
 
-robot:elastic:alerts:
-  stage: robot-test-elastic
+robot:operations:
+  stage: robot-test-operations
   tags:
     - docker-runner
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c integration \
-      -t "012_elastic/00_dipAlerts" \
+    python3 -m run.runner -c "integration/012_operations" \
       -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \

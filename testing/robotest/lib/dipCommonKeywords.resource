@@ -189,6 +189,10 @@ Navigate To ${page}
         click  ${locToolsNavIcon}
         lookFor  Node Maintenance
         Location Should Be  ${Tools_url}
+    ELSE IF  "${page}" == "API Docs"
+        click  ${locApiDocsNavIcon}
+        Switch Window  NEW
+        lookFor  TFPlenum Backend API
     ELSE IF  "${page}" == "Support"
         click  ${locSupportPageNavIcon}
         lookFor  Version Information
@@ -264,6 +268,17 @@ Delete User Link
     click  ${delete_btn}
     click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
     Wait Until Page Does Not Contain  ${locUserLinkFirstTile}
+
+Validate API Documentation
+    [Documentation]  Checks to make sure API Docs page loads successfully and all sections are present.
+    log  Checking API Documentation page
+    ${api_section_list} =  Create List  agent  alerts  app  catalog  coldlog  common  curator  diagnostics  health  hive  policy
+    ...                                 jobs  kit  kubernetes  notifications  portal  scale  settings  token  tools  version
+    FOR  ${item}  IN  @{api_section_list}
+        Wait Until Page Contains Element  xpath=//span[text()="${item}"]
+    END
+    Page Should Contain Element  xpath=//h4/span[text()="Models"]
+    log  API Documentation page loaded successfully and all sections are present
 
 Get Hive IP
     log  Retrieving Hive Username and Password

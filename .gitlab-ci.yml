@@ -195,7 +195,7 @@ variables:
 
   # Robot flags
   JIRA_PROJECT_KEY: "THISISCVAH"
-  ROBOT_BROWSER: chrome
+  ROBOT_BROWSER: Chrome
   ROBOT_REGRESSION_CATEGORY: integration
   ROBOT_REGRESSION_ZEPHYR_CYCLE: INTEGRATION
   ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION: Unscheduled
@@ -233,11 +233,11 @@ stages:
   - security_scans
   - robot-test-regression
   - robot-test-setup
-  - robot-test-elastic
   - integration-test
   - disk-test
   - test-powerfailure
   - rerun-integration-test
+  - robot-test-operations
   - robot-test-cleanup
   - export
   - cleanup

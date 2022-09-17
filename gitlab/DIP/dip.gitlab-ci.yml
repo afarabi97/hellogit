@@ -272,8 +272,6 @@ System Function Testing:
   needs:
     - job: robot:rulesets:sync
       optional: true
-    - job: robot:elastic:alerts
-      optional: true
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
