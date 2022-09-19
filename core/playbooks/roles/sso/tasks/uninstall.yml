@@ -38,4 +38,4 @@
   with_nested:
     - "{{ keycloak_clients.stdout | from_json }}"
     - "{{ all_apps }}"
-  when: item[1] in item[0].clientId
+  when: item[1] in item[0].clientId and not "controller" in item[0].clientId
