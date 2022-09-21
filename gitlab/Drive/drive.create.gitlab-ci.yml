@@ -44,7 +44,7 @@ Hash Master GIP Folder:
   only:
     variables:
       - $PIPELINE == "export-gip"
-      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "GIP"
+      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "GIP" && $EXPORT_PERFORM_CHECKSUM == "yes"
 
 Hash Master CPT Folder:
   stage: hashfiles
@@ -61,8 +61,8 @@ Hash Master CPT Folder:
     variables:
       - $PIPELINE == "export-all"
       - $PIPELINE == "minor-release"
-      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "Mixed"
-      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "CPT"
+      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "Mixed" && $EXPORT_PERFORM_CHECKSUM == "yes"
+      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "CPT" && $EXPORT_PERFORM_CHECKSUM == "yes"
       - $PIPELINE == "export-controller-only"
 
 Hash Master MDT Folder:
@@ -80,8 +80,8 @@ Hash Master MDT Folder:
     variables:
       - $PIPELINE == "export-all"
       - $PIPELINE == "minor-release"
-      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "Mixed"
-      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "MDT"
+      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "Mixed" && $EXPORT_PERFORM_CHECKSUM == "yes"
+      - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "MDT" && $EXPORT_PERFORM_CHECKSUM == "yes"
       - $PIPELINE == "export-controller-only"
 
 Create Drives:

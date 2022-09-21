@@ -117,6 +117,7 @@ variables:
   #Master Drive Creation Variables
   MASTER_DRIVE_CREATION_USERNAME: "drive_creator"
   MASTER_DRIVE_CREATION_IPADDRESS: "10.10.102.10"
+  EXPORT_PERFORM_CHECKSUM: "yes"
 
   #EXPORT Variables
   CONFLUENCE_SUP_DOCS: ""
