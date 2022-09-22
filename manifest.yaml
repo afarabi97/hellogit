@@ -299,6 +299,7 @@ CPT:
     - Repo/Firmware/Dell 7720/1.22.0
     - Repo/Firmware/Dell 7730/1.18.2
     - Repo/Firmware/Dell 7750/1.11.1
+    - Repo/Firmware/Dell 7760/1.12.1
     - Repo/Firmware/Dell M6800/M6800A26
     - Repo/Firmware/Dell R440/BIOS 2.11.2 Contents
     - Repo/Firmware/HP DL160/DL160
@@ -430,6 +431,7 @@ MDT:
     - Repo/Firmware/Dell 7720/1.22.0
     - Repo/Firmware/Dell 7730/1.18.2
     - Repo/Firmware/Dell 7750/1.11.1
+    - Repo/Firmware/Dell 7760/1.12.1
     - Repo/Firmware/Dell M6800/M6800A26
     - Repo/Firmware/Dell R440/BIOS 2.11.2 Contents
     - Repo/Firmware/HP DL160/DL160
