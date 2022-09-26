@@ -1,7 +1,7 @@
 import {
   NgxMatDatetimePickerModule,
   NgxMatNativeDateModule,
-  NgxMatTimepickerModule
+  NgxMatTimepickerModule,
 } from '@angular-material-components/datetime-picker';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
@@ -12,6 +12,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { AlertDrillDownDialogComponent } from './components/alert-drilldown-dialog/alert-drilldown-dialog.component';
 import { SecurityAlertsComponent } from './security-alerts.component';
+import { AlertService } from './services/alerts.service';
 
 @NgModule({
   imports: [
@@ -35,6 +36,9 @@ import { SecurityAlertsComponent } from './security-alerts.component';
   entryComponents: [
     SecurityAlertsComponent,
     AlertDrillDownDialogComponent
+  ],
+  providers: [
+    AlertService
   ]
 })
 export class SecurityAlertsModule { }

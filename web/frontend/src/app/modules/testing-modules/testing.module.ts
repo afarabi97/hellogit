@@ -53,6 +53,8 @@ import { PolicyManagementService } from '../policy-management/services/policy-ma
 import { PolicyManagementServiceSpy } from '../policy-management/services/policy-management.service.spec';
 import { JobService } from '../server-stdout/services/job.service';
 import { JobServiceSpy } from '../server-stdout/services/job.service.spec';
+import { AlertService } from '../security-alerts/services/alerts.service';
+import { AlertServiceSpy } from '../security-alerts/services/alerts.service.spec';
 import { KitTokenSettingsService } from '../system-settings/services/kit-token-settings.service';
 import { KitTokenSettingsServiceSpy } from '../system-settings/services/kit-token-settings.service.spec';
 import { ToolsService } from '../tools/services/tools.service';
@@ -89,6 +91,7 @@ import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
     { provide: SystemVersionService, useClass: SystemVersionServiceSpy },
     { provide: PolicyManagementService, useClass: PolicyManagementServiceSpy },
     { provide: JobService, useClass: JobServiceSpy },
+    { provide: AlertService, useClass: AlertServiceSpy },
     { provide: KitTokenSettingsService, useClass: KitTokenSettingsServiceSpy },
     { provide: ToolsService, useClass: ToolsServiceSpy }
     // { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open', 'closeAll', 'getDialogById']) },

@@ -5,6 +5,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
+import { AlertListClass } from '../../classes';
 import { AlertService } from '../../services/alerts.service';
 
 
@@ -31,8 +32,8 @@ export class AlertDrillDownDialogComponent implements OnInit, AfterViewInit, OnC
   }
 
   ngOnInit(){
-    this.alertSrv.getAlertList(this.alertGroup).subscribe(data => {
-      this.alerts.data = data['hits']['hits'] as object[];
+    this.alertSrv.get_alert_list(this.alertGroup).subscribe((data: AlertListClass) => {
+      this.alerts.data = data.hits.hits;
     });
   }
 

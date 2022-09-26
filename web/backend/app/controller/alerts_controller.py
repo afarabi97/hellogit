@@ -149,13 +149,8 @@ class AlertsFieldsCtrl(Resource):
     @ALERTS_NS.doc(
         description="Returns a list of fields from filebeat and siem indices."
     )
-    @ALERTS_NS.response(500, "Error")
-    @ALERTS_NS.response(
-        200,
-        "AlertFields",
-        [fields.String(example="event.module",
-                       description="Field name from index.")],
-    )
+    @ALERTS_NS.response(200, "AlertFields", [fields.String(example="event.module",
+                                                           description="Field name from index.")])
     def get(self) -> Response:
         elastic = ElasticWrapper()
         fields = []
@@ -200,7 +195,6 @@ class AlertsFieldsCtrl(Resource):
 @ALERTS_NS.route("/list/<count_override>")
 class AlertsDetailedCtrl(Resource):
     @ALERTS_NS.doc(description="Get all the alerts from Elasticsearch.")
-    @ALERTS_NS.response(500, "Error")
     @ALERTS_NS.expect(UpdateAlertsModel.DTO)
     def post(self, count_override: int) -> Response:
         es = ElasticWrapper()
@@ -325,7 +319,7 @@ class AlertsCtrlv2(Resource):
         return self._constuct_aggs(fields_ary)
 
     @ALERTS_NS.doc(description="Get all the alerts from Elasticsearch.")
-    @ALERTS_NS.response(500, "Error")
+    @ALERTS_NS.response(400, "Error")
     @ALERTS_NS.response(200, "Alerts", [AlertsModel.DTO])
     def get(
         self,
@@ -366,11 +360,7 @@ class AlertsCtrlv2(Resource):
                     request_timeout=ELASTIC_TIMEOUT,
                 )
             except ConnectionTimeout as e:
-                return {
-                    "message": "Elasticsearch query timed out after {} seconds.  To fix this, narrow the Window time by reducing the number of days / hours until the page refreshes successfully.".format(
-                        ELASTIC_TIMEOUT
-                    )
-                }, 400
+                return { "error_message": f"Elasticsearch query timed out after {ELASTIC_TIMEOUT} seconds.  To fix this, narrow the Window time by reducing the number of days / hours until the page refreshes successfully." }, 400
             except RequestError as e:
                 body = self._fix_keyword_issue(e, fields_ary)
                 body["size"] = 0
@@ -629,9 +619,9 @@ class HiveSettingsCtrl(Resource):
             elastic = ElasticWrapper()
             elastic.indices.put_mapping({"dynamic": True}, index=SIGNAL_INDEX)
         except ValidationError as e:
-            return e.normalized_messages(), 400
+            return { "error_message": f"Failed to configure Hive webhook with ${e.normalized_messages()}" }, 400
         except HiveFailureError as e:
-            return e.payload, 400
+            return { "error_message": f"Failed to configure Hive webhook with ${e.payload}" }, 400
 
         ret_val = hive_settings.to_dict()
         del ret_val["_id"]

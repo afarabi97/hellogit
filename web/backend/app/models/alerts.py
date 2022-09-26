@@ -20,8 +20,7 @@ class AlertsModel(Model):
                                     description="The kind of event such as alert or signal"),
         "rule.name": fields.String(example="ET CHAT IRC USER command",
                                    description="The rule name either from suricata or detections."),
-        "additionalGroupByFields": fields.String(
-            description="Additional Group By Fields")
+        "additionalGroupByFields": fields.String(description="Additional Group By Fields")
     })
 
 
@@ -63,6 +62,8 @@ class UpdateAlertsModel(Model):
                                       description="The module of the event."),
         "event.kind": fields.String(example="alert",
                                     description="The kind of event such as alert or signal"),
+        "event.escalated": fields.Boolean(example=False,
+                                          description="The event escalated"),
         "rule.name": fields.String(example="ET CHAT IRC USER command",
                                    description="The rule name either from suricata or detections."),
         "form": fields.Nested(AlertFormModel.DTO)

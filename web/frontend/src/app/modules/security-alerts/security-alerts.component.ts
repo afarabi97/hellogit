@@ -1,4 +1,5 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, OnChanges, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -13,8 +14,9 @@ import { Title } from '@angular/platform-browser';
 import { forkJoin, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
-import { UserPortalLinkClass } from '../../classes';
+import { ErrorMessageClass, ObjectUtilitiesClass, PortalLinkClass } from '../../classes';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../constants/cvah.constants';
 import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
 import {
   DialogControlTypes,
@@ -25,11 +27,12 @@ import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat
 import { CookieService } from '../../services/cookies.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { PortalService } from '../../services/portal.service';
+import { AlertListClass, HiveSettingsClass, UpdateAlertsClass } from './classes';
 import { AlertDrillDownDialogComponent } from './components/alert-drilldown-dialog/alert-drilldown-dialog.component';
+import { AlertFormInterface, HiveSettingsInterface } from './interfaces';
 import { AlertService } from './services/alerts.service';
 
 const DIALOG_WIDTH = '1000px';
-
 const MOLOCH_FIELD_LOOKUP = {
   'source.address': 'ip.src',
   'source.ip': 'ip.src',
@@ -51,7 +54,7 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
   @ViewChild('groupByInput') groupByInput: ElementRef<HTMLInputElement>;
   @ViewChild('auto') matAutocomplete: MatAutocomplete;
   @ViewChild(MatSort) sort: MatSort;
-  links: UserPortalLinkClass[];
+  links: PortalLinkClass[];
   alerts: MatTableDataSource<Object>;
   autoRefresh: boolean;
   visible = true;
@@ -101,21 +104,19 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
     return true;
   }
 
-  getAggCount(alert: Object){
-    if (alert){
-      return alert['count'];
-    }
-    return 0;
+  getAggCount(update_alert: UpdateAlertsClass){
+    return ObjectUtilitiesClass.notUndefNull(update_alert) &&
+           ObjectUtilitiesClass.notUndefNull(update_alert.count) ? update_alert.count : 0;
   }
 
-  getColumnValue(alert: Object, columnName: string){
+  getColumnValue(update_alert: UpdateAlertsClass, columnName: string){
     if (columnName === '@timestamp'){
       const time = new Date(alert[columnName]);
       return time.toISOString();
     }
 
-    if (alert && columnName){
-      return alert[columnName];
+    if (update_alert && columnName){
+      return update_alert[columnName];
     }
     return '';
   }
@@ -154,18 +155,16 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
       this.autoRefresh = false;
   }
 
-  acknowledgeEvent(alert: Object) {
-    const count = alert['count'];
-    const paneString = `Are you sure you want to acknowledge ${count} alerts? \
+  acknowledgeEvent(update_alert: UpdateAlertsClass) {
+    const paneString = `Are you sure you want to acknowledge ${update_alert.count} alerts? \
                         \n\nDoing so will turn these alerts into a false positive \
                         which will not appear anymore on your alerts page.`;
     const paneTitle = 'Acknowledge Alerts';
-    this._ackorUnsetAck(alert, paneTitle, paneString);
+    this._ackorUnsetAck(update_alert, paneTitle, paneString);
   }
 
-  removeAlerts(alert: Object) {
-    const count = alert['count'];
-    const paneString = `Are you sure you want to remove ${count} alerts? \
+  removeAlerts(update_alert: UpdateAlertsClass) {
+    const paneString = `Are you sure you want to remove ${update_alert.count} alerts? \
                         \n\nDoing so will turn these alerts into a false positive \
                         which will not appear anymore on your alerts page. Also, \
                         the hive case for these alerts shall be deleted. \
@@ -185,34 +184,37 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
 
     dialogRef.afterClosed().subscribe(response => {
       if (response === confirm_dialog.option2) {
-        this.alertSrv.removeAlerts(alert, this.controlForm).subscribe(new_data=>{
+
+        update_alert.form = this.controlForm.getRawValue() as AlertFormInterface;
+        this.alertSrv.remove_alerts(update_alert).subscribe(new_data=>{
           const new_count = new_data['total'];
           const msg = `Successfully performed operation on ${new_count} Alerts.`;
           this.matSnackBarSrv.displaySnackBar(msg);
           this.updateAlertsTable();
-        }, err => {
-          if (err && err['message']){
-            this.matSnackBarSrv.displaySnackBar(err['message']);
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.matSnackBarSrv.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           } else {
-            this.matSnackBarSrv.displaySnackBar('Failed to remove the Alerts for an unknown reason.');
+            const message: string = 'removing alert';
+            this.matSnackBarSrv.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
           }
         });
       }
     });
   }
 
-  unSetacknowledgedEvent(alert: Object){
-    const count = alert['count'];
-    const paneString = `Are you sure you want to undo ${count} acknowledged alerts? \
+  unSetacknowledgedEvent(update_alert: UpdateAlertsClass){
+    const paneString = `Are you sure you want to undo ${update_alert.count} acknowledged alerts? \
                         \n\nDoing so will return the selected events back to their original state.`;
     const paneTitle = 'Undo Acknowledged Alerts';
-    this._ackorUnsetAck(alert, paneTitle, paneString);
+    this._ackorUnsetAck(update_alert, paneTitle, paneString);
   }
 
-  escalateEvent(alert: Object) {
-    alert['event.escalated'] = true;
-    const kibanaLink = this.getKibanaLink(alert);
-    delete alert['event.escalated'];
+  escalateEvent(update_alert: UpdateAlertsClass) {
+    update_alert['event.escalated'] = true;
+    const kibanaLink = this.getKibanaLink(update_alert);
+    delete update_alert['event.escalated'];
 
     const molohPrefix = this.getLink('arkime');
     let molochLink = 'N/A';
@@ -220,20 +222,20 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
       molochLink = 'N/A - Failed to create because Moloch is not installed.';
     }
 
-    const molochExpression = this.buildMolochExpression(alert);
+    const molochExpression = this.buildMolochExpression(update_alert);
     if (molochExpression === ''){
       const fields = this.getRequiredKibanaFields().join(', ');
       molochLink = `N/A - Failed to create Moloch link because you need one of the following Group By fields: ${fields}`;
     } else {
-      molochLink = this.getMolochLink(alert, molohPrefix, molochExpression);
+      molochLink = this.getMolochLink(molohPrefix, molochExpression);
     }
 
-    alert['form'] = this.controlForm.value;
-    alert['links'] = this.links;
+    update_alert.form = this.controlForm.value;
+    update_alert.links = this.links;
 
     forkJoin({
-      hive_settings: this.alertSrv.getHiveSettings(),
-      alerts: this.alertSrv.getAlertList(alert, 1)
+      hive_settings: this.alertSrv.get_hive_settings(),
+      alerts: this.alertSrv.get_alert_list(update_alert, 1)
     }).subscribe(data => {
       if (data.hive_settings['admin_api_key'] === '' || data.hive_settings['admin_api_key'] === 'org_admin_api_key'){
         this.matSnackBarSrv.displaySnackBar(`Hive is not configured. Plase click on the Gear
@@ -262,8 +264,7 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
         }
       }
 
-      const count = alert['count'];
-      const paneString = `Are you sure you want to escalate ${count} alerts? \
+      const paneString = `Are you sure you want to escalate ${update_alert.count} alerts? \
                           \n\nDoing so will create hive ticket.`;
       const paneTitle = 'Escalate Alerts';
       const eventTitleConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
@@ -271,19 +272,16 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
       eventTitleConfig.tooltip = 'Title of the case';
       eventTitleConfig.label = 'Title';
       eventTitleConfig.formState = title;
-
       const eventTagsConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
       eventTagsConfig.tooltip = 'Case tags';
       eventTagsConfig.label = 'Tags';
       eventTagsConfig.controlType = DialogControlTypes.chips;
-
       const eventDescriptionConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
       eventDescriptionConfig.validatorOrOpts = [Validators.required];
       eventDescriptionConfig.tooltip = 'Description of the case';
       eventDescriptionConfig.label = 'Description';
       eventDescriptionConfig.controlType = DialogControlTypes.textarea;
       eventDescriptionConfig.formState = `[Kibana SIEM Link](${kibanaLink})\n\n[Arkime Link](${molochLink})`;
-
       const eventSeverityConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
       eventSeverityConfig.label = 'Severity';
       eventSeverityConfig.formState = severity;
@@ -291,7 +289,6 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
       eventSeverityConfig.tooltip = 'Severity of the case (1: low; 2: medium; 3: high)';
       eventSeverityConfig.controlType = DialogControlTypes.dropdown;
       eventSeverityConfig.options = ['1', '2', '3'];
-
       const escalateEventForm = this.fb.group({
         event_title: new DialogFormControl(eventTitleConfig),
         event_tags: new DialogFormControl(eventTagsConfig),
@@ -308,19 +305,23 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
         }
       });
       dialogRef.afterClosed().subscribe (
-        result => {
-          const form = result as FormGroup;
-          if(form && form.valid) {
-            this.alertSrv.modifyAlert(alert, this.controlForm, true, form).subscribe(new_data=>{
+        (response: FormGroup) => {
+          if (ObjectUtilitiesClass.notUndefNull(response) && response.valid) {
+            update_alert.form = this.controlForm.value;
+            update_alert.form.performEscalation = true;
+            update_alert.form.hiveForm = response.value;
+            this.alertSrv.modify_alert(update_alert).subscribe(new_data=>{
               const new_count = new_data['total'];
               const msg = `Successfully performed operation on ${new_count} Alerts.`;
               this.matSnackBarSrv.displaySnackBar(msg);
               this.updateAlertsTable();
-            }, err => {
-              if (err && err['message']){
-                this.matSnackBarSrv.displaySnackBar(err['message']);
+            },
+            (error: ErrorMessageClass | HttpErrorResponse) => {
+              if (error instanceof ErrorMessageClass) {
+                this.matSnackBarSrv.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
               } else {
-                this.matSnackBarSrv.displaySnackBar('Failed to acknowledge the Alert Aggregation for an unknown reason.');
+                const message: string = 'modifying alert';
+                this.matSnackBarSrv.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
               }
             });
           }
@@ -412,26 +413,26 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
     }
   }
 
-  eventDrilldown(alert: Object) {
-    alert['form'] = this.controlForm.value;
-    alert['links'] = this.links;
+  eventDrilldown(update_alert: UpdateAlertsClass) {
+    update_alert.form = this.controlForm.value;
+    update_alert.links = this.links;
     this.dialog.open(AlertDrillDownDialogComponent, {
       width: DIALOG_WIDTH,
-      data: alert
+      data: update_alert
     });
   }
 
-  openKibana(alert: Object) {
-    const url = this.getKibanaLink(alert);
+  openKibana(update_alert: UpdateAlertsClass) {
+    const url = this.getKibanaLink(update_alert);
     const win = window.open(url, '_blank');
     win.focus();
   }
 
-  openHive(alert: Object){
-    alert['form'] = this.controlForm.value;
-    alert['links'] = this.links;
-    this.alertSrv.getAlertList(alert, 1).subscribe(data=> {
-      const hive_id = Math.abs(data['hits']['hits'][0]['_source']['event']['hive_id']);
+  openHive(update_alert: UpdateAlertsClass){
+    update_alert.form = this.controlForm.value;
+    update_alert.links = this.links;
+    this.alertSrv.get_alert_list(update_alert, 1).subscribe((data: AlertListClass)=> {
+      const hive_id = Math.abs(data.hits.hits[0]._source.event['hive_id']);
       const prefix = this.getLink('hive');
       const url = `${prefix}/index.html#!/case/~~${hive_id}/details`;
       const win = window.open(url, '_blank');
@@ -439,7 +440,7 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
     });
   }
 
-  openMoloch(alert: Object){
+  openMoloch(update_alert: UpdateAlertsClass){
     const prefix = this.getLink('arkime');
 
     if (prefix === ''){
@@ -447,7 +448,7 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
       return;
     }
 
-    const expression = this.buildMolochExpression(alert);
+    const expression = this.buildMolochExpression(update_alert);
     if (expression === ''){
       const fields = this.getRequiredKibanaFields().join(', ');
       this.matSnackBarSrv.displaySnackBar(`Failed to pivot to Arkime because
@@ -455,14 +456,14 @@ you need one of the following Group By fields: ${fields}`);
       return;
     }
 
-    const url = this.getMolochLink(alert, prefix, expression);
+    const url = this.getMolochLink(prefix, expression);
     const win = window.open(url, '_blank');
     win.focus();
   }
 
   openHiveTokenSettings(){
 
-    this.alertSrv.getHiveSettings().subscribe(data => {
+    this.alertSrv.get_hive_settings().subscribe((data: HiveSettingsClass) => {
       const hiveKeyConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
       hiveKeyConfig.validatorOrOpts = [Validators.minLength(32), Validators.maxLength(32), Validators.required];
       hiveKeyConfig.tooltip = 'Must be a valid Hive token that is 32 characters in length.';
@@ -498,20 +499,18 @@ copy and paste the admin and org_admin Hive API keys in the boxes below. The key
         }
       });
       dialogRef.afterClosed().subscribe(
-        result => {
-          const form = result as FormGroup;
-          if(form && form.valid) {
-            this.alertSrv.saveHiveSettings(form).subscribe((_data) => {
+        (response: FormGroup) => {
+          if(ObjectUtilitiesClass.notUndefNull(response) && response.valid) {
+            this.alertSrv.save_hive_settings(response.getRawValue() as HiveSettingsInterface).subscribe((_data) => {
               this.matSnackBarSrv.displaySnackBar(`Successfully saved the Hive API Key.`);
-            }, err => {
-              if (err['error'] && err['error']['message']){
-                const message = err['error']['message'];
-                this.matSnackBarSrv.displaySnackBar(`Failed to configure Hive webhook with ${message}`);
+            },
+            (error: ErrorMessageClass | HttpErrorResponse) => {
+              if (error instanceof ErrorMessageClass) {
+                this.matSnackBarSrv.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
               } else {
-                this.matSnackBarSrv.displaySnackBar(`Failed to save Hive API key for an unknown reason.
-Please check the /var/log/tfplenum logs for more information`);
+                const message: string = 'saving Hive API key for an unknown reason. Please check the /var/log/tfplenum logs for more information';
+                this.matSnackBarSrv.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
               }
-
             });
           }
         }
@@ -584,7 +583,7 @@ Please check the /var/log/tfplenum logs for more information`);
   }
 
   private setPortalLinks(){
-    this.portalSrv.get_portal_links().subscribe((data: any) => {
+    this.portalSrv.get_portal_links().subscribe((data: PortalLinkClass[]) => {
       this.links = data;
     });
   }
@@ -601,8 +600,8 @@ Please check the /var/log/tfplenum logs for more information`);
   }
 
   private populateChipOptions(){
-    this.alertSrv.getFields().subscribe(data => {
-      this.allChipOptions = data as string[];
+    this.alertSrv.get_fields().subscribe((data: string[]) => {
+      this.allChipOptions = data;
     });
   }
 
@@ -636,7 +635,7 @@ Please check the /var/log/tfplenum logs for more information`);
     }
   }
 
-  private updateAlertsTable(displayMessage:boolean=false){
+  private updateAlertsTable(displayMessage: boolean=false){
     if (this.dynamicColumns.length > 0){
       if (!this.controlForm.get('absoluteTime').value){
         this.setDateTimes();
@@ -646,21 +645,21 @@ Please check the /var/log/tfplenum logs for more information`);
       const escalated = this.isEscalatedChecked();
       const showClosed = this.isShowClosedChecked();
       this.saveCookies();
-      this.alertSrv.getAlerts(this.dynamicColumns.join(','),
-                              this.getStartDatetime(),
-                              this.getEndDatetime(),
-                              acknowledge, escalated, showClosed).subscribe(data => {
-        this.alerts.data = data as object[];
+      this.alertSrv.get_alerts(this.dynamicColumns.join(','),
+                               this.getStartDatetime(),
+                               this.getEndDatetime(),
+                               acknowledge, escalated, showClosed).subscribe((data: UpdateAlertsClass[]) => {
+        this.alerts.data = data;
         if (displayMessage){
           this.matSnackBarSrv.displaySnackBar('Successfully updated Alerts table!');
         }
-      }, err => {
-        if (err.status === 400){
-          this.matSnackBarSrv.displaySnackBar(err.error['message']);
-        } else if (err.message){
-          this.matSnackBarSrv.displaySnackBar(err.message);
+      },
+      (error: ErrorMessageClass | HttpErrorResponse) => {
+        if (error instanceof ErrorMessageClass) {
+          this.matSnackBarSrv.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
         } else {
-          this.matSnackBarSrv.displaySnackBar('Unknown failure. Check logs for more details.');
+          const message: string = 'retrieving alerts check logs for more details';
+          this.matSnackBarSrv.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
         }
       });
     } else {
@@ -674,7 +673,7 @@ Please check the /var/log/tfplenum logs for more information`);
     this.cookieService.set('autoRefresh', this.autoRefresh.toString());
   }
 
-  private _ackorUnsetAck(alert: Object, paneTitle: string, paneString: string){
+  private _ackorUnsetAck(update_alert: UpdateAlertsClass, paneTitle: string, paneString: string){
     const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
       title: paneTitle,
       message: paneString,
@@ -688,15 +687,22 @@ Please check the /var/log/tfplenum logs for more information`);
 
     dialogRef.afterClosed().subscribe(response => {
       if (response === confirm_dialog.option2) {
-        this.alertSrv.modifyAlert(alert, this.controlForm, false).subscribe(data=>{
+        update_alert.form = this.controlForm.value;
+        update_alert.form.performEscalation = false;
+        this.alertSrv.modify_alert(update_alert).subscribe(data=>{
           const new_count = data['total'];
           const msg = `Successfully performed operation on ${new_count} Alerts.`;
           this.matSnackBarSrv.displaySnackBar(msg);
           this.updateAlertsTable();
-        }, err => {
-          this.matSnackBarSrv.displaySnackBar('Failed to acknowledge the Alert Aggregation for an unknown reason.');
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.matSnackBarSrv.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = 'modifying alert';
+            this.matSnackBarSrv.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
         });
-
       }
     });
   }
@@ -715,25 +721,25 @@ Please check the /var/log/tfplenum logs for more information`);
     return '';
   }
 
-  private getQueryPiece(alert: Object): string {
+  private getQueryPiece(update_alert: UpdateAlertsClass): string {
     let ret_val = '';
-    for (const field in alert){
+    for (const field in update_alert){
       if (field === 'count' || field === 'form' || field === 'links'){
         continue;
       }
-      if (alert['event.kind'] === 'signal' && field === 'rule.name'){
-        ret_val += 'signal.rule.name : "' + alert[field] + '" and ';
+      if (update_alert['event.kind'] === 'signal' && field === 'rule.name'){
+        ret_val += 'signal.rule.name : "' + update_alert[field] + '" and ';
       } else {
-        ret_val += field + ' : "' + alert[field] + '" and ';
+        ret_val += field + ' : "' + update_alert[field] + '" and ';
       }
     }
 
     return ret_val.slice(0, ret_val.length - 5);
   }
 
-  private getKibanaLink(alert: Object){
+  private getKibanaLink(update_alert: UpdateAlertsClass){
     const prefix = this.getLink('kibana');
-    let query = this.getQueryPiece(alert);
+    let query = this.getQueryPiece(update_alert);
     if (this.isEscalatedChecked()){
       query += ' and event.escalated : true';
     }
@@ -741,16 +747,16 @@ Please check the /var/log/tfplenum logs for more information`);
     const startDateTime = this.getStartDatetime();
     const endDateTime = this.getEndDatetime();
     let page = 'overview';
-    if (alert['event.kind'] && alert['event.kind'] === 'signal'){
+    if (update_alert['event.kind'] && update_alert['event.kind'] === 'signal'){
       page = 'detections';
-    } else if (alert['event.kind'] && alert['event.kind'] === 'alert') {
-      if (alert['event.module'] ) {
-        if (alert['event.module'] === 'zeek' || alert['event.module'] === 'suricata'){
+    } else if (update_alert['event.kind'] && update_alert['event.kind'] === 'alert') {
+      if (update_alert['event.module'] ) {
+        if (update_alert['event.module'] === 'zeek' || update_alert['event.module'] === 'suricata'){
           page = 'network/external-alerts';
-        } else if (alert['event.module'] === 'endgame') {
+        } else if (update_alert['event.module'] === 'endgame') {
           // Since Endgame alerts do not show up on the SIEM engine page as we would expect we will instead pivot to the discover page only for this type of alert.
-          return `${prefix}/app/discover#/?_g=(filters:!(),query:(language:kuery,query:''),refreshInterval:(pause:!t,value:0),time:(from:%27${startDateTime}%27,to:%27${endDateTime}%27))&_a=(columns:!(),filters:!(),index:endgame-dashboard-index-pattern,interval:auto,query:(language:kuery,query:'${query}'),sort:!(!('@timestamp',desc)))`
-        } else if (alert['event.module'] === 'system' || alert['event.module'] === 'sysmon') {
+          return `${prefix}/app/discover#/?_g=(filters:!(),query:(language:kuery,query:''),refreshInterval:(pause:!t,value:0),time:(from:%27${startDateTime}%27,to:%27${endDateTime}%27))&_a=(columns:!(),filters:!(),index:endgame-dashboard-index-pattern,interval:auto,query:(language:kuery,query:'${query}'),sort:!(!('@timestamp',desc)))`;
+        } else if (update_alert['event.module'] === 'system' || update_alert['event.module'] === 'sysmon') {
           page = 'hosts/alerts';
         }
       }
@@ -760,20 +766,20 @@ Please check the /var/log/tfplenum logs for more information`);
     return url.replace(/'/g, '%27').replace(/ /g, '%20').replace(/\(/g, '%28').replace(/\)/g, '%29');
   }
 
-  private getMolochLink(alert: Object, prefix: string, expression: string) {
+  private getMolochLink(prefix: string, expression: string) {
     const startTime = Math.floor(this.controlForm.get('startDatetime').value.getTime() / 1000);
     const stopTime = Math.floor(this.controlForm.get('endDatetime').value.getTime() / 1000);
     const url = `${prefix}/sessions?graphType=lpHisto&seriesType=bars&expression=${expression}&startTime=${startTime}&stopTime=${stopTime}`;
     return url;
   }
 
-  private buildMolochExpression(alert: Object): string {
-    const fields = this.getFields(alert);
+  private buildMolochExpression(update_alert: UpdateAlertsClass): string {
+    const fields = this.getFields(update_alert);
     let url_part = '';
     for (const field of fields){
       const molochField = MOLOCH_FIELD_LOOKUP[field];
       if (molochField){
-        const alertValue = alert[field];
+        const alertValue = update_alert[field];
         url_part += `${molochField}%20%3D%3D${alertValue}%26%26%20`;
       }
     }
@@ -790,9 +796,9 @@ Please check the /var/log/tfplenum logs for more information`);
     return fields;
   }
 
-  private getFields(alert: Object) : string[]{
+  private getFields(update_alert: UpdateAlertsClass) : string[]{
     const fields = [];
-    for (const field in alert){
+    for (const field in update_alert){
       if (field === 'count' || field === 'form' || field === 'links'){
         continue;
       }

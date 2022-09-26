@@ -88,6 +88,13 @@ export const environment = {
   PORTAL_SERVICE_REMOVE_USER_LINK: `/api/portal/user/links/`,
   PORTAL_SERVICE_GET_USER_LINKS: `/api/portal/user/links`,
 
+  ALERT_SERVICE_BASE: '/api/alerts/',
+  ALERT_SERVICE_FIELDS: '/api/alerts/fields',
+  ALERT_SERVICE_LIST: '/api/alerts/list/',
+  ALERT_SERVICE_MODIFY: '/api/alerts/modify',
+  ALERT_SERVICE_REMOVE: '/api/alerts/remove',
+  ALERT_SERVICE_SETTINGS: '/api/alerts/settings',
+
   TOOLS_SERVICE_CHANGE_KIT_PASSWORD: `/api/tools/change-kit-password`,
   TOOLS_SERVICE_UPLOAD_DOCUMENTATION: `/api/tools/documentation/upload`,
   TOOLS_SERVICE_MONITORING_INTERFACE: `/api/tools/monitoring-interfaces`,
