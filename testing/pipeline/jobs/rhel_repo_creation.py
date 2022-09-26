@@ -4,7 +4,7 @@ from util.ansible_util import execute_playbook, take_snapshot
 from util.ssh import test_nodes_up_and_alive
 from util.connection_mngs import FabricConnectionWrapper
 from util.vmware_util import get_vms_in_folder
-from util.constants import REPO_SYNC_PREFIX, SKIP_REPOSYNC_BUILD_AND_TEMPLATE
+from util.constants import REPO_SYNC_PREFIX
 
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
@@ -57,9 +57,6 @@ class RHELExportJob(RHELCreationJob):
 
     def build_export(self):
         if self.repo_settings.node.pipeline == "export-all" and self._is_built_already():
-            print("The Reposync template is already built. Skipping")
-            # This file is created and saved in pipeline artifacts so that export stage can check to see if we need to recreate the template or not.
-            with open(SKIP_REPOSYNC_BUILD_AND_TEMPLATE, 'w') as f:
                 pass
         else:
             print("Building RHEL server for export")

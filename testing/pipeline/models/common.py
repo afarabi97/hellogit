@@ -42,10 +42,10 @@ class NodeSettings(Model):
         self.portgroup = ''
         self.sensing_mac = ''
         self.service_node = False
+        self.staging_export_path = ''
         self.template = ''
         self.username = 'root'
         self.vm_prefix = ''
-
 
     def is_mip(self) -> bool:
         return self.node_type == self.valid_node_types[6]
@@ -117,23 +117,25 @@ class NodeSettings(Model):
     def add_args(parser: ArgumentParser, is_for_ctrl_setup: bool=False):
         parser.add_argument("--commit-hash", dest="commit_hash", required=False)
         parser.add_argument("--disk-size", dest="disk_size", type=int, help="The size of the VM's first disk.", default=100)
+        parser.add_argument('--dns-servers', dest='dns_servers', nargs="+", required=True, help="The dns servers that will be used for nodes created.")
+        parser.add_argument('--domain', dest='domain', required=False, help="The kit domain", default="lan")
         parser.add_argument("--export-password", dest="export_password", help="The root password set during export.", required=True)
+        parser.add_argument('--extra-disk', dest='extra_disks', action='append', required=False, default=[])
         parser.add_argument("--gateway", dest="gateway", help="The gateway ipaddress for the VM.", required=True)
         parser.add_argument("--luks-password", dest="luks_password", type=str, help="The password used for disk encryption.", default='1qaz2wsx!QAZ@WSX')
         parser.add_argument("--netmask", dest="netmask", help="The network netmask needed for setting the management interface.", default="255.255.255.0")
-        parser.add_argument("--network-block-index", dest="network_block_index", help="The network block index to use. If left as default it will default to 1 which uses 64 as the last octet. [64, 128, 192]",
+        parser.add_argument("--network-block-index", dest="network_block_index",
+                            help="The network block index to use. If left as default it will default to 1 which uses 64 as the last octet. [64, 128, 192]",
                             default=0, choices=range(0, 3), type=int)
         parser.add_argument("--network-id", dest="network_id", help="The network ID the application will be selecting IPs from.", required=True)
+        parser.add_argument('--os-raid', dest='os_raid', default='no', help="Sets OS either enabled or disabled. Use yes|no when setting it.")
         parser.add_argument("--pipeline", dest="pipeline", required=False, default="developer-all")
         parser.add_argument("--portgroup", dest="portgroup", help="The managment network or portgroup name on the vsphere or esxi server.", required=True)
+        parser.add_argument('--service-node', dest="service_node", type=str, default='no', help="Create a service node to run catalog apps.")
+        parser.add_argument('--staging-export-path', dest="staging_export_path", type=str, default='/staging', help="Specifies the STAGING directory to use.")
+        parser.add_argument('--vm-datastore', dest='datastore', required=True, help="The name of vsphere's datastore where it will be storing its VMs.")
         parser.add_argument("--vm-folder", dest="folder", required=True, help="The folder where all your VM(s) will be created within vsphere.")
         parser.add_argument("--vm-password", dest="password", help="The root password of the VM after it is cloned.", required=True)
-        parser.add_argument('--dns-servers', dest='dns_servers', nargs="+", required=True, help="The dns servers that will be used for nodes created.")
-        parser.add_argument('--domain', dest='domain', required=False, help="The kit domain", default="lan")
-        parser.add_argument('--extra-disk', dest='extra_disks', action='append', required=False, default=[])
-        parser.add_argument('--os-raid', dest='os_raid', default='no', help="Sets OS either enabled or disabled. Use yes|no when setting it.")
-        parser.add_argument('--service-node', dest="service_node", type=str, default='no', help="Create a service node to run catalog apps.")
-        parser.add_argument('--vm-datastore', dest='datastore', required=True, help="The name of vsphere's datastore where it will be storing its VMs.")
         parser.add_argument('--vm-prefix', dest='vm_prefix', required=True, help="The prefix name of the VM(s)")
 
         if is_for_ctrl_setup:
@@ -183,6 +185,7 @@ class HwNodeSettings(Model):
         self.serial = ''
         self.sku = ''
         self.sockets = ''
+        self.staging_export_path=''
         self.system_model = ''
         self.template_path = ''
         self.username = 'root'
@@ -225,25 +228,27 @@ class HwNodeSettings(Model):
 
     @staticmethod
     def add_args(parser: ArgumentParser, is_for_ctrl_setup: bool=False):
-        parser.add_argument("--template-path", dest="template_path", required=True, help="where controller template is stored")
-        parser.add_argument("--release-path", dest="release_path", required=False, help="where release controller is stored")
-        parser.add_argument("--template", dest="template", required=True, help="Name of controller template")
-        parser.add_argument("--release-ova", dest="release_ova", required=False, help="Name of release ova")
-        parser.add_argument('--vm-datastore', dest='datastore', required=True, help="The name of vsphere's datastore where it will be storing its VMs.")
+        parser.add_argument('--build-from-release', dest='build_from_release', default="no", help="Build kit from pre-existing controller")
+        parser.add_argument('--ctrl-owner', dest='ctrl_owner', default="default", help="The name of the person who created the controller.")
         parser.add_argument('--dns-servers', dest='dns_servers', nargs="+", required=True, help="The dns servers that will be used for nodes created.")
-        parser.add_argument("--gateway", dest="gateway", help="The gateway ipaddress for the VM.", required=True)
-        parser.add_argument("--netmask", dest="netmask", help="The network netmask needed for setting the management interface.", default="255.255.255.0")
-        parser.add_argument("--ipaddress", dest="ipaddress", help="ipaddress for the controller.")
-        parser.add_argument("--node-username", dest="username", help="The username for ctrl and node.", default="root")
-        parser.add_argument("--node-password", dest="password", help="The root password for ctrl and node.", required=True)
         parser.add_argument("--domain", dest="domain", help="The domain for the kit", default="lan")
+        parser.add_argument("--gateway", dest="gateway", help="The gateway ipaddress for the VM.", required=True)
+        parser.add_argument("--ipaddress", dest="ipaddress", help="ipaddress for the controller.")
+        parser.add_argument("--netmask", dest="netmask", help="The network netmask needed for setting the management interface.", default="255.255.255.0")
+        parser.add_argument("--network-block-index", dest="network_block_index",
+                            help="The network block index to use. If left as default it will default to 1 which uses 64 as the last octet. [64, 128, 192]",
+                            default=0, choices=range(0, 3), type=int)
+        parser.add_argument("--network-id", dest="network_id", help="The network ID the application will be selecting IPs from.")
+        parser.add_argument("--node-password", dest="password", help="The root password for ctrl and node.", required=True)
+        parser.add_argument("--node-username", dest="username", help="The username for ctrl and node.", default="root")
         parser.add_argument("--redfish-password", dest="redfish_password", help="The redfish password")
         parser.add_argument("--redfish-user", dest="redfish_user", help="The redfish username", default="root")
-        parser.add_argument("--network-id", dest="network_id", help="The network ID the application will be selecting IPs from.")
-        parser.add_argument("--network-block-index", dest="network_block_index", help="The network block index to use. If left as default it will default to 1 which uses 64 as the last octet. [64, 128, 192]",
-                            default=0, choices=range(0, 3), type=int)
-        parser.add_argument('--ctrl-owner', dest='ctrl_owner', default="default", help="The name of the person who created the controller.")
-        parser.add_argument('--build-from-release', dest='build_from_release', default="no", help="Build kit from pre-existing controller")
+        parser.add_argument("--release-ova", dest="release_ova", required=False, help="Name of release ova")
+        parser.add_argument("--release-path", dest="release_path", required=False, help="where release controller is stored")
+        parser.add_argument('--staging-export-path', dest="staging_export_path", type=str, default='/staging', help="Specifies the STAGING directory to use.")
+        parser.add_argument("--template", dest="template", required=True, help="Name of controller template")
+        parser.add_argument("--template-path", dest="template_path", required=True, help="where controller template is stored")
+        parser.add_argument('--vm-datastore', dest='datastore', required=True, help="The name of vsphere's datastore where it will be storing its VMs.")
 
     def set_from_defaults(self, other):
         for key in self.__dict__:
@@ -252,6 +257,7 @@ class HwNodeSettings(Model):
     def set_from_dict(self, other):
         for key in other:
             self.__dict__[key] = other[key]
+
 
 class VCenterSettings(Model):
 
@@ -286,6 +292,7 @@ class VCenterSettings(Model):
         parser.add_argument("--vcenter-portgroup", dest="vcenter_portgroup", required=False,help="The distributed portgroup to use on vsphere.", default="Interal")
         parser.add_argument("--vcenter-username", dest="vcenter_username", required=True, help="A username to the vcenter hosted on our local network.")
 
+
 class ESXiSettings(Model):
 
     def __init__(self):
@@ -303,6 +310,7 @@ class ESXiSettings(Model):
         parser.add_argument("--esxi-ipaddress", dest="esxi_ipaddress", required=True, help="A esxi ip address.")
         parser.add_argument("--esxi-password", dest="esxi_password", required=True, help="A password to the esxi hosted on our local network.")
         parser.add_argument("--esxi-username", dest="esxi_username", required=True, help="A username to the esxi hosted on our local network.")
+
 
 class RepoSettings(Model):
 
@@ -325,11 +333,11 @@ class RepoSettings(Model):
     @staticmethod
     def add_args(parser: ArgumentParser):
         parser.add_argument("--access-token", dest="access_token", required=True)
+        parser.add_argument('--branch-name', dest='repo_branch_name', required=True, help="The branch name bootstrap will use when setting up the controller.")
         parser.add_argument("--project-id", dest="project_id", required=True)
         parser.add_argument("--repo-password", dest="repo_password", required=True, help="A password to the DI2E git repo.")
-        parser.add_argument("--repo-username", dest="repo_username", required=True, help="A username to the DI2E git repo.")
-        parser.add_argument('--branch-name', dest='repo_branch_name', required=True, help="The branch name bootstrap will use when setting up the controller.")
         parser.add_argument('--repo-url', dest='repo_url', required=True, help="The branch name bootstrap will use when setting up the controller.")
+        parser.add_argument("--repo-username", dest="repo_username", required=True, help="A username to the DI2E git repo.")
 
 
 class BasicNodeCreds(Model):

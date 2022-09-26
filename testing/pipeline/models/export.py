@@ -56,28 +56,22 @@ class ExportSettings(Model):
         self.export_loc = ExportLocSettings()
 
     def from_namespace(self, namespace: Namespace):
-        if (SubCmd.export_html_docs == namespace.which or
-                SubCmd.add_docs_to_controller == namespace.which or
-                SubCmd.set_perms == namespace.which or
-                SubCmd.unset_perms == namespace.which):
-            populate_model_from_namespace(self.html_export, namespace)
-            self.html_export.confluence.password = self.b64decode_string(self.html_export.confluence.password)
+        if ( namespace.which == SubCmd.export_html_docs or
+             namespace.which == SubCmd.add_docs_to_controller or
+             namespace.which == SubCmd.set_perms or
+             namespace.which == SubCmd.unset_perms ):
+             populate_model_from_namespace(self.html_export, namespace)
+             self.html_export.confluence.password = self.b64decode_string(self.html_export.confluence.password)
 
-        if SubCmd.export_single_page_pdf == namespace.which:
-            populate_model_from_namespace(self.pdf_export, namespace)
-            self.pdf_export.confluence.password = self.b64decode_string(self.pdf_export.confluence.password)
+        if namespace.which == SubCmd.export_single_page_pdf:
+             populate_model_from_namespace(self.pdf_export, namespace)
+             self.pdf_export.confluence.password = self.b64decode_string(self.pdf_export.confluence.password)
 
-        if SubCmd.export_ctrl == namespace.which:
-            populate_model_from_namespace(self.export_loc, namespace)
-
-        if SubCmd.export_mip_ctrl == namespace.which:
-            populate_model_from_namespace(self.export_loc, namespace)
-
-        if SubCmd.export_gip_service_vm == namespace.which:
-            populate_model_from_namespace(self.export_loc, namespace)
-
-        if SubCmd.export_reposync_server == namespace.which:
-            populate_model_from_namespace(self.export_loc, namespace)
+        if ( namespace.which == SubCmd.export_ctrl or
+             namespace.which == SubCmd.export_mip_ctrl or
+             namespace.which == SubCmd.export_gip_service_vm or
+             namespace.which == SubCmd.export_reposync_server ):
+             populate_model_from_namespace(self.export_loc, namespace)
 
     @staticmethod
     def add_args(parser: ArgumentParser):
@@ -152,5 +146,4 @@ class ExportSettings(Model):
                                               help="This subcommand will create multiple master drives. ")
         drive_parser2.set_defaults(which=SubCmd.create_drives)
         add_args_from_instance(drive_parser2, DriveCreationSettingsv2(), True)
-
 

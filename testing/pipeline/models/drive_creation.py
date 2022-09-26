@@ -11,6 +11,9 @@ class DriveCreationSettingsv2(Model):
         self.password = ""
         self.ipaddress = ""
         self.burn_multiboot = "yes"
+        #self.external_drive = ""
+        self.drive_creation_path = ""
+        self.staging_export_path = ""
 
     def is_mixed(self) -> bool:
         return "Mixed".lower() == self.create_drive_type.lower()
@@ -19,7 +22,7 @@ class DriveCreationSettingsv2(Model):
         return "GIP" == self.create_drive_type
 
     def is_MDT_Only(self) -> bool:
-        return "GIP" == self.create_drive_type
+        return "MDT" == self.create_drive_type
 
     def is_CPT_Only(self) -> bool:
         return "CPT" == self.create_drive_type

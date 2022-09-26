@@ -10,8 +10,7 @@ from models.ctrl_setup import (ControllerSetupSettings,
 from pyVim.connect import Disconnect, SmartConnectNoSSL, vim
 from util.ansible_util import execute_playbook, take_snapshot
 from util.connection_mngs import FabricConnectionWrapper
-from util.constants import (CONTROLLER_PREFIX, PIPELINE_DIR,
-                            SKIP_CTRL_BUILD_AND_TEMPLATE)
+from util.constants import (CONTROLLER_PREFIX, PIPELINE_DIR)
 from util.ssh import test_nodes_up_and_alive
 from util.vmware_util import get_vms_in_folder
 
@@ -128,12 +127,7 @@ class ControllerSetupJob:
         return False
 
     def setup_controller(self):
-        if self.ctrl_settings.node.pipeline == "export-all" and self._is_built_already():
-            print("The template is already built. Skipping")
-            # This file is created and saved in pipeline artifacts so that export stage can check to see if we need to recreate the template or not.
-            with open(SKIP_CTRL_BUILD_AND_TEMPLATE, 'w') as f:
-                pass
-        elif self.ctrl_settings.rpm_build == "dev" or self.ctrl_settings.rpm_build == "stable":
+        if self.ctrl_settings.rpm_build == "dev" or self.ctrl_settings.rpm_build == "stable":
             execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.ctrl_settings.to_dict())
             test_nodes_up_and_alive([self.ctrl_settings.node], 30)
             self._setup_controller_with_rpms()

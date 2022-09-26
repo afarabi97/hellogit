@@ -39,19 +39,16 @@ class BuildManifestJob():
 
     def __init__(self, manifest: ManifestSettings):
         self.manifest = manifest
+        self.release_folder = os.path.join(self.manifest.drive_creation_path, self.manifest.staging_export_path, "v" + self.manifest.version)
+        self.release_folder_type = os.path.join(self.release_folder, self.manifest.type)
 
     def check_release_folder(self):
-        if self.manifest.type == "GIP":
-            release_folder = os.path.join(self.manifest.drive_creation_path, "staging_gip", "v" + self.manifest.version, self.manifest.type)
-        else:
-            release_folder = os.path.join(self.manifest.drive_creation_path, "staging", "v" + self.manifest.version, self.manifest.type)
+        if os.path.isdir(self.release_folder_type):
+            print("Deleting old release folder {}".format(self.release_folder_type))
+            shutil.rmtree(self.release_folder_type)
 
-        if os.path.isdir(release_folder):
-            print("Deleting old release folder {}".format(release_folder))
-            shutil.rmtree(release_folder)
-
-        print("Building release candidate main directory {}".format(release_folder))
-        os.makedirs(release_folder)
+        print("Building release candidate main directory {}".format(self.release_folder_type))
+        os.makedirs(self.release_folder_type)
 
     def replace_text(self,src: str, text_to_find: str, substitution: str):
         with open(src, 'r+') as file:
@@ -78,16 +75,14 @@ class BuildManifestJob():
 
         if text_file_path:
             self.replace_text(
-            text_file_path,
-            text_to_find='CVA/H Build:[\w._ ]*',
-            substitution='CVA/H Build: ' + self.manifest.version
-            )
+                text_file_path,
+                text_to_find='CVA/H Build:[\w._ ]*',
+                substitution='CVA/H Build: ' + self.manifest.version)
 
             self.replace_text(
-            text_file_path,
-            text_to_find='CVAH[\w._ ]*',
-            substitution='CVAH ' + self.manifest.version
-            )
+                text_file_path,
+                text_to_find='CVAH[\w._ ]*',
+                substitution='CVAH ' + self.manifest.version)
 
     def check_dir_exists(self, dest_path: str):
         if not os.path.isdir(dest_path):
@@ -106,7 +101,7 @@ class BuildManifestJob():
         for path in manifest:
             for src in path['src']:
                 src_path = os.path.join(self.manifest.drive_creation_path, src)
-                dest_path = os.path.join(self.manifest.drive_creation_path, path['dest'])
+                dest_path = os.path.join(self.release_folder, path['dest'])
 
                 if path['app'] == 'AppStore' or path['app'] == 'Documentation' or path['app'] == 'archive' or path['app'] == 'firmware':
                     app_folder = self.find_app_dir(src_path)

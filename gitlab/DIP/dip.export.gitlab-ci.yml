@@ -8,7 +8,6 @@ Ship Phyical Stack Build:
     echo "Zipping PSB infrastructure"
     zip -r physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip \
            infrastructure/
-
     rm -rf "$SOFTWARE_CPT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER"
     rm -rf "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER"
     mkdir -p "$SOFTWARE_CPT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER"
@@ -35,12 +34,14 @@ Export DIP Controller:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py \
-    run-export export-ctrl \
-    --cpt-export-path "$SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
-    --mdt-export-path "$SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
-    --staging-export-path "$DRIVE_STAGING_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION"
+    cmd="python3 testing/pipeline/pipeline.py
+         run-export export-ctrl
+         --cpt-export-path \"$SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER\"
+         --mdt-export-path \"$SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER\"
+         --staging-export-path \"$DRIVE_STAGING_FOLDER\"
+         --export-version \"$TFPLENUM_EXPORT_VERSION\""
+    echo "$cmd"
+    eval $cmd
   only:
     variables:
       - $PIPELINE == "export-all"
@@ -55,13 +56,14 @@ Export DIP Controller for Minor Release:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
-    run-export export-ctrl \
-    --cpt-export-path "$MINOR_RELEASE_SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
-    --mdt-export-path "$MINOR_RELEASE_SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
-    --staging-export-path "$DRIVE_STAGING_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION"
+    cmd="python3 testing/pipeline/pipeline.py
+         --system-name \"DIP\" run-export export-ctrl
+         --cpt-export-path \"$MINOR_RELEASE_SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER\"
+         --mdt-export-path \"$MINOR_RELEASE_SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER\"
+         --staging-export-path \"$DRIVE_STAGING_FOLDER\"
+         --export-version \"$TFPLENUM_EXPORT_VERSION\""
+    echo "$cmd"
+    eval $cmd
   only:
     variables:
       - $EXPORT_DIP == "yes" && $PIPELINE == "minor-release"

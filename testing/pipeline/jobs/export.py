@@ -20,8 +20,7 @@ from util.ansible_util import (execute_playbook, power_on_vms,
                                take_snapshot)
 from util.connection_mngs import FabricConnectionWrapper
 from util.constants import (CONTROLLER_PREFIX, PIPELINE_DIR,
-                            REPO_SYNC_PREFIX, SKIP_CTRL_BUILD_AND_TEMPLATE,
-                            SKIP_REPOSYNC_BUILD_AND_TEMPLATE)
+                            REPO_SYNC_PREFIX)
 from util.docs_exporter import MyConfluenceExporter
 from util.general import encryptPassword
 from util.ssh import test_nodes_up_and_alive
@@ -98,16 +97,25 @@ def export(vcenter_settings: VCenterSettings,
         dest.unlink()
 
     username = vcenter_settings.username.replace("@", "%40")
-    cmd = ("ovftool --noSSLVerify --maxVirtualHardwareVersion=14 --diskMode=thin vi://{username}:'{password}'@{vsphere_ip}"
-            "/DEV_Datacenter/vm/{folder}/{vm_name} \"{destination}\""
-            .format(username=username,
-                    password=vcenter_settings.password,
-                    vsphere_ip=vcenter_settings.ipaddress,
-                    folder='Releases',
-                    vm_name=vm_release_name,
-                    destination=str(dest))
-            )
+    options = "--noSSLVerify --maxVirtualHardwareVersion=14 --diskMode=thin"
+    cmd = ("ovftool {option} vi://{username}:'{password}'@{vsphere_ip}/DEV_Datacenter/vm/{folder}/{vm_name} \"{destination}\""
+           .format(username=username,
+                   option=options,
+                   password=vcenter_settings.password,
+                   vsphere_ip=vcenter_settings.ipaddress,
+                   folder='Releases',
+                   vm_name=vm_release_name,
+                   destination=str(staging_destination_path)))
+    if (vm_release_name == "") :
+        print(" Houston: We have a problem:")
+        print(" VM_RELEASE_NAME is blank ")
+        serr="VM Release Name is BLANK!"
+        logging.info(serr)
+        logging.error(serr)
+        raise(255) 
+
     logging.info("Exporting OVA file to %s. This can take a few hours before it completes." % staging_destination_path)
+    logging.info("Command: %s" % cmd)
     proc = subprocess.Popen(shlex.split(cmd), shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     sout, serr = proc.communicate()
     logging.info(sout)
@@ -133,8 +141,10 @@ class ControllerExport:
         self._export_prefix = CONTROLLER_PREFIX
         self._export_name = ""
         self._release_vm_name = ""
+        self._set_private_names_ = 0
 
     def _set_private(self, commit_hash: str):
+        self._set_private_names_ = 1
         self._export_name = self.export_loc.render_export_name(self._export_prefix, commit_hash)
         self._release_vm_name = self._export_name[0:len(self._export_name)-4]
 
@@ -170,8 +180,7 @@ class ControllerExport:
         execute_playbook([CTRL_EXPORT_PREP], payload)
 
     def export_controller(self):
-        if not Path(SKIP_CTRL_BUILD_AND_TEMPLATE).exists():
-            self.create_ctrl_template()
+        self.create_ctrl_template()
 
         logging.info("Exporting the controller to OVA.")
         export(self.vcenter_settings,
@@ -231,8 +240,7 @@ class ReposyncServerExport(ControllerExport):
         execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
 
     def export_reposync_server(self):
-        if not Path(SKIP_REPOSYNC_BUILD_AND_TEMPLATE).exists():
-            self.create_release_template()
+        self.create_release_template()
 
         logging.info("Exporting the Reposync server VM to OVA.")
         export(self.vcenter_settings,

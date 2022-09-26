@@ -35,7 +35,7 @@ def get_plugged_in_drives(shell: Connection) -> List[str]:
     Returns:
         List[str]: ['/dev/sda','/dev/sdb'...]
     """
-    ret_val = remote_sudo_cmd(shell, "ls /dev/sd*", hide=True) # type: Result
+    ret_val = remote_sudo_cmd(shell, "ls -1 /dev/sd[a-z]", hide=True)
     all_devices = ret_val.stdout.split("\n")
     filtered_devices = []
     for device in all_devices:
@@ -100,14 +100,17 @@ class DriveCreationThread(DriveSuperThread):
         DriveSuperThread.__init__(self, index, drive_path, create_drive_type)
         self.drive_settings = drive_settings
 
+        self.multiboot_path = "{}/MULTIBOOT".format(self.drive_settings.drive_creation_path)
         self.multiboot_img = "MULTIBOOT.img"
-        self.multiboot_img_staging = f"/mnt/drive_creation/staging/v{self.drive_settings.drive_creation_version}/MULTIBOOT/{self.multiboot_img}"
+        self.multiboot_img_staging = "{}/{}/v{}/MULTIBOOT/{}".format(self.drive_settings.drive_creation_path,
+                                                                     self.drive_settings.staging_export_path,
+                                                                     self.drive_settings.drive_creation_version,
+                                                                     self.multiboot_img)
 
-        self.drive_creation_path = f"/mnt/drive_creation/staging/v{self.drive_settings.drive_creation_version}"
-        if self.drive_settings.is_GIP_Only():
-            self.drive_creation_path = f"/mnt/drive_creation/staging_gip/v{self.drive_settings.drive_creation_version}"
+        self.drive_creation_path = "{}/{}/v{}".format(self.drive_settings.drive_creation_path,
+                                                      self.drive_settings.staging_export_path,
+                                                      self.drive_settings.drive_creation_version)
 
-        self.multiboot_path = f"{self.drive_creation_path}/MULTIBOOT"
         self.multi1_path = f"/mnt/{self.thread_id}/MULTI1"
         self.multi2_path = f"/mnt/{self.thread_id}/MULTI2"
         self.ntfs_data_path = f"/mnt/{self.thread_id}/FAT32data"
@@ -119,8 +122,15 @@ class DriveCreationThread(DriveSuperThread):
     def _check_external_drive(self):
         """
         Make sure that the root drive
+
+        NOTE:  ’  /  ’ (ROOT partition) might be mounted on an LVM, which
+        might be part of SDA.  However, "/boot/efi"  is  mounted  on  the
+        first  partition pn the ROOT drive, which could be "/dev/sda1" or
+        "/dev/nvme0n1p1".  So looking for " / " is not valid.  This needs
+        to look for " /boot" instead.
         """
-        result = self.remote_sudo_cmd("grep ' / ' /proc/mounts", shell=True)
+
+        result = self.remote_sudo_cmd("grep ' /boot' /proc/mounts", shell=True)
         root_drive = result.stdout[0:len(self.drive_path)]
         if root_drive in self.drive_path or root_drive == self.drive_path:
             raise Exception(f"External {self.drive_path} cannot be set to the OS root drive! This would wipe out the OS on the drive creation server.")
@@ -281,7 +291,10 @@ class DriveCreationThread(DriveSuperThread):
             menu_entries.append("# End {} menu entry\n".format(name_without_ext))
 
             dest_path = self.multi1_path + "/_ISO/MAINMENU/{}".format(name_without_ext + ".txt")
-            self._sudo_copy_from_buffer_to_drive_creation("title ^Alt+{letter} {title} [Alt+{letter}]".format(title=name_without_ext, letter=letter.upper()), dest_path)
+            self._sudo_copy_from_buffer_to_drive_creation("title ^Alt+{letter} {title} [Alt+{letter}]".
+                                                          format(title=name_without_ext,
+                                                                 letter=letter.upper()),
+                                                                 dest_path)
         return menu_entries
 
     def _create_startup_menu(self, menu_entries: List[str]):
@@ -392,7 +405,10 @@ class DriveCreationJobv2:
                 else:
                     threads.append(DriveCreationThread(index, self.drive_settings, device, "MDT"))
             else:
-                threads.append(DriveCreationThread(index, self.drive_settings, device, self.drive_settings.create_drive_type))
+                threads.append(DriveCreationThread(index,
+                                                   self.drive_settings,
+                                                   device,
+                                                   self.drive_settings.create_drive_type))
 
         for thread in threads:
             thread.start()
@@ -424,17 +440,14 @@ class DriveHashVerificationThread(DriveSuperThread):
                                          self.drive_settings.ipaddress)
         try:
             self.shell = fabric.connection
+            the_drive = self.drive_path
             if self.drive_settings.is_burn_multiboot():
-                self.remote_sudo_cmd(f"mount {self.drive_path}6 {self.xfs_data_path}")
-            else:
-                self.remote_sudo_cmd(f"mount {self.drive_path} {self.xfs_data_path}")
+                the_drive = "{}6".format(self.drive_path)
 
+            self.remote_sudo_cmd(f"mount {the_drive} {self.xfs_data_path}")
             self.remote_run_cmd(self.xfs_data_path + "/validate_drive.sh")
+            self.remote_sudo_cmd(f"umount {the_drive}")
 
-            if self.drive_settings.is_burn_multiboot():
-                self.remote_sudo_cmd(f"umount {self.drive_path}6")
-            else:
-                self.remote_sudo_cmd(f"umount {self.drive_path}")
         except Exception as e:
             traceback.print_exc()
             self._return_value = 1
@@ -447,10 +460,9 @@ class DriveHashVerificationThread(DriveSuperThread):
 class DriveHashCreationJob:
     def __init__(self, drive_settings: DriveCreationSettingsv2):
         self.drive_settings = drive_settings
-        self.drive_creation_path = f"/mnt/drive_creation/staging/v{self.drive_settings.drive_creation_version}"
-        if self.drive_settings.is_GIP_Only():
-            self.drive_creation_path = f"/mnt/drive_creation/staging_gip/v{self.drive_settings.drive_creation_version}"
-
+        self.drive_creation_path = "{}/{}/v{}".format(self.drive_settings.drive_creation_path,
+                                                      self.drive_settings.staging_export_path,
+                                                      self.drive_settings.drive_creation_version)
         self.rsync_source = f"{self.drive_creation_path}/{self.drive_settings.create_drive_type}/Data"
 
     def _run_command(self, cmd: str, error_message: str="stdout {} stderr {}", is_shell: bool=True):
@@ -464,23 +476,24 @@ class DriveHashCreationJob:
 
     def _create_text_description_file(self):
         path = self.rsync_source + "/"
-        readme_txt = ("Please see CVAH {}/Documentation/ folder for "
-                      "additional details on how to setup or operate "
-                      "the Deployable Interceptor Platform (DIP) "
-                      "or the Mobile Interceptor Platform (MIP).".format(self.drive_settings.drive_creation_version))
-
+        readme = ""
         if self.drive_settings.is_GIP_Only():
-            readme_txt_gip = ("Please see CVAH {}/Documentation/ folder for "
-                              "additional details on how to setup or operate "
-                              "the Garrison Interceptor Platform (GIP)".format(self.drive_settings.drive_creation_version))
-            with open(path + "GIP_Drive_Readme.txt", 'w') as script:
-                script.write(readme_txt_gip)
-        elif self.drive_settings.is_CPT_Only():
-            with open(path + "CPT_Drive_Readme.txt", 'w') as script:
-                script.write(readme_txt)
+            readme_txt = ("Please see CVAH {}/Documentation/ folder for "
+                          "additional details on how to setup or operate "
+                          "the Garrison Interceptor Platform (GIP)".format(self.drive_settings.drive_creation_version))
+            readme = "GIP_Drive_Readme.txt"
         else:
-            with open(path + "MDT_Drive_Readme.txt", 'w') as script:
-                script.write(readme_txt)
+            readme_txt = ("Please see CVAH {}/Documentation/ folder for "
+                          "additional details on how to setup or operate "
+                          "the Deployable Interceptor Platform (DIP) "
+                          "or the Mobile Interceptor Platform (MIP).".format(self.drive_settings.drive_creation_version))
+
+            if self.drive_settings.is_CPT_Only():
+                readme = "CPT_Drive_Readme.txt"
+            else:
+                readme = "MDT_Drive_Readme.txt"
+        with open(path + readme, 'w') as script:
+            script.write(readme_txt)
 
     def execute(self):
         print(f"Creating hashfiles for {self.drive_settings.create_drive_type} drive")
@@ -494,11 +507,20 @@ class DriveHashCreationJob:
             if self.drive_settings.is_mixed():
                 is_even = index % 2 == 0
                 if is_even:
-                    threads.append(DriveHashVerificationThread(index, device, "CPT", self.drive_settings))
+                    threads.append(DriveHashVerificationThread(index,
+                                                               device,
+                                                               "CPT",
+                                                               self.drive_settings))
                 else:
-                    threads.append(DriveHashVerificationThread(index, device, "MDT", self.drive_settings))
+                    threads.append(DriveHashVerificationThread(index,
+                                                               device,
+                                                               "MDT",
+                                                               self.drive_settings))
             else:
-                threads.append(DriveHashVerificationThread(index, device, self.drive_settings.create_drive_type, self.drive_settings))
+                threads.append(DriveHashVerificationThread(index,
+                                                           device,
+                                                           self.drive_settings.create_drive_type,
+                                                           self.drive_settings))
 
         for thread in threads:
             thread.start()

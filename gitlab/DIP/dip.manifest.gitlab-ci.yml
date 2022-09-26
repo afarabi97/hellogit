@@ -5,9 +5,12 @@ Verify CPT Manifest:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py verify-manifest \
-    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
-    --type CPT
+    cmd="python3 testing/pipeline/pipeline.py verify-manifest
+        --drive-creation-path $MASTER_DRIVE_CREATION_PATH
+        --staging-export-path $DIP_STAGING
+        --type CPT"
+    echo "$cmd"
+    eval $cmd
   artifacts:
     untracked: true
   only:
@@ -24,6 +27,7 @@ Verify MDT Manifest:
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py verify-manifest \
     --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --staging-export-path $DIP_STAGING \
     --type MDT
   artifacts:
     untracked: true
@@ -41,6 +45,7 @@ Verify GIP Manifest:
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py verify-manifest \
     --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --staging-export-path $GIP_STAGING \
     --type GIP
   artifacts:
     untracked: true
@@ -58,6 +63,7 @@ Verify MULTIBOOT Manifest:
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py verify-manifest \
     --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
+    --staging-export-path $DIP_STAGING \
     --type MULTIBOOT
   artifacts:
     untracked: true
@@ -74,10 +80,13 @@ Build CPT Manifest:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py build-manifest \
-    --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
-    --version $TFPLENUM_EXPORT_VERSION \
-    --type CPT
+    cmd="python3 testing/pipeline/pipeline.py build-manifest
+        --drive-creation-path $MASTER_DRIVE_CREATION_PATH
+        --version $TFPLENUM_EXPORT_VERSION
+        --staging-export-path $DIP_STAGING
+        --type CPT"
+    echo "$cmd"
+    eval $cmd
   artifacts:
     untracked: true
   only:
@@ -95,6 +104,7 @@ Build MDT Manifest:
     python3 testing/pipeline/pipeline.py build-manifest \
     --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
     --version $TFPLENUM_EXPORT_VERSION \
+    --staging-export-path $DIP_STAGING \
     --type MDT
   artifacts:
     untracked: true
@@ -113,6 +123,7 @@ Build GIP Manifest:
     python3 testing/pipeline/pipeline.py build-manifest \
     --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
     --version $TFPLENUM_EXPORT_VERSION \
+    --staging-export-path $GIP_STAGING \
     --type GIP
   artifacts:
     untracked: true
@@ -131,6 +142,7 @@ Build MULTIBOOT Manifest:
     python3 testing/pipeline/pipeline.py build-manifest \
     --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
     --version $TFPLENUM_EXPORT_VERSION \
+    --staging-export-path $DIP_STAGING \
     --type MULTIBOOT
   artifacts:
     untracked: true

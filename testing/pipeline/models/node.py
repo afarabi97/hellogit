@@ -24,35 +24,35 @@ class NodeSettingsV2(Model):
     def __init__(self,
                  kit_settings: KitSettingsV2):
         super().__init__()
+        self.boot_drives = ["sda"]
+        self.data_drives = ["sdb"]
+        self.deployment_type = ''
         self.hostname = ''
         self.ip_address = ''
-        self.node_type = ''
-        self.deployment_type = ''
         self.mac_address = ''
-        self.data_drives = ["sdb"]
-        self.boot_drives = ["sda"]
-        self.raid_drives = ["sda","sdb"]
+        self.node_type = ''
         self.os_raid = False
         self.os_raid_root_size = 50
         self.pxe_type = "BIOS"
+        self.raid_drives = ["sda","sdb"]
 
         # Other fields not part of api payload
-        self.kit_settings = kit_settings
-        self.network_id = kit_settings.settings.network_id
-        self.network_block_index = kit_settings.settings.network_block_index
-        self.domain = kit_settings.settings.domain
-        self.gateway = kit_settings.settings.gateway
-        self.dns_servers = []
-        self.sensing_mac = ''
-        self.index = 0
-        self.start_index = 0
-        self.username = 'root'
-        self.num_nodes = 0
-        self.vm_prefix = ''
-        self.memory = 0
         self.cpu = 0
         self.device_facts = {}
+        self.dns_servers = []
+        self.domain = kit_settings.settings.domain
+        self.gateway = kit_settings.settings.gateway
+        self.index = 0
+        self.kit_settings = kit_settings
+        self.memory = 0
+        self.network_block_index = kit_settings.settings.network_block_index
+        self.network_id = kit_settings.settings.network_id
+        self.num_nodes = 0
+        self.sensing_mac = ''
+        self.start_index = 0
+        self.username = 'root'
         self.virtual_data = 500
+        self.vm_prefix = ''
 
     def get_monitoring_interfaces_from_mongo(self) -> List[str]:
         with MongoConnectionManager(self.kit_settings.settings.controller_interface) as mongo:
@@ -183,23 +183,23 @@ class NodeSettingsV2(Model):
 
     @classmethod
     def add_args(cls, parser: ArgumentParser):
-        parser.add_argument('--dns-servers', dest='dns_servers', nargs="+", required=True, help="The dns servers that will be used for nodes created.")
-        parser.add_argument('--node-type', dest='node_type',
-                            required=True, help="The type of node",
-                            choices=cls.NODE_TYPES)
+        parser.add_argument('--cpu', type=int, dest="cpu", choices=range(2, 64), required=True,
+                            help="The default CPUs assigned to each server.")
+        parser.add_argument('--data-drive-size',type=int, dest="virtual_data", required=False, help="The size of the data drive in GB", default=500)
         parser.add_argument('--deployment-type', dest='deployment_type',
                             required=True, help="The deployment type for node.",
                             choices=cls.DEPLOYMENT_TYPES)
-        parser.add_argument('--vm-prefix', dest='vm_prefix', required=True, help="The prefix name of the VM(s)")
-        parser.add_argument('--os-raid', dest='os_raid', default='no', help="Sets OS either enabled or disabled. Use yes|no when setting it.")
-        parser.add_argument('--cpu', type=int, dest="cpu", choices=range(2, 64), required=True,
-                            help="The default CPUs assigned to each server.")
+        parser.add_argument('--dns-servers', dest='dns_servers', nargs="+", required=True, help="The dns servers that will be used for nodes created.")
         parser.add_argument('--memory', type=int, dest="memory", required=True,
                             help="The default amount of memory in mb assigned to each server.")
+        parser.add_argument('--node-type', dest='node_type',
+                            required=True, help="The type of node",
+                            choices=cls.NODE_TYPES)
+        parser.add_argument('--os-raid', dest='os_raid', default='no', help="Sets OS either enabled or disabled. Use yes|no when setting it.")
+        parser.add_argument('--num-nodes', type=int, dest="num_nodes", required=True)
         parser.add_argument('--start-index', type=int, dest="start_index", required=True,
                             help="The index of the server or sensor.", default=1)
-        parser.add_argument('--num-nodes', type=int, dest="num_nodes", required=True)
-        parser.add_argument('--data-drive-size',type=int, dest="virtual_data", required=False, help="The size of the data drive in GB", default=500)
+        parser.add_argument('--vm-prefix', dest='vm_prefix', required=True, help="The prefix name of the VM(s)")
 
 
 class HardwareNodeSettingsV2(NodeSettingsV2):
