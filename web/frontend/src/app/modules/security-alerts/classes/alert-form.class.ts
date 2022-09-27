@@ -1,4 +1,3 @@
-
 import { ObjectUtilitiesClass } from '../../../classes';
 import { AlertFormInterface } from '../interfaces';
 import { HiveFormClass } from './hive-form.class';

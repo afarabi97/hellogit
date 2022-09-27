@@ -9,6 +9,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import {
   MockAlertListClassSuricata,
+  MockAlertListClassZeek,
   MockHiveSettingsClass,
   MockModifyRemoveReturnClass,
   MockUpdateAlertsClassArray,
@@ -605,7 +606,7 @@ export class AlertServiceSpy implements AlertServiceInterface {
   }
 
   call_fake_get_alert_list(update_alert: UpdateAlertsClass, size: number=0): Observable<AlertListClass> {
-    return of(MockAlertListClassSuricata);
+    return of(MockAlertListClassZeek);
   }
 
   call_fake_modify_alert(update_alert: UpdateAlertsClass): Observable<ModifyRemoveReturnClass> {

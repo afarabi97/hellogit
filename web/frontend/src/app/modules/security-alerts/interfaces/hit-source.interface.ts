@@ -10,7 +10,8 @@ import { HitSourceSourceInterface } from './hit-source-source.interface';
  * @interface HitSourceInterface
  */
 export interface HitSourceInterface {
-  agent: {
+  '@timestamp': string;
+  agent?: {
     hostname: string;
     name: string;
     id: string;
@@ -18,38 +19,32 @@ export interface HitSourceInterface {
     ephemeral_id: string;
     version: string;
   };
-  log: {
+  log?: {
     file: {
       path: string;
     };
     offset: number;
   };
-  fileset: {
+  fileset?: {
     name: string;
   };
-  tags: string[];
-  input: {
+  tags?: string[];
+  input?: {
     type: string;
   };
-  observer: {
+  observer?: {
     hostname: string;
   };
-  '@timestamp': string;
-  ecs: {
+  ecs?: {
     version: string;
   };
-  related: {
+  related?: {
     ip: string[];
   };
-  service: {
+  service?: {
     type: string;
   };
-  'network.direction': string;
-  signal?: {
-    rule: {
-      name: string;
-    };
-  };
+  'network.direction'?: string;
   rule?: HitSourceRuleInterface;
   event?: HitSourceEventInterface;
   destination?: HitSourceDestinationInterface;
@@ -96,6 +91,11 @@ export interface HitSourceInterface {
           signature_severity: string[];
         };
       };
+    };
+  };
+  signal?: {
+    rule: {
+      name: string;
     };
   };
 }

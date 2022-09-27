@@ -53,7 +53,7 @@ describe('MatSnackBarService', () => {
     service.ngOnDestroy();
   });
 
-  it('should create SnackbarService', () => {
+  it('should create MatSnackBarService', () => {
     expect(service).toBeTruthy();
   });
 

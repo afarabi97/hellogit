@@ -106,6 +106,8 @@ describe('ElasticsearchIndexManagementComponent', () => {
   };
 
   const reset = () => {
+    component['mat_stepper_'].selectedIndex = 1;
+
     spyNGOnInit.calls.reset();
     spyIsIndexListEmpty.calls.reset();
     spyStepperChange.calls.reset();
@@ -209,6 +211,15 @@ describe('ElasticsearchIndexManagementComponent', () => {
 
         expect(component.next).toHaveBeenCalled();
       });
+
+      it('should call stepper_change() and set next_triggered_ = false', () => {
+        reset();
+
+        component['next_triggered_'] = true;
+        component.stepper_change(mat_stepper_change_index_1);
+
+        expect(component['next_triggered_']).toBeFalse();
+      });
     });
 
     describe('back()', () => {
@@ -233,6 +244,7 @@ describe('ElasticsearchIndexManagementComponent', () => {
       it('should call next()', () => {
         reset();
 
+        component.index_management_actions_form_group.get('action').setValue(DELETE_INDICES);
         component.next();
 
         expect(component.next).toHaveBeenCalled();

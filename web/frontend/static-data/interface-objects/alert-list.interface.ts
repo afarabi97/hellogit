@@ -252,3 +252,72 @@ export const MockAlertListInterfaceSuricata: AlertListInterface = {
     ]
   }
 };
+export const MockAlertListInterfaceSignal: AlertListInterface = {
+  took: 6,
+  timed_out: false,
+  _shards: {
+    total: 1,
+    successful: 1,
+    skipped: 0,
+    failed: 0
+  },
+  hits: {
+    total: {
+      value: 24,
+      relation: 'eq'
+    },
+    max_score: 1.7239166,
+    hits: [
+      {
+        _index: '.siem-signals-default-000001',
+        _type: '_doc',
+        _id: '9d57dff2fe6c00030c3ae5f8e24522b7a23e835d3a172d4bdc7fd7a6857b011d',
+        _score: 1.7239166,
+        _source: {
+          '@timestamp': '2022-10-12T14:23:53.548Z',
+          signal: {
+            rule: {
+              name: 'Sudoers File Modification'
+            }
+          },
+          event: {
+            kind: 'signal',
+            module: 'auditd'
+          }
+        }
+      }
+    ]
+  }
+};
+export const MockAlertListInterfaceEndgame: AlertListInterface = {
+  took: 6,
+  timed_out: false,
+  _shards: {
+    total: 1,
+    successful: 1,
+    skipped: 0,
+    failed: 0
+  },
+  hits: {
+    total: {
+      value: 24,
+      relation: 'eq'
+    },
+    max_score: 1.7239166,
+    hits: [
+      {
+        _index: '.siem-signals-default-000001',
+        _type: '_doc',
+        _id: '9d57dff2fe6c00030c3ae5f8e24522b7a23e835d3a172d4bdc7fd7a6857b011d',
+        _score: 1.7239166,
+        _source: {
+          '@timestamp': '2022-10-12T14:23:53.548Z',
+          event: {
+            kind: 'alert',
+            module: 'endgame'
+          }
+        }
+      }
+    ]
+  }
+};

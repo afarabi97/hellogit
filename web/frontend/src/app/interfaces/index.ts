@@ -11,6 +11,7 @@ export * from './service-interfaces/portal-service.interface';
 export * from './service-interfaces/rules-service.interface';
 export * from './service-interfaces/sensor-host-info-service.interface';
 export * from './service-interfaces/user-service.interface';
+export * from './service-interfaces/windows-redirect-handler-service.interface';
 export * from './app.interface';
 export * from './backing-object.interface';
 export * from './catalog-helm-action.interface';

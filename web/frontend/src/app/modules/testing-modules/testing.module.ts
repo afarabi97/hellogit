@@ -21,6 +21,8 @@ import { SensorHostInfoService } from '../../services/sensor-host-info.service';
 import { SensorHostInfoServiceSpy } from '../../services/sensor-host-info.service.spec';
 import { UserService } from '../../services/user.service';
 import { UserServiceSpy } from '../../services/user.service.spec';
+import { WindowsRedirectHandlerService } from '../../services/windows_redirect_handler.service';
+import { WindowsRedirectHandlerServiceSpy } from '../../services/windows_redirect_handler.service.spec';
 import { NavBarService } from '../../top-navbar/services/navbar.service';
 import { NavbarServiceSpy } from '../../top-navbar/services/navbar.service.spec';
 import { AgentBuilderService } from '../agent-builder-chooser/services/agent-builder.service';
@@ -51,10 +53,10 @@ import { SystemVersionService } from '../pmo-support/services/system-version.ser
 import { SystemVersionServiceSpy } from '../pmo-support/services/system-version.service.spec';
 import { PolicyManagementService } from '../policy-management/services/policy-management.service';
 import { PolicyManagementServiceSpy } from '../policy-management/services/policy-management.service.spec';
-import { JobService } from '../server-stdout/services/job.service';
-import { JobServiceSpy } from '../server-stdout/services/job.service.spec';
 import { AlertService } from '../security-alerts/services/alerts.service';
 import { AlertServiceSpy } from '../security-alerts/services/alerts.service.spec';
+import { JobService } from '../server-stdout/services/job.service';
+import { JobServiceSpy } from '../server-stdout/services/job.service.spec';
 import { KitTokenSettingsService } from '../system-settings/services/kit-token-settings.service';
 import { KitTokenSettingsServiceSpy } from '../system-settings/services/kit-token-settings.service.spec';
 import { ToolsService } from '../tools/services/tools.service';
@@ -67,14 +69,15 @@ import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
   providers: [
     { provide: CatalogService, useClass: CatalogServiceSpy },
     { provide: CookieService, useClass: CookieServiceSpy },
-    { provide: MatSnackBarService, useClass: MatSnackbarServiceSpy },
     { provide: GlobalJobService, useClass: GlobalJobServiceSpy },
     { provide: GlobalPCAPService, useClass: GlobalPCAPServiceSpy },
     { provide: GlobalToolsService, useClass: GlobalToolsServiceSpy },
+    { provide: MatSnackBarService, useClass: MatSnackbarServiceSpy },
     { provide: PortalService, useClass: PortalServiceSpy },
     { provide: RulesService, useClass: RulesServiceSpy },
     { provide: SensorHostInfoService, useClass: SensorHostInfoServiceSpy },
     { provide: UserService, useClass: UserServiceSpy },
+    { provide: WindowsRedirectHandlerService, useClass: WindowsRedirectHandlerServiceSpy },
     { provide: NavBarService, useClass: NavbarServiceSpy },
     { provide: AgentBuilderService, useClass: AgentBuilderServiceSpy },
     { provide: EndgameService, useClass: EndgameServiceSpy },
@@ -90,8 +93,8 @@ import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
     { provide: DiagnosticsService, useClass: DiagnosticsServiceSpy },
     { provide: SystemVersionService, useClass: SystemVersionServiceSpy },
     { provide: PolicyManagementService, useClass: PolicyManagementServiceSpy },
-    { provide: JobService, useClass: JobServiceSpy },
     { provide: AlertService, useClass: AlertServiceSpy },
+    { provide: JobService, useClass: JobServiceSpy },
     { provide: KitTokenSettingsService, useClass: KitTokenSettingsServiceSpy },
     { provide: ToolsService, useClass: ToolsServiceSpy }
     // { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open', 'closeAll', 'getDialogById']) },

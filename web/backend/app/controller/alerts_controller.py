@@ -238,7 +238,7 @@ class AlertsDetailedCtrl(Resource):
             headers=None,
             request_timeout=ELASTIC_TIMEOUT,
         )
-        return payload
+        return payload, 200
 
 
 @ALERTS_NS.route(

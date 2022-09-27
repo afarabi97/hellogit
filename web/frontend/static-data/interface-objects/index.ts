@@ -1,6 +1,7 @@
 export * from './agent.interface';
 export * from './agent-installer-configuration.interface';
 export * from './agent-target.interface';
+export * from './alert-form.interface';
 export * from './alert-list.interface';
 export * from './app.interface';
 export * from './app-config.interface';

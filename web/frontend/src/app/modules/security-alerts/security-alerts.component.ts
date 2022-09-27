@@ -418,6 +418,7 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
     update_alert.links = this.links;
     this.dialog.open(AlertDrillDownDialogComponent, {
       width: DIALOG_WIDTH,
+      disableClose: true,
       data: update_alert
     });
   }

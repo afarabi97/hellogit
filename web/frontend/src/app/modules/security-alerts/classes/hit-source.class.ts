@@ -13,7 +13,8 @@ import { HitSourceSourceClass } from './hit-source-source.class';
  * @implements {HitSourceInterface}
  */
 export class HitSourceClass implements HitSourceInterface {
-  agent: {
+  '@timestamp': string;
+  agent?: {
     hostname: string;
     name: string;
     id: string;
@@ -21,38 +22,32 @@ export class HitSourceClass implements HitSourceInterface {
     ephemeral_id: string;
     version: string;
   };
-  log: {
+  log?: {
     file: {
       path: string;
     };
     offset: number;
   };
-  fileset: {
+  fileset?: {
     name: string;
   };
-  tags: string[];
-  input: {
+  tags?: string[];
+  input?: {
     type: string;
   };
-  observer: {
+  observer?: {
     hostname: string;
   };
-  '@timestamp': string;
-  ecs: {
+  ecs?: {
     version: string;
   };
-  related: {
+  related?: {
     ip: string[];
   };
-  service: {
+  service?: {
     type: string;
   };
-  'network.direction': string;
-  signal?: {
-    rule: {
-      name: string;
-    };
-  };
+  'network.direction'?: string;
   rule?: HitSourceRuleClass;
   event?: HitSourceEventClass;
   destination?: HitSourceDestinationClass;
@@ -101,6 +96,11 @@ export class HitSourceClass implements HitSourceInterface {
       };
     };
   };
+  signal?: {
+    rule: {
+      name: string;
+    };
+  };
 
   /**
    * Creates an instance of HitSourceClass.
@@ -109,17 +109,19 @@ export class HitSourceClass implements HitSourceInterface {
    * @memberof HitSourceClass
    */
   constructor(hit_source_interface: HitSourceInterface) {
-    this.agent = hit_source_interface.agent;
-    this.log = hit_source_interface.log;
-    this.fileset = hit_source_interface.fileset;
-    this.tags = hit_source_interface.tags;
-    this.input = hit_source_interface.input;
-    this.observer = hit_source_interface.observer;
     this['@timestamp'] = hit_source_interface['@timestamp'];
-    this.ecs = hit_source_interface.ecs;
-    this.related = hit_source_interface.related;
-    this.service = hit_source_interface.service;
-    this['network.direction'] = hit_source_interface['network.direction'];
+    if (ObjectUtilitiesClass.notUndefNull(hit_source_interface.ecs)) {
+      this.ecs = hit_source_interface.ecs;
+    }
+    if (ObjectUtilitiesClass.notUndefNull(hit_source_interface.related)) {
+      this.related = hit_source_interface.related;
+    }
+    if (ObjectUtilitiesClass.notUndefNull(hit_source_interface.service)) {
+      this.service = hit_source_interface.service;
+    }
+    if (ObjectUtilitiesClass.notUndefNull(hit_source_interface['network.direction'])) {
+      this['network.direction'] = hit_source_interface['network.direction'];
+    }
     if (ObjectUtilitiesClass.notUndefNull(hit_source_interface.signal)) {
       this.signal = hit_source_interface.signal;
     }
@@ -149,6 +151,9 @@ export class HitSourceClass implements HitSourceInterface {
     }
     if (ObjectUtilitiesClass.notUndefNull(hit_source_interface.suricata)) {
       this.suricata = hit_source_interface.suricata;
+    }
+    if (ObjectUtilitiesClass.notUndefNull(hit_source_interface.signal)) {
+      this.signal = hit_source_interface.signal;
     }
   }
 }

@@ -54,6 +54,9 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
   actions: MatOptionAltInterface[];
   // Used for passing instructions to html
   instructions: string;
+  // Used for keeping track of when mat_stepper_.next is triggered
+  // so that a infinte loop is not triggered
+  private next_triggered_: boolean;
 
   /**
    * Creates an instance of ElasticsearchIndexManagementComponent.
@@ -73,6 +76,7 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
     this.is_editable = false;
     this.is_loading = false;
     this.actions = MAT_OPTION_ACTIONS;
+    this.next_triggered_ = false;
   }
 
   /**
@@ -105,8 +109,10 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
    */
   stepper_change(event: StepperSelectionEvent): void {
     /* istanbul ignore else */
-    if (event.selectedIndex === 1) {
+    if (event.selectedIndex === 1 && !this.next_triggered_) {
       this.next();
+    } else {
+      this.next_triggered_ = false;
     }
   }
 
@@ -249,6 +255,7 @@ export class ElasticsearchIndexManagementComponent implements OnInit {
   private indices_return_actions_(response: string[]): void {
     this.indices = response;
     this.is_loading = false;
+    this.next_triggered_ = true;
     this.mat_stepper_.next();
   }
 

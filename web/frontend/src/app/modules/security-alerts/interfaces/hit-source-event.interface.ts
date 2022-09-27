@@ -5,13 +5,13 @@
  * @interface HitSourceEventInterface
  */
 export interface HitSourceEventInterface {
-  ingested: string;
   kind: string;
-  created: string;
   module: string;
-  type: string[];
-  category: string[];
-  dataset: string;
+  ingested?: string;
+  created?: string;
+  type?: string[];
+  category?: string[];
+  dataset?: string;
   id?: string;
   severity?: number;
   original?: string;

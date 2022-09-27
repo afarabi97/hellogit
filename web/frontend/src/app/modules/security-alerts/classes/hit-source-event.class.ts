@@ -9,13 +9,13 @@ import { HitSourceEventInterface } from '../interfaces';
  * @implements {HitSourceEventInterface}
  */
 export class HitSourceEventClass implements HitSourceEventInterface {
-  ingested: string;
   kind: string;
-  created: string;
   module: string;
-  type: string[];
-  category: string[];
-  dataset: string;
+  ingested?: string;
+  created?: string;
+  type?: string[];
+  category?: string[];
+  dataset?: string;
   id?: string;
   severity?: number;
   original?: string;
@@ -30,13 +30,23 @@ export class HitSourceEventClass implements HitSourceEventInterface {
    * @memberof HitSourceEventClass
    */
   constructor(hit_source_event_interface: HitSourceEventInterface) {
-    this.ingested = hit_source_event_interface.ingested;
     this.kind = hit_source_event_interface.kind;
-    this.created = hit_source_event_interface.created;
     this.module = hit_source_event_interface.module;
-    this.type = hit_source_event_interface.type;
-    this.category = hit_source_event_interface.category;
-    this.dataset = hit_source_event_interface.dataset;
+    if (ObjectUtilitiesClass.notUndefNull(hit_source_event_interface.ingested)) {
+      this.ingested = hit_source_event_interface.ingested;
+    }
+    if (ObjectUtilitiesClass.notUndefNull(hit_source_event_interface.created)) {
+      this.created = hit_source_event_interface.created;
+    }
+    if (ObjectUtilitiesClass.notUndefNull(hit_source_event_interface.type)) {
+      this.type = hit_source_event_interface.type;
+    }
+    if (ObjectUtilitiesClass.notUndefNull(hit_source_event_interface.category)) {
+      this.category = hit_source_event_interface.category;
+    }
+    if (ObjectUtilitiesClass.notUndefNull(hit_source_event_interface.dataset)) {
+      this.dataset = hit_source_event_interface.dataset;
+    }
     if (ObjectUtilitiesClass.notUndefNull(hit_source_event_interface.id)) {
       this.id = hit_source_event_interface.id;
     }
