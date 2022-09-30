@@ -95,6 +95,18 @@ spec:
           value: "True"
         - name: Jitsi_Enable_Channels
           value: "True"
+        - name: API_Enable_Rate_Limiter
+          value: "False"
+        - name: DDP_Rate_Limit_IP_Enabled
+          value: "False"
+        - name: DDP_Rate_Limit_User_Enabled
+          value: "False"
+        - name: DDP_Rate_Limit_Connection_Enabled
+          value: "False"
+        - name: DDP_Rate_Limit_User_By_Method_Enabled
+          value: "False"
+        - name: DDP_Rate_Limit_Connection_By_Method_Enabled
+          value: "False"
         - name: OVERWRITE_SETTING_SAML_Custom_Default
           value: "True"
         - name: OVERWRITE_SETTING_SAML_Custom_Default_provider
