@@ -23,7 +23,7 @@ baseos_dir: "{{ TFPLENUM_REPO_DIR }}/BaseOS"
 appstream_dir: "{{ TFPLENUM_REPO_DIR }}/AppStream"
 extras_dir: "{{ TFPLENUM_REPO_DIR }}/Extras"
 
-dod_nmil_file: "Certificates_PKCS7_v5.7_DoD.pem"
+dod_nmil_file: "Certificates_PKCS7_v5.9_DoD_DoD_Root_CA_3.pem"
 dod_smil_file: "Certificates_PKCS7_v5.5_SIPR.pem"
 offline_cert_dir: "{{ tfplenumoffline_dir }}/dod_certs"
 
