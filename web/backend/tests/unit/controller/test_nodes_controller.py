@@ -30,8 +30,7 @@ def test_add_minio(client: FlaskClient, mocker: MockerFixture):
     mock_job = {"job_id": "mock_id",
                 "redis_key": "mock_redis_key"}
     settings_mock = GeneralSettingsForm(IPv4Address('10.40.12.64'), IPv4Address('255.255.255.0'),
-                                        IPv4Address('10.40.12.1'), 'nav200',
-                                        IPv4Address('10.40.12.72'), True,
+                                        IPv4Address('10.40.12.1'), 'nav200', True,
                                         'general_settings_form', 'bdf93a51-11c5-4880-bc2b-8c610fb5e281')
     mocker.patch("app.controller.node_controller.NewNodeCtrl._get_settings", return_value=settings_mock)
     mocker.patch("app.controller.node_controller.NewNodeCtrl._execute_create_virtual_job", return_value=mock_job)
