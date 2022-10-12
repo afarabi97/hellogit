@@ -18,3 +18,8 @@ TFPlenum API Documentation Page
     [Documentation]  This test validates that the API docs page loads and does not return an error.
     Navigate To API Docs
     Validate API Documentation
+
+Check Nodes On Health Page
+    [Documentation]  Verify all kit nodes are listed and in the "Ready" state
+    Navigate To Health
+    Verify Nodes Are Ready

@@ -175,6 +175,22 @@ class TFPlenumLibrary:
             return {"status": True, "verified": verified_applications}
 
     @keyword
+    def get_nodes(self):
+        """
+        Gets IP address and node type for each node on the kit.
+
+        Returns:
+            dict: {name: (IP address, type)}
+        """
+        response = self.api_get_kit_nodes_info(jsonify=False)
+        json_response = response.json()
+
+        nodes = {}
+        for node in json_response:
+            nodes[node['hostname']] = (node['ip_address'], node['node_type'])
+        return nodes
+
+    @keyword
     def check_for_sensor_with_available_interface(self):
         """
         Looks for a sensor that has an ingest interface available. This is
