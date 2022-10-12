@@ -84,8 +84,7 @@ class KitSettingsV2(Model):
         return {"domain": self.settings.domain,
                 "controller_interface": self.settings.controller_interface,
                 "netmask": self.settings.netmask,
-                "gateway": self.settings.gateway,
-                "dhcp_range": self.settings.dhcp_range}
+                "gateway": self.settings.gateway}
 
     def to_kit_settings_api_payload(self) -> Dict:
         return {"password": self.settings.password,

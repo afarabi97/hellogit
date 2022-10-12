@@ -28,7 +28,7 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
   kitForm: FormGroup;
   kitSettings: KitSettingsClass;
   dhcp_range_options: string[] = [];
-  kubernetes_ip_options: string[];
+  kubernetes_ip_options: string[] = [];
   unused_ip_addresses: string[] = [];
   job_id: string;
   cidr_ranges: any = {};
@@ -175,6 +175,9 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
 
   setKubernetes(dhcp_range) {
     this.kubernetes_ip_options = JSON.parse(JSON.stringify(this.unused_ip_addresses));
+    for(var x=0; x<this.kubernetes_ip_options.length; x++)
+      if(this.kubernetes_ip_options[x].endsWith(".32"))
+        this.kubernetes_ip_options.splice(x, 1);
     const index = this.kubernetes_ip_options.indexOf(dhcp_range);
     if (index !== -1) {
       this.kubernetes_ip_options.splice(index, 1);

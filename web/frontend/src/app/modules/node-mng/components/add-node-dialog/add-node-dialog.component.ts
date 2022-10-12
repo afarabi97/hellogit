@@ -4,7 +4,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 
-import { GeneralSettingsClass, KitStatusClass, NodeClass, ObjectUtilitiesClass } from '../../../../classes';
+import { GeneralSettingsClass, KitStatusClass, KitSettingsClass, NodeClass, ObjectUtilitiesClass } from '../../../../classes';
 import { SnackbarWrapper } from '../../../../classes/snackbar-wrapper';
 import { COMMON_VALIDATORS, PXE_TYPES } from '../../../../constants/cvah.constants';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
@@ -33,6 +33,7 @@ export class AddNodeDialogComponent implements OnInit {
   nodeForm: FormGroup;
   deploymentOptions: DeploymentOption[];
   kitStatus: Partial<KitStatusClass> = {};
+  kitSettings: Partial<KitSettingsClass> = {};
   pxe_types: string[] = PXE_TYPES;
   availableIPs: string[] = [];
   settings: Partial<GeneralSettingsClass> = {};
@@ -89,6 +90,16 @@ export class AddNodeDialogComponent implements OnInit {
 
     this.kitSettingsSrv.getKitStatus().subscribe((data: KitStatusClass) => {
       this.kitStatus = data;
+    });
+
+    this.kitSettingsSrv.getKitSettings().subscribe((data: KitSettingsClass) => {
+      this.kitSettings = data;
+
+      /* Exclude K8s IPs from valid IPs */
+      var k8s_ip = this.kitSettings.kubernetes_services_cidr.split('.');
+      var start_ip: number = parseInt(k8s_ip[3])
+      for (var i:number=start_ip; i<start_ip+32; i++)
+        this.validationIPs.push(k8s_ip[0] + "." + k8s_ip[1] + "." + k8s_ip[2] + "." + i.toString());
     });
 
     this.kitSettingsSrv.getGeneralSettings().subscribe((data: GeneralSettingsClass) => {
