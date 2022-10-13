@@ -79,6 +79,9 @@
 		<primaryconsole>serial</primaryconsole>
 		<language>en_US</language>
 		<dns1gw>none</dns1gw>
+		<firmware>
+			<disablecheck></disablecheck>
+		</firmware>
 		<gitsync>
 			<repositoryurl></repositoryurl>
 			<branch></branch>
