@@ -87,18 +87,6 @@ Run Elastic Integration Test
     Wait And Validate Kibana Hits
     Navigate To Portal
 
-Change Kit Password
-    [Tags]  THISISCVAH-12363
-    Set Selenium Speed  0.5s
-    Navigate To Tools
-    click  ${locChangeKitPassExp}
-    type  ${CVAH_CHANGE_PASSWORD_FORM__NEW_ROOT_PASSWORD_INPUT}  ${NEW_KIT_PASSWORD}
-    type  ${CVAH_CHANGE_PASSWORD_FORM__RETYPE_PASSWORD_INPUT}  ${NEW_KIT_PASSWORD}
-    Wait Until Element Is Enabled  ${CVAH_CHANGE_PASSWORD_FORM__BUTTON_UPDATE}
-    click  ${CVAH_CHANGE_PASSWORD_FORM__BUTTON_UPDATE}
-    click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
-    lookFor  Successfully changed the password of your Kit!
-
 Add And Delete Portal Link
     [Tags]  THISISCVAH-11520
     [Documentation]  Validates the functionality of the "add link" button located on the top-right
