@@ -187,7 +187,7 @@ CPT:
     - Repo/CPT/AppStore/AVML/0.3.0
     - Repo/CPT/AppStore/Burpsuite/2021_8_4
     - Repo/CPT/AppStore/CheckPWD/2.00A12
-    - Repo/CPT/AppStore/Cobalt Strike/4.3
+    - Repo/CPT/AppStore/Cobalt Strike/4.6
     - Repo/CPT/AppStore/DNSpy/6.0.5
     - Repo/CPT/AppStore/Event Log Forwarder for Windows/1.2.0
     - Repo/CPT/AppStore/EXEInfo PE/0.0.5.4
@@ -271,7 +271,7 @@ CPT:
 - app: Documentation
   src:
     - Repo/CPT/Documentation/AppStore/AVML/master
-    - Repo/CPT/Documentation/AppStore/Cobalt Strike/4.3
+    - Repo/CPT/Documentation/AppStore/Cobalt Strike/4.6
     - Repo/CPT/Documentation/AppStore/Dependency Walker/master
     - Repo/CPT/Documentation/AppStore/Event Log Forwarder for Windows/master
     - Repo/CPT/Documentation/AppStore/EZ Tools/master
