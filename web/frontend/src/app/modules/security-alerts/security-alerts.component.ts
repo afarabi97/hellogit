@@ -2,21 +2,29 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, OnChanges, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSelectChange } from '@angular/material/select';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { forkJoin, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
 import { ErrorMessageClass, ObjectUtilitiesClass, PortalLinkClass } from '../../classes';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../constants/cvah.constants';
+import {
+  CANCEL_DIALOG_OPTION,
+  CONFIRM_DIALOG_OPTION,
+  DIALOG_WIDTH_1000PX,
+  MAT_SNACKBAR_CONFIGURATION_60000_DUR,
+  SAVE_DIALOG_OPTION,
+  TRUE
+} from '../../constants/cvah.constants';
 import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
 import {
   DialogControlTypes,
@@ -25,786 +33,1247 @@ import {
 } from '../../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
 import { CookieService } from '../../services/cookies.service';
+import { GlobalHiveSettingsService } from '../../services/global-hive-settings.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { PortalService } from '../../services/portal.service';
-import { AlertListClass, HiveSettingsClass, UpdateAlertsClass } from './classes';
+import { WindowsRedirectHandlerService } from '../../services/windows_redirect_handler.service';
+import { AlertListClass, ModifyRemoveReturnClass } from './classes';
 import { AlertDrillDownDialogComponent } from './components/alert-drilldown-dialog/alert-drilldown-dialog.component';
-import { AlertFormInterface, HiveSettingsInterface } from './interfaces';
+import {
+  ACKNOWLEDGE_ALERTS_WINDOW_TITLE,
+  ACTIONS_COLUMN_NAME,
+  ALERT_KIND,
+  ALERT_LIST_FAILED,
+  ALL_COLUMNS_START_VALUES,
+  ARKIME,
+  ARKIME_FIELD_LOOKUP,
+  ARKIME_NOT_INSTALLED,
+  AUTO_REFRESH_COOKIE,
+  COUNT_COLUMN_NAME,
+  DAYS,
+  DYNAMIC_COLUMNS_COOKIE,
+  DYNAMIC_COLUMNS_DEFAULT_VALUES,
+  ENDGAME_MODULE,
+  ESCALATE_ALERTS_WINDOW_TITLE,
+  EVENT_DECRIPTION_CONFIG_LABEL,
+  EVENT_DECRIPTION_CONFIG_TOOLTIP,
+  EVENT_SEVERITY_CONFIG_LABEL,
+  EVENT_SEVERITY_CONFIG_TOOLTIP,
+  EVENT_TAGS_CONFIG_LABEL,
+  EVENT_TAGS_CONFIG_TOOLTIP,
+  EVENT_TITLE_CONFIG_LABEL,
+  EVENT_TITLE_CONFIG_TOOLTIP,
+  FORM_COLUMN_NAME,
+  HIVE,
+  HIVE_NOT_CONFIGURED,
+  HIVE_ORG_ADMIN_TEXT,
+  HOURS,
+  KIBANA,
+  KIBANA_DETECTIONS_PAGE,
+  KIBANA_HOSTS_ALERTS_PAGE,
+  KIBANA_NETWORK_EXTERNAL_PAGE,
+  LINKS_COLUMN_NAME,
+  MINUTES,
+  MODIFY_API_SWITCH,
+  NA,
+  NA_FAILED_ARKIME_NOT_INSTALLED,
+  REMOVE_ALERTS_WINDOW_TITLE,
+  REMOVE_API_SWITCH,
+  RULE_NAME_COLUMN_NAME,
+  SECURITY_ALERTS_COMPONENT_TITLE,
+  SIGNAL_KIND,
+  START_DATE_TIME_LARGE,
+  SURICATA_MODULE,
+  SYSMON_MODULE,
+  SYSTEM_MODULE,
+  TIME_FORM_GROUP_COOKIE,
+  TIMESTAMP_SOURCE,
+  UNACKNOWLEDGED_ALERTS_WINDOW_TITLE,
+  ZEEK_MODULE
+} from './constants/security-alerts.constant';
+import { AlertFormInterface, ForkJoinHiveSettingsAndAlertListInterface, HiveFormInterface } from './interfaces';
 import { AlertService } from './services/alerts.service';
 
-const DIALOG_WIDTH = '1000px';
-const MOLOCH_FIELD_LOOKUP = {
-  'source.address': 'ip.src',
-  'source.ip': 'ip.src',
-  'source.port': 'port.src',
-  'destination.port': 'port.dst',
-  'destination.address': 'ip.dst',
-  'destination.ip': 'ip.dst'
-};
-
-
+/**
+ * Component used for security alert viewing and pivoting
+ *
+ * @export
+ * @class SecurityAlertsComponent
+ * @implements {OnInit}
+ * @implements {AfterViewInit}
+ * @implements {OnChanges}
+ * @implements {OnDestroy}
+ */
+@UntilDestroy({ checkProperties: true })
 @Component({
-  selector: 'app-security-alerts',
+  selector: 'cvah-security-alerts',
   templateUrl: './security-alerts.component.html',
-  styleUrls: ['./security-alerts.component.css']
+  styleUrls: ['./security-alerts.component.scss']
 })
 export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
-  @ViewChild('paginator') paginator: MatPaginator;
-  //CHIP fields
-  @ViewChild('groupByInput') groupByInput: ElementRef<HTMLInputElement>;
-  @ViewChild('auto') matAutocomplete: MatAutocomplete;
-  @ViewChild(MatSort) sort: MatSort;
-  links: PortalLinkClass[];
-  alerts: MatTableDataSource<Object>;
-  autoRefresh: boolean;
-  visible = true;
-  selectable = true;
-  removable = true;
-  separatorKeysCodes: number[] = [ENTER, COMMA];
-  groupByCtrl = new FormControl();
-  filteredGroups: Observable<string[]>;
-  dynamicColumns: string[];
-  allColumns: string[];
-  allChipOptions: string[] = [];
-  //END CHIP fields
-  controlForm: FormGroup;
+  // Used for accessing the view child element for the table dialog paginator
+  @ViewChild('paginator') private paginator_: MatPaginator;
+  // Used for accessing the view child element for the table mat sort
+  @ViewChild(MatSort) private mat_sort_: MatSort;
+  // Used for accessing the autocomplete input value
+  @ViewChild('groupByInput') private group_by_input_: ElementRef<HTMLInputElement>;
+  // Used for passing readony values for component and html
+  readonly acknowledged: string = 'acknowledged';
+  readonly escalated: string = 'escalated';
+  readonly show_closed: string = 'showClosed';
+  readonly time_interval: string = 'timeInterval';
+  readonly time_amount: string = 'timeAmount';
+  readonly start_date_time: string = 'startDatetime';
+  readonly end_date_time: string = 'endDatetime';
+  readonly absolute_time: string = 'absoluteTime';
+  // Used for passing data and other feed back to table data source
+  update_alerts_mat_table_data_source: MatTableDataSource<Object>;
+  // Used for turning on and off auto refresh for alerts
+  auto_refresh: boolean;
+  // Used for mat chip options
+  selectable: boolean;
+  removable: boolean;
+  // Used for passing key codes for a seperator
+  seperator_key_codes: number[];
+  // Used for passing a form control to html for chip autocomplete
+  group_by_control: FormControl;
+  // Used for filtering chip fields based on the autocomplete input value
+  filtered_groups: Observable<string[]>;
+  // Used for keeping track of all dynamic columns
+  dynamic_columns: string[];
+  // Used for keeping track of all columns
+  all_columns: string[];
+  // Used for passing time form group so that different alerts can be shown based on time
+  time_form_group: FormGroup;
+  // Used for storing all chip field values
+  private all_chip_options_: string[] = [];
+  // Used for storing the list of portal links
+  private portal_links_: PortalLinkClass[];
+  // Used for storing interval so that it can be cleared with ngOnDestory
+  private alert_interval_: any;
 
+  /**
+   * Creates an instance of SecurityAlertsComponent.
+   *
+   * @param {Title} title
+   * @param {FormBuilder} form_builder_
+   * @param {MatDialog} mat_dialog_
+   * @param {CookieService} cookie_service_
+   * @param {GlobalHiveSettingsService} global_hive_settings_service_
+   * @param {MatSnackBarService} mat_snackbar_service_
+   * @param {PortalService} portal_service_
+   * @param {WindowsRedirectHandlerService} windows_redirect_handler_service_
+   * @param {AlertService} alert_service_
+   * @memberof SecurityAlertsComponent
+   */
   constructor(private title: Title,
-              private matSnackBarSrv: MatSnackBarService,
-              private dialog: MatDialog,
-              private alertSrv: AlertService,
-              private fb: FormBuilder,
-              private cookieService: CookieService,
-              private portalSrv: PortalService) {
-    this.setupControlFormGroupFromCookies();
-    this.setAutoRefreshFromCookie();
-    this.links = [];
-    this.alerts = new MatTableDataSource();
-    this.filteredGroups = this.groupByCtrl.valueChanges.pipe(
-      startWith(null),
-      map((group: string | null) => group ? this._filter(group) : this.allChipOptions.slice()));
+              private form_builder_: FormBuilder,
+              private mat_dialog_: MatDialog,
+              private cookie_service_: CookieService,
+              private global_hive_settings_service_: GlobalHiveSettingsService,
+              private mat_snackbar_service_: MatSnackBarService,
+              private portal_service_: PortalService,
+              private windows_redirect_handler_service_: WindowsRedirectHandlerService,
+              private alert_service_: AlertService) {
+    this.selectable = true;
+    this.removable = true;
+    this.update_alerts_mat_table_data_source = new MatTableDataSource();
+    this.seperator_key_codes = [ENTER, COMMA];
+    this.group_by_control = new FormControl('');
+    this.portal_links_ = [];
+    this.filtered_groups = this.group_by_control.valueChanges
+                                                .pipe(startWith(<string>null),
+                                                      map((option: string) => option ? this.filter_chip_options_(option) : this.all_chip_options_.slice()));
   }
 
-  isacknowledgedChecked(){
-    return this.controlForm.get('acknowledged').value;
-  }
+  /**
+   * Used for making subscription calls for initializing the component
+   *
+   * @memberof SecurityAlertsComponent
+   */
+  ngOnInit(): void {
+    this.title.setTitle(SECURITY_ALERTS_COMPONENT_TITLE);
+    this.initialize_time_form_group_();
+    this.get_auto_refresh_();
+    this.get_dynamic_columns_();
+    this.update_alerts_table_();
+    this.api_get_fields_();
+    this.api_get_portal_links_();
 
-  isEscalatedChecked(){
-    return this.controlForm.get('escalated').value;
-  }
-
-  isShowClosedChecked(){
-    return this.controlForm.get('showClosed').value;
-  }
-
-  isDynamicColumn(column: string){
-    if (column === 'actions' || column === 'count'){
-      return false;
-    }
-    return true;
-  }
-
-  getAggCount(update_alert: UpdateAlertsClass){
-    return ObjectUtilitiesClass.notUndefNull(update_alert) &&
-           ObjectUtilitiesClass.notUndefNull(update_alert.count) ? update_alert.count : 0;
-  }
-
-  getColumnValue(update_alert: UpdateAlertsClass, columnName: string){
-    if (columnName === '@timestamp'){
-      const time = new Date(alert[columnName]);
-      return time.toISOString();
-    }
-
-    if (update_alert && columnName){
-      return update_alert[columnName];
-    }
-    return '';
-  }
-
-  refreshAlerts(){
-    this.updateAlertsTable(true);
-  }
-
-  ngOnInit() {
-    this.title.setTitle('Security Alerts');
-    this.loadDynamicColumnsFromCooke();
-    this.populateChipOptions();
-    this.updateAlertsTable();
-    this.setPortalLinks();
-
-    setInterval(() => {
-      if (this.autoRefresh){
-        this.updateAlertsTable();
+    this.alert_interval_ = setInterval(() => {
+      /* istanbul ignore else */
+      if (this.auto_refresh) {
+        this.update_alerts_table_();
       }
     }, 15000);
   }
 
+  /**
+   * Used for making call to set paginator after the html view initialized
+   *
+   * @memberof SecurityAlertsComponent
+   */
   ngAfterViewInit(): void {
-    this.alerts.paginator = this.paginator;
-    this.alerts.sort = this.sort;
+    this.set_mat_table_paginator_and_sort_();
   }
 
-  ngOnChanges() {
-    this.alerts = new MatTableDataSource(this.alerts.data);
-    this.alerts.paginator = this.paginator;
+  /**
+   * Used for updating table source with needed dataa and paginator when changes occur
+   *
+   * @memberof SecurityAlertsComponent
+   */
+  ngOnChanges(): void {
+    this.update_alerts_mat_table_data_source = new MatTableDataSource(this.update_alerts_mat_table_data_source.data);
+    this.set_mat_table_paginator_and_sort_();
   }
 
-  ngOnDestroy(){
-      this.saveCookies();
-      //Turn off auto refresh when we leave the page so its not running in the background.
-      this.autoRefresh = false;
+  /**
+   * Used for saving any cookies and clearing interval before the component is destroyed / closed
+   *
+   * @memberof SecurityAlertsComponent
+   */
+  ngOnDestroy(): void {
+    this.save_cookies_();
+    clearInterval(this.alert_interval_);
   }
 
-  acknowledgeEvent(update_alert: UpdateAlertsClass) {
-    const paneString = `Are you sure you want to acknowledge ${update_alert.count} alerts? \
-                        \n\nDoing so will turn these alerts into a false positive \
-                        which will not appear anymore on your alerts page.`;
-    const paneTitle = 'Acknowledge Alerts';
-    this._ackorUnsetAck(update_alert, paneTitle, paneString);
+  /**
+   * Used for toggling the auto refresh value
+   *
+   * @memberof SecurityAlertsComponent
+   */
+  toggle_auto_refresh(): void {
+    this.auto_refresh = !this.auto_refresh;
   }
 
-  removeAlerts(update_alert: UpdateAlertsClass) {
-    const paneString = `Are you sure you want to remove ${update_alert.count} alerts? \
-                        \n\nDoing so will turn these alerts into a false positive \
-                        which will not appear anymore on your alerts page. Also, \
-                        the hive case for these alerts shall be deleted. \
-                        It is advised to close out cases in the hive application itself.`;
-    const paneTitle = 'Remove Alerts';
-
-    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
-      title: paneTitle,
-      message: paneString,
-      option1: 'Cancel',
-      option2: 'Confirm'
-    };
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: DIALOG_WIDTH,
-      data: confirm_dialog,
-    });
-
-    dialogRef.afterClosed().subscribe(response => {
-      if (response === confirm_dialog.option2) {
-
-        update_alert.form = this.controlForm.getRawValue() as AlertFormInterface;
-        this.alertSrv.remove_alerts(update_alert).subscribe(new_data=>{
-          const new_count = new_data['total'];
-          const msg = `Successfully performed operation on ${new_count} Alerts.`;
-          this.matSnackBarSrv.displaySnackBar(msg);
-          this.updateAlertsTable();
-        },
-        (error: ErrorMessageClass | HttpErrorResponse) => {
-          if (error instanceof ErrorMessageClass) {
-            this.matSnackBarSrv.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-          } else {
-            const message: string = 'removing alert';
-            this.matSnackBarSrv.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-          }
-        });
-      }
-    });
+  /**
+   * Used for refreshing alerts
+   *
+   * @memberof SecurityAlertsComponent
+   */
+  refresh_alerts(): void {
+    this.update_alerts_table_(true);
   }
 
-  unSetacknowledgedEvent(update_alert: UpdateAlertsClass){
-    const paneString = `Are you sure you want to undo ${update_alert.count} acknowledged alerts? \
-                        \n\nDoing so will return the selected events back to their original state.`;
-    const paneTitle = 'Undo Acknowledged Alerts';
-    this._ackorUnsetAck(update_alert, paneTitle, paneString);
+  /**
+   * Used for changing the time amount via query
+   *
+   * @param {KeyboardEvent} keyboard_event
+   * @memberof SecurityAlertsComponent
+   */
+  change_query_time_amount(keyboard_event: KeyboardEvent): void {
+    /* istanbul ignore else */
+    if (ObjectUtilitiesClass.notUndefNull(keyboard_event) &&
+        ObjectUtilitiesClass.notUndefNull(keyboard_event.target) &&
+        ObjectUtilitiesClass.notUndefNull(keyboard_event.target['value']) &&
+        keyboard_event.target['value'] !== '') {
+      this.update_alerts_table_();
+    }
   }
 
-  escalateEvent(update_alert: UpdateAlertsClass) {
-    update_alert['event.escalated'] = true;
-    const kibanaLink = this.getKibanaLink(update_alert);
-    delete update_alert['event.escalated'];
+  /**
+   * Used for updating the alerts table when the time interval has been changed
+   *
+   * @param {MatSelectChange} mat_select_change
+   * @memberof SecurityAlertsComponent
+   */
+  time_interval_selection_change(mat_select_change: MatSelectChange): void {
+    /* istanbul ignore else */
+    if (ObjectUtilitiesClass.notUndefNull(mat_select_change)) {
+      this.update_alerts_table_();
+    }
+  }
 
-    const molohPrefix = this.getLink('arkime');
-    let molochLink = 'N/A';
-    if (molohPrefix === ''){
-      molochLink = 'N/A - Failed to create because Moloch is not installed.';
+  /**
+   * Used to toggle between absolute and non absolute time
+   *
+   * @memberof SecurityAlertsComponent
+   */
+  toggle_absolute_time_controls(): void {
+    this.time_form_group.get(this.absolute_time).setValue(!(this.get_time_form_group_field_value(this.absolute_time) as boolean));
+    this.set_date_times_();
+    this.update_alerts_table_();
+  }
+
+  /**
+   * Used for returning if the user should use absolute time
+   *
+   * @return {boolean}
+   * @memberof SecurityAlertsComponent
+   */
+  use_absolute_time(): boolean {
+    return ObjectUtilitiesClass.notUndefNull(this.time_form_group) ?
+             (this.get_time_form_group_field_value(this.absolute_time) as boolean) : false;
+  }
+
+  /**
+   * Used for validating date and times and then updating the table
+   *
+   * @memberof SecurityAlertsComponent
+   */
+  date_time_change(): void {
+    this.validate_date_times_();
+    this.update_alerts_table_();
+  }
+
+  /**
+   * Used for filtering only acknowledged alerts
+   *
+   * @param {MatSlideToggleChange} event
+   * @memberof SecurityAlertsComponent
+   */
+  filter_acknowledged(event: MatSlideToggleChange): void {
+    /* istanbul ignore else */
+    if (event.checked) {
+      this.time_form_group.get(this.escalated).setValue(false);
     }
 
-    const molochExpression = this.buildMolochExpression(update_alert);
-    if (molochExpression === ''){
-      const fields = this.getRequiredKibanaFields().join(', ');
-      molochLink = `N/A - Failed to create Moloch link because you need one of the following Group By fields: ${fields}`;
+    this.time_form_group.get(this.show_closed).setValue(false);
+    this.update_alerts_table_();
+  }
+
+  /**
+   * Used for filtering only escalated alerts
+   *
+   * @param {MatSlideToggleChange} event
+   * @memberof SecurityAlertsComponent
+   */
+  filter_escalated(event: MatSlideToggleChange): void {
+    /* istanbul ignore else */
+    if (event.checked) {
+      this.time_form_group.get(this.acknowledged).setValue(false);
+    }
+
+    this.time_form_group.get(this.show_closed).setValue(false);
+    this.update_alerts_table_();
+  }
+
+  /**
+   * Used for filtering only closed alerts
+   *
+   * @memberof SecurityAlertsComponent
+   */
+  filter_closed_alerts(): void {
+    this.update_alerts_table_();
+  }
+
+  /**
+   * Used for adding an alert chip to column names
+   *
+   * @param {MatChipInputEvent} event
+   * @memberof SecurityAlertsComponent
+   */
+  add_alert_chip(event: MatChipInputEvent): void {
+    const input: HTMLInputElement = event.input;
+    const value: string = event.value.trim();
+
+    /* istanbul ignore else */
+    if (value !== '') {
+      /* istanbul ignore else */
+      if (this.all_chip_options_.includes(value) && !this.dynamic_columns.includes(value)) {
+        this.dynamic_columns.push(value);
+        this.all_columns.push(value);
+        this.update_alerts_table_();
+      }
+    }
+    input.value = '';
+
+    this.group_by_control.setValue('');
+  }
+
+  /**
+   * Used for removing chip or column name from table
+   *
+   * @param {string} column_name
+   * @memberof SecurityAlertsComponent
+   */
+  remove_alert_chip(column_name: string): void {
+    const index_from_dynamic_columns: number = this.dynamic_columns.indexOf(column_name);
+    const index_from_all_columns: number = this.all_columns.indexOf(column_name);
+
+    /* istanbul ignore else */
+    if (index_from_dynamic_columns >= 0 && index_from_all_columns >= 0) {
+      this.dynamic_columns.splice(index_from_dynamic_columns, 1);
+      this.all_columns.splice(index_from_all_columns, 1);
+      this.update_alerts_table_();
+    }
+  }
+
+  /**
+   * Used to autocomplete selection for input
+   *
+   * @param {MatAutocompleteSelectedEvent} event
+   * @memberof SecurityAlertsComponent
+   */
+  autocomplete_selection_chip(event: MatAutocompleteSelectedEvent): void {
+    /* istanbul ignore else */
+    if (!this.dynamic_columns.includes(event.option.viewValue)) {
+      this.dynamic_columns.push(event.option.viewValue);
+      this.all_columns.push(event.option.viewValue);
+
+      this.update_alerts_table_();
+    }
+    this.group_by_input_.nativeElement.value = '';
+
+    this.group_by_control.setValue('');
+  }
+
+  /**
+   * Used to retrieve time form group field value
+   *
+   * @param {string} field
+   * @return {(boolean | Date | number | string)}
+   * @memberof SecurityAlertsComponent
+   */
+  get_time_form_group_field_value(field: string): boolean | Date | number | string {
+    return this.time_form_group.controls[field].value;
+  }
+
+  /**
+   * Used for checking to see if column is a dynamic column
+   *
+   * @param {string} column_name
+   * @return {boolean}
+   * @memberof SecurityAlertsComponent
+   */
+  is_dynamic_column_name(column_name: string): boolean {
+    return !(column_name === ACTIONS_COLUMN_NAME || column_name === COUNT_COLUMN_NAME);
+  }
+
+  /**
+   * Used to get the number of alerts for an alert in the alerts table
+   *
+   * @param {Object} update_alert
+   * @return {number}
+   * @memberof SecurityAlertsComponent
+   */
+  get_alert_count(update_alert: Object): number {
+    return ObjectUtilitiesClass.notUndefNull(update_alert) &&
+           ObjectUtilitiesClass.notUndefNull(update_alert['count']) ? update_alert['count'] : 0;
+  }
+
+  /**
+   * Used for retrieving column value
+   *
+   * @param {Object} update_alert
+   * @param {string} column_name
+   * @return {string}
+   * @memberof SecurityAlertsComponent
+   */
+  get_column_value(update_alert: Object, column_name: string): string {
+    if (ObjectUtilitiesClass.notUndefNull(update_alert[column_name])) {
+      if (column_name === TIMESTAMP_SOURCE) {
+        const date: Date = new Date(update_alert[column_name]);
+        return date.toISOString();
+      } else {
+        return update_alert[column_name];
+      }
     } else {
-      molochLink = this.getMolochLink(molohPrefix, molochExpression);
-    }
-
-    update_alert.form = this.controlForm.value;
-    update_alert.links = this.links;
-
-    forkJoin({
-      hive_settings: this.alertSrv.get_hive_settings(),
-      alerts: this.alertSrv.get_alert_list(update_alert, 1)
-    }).subscribe(data => {
-      if (data.hive_settings['admin_api_key'] === '' || data.hive_settings['admin_api_key'] === 'org_admin_api_key'){
-        this.matSnackBarSrv.displaySnackBar(`Hive is not configured. Plase click on the Gear
-          Icon in upper left hand corner of page and set your API key there.`);
-        return;
-      }
-
-      if (!data.alerts){
-        this.matSnackBarSrv.displaySnackBar('Failed to get event details for the selected Alert group.');
-        return;
-      }
-      const alertDetails = data.alerts['hits']['hits'][0];
-
-      let title = '';
-      let severity = '2';
-      if (alertDetails && alertDetails['_source'] && alertDetails['_source']['event']){
-        if (alertDetails['_source']['event']['kind'] === 'signal'){
-          title = alertDetails['_source']['signal']['rule']['name'];
-        } else {
-          if (alertDetails['_source']['rule'] && alertDetails['_source']['rule']['name']){
-            title = alertDetails['_source']['rule']['name'];
-          }
-        }
-        if (alertDetails['_source']['event']['severity']){
-          severity = alertDetails['_source']['event']['severity'].toString();
-        }
-      }
-
-      const paneString = `Are you sure you want to escalate ${update_alert.count} alerts? \
-                          \n\nDoing so will create hive ticket.`;
-      const paneTitle = 'Escalate Alerts';
-      const eventTitleConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
-      eventTitleConfig.validatorOrOpts = [Validators.required];
-      eventTitleConfig.tooltip = 'Title of the case';
-      eventTitleConfig.label = 'Title';
-      eventTitleConfig.formState = title;
-      const eventTagsConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
-      eventTagsConfig.tooltip = 'Case tags';
-      eventTagsConfig.label = 'Tags';
-      eventTagsConfig.controlType = DialogControlTypes.chips;
-      const eventDescriptionConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
-      eventDescriptionConfig.validatorOrOpts = [Validators.required];
-      eventDescriptionConfig.tooltip = 'Description of the case';
-      eventDescriptionConfig.label = 'Description';
-      eventDescriptionConfig.controlType = DialogControlTypes.textarea;
-      eventDescriptionConfig.formState = `[Kibana SIEM Link](${kibanaLink})\n\n[Arkime Link](${molochLink})`;
-      const eventSeverityConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
-      eventSeverityConfig.label = 'Severity';
-      eventSeverityConfig.formState = severity;
-      eventSeverityConfig.validatorOrOpts = [Validators.required];
-      eventSeverityConfig.tooltip = 'Severity of the case (1: low; 2: medium; 3: high)';
-      eventSeverityConfig.controlType = DialogControlTypes.dropdown;
-      eventSeverityConfig.options = ['1', '2', '3'];
-      const escalateEventForm = this.fb.group({
-        event_title: new DialogFormControl(eventTitleConfig),
-        event_tags: new DialogFormControl(eventTagsConfig),
-        event_severity: new DialogFormControl(eventSeverityConfig),
-        event_description: new DialogFormControl(eventDescriptionConfig),
-      });
-      const dialogRef = this.dialog.open(ModalDialogMatComponent, {
-        width: DIALOG_WIDTH,
-        data: {
-          title: paneTitle,
-          instructions: paneString,
-          dialogForm: escalateEventForm,
-          confirmBtnText: 'Save'
-        }
-      });
-      dialogRef.afterClosed().subscribe (
-        (response: FormGroup) => {
-          if (ObjectUtilitiesClass.notUndefNull(response) && response.valid) {
-            update_alert.form = this.controlForm.value;
-            update_alert.form.performEscalation = true;
-            update_alert.form.hiveForm = response.value;
-            this.alertSrv.modify_alert(update_alert).subscribe(new_data=>{
-              const new_count = new_data['total'];
-              const msg = `Successfully performed operation on ${new_count} Alerts.`;
-              this.matSnackBarSrv.displaySnackBar(msg);
-              this.updateAlertsTable();
-            },
-            (error: ErrorMessageClass | HttpErrorResponse) => {
-              if (error instanceof ErrorMessageClass) {
-                this.matSnackBarSrv.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-              } else {
-                const message: string = 'modifying alert';
-                this.matSnackBarSrv.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-              }
-            });
-          }
-        }
-      );
-    });
- }
-
-  // Filter
-  filterAcknowledge(event: MatSlideToggleChange){
-    if (event.checked){
-      this.controlForm.get('escalated').setValue(false);
-    }
-
-    this.controlForm.get('showClosed').setValue(false);
-    this.updateAlertsTable();
-  }
-
-  filterEscalated(event: MatSlideToggleChange){
-    if (event.checked){
-      this.controlForm.get('acknowledged').setValue(false);
-    }
-    this.controlForm.get('showClosed').setValue(false);
-    this.updateAlertsTable();
-  }
-
-  showClosedAlerts(event: MatSlideToggleChange){
-    this.updateAlertsTable();
-  }
-
-  //CHIP Start
-  addChip(event: MatChipInputEvent): void {
-    const input = event.input;
-    const value = event.value;
-
-    if ((value || '').trim()) {
-      if (this.allChipOptions.includes(value.trim()) && !this.dynamicColumns.includes(value.trim())){
-        this.dynamicColumns.push(value.trim());
-        this.allColumns.push(value.trim());
-        this.updateAlertsTable();
-      }
-    }
-
-    // Reset the input value
-    if (input) {
-      input.value = '';
-    }
-
-    this.groupByCtrl.setValue(null);
-  }
-
-  removeChip(group: string): void {
-    const index = this.dynamicColumns.indexOf(group);
-    const index2 = this.allColumns.indexOf(group);
-
-    if (index >= 0) {
-      this.dynamicColumns.splice(index, 1);
-      this.allColumns.splice(index2, 1);
-      this.updateAlertsTable();
+      return '';
     }
   }
 
-  selectedChip(event: MatAutocompleteSelectedEvent): void {
-    if (!this.dynamicColumns.includes(event.option.viewValue)){
-      this.dynamicColumns.push(event.option.viewValue);
-      this.allColumns.push(event.option.viewValue);
-
-      this.updateAlertsTable();
-    }
-
-    if (this.groupByInput.nativeElement.value){
-      this.groupByInput.nativeElement.value = '';
-    }
-
-    this.groupByCtrl.setValue(null);
+  /**
+   * Used to acknowledge an event
+   *
+   * @param {Object} update_alert
+   * @memberof SecurityAlertsComponent
+   */
+  acknowledge_event(update_alert: Object): void {
+    const message: string = `Are you sure you want to acknowledge ${update_alert['count']} alerts? \
+                             \n\nDoing so will turn these alerts into a false positive \
+                             which will not appear anymore on your alerts page.`;
+    this.open_confirm_dialog_(update_alert, ACKNOWLEDGE_ALERTS_WINDOW_TITLE, message, MODIFY_API_SWITCH);
   }
 
-  //CHIP End
-
-  changeQueryTime(event: KeyboardEvent) {
-    if (event && event.target['value'] !== '') {
-      this.updateAlertsTable();
-    }
+  /**
+   * Used to unacknowledge an event
+   *
+   * @param {UpdateAlertsClass} update_alert
+   * @memberof SecurityAlertsComponent
+   */
+  unacknowledged_event(update_alert: Object): void {
+    const message: string = `Are you sure you want to undo ${update_alert['count']} acknowledged alerts? \
+                             \n\nDoing so will return the selected events back to their original state.`;
+    this.open_confirm_dialog_(update_alert, UNACKNOWLEDGED_ALERTS_WINDOW_TITLE, message, MODIFY_API_SWITCH);
   }
 
-  timeIntervalChange(event: MatSelectChange){
-    if (event) {
-      this.updateAlertsTable();
-    }
+  /**
+   * Used to remove an alert
+   *
+   * @param {UpdateAlertsClass} update_alert
+   * @memberof SecurityAlertsComponent
+   */
+  remove_alerts_confirm_dialog(update_alert: Object): void {
+    const message: string = `Are you sure you want to remove ${update_alert['count']} alerts? \
+                             \n\nDoing so will turn these alerts into a false positive \
+                             which will not appear anymore on your alerts page. Also, \
+                             the hive case for these alerts shall be deleted. \
+                             It is advised to close out cases in the hive application itself.`;
+    this.open_confirm_dialog_(update_alert, REMOVE_ALERTS_WINDOW_TITLE, message, REMOVE_API_SWITCH);
   }
 
-  eventDrilldown(update_alert: UpdateAlertsClass) {
-    update_alert.form = this.controlForm.value;
-    update_alert.links = this.links;
-    this.dialog.open(AlertDrillDownDialogComponent, {
-      width: DIALOG_WIDTH,
+  /**
+   * Used to open alert drill down dialog window
+   *
+   * @param {Object} update_alert
+   * @memberof SecurityAlertsComponent
+   */
+  open_alert_drilldown_dialog(update_alert: Object): void {
+    update_alert['form'] = this.time_form_group.getRawValue() as AlertFormInterface;
+    update_alert['links'] = this.portal_links_;
+    this.mat_dialog_.open(AlertDrillDownDialogComponent, {
+      width: DIALOG_WIDTH_1000PX,
       disableClose: true,
       data: update_alert
     });
   }
 
-  openKibana(update_alert: UpdateAlertsClass) {
-    const url = this.getKibanaLink(update_alert);
-    const win = window.open(url, '_blank');
-    win.focus();
+  /**
+   * Used to escalate and event
+   *
+   * @param {Object} update_alert
+   * @memberof SecurityAlertsComponent
+   */
+  escalate_alert(update_alert: Object): void {
+    update_alert['event.escalated'] = true;
+    update_alert['form'] = this.time_form_group.getRawValue() as AlertFormInterface;
+    update_alert['links'] = this.portal_links_;
+    const kibana_link: string = this.get_kibana_link_(update_alert);
+    const arkime_prefix: string = this.get_link_(ARKIME);
+    const arkime_expression: string = this.build_arkime_expression_(update_alert);
+    const arkime_link: string = this.get_arkime_link_(arkime_prefix, arkime_expression);
+    this.api_fork_join_get_hive_settings_and_get_alert_list_(update_alert, kibana_link, arkime_link);
   }
 
-  openHive(update_alert: UpdateAlertsClass){
-    update_alert.form = this.controlForm.value;
-    update_alert.links = this.links;
-    this.alertSrv.get_alert_list(update_alert, 1).subscribe((data: AlertListClass)=> {
-      const hive_id = Math.abs(data.hits.hits[0]._source.event['hive_id']);
-      const prefix = this.getLink('hive');
-      const url = `${prefix}/index.html#!/case/~~${hive_id}/details`;
-      const win = window.open(url, '_blank');
-      win.focus();
-    });
+  /**
+   * Used to open a new tab for an alert within kibana
+   *
+   * @param {UpdateAlertsClass} update_alert
+   * @memberof SecurityAlertsComponent
+   */
+  open_alert_in_kibana_tab(update_alert: Object): void {
+    const url: string = this.get_kibana_link_(update_alert);
+
+    this.windows_redirect_handler_service_.open_in_new_tab(url);
   }
 
-  openMoloch(update_alert: UpdateAlertsClass){
-    const prefix = this.getLink('arkime');
+  /**
+   * Used to open a new tab for an alert within arkime
+   *
+   * @param {Object} update_alert
+   * @memberof SecurityAlertsComponent
+   */
+  open_alert_in_arkime_tab(update_alert: Object): void {
+    const arkime_prefix: string = this.get_link_(ARKIME);
+    const arkime_expression: string = this.build_arkime_expression_(update_alert);
 
-    if (prefix === ''){
-      this.matSnackBarSrv.displaySnackBar('Arkime is not installed.  Please go to the catalog page and install it if you want this capability to work.');
+    /* istanbul ignore else */
+    if (arkime_prefix === '') {
+      this.mat_snackbar_service_.displaySnackBar(ARKIME_NOT_INSTALLED);
       return;
     }
 
-    const expression = this.buildMolochExpression(update_alert);
-    if (expression === ''){
-      const fields = this.getRequiredKibanaFields().join(', ');
-      this.matSnackBarSrv.displaySnackBar(`Failed to pivot to Arkime because
-you need one of the following Group By fields: ${fields}`);
+    /* istanbul ignore else */
+    if (arkime_expression === '') {
+      const fields: string = Object.keys(ARKIME_FIELD_LOOKUP).join(', ');
+      this.mat_snackbar_service_.displaySnackBar(`Failed to pivot to Arkime because you need one of the following Group By fields: ${fields}`);
       return;
     }
 
-    const url = this.getMolochLink(prefix, expression);
-    const win = window.open(url, '_blank');
-    win.focus();
+    const url: string = this.get_arkime_link_(arkime_prefix, arkime_expression);
+
+    this.windows_redirect_handler_service_.open_in_new_tab(url);
   }
 
-  openHiveTokenSettings(){
-
-    this.alertSrv.get_hive_settings().subscribe((data: HiveSettingsClass) => {
-      const hiveKeyConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
-      hiveKeyConfig.validatorOrOpts = [Validators.minLength(32), Validators.maxLength(32), Validators.required];
-      hiveKeyConfig.tooltip = 'Must be a valid Hive token that is 32 characters in length.';
-      hiveKeyConfig.label = 'HIVE Admin API Key';
-      if (data && data['admin_api_key']){
-        hiveKeyConfig.formState = data['admin_api_key'];
-      } else {
-        hiveKeyConfig.formState = '';
-      }
-
-      const hiveKeyConfig2: DialogFormControlConfigClass = new DialogFormControlConfigClass();
-      hiveKeyConfig2.validatorOrOpts = [Validators.minLength(32), Validators.maxLength(32), Validators.required];
-      hiveKeyConfig2.tooltip = 'Must be a valid Hive token that is 32 characters in length.';
-      hiveKeyConfig2.label = 'HIVE Org Admin API Key';
-      if (data && data['org_admin_api_key']){
-        hiveKeyConfig2.formState = data['org_admin_api_key'];
-      } else {
-        hiveKeyConfig2.formState = '';
-      }
-
-      const hiveForm = this.fb.group({
-        admin_api_key: new DialogFormControl(hiveKeyConfig),
-        org_admin_api_key: new DialogFormControl(hiveKeyConfig2)
-      });
-      const dialogRef = this.dialog.open(ModalDialogMatComponent, {
-        width: DIALOG_WIDTH,
-        data: {
-          title: 'HIVE Settings',
-          instructions: `In order to Hive event escalation to work, please
-copy and paste the admin and org_admin Hive API keys in the boxes below. The key can be found inside the Hive's applcation settings.`,
-          dialogForm: hiveForm,
-          confirmBtnText: 'Save'
-        }
-      });
-      dialogRef.afterClosed().subscribe(
-        (response: FormGroup) => {
-          if(ObjectUtilitiesClass.notUndefNull(response) && response.valid) {
-            this.alertSrv.save_hive_settings(response.getRawValue() as HiveSettingsInterface).subscribe((_data) => {
-              this.matSnackBarSrv.displaySnackBar(`Successfully saved the Hive API Key.`);
-            },
-            (error: ErrorMessageClass | HttpErrorResponse) => {
-              if (error instanceof ErrorMessageClass) {
-                this.matSnackBarSrv.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-              } else {
-                const message: string = 'saving Hive API key for an unknown reason. Please check the /var/log/tfplenum logs for more information';
-                this.matSnackBarSrv.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-              }
-            });
-          }
-        }
-      );
-    });
+  /**
+   * Used to open a new tab for an alert within hive
+   *
+   * @param {UpdateAlertsClass} update_alert
+   * @memberof SecurityAlertsComponent
+   */
+  open_alert_in_hive_tab(update_alert: Object): void {
+    update_alert['form'] = this.time_form_group.value;
+    update_alert['links'] = this.portal_links_;
+    this.api_get_alert_list_(update_alert);
   }
 
-  toggleAutoRefresh(){
-    this.autoRefresh = !this.autoRefresh;
-  }
-
-  toggleAbsoluteTimeCtrls(){
-    this.controlForm.get('absoluteTime').setValue(!this.controlForm.get('absoluteTime').value);
-    this.setDateTimes();
-    this.updateAlertsTable();
-  }
-
-  startDatetimeChange(event){
-    this.validateDatetimes();
-    this.updateAlertsTable();
-  }
-
-  endDatetimeChange(event){
-    this.validateDatetimes();
-    this.updateAlertsTable();
-  }
-
-  absoluteTime(): boolean{
-    if(this.controlForm){
-      return this.controlForm.get('absoluteTime').value;
-    }
-    return false;
-  }
-
-  private setAutoRefreshFromCookie(){
-    const autoRefreshCookie = this.cookieService.get('autoRefresh');
-    if (autoRefreshCookie.length > 0){
-      this.autoRefresh = (autoRefreshCookie === 'true');
-    } else {
-      this.autoRefresh = true;
-    }
-  }
-
-  private setupControlFormGroupFromCookies(){
-    const savedControls = this.cookieService.get('controlForm');
-    if (savedControls.length > 0){
-      const values = JSON.parse(savedControls);
-      this.controlForm = this.fb.group({
-        acknowledged: new FormControl(values['acknowledged']),
-        escalated: new FormControl(values['escalated']),
-        showClosed: new FormControl(values['showClosed']),
-        timeInterval: new FormControl(values['timeInterval']),
-        timeAmount: new FormControl(values['timeAmount']),
-        startDatetime: new FormControl(new Date(values['startDatetime'])),
-        endDatetime: new FormControl(new Date(values['endDatetime'])),
-        absoluteTime: new FormControl(values['absoluteTime'])
+  /**
+   * Used to create the time form group
+   *
+   * @private
+   * @memberof SecurityAlertsComponent
+   */
+  private initialize_time_form_group_(): void {
+    const time_form_group_cookie: string = this.cookie_service_.get(TIME_FORM_GROUP_COOKIE);
+    let time_form_group: FormGroup;
+    if (ObjectUtilitiesClass.notUndefNull(time_form_group_cookie) && time_form_group_cookie.length > 0) {
+      time_form_group = JSON.parse(time_form_group_cookie);
+      time_form_group = this.form_builder_.group({
+        acknowledged: new FormControl(time_form_group[this.acknowledged]),
+        escalated: new FormControl(time_form_group[this.escalated]),
+        showClosed: new FormControl(time_form_group[this.show_closed]),
+        timeInterval: new FormControl(time_form_group[this.time_interval]),
+        timeAmount: new FormControl(time_form_group[this.time_amount]),
+        startDatetime: new FormControl(new Date(time_form_group[this.start_date_time])),
+        endDatetime: new FormControl(new Date(time_form_group[this.end_date_time])),
+        absoluteTime: new FormControl(time_form_group[this.absolute_time])
       });
     } else {
-      this.controlForm = this.fb.group({
+      time_form_group = this.form_builder_.group({
         acknowledged: new FormControl(false),
         escalated: new FormControl(false),
         showClosed: new FormControl(false),
-        timeInterval: new FormControl('hours'),
+        timeInterval: new FormControl(HOURS),
         timeAmount: new FormControl(24),
         startDatetime: new FormControl(),
         endDatetime: new FormControl(),
         absoluteTime: new FormControl(false)
       });
     }
+
+    this.set_time_form_group_(time_form_group);
   }
 
-  private setPortalLinks(){
-    this.portalSrv.get_portal_links().subscribe((data: PortalLinkClass[]) => {
-      this.links = data;
-    });
+  /**
+   * Used to set the time form group
+   *
+   * @private
+   * @param {FormGroup} time_form_group
+   * @memberof SecurityAlertsComponent
+   */
+  private set_time_form_group_(time_form_group: FormGroup): void {
+    this.time_form_group = time_form_group;
   }
 
+  /**
+   * Used to get auto refresh
+   *
+   * @private
+   * @memberof SecurityAlertsComponent
+   */
+  private get_auto_refresh_(): void {
+    const auto_refresh_cookie: string = this.cookie_service_.get(AUTO_REFRESH_COOKIE);
+    const auto_refresh: boolean = ObjectUtilitiesClass.notUndefNull(auto_refresh_cookie) &&
+                                  auto_refresh_cookie.length > 0 ? (auto_refresh_cookie === TRUE) : true;
 
-  private loadDynamicColumnsFromCooke(){
-    const saved_columns = this.cookieService.get('dynamic-column');
-    if (saved_columns.length > 0){
-      this.dynamicColumns = JSON.parse(saved_columns);
-    } else {
-      this.dynamicColumns = ['event.module', 'event.kind', 'rule.name']; // NOTE: this will default to most basic options
-    }
-    this.allColumns =  ['actions', 'count'].concat(this.dynamicColumns);
+    this.set_suto_refresh_(auto_refresh);
   }
 
-  private populateChipOptions(){
-    this.alertSrv.get_fields().subscribe((data: string[]) => {
-      this.allChipOptions = data;
-    });
+  /**
+   * Used to set auto refresh
+   *
+   * @private
+   * @param {boolean} auto_refresh
+   * @memberof SecurityAlertsComponent
+   */
+  private set_suto_refresh_(auto_refresh: boolean): void {
+    this.auto_refresh = auto_refresh;
   }
 
-  private setDateTimes(){
-    const timeAmt = this.controlForm.get('timeAmount').value;
-    const timeInterval = this.controlForm.get('timeInterval').value;
-    const initalDate = new Date();
-    if (timeInterval === 'days'){
-      initalDate.setDate(initalDate.getDate() - timeAmt);
-    } else if (timeInterval === 'hours'){
-      initalDate.setHours(initalDate.getHours() - timeAmt);
-    } else if (timeInterval === 'minutes') {
-      initalDate.setMinutes(initalDate.getMinutes() - timeAmt);
-    }
+  /**
+   * Used to get dynamic columns
+   *
+   * @private
+   * @memberof SecurityAlertsComponent
+   */
+  private get_dynamic_columns_(): void {
+    const dynamic_columns_cookie: string = this.cookie_service_.get(DYNAMIC_COLUMNS_COOKIE);
+    const dynamic_columns: string[] = ObjectUtilitiesClass.notUndefNull(dynamic_columns_cookie) &&
+                                      dynamic_columns_cookie.length > 0 ? JSON.parse(dynamic_columns_cookie) : DYNAMIC_COLUMNS_DEFAULT_VALUES; // NOTE: this will default to most basic options
 
-    this.controlForm.get('startDatetime').setValue(initalDate);
-    this.controlForm.get('endDatetime').setValue(new Date());
+    this.set_dynamic_columns_(dynamic_columns);
+    this.set_all_columns_(dynamic_columns);
   }
 
-  private getStartDatetime(): string {
-    return this.controlForm.get('startDatetime').value.toISOString();
+  /**
+   * Used to set dynamic columns
+   *
+   * @private
+   * @param {string[]} dynamic_columns
+   * @memberof SecurityAlertsComponent
+   */
+  private set_dynamic_columns_(dynamic_columns: string[]): void {
+    this.dynamic_columns = dynamic_columns;
   }
 
-  private getEndDatetime(): string {
-    return this.controlForm.get('endDatetime').value.toISOString();
+  /**
+   * Used to set all columns
+   *
+   * @private
+   * @param {string[]} dynamic_columns
+   * @memberof SecurityAlertsComponent
+   */
+  private set_all_columns_(dynamic_columns: string[]): void {
+    this.all_columns =  ALL_COLUMNS_START_VALUES.concat(dynamic_columns);
   }
 
-  private validateDatetimes(){
-    if (this.controlForm.get('startDatetime').value >= this.controlForm.get('endDatetime').value){
-      this.matSnackBarSrv.displaySnackBar('Zero results returned because start datetime cannot be larger than end datetime.');
-    }
-  }
-
-  private updateAlertsTable(displayMessage: boolean=false){
-    if (this.dynamicColumns.length > 0){
-      if (!this.controlForm.get('absoluteTime').value){
-        this.setDateTimes();
+  /**
+   * Used to update alerts table
+   *
+   * @private
+   * @param {boolean} [display_message=false]
+   * @memberof SecurityAlertsComponent
+   */
+  private update_alerts_table_(display_message: boolean = false): void {
+    if (this.dynamic_columns.length > 0) {
+      /* istanbul ignore else */
+      if (!(this.get_time_form_group_field_value(this.absolute_time) as boolean)) {
+        this.set_date_times_();
       }
 
-      const acknowledge = this.isacknowledgedChecked();
-      const escalated = this.isEscalatedChecked();
-      const showClosed = this.isShowClosedChecked();
-      this.saveCookies();
-      this.alertSrv.get_alerts(this.dynamicColumns.join(','),
-                               this.getStartDatetime(),
-                               this.getEndDatetime(),
-                               acknowledge, escalated, showClosed).subscribe((data: UpdateAlertsClass[]) => {
-        this.alerts.data = data;
-        if (displayMessage){
-          this.matSnackBarSrv.displaySnackBar('Successfully updated Alerts table!');
-        }
-      },
-      (error: ErrorMessageClass | HttpErrorResponse) => {
-        if (error instanceof ErrorMessageClass) {
-          this.matSnackBarSrv.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-        } else {
-          const message: string = 'retrieving alerts check logs for more details';
-          this.matSnackBarSrv.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-        }
-      });
+      const acknowledge: boolean = this.get_time_form_group_field_value(this.acknowledged) as boolean;
+      const escalated: boolean = this.get_time_form_group_field_value(this.escalated) as boolean;
+      const show_closed: boolean = this.get_time_form_group_field_value(this.show_closed) as boolean;
+      this.api_get_alerts_(display_message, acknowledge, escalated, show_closed);
+      this.save_cookies_();
     } else {
-      this.alerts.data = [];
+      this.update_alerts_mat_table_data_source.data = [];
     }
   }
 
-  private saveCookies(){
-    this.cookieService.set('dynamic-column', JSON.stringify(this.dynamicColumns));
-    this.cookieService.set('controlForm', JSON.stringify(this.controlForm.value));
-    this.cookieService.set('autoRefresh', this.autoRefresh.toString());
+  /**
+   * Used for setting table paginatior and mat sort
+   *
+   * @private
+   * @memberof SecurityAlertsComponent
+   */
+  private set_mat_table_paginator_and_sort_(): void {
+    this.update_alerts_mat_table_data_source.paginator = this.paginator_;
+    this.update_alerts_mat_table_data_source.sort = this.mat_sort_;
   }
 
-  private _ackorUnsetAck(update_alert: UpdateAlertsClass, paneTitle: string, paneString: string){
+  /**
+   * Used for opening a confirm dialog
+   *
+   * @private
+   * @param {Object} update_alert
+   * @param {string} title
+   * @param {string} message
+   * @param {string} api_switch
+   * @memberof SecurityAlertsComponent
+   */
+  private open_confirm_dialog_(update_alert: Object, title: string, message: string, api_switch: string): void {
     const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
-      title: paneTitle,
-      message: paneString,
-      option1: 'Cancel',
-      option2: 'Confirm'
+      title: title,
+      message: message,
+      option1: CANCEL_DIALOG_OPTION,
+      option2: CONFIRM_DIALOG_OPTION
     };
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: DIALOG_WIDTH,
+    const mat_dialog_ref: MatDialogRef<ConfirmDialogComponent, any> = this.mat_dialog_.open(ConfirmDialogComponent, {
+      width: DIALOG_WIDTH_1000PX,
       data: confirm_dialog,
     });
-
-    dialogRef.afterClosed().subscribe(response => {
-      if (response === confirm_dialog.option2) {
-        update_alert.form = this.controlForm.value;
-        update_alert.form.performEscalation = false;
-        this.alertSrv.modify_alert(update_alert).subscribe(data=>{
-          const new_count = data['total'];
-          const msg = `Successfully performed operation on ${new_count} Alerts.`;
-          this.matSnackBarSrv.displaySnackBar(msg);
-          this.updateAlertsTable();
-        },
-        (error: ErrorMessageClass | HttpErrorResponse) => {
-          if (error instanceof ErrorMessageClass) {
-            this.matSnackBarSrv.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
-          } else {
-            const message: string = 'modifying alert';
-            this.matSnackBarSrv.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+    mat_dialog_ref.afterClosed()
+      .subscribe(
+        (response: string) => {
+          if (response === CONFIRM_DIALOG_OPTION) {
+            update_alert['form'] = this.time_form_group.value as AlertFormInterface;
+            switch (api_switch) {
+              case MODIFY_API_SWITCH:
+                update_alert['form']['performEscalation'] = false;
+                this.api_modify_alert_(update_alert);
+                break;
+              case REMOVE_API_SWITCH:
+                this.api_remove_alerts_(update_alert);
+                break;
+              default:
+                break;
+            }
           }
         });
+  }
+
+  /**
+   * Used for opening the escalte alert window
+   *
+   * @private
+   * @param {Object} update_alert
+   * @param {string} message
+   * @param {FormGroup} escalate_event_form_group
+   * @memberof SecurityAlertsComponent
+   */
+  private open_escalate_alert_(update_alert: Object, message: string, escalate_event_form_group: FormGroup): void {
+    const mat_dialog_ref: MatDialogRef<ModalDialogMatComponent, any> = this.mat_dialog_.open(ModalDialogMatComponent, {
+      width: DIALOG_WIDTH_1000PX,
+      data: {
+        title: ESCALATE_ALERTS_WINDOW_TITLE,
+        instructions: message,
+        dialogForm: escalate_event_form_group,
+        confirmBtnText: SAVE_DIALOG_OPTION
       }
     });
+    mat_dialog_ref.afterClosed()
+      .pipe(untilDestroyed(this))
+      .subscribe (
+        (response: FormGroup) => {
+          /* istanbul ignore else */
+          if (ObjectUtilitiesClass.notUndefNull(response) && response.valid) {
+            update_alert['form'] = this.time_form_group.value as AlertFormInterface;
+            update_alert['form']['performEscalation'] = true;
+            update_alert['form']['hiveForm'] = response.value as HiveFormInterface;
+            this.api_modify_alert_(update_alert);
+          }
+        });
   }
 
-  private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
-    return this.allChipOptions.filter(group => group.toLowerCase().indexOf(filterValue) === 0);
+  /**
+   * Used for setting the date and time
+   *
+   * @private
+   * @memberof SecurityAlertsComponent
+   */
+  private set_date_times_(): void {
+    const time_amount: number = this.get_time_form_group_field_value(this.time_amount) as number;
+    const time_interval: string = this.get_time_form_group_field_value(this.time_interval) as string;
+    const inital_date: Date = new Date();
+    /* istanbul ignore else */
+    if (time_interval === DAYS) {
+      inital_date.setDate(inital_date.getDate() - time_amount);
+    } else if (time_interval === HOURS) {
+      inital_date.setHours(inital_date.getHours() - time_amount);
+    } else if (time_interval === MINUTES) {
+      inital_date.setMinutes(inital_date.getMinutes() - time_amount);
+    }
+
+    this.time_form_group.get(this.start_date_time).setValue(inital_date);
+    this.time_form_group.get(this.end_date_time).setValue(new Date());
   }
 
-  private getLink(search: string) {
-    for (const entry of this.links){
-      if (entry['dns'].includes(search)){
-        return entry['dns'];
+  /**
+   * Used to validate the date and time
+   *
+   * @private
+   * @memberof SecurityAlertsComponent
+   */
+  private validate_date_times_(): void {
+    /* istanbul ignore else */
+    if ((this.get_time_form_group_field_value(this.start_date_time) as Date) >= (this.get_time_form_group_field_value(this.end_date_time) as Date)) {
+      this.mat_snackbar_service_.displaySnackBar(START_DATE_TIME_LARGE);
+    }
+  }
+
+  /**
+   * Used for filtering chip options
+   *
+   * @private
+   * @param {string} value
+   * @return {string[]}
+   * @memberof SecurityAlertsComponent
+   */
+  private filter_chip_options_(value: string): string[] {
+    const filter_value: string = value.toLowerCase();
+
+    return this.all_chip_options_.filter((option: string) => option.toLowerCase().indexOf(filter_value) === 0);
+  }
+
+  /**
+   * Used for getting the kinbana link
+   *
+   * @private
+   * @param {Object} update_alert
+   * @return {string}
+   * @memberof SecurityAlertsComponent
+   */
+  private get_kibana_link_(update_alert: Object): string {
+    const prefix: string = this.get_link_(KIBANA);
+    const query: string = this.get_kibana_query_(update_alert);
+    const start_date_time: string = (this.get_time_form_group_field_value(this.start_date_time) as Date).toISOString();
+    const end_date_time: string = (this.get_time_form_group_field_value(this.end_date_time) as Date).toISOString();
+    let page: string = 'overview';
+
+    /* istanbul ignore else */
+    if (update_alert['event.kind'] === SIGNAL_KIND) {
+      page = KIBANA_DETECTIONS_PAGE;
+    } else if (update_alert['event.kind'] === ALERT_KIND) {
+      /* istanbul ignore else */
+      if (update_alert['event.module']) {
+        /* istanbul ignore else */
+        if (update_alert['event.module'] === ZEEK_MODULE || update_alert['event.module'] === SURICATA_MODULE) {
+          page = KIBANA_NETWORK_EXTERNAL_PAGE;
+        } else if (update_alert['event.module'] === ENDGAME_MODULE) {
+          // Since Endgame alerts do not show up on the SIEM engine page as we would expect we will instead pivot to the discover page only for this type of alert.
+          return `${prefix}/app/discover#/?_g=(filters:!(),query:(language:kuery,query:''),refreshInterval:(pause:!t,value:0),time:(from:%27${start_date_time}%27,to:%27${end_date_time}%27))&_a=(columns:!(),filters:!(),index:endgame-dashboard-index-pattern,interval:auto,query:(language:kuery,query:'${query}'),sort:!(!('@timestamp',desc)))`;
+        } else if (update_alert['event.module'] === SYSTEM_MODULE || update_alert['event.module'] === SYSMON_MODULE) {
+          page = KIBANA_HOSTS_ALERTS_PAGE;
+        }
       }
     }
-    return '';
+
+    const url: string = `${prefix}/app/security/${page}?query=(language:kuery,query:'${query}')&timerange=(global:(linkTo:!(timeline),timerange:(from:%27${start_date_time}%27,kind:absolute,to:%27${end_date_time}%27)),timeline:(linkTo:!(global),timerange:(from:%27${start_date_time}%27,kind:absolute,to:%27${end_date_time}%27)))`;
+
+    return url.replace(/'/g, '%27').replace(/ /g, '%20').replace(/\(/g, '%28').replace(/\)/g, '%29');
   }
 
-  private getQueryPiece(update_alert: UpdateAlertsClass): string {
+  /**
+   * Used for retrieving a portal link dns value
+   *
+   * @private
+   * @param {string} search
+   * @return {string}
+   * @memberof SecurityAlertsComponent
+   */
+  private get_link_(search: string): string {
+    let link: string = '';
+    for (const portal_link of this.portal_links_) {
+      /* istanbul ignore else */
+      if (portal_link.dns.includes(search)) {
+        link = portal_link.dns;
+      }
+    }
+
+    return link;
+  }
+
+  /**
+   * Used to get a kibana query
+   *
+   * @private
+   * @param {Object} update_alert
+   * @return {string}
+   * @memberof SecurityAlertsComponent
+   */
+  private get_kibana_query_(update_alert: Object): string {
     let ret_val = '';
-    for (const field in update_alert){
-      if (field === 'count' || field === 'form' || field === 'links'){
+    for (const field in update_alert) {
+      /* istanbul ignore else */
+      if (field === COUNT_COLUMN_NAME || field === FORM_COLUMN_NAME || field === LINKS_COLUMN_NAME) {
         continue;
       }
-      if (update_alert['event.kind'] === 'signal' && field === 'rule.name'){
+      if (update_alert['event.kind'] === SIGNAL_KIND && field === RULE_NAME_COLUMN_NAME) {
         ret_val += 'signal.rule.name : "' + update_alert[field] + '" and ';
       } else {
         ret_val += field + ' : "' + update_alert[field] + '" and ';
       }
     }
 
-    return ret_val.slice(0, ret_val.length - 5);
-  }
-
-  private getKibanaLink(update_alert: UpdateAlertsClass){
-    const prefix = this.getLink('kibana');
-    let query = this.getQueryPiece(update_alert);
-    if (this.isEscalatedChecked()){
-      query += ' and event.escalated : true';
+    ret_val = ret_val.slice(0, ret_val.length - 5);
+    /* istanbul ignore else */
+    if (this.get_time_form_group_field_value(this.escalated) as boolean) {
+      ret_val += ' and event.escalated : true';
     }
 
-    const startDateTime = this.getStartDatetime();
-    const endDateTime = this.getEndDatetime();
-    let page = 'overview';
-    if (update_alert['event.kind'] && update_alert['event.kind'] === 'signal'){
-      page = 'detections';
-    } else if (update_alert['event.kind'] && update_alert['event.kind'] === 'alert') {
-      if (update_alert['event.module'] ) {
-        if (update_alert['event.module'] === 'zeek' || update_alert['event.module'] === 'suricata'){
-          page = 'network/external-alerts';
-        } else if (update_alert['event.module'] === 'endgame') {
-          // Since Endgame alerts do not show up on the SIEM engine page as we would expect we will instead pivot to the discover page only for this type of alert.
-          return `${prefix}/app/discover#/?_g=(filters:!(),query:(language:kuery,query:''),refreshInterval:(pause:!t,value:0),time:(from:%27${startDateTime}%27,to:%27${endDateTime}%27))&_a=(columns:!(),filters:!(),index:endgame-dashboard-index-pattern,interval:auto,query:(language:kuery,query:'${query}'),sort:!(!('@timestamp',desc)))`;
-        } else if (update_alert['event.module'] === 'system' || update_alert['event.module'] === 'sysmon') {
-          page = 'hosts/alerts';
+    return ret_val;
+  }
+
+  /**
+   * Used to get arkime expression
+   *
+   * @private
+   * @param {Object} update_alert
+   * @return {string}
+   * @memberof SecurityAlertsComponent
+   */
+  private build_arkime_expression_(update_alert: Object): string {
+    const fields: string[] = this.get_fields_(update_alert);
+    let url_part: string = '';
+    for (const field of fields) {
+      const arkime_field: string = ARKIME_FIELD_LOOKUP[field];
+      /* istanbul ignore else */
+      if (ObjectUtilitiesClass.notUndefNull(arkime_field)) {
+        const update_alert_field_value: any = update_alert[field];
+        if (ObjectUtilitiesClass.notUndefNull(update_alert_field_value)) {
+          url_part += `${arkime_field}%20%3D%3D${update_alert_field_value}%26%26%20`;
         }
-      }
-    }
-
-    const url = `${prefix}/app/security/${page}?query=(language:kuery,query:'${query}')&timerange=(global:(linkTo:!(timeline),timerange:(from:%27${startDateTime}%27,kind:absolute,to:%27${endDateTime}%27)),timeline:(linkTo:!(global),timerange:(from:%27${startDateTime}%27,kind:absolute,to:%27${endDateTime}%27)))`;
-    return url.replace(/'/g, '%27').replace(/ /g, '%20').replace(/\(/g, '%28').replace(/\)/g, '%29');
-  }
-
-  private getMolochLink(prefix: string, expression: string) {
-    const startTime = Math.floor(this.controlForm.get('startDatetime').value.getTime() / 1000);
-    const stopTime = Math.floor(this.controlForm.get('endDatetime').value.getTime() / 1000);
-    const url = `${prefix}/sessions?graphType=lpHisto&seriesType=bars&expression=${expression}&startTime=${startTime}&stopTime=${stopTime}`;
-    return url;
-  }
-
-  private buildMolochExpression(update_alert: UpdateAlertsClass): string {
-    const fields = this.getFields(update_alert);
-    let url_part = '';
-    for (const field of fields){
-      const molochField = MOLOCH_FIELD_LOOKUP[field];
-      if (molochField){
-        const alertValue = update_alert[field];
-        url_part += `${molochField}%20%3D%3D${alertValue}%26%26%20`;
       }
     }
     return url_part.slice(0, url_part.length - 9);
   }
 
-  private getRequiredKibanaFields(){
-    const fields = [];
-    for (const field in MOLOCH_FIELD_LOOKUP){
-      if (field) {
-        fields.push(field);
-      }
+  /**
+   * Used to get arkime link
+   *
+   * @private
+   * @param {string} arkime_prefix
+   * @param {string} arkime_expression
+   * @return {string}
+   * @memberof SecurityAlertsComponent
+   */
+  private get_arkime_link_(arkime_prefix: string, arkime_expression: string): string {
+    let url: string = NA;
+
+    /* istanbul ignore else */
+    if (arkime_prefix === '') {
+      return url = NA_FAILED_ARKIME_NOT_INSTALLED;
     }
-    return fields;
+
+    if (arkime_expression === '') {
+      const fields: string = Object.keys(ARKIME_FIELD_LOOKUP).join(', ');
+      url = `N/A - Failed to create Arkime link because you need one of the following Group By fields: ${fields}`;
+    } else {
+      const startTime = Math.floor(this.time_form_group.get(this.start_date_time).value.getTime() / 1000);
+      const stopTime = Math.floor(this.time_form_group.get(this.end_date_time).value.getTime() / 1000);
+      url = `${arkime_prefix}/sessions?graphType=lpHisto&seriesType=bars&expression=${arkime_expression}&startTime=${startTime}&stopTime=${stopTime}`;
+    }
+
+    return url;
   }
 
-  private getFields(update_alert: UpdateAlertsClass) : string[]{
-    const fields = [];
-    for (const field in update_alert){
-      if (field === 'count' || field === 'form' || field === 'links'){
-        continue;
-      }
-      fields.push(field);
+  /**
+   * Used to get fields from Object
+   *
+   * @private
+   * @param {Object} update_alert
+   * @return {string[]}
+   * @memberof SecurityAlertsComponent
+   */
+  private get_fields_(update_alert: Object): string[] {
+    return Object.keys(update_alert)
+                 .filter((key: string) => !(key === COUNT_COLUMN_NAME || key === FORM_COLUMN_NAME || key === LINKS_COLUMN_NAME));
+  }
+
+  /**
+   * Used to call operation when successfull modify and remove alert occurs
+   *
+   * @private
+   * @param {ModifyRemoveReturnClass} modify_remove_return
+   * @memberof SecurityAlertsComponent
+   */
+  private success_modify_remove_alerts_(modify_remove_return: ModifyRemoveReturnClass): void {
+    const new_count: number = modify_remove_return.total;
+    const message: string = `performed operation on ${new_count} Alerts.`;
+    this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+    this.update_alerts_table_();
+  }
+
+  /**
+   * Used for saving cookies
+   *
+   * @private
+   * @memberof SecurityAlertsComponent
+   */
+  private save_cookies_(): void {
+    this.cookie_service_.set(DYNAMIC_COLUMNS_COOKIE, JSON.stringify(this.dynamic_columns));
+    if (ObjectUtilitiesClass.notUndefNull(this.time_form_group) && ObjectUtilitiesClass.notUndefNull(this.time_form_group.value)) {
+      this.cookie_service_.set(TIME_FORM_GROUP_COOKIE, JSON.stringify(this.time_form_group.value));
     }
-    return fields;
+    this.cookie_service_.set(AUTO_REFRESH_COOKIE, this.auto_refresh.toString());
+  }
+
+  /**
+   * Used for making api rest call to get fields
+   *
+   * @private
+   * @memberof SecurityAlertsComponent
+   */
+  private api_get_fields_(): void {
+    this.alert_service_.get_fields()
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: string[]) => {
+          this.all_chip_options_ = response;
+        },
+        (error: HttpErrorResponse) => {
+          const message: string = 'retrieving fields for chip options';
+          this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        });
+  }
+
+  /**
+   * Used for making api rest call to get alerts
+   *
+   * @private
+   * @param {boolean} display_message
+   * @param {boolean} acknowledge
+   * @param {boolean} escalated
+   * @param {boolean} show_closed
+   * @memberof SecurityAlertsComponent
+   */
+  private api_get_alerts_(display_message: boolean, acknowledge: boolean, escalated: boolean, show_closed: boolean): void {
+    this.alert_service_.get_alerts(this.dynamic_columns.join(','),
+                                   (this.get_time_form_group_field_value(this.start_date_time) as Date).toISOString(),
+                                   (this.get_time_form_group_field_value(this.end_date_time) as Date).toISOString(),
+                                   acknowledge, escalated, show_closed)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: Object[]) => {
+          this.update_alerts_mat_table_data_source.data = response;
+          /* istanbul ignore else */
+          if (display_message) {
+            const message: string = 'updated Alerts table!';
+            this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = 'retrieving alerts check logs for more details';
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        });
+  }
+
+  /**
+   * Used for making api rest call to get alert list
+   *
+   * @private
+   * @param {Object} update_alert
+   * @memberof SecurityAlertsComponent
+   */
+  private api_get_alert_list_(update_alert: Object): void {
+    this.alert_service_.get_alert_list(update_alert, 1)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: AlertListClass)=> {
+          const hive_id: number = Math.abs(response.hits.hits[0]['_source']['event']['hive_id']);
+          const prefix: string = this.get_link_(HIVE);
+          const url: string = `${prefix}/index.html#!/case/~~${hive_id}/details`;
+
+          this.windows_redirect_handler_service_.open_in_new_tab(url);
+        },
+        (error: HttpErrorResponse) => {
+          const message: string = 'retrieving alert list';
+          this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        });
+  }
+
+  /**
+   * Used for making api rest call to modify alert
+   *
+   * @private
+   * @param {Object} update_alert
+   * @memberof SecurityAlertsComponent
+   */
+  private api_modify_alert_(update_alert: Object): void {
+    this.alert_service_.modify_alert(update_alert)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: ModifyRemoveReturnClass) => {
+          this.success_modify_remove_alerts_(response);
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = 'modifying alert';
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        });
+  }
+
+  /**
+   * Used for making api rest call to remove alert
+   *
+   * @private
+   * @param {Object} update_alert
+   * @memberof SecurityAlertsComponent
+   */
+  private api_remove_alerts_(update_alert: Object): void {
+    this.alert_service_.remove_alerts(update_alert)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: ModifyRemoveReturnClass) => {
+          this.success_modify_remove_alerts_(response);
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = 'removing alert';
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        });
+  }
+
+  /**
+   * Used for making api rest call to get portal links
+   *
+   * @private
+   * @memberof SecurityAlertsComponent
+   */
+  private api_get_portal_links_() {
+    this.portal_service_.get_portal_links()
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: PortalLinkClass[]) => {
+          this.portal_links_ = response;
+        },
+        (error: HttpErrorResponse) => {
+          const message: string = 'retrieving portal links';
+          this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        });
+  }
+
+  /**
+   * Used for making api rest calls to get hive settings and get alert list
+   *
+   * @private
+   * @param {Object} update_alert
+   * @param {string} kibana_link
+   * @param {string} arkime_link
+   * @memberof SecurityAlertsComponent
+   */
+  private api_fork_join_get_hive_settings_and_get_alert_list_(update_alert: Object, kibana_link: string, arkime_link: string): void {
+    forkJoin({ hive_settings: this.global_hive_settings_service_.get_hive_settings(),
+               alert_list: this.alert_service_.get_alert_list(update_alert, 1) })
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: ForkJoinHiveSettingsAndAlertListInterface) => {
+          /* istanbul ignore else */
+          if (response.hive_settings.admin_api_key === '' || response.hive_settings.admin_api_key === HIVE_ORG_ADMIN_TEXT) {
+            this.mat_snackbar_service_.displaySnackBar(HIVE_NOT_CONFIGURED);
+            return;
+          }
+
+          if (!ObjectUtilitiesClass.notUndefNull(response.alert_list)) {
+            this.mat_snackbar_service_.displaySnackBar(ALERT_LIST_FAILED);
+          } else {
+            const alert_details: Object = response.alert_list.hits.hits[0];
+            let title: string = '';
+            let severity: string = '2';
+            /* istanbul ignore else */
+            if (ObjectUtilitiesClass.notUndefNull(alert_details['_source']) && ObjectUtilitiesClass.notUndefNull(alert_details['_source']['event'])) {
+              if (ObjectUtilitiesClass.notUndefNull(alert_details['_source']['event']['kind']) && alert_details['_source']['event']['kind'] === SIGNAL_KIND) {
+                title = alert_details['_source']['signal']['rule']['name'];
+              } else {
+                /* istanbul ignore else */
+                if (ObjectUtilitiesClass.notUndefNull(alert_details['_source']['rule']) && ObjectUtilitiesClass.notUndefNull(alert_details['_source']['rule']['name'])) {
+                  title = alert_details['_source']['rule']['name'];
+                }
+              }
+              /* istanbul ignore else */
+              if (ObjectUtilitiesClass.notUndefNull(alert_details['_source']['event']['severity'])) {
+                severity = alert_details['_source']['event']['severity'].toString();
+              }
+            }
+
+            const message: string = `Are you sure you want to escalate ${update_alert['count']} alerts? \
+                                     \n\nDoing so will create hive ticket.`;
+            const event_title_config: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+            event_title_config.validatorOrOpts = [Validators.required];
+            event_title_config.tooltip = EVENT_TITLE_CONFIG_TOOLTIP;
+            event_title_config.label = EVENT_TITLE_CONFIG_LABEL;
+            event_title_config.formState = title;
+            const event_tags_config: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+            event_tags_config.tooltip = EVENT_TAGS_CONFIG_TOOLTIP;
+            event_tags_config.label = EVENT_TAGS_CONFIG_LABEL;
+            event_tags_config.controlType = DialogControlTypes.chips;
+            const event_description_config: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+            event_description_config.validatorOrOpts = [Validators.required];
+            event_description_config.tooltip = EVENT_DECRIPTION_CONFIG_TOOLTIP;
+            event_description_config.label = EVENT_DECRIPTION_CONFIG_LABEL;
+            event_description_config.controlType = DialogControlTypes.textarea;
+            event_description_config.formState = `[Kibana SIEM Link](${kibana_link})\n\n[Arkime Link](${arkime_link})`;
+            const event_severity_config: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+            event_severity_config.tooltip = EVENT_SEVERITY_CONFIG_TOOLTIP;
+            event_severity_config.label = EVENT_SEVERITY_CONFIG_LABEL;
+            event_severity_config.formState = severity;
+            event_severity_config.validatorOrOpts = [Validators.required];
+            event_severity_config.controlType = DialogControlTypes.dropdown;
+            event_severity_config.options = ['1', '2', '3'];
+            const escalate_event_form_group: FormGroup = this.form_builder_.group({
+              event_title: new DialogFormControl(event_title_config),
+              event_tags: new DialogFormControl(event_tags_config),
+              event_severity: new DialogFormControl(event_severity_config),
+              event_description: new DialogFormControl(event_description_config)
+            });
+            this.open_escalate_alert_(update_alert, message, escalate_event_form_group);
+          }
+        },
+        (error: HttpErrorResponse) => {
+          const message: string = 'retrieving hive settings or alert list';
+          this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        });
   }
 }

@@ -3,6 +3,8 @@
   <br>
   <app-general-settings-pane (getGeneralSettings)="updateGeneralSettings($event)" [generalSettings]="generalSettings" [kitStatus]="kitStatus" [controllerInfo]="controllerInfo"></app-general-settings-pane>
   <br>
+  <cvah-hive-settings></cvah-hive-settings>
+  <br>
   <app-kit-settings-pane (getSettings)="updateKitSettings($event)" [generalSettings]="generalSettings" [kitStatus]="kitStatus" [controllerInfo]="controllerInfo"></app-kit-settings-pane>
   <br>
   <app-mip-settings-pane [generalSettings]="generalSettings" [kitStatus]="kitStatus"></app-mip-settings-pane>

@@ -10,14 +10,12 @@ import { takeUntil } from 'rxjs/operators';
 import {
   MockAlertListClassSuricata,
   MockAlertListClassZeek,
-  MockHiveSettingsClass,
   MockModifyRemoveReturnClass,
   MockUpdateAlertsClassArray,
   MockUpdateAlertsClassCaptureLoss
 } from '../../../../../static-data/class-objects';
 import {
   MockAlertListInterfaceSuricata,
-  MockHiveSettingsInterface,
   MockModifyRemoveReturnInterface,
   MockUpdateAlertsInterfaceArray
 } from '../../../../../static-data/interface-objects';
@@ -26,8 +24,8 @@ import { environment } from '../../../../environments/environment';
 import { ErrorMessageClass } from '../../../classes';
 import { ApiService } from '../../../services/abstract/api.service';
 import { InjectorModule } from '../../utilily-modules/injector.module';
-import { AlertListClass, HiveSettingsClass, ModifyRemoveReturnClass, UpdateAlertsClass } from '../classes';
-import { AlertServiceInterface, HiveSettingsInterface } from '../interfaces';
+import { AlertListClass, ModifyRemoveReturnClass, UpdateAlertsClass } from '../classes';
+import { AlertServiceInterface } from '../interfaces';
 import { AlertService } from './alerts.service';
 
 describe('AlertService', () => {
@@ -40,8 +38,6 @@ describe('AlertService', () => {
   let spyGetAlertList: jasmine.Spy<any>;
   let spyModifyAlert: jasmine.Spy<any>;
   let spyRemoveAlert: jasmine.Spy<any>;
-  let spySaveHiveSettings: jasmine.Spy<any>;
-  let spyGetHiveSettings: jasmine.Spy<any>;
 
   // Used to handle subscriptions
   const ngUnsubscribe$: Subject<void> = new Subject<void>();
@@ -83,8 +79,6 @@ describe('AlertService', () => {
     spyGetAlertList = spyOn(service, 'get_alert_list').and.callThrough();
     spyModifyAlert = spyOn(service, 'modify_alert').and.callThrough();
     spyRemoveAlert = spyOn(service, 'remove_alerts').and.callThrough();
-    spySaveHiveSettings = spyOn(service, 'get_hive_settings').and.callThrough();
-    spyGetHiveSettings = spyOn(service, 'save_hive_settings').and.callThrough();
   });
 
   afterAll(() => {
@@ -100,8 +94,6 @@ describe('AlertService', () => {
     spyGetAlertList.calls.reset();
     spyModifyAlert.calls.reset();
     spyRemoveAlert.calls.reset();
-    spySaveHiveSettings.calls.reset();
-    spyGetHiveSettings.calls.reset();
   };
   const after = () => {
     httpMock.verify();
@@ -164,7 +156,7 @@ describe('AlertService', () => {
 
         service.get_alerts(fields, start_time, end_time, true, false, false)
           .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: UpdateAlertsClass[]) => {
+          .subscribe((response: Object[]) => {
             expect(response.length).toEqual(MockUpdateAlertsClassArray.length);
 
             const objectKeys: string[] = Object.keys(response[0]);
@@ -193,7 +185,7 @@ describe('AlertService', () => {
         service.get_alerts(fields, start_time, end_time, true, false, false)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
-            (response: UpdateAlertsClass[]) => {},
+            (response: Object[]) => {},
             (error: ErrorMessageClass | HttpErrorResponse) => {
               if (error['error'] instanceof ErrorMessageClass) {
                 const objectKeys: string[] = Object.keys(error['error']);
@@ -221,7 +213,7 @@ describe('AlertService', () => {
         service.get_alerts(fields, start_time, end_time, true, false, false)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
-            (response: UpdateAlertsClass[]) => {},
+            (response: Object[]) => {},
             (error: HttpErrorResponse) => {
               expect(error.error).toContain(errorRequest);
               expect(service.get_alerts).toHaveBeenCalled();
@@ -435,130 +427,6 @@ describe('AlertService', () => {
         after();
       });
     });
-
-    describe('REST get_hive_settings()', () => {
-      it('should call get_hive_settings()', () => {
-        reset();
-
-        service.get_hive_settings()
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: HiveSettingsClass) => {
-            const objectKeys: string[] = Object.keys(response);
-            objectKeys.forEach((key: string) => {
-              if (!(response[key] instanceof Array)) {
-                expect(response[key]).toEqual(MockHiveSettingsClass[key]);
-              }
-            });
-
-            expect(service.get_hive_settings).toHaveBeenCalled();
-          });
-
-        const xhrURL: string = environment.ALERT_SERVICE_SETTINGS;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        expect(xhrRequest.request.method).toEqual(getType);
-
-        xhrRequest.flush(MockHiveSettingsInterface);
-
-        after();
-      });
-
-      it('should call get_hive_settings() and handle error', () => {
-        reset();
-
-        service.get_hive_settings()
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (response: HiveSettingsClass) => {},
-            (error: HttpErrorResponse) => {
-              expect(error.error).toContain(errorRequest);
-              expect(service.get_hive_settings).toHaveBeenCalled();
-            });
-
-        const xhrURL: string = environment.ALERT_SERVICE_SETTINGS;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        xhrRequest.flush(errorRequest, mockErrorResponse);
-
-        after();
-      });
-    });
-
-    describe('REST save_hive_settings()', () => {
-      it('should call save_hive_settings()', () => {
-        reset();
-
-        service.save_hive_settings(MockHiveSettingsInterface)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: HiveSettingsClass) => {
-            const objectKeys: string[] = Object.keys(response);
-            objectKeys.forEach((key: string) => {
-              if (!(response[key] instanceof Array)) {
-                expect(response[key]).toEqual(MockHiveSettingsClass[key]);
-              }
-            });
-
-            expect(service.save_hive_settings).toHaveBeenCalled();
-          });
-
-        const xhrURL: string = environment.ALERT_SERVICE_SETTINGS;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        expect(xhrRequest.request.method).toEqual(postType);
-
-        xhrRequest.flush(MockHiveSettingsInterface);
-
-        after();
-      });
-
-      it('should call save_hive_settings() and handle error message error', () => {
-        reset();
-
-        service.save_hive_settings(MockHiveSettingsInterface)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (response: HiveSettingsClass) => {},
-            (error: ErrorMessageClass | HttpErrorResponse) => {
-              if (error['error'] instanceof ErrorMessageClass) {
-                const objectKeys: string[] = Object.keys(error['error']);
-                objectKeys.forEach((key: string) => {
-                  if (!(error['error'][key] instanceof Array)) {
-                    expect(error['error'][key]).toEqual(errorMessageRequest[key]);
-                  }
-                });
-                expect(error['error']).toContain(errorMessageRequest);
-              }
-              expect(service.save_hive_settings).toHaveBeenCalled();
-            });
-
-        const xhrURL: string = environment.ALERT_SERVICE_SETTINGS;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        xhrRequest.flush(errorMessageRequest, mockErrorResponse);
-
-        after();
-      });
-
-      it('should call save_hive_settings() and handle error', () => {
-        reset();
-
-        service.save_hive_settings(MockHiveSettingsInterface)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (response: HiveSettingsClass) => {},
-            (error: HttpErrorResponse) => {
-              expect(error.error).toContain(errorRequest);
-              expect(service.save_hive_settings).toHaveBeenCalled();
-            });
-
-        const xhrURL: string = environment.ALERT_SERVICE_SETTINGS;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        xhrRequest.flush(errorRequest, mockErrorResponse);
-
-        after();
-      });
-    });
   });
 });
 
@@ -572,27 +440,19 @@ export class AlertServiceSpy implements AlertServiceInterface {
   get_alerts = jasmine.createSpy('get_alerts').and.callFake(
     (fields: string, start_time: string,
      end_time: string, acknowledged: boolean=false,
-     escalated: boolean=false, show_closed: boolean=false): Observable<UpdateAlertsClass[]> => this.call_fake_get_alerts(fields, start_time, end_time, acknowledged, escalated, show_closed)
+     escalated: boolean=false, show_closed: boolean=false): Observable<Object[]> => this.call_fake_get_alerts(fields, start_time, end_time, acknowledged, escalated, show_closed)
   );
 
   get_alert_list = jasmine.createSpy('get_alert_list').and.callFake(
-    (update_alert: UpdateAlertsClass, size: number=0): Observable<AlertListClass> => this.call_fake_get_alert_list(update_alert, size)
+    (update_alert: Object, size: number=0): Observable<AlertListClass> => this.call_fake_get_alert_list(update_alert, size)
   );
 
   modify_alert = jasmine.createSpy('modify_alert').and.callFake(
-    (update_alert: UpdateAlertsClass): Observable<ModifyRemoveReturnClass> => this.call_fake_modify_alert(update_alert)
+    (update_alert: Object): Observable<ModifyRemoveReturnClass> => this.call_fake_modify_alert(update_alert)
   );
 
   remove_alerts = jasmine.createSpy('remove_alerts').and.callFake(
-    (update_alert: UpdateAlertsClass): Observable<ModifyRemoveReturnClass> => this.call_fake_remove_alerts(update_alert)
-  );
-
-  get_hive_settings = jasmine.createSpy('get_hive_settings').and.callFake(
-    (): Observable<HiveSettingsClass> => this.call_fake_get_hive_settings()
-  );
-
-  save_hive_settings = jasmine.createSpy('save_hive_settings').and.callFake(
-    (hive_settings: HiveSettingsInterface): Observable<HiveSettingsClass> => this.call_fake_save_hive_settings(hive_settings)
+    (update_alert: Object): Observable<ModifyRemoveReturnClass> => this.call_fake_remove_alerts(update_alert)
   );
 
   call_fake_get_fields(): Observable<string[]> {
@@ -601,27 +461,19 @@ export class AlertServiceSpy implements AlertServiceInterface {
 
   call_fake_get_alerts(fields: string, start_time: string,
                        end_time: string, acknowledged: boolean=false,
-                       escalated: boolean=false, show_closed: boolean=false): Observable<UpdateAlertsClass[]> {
+                       escalated: boolean=false, show_closed: boolean=false): Observable<Object[]> {
     return of(MockUpdateAlertsClassArray);
   }
 
-  call_fake_get_alert_list(update_alert: UpdateAlertsClass, size: number=0): Observable<AlertListClass> {
+  call_fake_get_alert_list(update_alert: Object, size: number=0): Observable<AlertListClass> {
     return of(MockAlertListClassZeek);
   }
 
-  call_fake_modify_alert(update_alert: UpdateAlertsClass): Observable<ModifyRemoveReturnClass> {
+  call_fake_modify_alert(update_alert: Object): Observable<ModifyRemoveReturnClass> {
     return of(MockModifyRemoveReturnClass);
   }
 
-  call_fake_remove_alerts(update_alert: UpdateAlertsClass): Observable<ModifyRemoveReturnClass> {
+  call_fake_remove_alerts(update_alert: Object): Observable<ModifyRemoveReturnClass> {
     return of(MockModifyRemoveReturnClass);
-  }
-
-  call_fake_get_hive_settings(): Observable<HiveSettingsClass> {
-    return of(MockHiveSettingsClass);
-  }
-
-  call_fake_save_hive_settings(hive_settings: HiveSettingsInterface): Observable<HiveSettingsClass> {
-    return of(MockHiveSettingsClass);
   }
 }

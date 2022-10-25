@@ -1,5 +1,4 @@
-import { AlertListHitsInterface, HitInterface } from '../interfaces';
-import { HitClass } from './hit.class';
+import { AlertListHitsInterface } from '../interfaces';
 
 /**
  * Class defines the Alert List Hits
@@ -14,7 +13,7 @@ export class AlertListHitsClass implements AlertListHitsInterface {
     relation: string;
   };
   max_score: number;
-  hits: HitClass[];
+  hits: Object[];
 
   /**
    * Creates an instance of AlertListHitsClass.
@@ -25,6 +24,6 @@ export class AlertListHitsClass implements AlertListHitsInterface {
   constructor(alert_list_hits_interface: AlertListHitsInterface) {
     this.total = alert_list_hits_interface.total;
     this.max_score = alert_list_hits_interface.max_score;
-    this.hits = alert_list_hits_interface.hits.map((hit: HitInterface) => new HitClass(hit));
+    this.hits = alert_list_hits_interface.hits;
   }
 }

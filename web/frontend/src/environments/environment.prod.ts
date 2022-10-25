@@ -95,6 +95,8 @@ export const environment = {
   ALERT_SERVICE_REMOVE: '/api/alerts/remove',
   ALERT_SERVICE_SETTINGS: '/api/alerts/settings',
 
+  GLOBAL_ALERT_SERVICE_SETTINGS: '/api/alerts/settings',
+
   TOOLS_SERVICE_CHANGE_KIT_PASSWORD: `/api/tools/change-kit-password`,
   TOOLS_SERVICE_UPLOAD_DOCUMENTATION: `/api/tools/documentation/upload`,
   TOOLS_SERVICE_MONITORING_INTERFACE: `/api/tools/monitoring-interfaces`,

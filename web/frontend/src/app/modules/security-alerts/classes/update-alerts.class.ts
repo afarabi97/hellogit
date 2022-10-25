@@ -1,7 +1,5 @@
 import { ObjectUtilitiesClass, PortalLinkClass } from '../../../classes';
-import { PortalLinkInterface } from '../../../interfaces';
-import { UpdateAlertsInterface } from '../interfaces';
-import { AlertFormClass } from './alert-form.class';
+import { UpdateAlertsInterface, AlertFormInterface } from '../interfaces';
 
 /**
  * Class defines the Update Alerts
@@ -15,7 +13,13 @@ export class UpdateAlertsClass implements UpdateAlertsInterface {
   'event.module': string;
   'event.kind': string;
   'rule.name': string;
-  form?: AlertFormClass;
+  'source.address'?: string;
+  'source.ip'?: string;
+  'source.port'?: string;
+  'destination.port'?: string;
+  'destination.address'?: string;
+  'destination.ip'?: string;
+  form?: AlertFormInterface;
   links?: PortalLinkClass[];
   'event.escalated'?: boolean;
 
@@ -30,14 +34,23 @@ export class UpdateAlertsClass implements UpdateAlertsInterface {
     this['event.module'] = update_alerts_interface['event.module'];
     this['event.kind'] = update_alerts_interface['event.kind'];
     this['rule.name'] = update_alerts_interface['rule.name'];
-    if (ObjectUtilitiesClass.notUndefNull(update_alerts_interface.form)) {
-      this.form = new AlertFormClass(update_alerts_interface.form);
+    if (ObjectUtilitiesClass.notUndefNull(update_alerts_interface['source.address'])) {
+      this['source.address'] = update_alerts_interface['source.address'];
     }
-    if (ObjectUtilitiesClass.notUndefNull(update_alerts_interface.links)) {
-      this.links = update_alerts_interface.links.map((link: PortalLinkInterface) => new PortalLinkClass(link));
+    if (ObjectUtilitiesClass.notUndefNull(update_alerts_interface['source.ip'])) {
+      this['source.ip'] = update_alerts_interface['source.ip'];
     }
-    if (ObjectUtilitiesClass.notUndefNull(update_alerts_interface['event.escalated'])) {
-      this['event.escalated'] = update_alerts_interface['event.escalated'];
+    if (ObjectUtilitiesClass.notUndefNull(update_alerts_interface['source.port'])) {
+      this['source.port'] = update_alerts_interface['source.port'];
+    }
+    if (ObjectUtilitiesClass.notUndefNull(update_alerts_interface['destination.port'])) {
+      this['destination.port'] = update_alerts_interface['destination.port'];
+    }
+    if (ObjectUtilitiesClass.notUndefNull(update_alerts_interface['destination.address'])) {
+      this['destination.address'] = update_alerts_interface['destination.address'];
+    }
+    if (ObjectUtilitiesClass.notUndefNull(update_alerts_interface['source.address'])) {
+      this['destination.ip'] = update_alerts_interface['destination.ip'];
     }
   }
 }

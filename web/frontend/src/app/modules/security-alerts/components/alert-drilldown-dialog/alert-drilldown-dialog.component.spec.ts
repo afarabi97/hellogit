@@ -16,7 +16,6 @@ import {
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { InjectorModule } from '../../../utilily-modules/injector.module';
-import { HitSourceClass } from '../../classes';
 import {
   ACTIONS_COLUMN_NAME,
   COUNT_COLUMN_NAME,
@@ -228,15 +227,15 @@ describe('AlertDrillDownDialogComponent', () => {
       it('should call get_column_value() and return known value', () => {
         reset();
 
-        const return_value: HitSourceClass | number | boolean | string = component.get_column_value(MockAlertListClassSignal.hits.hits[0], RULE_NAME_COLUMN_NAME);
+        const return_value: Object | number | boolean | string = component.get_column_value(MockAlertListClassSignal.hits.hits[0], RULE_NAME_COLUMN_NAME);
 
-        expect(return_value).toEqual(MockAlertListClassSignal.hits.hits[0]._source.signal.rule.name);
+        expect(return_value).toEqual(MockAlertListClassSignal.hits.hits[0]['_source']['signal']['rule']['name']);
       });
 
       it('should call get_column_value() and return empty string', () => {
         reset();
 
-        const return_value: HitSourceClass | number | boolean | string = component.get_column_value(MockAlertListClassSignal.hits.hits[0], undefined);
+        const return_value: Object | number | boolean | string = component.get_column_value(MockAlertListClassSignal.hits.hits[0], undefined);
 
         expect(return_value).toEqual('');
       });
@@ -256,7 +255,7 @@ describe('AlertDrillDownDialogComponent', () => {
 
         const return_value: string = component.get_timestamp(MockAlertListClassSignal.hits.hits[0]);
 
-        expect(return_value).toEqual(MockAlertListClassSignal.hits.hits[0]._source['@timestamp']);
+        expect(return_value).toEqual(MockAlertListClassSignal.hits.hits[0]['_source']['@timestamp']);
       });
 
       it('should call get_timestamp() and return empty string', () => {
@@ -342,7 +341,7 @@ describe('AlertDrillDownDialogComponent', () => {
         component.update_alerts_mat_dialog_data = MockUpdateAlertsClassDataBeforeEstablishedDays;
         component.open_in_arkime(MockAlertListClassZeek.hits.hits[0]);
 
-        expect(component.update_alerts_mat_dialog_data.form.timeInterval).toEqual(DAYS);
+        expect(component.update_alerts_mat_dialog_data['form'].timeInterval).toEqual(DAYS);
       });
 
       it('should call windows_redirect_handler_service_.open_in_new_tab() when prefix != empty string and timeInterval = MINUTES and time_amount > 60', () => {
@@ -351,7 +350,7 @@ describe('AlertDrillDownDialogComponent', () => {
         component.update_alerts_mat_dialog_data = MockUpdateAlertsClassDataBeforeEstablishedMinutesGreater60;
         component.open_in_arkime(MockAlertListClassZeek.hits.hits[0]);
 
-        expect(component.update_alerts_mat_dialog_data.form.timeInterval).toEqual(MINUTES);
+        expect(component.update_alerts_mat_dialog_data['form'].timeInterval).toEqual(MINUTES);
       });
 
       it('should call mat_snackbar_service_.displaySnackBar() from open_in_arkime() when alert._source.network.community_id undefined', () => {

@@ -10,7 +10,7 @@ import { ObjectUtilitiesClass, PortalLinkClass } from '../../../../classes';
 import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../../../constants/cvah.constants';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { WindowsRedirectHandlerService } from '../../../../services/windows_redirect_handler.service';
-import { AlertListClass, HitClass, HitSourceClass, UpdateAlertsClass } from '../../classes';
+import { AlertListClass } from '../../classes';
 import {
   ACTIONS_COLUMN_NAME,
   ALERT_KIND,
@@ -57,7 +57,7 @@ export class AlertDrillDownDialogComponent implements OnInit, AfterViewInit, OnC
   // Used for keep list of all columns from fields of supplied table object
   all_columns: string[];
   // Used for passing data and other feed back to table data source
-  alerts_mat_table_data_source: MatTableDataSource<HitClass>;
+  alerts_mat_table_data_source: MatTableDataSource<Object>;
   // Used for keeping a list of portal links
   private portal_links_: PortalLinkClass[];
 
@@ -68,16 +68,16 @@ export class AlertDrillDownDialogComponent implements OnInit, AfterViewInit, OnC
    * @param {AlertService} alert_service_
    * @param {MatSnackBarService} mat_snackbar_service_
    * @param {WindowsRedirectHandlerService} windows_redirect_handler_service_
-   * @param {UpdateAlertsClass} update_alerts_mat_dialog_data
+   * @param {Object} update_alerts_mat_dialog_data
    * @memberof AlertDrillDownDialogComponent
    */
   constructor(private mat_dialog_ref_: MatDialogRef<AlertDrillDownDialogComponent>,
               private alert_service_: AlertService,
               private mat_snackbar_service_: MatSnackBarService,
               private windows_redirect_handler_service_: WindowsRedirectHandlerService,
-              @Inject(MAT_DIALOG_DATA) public update_alerts_mat_dialog_data: UpdateAlertsClass) {
+              @Inject(MAT_DIALOG_DATA) public update_alerts_mat_dialog_data: Object) {
     this.alerts_mat_table_data_source = new MatTableDataSource();
-    this.portal_links_ = this.update_alerts_mat_dialog_data.links;
+    this.portal_links_ = this.update_alerts_mat_dialog_data['links'];
     this.all_columns = [];
     this.dynamic_columns = [];
   }
@@ -102,7 +102,7 @@ export class AlertDrillDownDialogComponent implements OnInit, AfterViewInit, OnC
   }
 
   /**
-   * Used for updating table source with needed dataa and paginator when changes occure
+   * Used for updating table source with needed dataa and paginator when changes occur
    *
    * @memberof AlertDrillDownDialogComponent
    */
@@ -123,22 +123,22 @@ export class AlertDrillDownDialogComponent implements OnInit, AfterViewInit, OnC
   }
 
   /**
+   * Used for retrieving column value
    *
-   *
-   * @param {HitClass} alert
+   * @param {Object} alert
    * @param {string} column_name
    * @return {(HitSourceClass | number | boolean | string)}
    * @memberof AlertDrillDownDialogComponent
    */
-  get_column_value(alert: HitClass, column_name: string): HitSourceClass | number | boolean | string {
+  get_column_value(alert: Object, column_name: string): Object | number | boolean | string {
     /* istanbul ignore else */
     if (column_name === RULE_NAME_COLUMN_NAME) {
       /* istanbul ignore else */
       if ((ObjectUtilitiesClass.notUndefNull(alert)) &&
-          (ObjectUtilitiesClass.notUndefNull(alert._source)) &&
-          (ObjectUtilitiesClass.notUndefNull(alert._source.event)) &&
-          (ObjectUtilitiesClass.notUndefNull(alert._source.event.kind)) &&
-          (alert._source.event.kind === SIGNAL_KIND)) {
+          (ObjectUtilitiesClass.notUndefNull(alert['_source'])) &&
+          (ObjectUtilitiesClass.notUndefNull(alert['_source']['event'])) &&
+          (ObjectUtilitiesClass.notUndefNull(alert['_source']['event']['kind'])) &&
+          (alert['_source']['event']['kind'] === SIGNAL_KIND)) {
         column_name = SIGNAL_RULE_NAME_COLUMN_NAME;
       }
     }
@@ -146,7 +146,7 @@ export class AlertDrillDownDialogComponent implements OnInit, AfterViewInit, OnC
     if (ObjectUtilitiesClass.notUndefNull(alert) &&
         ObjectUtilitiesClass.notUndefNull(column_name)) {
       const values: string[] = column_name.split('.');
-      let ret_val: HitSourceClass = alert._source;
+      let ret_val: Object = alert['_source'];
       for (const i of values) {
         ret_val = ret_val[i];
       }
@@ -159,41 +159,41 @@ export class AlertDrillDownDialogComponent implements OnInit, AfterViewInit, OnC
   /**
    * Used for checking and returning the @timestamp field
    *
-   * @param {HitClass} alert
+   * @param {Object} alert
    * @return {string}
    * @memberof AlertDrillDownDialogComponent
    */
-  get_timestamp(alert: HitClass): string {
+  get_timestamp(alert: Object): string {
     return ObjectUtilitiesClass.notUndefNull(alert) &&
-           ObjectUtilitiesClass.notUndefNull(alert._source) &&
-           ObjectUtilitiesClass.notUndefNull(alert._source[TIMESTAMP_SOURCE]) ? alert._source[TIMESTAMP_SOURCE] : '';
+           ObjectUtilitiesClass.notUndefNull(alert['_source']) &&
+           ObjectUtilitiesClass.notUndefNull(alert['_source'][TIMESTAMP_SOURCE]) ? alert['_source'][TIMESTAMP_SOURCE] : '';
   }
 
   /**
    * Used for opening alert in kibana
    *
-   * @param {HitClass} alert
+   * @param {Object} alert
    * @memberof AlertDrillDownDialogComponent
    */
-  open_in_kibana(alert: HitClass): void {
-    const id: string = alert._id;
-    const start_date_time: string = this.update_alerts_mat_dialog_data.form.startDatetime.toISOString();
-    const end_date_time: string = this.update_alerts_mat_dialog_data.form.endDatetime.toISOString();
+  open_in_kibana(alert: Object): void {
+    const id: string = alert['_id'];
+    const start_date_time: string = this.update_alerts_mat_dialog_data['form'].startDatetime.toISOString();
+    const end_date_time: string = this.update_alerts_mat_dialog_data['form'].endDatetime.toISOString();
     const prefix: string = this.get_link_(KIBANA);
     let index: string = 'filebeat-*';
 
     /* istanbul ignore else */
-    if (ObjectUtilitiesClass.notUndefNull(alert._source.event.kind)) {
+    if (ObjectUtilitiesClass.notUndefNull(alert['_source']['event']['kind'])) {
       let url: string = '';
       /* istanbul ignore else */
-      if (alert._source.event.kind === ALERT_KIND) {
+      if (alert['_source']['event']['kind'] === ALERT_KIND) {
         /* istanbul ignore else */
-        if (alert._source.event.module === ENDGAME_MODULE) {
+        if (alert['_source']['event'].module === ENDGAME_MODULE) {
           index = ENDGAME_INDEX;
         }
       }
 
-      if (alert._source.event.kind === SIGNAL_KIND) {
+      if (alert['_source']['event']['kind'] === SIGNAL_KIND) {
         url = `${prefix}/app/security/detections?query=(language:kuery,query:%27_id%20:%20%22${id}%22%27)&timerange=(global:(linkTo:!(timeline),timerange:(from:%27${start_date_time}%27,kind:absolute,to:%27${end_date_time}%27)),timeline:(linkTo:!(global),timerange:(from:%27${start_date_time}%27,kind:absolute,to:%27${end_date_time}%27)))`;
       } else {
         url = `${prefix}/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'${start_date_time}',to:'${end_date_time}'))&_a=(columns:!(_source),filters:!(),index:'${index}',interval:auto,query:(language:kuery,query:'_id:%20%22${id}%22%20'),sort:!())`;
@@ -209,31 +209,31 @@ export class AlertDrillDownDialogComponent implements OnInit, AfterViewInit, OnC
   /**
    * Used for opening alert in arkime
    *
-   * @param {HitClass} alert
+   * @param {Object} alert
    * @memberof AlertDrillDownDialogComponent
    */
-  open_in_arkime(alert: HitClass): void {
+  open_in_arkime(alert: Object): void {
     const prefix: string = this.get_link_(ARKIME);
-    const time_amount: number = this.update_alerts_mat_dialog_data.form.timeAmount;
+    const time_amount: number = this.update_alerts_mat_dialog_data['form'].timeAmount;
     let hour_amount: number = 1;
 
     if (prefix === '') {
       this.mat_snackbar_service_.displaySnackBar(ARKIME_NOT_INSTALLED_MESSAGE);
     } else {
       /* istanbul ignore else */
-      if (this.update_alerts_mat_dialog_data.form.timeInterval === DAYS) {
+      if (this.update_alerts_mat_dialog_data['form'].timeInterval === DAYS) {
         hour_amount = time_amount * 24;
-      } else if (this.update_alerts_mat_dialog_data.form.timeInterval === MINUTES) {
+      } else if (this.update_alerts_mat_dialog_data['form'].timeInterval === MINUTES) {
         /* istanbul ignore else */
         if (time_amount > 60) {
           hour_amount = Math.floor(time_amount / 60);
         }
       }
 
-      if (ObjectUtilitiesClass.notUndefNull(alert._source) &&
-          ObjectUtilitiesClass.notUndefNull(alert._source.network) &&
-          ObjectUtilitiesClass.notUndefNull(alert._source.network.community_id)) {
-        const community_id: string = encodeURIComponent(alert._source.network.community_id);
+      if (ObjectUtilitiesClass.notUndefNull(alert['_source']) &&
+          ObjectUtilitiesClass.notUndefNull(alert['_source'].network) &&
+          ObjectUtilitiesClass.notUndefNull(alert['_source'].network.community_id)) {
+        const community_id: string = encodeURIComponent(alert['_source'].network.community_id);
         const url: string = `${prefix}/sessions?expression=communityId%20%3D%3D%20%22${community_id}%22&date=${hour_amount}`;
 
         this.windows_redirect_handler_service_.open_in_new_tab(url);
@@ -256,10 +256,10 @@ export class AlertDrillDownDialogComponent implements OnInit, AfterViewInit, OnC
    * Used for constructing dynamic and all columns arrays
    *
    * @private
-   * @param {UpdateAlertsClass} update_alerts
+   * @param {Object} update_alerts
    * @memberof AlertDrillDownDialogComponent
    */
-  private set_columns_(update_alerts: UpdateAlertsClass): void {
+  private set_columns_(update_alerts: Object): void {
     for (const field in update_alerts) {
       /* istanbul ignore else */
       if (field === COUNT_COLUMN_NAME || field === FORM_COLUMN_NAME || field === LINKS_COLUMN_NAME) {

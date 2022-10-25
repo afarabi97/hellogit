@@ -15,11 +15,13 @@ export const DIALOG_WIDTH_35PERCENT: string = '35%';
 export const DIALOG_WIDTH_50PERCENT: string = '50%';
 export const DIALOG_WIDTH_500PX: string = '500px';
 export const DIALOG_WIDTH_800PX: string = '800px';
+export const DIALOG_WIDTH_1000PX: string = '1000px';
 export const DIALOG_MIN_WIDTH_400PX: string = '400px';
 export const DIALOG_MAX_HEIGHT_800PX: string = '800px';
 export const CONFIRM_DIALOG_OPTION: string = 'Confirm';
 export const CONTINUE_DIALOG_OPTION: string = 'Continue';
 export const SUBMIT_DIALOG_OPTION: string = 'Submit';
+export const SAVE_DIALOG_OPTION: string = 'Save';
 export const CANCEL_DIALOG_OPTION: string = 'Cancel';
 export const TAKE_ME_BACK_DIALOG_OPTION: string = 'Take Me Back';
 export const MAT_SNACKBAR_ACTION_LABEL_CLOSE: string = 'Close';
@@ -45,37 +47,37 @@ export const MAT_SNACKBAR_CONFIGURATION_60000_DUR_OK: MatSnackbarConfigurationCl
   actionLabel: MAT_SNACKBAR_ACTION_LABEL_OK
 };
 
-//Feedback
-export const INVALID_FEEDBACK_INTERFACE = 'No interfaces found! Are you sure you have a second eligible interface that is not the management interface?';
-export const INVALID_FEEDBACK_IP = 'You must enter a valid IP address.';
-export const CIDR_CONSTRAINT_MSG = 'You must enter a CIDR IP in the x.x.x.x/xx format or use the "any" keyword.';
+// Feedback
+export const INVALID_FEEDBACK_INTERFACE: string = 'No interfaces found! Are you sure you have a second eligible interface that is not the management interface?';
+export const INVALID_FEEDBACK_IP: string = 'You must enter a valid IP address.';
+export const CIDR_CONSTRAINT_MSG: string = 'You must enter a CIDR IP in the x.x.x.x/xx format or use the "any" keyword.';
 
-//Constraints
-export const IP_CONSTRAINT =
+// Constraints
+export const IP_CONSTRAINT: string =
   "^((2[0-2][0-3])|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){2}\\.((25[0-4])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))$";
-export const HOST_CONSTRAINT =
+export const HOST_CONSTRAINT: string =
   "^[a-zA-Z]([a-zA-Z]|[0-9]|[-])*$";
-export const WINDOWS_HOST_CONSTRAINT =
+export const WINDOWS_HOST_CONSTRAINT: string =
   "^[a-zA-Z]([a-zA-Z]|[0-9]|[-_.])*$";
-export const IP_CONSTRAINT_WITH_SUBNET =
+export const IP_CONSTRAINT_WITH_SUBNET: string =
   "((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$";
-export const URL_CONSTRAINT =
+export const URL_CONSTRAINT: string =
   "^(ftp:\\/\\/.|http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?\\.iso$";
-export const NON_ISO_URL_CONSTRAINT =
+export const NON_ISO_URL_CONSTRAINT: string =
   "^(http(s)?:\\/\\/)[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]+$";
-export const CIDR_CONSTRAINT =
+export const CIDR_CONSTRAINT: string =
   "any|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[1-9])";
-export const KUBE_CIDR_CONSTRAINT =
+export const KUBE_CIDR_CONSTRAINT: string =
   '^((2[0-2][0-3])|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){2}\\.((2[0-3]\\d)|(1\\d\\d)|([1-9]?\\d))$';
 export const SPACE_NAME_CONSTRAINT: string = '^[a-zA-Z]{1,50}$';
 
 // MISC
-export const KIT_ID = "kit_form";
-export const PORTAL_ID = 'portal_links';
-export const CTRL_SELECTED = "A controller interface must first be selected.";
-export const SENSOR_APPS = ["bro", "suricata", "arkime"];
-export const GENERAL_KIT_FAILURE_MSG = 'Kit failed to generate Kit inventory file for an unknown reason. Please check the logs files located in /var/log/tfplenum for more details.';
-export const NODE_TYPES = ["Server", "Sensor", "MIP"]; //Added MIP
+export const KIT_ID: string = "kit_form";
+export const PORTAL_ID: string = 'portal_links';
+export const CTRL_SELECTED: string = "A controller interface must first be selected.";
+export const SENSOR_APPS: string[] = ["bro", "suricata", "arkime"];
+export const GENERAL_KIT_FAILURE_MSG: string = 'Kit failed to generate Kit inventory file for an unknown reason. Please check the logs files located in /var/log/tfplenum for more details.';
+export const NODE_TYPES: string[] = ["Server", "Sensor", "MIP"]; //Added MIP
 export const COMMON_VALIDATORS = {
   required: [
     { error_message: 'Required field', validatorFn: 'required' }
@@ -111,3 +113,7 @@ export const WEBSOCKET_MESSAGE_MESSAGE_REMOVE_NODE: string = 'Remove Node';
 export const WEBSOCKET_MESSAGE_MESSAGE_ADD_NODE: string = 'Add Node';
 export const WEBSOCKET_MESSAGE_MESSAGE_CREATE_VIRTUAL_MACHINE: string = 'Create Virtual Machine';
 export const WEBSOCKET_MESSAGE_MESSAGE_PROVISION_VIRTUAL_MACHINE: string = 'Provision Virtual Machine';
+
+// Boolean as String values
+export const TRUE: string = 'true';
+export const FALSE: string = 'false';

@@ -1,5 +1,4 @@
 export * from './agent-installer-configuration.class';
-export * from './alert-form.class';
 export * from './alert-list.class';
 export * from './app-config.class';
 export * from './app.class';

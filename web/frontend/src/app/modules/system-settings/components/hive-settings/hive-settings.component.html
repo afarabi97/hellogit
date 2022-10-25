@@ -1,0 +1,40 @@
+<mat-card>
+  <mat-card-header>
+      <mat-card-title>
+          <a id="cvah-hive-settings-hive-settings-toggle" (click)="toggle_card()">
+              <span class="material-icons">{{ is_card_visible ? "expand_more" : "chevron_right" }}</span>
+              <span style="vertical-align: top;">Hive Settings</span>
+          </a>
+      </mat-card-title>
+  </mat-card-header>
+  <mat-card-content *ngIf="is_card_visible" fxLayout="column" fxLayoutAlign="space-around stretch">
+    <p>NOTE: In order to Hive event escalation to work, please copy and paste keys found inside the Hive's applcation settings.</p>
+    <form [formGroup]="hive_settings_form_group">
+      <div fxLayout="column" fxLayoutAlign="start stretch">
+        <!-- admin_api_key -->
+        <mat-form-field>
+          <mat-label>HIVE Admin API Key</mat-label>
+          <input matInput id="cvah-hive-settings-input-admin-api-key"
+                 matTooltip="'Must be a valid Hive token that is 32 characters in length.'"
+                 formControlName="admin_api_key">
+        </mat-form-field>
+        <!-- org_admin_api_key -->
+        <mat-form-field>
+          <mat-label>HIVE Org Admin API Key</mat-label>
+          <input matInput id="cvah-hive-settings-input-org-admin-api-key"
+                 matTooltip="'Must be a valid Hive token that is 32 characters in length.'"
+                 formControlName="org_admin_api_key">
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-card-content>
+  <mat-card-actions *ngIf="is_card_visible">
+      <button mat-raised-button
+              id="cvah-hive-settings-button-save"
+              [disabled]="!hive_settings_form_group.valid || hive_settings_form_group.untouched"
+              color="primary"
+              (click)=save()>
+        Save
+      </button>
+  </mat-card-actions>
+</mat-card>

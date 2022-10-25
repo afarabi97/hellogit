@@ -1,87 +1,54 @@
 import { UpdateAlertsInterface } from '../../src/app/modules/security-alerts/interfaces';
-import {
-  MockAlertFormInterfaceDays,
-  MockAlertFormInterfaceMinutesGreater60,
-  MockAlertFormInterfaceMinutesLess60
-} from './alert-form.interface';
-import { MockPortalLinkFakeInterface, MockPortalLinkInterface } from './portal-link.interface';
 
 export const MockUpdateAlertsInterfaceCaptureLoss: UpdateAlertsInterface = {
   count: 768,
   'event.module': 'zeek',
   'event.kind': 'alert',
-  'rule.name': 'CaptureLoss::Too_Little_Traffic',
-  form: MockAlertFormInterfaceDays,
-  links: [
-    MockPortalLinkInterface,
-    MockPortalLinkFakeInterface
-  ]
+  'rule.name': 'CaptureLoss::Too_Little_Traffic'
 };
 export const MockUpdateAlertsInterfaceBadICMPChecksum: UpdateAlertsInterface = {
   count: 6,
-  'event.module': 'zeek',
-  'event.kind': 'alert',
-  'rule.name': 'bad_ICMP_checksum',
-  form: MockAlertFormInterfaceDays,
-  links: [
-    MockPortalLinkInterface,
-    MockPortalLinkFakeInterface
-  ]
+  'event.module': 'system',
+  'event.kind': 'signal',
+  'rule.name': 'bad_ICMP_checksum'
 };
 export const MockUpdateAlertsInterfacePossibleSplitRouting: UpdateAlertsInterface = {
   count: 2,
-  'event.module': 'zeek',
+  'event.module': 'suricata',
   'event.kind': 'alert',
-  'rule.name': 'possible_split_routing',
-  form: MockAlertFormInterfaceDays,
-  links: [
-    MockPortalLinkInterface,
-    MockPortalLinkFakeInterface
-  ]
+  'rule.name': 'possible_split_routing'
 };
 export const MockUpdateAlertsInterfaceDataBeforeEstablished: UpdateAlertsInterface = {
   count: 1,
-  'event.module': 'zeek',
+  'event.module': 'endgame',
   'event.kind': 'alert',
-  'rule.name': 'data_before_established',
-  form: MockAlertFormInterfaceDays,
-  links: [
-    MockPortalLinkInterface,
-    MockPortalLinkFakeInterface
-  ]
+  'rule.name': 'data_before_established'
 };
 export const MockUpdateAlertsInterfaceDataBeforeEstablishedDays: UpdateAlertsInterface = {
   count: 1,
-  'event.module': 'zeek',
+  'event.module': 'system',
   'event.kind': 'alert',
-  'rule.name': 'data_before_established',
-  form: MockAlertFormInterfaceDays,
-  links: [
-    MockPortalLinkInterface,
-    MockPortalLinkFakeInterface
-  ]
+  'rule.name': 'data_before_established'
 };
 export const MockUpdateAlertsInterfaceDataBeforeEstablishedMinutesLess60: UpdateAlertsInterface = {
   count: 1,
-  'event.module': 'zeek',
+  'event.module': 'sysmon',
   'event.kind': 'alert',
-  'rule.name': 'data_before_established',
-  form: MockAlertFormInterfaceMinutesLess60,
-  links: [
-    MockPortalLinkInterface,
-    MockPortalLinkFakeInterface
-  ]
+  'rule.name': 'data_before_established'
 };
 export const MockUpdateAlertsInterfaceDataBeforeEstablishedMinutesGreater60: UpdateAlertsInterface = {
   count: 1,
   'event.module': 'zeek',
   'event.kind': 'alert',
+  'rule.name': 'data_before_established'
+};
+export const MockUpdateAlertsInterfaceWithArkimeFields: UpdateAlertsInterface = {
+  count: 1,
+  'event.module': 'zeek',
+  'event.kind': 'alert',
   'rule.name': 'data_before_established',
-  form: MockAlertFormInterfaceMinutesGreater60,
-  links: [
-    MockPortalLinkInterface,
-    MockPortalLinkFakeInterface
-  ]
+  'source.address': 'source-address',
+  '@timestamp': '2022-09-20T05:05:20.098Z'
 };
 export const MockUpdateAlertsInterfaceArray: UpdateAlertsInterface[] = [
   MockUpdateAlertsInterfaceCaptureLoss,

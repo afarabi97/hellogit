@@ -12,8 +12,9 @@ export interface AlertFormInterface {
   showClosed: boolean;
   timeInterval: string;
   timeAmount: number;
-  performEscalation: boolean;
-  hiveForm: HiveFormInterface;
+  performEscalation?: boolean;
+  hiveForm?: HiveFormInterface;
   startDatetime?: Date;
   endDatetime?: Date;
+  absoluteTime?: boolean;
 }

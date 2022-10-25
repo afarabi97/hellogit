@@ -5,6 +5,8 @@ import { CatalogService } from '../../services/catalog.service';
 import { CatalogServiceSpy } from '../../services/catalog.service.spec';
 import { CookieService } from '../../services/cookies.service';
 import { CookieServiceSpy } from '../../services/cookies.service.spec';
+import { GlobalHiveSettingsService } from '../../services/global-hive-settings.service';
+import { GlobalHiveSettingsServiceSpy } from '../../services/global-hive-settings.service.spec';
 import { GlobalJobService } from '../../services/global-job.service';
 import { GlobalJobServiceSpy } from '../../services/global-job.service.spec';
 import { GlobalPCAPService } from '../../services/global-pcap.service';
@@ -57,6 +59,8 @@ import { AlertService } from '../security-alerts/services/alerts.service';
 import { AlertServiceSpy } from '../security-alerts/services/alerts.service.spec';
 import { JobService } from '../server-stdout/services/job.service';
 import { JobServiceSpy } from '../server-stdout/services/job.service.spec';
+import { HiveSettingsService } from '../system-settings/services/hive-settings.service';
+import { HiveSettingsServiceSpy } from '../system-settings/services/hive-settings.service.spec';
 import { KitTokenSettingsService } from '../system-settings/services/kit-token-settings.service';
 import { KitTokenSettingsServiceSpy } from '../system-settings/services/kit-token-settings.service.spec';
 import { ToolsService } from '../tools/services/tools.service';
@@ -69,6 +73,7 @@ import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
   providers: [
     { provide: CatalogService, useClass: CatalogServiceSpy },
     { provide: CookieService, useClass: CookieServiceSpy },
+    { provide: GlobalHiveSettingsService, useClass: GlobalHiveSettingsServiceSpy },
     { provide: GlobalJobService, useClass: GlobalJobServiceSpy },
     { provide: GlobalPCAPService, useClass: GlobalPCAPServiceSpy },
     { provide: GlobalToolsService, useClass: GlobalToolsServiceSpy },
@@ -95,6 +100,7 @@ import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
     { provide: PolicyManagementService, useClass: PolicyManagementServiceSpy },
     { provide: AlertService, useClass: AlertServiceSpy },
     { provide: JobService, useClass: JobServiceSpy },
+    { provide: HiveSettingsService, useClass: HiveSettingsServiceSpy },
     { provide: KitTokenSettingsService, useClass: KitTokenSettingsServiceSpy },
     { provide: ToolsService, useClass: ToolsServiceSpy }
     // { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open', 'closeAll', 'getDialogById']) },

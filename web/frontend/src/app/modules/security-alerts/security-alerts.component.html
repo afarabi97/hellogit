@@ -4,45 +4,42 @@
       <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
         <div>Security Alerts</div>
         <div>
-          <button *ngIf="autoRefresh" mat-icon-button color="primary" matTooltip="Stop Auto Refresh"
-                  (click)="toggleAutoRefresh()"><mat-icon>stop</mat-icon></button>
+          <button *ngIf="auto_refresh" mat-icon-button color="primary" matTooltip="Stop Auto Refresh"
+                  (click)="toggle_auto_refresh()"><mat-icon>stop</mat-icon></button>
 
-          <button *ngIf="!autoRefresh" mat-icon-button color="primary" matTooltip="Enable Auto Refresh. The alerts page will refresh every 30 seconds when the play button is clicked."
-                  (click)="toggleAutoRefresh()"><mat-icon>play_arrow</mat-icon></button>
+          <button *ngIf="!auto_refresh" mat-icon-button color="primary" matTooltip="Enable Auto Refresh. The alerts page will refresh every 30 seconds when the play button is clicked."
+                  (click)="toggle_auto_refresh()"><mat-icon>play_arrow</mat-icon></button>
 
           <button mat-icon-button color="primary" matTooltip="Refresh Alerts"
-                  (click)="refreshAlerts()"><mat-icon>refresh</mat-icon></button>
-
-          <button mat-icon-button color="primary" matTooltip="Hive Settings"
-                  (click)="openHiveTokenSettings()"><mat-icon>settings</mat-icon></button>
+                  (click)="refresh_alerts()"><mat-icon>refresh</mat-icon></button>
         </div>
       </mat-card-title>
     </mat-card-header>
-    <mat-card-content fxLayout="column" fxLayoutAlign="space-around stretch" [formGroup]="controlForm">
+    <mat-card-content fxLayout="column" fxLayoutAlign="space-around stretch" [formGroup]="time_form_group">
 
-      <div *ngIf="!absoluteTime()" fxLayout="row" fxLayoutAlign="none">
+      <div *ngIf="!use_absolute_time()" fxLayout="row" fxLayoutAlign="none">
         <span style="margin-right: 15px; padding-top: 20px;">Last</span>
         <mat-form-field style="width: 100%;">
-          <input matInput formControlName="timeAmount" (keyup)="changeQueryTime($event)">
+          <input matInput formControlName="timeAmount" (keyup)="change_query_time_amount($event)">
         </mat-form-field>
 
         <mat-form-field style="margin-left: 15px;">
           <mat-label>Select a time interval</mat-label>
           <mat-select formControlName="timeInterval"
-                      (selectionChange)="timeIntervalChange($event)">
+                      (selectionChange)="time_interval_selection_change($event)">
               <mat-option value="days">days</mat-option>
               <mat-option value="hours">hours</mat-option>
               <mat-option value="minutes">minutes</mat-option>
           </mat-select>
         </mat-form-field>
         <button style="margin-left: 20px;" mat-icon-button color="primary" matTooltip="Choose absolute time"
-            (click)="toggleAbsoluteTimeCtrls()"><mat-icon>access_time</mat-icon></button>
+            (click)="toggle_absolute_time_controls()"><mat-icon>access_time</mat-icon></button>
       </div>
 
-      <div *ngIf="absoluteTime()" fxLayout="row" fxLayoutAlign="none">
+      <div *ngIf="use_absolute_time()" fxLayout="row" fxLayoutAlign="none">
         <mat-form-field style="width: 50%;">
           <input matInput [ngxMatDatetimePicker]="startpicker"
-                (dateInput)="startDatetimeChange($event)"
+                (dateInput)="date_time_change()"
                  placeholder="Choose start datetime" formControlName="startDatetime" disabled>
           <mat-datepicker-toggle matSuffix [for]="startpicker"></mat-datepicker-toggle>
           <ngx-mat-datetime-picker #startpicker [showSpinners]="true" [showSeconds]="true"
@@ -55,7 +52,7 @@
 
         <mat-form-field style="margin-left: 15px; width: 50%;">
           <input matInput [ngxMatDatetimePicker]="endpicker"
-                (dateInput)="endDatetimeChange($event)"
+                (dateInput)="date_time_change()"
                  placeholder="Choose end datetime" formControlName="endDatetime" disabled>
           <mat-datepicker-toggle matSuffix [for]="endpicker"></mat-datepicker-toggle>
           <ngx-mat-datetime-picker #endpicker [showSpinners]="true" [showSeconds]="true"
@@ -66,113 +63,113 @@
           </ngx-mat-datetime-picker>
         </mat-form-field>
         <button style="margin-left: 20px;" mat-icon-button color="primary" matTooltip="Choose relative time."
-            (click)="toggleAbsoluteTimeCtrls()"><mat-icon>access_time</mat-icon></button>
+            (click)="toggle_absolute_time_controls()"><mat-icon>access_time</mat-icon></button>
       </div>
 
       <div fxLayout="row" fxLayoutAlign="none" style="margin-bottom: 15px;">
         <mat-slide-toggle formControlName="acknowledged"
-                          (change)="filterAcknowledge($event)">Acknowledged</mat-slide-toggle>
+                          (change)="filter_acknowledged($event)">Acknowledged</mat-slide-toggle>
 
         <mat-slide-toggle formControlName="escalated"
                           style="margin-left: 15px;"
-                          (change)="filterEscalated($event)">Escalated</mat-slide-toggle>
+                          (change)="filter_escalated($event)">Escalated</mat-slide-toggle>
 
-        <mat-slide-toggle *ngIf="isEscalatedChecked()"
+        <mat-slide-toggle *ngIf="get_time_form_group_field_value(escalated)"
                           formControlName="showClosed"
                           style="margin-left: 15px;"
-                          (change)="showClosedAlerts($event)">Show Closed</mat-slide-toggle>
+                          (change)="filter_closed_alerts()">Show Closed</mat-slide-toggle>
       </div>
 
       <mat-form-field class="example-chip-list">
         <mat-label>Group By Name, Module</mat-label>
         <mat-chip-list #chipList aria-label="Fruit selection">
           <mat-chip
-            *ngFor="let group of dynamicColumns"
+            *ngFor="let dynamic_column of dynamic_columns"
             [selectable]="selectable"
             [removable]="removable"
-            (removed)="removeChip(group)">
-            {{group}}
+            (removed)="remove_alert_chip(dynamic_column)">
+            {{ dynamic_column }}
             <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
           </mat-chip>
           <input
             placeholder="New Group By"
             #groupByInput
-            [formControl]="groupByCtrl"
+            [formControl]="group_by_control"
             [matAutocomplete]="auto"
             [matChipInputFor]="chipList"
-            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-            (matChipInputTokenEnd)="addChip($event)">
+            [matChipInputSeparatorKeyCodes]="seperator_key_codes"
+            (matChipInputTokenEnd)="add_alert_chip($event)">
         </mat-chip-list>
-        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedChip($event)">
-          <mat-option *ngFor="let group of filteredGroups | async" [value]="group">
-            {{group}}
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="autocomplete_selection_chip($event)">
+          <mat-option *ngFor="let filtered_group of filtered_groups | async" [value]="filtered_group">
+            {{ filtered_group }}
           </mat-option>
         </mat-autocomplete>
       </mat-form-field>
 
-      <table mat-table [dataSource]="alerts" aria-describedby="Alert Group List" matSort>
+      <table mat-table [dataSource]="update_alerts_mat_table_data_source" aria-describedby="Alert Group List" matSort>
 
         <!-- Actions -->
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef scope="col">actions</th>
           <td mat-cell *matCellDef="let alert; let j = index;">
-              <div class="btn-group" *ngIf="!isacknowledgedChecked() && !isEscalatedChecked()">
+              <div class="btn-group" *ngIf="!get_time_form_group_field_value(acknowledged) && !get_time_form_group_field_value(escalated)">
                 <button mat-icon-button [matMenuTriggerFor]="mainMenu" aria-label="Main Alerts Group Menu">
                   <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #mainMenu="matMenu">
-                  <button mat-menu-item (click)="acknowledgeEvent(alert)">
+                  <button mat-menu-item (click)="acknowledge_event(alert)">
                     <mat-icon>notifications</mat-icon>
                     <span>Acknowledge Alerts</span>
                   </button>
-                  <button mat-menu-item (click)="eventDrilldown(alert)">
+                  <button mat-menu-item (click)="open_alert_drilldown_dialog(alert)">
                     <mat-icon>list</mat-icon>
                     <span>Open Alerts List</span>
                   </button>
-                  <button mat-menu-item (click)="escalateEvent(alert)">
+                  <button mat-menu-item (click)="escalate_alert(alert)">
                     <mat-icon>warning</mat-icon>
                     <span>Escalate Alerts</span>
                   </button>
-                  <button mat-menu-item (click)="openKibana(alert)">
+                  <button mat-menu-item (click)="open_alert_in_kibana_tab(alert)">
                     <mat-icon>bubble_chart</mat-icon>
                     <span>Pivot to Kibana</span>
                   </button>
-                  <button mat-menu-item (click)="openMoloch(alert)">
+                  <button mat-menu-item (click)="open_alert_in_arkime_tab(alert)">
                     <mat-icon>show_chart</mat-icon>
                     <span>Pivot to Arkime</span>
                   </button>
                 </mat-menu>
               </div>
 
-              <div class="btn-group" *ngIf="isacknowledgedChecked()">
-                <button mat-icon-button matTooltip="Undo Acknowledgement" color="primary" (click)="unSetacknowledgedEvent(alert)">
+              <div class="btn-group" *ngIf="get_time_form_group_field_value(acknowledged)">
+                <button mat-icon-button matTooltip="Undo Acknowledgement" color="primary" (click)="unacknowledged_event(alert)">
                   <em class="material-icons">undo</em>
                 </button>
               </div>
 
-              <div class="btn-group" *ngIf="isEscalatedChecked()">
+              <div class="btn-group" *ngIf="get_time_form_group_field_value(escalated)">
 
                 <button mat-icon-button [matMenuTriggerFor]="escalateMenu" aria-label="Escalated Alerts Group Menu">
                   <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #escalateMenu="matMenu">
-                  <button mat-menu-item (click)="eventDrilldown(alert)">
+                  <button mat-menu-item (click)="open_alert_drilldown_dialog(alert)">
                     <mat-icon>list</mat-icon>
                     <span>Open Alerts List</span>
                   </button>
-                  <button mat-menu-item (click)="openKibana(alert)">
+                  <button mat-menu-item (click)="open_alert_in_kibana_tab(alert)">
                     <mat-icon>bubble_chart</mat-icon>
                     <span>Pivot to Kibana</span>
                   </button>
-                  <button mat-menu-item (click)="openMoloch(alert)">
+                  <button mat-menu-item (click)="open_alert_in_arkime_tab(alert)">
                     <mat-icon>show_chart</mat-icon>
                     <span>Pivot to Arkime</span>
                   </button>
-                  <button mat-menu-item (click)="openHive(alert)">
+                  <button mat-menu-item (click)="open_alert_in_hive_tab(alert)">
                     <mat-icon>assignment</mat-icon>
                     <span>Pivot to Hive</span>
                   </button>
-                  <button mat-menu-item (click)="removeAlerts(alert)">
+                  <button mat-menu-item (click)="remove_alerts_confirm_dialog(alert)">
                     <mat-icon>delete</mat-icon>
                     <span>Delete Alerts</span>
                   </button>
@@ -183,19 +180,19 @@
 
         <ng-container matColumnDef="count">
           <th mat-header-cell *matHeaderCellDef mat-sort-header scope="col">count</th>
-          <td mat-cell *matCellDef="let alert;">{{ getAggCount(alert) }}</td>
+          <td mat-cell *matCellDef="let alert;">{{ get_alert_count(alert) }}</td>
         </ng-container>
 
-        <ng-container *ngFor="let column of dynamicColumns">
-          <ng-container *ngIf="isDynamicColumn(column)" matColumnDef="{{ column }}">
+        <ng-container *ngFor="let column of dynamic_columns">
+          <ng-container *ngIf="is_dynamic_column_name(column)" matColumnDef="{{ column }}">
             <th mat-header-cell *matHeaderCellDef mat-sort-header scope="col">{{ column }}</th>
-            <td mat-cell *matCellDef="let alert;">{{ getColumnValue(alert, column) }}</td>
+            <td mat-cell *matCellDef="let alert;">{{ get_column_value(alert, column) }}</td>
           </ng-container>
         </ng-container>
 
         <!-- Table Rows -->
-        <tr mat-header-row *matHeaderRowDef="allColumns"></tr>
-        <tr mat-row *matRowDef="let rowData; columns: allColumns;"></tr>
+        <tr mat-header-row *matHeaderRowDef="all_columns"></tr>
+        <tr mat-row *matRowDef="let rowData; columns: all_columns;"></tr>
     </table>
     <mat-paginator #paginator showFirstLastButtons
                    class="feature_desc" [pageSize]="20"

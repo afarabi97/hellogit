@@ -70,7 +70,7 @@ export const MockAlertListInterfaceZeek: AlertListInterface = {
           observer: {
             hostname: 'philpot-sensor3.philpot'
           },
-          '@timestamp': '2022-09-20T05: 20: 27.032Z',
+          '@timestamp': '2022-09-20T05:05:20.098Z',
           ecs: {
             version: '1.12.0'
           },

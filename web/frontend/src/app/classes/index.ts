@@ -10,6 +10,7 @@ export * from './error-message.class';
 export * from './form-control.class';
 export * from './general-settings.class';
 export * from './generic-job-and-key.class';
+export * from './hive-settings.class';
 export * from './host-info.class';
 export * from './host-info-redac.class';
 export * from './iface-state.class';

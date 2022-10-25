@@ -1,6 +1,3 @@
-import { PortalLinkInterface } from '../../../interfaces';
-import { AlertFormInterface } from './alert-form.interface';
-
 /**
  * Interface defines the Update Alerts
  *
@@ -12,7 +9,11 @@ export interface UpdateAlertsInterface {
   'event.module': string;
   'event.kind': string;
   'rule.name': string;
-  form?: AlertFormInterface;
-  links?: PortalLinkInterface[];
-  'event.escalated'?: boolean;
+  'source.address'?: string;
+  'source.ip'?: string;
+  'source.port'?: string;
+  'destination.port'?: string;
+  'destination.address'?: string;
+  'destination.ip'?: string;
+  '@timestamp'?: string;
 }
