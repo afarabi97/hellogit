@@ -20,6 +20,7 @@ robot:sso_login:
   allow_failure: false
   only:
     variables:
+      - ($RUN_REGRESSION == "yes" && $RUN_INTEGRATION == "no") && $PIPELINE == "controller-only"
       - ($RUN_INTEGRATION == "yes" || $RUN_REGRESSION == "yes") && $PIPELINE == "developer-all"
       - ($RUN_INTEGRATION == "yes" || $RUN_REGRESSION == "yes") && $PIPELINE == "hw-developer-all"
   retry: 2
@@ -272,13 +273,20 @@ robot:regression_testing:
   script: |
     curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
     curl -k -o /usr/src/robot/data-with-image_robot.pcap  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/pcap/data-with-image_robot.pcap
-    python3 -m run.runner -c regression \
+    vcenter_password=`echo "$VCENTER_PASSWORD" | base64 -d`
+    python3 -m run.runner -c regression -t "01__installation/dipRegression" \
       -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
+      -v DOMAIN:$KIT_DOMAIN \
+      -v VCENTER_IPADDRESS:$VCENTER_IPADDRESS \
+      -v VCENTER_USERNAME:$VCENTER_USERNAME \
+      -v VCENTER_PASSWORD:$vcenter_password \
+      -v VCENTER_PORTGROUP:$VCENTER_PORTGROUP \
+      -v VCENTER_FOLDER:$VMWARE_FOLDER \
       -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE \
       -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
@@ -288,6 +296,7 @@ robot:regression_testing:
   allow_failure: true
   only:
     variables:
+      - ($RUN_REGRESSION == "yes" && $RUN_INTEGRATION == "no") && $PIPELINE == "controller-only"
       - ($RUN_REGRESSION == "yes" && $RUN_INTEGRATION == "no") && $PIPELINE == "developer-all"
       - ($RUN_REGRESSION == "yes" && $RUN_INTEGRATION == "no") && $PIPELINE == "hw-developer-all"
   retry: 2

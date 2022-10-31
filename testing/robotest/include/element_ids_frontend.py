@@ -159,7 +159,7 @@ AGENT_TARGET_DIALOG__BUTTON_ADD_CONFIGURATION = 'agent-target-dialog-button-add-
 
 
 # These are for app.component.html
-APP_ROOT__APP_TOP_NAVBAR = 'app-root-app-top-navbar' # app-top-navbar (internal)
+APP_ROOT_APP_TOP_NAVBAR = 'app-root-app-top-navbar' # app-top-navbar (internal)
 
 
 # These are for archive-restore-dialog.component.html
@@ -739,6 +739,7 @@ CVAH_NODE_MAINTENANCE_FORM__MAT_EXPANSION_PANEL = 'cvah-node-maintenance-form-ex
 CVAH_NOTIFICATIONS_OPEN_DIALOG_WINDOW = 'cvah-notifications-open-dialog-window' # div
 CVAH_NOTIFICATIONS_LENGTH = 'cvah-notifications-length' # a
 # TODO cvah-notifications-dialog_window-button-name-* # button
+CVAH_NOTIFICATIONS_DIALOG_BUTTON_NAME_ALL = 'cvah-notifications-dialog-window-button-name-all' # button
 CVAH_NOTIFICATIONS_DIALOG_WINDOW_BUTTON_CLEAR_ALL = 'cvah-notifications-dialog-window-button-clear-all' # button
 # TODO cvah-notifications-dialog-window-*-*--statusactionapp # div
 # TODO cvah-notifications-dialog-window-*-message # div

@@ -18,6 +18,7 @@ ${API_BASE_URL}                 http://${host}/api{endpoint}
 # Pages start with a capital
 ${Portal_url}                   https://${host}/portal
 ${Alerts_url}                   https://${host}/alerts
+${SystemSettings_url}           https://${host}/settings
 ${NodeManagement_url}           https://${host}/node-mng
 ${Catalog_url}                  https://${host}/catalog
 ${Health_url}                   https://${host}/health
@@ -63,6 +64,7 @@ ${locPreserveTimestampCheckbox}  xpath=//mat-checkbox[@formcontrolname="preserve
 ${locNavIconTmpl}               xpath=//mat-icon[following-sibling::div/h4[text() = "~"]]
 ${locPortalPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Portal"]]
 ${locAlertsPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Alerts"]]
+${locSystemSettingsNavIcon}     xpath=//mat-icon[following-sibling::div/h4[text() = "System Settings"]]
 ${locNodeMgmtPageNavIcon}       xpath=//mat-icon[following-sibling::div/h4[text() = "Node Management"]]
 ${locCatalogPageNavIcon}        xpath=//mat-icon[following-sibling::div/h4[text() = "Catalog"]]
 ${locHealthPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Health"]]

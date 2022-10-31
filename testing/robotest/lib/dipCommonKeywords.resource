@@ -146,6 +146,31 @@ Stay Or Go To ${page}
     [Documentation]     Use this if you don't want to refresh the browser if you're already at the specified page
 
 
+Check If Still Logged Into Controller
+    [Documentation]  If logged out of controller, this keyword will log back in.
+    Reload Page
+    Sleep  5s
+    ${still_logged_in} =  Run Keyword And Return Status  Page Should Contain Element  ${APP_ROOT_APP_TOP_NAVBAR}
+    IF  ${still_logged_in} == ${False}
+        Runner Open Browser  controller.${DOMAIN}  ${BROWSER}
+        Log Into DIP Controller  ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
+        Wait Until Page Contains  Portal
+    END
+
+Check Notifications Panel
+    [Arguments]  ${notification_msg}  ${timeout}=30s
+    [Documentation]  Check Notifications panel for specified message.
+    click  ${CVAH_NOTIFICATIONS_OPEN_DIALOG_WINDOW}
+    click  ${CVAH_NOTIFICATIONS_DIALOG_BUTTON_NAME_ALL}
+    ${notifications_popup} =  Set Variable  xpath=//cvah-generic-dialog
+    Wait Until Element Contains  ${notifications_popup}  ${notification_msg}  ${timeout}
+    FOR  ${i}  IN RANGE  9999999
+        ${notifications_visible} =  Run Keyword And Return Status  Element Should Be Visible  ${notifications_popup}
+        Exit For Loop If  ${notifications_visible} == ${False}
+        SeleniumLibrary.Press Keys  None  ESCAPE
+        Sleep  2s
+    END
+
 Navigate To ${page}
     log         "Navigating To: ${page} Page"
     Check For Snack Bar Container
@@ -164,6 +189,10 @@ Navigate To ${page}
         click  ${locAlertsPageNavIcon}
         lookFor  Security Alerts
         Location Should Be  ${Alerts_url}
+    ELSE IF  "${page}" == "System Settings"
+        click  ${locSystemSettingsNavIcon}
+        lookFor  VMware Settings
+        Location Should Be  ${SystemSettings_url}
     ELSE IF  "${page}" == "Node Management"
         click  ${locNodeMgmtPageNavIcon}
         lookFor  Kit Setup
@@ -411,6 +440,9 @@ getType
     [Return]           ${object_type}
 
 click
+    [Documentation]  Clicks an element after checking it exists on the page. A while-loop
+    ...              is used for elements that render late in the DOM. Exits loop when
+    ...              element becomes clickable.
     [Arguments]     ${element}     ${timeout}=30s   ${injector}=None
     IF  '${injector}' != '${None}'
         log     injecting before click: ${injector}
@@ -418,7 +450,15 @@ click
     END
 
     Wait Until Page Contains Element    ${element}  timeout=${timeout}
-    Click Element   ${element}
+    Wait Until Element Is Visible    ${element}  timeout=${timeout}
+    ${previous_kw} =  Register Keyword To Run On Failure  None
+    ${click_intercepted} =  Set Variable  ${False}
+    FOR  ${i}  IN RANGE  10
+        Mouse Over  ${element}
+        ${click_not_intercepted} =  Run Keyword And Return Status  Click Element  ${element}
+        Exit For Loop If  ${click_not_intercepted}==${True}
+    END
+    Register Keyword To Run On Failure  ${previous_kw}
     log     Clicked element: ${element}
 
 failTest
