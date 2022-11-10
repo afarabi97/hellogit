@@ -7,8 +7,11 @@ ${tmplLocNodeMgmtProgressBar}                       xpath=//tr[td[a[contains(tex
 ${tmplListLocRobotTestCleanupDeleteBtn}             xpath=//mat-card[2]//tr[td[a[contains(text(),'~')]]]//following-sibling::td[5]//button[@mattooltip='Delete Node']
 
 # Element Locators
+# Control Plane
+${locSetupCPButton}                                 xpath=//button[./span[text()="Setup Control Plane"]]
+${locCPDeployState}                                 xpath=//app-node-mng//mat-card[1]//app-node-state-progress-bar/a[3]/mat-icon
+
 ${locNodeMgmtAddNodeBtn}                            xpath=//button[span[text()='Add Node']]
-${locNodeMgmtTable}                                 xpath=//table[@class='mat-table cdk-table']/tbody/tr
 ${locNodeHostnames}                                 xpath=//mat-card[2]/mat-card-content/table/tbody/tr/td[1]/a
 ${locNodeMgmtHostnameInput}                         xpath=//input[@formcontrolname="hostname"]
 ${locNodeMgmtAddNodeDialogIpAddressInput}           xpath=//unused-ipaddress-autocomplete-ctrl//mat-select

@@ -164,12 +164,14 @@ Check Notifications Panel
     click  ${CVAH_NOTIFICATIONS_DIALOG_BUTTON_NAME_ALL}
     ${notifications_popup} =  Set Variable  xpath=//cvah-generic-dialog
     Wait Until Element Contains  ${notifications_popup}  ${notification_msg}  ${timeout}
+    ${previous_kw} =  Register Keyword To Run On Failure  None
     FOR  ${i}  IN RANGE  9999999
         ${notifications_visible} =  Run Keyword And Return Status  Element Should Be Visible  ${notifications_popup}
         Exit For Loop If  ${notifications_visible} == ${False}
         SeleniumLibrary.Press Keys  None  ESCAPE
         Sleep  2s
     END
+    Register Keyword To Run On Failure  ${previous_kw}
 
 Navigate To ${page}
     log         "Navigating To: ${page} Page"
@@ -196,7 +198,6 @@ Navigate To ${page}
     ELSE IF  "${page}" == "Node Management"
         click  ${locNodeMgmtPageNavIcon}
         lookFor  Kit Setup
-        whenVisible  ${locNodeMgmtTable}  timeout=60s  error=Node Management Page did not load within 60s
         Location Should Be  ${NodeManagement_url}
     ELSE IF  "${page}" == "Catalog"
         click  ${locCatalogPageNavIcon}

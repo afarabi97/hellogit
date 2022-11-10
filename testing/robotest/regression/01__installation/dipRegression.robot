@@ -34,6 +34,7 @@ Deploy Virtual DIP/MIP
     Skip If  '${PIPELINE}' != 'controller-only'  msg=DIP kit is already built
     Set Selenium Speed  0.5s
     Fill Out System Settings
+    Setup Control Plane
 
 # Install Apps From Catalog Page
 #     [Tags]  THISISCVAH-10181

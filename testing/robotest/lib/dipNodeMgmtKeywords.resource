@@ -6,6 +6,15 @@ Library    SSHLibrary         15s
 Library    String
 
 *** Keywords ***
+Setup Control Plane
+    log  Setting up Control Plane on DIP kit
+    Navigate To Node Management
+    Wait Until Element Is Enabled  ${locSetupCPButton}
+    click  ${locSetupCPButton}
+    Wait Until Page Contains Element  ${locCPDeployState}  30m
+    Wait Until Element Contains  ${locCPDeployState}  check_circle  30m
+    Check Notifications Panel  Setup Control Plane deploy job successfully completed on node 'control-plane.${DOMAIN}'.  5m
+
 Enter Virtual Node Information
     [Arguments]         ${node_type}  ${hostname}
     [Documentation]     Adds virtual node (server, sensor, service) to the DIP kit
