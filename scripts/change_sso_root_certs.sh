@@ -39,10 +39,10 @@ fi
 
 if [ "$CARDTYPE" == "NMIL" ]
 then
-        file=$(find /opt/tfplenum/scripts/dod_certs/ -iname *DOD*.pem)
+        file=$(find /var/www/html/offlinerepo/dod_certs/ -iname *DOD*.pem)
 elif [ "$CARDTYPE" == "SMIL" ]
 then
-        file=$(find /opt/tfplenum/scripts/dod_certs/ -iname *SIPR*.pem)
+        file=$(find /var/www/html/offlinerepo/dod_certs/ -iname *SIPR*.pem)
 fi
 
 if [ ! -e "$file" ]
