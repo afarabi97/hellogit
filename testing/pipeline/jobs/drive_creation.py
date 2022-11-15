@@ -504,9 +504,7 @@ class DriveHashCreationJob:
             thread.start()
 
         for thread in threads:
-            ret_val = thread.join()
-            if ret_val != 0:
-                exit(ret_val)
+            thread.join()
 
     def run_verification_script(self):
         print("Performing validation of drives.")
