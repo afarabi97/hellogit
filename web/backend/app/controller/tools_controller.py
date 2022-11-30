@@ -194,24 +194,16 @@ class ChangeKitPassword(Resource):
         current_config = KitSettingsForm.load_from_db()  # type: Dict
         if current_config == None:
             return {"error_message": "Couldn't find kit configuration."}, 404
-        nodes = Node.load_dip_nodes_from_db()
+        nodes = Node.load_stateful_dip_nodes_from_db()
         for node in nodes:  # type: Node
             try:
                 with FabricConnection(str(node.ip_address), use_ssh_key=True) as shell:
-                    result = shell.run(
-                        "echo '{}' | passwd --stdin root".format(
-                            model.root_password),
-                        warn=True,
-                    )  # type: Result
+                    result = shell.run("echo '{}' | passwd --stdin root".format(model.root_password), warn=True)  # type: Result
 
                     if result.return_code != 0:
-                        _result = shell.run(
-                            "journalctl SYSLOG_IDENTIFIER=pwhistory_helper --since '10s ago'"
-                        )
+                        _result = shell.run("journalctl SYSLOG_IDENTIFIER=pwhistory_helper --since '10s ago'")
                         if _result.stdout.count("\n") == 2:
-                            return {
-                                "error_message": "Password has already been used. You must try another password."
-                            }, 409
+                            return {"error_message": "Password has already been used. You must try another password."}, 409
                         else:
                             return {"error_message": "Internal Server Error"}, 500
 

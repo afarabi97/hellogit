@@ -137,6 +137,7 @@ def test_nodes_up_and_alive(nodes_to_test: Union[NodeSettings, NodeSettingsV2, L
                 password = node.password
 
             logging.info("Testing " + node.hostname + " (" + ip_address + ")")
+            logging.info("Password " + " (" + password + ")")
             result = SSHClient.test_connection(
                 ip_address,
                 node.username,

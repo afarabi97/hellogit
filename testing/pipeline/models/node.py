@@ -74,6 +74,9 @@ class NodeSettingsV2(Model):
     def is_control_plane(self) -> bool:
         return self.node_type.lower() == "control-plane"
 
+    def is_minio(self) -> bool:
+        return self.node_type.lower() == "minio"
+
     def is_mip(self) -> bool:
         return self.node_type.lower() == "mip"
 
@@ -387,8 +390,29 @@ def load_control_plane_nodes_from_mongo(ctrl_settings: Union[ControllerSetupSett
                 ret_val.append(node)
     return ret_val
 
-def get_control_plane_node(nodes: NodeSettingsV2) -> NodeSettingsV2:
+def get_control_plane_node(nodes: List[NodeSettingsV2]) -> NodeSettingsV2:
     for node in nodes:
         if node.is_control_plane():
             return node
     raise Exception("Control plane node was not found.")
+
+def get_server_and_service_nodes(nodes: List[NodeSettingsV2]) -> List[NodeSettingsV2]:
+    server_and_service = []
+    for node in nodes:
+        if node.is_server() or node.is_service():
+            server_and_service.append(node)
+    return server_and_service
+
+def get_sensor_nodes(nodes: List[NodeSettingsV2]) -> List[NodeSettingsV2]:
+    sensors = []
+    for node in nodes:
+        if node.is_sensor():
+            sensors.append(node)
+    return sensors
+
+def get_minio_nodes(nodes: List[NodeSettingsV2]) -> List[NodeSettingsV2]:
+    minio = []
+    for node in nodes:
+        if node.is_minio():
+            minio.append(node)
+    return minio

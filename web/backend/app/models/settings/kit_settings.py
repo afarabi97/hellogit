@@ -104,8 +104,7 @@ class KitSettingsForm(SettingsBase):
         if mongo_document:
             # type: ignore type: KitSettingsForm
             kit_settings = cls.schema.load(mongo_document)
-            kit_settings.password = base64_to_string(  # type: ignore
-                kit_settings.password)  # type: ignore
+            kit_settings.password = base64_to_string(kit_settings.password)  # type: ignore
             return kit_settings  # type: ignore
         return None
 

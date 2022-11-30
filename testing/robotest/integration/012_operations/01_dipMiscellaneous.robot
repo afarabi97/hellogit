@@ -31,6 +31,7 @@ Change Kit Password
     ...              node on the kit. Then it changes the kit password, checks SSH to each node,
     ...              and finally changes the kit password back to the initial one.
     ${initial_kit_pw} =  Get Initial Kit Password
+    Close Connection
     Perform Steps For Changing Kit Password  ${NEW_KIT_PASSWORD}
     Check SSH Connection For All Nodes  ${NEW_KIT_PASSWORD}
     Perform Steps For Changing Kit Password  ${initial_kit_pw}

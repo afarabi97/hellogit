@@ -430,6 +430,13 @@ class Node(Model):
         return cls._load_node_types_from_db(node_types)
 
     @classmethod
+    def load_stateful_dip_nodes_from_db(cls) -> List['Node']:
+        node_types = [NODE_TYPES.server.value, NODE_TYPES.sensor.value,
+                      NODE_TYPES.service_node.value, NODE_TYPES.control_plane.value,
+                      NODE_TYPES.minio.value]
+        return cls._load_node_types_from_db(node_types)
+
+    @classmethod
     def load_all_from_db(cls) -> List['Node']:
         ret_val = []
         for node in get_collection(Collections.NODES).find({}):

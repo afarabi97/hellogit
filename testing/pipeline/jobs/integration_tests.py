@@ -5,16 +5,16 @@ import time
 from datetime import datetime, timedelta
 from typing import List, Union
 
-import pytest
 import requests
 from elasticsearch import Elasticsearch
-from elasticsearch.exceptions import ConnectionTimeout, TransportError
+from elasticsearch.exceptions import TransportError
 from fabric import Connection
 from models.ctrl_setup import (ControllerSetupSettings,
                                HwControllerSetupSettings)
 from models.kit import KitSettingsV2
 from models.node import (HardwareNodeSettingsV2, NodeSettingsV2,
-                         get_control_plane_node)
+                         get_control_plane_node, get_minio_nodes,
+                         get_sensor_nodes, get_server_and_service_nodes)
 from util import redfish_util as redfish
 from util.ansible_util import power_off_vms, power_on_vms
 from util.api_tester import (APITesterV2, _clean_up, check_web_ca, get_api_key,
@@ -481,23 +481,22 @@ class PowerFailureJob:
         power_on_vms(self.kit_settings.vcenter, control_plane)
         test_nodes_up_and_alive(control_plane, 20)
 
-        # Power on the remaining kubernetes servers.
-        remaining_srvs_to_power_on = []
-        for node in self.nodes:  # type: NodeSettingsV2
-            if node.is_server() or node.is_service():
-                remaining_srvs_to_power_on.append(node)
-
-        power_on_vms(self.kit_settings.vcenter, remaining_srvs_to_power_on)
-        test_nodes_up_and_alive(remaining_srvs_to_power_on, 20)
+        # Power on the remaining kubernetes servers and services.
+        server_and_service = get_server_and_service_nodes(self.nodes)
+        power_on_vms(self.kit_settings.vcenter, server_and_service)
+        test_nodes_up_and_alive(server_and_service, 20)
 
         # Power on the remaining kubernetes sensors.
-        sensors = []
-        for node in self.nodes:
-            if node.is_sensor():
-                sensors.append(node)
+        sensors = get_sensor_nodes(self.nodes)
         power_on_vms(self.kit_settings.vcenter, sensors)
         test_nodes_up_and_alive(sensors, 20)
-        control_plane = get_control_plane_node(self.nodes)
+
+        # Power on the remaining kubernetes minio.
+        minio = get_minio_nodes(self.nodes)
+        power_on_vms(self.kit_settings.vcenter, minio)
+        test_nodes_up_and_alive(minio, 20)
+
+        # Wait for all pods to come back up
         wait_for_pods_to_be_alive(control_plane, 20)
 
 
