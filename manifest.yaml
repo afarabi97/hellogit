@@ -7,6 +7,7 @@ MULTIBOOT:
     - Repo/MULTIBOOT/exes/Precision_7x20_1.22.0.exe
     - Repo/MULTIBOOT/exes/Precision_7x30_1.18.2.exe
     - Repo/MULTIBOOT/exes/Precision_7X50_1.11.1.exe
+    - Repo/MULTIBOOT/exes/Precision_7X60_1.12.1.exe
   dest: MULTIBOOT/exes
 
 - app: isos
@@ -22,108 +23,10 @@ MULTIBOOT:
   dest: MULTIBOOT
 
 CPT:
-- app: ACAS
-  src:
-    - Repo/Shared/VMs/ACAS/21.04-0/CM-263467-acas_configure-21.04-0.noarch.rpm
-    - Repo/Shared/VMs/ACAS/21.04-0/CM-265460-nnm-5.13.1-es7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/21.04-0/CM-265614-Nes-8.15.0-es7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/21.04-0/CM-266078-NesAgent-8.3.0-es7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/21.04-0/CM-267387-SecurityCenter-5.19.0-el7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/21.04-0/CVAH-ACAS.ova
-    - Repo/Shared/VMs/ACAS/21.04-0/CVAH_ACAS_RPM.iso
-    - Repo/Shared/VMs/ACAS/21.04-0/dialog-1.2-5.20130523.el7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/21.04-0/DISA_STIG_Red_Hat_Enterprise_Linux_8_v1r1.audit
-    - Repo/Shared/VMs/ACAS/21.04-0/ReadMe.txt
-    - Repo/Shared/VMs/ACAS/21.04-0/rhel-server-7.9-x86_64-dvd.iso
-  dest: CPT/Data/CVAH 3.7/Software/VMs/ACAS
-
-- app: ControlThings
-  src:
-    - Repo/CPT/VMs/ControlThings (prev SamuraiSTFU)/ControlThingsPlatform-v1bD/ControlThingsPlatformv1bD.ova
-    - Repo/CPT/VMs/ControlThings (prev SamuraiSTFU)/ControlThingsPlatform-v1bD/ReadMe.txt
-  dest: CPT/Data/CVAH 3.7/Software/VMs/ControlThings (prev SamuraiSTFU)
-
-- app: Cuckoo Sandbox
-  src:
-    - Repo/CPT/VMs/Cuckoo Sandbox/2.0.7/Ubuntu Cuckoo 2.0.7.ova
-    - Repo/CPT/VMs/Cuckoo Sandbox/2.0.7/ReadMe.txt
-  dest: CPT/Data/CVAH 3.7/Software/VMs/Cuckoo Sandbox
-
-- app: Endgame
-  src:
-    - Repo/CPT/VMs/Endgame/3.23.3-32/smp-platform-3.23.3-32.8afa095d.ga-360.iso
-    - Repo/CPT/VMs/Endgame/3.23.3-32/ReadMe.txt
-  dest: CPT/Data/CVAH 3.7/Software/VMs/Endgame
-
-- app: Kali Linux VM
-  src:
-    - Repo/CPT/VMs/Kali Linux VM/2021.3/Kali.ova
-    - Repo/CPT/VMs/Kali Linux VM/2021.3/ReadMe.txt
-  dest: CPT/Data/CVAH 3.7/Software/VMs/Kali Linux VM
-
-- app: Mockingbird
-  src:
-    - Repo/CPT/VMs/Mockingbird/1.1.1/Mockingbird_Sandbox.ova
-    - Repo/CPT/VMs/Mockingbird/1.1.1/ReadMe.txt
-  dest: CPT/Data/CVAH 3.7/Software/VMs/Mockingbird
-
-- app: Pfsense
-  src:
-    - Repo/Shared/VMs/Pfsense/2.5.2/firewall.ova
-    - Repo/Shared/VMs/Pfsense/2.5.2/ReadMe.txt
-    - Repo/Shared/VMs/Pfsense/2.5.2/setup_esxi.sh
-  dest: CPT/Data/CVAH 3.7/Software/VMs/Pfsense
-
-- app: REMnuX
-  src:
-    - Repo/CPT/VMs/REMnuX/2021.29.9/remnux-v7-focal.ova
-    - Repo/CPT/VMs/REMnuX/2021.29.9/ReadMe.txt
-  dest: CPT/Data/CVAH 3.7/Software/VMs/REMnuX
-
 - app: RhelRepo
   src:
     - Repo/Shared/VMs/RhelRepo/ReadMe.txt
   dest: CPT/Data/CVAH 3.7/Software/VMs/RhelRepo
-
-- app: SamuraiSTFU
-  src:
-    - Repo/CPT/VMs/SamuraiSTFU/1.9/SamuraiSTFU-1.9.ova
-    - Repo/CPT/VMs/SamuraiSTFU/1.9/ReadMe.txt
-  dest: CPT/Data/CVAH 3.7/Software/VMs/SamuraiSTFU
-
-- app: Security Onion 2
-  src:
-    - Repo/Shared/VMs/Security Onion 2/2.3.80/USB bootable tool
-    - Repo/Shared/VMs/Security Onion 2/2.3.80/ReadMe.txt
-    - Repo/Shared/VMs/Security Onion 2/2.3.80/securityonion-2.3.80.iso
-    - Repo/Shared/VMs/Security Onion 2/2.3.80/securityonion-2.3.80.iso.sig
-    - Repo/Shared/VMs/Security Onion 2/2.3.80/Signing Key.txt
-  dest: CPT/Data/CVAH 3.7/Software/VMs/Security Onion 2
-
-- app: Security Onion (Original)
-  src:
-    - Repo/Shared/VMs/Security Onion (original)/4.3-8/ReadMe.txt
-    - Repo/Shared/VMs/Security Onion (original)/4.3-8/Security-Onion.ova
-  dest: CPT/Data/CVAH 3.7/Software/VMs/Security Onion (original)
-
-- app: SIFT
-  src:
-    - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7/SIFT-Workstation.ova
-    - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7/ReadMe.txt
-  dest: CPT/Data/CVAH 3.7/Software/VMs/SIFT - SANS Incident Forensics Toolkit
-
-- app: Windows 10
-  src:
-    - Repo/CPT/VMs/Windows 10 VM/21H1/Win10_Ent_CPT.ova
-    - Repo/CPT/VMs/Windows 10 VM/21H1/ReadMe.txt
-  dest: CPT/Data/CVAH 3.7/Software/VMs/Windows 10 VM
-
-- app: Windows Server 2019
-  src:
-    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-2/Windows_2019_SHB_Server.ova
-    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-2/ISO
-    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-2/ReadMe.txt
-  dest: CPT/Data/CVAH 3.7/Software/VMs/Windows Server 2019 AFCEDS
 
 - app: archive
   src:
@@ -245,6 +148,20 @@ CPT:
     - Repo/Shared/AppStore/sysinternals suite/1.0
     - Repo/Shared/AppStore/TCPdump/4.9.3
     - Repo/Shared/AppStore/Visio Pro/2016
+    - Repo/Shared/VMs/ACAS/21.04-0
+    - Repo/CPT/VMs/ControlThings (prev SamuraiSTFU)/ControlThingsPlatform-v1bD
+    - Repo/CPT/VMs/Cuckoo Sandbox/2.0.7
+    - Repo/CPT/VMs/Endgame/3.23.3-32
+    - Repo/CPT/VMs/Kali Linux VM/2021.3
+    - Repo/CPT/VMs/Mockingbird/1.2.0
+    - Repo/Shared/VMs/Pfsense/2.5.2
+    - Repo/CPT/VMs/REMnuX/2021.29.9
+    - Repo/CPT/VMs/SamuraiSTFU/1.9
+    - Repo/Shared/VMs/Security Onion 2/2.3.80
+    - Repo/Shared/VMs/Security Onion (original)/4.3-8
+    - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7
+    - Repo/CPT/VMs/Windows 10 VM/22H2
+    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-3
   dest: CPT/Data/CVAH 3.7/Software/AppStore
 
 - app: Documentation
@@ -256,17 +173,6 @@ CPT:
   src:
     - Repo/Shared/Documentation/DIP/App Docs/master
   dest: CPT/Data/CVAH 3.7/Documentation/DIP
-
-- app: Documentation
-  src:
-    - Repo/CPT/Documentation/VMs/Cuckoo Sandbox/2.0.7
-    - Repo/CPT/Documentation/VMs/Endgame/3.23.3-32
-    - Repo/CPT/Documentation/VMs/Mockingbird/1.1.1
-    - Repo/CPT/Documentation/VMs/REMnux/2021.29.9
-    - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
-    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.80
-    - Repo/Shared/Documentation/VMs/ACAS/21.04-0/Tenablesc_UserGuide-5.19.pdf
-  dest: CPT/Data/CVAH 3.7/Documentation/VMs
 
 - app: Documentation
   src:
@@ -289,6 +195,13 @@ CPT:
     - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     - Repo/Shared/Documentation/AppStore/sysinternals suite/master
+    - Repo/Shared/Documentation/VMs/ACAS/21.04-0
+    - Repo/CPT/Documentation/VMs/Cuckoo Sandbox/2.0.7
+    - Repo/CPT/Documentation/VMs/Endgame/3.23.3-32
+    - Repo/CPT/Documentation/VMs/Mockingbird/1.2.0
+    - Repo/CPT/Documentation/VMs/REMnux/2021.29.9
+    - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
+    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.80
   dest: CPT/Data/CVAH 3.7/Documentation/AppStore
 
 - app: firmware
@@ -299,6 +212,7 @@ CPT:
     - Repo/Firmware/Dell 7720/1.22.0
     - Repo/Firmware/Dell 7730/1.18.2
     - Repo/Firmware/Dell 7750/1.11.1
+    - Repo/Firmware/Dell 7760/1.12.1
     - Repo/Firmware/Dell M6800/M6800A26
     - Repo/Firmware/Dell R440/BIOS 2.11.2 Contents
     - Repo/Firmware/HP DL160/DL160
@@ -307,60 +221,10 @@ CPT:
   dest: CPT/Data/CVAH 3.7/Firmware
 
 MDT:
-- app: ACAS
-  src:
-    - Repo/Shared/VMs/ACAS/21.04-0/CM-263467-acas_configure-21.04-0.noarch.rpm
-    - Repo/Shared/VMs/ACAS/21.04-0/CM-265460-nnm-5.13.1-es7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/21.04-0/CM-265614-Nes-8.15.0-es7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/21.04-0/CM-266078-NesAgent-8.3.0-es7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/21.04-0/CM-267387-SecurityCenter-5.19.0-el7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/21.04-0/CVAH-ACAS.ova
-    - Repo/Shared/VMs/ACAS/21.04-0/CVAH_ACAS_RPM.iso
-    - Repo/Shared/VMs/ACAS/21.04-0/dialog-1.2-5.20130523.el7.x86_64.rpm
-    - Repo/Shared/VMs/ACAS/21.04-0/DISA_STIG_Red_Hat_Enterprise_Linux_8_v1r1.audit
-    - Repo/Shared/VMs/ACAS/21.04-0/ReadMe.txt
-    - Repo/Shared/VMs/ACAS/21.04-0/rhel-server-7.9-x86_64-dvd.iso
-  dest: MDT/Data/CVAH 3.7/Software/VMs/ACAS
-
-- app: Pfsense
-  src:
-    - Repo/Shared/VMs/Pfsense/2.5.2/firewall.ova
-    - Repo/Shared/VMs/Pfsense/2.5.2/ReadMe.txt
-    - Repo/Shared/VMs/Pfsense/2.5.2/setup_esxi.sh
-  dest: MDT/Data/CVAH 3.7/Software/VMs/Pfsense
-
 - app: RhelRepo
   src:
     - Repo/Shared/VMs/RhelRepo/ReadMe.txt
   dest: MDT/Data/CVAH 3.7/Software/VMs/RhelRepo
-
-- app: Security Onion 2
-  src:
-    - Repo/Shared/VMs/Security Onion 2/2.3.80/USB bootable tool
-    - Repo/Shared/VMs/Security Onion 2/2.3.80/ReadMe.txt
-    - Repo/Shared/VMs/Security Onion 2/2.3.80/securityonion-2.3.80.iso
-    - Repo/Shared/VMs/Security Onion 2/2.3.80/securityonion-2.3.80.iso.sig
-    - Repo/Shared/VMs/Security Onion 2/2.3.80/Signing Key.txt
-  dest: MDT/Data/CVAH 3.7/Software/VMs/Security Onion 2
-
-- app: Security Onion (Original)
-  src:
-    - Repo/Shared/VMs/Security Onion (original)/4.3-8/ReadMe.txt
-    - Repo/Shared/VMs/Security Onion (original)/4.3-8/Security-Onion.ova
-  dest: MDT/Data/CVAH 3.7/Software/VMs/Security Onion (original)
-
-- app: Windows Server 2019
-  src:
-    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-2/Windows_2019_SHB_Server.ova
-    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-2/ISO
-    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-2/ReadMe.txt
-  dest: MDT/Data/CVAH 3.7/Software/VMs/Windows Server 2019 AFCEDS
-
-- app: Windows 10
-  src:
-    - Repo/MDT/VMs/Windows 10 VM/21H1/Win10_Ent_MDT.ova
-    - Repo/MDT/VMs/Windows 10 VM/21H1/ReadMe.txt
-  dest: MDT/Data/CVAH 3.7/Software/VMs/Windows 10 VM
 
 - app: archive
   src:
@@ -390,6 +254,12 @@ MDT:
     - Repo/Shared/AppStore/sysinternals suite/1.0
     - Repo/Shared/AppStore/TCPdump/4.9.3
     - Repo/Shared/AppStore/Visio Pro/2016
+    - Repo/Shared/VMs/ACAS/21.04-0
+    - Repo/Shared/VMs/Pfsense/2.5.2
+    - Repo/Shared/VMs/Security Onion 2/2.3.80
+    - Repo/Shared/VMs/Security Onion (original)/4.3-8
+    - Repo/MDT/VMs/Windows 10 VM/22H2
+    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-3
   dest: MDT/Data/CVAH 3.7/Software/AppStore
 
 - app: Documentation
@@ -404,13 +274,6 @@ MDT:
 
 - app: Documentation
   src:
-    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.80
-    - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
-    - Repo/Shared/Documentation/VMs/ACAS/21.04-0/Tenablesc_UserGuide-5.19.pdf
-  dest: MDT/Data/CVAH 3.7/Documentation/VMs
-
-- app: Documentation
-  src:
     - Repo/MDT/Documentation/AppStore/p7zip/16.02
     - Repo/MDT/Documentation/AppStore/Powershell Remote Registry (PSRR)/3.0.0
     - Repo/MDT/Documentation/AppStore/SCAP Compliance Checker/4.2
@@ -420,6 +283,9 @@ MDT:
     - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     - Repo/Shared/Documentation/AppStore/sysinternals suite/master
+    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.80
+    - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
+    - Repo/Shared/Documentation/VMs/ACAS/21.04-0
   dest: MDT/Data/CVAH 3.7/Documentation/AppStore
 
 - app: firmware
@@ -430,6 +296,7 @@ MDT:
     - Repo/Firmware/Dell 7720/1.22.0
     - Repo/Firmware/Dell 7730/1.18.2
     - Repo/Firmware/Dell 7750/1.11.1
+    - Repo/Firmware/Dell 7760/1.12.1
     - Repo/Firmware/Dell M6800/M6800A26
     - Repo/Firmware/Dell R440/BIOS 2.11.2 Contents
     - Repo/Firmware/HP DL160/DL160
