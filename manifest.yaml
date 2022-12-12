@@ -134,10 +134,19 @@ CPT:
     - Repo/CPT/AppStore/TFTP Server/5.2-27.fc30
     - Repo/CPT/AppStore/Windows 10 Enterprise (x64)_v1809/1809
     - Repo/CPT/AppStore/Windows Server 2012 R2 Standard x64_v6.3(Build9600)/6.3
+    - Repo/CPT/VMs/ControlThings (prev SamuraiSTFU)/ControlThingsPlatform-v1bD
+    - Repo/CPT/VMs/Cuckoo Sandbox/2.0.7
+    - Repo/CPT/VMs/Endgame/3.23.3-32
+    - Repo/CPT/VMs/Kali Linux VM/2021.3
+    - Repo/CPT/VMs/Mockingbird/1.2.0
+    - Repo/CPT/VMs/REMnuX/2021.29.9
+    - Repo/CPT/VMs/SamuraiSTFU/1.9
+    - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7
+    - Repo/CPT/VMs/Windows 10 VM/22H2
     - Repo/Shared/AppStore/Citrix/2207
     - Repo/Shared/AppStore/Elastic Stack/7.16.2
     - Repo/Shared/AppStore/Grassmarlin/3.3
-    - Repo/Shared/AppStore/Metasponse/1.6.2.0
+    - Repo/Shared/AppStore/Metasponse/1.6.4.0
     - Repo/Shared/AppStore/nfdump/1.6.23
     - Repo/Shared/AppStore/notepad++/8.1.4
     - Repo/Shared/AppStore/PowerShell/7.1.4-1
@@ -149,18 +158,9 @@ CPT:
     - Repo/Shared/AppStore/TCPdump/4.9.3
     - Repo/Shared/AppStore/Visio Pro/2016
     - Repo/Shared/VMs/ACAS/21.04-0
-    - Repo/CPT/VMs/ControlThings (prev SamuraiSTFU)/ControlThingsPlatform-v1bD
-    - Repo/CPT/VMs/Cuckoo Sandbox/2.0.7
-    - Repo/CPT/VMs/Endgame/3.23.3-32
-    - Repo/CPT/VMs/Kali Linux VM/2021.3
-    - Repo/CPT/VMs/Mockingbird/1.2.0
     - Repo/Shared/VMs/Pfsense/2.5.2
-    - Repo/CPT/VMs/REMnuX/2021.29.9
-    - Repo/CPT/VMs/SamuraiSTFU/1.9
     - Repo/Shared/VMs/Security Onion 2/2.3.80
     - Repo/Shared/VMs/Security Onion (original)/4.3-8
-    - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7
-    - Repo/CPT/VMs/Windows 10 VM/22H2
     - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-3
   dest: CPT/Data/CVAH 3.7/Software/AppStore
 
@@ -189,19 +189,19 @@ CPT:
     - Repo/CPT/Documentation/AppStore/RegRipper/master
     - Repo/CPT/Documentation/AppStore/Secure Host Baseline/2019
     - Repo/CPT/Documentation/AppStore/Snowflake/3.0.1
-    - Repo/Shared/Documentation/AppStore/Citrix/2207
-    - Repo/Shared/Documentation/AppStore/Grassmarlin/master
-    - Repo/Shared/Documentation/AppStore/Metasponse/1.6.2.0
-    - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
-    - Repo/Shared/Documentation/AppStore/StigViewer/2.x
-    - Repo/Shared/Documentation/AppStore/sysinternals suite/master
-    - Repo/Shared/Documentation/VMs/ACAS/21.04-0
     - Repo/CPT/Documentation/VMs/Cuckoo Sandbox/2.0.7
     - Repo/CPT/Documentation/VMs/Endgame/3.23.3-32
     - Repo/CPT/Documentation/VMs/Mockingbird/1.2.0
     - Repo/CPT/Documentation/VMs/REMnux/2021.29.9
-    - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
+    - Repo/Shared/Documentation/AppStore/Citrix/2207
+    - Repo/Shared/Documentation/AppStore/Grassmarlin/master
+    - Repo/Shared/Documentation/AppStore/Metasponse/1.6.4.0
+    - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
+    - Repo/Shared/Documentation/AppStore/StigViewer/2.x
+    - Repo/Shared/Documentation/AppStore/sysinternals suite/master
+    - Repo/Shared/Documentation/VMs/ACAS/21.04-0
     - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.80
+    - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
   dest: CPT/Data/CVAH 3.7/Documentation/AppStore
 
 - app: firmware
@@ -243,7 +243,7 @@ MDT:
     - Repo/Shared/AppStore/Citrix/2207
     - Repo/Shared/AppStore/Elastic Stack/7.16.2
     - Repo/Shared/AppStore/Grassmarlin/3.3
-    - Repo/Shared/AppStore/Metasponse/1.6.2.0
+    - Repo/Shared/AppStore/Metasponse/1.6.4.0
     - Repo/Shared/AppStore/nfdump/1.6.23
     - Repo/Shared/AppStore/notepad++/8.1.4
     - Repo/Shared/AppStore/Powershell/7.1.4-1
@@ -279,7 +279,7 @@ MDT:
     - Repo/MDT/Documentation/AppStore/SCAP Compliance Checker/4.2
     - Repo/Shared/Documentation/AppStore/Citrix/2207
     - Repo/Shared/Documentation/AppStore/Grassmarlin/master
-    - Repo/Shared/Documentation/AppStore/Metasponse/1.6.2.0
+    - Repo/Shared/Documentation/AppStore/Metasponse/1.6.4.0
     - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     - Repo/Shared/Documentation/AppStore/sysinternals suite/master

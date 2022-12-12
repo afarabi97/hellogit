@@ -20,11 +20,9 @@ ROOT_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../../../"
 PIPELINE_DIR = ROOT_DIR + "/testing/pipeline/"
 TEMPLATES_DIR = PIPELINE_DIR + "/templates"
 
-
 def remote_sudo_cmd(shell: Connection, command: str, warn=False, hide=False):
     print(command)
     return shell.sudo(command, warn=warn, hide=hide)
-
 
 def get_plugged_in_drives(shell: Connection) -> List[str]:
     """Gets plugged in devices from a Ubuntu OS
@@ -43,7 +41,6 @@ def get_plugged_in_drives(shell: Connection) -> List[str]:
             filtered_devices.append(device)
     return filtered_devices
 
-
 class DriveSuperThread(threading.Thread):
     valid_drive_types = ["CPT", "MDT", "GIP"]
 
@@ -61,8 +58,7 @@ class DriveSuperThread(threading.Thread):
         self._return_value = 0
 
     def print_std_message(self, msg: str):
-        print(f"Thread ID: {self.thread_id} Drive Path: {self.drive_path} Drive Type: {self.create_drive_type} \
-                Message: {msg}")
+        print(f"Thread ID: {self.thread_id} Drive Path: {self.drive_path} Drive Type: {self.create_drive_type} Message: {msg}")
 
     def remote_sudo_cmd(self, command: str, warn=False, hide=False, shell=False):
         try:
@@ -70,6 +66,7 @@ class DriveSuperThread(threading.Thread):
             return self.shell.sudo(command, warn=warn, hide=hide)
         except SSHException as e:
             print(str(e))
+            print(f"SSH Exception : {self.thread_id} : {command}")
             fabric = FabricConnectionWrapper(self.drive_settings.username,
                                              self.drive_settings.password,
                                              self.drive_settings.ipaddress)
@@ -90,9 +87,7 @@ class DriveSuperThread(threading.Thread):
             self.print_std_message(command)
             return self.shell.run(command, warn=warn, hide=hide)
 
-
 class DriveCreationThread(DriveSuperThread):
-
     def __init__(self, index: int,
                        drive_settings: DriveCreationSettingsv2,
                        drive_path: str,
@@ -100,36 +95,23 @@ class DriveCreationThread(DriveSuperThread):
         DriveSuperThread.__init__(self, index, drive_path, create_drive_type)
         self.drive_settings = drive_settings
 
-        self.multiboot_path = "{}/MULTIBOOT".format(self.drive_settings.drive_creation_path)
+        self.drive_creation_path = f"{self.drive_settings.drive_creation_path}/{self.drive_settings.staging_export_path}/v{self.drive_settings.drive_creation_version}"
+        self.multiboot_path = f"{self.drive_creation_path}/MULTIBOOT"
         self.multiboot_img = "MULTIBOOT.img"
-        self.multiboot_img_staging = "{}/{}/v{}/MULTIBOOT/{}".format(self.drive_settings.drive_creation_path,
-                                                                     self.drive_settings.staging_export_path,
-                                                                     self.drive_settings.drive_creation_version,
-                                                                     self.multiboot_img)
-
-        self.drive_creation_path = "{}/{}/v{}".format(self.drive_settings.drive_creation_path,
-                                                      self.drive_settings.staging_export_path,
-                                                      self.drive_settings.drive_creation_version)
-
+        self.multiboot_img_staging = f"{self.multiboot_path}/{self.multiboot_img}"
         self.multi1_path = f"/mnt/{self.thread_id}/MULTI1"
         self.multi2_path = f"/mnt/{self.thread_id}/MULTI2"
         self.ntfs_data_path = f"/mnt/{self.thread_id}/FAT32data"
         self.xfs_data_path = f"/mnt/{self.thread_id}/Data"
 
-        self.rsync_source=f"{self.drive_creation_path}/{self.create_drive_type}/Data/*"
-        self.ROOT_DIR=f"{self.drive_creation_path}/{self.create_drive_type}/Data/CVAH\ {self.drive_settings.drive_creation_version}/Software/Physical_Stack_Build/"
+        self.rsync_source=f"{self.drive_creation_path}/{self.create_drive_type}/Data/"
+        self.ROOT_DIR=f"{self.rsync_source}CVAH\ {self.drive_settings.drive_creation_version}/Software/Physical_Stack_Build/"
 
     def _check_external_drive(self):
         """
         Make sure that the root drive
 
-        NOTE:  ’  /  ’ (ROOT partition) might be mounted on an LVM, which
-        might be part of SDA.  However, "/boot/efi"  is  mounted  on  the
-        first  partition pn the ROOT drive, which could be "/dev/sda1" or
-        "/dev/nvme0n1p1".  So looking for " / " is not valid.  This needs
-        to look for " /boot" instead.
         """
-
         result = self.remote_sudo_cmd("grep ' /boot' /proc/mounts", shell=True)
         root_drive = result.stdout[0:len(self.drive_path)]
         if root_drive in self.drive_path or root_drive == self.drive_path:
@@ -139,9 +121,13 @@ class DriveCreationThread(DriveSuperThread):
         for directory in [self.multi1_path, self.multi2_path, self.ntfs_data_path, self.xfs_data_path]:
             self.remote_sudo_cmd(f"mkdir -p {directory}")
 
+    def _clear_the_disk(self):
+        self.print_std_message(f"Zeroing out {self.drive_path} before using it...")
+        self.remote_sudo_cmd(f"dd if=/dev/zero of={self.drive_path} bs=65536 count=100000", warn=True)
+
     def _unmount(self):
         self.print_std_message("Making sure external drive is not mounted before proceeding...")
-        self.remote_sudo_cmd(f"umount {self.drive_path} {self.drive_path}[123456]", warn=True)
+        self.remote_sudo_cmd(f"umount {self.drive_path}*", warn=True)
 
     def _burn_image_to_disk(self):
         self.print_std_message("Burning the MULTIBOOT partition. This may take a while...")
@@ -263,7 +249,7 @@ class DriveCreationThread(DriveSuperThread):
         Output.close()
         self._sudo_copy_to_drive_creation(file_path, dest_path)
         try:
-            self.remote_sudo_cmd("rm -fr {}".format(file_path))
+            self.remote_sudo_cmd(f"rm -fr {file_path}")
         except Exception as e:
             traceback.print_exc()
             self._return_value = 1
@@ -294,7 +280,7 @@ class DriveCreationThread(DriveSuperThread):
             self._sudo_copy_from_buffer_to_drive_creation("title ^Alt+{letter} {title} [Alt+{letter}]".
                                                           format(title=name_without_ext,
                                                                  letter=letter.upper()),
-                                                                 dest_path)
+                                                          dest_path)
         return menu_entries
 
     def _create_startup_menu(self, menu_entries: List[str]):
@@ -314,12 +300,12 @@ class DriveCreationThread(DriveSuperThread):
         contents = contents[0: pos] + menu_entries + contents[pos:]
         contents = "".join(contents)
 
-        dest_path = "{}/boot/grubfm/{}".format(self.multi2_path, startup_menu_template)
+        dest_path = f"{self.multi2_path}/boot/grubfm/{startup_menu_template}"
         self._sudo_copy_from_buffer_to_drive_creation(contents, dest_path)
 
     def _copy_multiboot_files(self):
         #Copy ISOs and their associated txt files.
-        cmd=f"rsync -tr --stats {self.multiboot_path}/isos/*.iso {self.multi1_path}/_ISO/MAINMENU/"
+        cmd = f"rsync -tr --stats {self.multiboot_path}/isos/*.iso {self.multi1_path}/_ISO/MAINMENU/"
         try:
             self.remote_sudo_cmd(cmd)
         except Exception as e:
@@ -328,7 +314,7 @@ class DriveCreationThread(DriveSuperThread):
             exit(self._return_value)
 
         #Copy EXEs
-        exes_files = self.multiboot_path + "/exes/*[Ee][Xx][Ee]"
+        exes_files = self.multiboot_path + "/exes/*.[Ee][Xx][Ee]"
         try:
             self.remote_sudo_cmd(f"cp -v {exes_files} {self.multi2_path}")
         except Exception as e:
@@ -338,7 +324,7 @@ class DriveCreationThread(DriveSuperThread):
 
         #Copy kickstart file to root of all Fat32 partitions.
         try:
-            self._sudo_copy_to_drive_creation(self.ROOT_DIR + "/infrastructure/ESXi/ks.cfg",
+            self._sudo_copy_to_drive_creation(self.ROOT_DIR + "infrastructure/ESXi/ks.cfg",
                                               self.multi2_path + "/ks.cfg")
             self.remote_sudo_cmd("sync")
         except Exception as e:
@@ -349,7 +335,7 @@ class DriveCreationThread(DriveSuperThread):
     def _rsync_data_files(self):
         self.print_std_message("Copying files to Data partition...")
         try:
-            self.remote_sudo_cmd(f"rsync -ah --numeric-ids --stats {self.rsync_source} {self.xfs_data_path}")
+            self.remote_sudo_cmd(f"rsync -ah --numeric-ids --stats {self.rsync_source}* {self.xfs_data_path}")
             self.remote_sudo_cmd("sync")
         except Exception as e:
             traceback.print_exc()
@@ -365,6 +351,7 @@ class DriveCreationThread(DriveSuperThread):
             self._check_external_drive()
             self._unmount()
             self._create_mount_dirs()
+            self._clear_the_disk()
             if self.drive_settings.is_burn_multiboot():
                 self._burn_image_to_disk()
                 self._fix_partition_five_and_six()
@@ -389,26 +376,26 @@ class DriveCreationThread(DriveSuperThread):
             if self.shell:
                 self.shell.close()
 
-
 class DriveCreationJobv2:
-
     def __init__(self, drive_settings: DriveCreationSettingsv2):
         self.drive_settings = drive_settings
 
     def _execute_threads(self, devices: List[str]):
         threads = []
+        CREATE_DRIVE_TYPE = ""
         for index, device in enumerate(devices):
             if self.drive_settings.is_mixed():
                 is_even = index % 2 == 0
                 if is_even:
-                    threads.append(DriveCreationThread(index, self.drive_settings, device, "CPT"))
+                    CREATE_DRIVE_TYPE = "CPT"
                 else:
-                    threads.append(DriveCreationThread(index, self.drive_settings, device, "MDT"))
+                    CREATE_DRIVE_TYPE = "MDT"
             else:
-                threads.append(DriveCreationThread(index,
-                                                   self.drive_settings,
-                                                   device,
-                                                   self.drive_settings.create_drive_type))
+                CREATE_DRIVE_TYPE = self.drive_settings.create_drive_type
+            threads.append(DriveCreationThread(index,
+                                               self.drive_settings,
+                                               device,
+                                               CREATE_DRIVE_TYPE))
 
         for thread in threads:
             thread.start()
@@ -422,7 +409,6 @@ class DriveCreationJobv2:
                                      self.drive_settings.ipaddress) as shell:
             devices = get_plugged_in_drives(shell)
         self._execute_threads(devices)
-
 
 class DriveHashVerificationThread(DriveSuperThread):
 
@@ -442,13 +428,14 @@ class DriveHashVerificationThread(DriveSuperThread):
             self.shell = fabric.connection
             the_drive = self.drive_path
             if self.drive_settings.is_burn_multiboot():
-                the_drive = "{}6".format(self.drive_path)
+                the_drive = f"{self.drive_path}6"
 
             self.remote_sudo_cmd(f"mount {the_drive} {self.xfs_data_path}")
             self.remote_run_cmd(self.xfs_data_path + "/validate_drive.sh")
             self.remote_sudo_cmd(f"umount {the_drive}")
 
         except Exception as e:
+            print("Verification RUN exception")
             traceback.print_exc()
             self._return_value = 1
             exit(self._return_value)
@@ -456,13 +443,10 @@ class DriveHashVerificationThread(DriveSuperThread):
             if self.shell:
                 self.shell.close()
 
-
 class DriveHashCreationJob:
     def __init__(self, drive_settings: DriveCreationSettingsv2):
         self.drive_settings = drive_settings
-        self.drive_creation_path = "{}/{}/v{}".format(self.drive_settings.drive_creation_path,
-                                                      self.drive_settings.staging_export_path,
-                                                      self.drive_settings.drive_creation_version)
+        self.drive_creation_path = f"{self.drive_settings.drive_creation_path}/{self.drive_settings.staging_export_path}/v{self.drive_settings.drive_creation_version}"
         self.rsync_source = f"{self.drive_creation_path}/{self.drive_settings.create_drive_type}/Data"
 
     def _run_command(self, cmd: str, error_message: str="stdout {} stderr {}", is_shell: bool=True):
@@ -480,7 +464,7 @@ class DriveHashCreationJob:
         if self.drive_settings.is_GIP_Only():
             readme_txt = ("Please see CVAH {}/Documentation/ folder for "
                           "additional details on how to setup or operate "
-                          "the Garrison Interceptor Platform (GIP)".format(self.drive_settings.drive_creation_version))
+                          "the Garrison Interceptor Platform (GIP).".format(self.drive_settings.drive_creation_version))
             readme = "GIP_Drive_Readme.txt"
         else:
             readme_txt = ("Please see CVAH {}/Documentation/ folder for "
@@ -504,29 +488,29 @@ class DriveHashCreationJob:
     def _execute_threads(self, devices: List[str]):
         threads = []
         for index, device in enumerate(devices):
+            CREATE_DRIVE_TYPE = ""
             if self.drive_settings.is_mixed():
                 is_even = index % 2 == 0
                 if is_even:
-                    threads.append(DriveHashVerificationThread(index,
-                                                               device,
-                                                               "CPT",
-                                                               self.drive_settings))
+                    CREATE_DRIVE_TYPE = "CPT"
                 else:
-                    threads.append(DriveHashVerificationThread(index,
-                                                               device,
-                                                               "MDT",
-                                                               self.drive_settings))
+                    CREATE_DRIVE_TYPE = "MDT"
             else:
-                threads.append(DriveHashVerificationThread(index,
-                                                           device,
-                                                           self.drive_settings.create_drive_type,
-                                                           self.drive_settings))
+                CREATE_DRIVE_TYPE = self.drive_settings.create_drive_type
+
+            threads.append(DriveHashVerificationThread(index,
+                                                       device,
+                                                       CREATE_DRIVE_TYPE,
+                                                       self.drive_settings))
 
         for thread in threads:
             thread.start()
 
         for thread in threads:
             thread.join()
+            #ret_val = thread.join()
+            #if ret_val != 0:
+                #exit(ret_val)
 
     def run_verification_script(self):
         print("Performing validation of drives.")
