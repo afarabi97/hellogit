@@ -81,6 +81,12 @@
     tasks_from: add_repo
   when: not rpm_install
 
+- name: Install older java dependency
+  dnf:
+    name:
+      - tzdata-java-2022f-1.el8
+    state: present
+
 - name: Install Keycloak Dependencies
   dnf:
     name:
