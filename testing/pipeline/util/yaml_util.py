@@ -1,4 +1,5 @@
 import glob
+import os
 from typing import List, Union
 
 import ruamel.yaml
@@ -17,6 +18,14 @@ from models.vm_builder import VMBuilderSettings
 YAML_FILE = "{}.yml"
 YAML_APPLICATION_FILE = "{}_{}.yml"
 
+"""
+    This is an opener that sets the permissions to 660
+    use this when opening a file with the builtin open function.
+    See: https://docs.python.org/3.6/library/functions.html#open
+"""
+def _perm_opener(path, flags, file_permission=0o100660):
+    # os.umask(15) # uncomment if the system umask is not restrictive enough
+    return os.open(path, flags, file_permission)
 
 class YamlManager:
     yaml = None
@@ -46,7 +55,7 @@ class YamlManager:
         cls._initalize()
         if not yaml_name:
             yaml_name = YAML_FILE.format(some_model.__class__.__name__.lower())
-        with open(yaml_name, 'w') as outfile:
+        with open(yaml_name, 'w', opener=_perm_opener) as outfile:
             cls.yaml.dump(some_model, outfile)
 
     @classmethod
@@ -54,7 +63,7 @@ class YamlManager:
         cls._initalize()
         file_name = node.__class__.__name__.lower() + "_" + node.node_type + str(node.index)
         yaml_name = YAML_FILE.format(file_name)
-        with open(yaml_name, 'w') as outfile:
+        with open(yaml_name, 'w', opener=_perm_opener) as outfile:
             cls.yaml.dump(node, outfile)
 
     @classmethod

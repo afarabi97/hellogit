@@ -41,6 +41,15 @@ class KitSettingsJob:
             client.run("firewall-cmd --permanent --add-port=27017/tcp") # Opens mongo port
             client.run('firewall-cmd --reload')
 
+    def _close_test_ports(self):
+        with FabricConnectionWrapper(self.ctrl_settings.node.username,
+                                     self.ctrl_settings.node.password,
+                                     self.ctrl_settings.node.ipaddress) as client:
+            client.put(TEMPLATES_DIR + "mongod.conf", '/etc/mongod.conf')
+            client.run('systemctl restart mongod')
+            client.run("firewall-cmd --permanent --remove-port=27017/tcp") # Closes mongo port
+            client.run('firewall-cmd --reload')
+
     def _clear_net_on_hwnode(self, node: HardwareNodeSettingsV2):
         with FabricConnectionWrapper('root',
                                      self.kit_settings.settings.password,
@@ -185,4 +194,7 @@ class KitSettingsJob:
     def deploy_kit(self):
         self.api = APITesterV2(self.ctrl_settings, self.kit_settings)
         self.api.run_kit_deploy()
+
+    def run_test_teardown(self):
+        self._close_test_ports()
 

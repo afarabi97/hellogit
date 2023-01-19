@@ -320,4 +320,5 @@ DIP Cleanup:
     python3 testing/pipeline/pipeline.py run-cleanup
   only:
     variables:
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
       - $IS_CLEANUP == "yes" && $PIPELINE == "developer-all"

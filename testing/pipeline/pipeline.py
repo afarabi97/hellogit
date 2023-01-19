@@ -122,7 +122,8 @@ class Runner:
 
         self._set_parser(
             SubCmd.run_cleanup,
-            "This subcommand powers off and deletes all VMs."
+            "Tear down the test environment. Right now just limits mongo to the localhost."
+            # "This subcommand powers off and deletes all VMs."
         )
 
         gip_setup_parser = self.subparsers.add_parser(SubCmd.gip_setup,
@@ -336,16 +337,10 @@ class Runner:
                 YamlManager.save_to_yaml(vm_builds_settings)
                 StandAloneREMnux(vm_builds_settings).create()
             elif args.which == SubCmd.run_cleanup:
-                pass
-                # TODO
-                #     ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
-                #     try:
-                #         kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
-                #         kickstart_settings.nodes.append(ctrl_settings.node)
-                #         delete_vms(ctrl_settings.vcenter,
-                #                    kickstart_settings.nodes)
-                #     except FileNotFoundError:
-                #         delete_vms(ctrl_settings.vcenter, ctrl_settings.node)
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
+                job = KitSettingsJob(ctrl_settings, kit_settings)
+                job.run_test_teardown()
             elif args.which == SubCmd.run_export:
                 export_parser.print_help()
             elif args.which == SubCmd.checkout_latest_code:
@@ -358,6 +353,7 @@ class Runner:
         except AttributeError as e:
             self.parser.print_help()
             traceback.print_exc()
+            logging.exception(e)
             exit(1)
 
 
