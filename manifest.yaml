@@ -159,7 +159,7 @@ CPT:
     - Repo/Shared/AppStore/Visio Pro/2016
     - Repo/Shared/VMs/ACAS/22.06-1
     - Repo/Shared/VMs/Pfsense/2.5.2
-    - Repo/Shared/VMs/Security Onion 2/2.3.80
+    - Repo/Shared/VMs/Security Onion 2/2.3.190
     - Repo/Shared/VMs/Security Onion (original)/4.3-8
     - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-3
   dest: CPT/Data/CVAH 3.7/Software/AppStore
@@ -200,7 +200,7 @@ CPT:
     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     - Repo/Shared/Documentation/AppStore/sysinternals suite/master
     - Repo/Shared/Documentation/VMs/ACAS/22.06-1
-    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.80
+    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.190
     - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
   dest: CPT/Data/CVAH 3.7/Documentation/AppStore
 
@@ -256,7 +256,7 @@ MDT:
     - Repo/Shared/AppStore/Visio Pro/2016
     - Repo/Shared/VMs/ACAS/22.06-1
     - Repo/Shared/VMs/Pfsense/2.5.2
-    - Repo/Shared/VMs/Security Onion 2/2.3.80
+    - Repo/Shared/VMs/Security Onion 2/2.3.190
     - Repo/Shared/VMs/Security Onion (original)/4.3-8
     - Repo/MDT/VMs/Windows 10 VM/22H2
     - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-3
@@ -283,7 +283,7 @@ MDT:
     - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     - Repo/Shared/Documentation/AppStore/sysinternals suite/master
-    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.80
+    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.190
     - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
     - Repo/Shared/Documentation/VMs/ACAS/22.06-1
   dest: MDT/Data/CVAH 3.7/Documentation/AppStore
