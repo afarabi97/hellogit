@@ -9,7 +9,7 @@ import { KitSettingsClass } from '../../classes';
 import { KitSettingsService } from '../../services/kit-settings.service';
 import { HealthDashboardStatusClass } from './classes';
 import { HealthDashboardDatastoresComponent } from './components/datastores/datastores.component';
-import { HealthDashboardModalDialogComponent } from './components/health-dashboard-dialog/health-dashboard-dialog.component';
+import { HealthDashboardDialogComponent } from './components/health-dashboard-dialog/health-dashboard-dialog.component';
 import { HealthDashboardNodeTableComponent } from './components/node-table/node-table.component';
 import { HealthDashboardPodTableComponent } from './components/pod-table/pod-table.component';
 import { HealthDashboardStatusService } from './services/health-dashboard-status.service';
@@ -97,7 +97,7 @@ export class HealthDashboardComponent implements OnInit {
 
   kibana_info(ipaddress: string): void {
     this.dashboard_status_service.get_health_dashboard_status_kibana_info_remote(ipaddress).subscribe(login => {
-      this.dialog.open(HealthDashboardModalDialogComponent,{
+      this.dialog.open(HealthDashboardDialogComponent,{
         minWidth: '400px',
         data: { 'title': 'Kibana Login', 'info': login }
       });

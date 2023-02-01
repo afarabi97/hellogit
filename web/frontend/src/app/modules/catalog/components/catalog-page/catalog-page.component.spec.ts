@@ -1965,6 +1965,7 @@ describe('CatalogPageComponent', () => {
       it('should call open_confirm_mat_dialog_()', () => {
         reset();
 
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(TAKE_ME_BACK_DIALOG_OPTION) } as MatDialogRef<typeof component>);
 
         component.chart_info = MockChartInfoClassArkimeViewerReinstallorUninstall;
@@ -1976,6 +1977,7 @@ describe('CatalogPageComponent', () => {
       it('should call navigate_to_catalog() with return response === TAKE_ME_BACK_DIALOG_OPTION after mat dialog ref closed from within open_confirm_mat_dialog_()', () => {
         reset();
 
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(TAKE_ME_BACK_DIALOG_OPTION) } as MatDialogRef<typeof component>);
 
         component.chart_info = MockChartInfoClassArkimeViewerReinstallorUninstall;
@@ -1987,6 +1989,7 @@ describe('CatalogPageComponent', () => {
       it('should call api_get_chart_statuses_() with return response !== TAKE_ME_BACK_DIALOG_OPTION after mat dialog ref closed from within open_confirm_mat_dialog_()', () => {
         reset();
 
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(CONTINUE_DIALOG_OPTION) } as MatDialogRef<typeof component>);
 
         component.chart_info = MockChartInfoClassArkimeViewerReinstallorUninstall;

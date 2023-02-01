@@ -1,20 +1,20 @@
-<h2 mat-dialog-title>{{ title | capitalizeFirst }}</h2>
+<h2 mat-dialog-title id="cvah-health-dashboard-dialog-title">{{ title | capitalizeFirst }}</h2>
 <div mat-dialog-content>
   <mat-list>
-    <mat-list-item *ngFor="let item of info | keyvalue;">
+    <mat-list-item *ngFor="let item of info; let i = index;">
       <mat-icon mat-list-icon>info</mat-icon>
-      <div *ngIf="item.value.includes('https');then hyperlink_value else text_value"></div>
-      <ng-template #hyperlink_value> 
-        <h4 mat-line>{{ item.key | capitalizeFirst }}:
-          <a target="_blank" href="{{ item.value }}">{{ item.value }} </a>
+      <div *ngIf="item.value.includes('https'); then hyperlink_value else text_value"></div>
+      <ng-template #hyperlink_value>
+        <h4 mat-line id="{{ 'cvah-pod-log-dialog-' + i + '-hyper-link-key' }}">{{ item.key | capitalizeFirst }}:
+          <a target="_blank" href="{{ item.value }}" id="{{ 'cvah-pod-log-dialog-' + i + '-hyper-link-value' }}">{{ item.value }} </a>
         </h4>
       </ng-template>
         <ng-template #text_value>
-          <h4 mat-line>{{ item.key | capitalizeFirst }}: {{ item.value }}</h4>
+          <h4 mat-line id="{{ 'cvah-pod-log-dialog-' + i + '-text-key-value' }}">{{ item.key | capitalizeFirst }}: {{ item.value }}</h4>
         </ng-template>
     </mat-list-item>
   </mat-list>
 </div>
 <div mat-dialog-actions>
-  <button mat-raised-button (click)="onNoClick()">Close</button>
+  <button mat-raised-button id="cvah-pod-log-dialog-button-close" (click)="close()">Close</button>
 </div>

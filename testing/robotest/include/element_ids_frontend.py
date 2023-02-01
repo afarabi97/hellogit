@@ -373,6 +373,13 @@ CVAH_ELASTICSEARCH_INDEX_MANAGEMENT_BUTTON_UPDATE = 'cvah-elasticsearch-index-ma
 CVAH_ELASTICSEARCH_SCALE__BUTTON_EDIT_CONFIGURATION = 'cvah-elasticsearch-scale-button-edit-configuration' # button
 CVAH_ELASTICSEARCH_SCALE__BUTTON_RUN = 'cvah-elasticsearch-scale-button-run' # button
 
+# These are for health-dashboard-dialog.component.html
+CVAH_HEALTH_DASHBOARD_DIALOG__TITLE = 'cvah-health-dashboard-dialog-title' # h2
+# TODO cvah-pod-log-dialog-*-hyper-link-key # h4
+# TODO cvah-pod-log-dialog-*-hyper-link-value # h2
+# TODO cvah-pod-log-dialog-*-text-key-value # h4
+CVAH_HEALTH_DASHBOARD_DIALOG__BUTTON_CLOSE = 'cvah-pod-log-dialog-button-close' # button
+
 
 # These are for kickstart.component.html
 APP_KICKSTART_FORM__BUTTON_OPEN_CONSOLE = 'app-kickstart-form-div-mat-card-mat-card-actions-button-open-console' # button
@@ -765,10 +772,10 @@ CVAH_PCAP_FORM__INPUT_HIDDEN_FILE = 'cvah-pcap-form-div-mat-card-mat-card-header
 
 
 # These are for pod-log-dialog.component.html
-POD_LOG_DIALOG__TITLE = 'pod-log-dialog-h2-title' # h2
-# TODO pod-log-dialog-div-mat-tab-group-mat-tab-* # mat-tab
-# TODO pod-log-dialog-div-mat-tab-group-mat-tab-*-pre-div-container-logs # div
-POD_LOG_DIALOG__BUTTON_CLOSE = 'pod-log-dialog-div-button-close' # button
+CVAH_POD_LOG_DIALOG__TITLE = 'cvah-pod-log-dialog-title' # h2
+# TODO cvah-pod-log-dialog-*-name # mat-tab
+# TODO cvah-pod-log-dialog-*-logs # div
+CVAH_POD_LOG_DIALOG__BUTTON_CLOSE = 'cvah-pod-log-dialog-button-close' # button
 
 
 # These are for rule-set-add-edit.component.html

@@ -8,7 +8,7 @@ import {
   ModalDialogDisplayMatComponent
 } from '../../../global-components/components/modal-dialog-display-mat/modal-dialog-display-mat.component';
 import { HealthService } from '../../services/health.service';
-import { PodLogModalDialogComponent } from './components/pod-log-dialog/pod-log-dialog.component';
+import { PodLogDialogComponent } from './components/pod-log-dialog/pod-log-dialog.component';
 
 @Component({
   selector: 'app-health-dashboard-pod-table',
@@ -62,7 +62,7 @@ export class HealthDashboardPodTableComponent implements OnChanges {
 
     pod_logs(pod_name: string, namespace: string) {
       this.health_service.pod_logs(pod_name, namespace).subscribe(data => {
-          this.open_dialog_screen(PodLogModalDialogComponent, pod_name, data);
+          this.open_dialog_screen(PodLogDialogComponent, pod_name, data);
         });
     }
 

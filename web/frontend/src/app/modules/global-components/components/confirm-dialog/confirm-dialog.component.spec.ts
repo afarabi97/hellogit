@@ -1,13 +1,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { MockConfirmDialogMatDialogDataInterface } from '../../../../../../static-data/interface-objects';
-import { MaterialModule } from '../../../utilily-modules/material.module';
+import { GlobalComponentsModule } from '../../global-components.module';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
 
 describe('ConfirmDialogComponent', () => {
@@ -25,12 +23,7 @@ describe('ConfirmDialogComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
-        FormsModule,
-        MaterialModule,
-        BrowserAnimationsModule
-      ],
-      declarations: [
-        ConfirmDialogComponent
+        GlobalComponentsModule
       ],
       providers: [
         { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) },

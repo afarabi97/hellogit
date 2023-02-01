@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
+import { GlobalComponentsModule } from '../../global-components.module';
 import { PasswordMessageComponent } from './password-message.component';
 
 describe('PasswordMessageComponent', () => {
@@ -9,9 +10,9 @@ describe('PasswordMessageComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [
-        PasswordMessageComponent
-      ]
+      imports: [
+        GlobalComponentsModule
+      ],
     }).compileComponents();
   }));
 

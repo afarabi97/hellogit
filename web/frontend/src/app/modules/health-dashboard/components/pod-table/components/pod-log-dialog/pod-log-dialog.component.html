@@ -1,14 +1,14 @@
-<h2 mat-dialog-title id="pod-log-dialog-h2-title">{{ title | capitalizeFirst }} Logs</h2>
+<h2 mat-dialog-title id="cvah-pod-log-dialog-title">{{ title | capitalizeFirst }} Logs</h2>
 <div mat-dialog-content>
-  <mat-tab-group (selectedTabChange)="changeTab($event)" dynamicHeight>
-    <mat-tab *ngFor="let container of info; let i = index;"
-             id="{{ 'pod-log-dialog-div-mat-tab-group-mat-tab-' + i }}" label="{{ container.name }}">
+  <mat-tab-group dynamicHeight>
+    <mat-tab *ngFor="let pod_log of info; let i = index;"
+             id="{{ 'cvah-pod-log-dialog-' + i + '-name' }}" label="{{ pod_log.name }}">
       <pre style="overflow-y: scroll; max-height: 500px;">
-        <div id="{{ 'pod-log-dialog-div-mat-tab-group-mat-tab-' + i + '-pre-div-container-logs' }}">{{ container.logs }}</div>
+        <div id="{{ 'cvah-pod-log-dialog-' + i + '-logs' }}">{{ pod_log.logs }}</div>
       </pre>
     </mat-tab>
   </mat-tab-group>
 </div>
 <div mat-dialog-actions>
-  <button mat-raised-button id="pod-log-dialog-div-button-close" (click)="onNoClick()">Close</button>
+  <button mat-raised-button id="cvah-pod-log-dialog-button-close" (click)="close()">Close</button>
 </div>
