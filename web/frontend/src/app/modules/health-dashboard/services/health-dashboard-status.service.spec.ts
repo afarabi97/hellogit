@@ -7,19 +7,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MockHealthDashboardStatusClass, MockKeyValueClassArray } from '../../../../../static-data/class-objects';
-import {
-  MockHealthDashboardStatusInterface,
-  MockKeyValueInterfaceArray
-} from '../../../../../static-data/interface-objects';
+import { MockKeyValueClassArray, MockKitTokenClass } from '../../../../../static-data/class-objects';
+import { MockKeyValueInterfaceArray, MockKitTokenInterface } from '../../../../../static-data/interface-objects';
 import { environment } from '../../../../environments/environment';
-import { KeyValueClass } from '../../../classes';
+import { KeyValueClass, KitTokenClass } from '../../../classes';
 import { ApiService } from '../../../services/abstract/api.service';
 import { InjectorModule } from '../../utilily-modules/injector.module';
-import { HealthDashboardStatusClass } from '../classes';
 import { HealthDashboardStatusServiceInterface } from '../interfaces';
 import { HealthDashboardStatusService } from './health-dashboard-status.service';
-
 
 describe('HealthDashboardStatusService', () => {
   let service: HealthDashboardStatusService;
@@ -91,11 +86,11 @@ describe('HealthDashboardStatusService', () => {
 
         service.get_health_dashboard_status()
           .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: HealthDashboardStatusClass[]) => {
+          .subscribe((response: KitTokenClass[]) => {
             const objectKeys: string[] = Object.keys(response[0]);
             objectKeys.forEach((key: string) => {
               if (!(response[0][key] instanceof Array)) {
-                expect(response[0][key]).toEqual(MockHealthDashboardStatusClass[key]);
+                expect(response[0][key]).toEqual(MockKitTokenClass[key]);
               }
             });
 
@@ -107,7 +102,7 @@ describe('HealthDashboardStatusService', () => {
 
         expect(xhrRequest.request.method).toEqual(getType);
 
-        xhrRequest.flush([MockHealthDashboardStatusInterface]);
+        xhrRequest.flush([MockKitTokenInterface]);
 
         after();
       });
@@ -118,7 +113,7 @@ describe('HealthDashboardStatusService', () => {
         service.get_health_dashboard_status()
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
-            (response: HealthDashboardStatusClass[]) => {},
+            (response: KitTokenClass[]) => {},
             (error: HttpErrorResponse) => {
               expect(error.error).toContain(errorRequest);
               expect(service.get_health_dashboard_status).toHaveBeenCalled();
@@ -139,11 +134,11 @@ describe('HealthDashboardStatusService', () => {
 
         service.get_remote_health_dashboard_status()
           .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: HealthDashboardStatusClass[]) => {
+          .subscribe((response: KitTokenClass[]) => {
             const objectKeys: string[] = Object.keys(response[0]);
             objectKeys.forEach((key: string) => {
               if (!(response[0][key] instanceof Array)) {
-                expect(response[0][key]).toEqual(MockHealthDashboardStatusClass[key]);
+                expect(response[0][key]).toEqual(MockKitTokenClass[key]);
               }
             });
 
@@ -155,7 +150,7 @@ describe('HealthDashboardStatusService', () => {
 
         expect(xhrRequest.request.method).toEqual(getType);
 
-        xhrRequest.flush([MockHealthDashboardStatusInterface]);
+        xhrRequest.flush([MockKitTokenInterface]);
 
         after();
       });
@@ -166,7 +161,7 @@ describe('HealthDashboardStatusService', () => {
         service.get_remote_health_dashboard_status()
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
-            (response: HealthDashboardStatusClass[]) => {},
+            (response: KitTokenClass[]) => {},
             (error: HttpErrorResponse) => {
               expect(error.error).toContain(errorRequest);
               expect(service.get_remote_health_dashboard_status).toHaveBeenCalled();
@@ -185,7 +180,7 @@ describe('HealthDashboardStatusService', () => {
       it('should call get_health_dashboard_status_kibana_info_remote<ipaddress>', () => {
         reset();
 
-        service.get_health_dashboard_status_kibana_info_remote(MockHealthDashboardStatusInterface.ipaddress)
+        service.get_health_dashboard_status_kibana_info_remote(MockKitTokenInterface.ipaddress)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: KeyValueClass[]) => {
             const objectKeys: string[] = Object.keys(response[0]);
@@ -198,7 +193,7 @@ describe('HealthDashboardStatusService', () => {
             expect(service.get_health_dashboard_status_kibana_info_remote).toHaveBeenCalled();
           });
 
-        const xhrURL: string = `${environment.HEALTH_DASHBOARD_STATUS_KIBANA_INFO_REMOTE}/${MockHealthDashboardStatusInterface.ipaddress}`;
+        const xhrURL: string = `${environment.HEALTH_DASHBOARD_STATUS_KIBANA_INFO_REMOTE}/${MockKitTokenInterface.ipaddress}`;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         expect(xhrRequest.request.method).toEqual(getType);
@@ -211,7 +206,7 @@ describe('HealthDashboardStatusService', () => {
       it('should call get_health_dashboard_status_kibana_info_remote<ipaddress> and handle error', () => {
         reset();
 
-        service.get_health_dashboard_status_kibana_info_remote(MockHealthDashboardStatusInterface.ipaddress)
+        service.get_health_dashboard_status_kibana_info_remote(MockKitTokenInterface.ipaddress)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
             (response: KeyValueClass[] ) => {},
@@ -220,7 +215,7 @@ describe('HealthDashboardStatusService', () => {
               expect(service.get_health_dashboard_status_kibana_info_remote).toHaveBeenCalled();
             });
 
-        const xhrURL: string = `${environment.HEALTH_DASHBOARD_STATUS_KIBANA_INFO_REMOTE}/${MockHealthDashboardStatusInterface.ipaddress}`;
+        const xhrURL: string = `${environment.HEALTH_DASHBOARD_STATUS_KIBANA_INFO_REMOTE}/${MockKitTokenInterface.ipaddress}`;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorRequest, mockErrorResponse);
@@ -235,23 +230,23 @@ describe('HealthDashboardStatusService', () => {
 export class HealthDashboardStatusServiceSpy implements HealthDashboardStatusServiceInterface {
 
   get_health_dashboard_status = jasmine.createSpy('get_health_dashboard_status').and.callFake(
-    (): Observable<HealthDashboardStatusClass[]> => this.call_fake_get_health_dashboard_status()
+    (): Observable<KitTokenClass[]> => this.call_fake_get_health_dashboard_status()
   );
 
   get_remote_health_dashboard_status = jasmine.createSpy('get_remote_health_dashboard_status').and.callFake(
-    (): Observable<HealthDashboardStatusClass[]> => this.call_fake_remote_get_health_dashboard_status()
+    (): Observable<KitTokenClass[]> => this.call_fake_remote_get_health_dashboard_status()
   );
 
   get_health_dashboard_status_kibana_info_remote = jasmine.createSpy('get_health_dashboard_status_kibana_info_remote').and.callFake(
     (ipaddress: string): Observable<Object> => this.call_fake_get_health_dashboard_status_kibana_info_remote(ipaddress)
   );
 
-  call_fake_get_health_dashboard_status(): Observable<HealthDashboardStatusClass[]> {
-    return of([MockHealthDashboardStatusInterface]);
+  call_fake_get_health_dashboard_status(): Observable<KitTokenClass[]> {
+    return of([MockKitTokenClass]);
   }
 
-  call_fake_remote_get_health_dashboard_status(): Observable<HealthDashboardStatusClass[]> {
-    return of([MockHealthDashboardStatusInterface]);
+  call_fake_remote_get_health_dashboard_status(): Observable<KitTokenClass[]> {
+    return of([MockKitTokenClass]);
   }
 
   call_fake_get_health_dashboard_status_kibana_info_remote(ip_address: string): Observable<KeyValueClass[]> {

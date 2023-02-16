@@ -1,7 +1,9 @@
 import { ObjectUtilitiesClass } from '../../../classes';
 import { NodeStatusInterface, StorageInterface } from '../interfaces';
 import { CapacityAllocatableRemainingClass } from './capacity-allocatable-remaining.class';
+import { ElasticsearchObjectClass } from './elasticsearch-object.class';
 import { MemoryClass } from './memory.class';
+import { PacketStatsClass } from './packet-stats.class';
 import { StorageClass } from './storage.class';
 
 /**
@@ -34,6 +36,8 @@ export class NodeStatusClass implements NodeStatusInterface {
     os_image: string;
     system_uuid: string;
   };
+  app_data?: PacketStatsClass[];
+  write_rejects?: ElasticsearchObjectClass[];
 
   /**
    * Creates an instance of NodeStatusClass.

@@ -18,6 +18,7 @@ export class PodStatusClass implements PodStatusInterface  {
   states: string[];
   resources: PodStatusResourceClass[];
   status: PodStatusStatusClass;
+  warnings: number;
 
   /**
    * Creates an instance of PodStatusClass.
@@ -34,5 +35,6 @@ export class PodStatusClass implements PodStatusInterface  {
     this.states = pod_status_interface.states;
     this.resources = pod_status_interface.resources.map((psr: PodStatusResourceInterface) => new PodStatusResourceClass(psr));
     this.status = new PodStatusStatusClass(pod_status_interface.status);
+    this.warnings = pod_status_interface.warnings;
   }
 }

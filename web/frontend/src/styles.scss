@@ -33,6 +33,20 @@ body {
         max-height: unset !important;
       }
     }
+    cvah-pod-log-dialog {
+      .mat-tab-body-wrapper {
+        height: 100% !important;
+        overflow: hidden;
+        .mat-tab-body {
+          height: 100%;
+          overflow: hidden;
+          cvah-ngx-monaco-editor {
+            flex: 1 1 1e-09px;
+            box-sizing: border-box;
+          }
+        }
+      }
+    }
     .mat-dialog-container {
       box-shadow: unset !important;
       overflow: hidden;

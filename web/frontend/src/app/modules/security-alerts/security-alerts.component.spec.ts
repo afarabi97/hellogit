@@ -206,8 +206,8 @@ describe('SecurityAlertsComponent', () => {
   });
   const test_arkime_prefix: string = 'https://arkime.test';
   const test_arkime_expression: string = 'ip.src%20%3D%3D10.9.6.101%26%26%20ip.dst%20%3D%3D209.141.59.124';
-  const test_kibana_link: string = 'https://kibana.philpot/app/security/network/external-alerts?query=%28language:kuery,query:%27event.module%20:%20"zeek"%20and%20event.kind%20:%20"alert"%20and%20rule.name%20:%20"possible_split_routing"%20and%20source.ip%20:%20"10.9.6.101"%20and%20destination.ip%20:%20"209.141.59.124"%20and%20event.escalated%20:%20"true"%27%29&timerange=%28global:%28linkTo:!%28timeline%29,timerange:%28from:%272022-11-10T22:15:16.107Z%27,kind:absolute,to:%272022-11-11T22:15:16.107Z%27%29%29,timeline:%28linkTo:!%28global%29,timerange:%28from:%272022-11-10T22:15:16.107Z%27,kind:absolute,to:%272022-11-11T22:15:16.107Z%27%29%29%29';
-  const test_arkime_link: string = 'https://arkime.philpot/sessions?graphType=lpHisto&seriesType=bars&expression=ip.src%20%3D%3D10.9.6.101%26%26%20ip.dst%20%3D%3D209.141.59.124&startTime=1668118516&stopTime=1668204916';
+  const test_kibana_link: string = 'https://kibana.test/app/security/network/external-alerts?query=%28language:kuery,query:%27event.module%20:%20"zeek"%20and%20event.kind%20:%20"alert"%20and%20rule.name%20:%20"possible_split_routing"%20and%20source.ip%20:%20"10.9.6.101"%20and%20destination.ip%20:%20"209.141.59.124"%20and%20event.escalated%20:%20"true"%27%29&timerange=%28global:%28linkTo:!%28timeline%29,timerange:%28from:%272022-11-10T22:15:16.107Z%27,kind:absolute,to:%272022-11-11T22:15:16.107Z%27%29%29,timeline:%28linkTo:!%28global%29,timerange:%28from:%272022-11-10T22:15:16.107Z%27,kind:absolute,to:%272022-11-11T22:15:16.107Z%27%29%29%29';
+  const test_arkime_link: string = 'https://arkime.test/sessions?graphType=lpHisto&seriesType=bars&expression=ip.src%20%3D%3D10.9.6.101%26%26%20ip.dst%20%3D%3D209.141.59.124&startTime=1668118516&stopTime=1668204916';
   const mock_http_error_response: HttpErrorResponse = new HttpErrorResponse({
     error: 'Fake Error',
     status: 500,

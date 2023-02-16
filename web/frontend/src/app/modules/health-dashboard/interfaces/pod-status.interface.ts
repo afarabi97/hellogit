@@ -16,4 +16,5 @@ export interface PodStatusInterface  {
   states: string[];
   resources: PodStatusResourceInterface[];
   status: PodStatusStatusInterface;
+  warnings: number;
 }

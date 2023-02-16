@@ -1,11 +1,15 @@
 <h2 mat-dialog-title id="cvah-pod-log-dialog-title">{{ title | capitalizeFirst }} Logs</h2>
 <div mat-dialog-content>
   <mat-tab-group dynamicHeight>
-    <mat-tab *ngFor="let pod_log of info; let i = index;"
+    <mat-tab *ngFor="let pod_log of pod_logs; let i = index;"
              id="{{ 'cvah-pod-log-dialog-' + i + '-name' }}" label="{{ pod_log.name }}">
-      <pre style="overflow-y: scroll; max-height: 500px;">
-        <div id="{{ 'cvah-pod-log-dialog-' + i + '-logs' }}">{{ pod_log.logs }}</div>
-      </pre>
+      <ng-template matTabContent>
+        <cvah-ngx-monaco-editor [show_options]="show_options"
+                                [is_read_only]="is_read_only"
+                                [text]="pod_log.logs"
+                                [use_language]="use_language">
+        </cvah-ngx-monaco-editor>
+      </ng-template>
     </mat-tab>
   </mat-tab-group>
 </div>

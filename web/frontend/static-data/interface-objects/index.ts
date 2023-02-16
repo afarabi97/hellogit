@@ -43,7 +43,6 @@ export * from './general-settings.interface';
 export * from './generate-file.interface';
 export * from './generic-job-and-key.interface';
 export * from './health-dashboard-dialog-data.interface';
-export * from './health-dashboard-status.interface';
 export * from './health.interface';
 export * from './hive-settings.interface';
 export * from './host.interface';

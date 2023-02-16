@@ -13,7 +13,7 @@ export const TextEditorConfigurationAltActionFuncTrueInterface: TextEditorConfig
   title: 'Fake Title',
   text: 'Fake Code String',
   use_language: 'yaml',
-  disable_save: false,
+  disable_save: true,
   confirm_save: ConfirmActionConfigurationSaveAltActionFunctionTrueInterface,
   confirm_close: ConfirmActionConfigurationCloseAltActionFunctionTrueInterface
 };

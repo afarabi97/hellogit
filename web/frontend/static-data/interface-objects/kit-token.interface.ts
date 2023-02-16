@@ -1,7 +1,18 @@
 import { KitTokenInterface } from '../../src/app/interfaces';
 
 export const MockKitTokenInterface: KitTokenInterface = {
-  ipaddress: "10.101.35.15",
-  token: "afklajfkfj;alkjfoiaeujonfa",
-  kit_token_id: "60d1f9e77b4223078df459bc"
+  kibana_status: 'green',
+  elasticsearch_status: 'green',
+  token: 'afafadsfdasf34234dsfgasdfadsf',
+  ipaddress: '10.10.10.10',
+  kit_token_id: '656sdf656dfdf4545dfd',
+  hostname: 'controller.lan'
+};
+export const MockKitTokenInterfaceAlt: KitTokenInterface = {
+  kibana_status: 'yellow',
+  elasticsearch_status: 'green',
+  token: null,
+  ipaddress: '10.10.10.10',
+  kit_token_id: '656sdf656dfdf4545dfd',
+  hostname: 'controller.lan'
 };

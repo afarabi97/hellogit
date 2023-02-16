@@ -23,8 +23,8 @@ export const MockAlertListInterfaceZeek: AlertListInterface = {
         _score: 7.2962856,
         _source: {
           agent: {
-            hostname: 'philpot-sensor3-zeek-filebeat-74f586fbbc-qr7q6',
-            name: 'philpot-sensor3-zeek',
+            hostname: 'test-sensor3-zeek-filebeat-74f586fbbc-qr7q6',
+            name: 'test-sensor3-zeek',
             id: '8066cc3b-9f14-4e5a-af96-334025b08f91',
             type: 'filebeat',
             ephemeral_id: 'af5dd52f-85b7-4895-b30d-a5e8f954591d',
@@ -68,7 +68,7 @@ export const MockAlertListInterfaceZeek: AlertListInterface = {
             type: 'log'
           },
           observer: {
-            hostname: 'philpot-sensor3.philpot'
+            hostname: 'test-sensor3.test'
           },
           '@timestamp': '2022-09-20T05:05:20.098Z',
           ecs: {
@@ -126,8 +126,8 @@ export const MockAlertListInterfaceSuricata: AlertListInterface = {
         _score: 6.560818,
         _source: {
           agent: {
-            hostname: 'philpot-sensor3-suricata-filebeat-7566879bb-lz5zh',
-            name: 'philpot-sensor3-suricata-alert',
+            hostname: 'test-sensor3-suricata-filebeat-7566879bb-lz5zh',
+            name: 'test-sensor3-suricata-alert',
             id: '3ceb525f-34d8-473c-a38d-0b3f409172fe',
             ephemeral_id: '90caf684-e7be-4b7a-9b15-42a78aa5bf93',
             type: 'filebeat',
@@ -173,7 +173,7 @@ export const MockAlertListInterfaceSuricata: AlertListInterface = {
             packets: 87
           },
           observer: {
-            hostname: 'philpot-sensor3.philpot'
+            hostname: 'test-sensor3.test'
           },
           input: {
             type: 'log'

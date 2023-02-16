@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { GlobalComponentsModule } from '../global-components/global-components.module';
+import { NGXMonacoTextEditorModule } from '../ngx-monaco-text-editor/ngx-monaco-text-editor.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { PipesModule } from '../utilily-modules/pipes.module';
 import { HealthDashboardDatastoresComponent } from './components/datastores/datastores.component';
@@ -25,6 +26,7 @@ import { HealthService } from './services/health.service';
     MaterialModule,
     BrowserAnimationsModule,
     PipesModule,
+    NGXMonacoTextEditorModule,
     GlobalComponentsModule
   ],
   declarations: [

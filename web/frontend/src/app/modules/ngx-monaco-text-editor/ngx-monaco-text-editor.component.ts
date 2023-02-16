@@ -40,6 +40,8 @@ export class NGXMonacoTextEditorComponent {
   title: string;
   // Used for disabling action button until text changes made
   text_changed_: boolean;
+  // Used for displaying the save button
+  disable_save: boolean;
   // Used for triggering return text from child component
   get_return_text$: Subject<void> = new Subject<void>();
 
@@ -60,6 +62,7 @@ export class NGXMonacoTextEditorComponent {
     this.use_language = mat_dialog_data_.use_language;
     this.title = mat_dialog_data_.title;
     this.text_changed_ = false;
+    this.disable_save = ObjectUtilitiesClass.notUndefNull(mat_dialog_data_.disable_save) ? mat_dialog_data_.disable_save : false;
   }
 
   /**
@@ -189,7 +192,7 @@ export class NGXMonacoTextEditorComponent {
    */
   non_action_click(): void {
     if (ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.disable_save) &&
-        !this.mat_dialog_data_.disable_save &&
+        this.mat_dialog_data_.disable_save &&
         ObjectUtilitiesClass.notUndefNull(this.mat_dialog_data_.confirm_close)) {
       const return_general_function: () => void = () => this.close_();
       this.confirm_action_dialog_.confirmAction(

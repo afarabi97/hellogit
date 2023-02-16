@@ -275,18 +275,18 @@ Delete User Link
 Verify Nodes Are Ready
     [Documentation]  Checks the nodes table on Health page and verifies their status is "Ready"
     &{nodes_list} =  Get Nodes
-    lookForElement  xpath=//app-health-dashboard-node-table//tbody/tr
-    ${num_rows} =  Get Element Count  xpath=//app-health-dashboard-node-table//tbody/tr
+    lookForElement  xpath=//cvah-health-dashboard-node-table//tbody/tr
+    ${num_rows} =  Get Element Count  xpath=//cvah-health-dashboard-node-table//tbody/tr
     FOR  ${row}  IN RANGE  1  ${num_rows}
         IF  ${row%2} == 1
-            ${node_name} =  Get Text  xpath=//app-health-dashboard-node-table//tbody/tr[${row}]/td[1]
-            ${ip_address} =  Get Text  xpath=//app-health-dashboard-node-table//tbody/tr[${row}]/td[2]
-            ${node_type} =  Get Text  xpath=//app-health-dashboard-node-table//tbody/tr[${row}]/td[4]
+            ${node_name} =  Get Text  xpath=//cvah-health-dashboard-node-table//tbody/tr[${row}]/td[1]
+            ${ip_address} =  Get Text  xpath=//cvah-health-dashboard-node-table//tbody/tr[${row}]/td[2]
+            ${node_type} =  Get Text  xpath=//cvah-health-dashboard-node-table//tbody/tr[${row}]/td[4]
             ${expected_ip} =  Set Variable  ${nodes_list}[${node_name}][0]
             ${expected_type} =  Convert To Lower Case  ${nodes_list}[${node_name}][1]
             Should Be Equal As Strings  ${expected_ip}  ${ip_address}
             Should Be Equal As Strings  ${expected_type}  ${node_type}
-            Element Text Should Be  xpath=//app-health-dashboard-node-table//tbody/tr[${row}]/td[3]/span  check_circle
+            Element Text Should Be  xpath=//cvah-health-dashboard-node-table//tbody/tr[${row}]/td[3]/span  check_circle
         END
     END
 

@@ -36,7 +36,7 @@ describe('VirtualNodeFormComponent', () => {
   const error_message_form_control: FormControl = new FormControl('', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]));
   error_message_form_control.markAsTouched();
   const node_form_group_with_data: FormGroup = new FormGroup({
-    hostname: new FormControl('philpot-test-node'),
+    hostname: new FormControl('test-node'),
     ip_address: new FormControl('10.40.31.5'),
     deployment_type: new FormControl(VIRTUAL),
     mac_address: new FormControl(undefined),
@@ -46,7 +46,7 @@ describe('VirtualNodeFormComponent', () => {
     virtual_data: new FormControl(undefined)
   });
   const node_form_group_without_data: FormGroup = new FormGroup({
-    hostname: new FormControl('philpot-test-node'),
+    hostname: new FormControl('test-node'),
     ip_address: new FormControl('10.40.31.5'),
     deployment_type: new FormControl(VIRTUAL),
     mac_address: new FormControl(undefined),

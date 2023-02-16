@@ -119,11 +119,11 @@
     </mat-tab-group>
   </mat-card>
   <br>
-  <app-health-dashboard-node-table [token]="token"></app-health-dashboard-node-table>
+  <cvah-health-dashboard-node-table [token]="token"></cvah-health-dashboard-node-table>
   <br>
-  <app-health-dashboard-pod-table [token]="token"></app-health-dashboard-pod-table>
+  <cvah-health-dashboard-pod-table [token]="token"></cvah-health-dashboard-pod-table>
   <ng-container *ngIf="is_gip && !token">
     <br>
-    <app-health-dashboard-datastores></app-health-dashboard-datastores>
+    <cvah-health-dashboard-datastores></cvah-health-dashboard-datastores>
   </ng-container>
 </div>

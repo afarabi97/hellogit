@@ -69,7 +69,7 @@ describe('AddMipDialogComponent', () => {
     checked: false
   };
   const node_form_group_virtual: FormGroup = new FormGroup({
-    hostname: new FormControl('philpot-test-node'),
+    hostname: new FormControl('test-node'),
     ip_address: new FormControl('10.40.31.5'),
     deployment_type: new FormControl(VIRTUAL),
     mac_address: new FormControl(undefined),
@@ -78,7 +78,7 @@ describe('AddMipDialogComponent', () => {
     virtual_os: new FormControl(100)
   });
   const node_form_group_baremetal: FormGroup = new FormGroup({
-    hostname: new FormControl('philpot-test-node'),
+    hostname: new FormControl('test-node'),
     ip_address: new FormControl('10.40.31.5'),
     deployment_type: new FormControl(BAREMETAL),
     mac_address: new FormControl('00:0a:29:90:85:5e'),

@@ -9,7 +9,7 @@
   </mat-card-header>
 
   <mat-card-content *ngIf="is_pods_visible" fxLayout="column" fxLayoutAlign="space-around stretch">
-    <table mat-table [dataSource]="group_header_data" aria-describedby="group-table" multiTemplateDataRows>
+    <table mat-table [dataSource]="group_data" aria-describedby="group-table" multiTemplateDataRows>
       <!-- Name -->
       <ng-container matColumnDef="node_name">
           <th scope="col" mat-header-cell *matHeaderCellDef>Node Name</th>
@@ -33,11 +33,14 @@
           <mat-icon matSuffix *ngIf="group.group_status === 'warning'" style="color: #FFD966;">
             warning
           </mat-icon>
-          <mat-icon *ngIf="group.group_status === 'circle'" color="accent">
+          <mat-icon matSuffix *ngIf="group.group_status === 'circle'" color="accent">
             circle
           </mat-icon>
-          <mat-icon *ngIf="group.group_status === 'error'" style="color: #ff4949;">
+          <mat-icon matSuffix *ngIf="group.group_status === 'error'" style="color: #ff4949;">
             error
+          </mat-icon>
+          <mat-icon matSuffix *ngIf="group.group_status === 'sync_problem'" style="color: #ffa749;">
+            sync_problem
           </mat-icon>
         </td>
       </ng-container>
@@ -47,7 +50,7 @@
         <td mat-cell *matCellDef="let pod; let i = index">
           <div class="node-detail" [@detailExpand]="pod.group_name === expanded_group ? 'expanded' : 'collapsed'">
             <div *ngIf="expanded_group">
-              <table mat-table [dataSource]="filtered_group_data[group_header_data.indexOf(getGroup(pod.group_name))]" class="inner-table"
+              <table mat-table [dataSource]="filtered_group_data[group_data.indexOf(get_group(pod.group_name))]" class="inner-table"
                      aria-describedby="node-detail-table">
                 <!-- Namespace -->
                 <ng-container matColumnDef="namespace">
@@ -73,9 +76,9 @@
 
 
                       <span *ngIf="container_status.state.running" id="{{ pod_element_id + '-table-td-' + z + '-container-states-div-' + k + '-span-container-status' }}"
-                            class="containerStatus" style="font-weight: bold;">{{ getContainerStatus(container_status) }}</span>
+                            class="containerStatus" style="font-weight: bold;">{{ get_container_status(container_status) }}</span>
                       <span *ngIf="!container_status.state.running" id="{{ pod_element_id + '-table-td-' + z + '-container-states-div-' + k + '-span-container-status' }}"
-                            class="podErrors" style="font-weight: bold;">{{ getContainerStatus(container_status) }}</span>
+                            class="podErrors" style="font-weight: bold;">{{ get_container_status(container_status) }}</span>
                     </div>
                   </td>
                 </ng-container>
@@ -111,10 +114,11 @@
       </ng-container>
 
       <!-- Default Table lines -->
-      <tr mat-header-row *matHeaderRowDef="group_header_column"></tr>
-      <tr mat-row *matRowDef="let rowData; columns: group_header_column;"
-        class="clickable" [class.example-expanded-row]="expanded_group === rowData.group_name"
-        (click)="setExpandedGroup(rowData.group_name)"></tr>
+      <tr mat-header-row *matHeaderRowDef="column_for_group_header_table"></tr>
+      <tr mat-row *matRowDef="let rowData; columns: column_for_group_header_table;"
+          class="clickable"
+          [class.example-expanded-row]="expanded_group === rowData.group_name"
+          (click)="set_expanded_group(rowData.group_name)"></tr>
       <tr mat-row *matRowDef="let row; columns: ['expand_group_drawer']" class="row-detail"></tr>
     </table>
   </mat-card-content>

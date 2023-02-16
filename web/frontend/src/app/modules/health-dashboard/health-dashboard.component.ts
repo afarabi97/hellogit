@@ -5,9 +5,8 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 import { Title } from '@angular/platform-browser';
 import { interval, Subscription } from 'rxjs';
 
-import { KitSettingsClass } from '../../classes';
+import { KitSettingsClass, KitTokenClass } from '../../classes';
 import { KitSettingsService } from '../../services/kit-settings.service';
-import { HealthDashboardStatusClass } from './classes';
 import { HealthDashboardDatastoresComponent } from './components/datastores/datastores.component';
 import { HealthDashboardDialogComponent } from './components/health-dashboard-dialog/health-dashboard-dialog.component';
 import { HealthDashboardNodeTableComponent } from './components/node-table/node-table.component';
@@ -24,8 +23,8 @@ export class HealthDashboardComponent implements OnInit {
   @ViewChild(HealthDashboardDatastoresComponent) datastores_component: HealthDashboardDatastoresComponent;
   @ViewChild(HealthDashboardNodeTableComponent) node_component: HealthDashboardNodeTableComponent;
   @ViewChild(HealthDashboardPodTableComponent) pod_component: HealthDashboardPodTableComponent;
-  dashboard_status: Array<HealthDashboardStatusClass>;
-  remote_dashboard_status: Array<HealthDashboardStatusClass>;
+  dashboard_status: Array<KitTokenClass>;
+  remote_dashboard_status: Array<KitTokenClass>;
   column_defintion = [
     {def: 'hostname', localhost_only: false},
     {def: 'ipaddress', localhost_only: true},
@@ -33,7 +32,7 @@ export class HealthDashboardComponent implements OnInit {
     {def: 'kibana_status', localhost_only: true},
     {def: 'actions', localhost_only: false}
   ];
-  token: HealthDashboardStatusClass;
+  token: KitTokenClass;
   is_gip: boolean;
   kitSelected: string;
   snack_bar_ref: MatSnackBarRef<TextOnlySnackBar>;
@@ -86,7 +85,7 @@ export class HealthDashboardComponent implements OnInit {
 
   tabChange(event: MatTabChangeEvent){
     if (event && event.index > 0 && this.remote_dashboard_status && this.remote_dashboard_status.length > 0){
-      const initial_token = this.remote_dashboard_status[0] as HealthDashboardStatusClass;
+      const initial_token = this.remote_dashboard_status[0] as KitTokenClass;
       this.kitSelected = initial_token.ipaddress;
       this.token = initial_token;
     } else {
@@ -104,7 +103,8 @@ export class HealthDashboardComponent implements OnInit {
     });
   }
 
-  kit_select(token: HealthDashboardStatusClass): void {
+  kit_select(token: KitTokenClass): void {
+    console.log('im called token: ', token);
     if (this.snack_bar_ref) {
       this.snack_bar_ref.dismiss();
       this.snack_bar_ref = null;

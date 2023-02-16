@@ -612,7 +612,7 @@ export const MockNodeInterfaceArray: NodeInterface[] = [
       "cpus_available": 16,
       "management_ip": "10.40.31.134",
       "product_name": "VMware Virtual Platform"},
-    hostname: "philpot-mip1.philpot",
+    hostname: "test-mip1.test",
     ip_address: "10.40.31.7",
     jobs: [
       {

@@ -2,7 +2,6 @@ export * from './capacity-allocatable-remaining.class';
 export * from './datastore.class';
 export * from './describe-pod.class';
 export * from './elasticsearch-object.class';
-export * from './health-dashboard-status.class';
 export * from './memory.class';
 export * from './node-status.class';
 export * from './packet-stats.class';

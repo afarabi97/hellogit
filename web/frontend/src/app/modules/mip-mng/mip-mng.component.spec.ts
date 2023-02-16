@@ -46,7 +46,7 @@ describe('MipManagementComponent', () => {
 
   // Test Data
   const node_form_group_virtual: FormGroup = new FormGroup({
-    hostname: new FormControl('philpot-test-node'),
+    hostname: new FormControl('test-node'),
     ip_address: new FormControl('10.40.31.5'),
     deployment_type: new FormControl(VIRTUAL),
     mac_address: new FormControl(undefined),

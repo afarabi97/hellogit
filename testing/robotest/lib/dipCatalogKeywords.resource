@@ -205,7 +205,7 @@ Check Health Page For App
     ...  '${app_name_lower}' == 'arkime'  -${app_name_lower}-  ${app_name_lower}  # else var just assigned app name
     ${app_on_health_page} =  Set Variable  False
     lookFor  Pods
-    ${pod_table_loc} =  Set Variable  xpath=//app-health-dashboard-pod-table//tbody/tr/td[1]/span[1]
+    ${pod_table_loc} =  Set Variable  xpath=//cvah-health-dashboard-pod-table//tbody/tr/td[1]/span[1]
     Wait Until Element Is Visible  ${pod_table_loc}
     ${pod_status_tables} =  Get WebElements  ${pod_table_loc}
     FOR  ${table}  IN  @{pod_status_tables}

@@ -16,6 +16,7 @@ export const DIALOG_WIDTH_35PERCENT: string = '35%';
 export const DIALOG_WIDTH_50PERCENT: string = '50%';
 export const DIALOG_WIDTH_500PX: string = '500px';
 export const DIALOG_WIDTH_800PX: string = '800px';
+export const DIALOG_WIDTH_900PX: string = '900px';
 export const DIALOG_WIDTH_1000PX: string = '1000px';
 export const DIALOG_MIN_WIDTH_400PX: string = '400px';
 export const DIALOG_MAX_HEIGHT_800PX: string = '800px';
@@ -147,3 +148,23 @@ export const DEPLOYMENT_OPTIONS: MatOptionInterface[] = [
   { name: 'Virtual Machine', value: VIRTUAL }
 ];
 export const NODE_TYPES: string[] = [SERVER, SENSOR, MIP]; //Added MIP
+
+// Pod State
+export const RUNNING: string = 'running';
+export const TERMINATED: string = 'terminated';
+export const WAITING: string = 'waiting';
+
+export const STATE_REASON: string = 'reason';
+
+// Pod Status
+export const STATUS_RUNNING: string = 'Running';
+export const STATUS_SUCCEEDED: string = 'Succeeded';
+export const STATUS_COMPLETED: string = 'Completed';
+export const STATUS_PENDING: string = 'Pending';
+export const STATUS_CONTAINER_CREATING: string = 'ContainerCreating';
+export const STATUS_TERMINATING: string = 'Terminating';
+export const STATUS_FAILED: string = 'Failed';
+export const STATUS_ERROR: string = 'Error';
+export const STATUS_NOT_READY: string = 'NotReady';
+export const STATUS_UNKNOWN: string = 'Unknown';
+export const POD_STATUS_VALUES: string[] = [ 'check_circle', 'circle', 'warning', 'error', 'sync_problem' ];

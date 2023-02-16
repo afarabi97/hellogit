@@ -6,3 +6,15 @@ textarea {
   resize: none;
   background-color: black;
 }
+.mat-dialog-content {
+  flex: 1 1 1e-09px;
+  box-sizing: border-box;
+  flex-direction: column;
+  display: flex;
+  max-height: unset;
+  margin-bottom: 0px;
+  .mat-tab-group {
+    height: 800px;
+    overflow: hidden;
+  }
+}

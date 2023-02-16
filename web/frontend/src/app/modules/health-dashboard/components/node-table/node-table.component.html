@@ -42,7 +42,7 @@
           <th scope="col" mat-header-cell *matHeaderCellDef>Storage</th>
           <td mat-cell *matCellDef="let node;">
               <ng-container *ngFor="let disk of node.storage;">
-                <div *ngIf="disk" matTooltip="{{ disk.free / BYTES_PER_GIB | number : '.2-2' }} GiB free">{{ disk.name }}: {{ disk.percent }}%</div>
+                <div *ngIf="disk" matTooltip="{{ disk.free / bytes_per_gib | number : '.2-2' }} GiB free">{{ disk.name }}: {{ disk.percent }}%</div>
               </ng-container>
           </td>
       </ng-container>
@@ -51,7 +51,7 @@
       <ng-container matColumnDef="memory">
           <th scope="col" mat-header-cell *matHeaderCellDef>Memory</th>
           <td mat-cell *matCellDef="let node;">
-              <span *ngIf="node.memory" matTooltip="{{ node.memory.available / BYTES_PER_GIB | number : '.2-2' }} GiB available">{{ node.memory.percent }}%</span>
+              <span *ngIf="node.memory" matTooltip="{{ node.memory.available / bytes_per_gib | number : '.2-2' }} GiB available">{{ node.memory.percent }}%</span>
           </td>
       </ng-container>
 
@@ -80,7 +80,7 @@
         <td mat-cell *matCellDef="let node;">
           <div *ngIf="(node.type === 'server' && node.write_rejects &&  node.write_rejects.length > 0) ||
              (node.type === 'sensor' && node.app_data && node.app_data.length > 0)">
-            <mat-icon> {{ node.name === expandedElement.name ? "expand_less" : "expand_more" }}</mat-icon>
+            <mat-icon> {{ node.name === expanded_element.name ? "expand_less" : "expand_more" }}</mat-icon>
           </div>
         </td>
       </ng-container>
@@ -88,9 +88,9 @@
       <!-- Extended Node Info -->
       <ng-container matColumnDef="expand_node_info">
         <td mat-cell *matCellDef="let node; let i = index" [attr.colspan]="node_displayed_cols().length">
-          <div class="node-detail" [@detailExpand]="node.name === expandedElement.name ? 'expanded' : 'collapsed'">
+          <div class="node-detail" [@detailExpand]="node.name === expanded_element.name ? 'expanded' : 'collapsed'">
             <!-- Sensor -->
-            <div *ngIf="expandedElement && expandedElement.type === 'sensor' && node.app_data && node.app_data.length > 0">
+            <div *ngIf="expanded_element && expanded_element.type === 'sensor' && node.app_data && node.app_data.length > 0">
               <table mat-table [dataSource]="node.app_data" class="inner-table" aria-describedby="sensor-table">
                 <ng-container matColumnDef="app">
                   <th scope="col" mat-header-cell *matHeaderCellDef>Application</th>
@@ -109,7 +109,7 @@
               </table>
             </div>
             <!-- Server -->
-            <div *ngIf="expandedElement && expandedElement.type === 'server' && node.write_rejects && node.write_rejects.length > 0">
+            <div *ngIf="expanded_element && expanded_element.type === 'server' && node.write_rejects && node.write_rejects.length > 0">
               <table mat-table [dataSource]="node.write_rejects" class="inner-table" aria-describedby="server-table">
                 <ng-container matColumnDef="node_name">
                   <th scope="col" mat-header-cell *matHeaderCellDef>Node Name</th>
@@ -134,8 +134,8 @@
       <!-- Default Table lines -->
       <tr mat-header-row *matHeaderRowDef="node_displayed_cols();"></tr>
       <tr mat-row *matRowDef="let rowData; columns: node_displayed_cols();"
-        class="clickable" [class.example-expanded-row]="expandedElement.name === rowData.name"
-        (click)="expandedElement = expandedElement.name === rowData.name ? [] : rowData"></tr>
+        class="clickable" [class.example-expanded-row]="expanded_element.name === rowData.name"
+        (click)="expanded_element = expanded_element.name === rowData.name ? [] : rowData"></tr>
       <tr mat-row *matRowDef="let row; columns: ['expand_node_info']" class="row-detail"></tr>
     </table>
   </mat-card-content>
