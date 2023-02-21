@@ -5,57 +5,102 @@ import { map, startWith } from 'rxjs/operators';
 
 import { ObjectUtilitiesClass } from '../../../../classes';
 
+/**
+ * Used for displaying any unused ip addresses
+ *
+ * @export
+ * @class UnusedIpAddressAutoCompleteComponent
+ * @implements {OnInit}
+ * @implements {OnChanges}
+ */
 @Component({
-  selector: 'unused-ipaddress-autocomplete-ctrl',
+  selector: 'cvah-unused-ipaddress-autocomplete-ctrl',
   templateUrl: './unused-ipaddress-autocomplete-ctrl.component.html',
-  styles: [`
-    mat-form-field{
-        width:100%
-    }
-  `]
+  styleUrls: ['./unused-ipaddress-autocomplete-ctrl.component.scss']
 })
 export class UnusedIpAddressAutoCompleteComponent implements OnInit, OnChanges {
-  // Unique ID passed from parent component to create unique element ids
-  @Input() formControlInput: FormControl = new FormControl();
-  @Input() options: string[] = [];
-  @Input() labelInput: string;
-  @Input() matTooltipInput: string;
-  @Input() matError: string;
-  filteredOptions: Observable<any[]>;
+  // Parent component passed inputs
+  @Input() form_control: FormControl;
+  @Input() options: string[];
+  @Input() label: string;
+  @Input() mat_tooltip: string;
+  @Input() mat_error: string;
+  filtered_options: Observable<any[]>;
 
-  ngOnInit() {
+  /**
+   * Creates an instance of UnusedIpAddressAutoCompleteComponent.
+   *
+   * @memberof UnusedIpAddressAutoCompleteComponent
+   */
+  constructor() {
+    this.form_control = new FormControl();
+    this.options = [];
+  }
+
+  /**
+   * Used for making subscription calls for initializing the component
+   *
+   * @memberof UnusedIpAddressAutoCompleteComponent
+   */
+  ngOnInit(): void {
     this.filter_options_();
   }
 
+  /**
+   * Listens for changes on inputs
+   *
+   * @param {SimpleChanges} changes
+   * @memberof UnusedIpAddressAutoCompleteComponent
+   */
   ngOnChanges(changes: SimpleChanges): void {
     const options_changes: SimpleChange = changes['options'];
+    /* istanbul ignore else */
     if (ObjectUtilitiesClass.notUndefNull(options_changes) &&
         options_changes.currentValue !== options_changes.previousValue) {
       this.filter_options_();
     }
   }
 
+  /**
+   * Used for resetting a form control
+   *
+   * @memberof UnusedIpAddressAutoCompleteComponent
+   */
   reset_form_control(event: boolean): void {
+    /* istanbul ignore else */
     if (event) {
-      this.formControlInput.setValue('');
+      this.form_control.reset('');
     }
   }
 
+  /**
+   * Used for filtering options used in html
+   *
+   * @private
+   * @memberof UnusedIpAddressAutoCompleteComponent
+   */
   private filter_options_(): void {
-    if (this.formControlInput && this.options) {
-      this.filteredOptions = this.formControlInput.valueChanges
-        .pipe(
-          startWith(''),
-          map(value => this._filter(value))
-        );
+    /* istanbul ignore else */
+    if (this.form_control && this.options) {
+      this.filtered_options = this.form_control.valueChanges
+                                .pipe(startWith(''),
+                                      map((value: string) => this.filter_(value)));
     }
   }
 
-  private _filter(value: string): string[] {
-    if (value){
-      const filterValue = value ? value.toLowerCase() : '';
-      return this.options.filter(option => option.toLowerCase().includes(filterValue));
+  /**
+   * Used for filtering a value from options input
+   *
+   * @private
+   * @param {string} value
+   * @return {string[]}
+   * @memberof UnusedIpAddressAutoCompleteComponent
+   */
+  private filter_(value: string): string[] {
+    if (ObjectUtilitiesClass.notUndefNull(value)) {
+      return this.options.filter((option: string) => option.toLowerCase().includes(value.toLowerCase()));
+    } else {
+      return this.options;
     }
-    return this.options;
   }
 }

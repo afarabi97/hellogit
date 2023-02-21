@@ -40,8 +40,6 @@ ${locKitOpenConsoleBtn}     xpath=//app-kit-settings-pane//button[.//span[text()
 
 # MIP Settings
 ${locMipSettingsSec}        xpath=//app-mip-settings-pane//a[./span[text()="MIP Settings"]]
-${locOperatorTypeSelect}    xpath=//mat-select[@formcontrolname="operator_type"]//div[contains(@class, "mat-select-trigger")]
-${locOpTypeFirstOption}     xpath=//mat-option[@value="CPT"]
 ${locRootPasswordInputSS}   xpath=//app-mip-settings-pane//input[@formcontrolname="password"]
 ${locRootRetypePassword}    xpath=//app-mip-settings-pane//input[@formcontrolname="re_password"]
 ${locUserPasswordInput}     xpath=//app-mip-settings-pane//input[@formcontrolname="user_password"]

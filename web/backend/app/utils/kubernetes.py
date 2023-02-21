@@ -15,8 +15,9 @@ def _get_pod_name(ip_address: str, component: str) -> str:
         for pod in api_response.to_dict()["items"]:
             if ip_address == pod["status"]["host_ip"]:
                 try:
-                    if component == pod["metadata"]["labels"]["component"]:
-                        return pod["metadata"]["name"]
+                    if pod["metadata"]["labels"]["component"]:
+                        if component == pod["metadata"]["labels"]["component"]:
+                            return pod["metadata"]["name"]
                 except KeyError:
                     rq_logger.exception("key error in get pod name")
                     pass

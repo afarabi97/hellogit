@@ -4,6 +4,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { GlobalJobService } from '../../services/global-job.service';
+import { GlobalComponentsModule } from '../global-components/global-components.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { ServerStdoutComponent } from './server-stdout.component';
 import { JobService } from './services/job.service';
@@ -13,7 +14,8 @@ import { JobService } from './services/job.service';
     CommonModule,
     FlexLayoutModule,
     MaterialModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    GlobalComponentsModule
   ],
   declarations: [
     ServerStdoutComponent

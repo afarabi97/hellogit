@@ -8,30 +8,30 @@
       <mat-list>
         <mat-list-item>
           <mat-icon mat-list-icon>computer</mat-icon>
-          <h4 mat-line>Hostname: {{ backingObj?.hostname }}</h4>
+          <h4 mat-line>Hostname: {{ node?.hostname }}</h4>
         </mat-list-item>
 
         <mat-list-item>
           <mat-icon mat-list-icon>developer_board</mat-icon>
-          <h4 mat-line>CPU Cores: {{ backingObj?.deviceFacts['cpus_available'] | number:'1.0-2' }}</h4>
+          <h4 mat-line>CPU Cores: {{ node?.deviceFacts['cpus_available'] | number:'1.0-2' }}</h4>
         </mat-list-item>
 
         <mat-list-item>
           <mat-icon mat-list-icon>memory</mat-icon>
-          <h4 mat-line>Memory: {{ backingObj?.deviceFacts['memory_available'] | number:'1.0-2' }} GB</h4>
+          <h4 mat-line>Memory: {{ node?.deviceFacts['memory_available'] | number:'1.0-2' }} GB</h4>
         </mat-list-item>
 
         <mat-list-item>
           <mat-icon mat-list-icon>info</mat-icon>
-          <h4 mat-line>IP Address: {{ backingObj?.ip_address }}</h4>
+          <h4 mat-line>IP Address: {{ node?.ip_address }}</h4>
         </mat-list-item>
 
         <mat-list-item>
           <mat-icon mat-list-icon>info</mat-icon>
-          <h4 mat-line>Mng MAC: {{ backingObj?.mac_address }}</h4>
+          <h4 mat-line>Mng MAC: {{ node?.mac_address }}</h4>
         </mat-list-item>
 
-        <mat-list-item *ngFor="let disk of backingObj?.deviceFacts['disks']">
+        <mat-list-item *ngFor="let disk of node?.deviceFacts['disks']">
           <mat-icon mat-list-icon>sd_storage</mat-icon>
           <h4 mat-line>{{ disk.name }} Drive:
             <span *ngIf="disk.size_tb < 1">{{disk.size_gb | number: "1.0-2" }} GB</span>
@@ -42,7 +42,7 @@
     </div>
     <div fxLayoutAlign="start stretch" style="background-color: #222; margin-left: 15px; overflow: auto;" fxFlex="<flex-grow> <flex-shrink>">
       <mat-list>
-        <mat-list-item style="height:auto;" *ngFor="let iface of backingObj?.deviceFacts['interfaces']">
+        <mat-list-item style="height:auto;" *ngFor="let iface of node?.deviceFacts['interfaces']">
           <mat-icon mat-list-icon>cloud</mat-icon>
           <h4 mat-line>{{ iface.name }}
             <div>{{iface.ip_address}}</div>
@@ -54,6 +54,6 @@
     </div>
   </div>
   <div mat-dialog-actions>
-    <button mat-raised-button color="warn" (click)="onNoClick()">Close</button>
+    <button mat-raised-button color="warn" (click)="close()">Close</button>
   </div>
 </div>

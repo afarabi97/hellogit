@@ -3,8 +3,7 @@ import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core'
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { ErrorMessageClass, GenericJobAndKeyClass, ObjectUtilitiesClass } from '../../classes';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { BackgroundJobClass, ErrorMessageClass, GenericJobAndKeyClass, ObjectUtilitiesClass } from '../../classes';
 import {
   CONFIRM_DIALOG_OPTION,
   DIALOG_WIDTH_35PERCENT,
@@ -14,7 +13,8 @@ import { ServerStdoutMatDialogDataInterface } from '../../interfaces';
 import { GlobalJobService } from '../../services/global-job.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { WebsocketService } from '../../services/websocket.service';
-import { BackgroundJobClass, JobLogClass } from './classes';
+import { ConfirmDialogComponent } from '../global-components/components/confirm-dialog/confirm-dialog.component';
+import { JobLogClass } from './classes';
 import {
   CONFIRM_DIALOG_MAT_DIALOG_DATA_RETRY_JOB,
   CONFIRM_DIALOG_MAT_DIALOG_DATA_STOP_JOB
@@ -189,7 +189,7 @@ export class ServerStdoutComponent implements OnInit {
    * @memberof ServerStdoutComponent
    */
   private api_job_get_(): void {
-    this.job_service_.job_get(this.job_id_)
+    this.global_job_service_.job_get(this.job_id_)
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: BackgroundJobClass) => {

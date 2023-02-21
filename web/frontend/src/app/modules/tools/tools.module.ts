@@ -4,6 +4,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { GlobalComponentsModule } from '../global-components/global-components.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { ChangePasswordFormComponent } from './components/change-password-form/change-password.component';
 import { NodeMaintenanceFormComponent } from './components/node-maintenance-form/node-maintenance.component';
@@ -22,7 +23,8 @@ import { ToolsFormComponent } from './tools.component';
     FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
-    MaterialModule
+    MaterialModule,
+    GlobalComponentsModule
   ],
   declarations: [
     ChangePasswordFormComponent,

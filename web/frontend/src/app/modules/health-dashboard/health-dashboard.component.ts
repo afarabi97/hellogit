@@ -96,7 +96,7 @@ export class HealthDashboardComponent implements OnInit {
   }
 
   kibana_info(ipaddress: string): void {
-    this.dashboard_status_service.get_health_dashboard_kibana_info(ipaddress).subscribe(login => {
+    this.dashboard_status_service.get_health_dashboard_status_kibana_info_remote(ipaddress).subscribe(login => {
       this.dialog.open(HealthDashboardModalDialogComponent,{
         minWidth: '400px',
         data: { 'title': 'Kibana Login', 'info': login }

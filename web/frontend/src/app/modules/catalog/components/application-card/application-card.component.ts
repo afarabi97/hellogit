@@ -113,7 +113,7 @@ export class ApplicationCardComponent implements OnInit {
    * Used to get the status color for status button
    *
    * @param {StatusClass} node
-   * @return {*}  {string}
+   * @return {string}
    * @memberof ApplicationCardComponent
    */
   get_status_color(node: StatusClass): string {
@@ -131,7 +131,7 @@ export class ApplicationCardComponent implements OnInit {
    *       only during rule sync event
    *
    * @param {ChartClass} chart
-   * @return {*}  {boolean}
+   * @return {boolean}
    * @memberof ApplicationCardComponent
    */
   is_disabled(chart: ChartClass): boolean {

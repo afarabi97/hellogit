@@ -5,7 +5,6 @@ import { RouterModule } from '@angular/router';
 
 import { remove_styles_from_dom } from '../../static-data/functions/clean-dom.function';
 import { AppComponent } from './app.component';
-import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { NotificationsComponent } from './modules/notifications/notifications.component';
 import { TestingModule } from './modules/testing-modules/testing.module';
 import { InjectorModule } from './modules/utilily-modules/injector.module';
@@ -39,7 +38,6 @@ describe('AppComponent', () => {
         CookieService,
         NavBarService,
         ApiService,
-        SnackbarWrapper,
         FormBuilder,
         ToolsService
       ]
@@ -60,5 +58,4 @@ describe('AppComponent', () => {
   it('should create AppComponent', () => {
     expect(component).toBeTruthy();
   });
-
 });

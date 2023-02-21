@@ -3,7 +3,9 @@ import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { GlobalComponentsModule } from '../global-components/global-components.module';
 import { MaterialModule } from '../utilily-modules/material.module';
+import { NotificationsDialogComponent } from './components/notifications-dialog.component';
 import { NotificationsComponent } from './notifications.component';
 import { NotificationService } from './services/notification.service';
 
@@ -12,9 +14,11 @@ import { NotificationService } from './services/notification.service';
     CommonModule,
     FlexLayoutModule,
     MaterialModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    GlobalComponentsModule
   ],
   declarations: [
+    NotificationsDialogComponent,
     NotificationsComponent
   ],
   exports: [

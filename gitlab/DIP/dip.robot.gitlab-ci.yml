@@ -5,8 +5,8 @@ robot:sso_login:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c integration \
-      -t "000_initial_login/00_dipInitialSSOLogin" \
+    python3 -m run.runner -c regression/01__installation \
+      -t 00__dipInitialSSOLogin \
       -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
@@ -18,263 +18,22 @@ robot:sso_login:
     untracked: true
     when: always
   allow_failure: false
-  only:
-    variables:
-      - ($RUN_REGRESSION == "yes" && $RUN_INTEGRATION == "no") && $PIPELINE == "controller-only"
-      - ($RUN_INTEGRATION == "yes" || $RUN_REGRESSION == "yes") && $PIPELINE == "developer-all"
-      - ($RUN_INTEGRATION == "yes" || $RUN_REGRESSION == "yes") && $PIPELINE == "hw-developer-all"
+  rules:
+    - if: ($RUN_ROBOT_INTEGRATION == "yes" || $RUN_ROBOT_REGRESSION == "yes") && $PIPELINE == "controller-only"
+    - if: ($RUN_ROBOT_INTEGRATION == "yes" || $RUN_ROBOT_REGRESSION == "yes") && $PIPELINE == "developer-all"
+    - if: ($RUN_ROBOT_INTEGRATION == "yes" || $RUN_ROBOT_REGRESSION == "yes") && $PIPELINE == "hw-developer-all"
   retry: 2
 
-robot:catalog:independents:
-  stage: robot-test-setup
+robot:deploy_kit:
+  stage: robot-test-deploy
   tags:
     - docker-runner
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c integration \
-      -t "010_install_catalog_apps/00_installPMOApps" \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: false
-  needs:
-    - job: "Sensor Setup"
-      optional: true
-    - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "Service Setup"
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
-robot:catalog:community:
-  stage: robot-test-setup
-  tags:
-    - docker-runner
-  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
-  extends: .setup-robot-script
-  script: |
-    python3 -m run.runner -c integration \
-      -t "010_install_catalog_apps/00_installCommunityApps" \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: false
-  needs:
-    - job: "Sensor Setup"
-      optional: true
-    - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "Service Setup"
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
-robot:catalog:arkime:
-  stage: robot-test-setup
-  tags:
-    - docker-runner
-  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
-  extends: .setup-robot-script
-  script: |
-    python3 -m run.runner -c integration \
-      -t "010_install_catalog_apps/00_installArkime" \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: false
-  needs:
-    - job: "Sensor Setup"
-      optional: true
-    - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "Service Setup"
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
-robot:catalog:CHM:
-  stage: robot-test-setup
-  tags:
-    - docker-runner
-  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
-  extends: .setup-robot-script
-  script: |
-    python3 -m run.runner -c integration \
-      -t "010_install_catalog_apps/00_installCortexMispHive" \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: false
-  needs:
-    - job: "Sensor Setup"
-      optional: true
-    - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "Service Setup"
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
-robot:rulesets:sync:
-  stage: robot-test-setup
-  tags:
-    - docker-runner
-  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
-  extends: .setup-robot-script
-  script: |
-    curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
-    python3 -m run.runner -c integration \
-      -t "011_rulesets/01_dipSyncRulesets" \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: false
-  needs:
-    - job: "Sensor Setup"
-      optional: true
-    - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "Service Setup"
-    - job: robot:catalog:independents
-      optional: true
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
-robot:operations:
-  stage: robot-test-operations
-  tags:
-    - docker-runner
-  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
-  extends: .setup-robot-script
-  script: |
-    python3 -m run.runner -c "integration/012_operations" \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: false
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
-robot:add_virtual_sensor:
-  stage: robot-test-setup
-  tags:
-    - docker-runner
-  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
-  extends: .setup-robot-script
-  script: |
-    python3 -m run.runner -c integration \
-      -t "013_sensors/00_addVirtualSensor" \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: true
-  needs:
-    - job: robot:rulesets:sync
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
-
-robot:cleanup:virtual_sensor:
-  stage: robot-test-cleanup
-  tags:
-    - docker-runner
-  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
-  extends: .setup-robot-script
-  script: |
-    python3 -m run.runner -c integration \
-      -t "cleanup/01_dipRemoveSensor" \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: true
-  only:
-    variables:
-      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
-robot:regression_testing:
-  stage: robot-test-regression
-  tags:
-    - docker-runner
-  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
-  extends: .setup-robot-script
-  script: |
-    curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
-    curl -k -o /usr/src/robot/data-with-image_robot.pcap  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/pcap/data-with-image_robot.pcap
     vcenter_password=`echo "$VCENTER_PASSWORD" | base64 -d`
-    python3 -m run.runner -c regression -t "01__installation/dipRegression" \
+    python3 -m run.runner -c regression/01__installation \
+      -t 01__dipDeployKit \
       -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
       -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
@@ -287,16 +46,261 @@ robot:regression_testing:
       -v VCENTER_PASSWORD:$vcenter_password \
       -v VCENTER_PORTGROUP:$VCENTER_PORTGROUP \
       -v VCENTER_FOLDER:$VMWARE_FOLDER \
-      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
-      -v PIPELINE:$PIPELINE \
+      -v VM_PREFIX:$VM_PREFIX \
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  rules:
+    - if: ($RUN_ROBOT_REGRESSION == "yes" || $RUN_ROBOT_INTEGRATION == "yes") && $PIPELINE == "controller-only"
+
+robot:catalog:independents:
+  stage: robot-test-install
+  tags:
+    - docker-runner
+  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c regression/01__installation \
+      -t 02__installPMOApps \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -b $ROBOT_BROWSER -h \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  needs:
+    - job: "Sensor Setup"
+      optional: true
+    - job: "Hardware Sensor Setup"
+      optional: true
+    - job: "Service Setup"
+      optional: true
+    - job: robot:deploy_kit
+      optional: true
+  rules:
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
+robot:catalog:community:
+  stage: robot-test-install
+  tags:
+    - docker-runner
+  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c regression/01__installation \
+      -t 02__installCommunityApps \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -b $ROBOT_BROWSER -h \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  needs:
+    - job: "Sensor Setup"
+      optional: true
+    - job: "Hardware Sensor Setup"
+      optional: true
+    - job: "Service Setup"
+      optional: true
+    - job: robot:deploy_kit
+      optional: true
+  rules:
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
+robot:catalog:arkime:
+  stage: robot-test-install
+  tags:
+    - docker-runner
+  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c regression/01__installation \
+      -t 02__installArkime \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -b $ROBOT_BROWSER -h \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  needs:
+    - job: "Sensor Setup"
+      optional: true
+    - job: "Hardware Sensor Setup"
+      optional: true
+    - job: "Service Setup"
+      optional: true
+    - job: robot:deploy_kit
+      optional: true
+  rules:
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
+robot:catalog:CHM:
+  stage: robot-test-install
+  tags:
+    - docker-runner
+  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c regression/01__installation \
+      -t 02__installCortexMispHive \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -b $ROBOT_BROWSER -h \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  needs:
+    - job: "Sensor Setup"
+      optional: true
+    - job: "Hardware Sensor Setup"
+      optional: true
+    - job: "Service Setup"
+      optional: true
+    - job: robot:deploy_kit
+      optional: true
+  rules:
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
+robot:add_virtual_nodes:
+  stage: robot-test-install
+  tags:
+    - docker-runner
+  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c regression/01__installation \
+      -t 03__addVirtualNodes \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -b $ROBOT_BROWSER -h \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
       -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:
     untracked: true
     when: always
   allow_failure: true
-  only:
-    variables:
-      - ($RUN_REGRESSION == "yes" && $RUN_INTEGRATION == "no") && $PIPELINE == "controller-only"
-      - ($RUN_REGRESSION == "yes" && $RUN_INTEGRATION == "no") && $PIPELINE == "developer-all"
-      - ($RUN_REGRESSION == "yes" && $RUN_INTEGRATION == "no") && $PIPELINE == "hw-developer-all"
+  needs:
+    - job: robot:catalog:independents
+    - job: robot:catalog:community
+    - job: robot:catalog:arkime
+    - job: robot:catalog:CHM
+  rules:
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
   retry: 2
+
+robot:operations:
+  stage: robot-test-operations
+  tags:
+    - docker-runner
+  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
+  extends: .setup-robot-script
+  script: |
+    curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
+    curl -k -o /usr/src/robot/data-with-image_robot.pcap  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/pcap/data-with-image_robot.pcap
+    python3 -m run.runner -c "regression/02__operations" \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -b $ROBOT_BROWSER -h \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  rules:
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
+robot:cleanup:
+  stage: robot-test-cleanup
+  tags:
+    - docker-runner
+  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c regression/03__cleanup \
+      -t 00__dipCleanup \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -b $ROBOT_BROWSER -h \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: true
+  rules:
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
+  retry: 2
+
+robot:integration:
+  stage: robot-test-integration
+  tags:
+    - docker-runner
+  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c integration \
+      -t dipNewTests \
+      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
+      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -b $ROBOT_BROWSER -h \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: false
+  rules:
+    - if: $RUN_ROBOT_INTEGRATION == "yes" && $PIPELINE == "controller-only"
+    - if: $RUN_ROBOT_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+    - if: $RUN_ROBOT_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"

@@ -1,8 +1,16 @@
 import { Observable } from 'rxjs';
-import { HealthDashboardStatusClass } from '../../classes/health-dashboard-status.class';
 
+import { KeyValueClass } from '../../../../classes';
+import { HealthDashboardStatusClass } from '../../classes';
+
+/**
+ * Interface defines Health Dashboard Status Service
+ *
+ * @export
+ * @interface HealthDashboardStatusServiceInterface
+ */
 export interface HealthDashboardStatusServiceInterface {
-  get_health_dashboard_status(): Observable<Array<HealthDashboardStatusClass>>;
-  get_remote_health_dashboard_status(): Observable<Array<HealthDashboardStatusClass>>;
-  get_health_dashboard_kibana_info(ipaddress: string): Observable<Object>;
+  get_health_dashboard_status(): Observable<HealthDashboardStatusClass[]>;
+  get_remote_health_dashboard_status(): Observable<HealthDashboardStatusClass[]>;
+  get_health_dashboard_status_kibana_info_remote(ip_address: string): Observable<KeyValueClass[]>;
 }

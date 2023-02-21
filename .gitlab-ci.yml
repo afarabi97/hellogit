@@ -64,7 +64,8 @@ variables:
   RUN_SECURITY_SCANS: "yes"
   UPDATE_CODE: "yes"
   IS_CLEANUP: "no"
-  RUN_REGRESSION: "no"
+  RUN_ROBOT_REGRESSION: "no"
+  RUN_ROBOT_INTEGRATION: "no"
 
   # Creates multiboot partition on full drives, when doing a minor release make sure this is set to no
   CREATE_MULTIBOOT: "yes"
@@ -239,8 +240,9 @@ stages:
   - node-setup
   - acceptance
   - security_scans
-  - robot-test-regression
-  - robot-test-setup
+  - robot-test-deploy
+  - robot-test-install
+  - robot-test-integration
   - robot-test-operations
   - integration-test
   - disk-test

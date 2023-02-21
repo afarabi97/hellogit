@@ -1,22 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { ErrorMessageClass, HiveSettingsClass, ObjectUtilitiesClass } from '../../../../classes';
-import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
-import {
-  CANCEL_DIALOG_OPTION,
-  CONFIRM_DIALOG_OPTION,
-  DIALOG_WIDTH_1000PX,
-  MAT_SNACKBAR_CONFIGURATION_60000_DUR,
-  SAVE_DIALOG_OPTION
-} from '../../../../constants/cvah.constants';
-import { ConfirmDialogMatDialogDataInterface, HiveSettingsInterface } from '../../../../interfaces';
+import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../../../constants/cvah.constants';
+import { HiveSettingsInterface } from '../../../../interfaces';
 import { GlobalHiveSettingsService } from '../../../../services/global-hive-settings.service';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
-import { HIVE_SETTINGS, HIVE_SETTINGS_INSTRUCTIONS } from '../../constants/system-settings.constant';
 import { HiveSettingsService } from '../../services/hive-settings.service';
 
 /**
@@ -48,7 +39,6 @@ export class HiveSettingsComponent implements OnInit {
    * @memberof HiveSettingsComponent
    */
   constructor(private form_builder_: FormBuilder,
-              private mat_dialog_: MatDialog,
               private global_hive_settings_service_: GlobalHiveSettingsService,
               private mat_snackbar_service_: MatSnackBarService,
               private hive_settings_service_: HiveSettingsService) {

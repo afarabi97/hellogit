@@ -9,17 +9,12 @@ ${SSO_FILE}                     /opt/sso-idp/sso_admin_password.txt
 
 ${DEFUALT_REPLACEMENT_PATTERN}  ~
 
-# API URLS
-${API_CMD}                      /opt/tfplenum/.venv/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator"
-${API_HEADER_KEY}               Authorization
-${API_HEADER_VALUE}             Bearer {bearer_token}
-${API_BASE_URL}                 http://${host}/api{endpoint}
-
 # Pages start with a capital
 ${Portal_url}                   https://${host}/portal
 ${Alerts_url}                   https://${host}/alerts
 ${SystemSettings_url}           https://${host}/settings
 ${NodeManagement_url}           https://${host}/node-mng
+${MipManagement_url}            https://${host}/mip-mng
 ${Catalog_url}                  https://${host}/catalog
 ${Health_url}                   https://${host}/health
 ${Rulesets_url}                 https://${host}/rulesets
@@ -66,6 +61,7 @@ ${locPortalPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text(
 ${locAlertsPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Alerts"]]
 ${locSystemSettingsNavIcon}     xpath=//mat-icon[following-sibling::div/h4[text() = "System Settings"]]
 ${locNodeMgmtPageNavIcon}       xpath=//mat-icon[following-sibling::div/h4[text() = "Node Management"]]
+${locMipMgmtPageNavIcon}        xpath=//mat-icon[following-sibling::div/h4[text() = "MIP Management"]]
 ${locCatalogPageNavIcon}        xpath=//mat-icon[following-sibling::div/h4[text() = "Catalog"]]
 ${locHealthPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Health"]]
 ${locRulesetNavIcon}            xpath=//mat-icon[following-sibling::div/h4[text() = "Rule Set"]]
@@ -75,8 +71,8 @@ ${locApiDocsNavIcon}            xpath=//mat-icon[following-sibling::div/h4[text(
 ${locSupportPageNavIcon}        xpath=//mat-icon[following-sibling::div/h4[text() = "PMO Support"]]
 
 ${locNotificationsPopup}        xpath=//*[contains(@id, "mat-dialog-")]
-${locTopNotificationStatus}     id=cvah-notifications-dialog-window-0-0-statusactionapp
-${locTopNotificationMsg}        id=cvah-notifications-dialog-window-0-0-message
+${locTopNotificationStatus}     id=cvah-notifications-dialog-0-0-statusactionapp
+${locTopNotificationMsg}        id=cvah-notifications-dialog-0-0-message
 
 ${locSnackBarContainerBtn}      xpath=//snack-bar-container//button/span[text() = "Close" or text() = "OK"]
 

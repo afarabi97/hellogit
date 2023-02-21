@@ -2,9 +2,10 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angu
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
-import { GeneralSettingsClass, KitStatusClass } from '../../../../classes';
+import { BackgroundJobClass, GeneralSettingsClass, KitStatusClass } from '../../../../classes';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
 import { KitStatusInterface, ServerStdoutMatDialogDataInterface } from '../../../../interfaces';
+import { GlobalJobService } from '../../../../services/global-job.service';
 import { KitSettingsService } from '../../../../services/kit-settings.service';
 import { UserService } from '../../../../services/user.service';
 import { WebsocketService } from '../../../../services/websocket.service';
@@ -35,6 +36,7 @@ export class GeneralSettingsPaneComponent implements OnInit, OnChanges {
   buttonToolTip: string = '';
 
   constructor(public _WebsocketService:WebsocketService,
+              private global_job_service_: GlobalJobService,
               private kitSettingsSrv: KitSettingsService,
               private userService: UserService,
               private dialog: MatDialog) {
@@ -68,7 +70,7 @@ export class GeneralSettingsPaneComponent implements OnInit, OnChanges {
 
   checkJob(){
     if (this.job_id){
-      this.kitSettingsSrv.getJob(this.job_id).subscribe(data => {
+      this.global_job_service_.job_get(this.job_id).subscribe((data: BackgroundJobClass) => {
         if (data && data['status'] === 'started'){
           this.jobRunning = true;
           this.buttonToolTip = 'Job is running...';

@@ -17,7 +17,6 @@ import {
   RuleSyncClass,
   SuccessMessageClass
 } from '../../classes';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import {
   CANCEL_DIALOG_OPTION,
   CONFIRM_DIALOG_OPTION,
@@ -32,14 +31,11 @@ import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { RulesService } from '../../services/rules.service';
 import { SortingService } from '../../services/sorting.service';
 import { WebsocketService } from '../../services/websocket.service';
+import { ConfirmDialogComponent } from '../global-components/components/confirm-dialog/confirm-dialog.component';
 import { CatalogStatusClass, JobClass } from './classes';
-import {
-  RuleSetAddEditComponent
-} from './components/rule-set-add-edit/rule-set-add-edit.component';
 import { RuleAddEditComponent } from './components/rule-add-edit/rule-add-edit.component';
-import {
-  RulesUploadComponent
-} from './components/rules-upload/rules-upload.component';
+import { RuleSetAddEditComponent } from './components/rule-set-add-edit/rule-set-add-edit.component';
+import { RulesUploadComponent } from './components/rules-upload/rules-upload.component';
 import { ADD, EDIT, RULE_SETS_TITLE, SURICATA, ZEEK } from './constants/policy-management.constant';
 import { DialogDataInterface, NotificationInterface, RulesGroupUploadInterface } from './interfaces';
 import { PolicyManagementService } from './services/policy-management.service';
@@ -446,7 +442,7 @@ export class PolicyManagementComponent implements OnInit, AfterViewInit, OnChang
       .subscribe(
         (response: FormGroup) => {
           /* istanbul ignore else */
-          if (ObjectUtilitiesClass.notUndefNull(response) && response.valid){
+          if (ObjectUtilitiesClass.notUndefNull(response) && response.valid) {
             this.api_create_rule_set_(response.value as RuleSetInterface);
           }
         });

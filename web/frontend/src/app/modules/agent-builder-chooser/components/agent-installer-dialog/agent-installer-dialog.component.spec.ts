@@ -4,7 +4,7 @@ import { AbstractControl, FormControl, FormGroup, ValidationErrors } from '@angu
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatStepper } from '@angular/material/stepper';
-import { of, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 
 import {
   MockAppConfigClass1,
@@ -26,14 +26,6 @@ import { AgentBuilderChooserModule } from '../../agent-builder-chooser.module';
 import { AppConfigClass, EndgameSensorProfileClass } from '../../classes';
 import { AgentInstallerDialogDataInterface, AppNameAppConfigPairInterface, EndgameLoginInterface } from '../../interfaces';
 import { AgentInstallerDialogComponent } from './agent-installer-dialog.component';
-
-class MatDialogRefMock {
-  close() {
-    return {
-      afterClosed: () => of ()
-    };
-  }
-}
 
 describe('AgentInstallerDialogComponent', () => {
   let component: AgentInstallerDialogComponent;
@@ -61,8 +53,6 @@ describe('AgentInstallerDialogComponent', () => {
   let spyFormLevelValidations: jasmine.Spy<any>;
   let spyGetSensorProfileName: jasmine.Spy<any>;
   let spyApiEndgameSensorProfiles: jasmine.Spy<any>;
-
-  let spyMatDialogRefClose: jasmine.Spy<any>;
 
   // Test Data
   const app_name_app_config_pair: AppNameAppConfigPairInterface = new Object() as AppNameAppConfigPairInterface;
@@ -120,7 +110,7 @@ describe('AgentInstallerDialogComponent', () => {
         TestingModule
       ],
       providers: [
-        { provide: MatDialogRef, useClass: MatDialogRefMock },
+        { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) },
         { provide: MAT_DIALOG_DATA, useValue: MOCK_DIALOG_DATA__AGENT_INSTALLER_DIALOG_DATA }
       ]
     }).compileComponents();
@@ -153,9 +143,6 @@ describe('AgentInstallerDialogComponent', () => {
     spyGetSensorProfileName = spyOn<any>(component, 'get_sensor_profile_name_').and.callThrough();
     spyApiEndgameSensorProfiles = spyOn<any>(component, 'api_endgame_sensor_profiles_').and.callThrough();
 
-    // spyOn mat_dialog_ref
-    spyMatDialogRefClose = spyOn<any>(component['mat_dialog_ref_'], 'close').and.callThrough();
-
     // Detect changes
     fixture.detectChanges();
   });
@@ -182,8 +169,6 @@ describe('AgentInstallerDialogComponent', () => {
     spyFormLevelValidations.calls.reset();
     spyGetSensorProfileName.calls.reset();
     spyApiEndgameSensorProfiles.calls.reset();
-
-    spyMatDialogRefClose.calls.reset();
   };
 
   afterAll(() => remove_styles_from_dom());

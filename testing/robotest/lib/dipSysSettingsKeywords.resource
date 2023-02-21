@@ -14,17 +14,22 @@ Fill Out System Settings
 
 Complete VMware Settings
     [Documentation]  Completes the VMware Settings section on the System Settings page of the controller.
-    click  ${locVmwareSettingsSec}
-    IF  ${IS_BARE_METAL_KIT}
-        Enter ESXi Info
+    ${filled_out} =  Get From Dictionary  ${KIT_STATUS}  esxi_settings_configured
+    IF  ${filled_out} == ${False}
+        click  ${locVmwareSettingsSec}
+        IF  ${IS_BARE_METAL_KIT}
+            Enter ESXi Info
+        ELSE
+            Enter vCenter Info
+        END
+        Wait Until Element Is Enabled  ${locVMwareSaveButton}
+        click  ${locVMwareSaveButton}
+        Wait Until Page Contains  VMWare settings saved successfully.
+        Check For Snack Bar Container
+        Sleep  2s
     ELSE
-        Enter vCenter Info
+        log  VMware Settings already filled out.
     END
-    Wait Until Element Is Enabled  ${locVMwareSaveButton}
-    click  ${locVMwareSaveButton}
-    Wait Until Page Contains  VMWare settings saved successfully.
-    Check For Snack Bar Container
-    Sleep  2s
 
 Enter ESXi Info
     [Documentation]  Keyword runs if kit will use ESXi to build VMs
@@ -70,13 +75,12 @@ Enter vCenter Info
     click  ${locDevDatacenterOption}
     click  ${locFolderSelect}
     click  xpath=//*[text()='${VCENTER_FOLDER}']
-    shoot  vmware_settings
 
 Complete General Settings
     [Documentation]  Completes the General Settings section on the System Settings page of the controller.
-    click  ${locGeneralSettingsSec}
-    ${disabled} =  Get Element Attribute  ${locDomainInputSS}  disabled
-    IF  '${disabled}'=='false' or '${disabled}'=='None'
+    ${filled_out} =  Get From Dictionary  ${KIT_STATUS}  general_settings_configured
+    IF  ${filled_out} == ${False}
+        click  ${locGeneralSettingsSec}
         Input Text  ${locDomainInputSS}  ${DOMAIN}
         click  ${locGeneralSaveButton}
         click  ${locGenOpenConsoleBtn}
@@ -85,16 +89,16 @@ Complete General Settings
         Check Notifications Panel  Setup Controller create job successfully completed.  10m
         Navigate To System Settings
         Sleep  30s  Time required for kit settings input fields to become enabled.
+    ELSE
+        log  General Settings already filled out.
     END
 
 Complete Kit Settings
     [Documentation]  Completes the Kit Settings section on the System Settings page of the controller.
-    click  ${locKitSettingsSec}
-    click  xpath=//mat-radio-button[@value="DIP"]
-    click  ${locKitPasswordInput}
-    ${placeholder} =  Get Element Attribute  ${locKitPasswordInput}  placeholder
-    IF  '${placeholder}' == 'You must enter a root password with a minimum length of 15 characters.'
-        Wait Until Keyword Succeeds  1m  5s  Check If Kit Settings Fields Are Enabled
+    ${filled_out} =  Get From Dictionary  ${KIT_STATUS}  kit_settings_configured
+    IF  ${filled_out} == ${False}
+        click  ${locKitSettingsSec}
+        click  xpath=//mat-radio-button[@value="DIP"]
         Input Password  ${locKitPasswordInput}  ${NEW_KIT_PASSWORD}
         Input Password  ${locKitRetypePWInput}  ${NEW_KIT_PASSWORD}
         type  ${locUpstreamNtpServer}  10.10.101.11
@@ -102,20 +106,15 @@ Complete Kit Settings
         click  ${locKSRSelect}
         click  ${locKSRFirstOption}
         Wait Until Element Is Enabled  ${locKitSaveButton}
-        shoot  kit_settings
         click  ${locKitSaveButton}
         click  ${locKitOpenConsoleBtn}
         Wait Until Page Contains  PLAY RECAP  1m
         SeleniumLibrary.Press Keys  None  ESCAPE  # Exit out of console
         Check Notifications Panel  Setup Controller Kit Settings create job successfully completed.  10m
         Navigate To System Settings
+    ELSE
+        log  Kit Settings already filled out.
     END
-
-Check If Kit Settings Fields Are Enabled
-    [Documentation]  Checks to see if the fields under Kit Settings are enabled before continuing.
-    Reload Page
-    click  ${locKitSettingsSec}
-    Element Should Be Enabled  ${locKitPasswordInput}
 
 Complete MIP Settings
     [Documentation]  Completes the MIP Settings section on the System Settings page of the controller.
@@ -133,4 +132,3 @@ Complete MIP Settings
     Click Button  ${locMipSaveButton}
     Wait Until Page Contains  MIP Settings Successfully Saved
     Check For Snack Bar Container
-    Set Selenium Speed  0.0

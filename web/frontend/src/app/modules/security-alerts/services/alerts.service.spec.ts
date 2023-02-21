@@ -154,7 +154,7 @@ describe('AlertService', () => {
       it('should call get_alerts()', () => {
         reset();
 
-        service.get_alerts(fields, start_time, end_time, true, false, false)
+        service.get_alerts(fields, start_time, end_time, true, true, true)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: Object[]) => {
             expect(response.length).toEqual(MockUpdateAlertsClassArray.length);
@@ -169,7 +169,7 @@ describe('AlertService', () => {
             expect(service.get_alerts).toHaveBeenCalled();
           });
 
-        const xhrURL: string = `${environment.ALERT_SERVICE_BASE}yes/no/no/${start_time}/${end_time}/${fields}`;
+        const xhrURL: string = `${environment.ALERT_SERVICE_BASE}yes/yes/yes/${start_time}/${end_time}/${fields}`;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         expect(xhrRequest.request.method).toEqual(getType);
@@ -182,7 +182,7 @@ describe('AlertService', () => {
       it('should call get_alerts() and handle error message error', () => {
         reset();
 
-        service.get_alerts(fields, start_time, end_time, true, false, false)
+        service.get_alerts(fields, start_time, end_time)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
             (response: Object[]) => {},
@@ -199,7 +199,7 @@ describe('AlertService', () => {
               expect(service.get_alerts).toHaveBeenCalled();
             });
 
-        const xhrURL: string = `${environment.ALERT_SERVICE_BASE}yes/no/no/${start_time}/${end_time}/${fields}`;
+        const xhrURL: string = `${environment.ALERT_SERVICE_BASE}no/no/no/${start_time}/${end_time}/${fields}`;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorMessageRequest, mockErrorResponse);

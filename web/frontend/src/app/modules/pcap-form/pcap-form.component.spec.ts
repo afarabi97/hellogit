@@ -16,29 +16,6 @@ import { ReplayPCAPInterface } from './interfaces/replay-pcap.interface';
 import { PcapFormComponent } from './pcap-form.component';
 import { PCAPFormModule } from './pcap-form.module';
 
-class MatDialogMock {
-  // When the component calls this.dialog.open(...) we'll return an object
-  // with an afterClosed method that allows to subscribe to the dialog result observable.
-  open() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-  closeAll() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-}
-
-class MatDialogRefMock {
-  close() {
-    return {
-      afterClosed: () => of ()
-    };
-  }
-}
-
 interface MockFile {
   name: string;
   body: string;
@@ -117,8 +94,8 @@ describe('PcapFormComponent', () => {
         TestingModule
       ],
       providers: [
-        { provide: MatDialog, useClass: MatDialogMock },
-        { provide: MatDialogRef, useClass: MatDialogRefMock },
+        { provide: MatDialog, useFactory: () => jasmine.createSpyObj('MatDialog', ['open', 'closeAll']) },
+        { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) },
         { provide: MAT_DIALOG_DATA, useValue: 'test pcap name' }
       ]
     }).compileComponents();
@@ -254,6 +231,8 @@ describe('PcapFormComponent', () => {
       it('should call replay_pcap_dialog()', () => {
         reset();
 
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(replay_pcap_form_group) } as MatDialogRef<typeof component>);
+
         component.replay_pcap_dialog(MockPCAPClassFlawedAmmyyTraffic);
 
         expect(component.replay_pcap_dialog).toHaveBeenCalled();
@@ -272,6 +251,7 @@ describe('PcapFormComponent', () => {
       it('should not call api_replay_pcap_() after mat dialog ref closed from within replay_pcap_dialog()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.replay_pcap_dialog(MockPCAPClassFlawedAmmyyTraffic);
@@ -283,6 +263,8 @@ describe('PcapFormComponent', () => {
     describe('delete_pcap_confirm_dialog()', () => {
       it('should call delete_pcap_confirm_dialog()', () => {
         reset();
+
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(CONFIRM_DIALOG_OPTION) } as MatDialogRef<typeof component>);
 
         component.delete_pcap_confirm_dialog(MockPCAPClassFlawedAmmyyTraffic);
 

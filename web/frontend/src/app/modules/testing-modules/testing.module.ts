@@ -13,6 +13,8 @@ import { GlobalPCAPService } from '../../services/global-pcap.service';
 import { GlobalPCAPServiceSpy } from '../../services/global-pcap.service.spec';
 import { GlobalToolsService } from '../../services/global-tools.service';
 import { GlobalToolsServiceSpy } from '../../services/global-tools.service.spec';
+import { KitSettingsService } from '../../services/kit-settings.service';
+import { KitSettingsServiceSpy } from '../../services/kit-settings.service.spec';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { MatSnackbarServiceSpy } from '../../services/mat-snackbar.service.spec';
 import { PortalService } from '../../services/portal.service';
@@ -77,6 +79,7 @@ import { ToolsServiceSpy } from '../tools/services/tools.service.spec';
     { provide: GlobalJobService, useClass: GlobalJobServiceSpy },
     { provide: GlobalPCAPService, useClass: GlobalPCAPServiceSpy },
     { provide: GlobalToolsService, useClass: GlobalToolsServiceSpy },
+    { provide: KitSettingsService, useClass: KitSettingsServiceSpy },
     { provide: MatSnackBarService, useClass: MatSnackbarServiceSpy },
     { provide: PortalService, useClass: PortalServiceSpy },
     { provide: RulesService, useClass: RulesServiceSpy },

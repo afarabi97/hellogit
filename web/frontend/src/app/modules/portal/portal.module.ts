@@ -4,6 +4,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { GlobalComponentsModule } from '../global-components/global-components.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { PortalComponent } from './portal.component';
 
@@ -14,7 +15,8 @@ import { PortalComponent } from './portal.component';
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    GlobalComponentsModule
   ],
   declarations: [
     PortalComponent

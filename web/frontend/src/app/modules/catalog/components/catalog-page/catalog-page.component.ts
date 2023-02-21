@@ -18,7 +18,6 @@ import {
   SavedValueClass,
   StatusClass
 } from '../../../../classes';
-import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import {
   CONTINUE_DIALOG_OPTION,
   DIALOG_HEIGHT_90VH,
@@ -36,10 +35,11 @@ import {
   TextEditorConfigurationInterface
 } from '../../../../interfaces';
 import { CatalogService } from '../../../../services/catalog.service';
+import { GlobalToolsService } from '../../../../services/global-tools.service';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { SortingService } from '../../../../services/sorting.service';
+import { ConfirmDialogComponent } from '../../../global-components/components/confirm-dialog/confirm-dialog.component';
 import { NGXMonacoTextEditorComponent } from '../../../ngx-monaco-text-editor/ngx-monaco-text-editor.component';
-import { GlobalToolsService } from '../../../../services/global-tools.service';
 import {
   CLOSE_CONFIRM_ACTION_CONFIGURATION,
   DEPLOYED,
@@ -224,7 +224,7 @@ export class CatalogPageComponent implements OnInit {
    *
    * @param {NodeClass} node
    * @param {FormControlClass} form_control
-   * @return {*}  {boolean}
+   * @return {boolean}
    * @memberof CatalogPageComponent
    */
   checkbox_value(node: NodeClass, form_control: FormControlClass): boolean {
@@ -282,7 +282,7 @@ export class CatalogPageComponent implements OnInit {
    *
    * @param {string} hostname
    * @param {string} iface
-   * @return {*}  {boolean}
+   * @return {boolean}
    * @memberof CatalogPageComponent
    */
   check_interface(hostname: string, iface: string): boolean {
@@ -294,7 +294,7 @@ export class CatalogPageComponent implements OnInit {
    * Used to check a form group
    *
    * @param {FormGroup} form_group
-   * @return {*}  {boolean}
+   * @return {boolean}
    * @memberof CatalogPageComponent
    */
   check_form_group(form_group: FormGroup): boolean {
@@ -331,7 +331,7 @@ export class CatalogPageComponent implements OnInit {
    * Used to get the label or placeholder for a form control
    *
    * @param {string} control_name
-   * @return {*}  {string}
+   * @return {string}
    * @memberof CatalogPageComponent
    */
   get_label_or_placeholder(control_name: string): string {
@@ -343,7 +343,7 @@ export class CatalogPageComponent implements OnInit {
    * Used to get the value from value_form_group using a deployment_name
    *
    * @param {NodeClass} node
-   * @return {*}  {string}
+   * @return {string}
    * @memberof CatalogPageComponent
    */
   get_value_form_group_json_object(node: NodeClass): string {
@@ -955,7 +955,7 @@ export class CatalogPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(values => {
         const appValues = values.filter((value: ChartClass)  => value.application === checkbox_dependent_app).map((node: ChartClass) => node.nodes )[0];
-        if(ObjectUtilitiesClass.notUndefNull(appValues) && appValues.length > 0 && appValues[0].status === "DEPLOYED"){
+        if(ObjectUtilitiesClass.notUndefNull(appValues) && appValues.length > 0 && appValues[0].status === "DEPLOYED") {
           hostname_form_group.controls[key].enable();
         } else {
           hostname_form_group.controls[key].setValue(false);

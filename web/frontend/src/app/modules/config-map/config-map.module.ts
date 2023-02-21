@@ -4,6 +4,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { GlobalComponentsModule } from '../global-components/global-components.module';
 import { NGXMonacoTextEditorModule } from '../ngx-monaco-text-editor/ngx-monaco-text-editor.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { ConfigmapsComponent } from './config-map.component';
@@ -17,7 +18,8 @@ import { ConfigMapService } from './services/config-map.service';
     ReactiveFormsModule,
     BrowserAnimationsModule,
     MaterialModule,
-    NGXMonacoTextEditorModule
+    NGXMonacoTextEditorModule,
+    GlobalComponentsModule
   ],
   declarations: [
     ConfigmapsComponent

@@ -49,7 +49,7 @@ export class ToolsService extends ApiService<any> implements ToolsServiceInterfa
     * @return {Observable<SuccessMessageClass>}
     * @memberof ToolsService
     */
-   change_kit_password(kit_password: KitPasswordInterface): Observable<SuccessMessageClass> {
+  change_kit_password(kit_password: KitPasswordInterface): Observable<SuccessMessageClass> {
     return this.httpClient_.post<SuccessMessageInterface>(environment.TOOLS_SERVICE_CHANGE_KIT_PASSWORD, kit_password)
       .pipe(map((response: SuccessMessageInterface) => new SuccessMessageClass(response)),
             catchError((error: HttpErrorResponse) => this.handleError('change kit passowrd', error)));

@@ -11,6 +11,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { GlobalHiveSettingsService } from '../../services/global-hive-settings.service';
 import { WindowsRedirectHandlerService } from '../../services/windows_redirect_handler.service';
+import { GlobalComponentsModule } from '../global-components/global-components.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { AlertDrillDownDialogComponent } from './components/alert-drilldown-dialog/alert-drilldown-dialog.component';
 import { SecurityAlertsComponent } from './security-alerts.component';
@@ -26,7 +27,8 @@ import { AlertService } from './services/alerts.service';
     FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
-    MaterialModule
+    MaterialModule,
+    GlobalComponentsModule
   ],
   declarations: [
     SecurityAlertsComponent,

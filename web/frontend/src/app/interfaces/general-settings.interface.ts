@@ -10,7 +10,7 @@ export interface GeneralSettingsInterface {
   netmask: string;
   gateway: string;
   domain: string;
-  dhcp_range: string;
   job_id: string;
   job_completed: boolean;
+  dhcp_range?: string;
 }

@@ -47,21 +47,6 @@ const create_mock_file_list = (files: MockFile[]) => {
   return file_list;
 };
 
-class MatDialogMock {
-  // When the component calls this.dialog.open(...) we'll return an object
-  // with an afterClosed method that allows to subscribe to the dialog result observable.
-  open() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-  closeAll() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-}
-
 describe('ColdLogIngestComponent', () => {
   let component: ColdLogIngestComponent;
   let fixture: ComponentFixture<ColdLogIngestComponent>;
@@ -125,7 +110,7 @@ describe('ColdLogIngestComponent', () => {
       ],
       providers: [
         Title,
-        { provide: MatDialog, useClass: MatDialogMock }
+        { provide: MatDialog, useFactory: () => jasmine.createSpyObj('MatDialog', ['open', 'closeAll']) }
       ]
     }).compileComponents();
   }));
@@ -328,6 +313,9 @@ describe('ColdLogIngestComponent', () => {
       it('should call setup_winlogbeat()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
+
         component.setup_winlogbeat();
 
         expect(component.setup_winlogbeat).toHaveBeenCalled();
@@ -335,6 +323,9 @@ describe('ColdLogIngestComponent', () => {
 
       it('should call api_get_winlogbeat_configuration_() from setup_winlogbeat()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         component.setup_winlogbeat();
 
@@ -421,6 +412,9 @@ describe('ColdLogIngestComponent', () => {
       it('should call open_winlogbeat_setup_dialog_()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         // Used default so it gets into else ternary operators
         component['open_winlogbeat_setup_dialog_'](MockWinlogbeatConfigurationClassDefault);
 
@@ -498,6 +492,9 @@ describe('ColdLogIngestComponent', () => {
       it('should call api_get_winlogbeat_configuration_()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
+
         component['api_get_winlogbeat_configuration_']();
 
         expect(component['api_get_winlogbeat_configuration_']).toHaveBeenCalled();
@@ -505,6 +502,9 @@ describe('ColdLogIngestComponent', () => {
 
       it('should call cold_log_ingest_service_.get_winlogbeat_configuration() from api_get_winlogbeat_configuration_()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         component['api_get_winlogbeat_configuration_']();
 
@@ -514,6 +514,9 @@ describe('ColdLogIngestComponent', () => {
       it('should call cold_log_ingest_service_.get_winlogbeat_configuration() and handle response and call open_winlogbeat_setup_dialog_()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component['api_get_winlogbeat_configuration_']();
 
         expect(component['open_winlogbeat_setup_dialog_']).toHaveBeenCalled();
@@ -521,6 +524,9 @@ describe('ColdLogIngestComponent', () => {
 
       it('should call cold_log_ingest_service_.get_winlogbeat_configuration() and handle error', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);

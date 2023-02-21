@@ -13,9 +13,9 @@ export class GeneralSettingsClass implements GeneralSettingsInterface {
   netmask: string;
   gateway: string;
   domain: string;
-  dhcp_range: string;
   job_id: string;
   job_completed: boolean;
+  dhcp_range?: string;
 
   /**
    * Creates an instance of GeneralSettingsClass.
@@ -29,8 +29,8 @@ export class GeneralSettingsClass implements GeneralSettingsInterface {
     this.netmask = general_settings_Interface.netmask;
     this.gateway = general_settings_Interface.gateway;
     this.domain = general_settings_Interface.domain;
-    this.dhcp_range = general_settings_Interface.dhcp_range;
     this.job_id = general_settings_Interface.job_id;
     this.job_completed = general_settings_Interface.job_completed;
+    this.dhcp_range = general_settings_Interface.dhcp_range;
   }
 }

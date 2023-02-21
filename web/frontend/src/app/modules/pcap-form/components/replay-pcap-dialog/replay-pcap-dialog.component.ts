@@ -68,7 +68,7 @@ export class ReplayPcapDialogComponent implements OnInit {
   /**
    * Used for returning pcap_form_group.preserve_timestamp value
    *
-   * @return {*}  {boolean}
+   * @return {boolean}
    * @memberof ReplayPcapDialogComponent
    */
   should_preserve_timestamp(): boolean {
@@ -95,7 +95,7 @@ export class ReplayPcapDialogComponent implements OnInit {
    * Used for retrieving error message for a form control
    *
    * @param {AbstractControl} control
-   * @return {*}  {string}
+   * @return {string}
    * @memberof ReplayPcapDialogComponent
    */
   get_error_message(control: AbstractControl): string {

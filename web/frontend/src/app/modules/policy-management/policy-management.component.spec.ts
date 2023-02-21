@@ -39,21 +39,6 @@ interface MockFile {
   mimeType: string;
 }
 
-class MatDialogMock {
-  // When the component calls this.dialog.open(...) we'll return an object
-  // with an afterClosed method that allows to subscribe to the dialog result observable.
-  open() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-  closeAll() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-}
-
 class MockSocket {
   getSocket() {
     return {'on': () => {}};
@@ -152,7 +137,7 @@ describe('PolicyManagementComponent', () => {
       ],
       providers: [
         ApiService,
-        { provide: MatDialog, useClass: MatDialogMock },
+        { provide: MatDialog, useFactory: () => jasmine.createSpyObj('MatDialog', ['open', 'closeAll']) },
         { provide: WebsocketService, useClass: MockSocket }
       ]
     }).compileComponents();
@@ -444,6 +429,9 @@ describe('PolicyManagementComponent', () => {
       it('should call edit_rule()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.edit_rule(MockRuleSetClass, MockRuleClass);
 
         expect(component.edit_rule).toHaveBeenCalled();
@@ -554,6 +542,9 @@ describe('PolicyManagementComponent', () => {
       it('should call delete_rule_confirm_dialog()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.delete_rule_confirm_dialog(MockRuleForToggleDisabledClass, MockRuleSetClass);
 
         expect(component.delete_rule_confirm_dialog).toHaveBeenCalled();
@@ -586,6 +577,9 @@ describe('PolicyManagementComponent', () => {
       it('should call delete_rule_set_confirm_dialog()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.delete_rule_set_confirm_dialog(MockRuleSetClass);
 
         expect(component.delete_rule_set_confirm_dialog).toHaveBeenCalled();
@@ -616,6 +610,9 @@ describe('PolicyManagementComponent', () => {
       it('should call edit_rule_set()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.edit_rule_set(MockRuleSetClass);
 
         expect(component.edit_rule_set).toHaveBeenCalled();
@@ -645,6 +642,9 @@ describe('PolicyManagementComponent', () => {
     describe('add_rule()', () => {
       it('should call add_rule()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(MockRuleClass) } as MatDialogRef<typeof component>);
 
@@ -768,6 +768,9 @@ describe('PolicyManagementComponent', () => {
       it('should call add_rule_set()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.add_rule_set();
 
         expect(component.add_rule_set).toHaveBeenCalled();
@@ -797,6 +800,9 @@ describe('PolicyManagementComponent', () => {
     describe('upload_rules_file()', () => {
       it('should call upload_rules_file()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.upload_rules_file(MockRuleSetClass);
 

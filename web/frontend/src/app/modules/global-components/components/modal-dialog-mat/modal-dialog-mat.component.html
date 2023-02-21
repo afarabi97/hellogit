@@ -1,0 +1,65 @@
+<h2 mat-dialog-title id="cvah-modal-dialog-mat-h2-title">{{ title | capitalizeFirst }}</h2>
+<div mat-dialog-content [formGroup]="dialog_form_group" style="min-height: 90px;">
+    <p id="cvah-modal-dialog-mat-div-p-instructions">{{ instructions }}</p>
+    <ng-container *ngFor="let control of get_dialog_form_controls(dialog_form_group); let i = index;">
+        <!-- Text Input -->
+        <mat-form-field *ngIf="is_text_input(control)" id="{{ 'cvah-modal-dialog-mat-div-' + i + '-mat-form-field-textinput' }}">
+            <mat-label>{{ control.label }}</mat-label>
+            <input matInput id="{{ 'cvah-modal-dialog-mat-div-' + i + '-mat-form-field-textinput-input' }}"
+                   [formControl]="control" matTooltip="{{ control.tooltip }}">
+        </mat-form-field>
+        <!-- Text Textarea -->
+        <mat-form-field *ngIf="is_textarea(control)" id="{{ 'cvah-modal-dialog-mat-div-' + i + '-mat-form-field-texttextarea' }}">
+            <mat-label>{{ control.label }}</mat-label>
+            <textarea matInput id="{{ 'cvah-modal-dialog-mat-div-' + i + '-mat-form-field-texttextarea-textarea' }}"
+                      [formControl]="control" matTooltip="{{ control.tooltip }}" rows="10"></textarea>
+        </mat-form-field>
+        <!-- Password Input -->
+        <mat-form-field *ngIf="is_password_input(control)" id="{{ 'cvah-modal-dialog-mat-div-' + i + '-mat-form-field-passwordinput' }}">
+            <mat-label>{{ control.label }}</mat-label>
+            <input matInput id="{{ 'cvah-modal-dialog-mat-div-' + i + '-mat-form-field-passwordinput-input' }}"
+                   [formControl]="control" matTooltip="{{ control.tooltip }}" type="password">
+        </mat-form-field>
+        <!-- Select -->
+        <mat-form-field *ngIf="is_dropdown(control)" id="{{ 'cvah-modal-dialog-mat-div-' + i + '-mat-form-field-select' }}">
+            <mat-label>{{ control.label }}</mat-label>
+            <mat-select matTooltip="{{ control.tooltip }}" id="{{ 'cvah-modal-dialog-mat-div-' + i + '-mat-form-field-select-mat-select' }}" [formControl]="control">
+                <mat-option *ngFor="let option of control.options; let j = index;"
+                            id="{{ 'cvah-modal-dialog-mat-div-' + i + '-mat-form-field-select-mat-select-mat-option-' + j }}"
+                            [value]="option">{{ option }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <!-- Checkbox -->
+        <mat-checkbox *ngIf="is_checkbox(control)" [formControl]="control">{{ control.label }}</mat-checkbox>
+
+        <mat-error id="{{ 'cvah-modal-dialog-mat-div-' + i + '-mat-error' }}">{{ get_error_message(control) }}</mat-error>
+        <cvah-date-time *ngIf="is_date_input(control)"
+                       [uniqueHTMLID]="'cvah-modal-dialog-mat'" [datetime]="control" [timezone]="get_timezone_control()"
+                       placeholder="Current Date & Time"></cvah-date-time>
+
+        <!-- Chips -->
+        <mat-form-field *ngIf="is_chips(control)" style="width: 100%">
+          <mat-label>{{ control.label }}</mat-label>
+          <mat-chip-list #chipList>
+            <mat-chip *ngFor="let chip of chips" [selectable]="true"
+                     [removable]="true" (removed)="remove_alert_chip(chip)">
+              {{ chip }}
+              <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            </mat-chip>
+            <input placeholder="{{ control.tooltip }}"
+                   [formControl]="control"
+                   [matChipInputFor]="chipList"
+                   [matChipInputSeparatorKeyCodes]="seperator_key_codes"
+                   [matChipInputAddOnBlur]="true"
+                   (matChipInputTokenEnd)="add_alert_chip($event)">
+          </mat-chip-list>
+        </mat-form-field>
+    </ng-container>
+</div>
+<div mat-dialog-actions>
+    <button mat-raised-button id="cvah-modal-dialog-mat-div-button-cancel"
+            color="warn" (click)="cancel()">Cancel</button>
+    <button mat-raised-button id="cvah-modal-dialog-mat-div-button-confirm"
+            color="primary" (click)="submit()"
+            [disabled]="!dialog_form_group.valid">{{ confirm_button_text }}</button>
+</div>

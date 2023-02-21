@@ -112,7 +112,7 @@ export class CatalogComponent implements OnInit {
    *
    * @private
    * @param {boolean} show_pmo
-   * @return {*}  {ChartClass[]}
+   * @return {ChartClass[]}
    * @memberof CatalogComponent
    */
   private filter_pmo_applications_(show_pmo: boolean): ChartClass[] {
@@ -124,7 +124,7 @@ export class CatalogComponent implements OnInit {
    *
    * @private
    * @param {boolean} show_community
-   * @return {*}  {ChartClass[]}
+   * @return {ChartClass[]}
    * @memberof CatalogComponent
    */
   private filter_community_applications_(show_community: boolean): ChartClass[] {

@@ -31,7 +31,7 @@ export class NodeClass implements NodeInterface {
   virtual_data: number;
   virtual_mem: number;
   virtual_os: number;
-  vpn_status: string;
+  vpn_status: string | null;
   isDeployed?: boolean;
   isRemoving?: boolean;
   status?: StatusClass;
@@ -48,7 +48,6 @@ export class NodeClass implements NodeInterface {
     this.data_drives = node_interface.data_drives;
     this.deployment_name = node_interface.deployment_name;
     this.deployment_type = node_interface.deployment_type;
-    this.deviceFacts = new DeviceFactsClass(node_interface.deviceFacts);
     this.hostname = node_interface.hostname;
     this.ip_address = node_interface.ip_address;
     this.is_remote = node_interface.is_remote;
@@ -66,6 +65,9 @@ export class NodeClass implements NodeInterface {
 
     if (ObjectUtilitiesClass.notUndefNull(node_interface.jobs)) {
       this.jobs = node_interface.jobs.map((j: JobInterface) => new JobClass(j));
+    }
+    if (Object.keys(node_interface.deviceFacts).length > 0) {
+      this.deviceFacts = new DeviceFactsClass(node_interface.deviceFacts);
     }
   }
 }

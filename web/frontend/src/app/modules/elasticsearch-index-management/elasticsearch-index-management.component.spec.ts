@@ -4,13 +4,13 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { throwError } from 'rxjs';
-import { ErrorMessageClass } from 'src/app/classes';
-import { MatOptionAltInterface } from 'src/app/interfaces';
 
 import { MockErrorMessageClass } from '../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import { MockIndexManagementOptionInterfaceDeleteIndices } from '../../../../static-data/interface-objects';
 import { MockClosedIndices } from '../../../../static-data/return-data';
+import { ErrorMessageClass } from '../../classes';
+import { MatOptionAltInterface } from '../../interfaces';
 import { TestingModule } from '../testing-modules/testing.module';
 import { BACKUP_INDICES, CLOSE_INDICES, DELETE_INDICES } from './constants/index-management.constant';
 import { ElasticsearchIndexManagementComponent } from './elasticsearch-index-management.component';

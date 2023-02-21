@@ -75,7 +75,7 @@ export class NGXMonacoTextEditorComponent {
   /**
    * Used for returning the action button text or default save
    *
-   * @return {*}  {string}
+   * @return {string}
    * @memberof NGXMonacoTextEditorComponent
    */
   get_action_button_text(): string {
@@ -87,7 +87,7 @@ export class NGXMonacoTextEditorComponent {
   /**
    * Used for returning the non-action button text or default close
    *
-   * @return {*}  {string}
+   * @return {string}
    * @memberof NGXMonacoTextEditorComponent
    */
   get_non_action_button_text(): string {

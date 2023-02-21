@@ -17,7 +17,7 @@ import { getCurrentDate } from './functions/date-time.functions';
  * @implements {OnChanges}
  */
 @Component({
-  selector: 'app-date-time',
+  selector: 'cvah-date-time',
   templateUrl: './date-time.component.html',
   providers: [{
     provide: NG_VALUE_ACCESSOR,
@@ -53,7 +53,7 @@ export class DateTimeComponent implements OnChanges {
    */
   ngOnChanges(): void {
     /* istanbul ignore else */
-    if (ObjectUtilitiesClass.notUndefNull(this.datetime)){
+    if (ObjectUtilitiesClass.notUndefNull(this.datetime)) {
       this.changeDateTime_();
       this.writeValue_(this.value);
     }

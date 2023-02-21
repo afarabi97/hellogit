@@ -1,4 +1,4 @@
-import { BackgroundJobInterface } from '../../src/app/modules/server-stdout/interfaces';
+import { BackgroundJobInterface } from '../../src/app/interfaces';
 
 export const MockBackgroundJobInterface: BackgroundJobInterface = {
   job_id: 'fbbd7123-4926-4a84-a8ea-7c926e38edab',

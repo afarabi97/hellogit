@@ -1,5 +1,6 @@
 *** Settings ***
 Resource    ../include/dipCommonVariables.resource
+Resource    ./dipAPIDocsKeywords.resource
 Resource    ./dipCatalogKeywords.resource
 Variables   ../include/element_ids_frontend.py
 
@@ -17,38 +18,6 @@ Set DIP Kit Global Variables
     ${first_3_chars} =  Get Substring  ${PIPELINE}  0  3
     ${IS_BARE_METAL_KIT} =  Set Variable If  '${first_3_chars}' == 'hw-'  ${True}  ${False}
     Set Global Variable  ${IS_BARE_METAL_KIT}
-
-Generate Global API Auth Token
-    [Documentation]     Generates an API Token with the following roles: "controller-admin,controller-maintainer,operator"
-    log     Generating API Auth Token with roles (controller-admin, controller-maintainer, operator) and an expiration time of 1 hour
-
-    ${API_TOKEN}=  Execute Command    ${API_CMD}
-    log     Successfully Generated API Auth Token: ${API_TOKEN}
-    log     Setting Global Variable API_TOKEN
-    Set Global Variable  ${API_TOKEN}
-    log     Successfully Set Global Variable API_TOKEN
-
-    log     Setting Global API Header
-
-    log     Creating Empty Dictionary API_HEADER
-    ${API_HEADER}=    Create Dictionary
-
-    log     Constructing API Header Value
-    ${API_HEADER_VALUE}=    Format String   Bearer {bearer_token}   bearer_token=${API_TOKEN}
-    log     Successfully Constructed The API Header Value: ${API_HEADER_VALUE}
-
-    log     Setting The Value of The API Authentication Key (${API_HEADER_KEY}) to The API Header Value: ${API_HEADER_VALUE}
-    Set To Dictionary   ${API_HEADER}   ${API_HEADER_KEY}=${API_HEADER_VALUE}
-    Log Dictionary      ${API_HEADER}
-    log     Successfully Created API_HEADER
-    log     API Header: ${API_HEADER}
-
-
-    log     Lastly, Make API_HEADER a Global Variable
-    Set Global Variable  ${API_HEADER}
-    log     Successfully Set Global Variable API_HEADER
-
-    log     Successfully Generated Global API Auth Token!
 
 Open SSH Connection
     [Arguments]  ${host}  ${host_username}  ${host_password}
@@ -162,7 +131,7 @@ Check Notifications Panel
     [Documentation]  Check Notifications panel for specified message.
     click  ${CVAH_NOTIFICATIONS_OPEN_DIALOG_WINDOW}
     click  ${CVAH_NOTIFICATIONS_DIALOG_BUTTON_NAME_ALL}
-    ${notifications_popup} =  Set Variable  xpath=//cvah-generic-dialog
+    ${notifications_popup} =  Set Variable  xpath=//cvah-notifications-dialog
     Wait Until Element Contains  ${notifications_popup}  ${notification_msg}  ${timeout}
     ${previous_kw} =  Register Keyword To Run On Failure  None
     FOR  ${i}  IN RANGE  9999999
@@ -199,6 +168,10 @@ Navigate To ${page}
         click  ${locNodeMgmtPageNavIcon}
         lookFor  Kit Setup
         Location Should Be  ${NodeManagement_url}
+    ELSE IF  "${page}" == "MIP Management"
+        click  ${locMipMgmtPageNavIcon}
+        lookFor  MIP Management
+        Location Should Be  ${MipManagement_url}
     ELSE IF  "${page}" == "Catalog"
         click  ${locCatalogPageNavIcon}
         lookFor  PMO Supported Applications
@@ -249,7 +222,7 @@ Check For Snack Bar Container
     ...              snack bar element is not present.
     ${previous_kw} =  Register Keyword To Run On Failure  None
     ${snack_bar_visible} =  Run Keyword And Return Status
-    ...                     Page Should Contain Element  ${locSnackBarContainerBtn}
+    ...                     Wait Until Page Contains Element  ${locSnackBarContainerBtn}  10s
     ...                     message=Snack bar container message not visible.
     IF  ${snack_bar_visible}
         Run Keyword And Continue On Failure  click  ${locSnackBarContainerBtn}
@@ -279,7 +252,7 @@ Add User Link
     type  ${locAddLinkNameInput}  ${name}
     type  ${locAddLinkUrlInput}  ${url}
     type  ${locAddLinkDescInput}  ${description}
-    click  ${APP_MODAL_DIALOG_MAT__BUTTON_CONFIRM}
+    click  ${CVAH_MODAL_DIALOG_MAT__BUTTON_CONFIRM}
     ${loc_link_name} =  Inject  ${CVAH_PORTAL_USER_PORTAL_LINK_NAME}  0  replacement_pattern=*
     lookForElement  ${loc_link_name}
     Element Should Contain  ${loc_link_name}  ${name}
@@ -316,17 +289,6 @@ Verify Nodes Are Ready
             Element Text Should Be  xpath=//app-health-dashboard-node-table//tbody/tr[${row}]/td[3]/span  check_circle
         END
     END
-
-Validate API Documentation
-    [Documentation]  Checks to make sure API Docs page loads successfully and all sections are present.
-    log  Checking API Documentation page
-    ${api_section_list} =  Create List  agent  alerts  app  catalog  coldlog  common  curator  diagnostics  health  hive  policy
-    ...                                 jobs  kit  kubernetes  notifications  portal  scale  settings  token  tools  version
-    FOR  ${item}  IN  @{api_section_list}
-        Wait Until Page Contains Element  xpath=//span[text()="${item}"]
-    END
-    Page Should Contain Element  xpath=//h4/span[text()="Models"]
-    log  API Documentation page loaded successfully and all sections are present
 
 Get Hive IP
     log  Retrieving Hive Username and Password

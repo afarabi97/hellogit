@@ -18,21 +18,6 @@ import { InjectorModule } from '../utilily-modules/injector.module';
 import { ConfigmapsComponent } from './config-map.component';
 import { ConfigMapModule } from './config-map.module';
 
-class MatDialogMock {
-  // When the component calls this.dialog.open(...) we'll return an object
-  // with an afterClosed method that allows to subscribe to the dialog result observable.
-  open() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-  closeAll() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-}
-
 describe('ConfigmapsComponent', () => {
   let component: ConfigmapsComponent;
   let fixture: ComponentFixture<ConfigmapsComponent>;
@@ -76,7 +61,7 @@ describe('ConfigmapsComponent', () => {
       ],
       providers: [
         Title,
-        { provide: MatDialog, useClass: MatDialogMock }
+        { provide: MatDialog, useFactory: () => jasmine.createSpyObj('MatDialog', ['open', 'closeAll']) }
       ]
     }).compileComponents();
   }));
@@ -285,6 +270,9 @@ describe('ConfigmapsComponent', () => {
       it('should call edit_config_map_data()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
 
         component.edit_config_map_data(config_map_data_keys[0], MockKubernetesConfigClass.items[0]);
@@ -294,6 +282,9 @@ describe('ConfigmapsComponent', () => {
 
       it('should call api_get_associated_pods_() from edit_config_map_data()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
 
@@ -309,6 +300,9 @@ describe('ConfigmapsComponent', () => {
 
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.view_config_map_data(config_map_data_keys[0], MockKubernetesConfigClass.items[0]);
 
         expect(component.view_config_map_data).toHaveBeenCalled();
@@ -319,6 +313,9 @@ describe('ConfigmapsComponent', () => {
 
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
+
         component.view_config_map_data(config_map_data_keys[0], MockKubernetesConfigClass.items[0]);
 
         expect(component['open_text_editor_']).toHaveBeenCalled();
@@ -328,6 +325,9 @@ describe('ConfigmapsComponent', () => {
     describe('create_config_map_data()', () => {
       it('should call create_config_map_data()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.create_config_map_data(MockKubernetesConfigClass.items[0]);
 
@@ -350,6 +350,9 @@ describe('ConfigmapsComponent', () => {
         reset();
 
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.delete_config_map_data(config_map_data_keys[0], MockKubernetesConfigClass.items[0]);
 
@@ -376,6 +379,9 @@ describe('ConfigmapsComponent', () => {
 
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
+
         component['open_text_editor_'](config_map_data_keys[0], MockKubernetesConfigClass.items[0], 'Fake Message', []);
 
         expect(component['open_text_editor_']).toHaveBeenCalled();
@@ -384,6 +390,9 @@ describe('ConfigmapsComponent', () => {
       it('should call open_text_editor_() and used for code coverage ternary operator language yml', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
+
         component['open_text_editor_']('test_file.yml', MockKubernetesConfigClass.items[0], 'Fake Message');
 
         expect(component['open_text_editor_']).toHaveBeenCalled();
@@ -391,6 +400,9 @@ describe('ConfigmapsComponent', () => {
 
       it('should call open_text_editor_() and used for code coverage ternary operator language yaml', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         component['open_text_editor_']('test_file.yaml', MockKubernetesConfigClass.items[0], 'Fake Message');
 
@@ -401,6 +413,9 @@ describe('ConfigmapsComponent', () => {
         reset();
 
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         component['open_text_editor_'](config_map_data_keys[0], MockKubernetesConfigClass.items[0], 'Fake Message');
 
@@ -414,6 +429,9 @@ describe('ConfigmapsComponent', () => {
 
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
+
         component['open_text_editor_'](config_map_data_keys[0], MockKubernetesConfigClass.items[0], 'Fake Message');
 
         expect(component.controller_maintainer).toBeTrue();
@@ -426,6 +444,9 @@ describe('ConfigmapsComponent', () => {
 
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
+
         component['open_text_editor_'](config_map_data_keys[0], MockKubernetesConfigClass.items[0], 'Fake Message');
 
         expect(component.controller_maintainer).toBeFalse();
@@ -436,6 +457,9 @@ describe('ConfigmapsComponent', () => {
 
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
+
         component['open_text_editor_'](config_map_data_keys[0], MockKubernetesConfigClass.items[0], 'Fake Message');
 
         expect(component['open_text_editor_']).toHaveBeenCalled();
@@ -443,6 +467,9 @@ describe('ConfigmapsComponent', () => {
 
       it('should call open_text_editor_() and set a text value = empty string', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         component['open_text_editor_']('test_file.yaml', MockKubernetesConfigClass.items[0], 'Fake Message');
 
@@ -681,6 +708,9 @@ describe('ConfigmapsComponent', () => {
       it('should call api_get_associated_pods_()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
+
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
 
         component['api_get_associated_pods_'](MockKubernetesConfigClass.items[0].data[config_map_data_keys[0]], config_map_data_keys[0], MockKubernetesConfigClass.items[0]);
@@ -690,6 +720,9 @@ describe('ConfigmapsComponent', () => {
 
       it('should call config_map_service_.get_associated_pods() and handle error', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
 
@@ -701,6 +734,9 @@ describe('ConfigmapsComponent', () => {
       it('should call api_get_associated_pods_() and handle response and call open_text_editor_()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
+
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
 
         component['api_get_associated_pods_'](MockKubernetesConfigClass.items[0].data[config_map_data_keys[0]], config_map_data_keys[0], MockKubernetesConfigClass.items[0]);
@@ -710,6 +746,9 @@ describe('ConfigmapsComponent', () => {
 
       it('should call api_get_associated_pods_() and handle response and call api_edit_config_map_()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         const config_map_data_keys: string[] = Object.keys(MockKubernetesConfigClass.items[0].data);
 

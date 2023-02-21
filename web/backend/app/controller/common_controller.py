@@ -101,9 +101,9 @@ class UnusedIPAddresses(Resource):
             ]
             return available_ip_addresses
         except ipaddress.AddressValueError as e:
-            return {"message": "Invalid IP Address Error"}, 500
+            return {"error_message": "Invalid IP Address Error"}, 500
         except ipaddress.NetmaskValueError as e:
-            return {"message": "Invalid Netmask Error"}, 500
+            return {"error_message": "Invalid Netmask Error"}, 500
 
 
 @COMMON_NS.route("/used-ip-addrs/<ip_or_network_id>/<netmask>")

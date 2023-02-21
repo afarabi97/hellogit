@@ -4,6 +4,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { GlobalComponentsModule } from '../global-components/global-components.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { AgentBuilderChooserComponent } from './agent-builder-chooser.component';
 import { AgentDetailsDialogComponent } from './components/agent-details-dialog/agent-details-dialog.component';
@@ -19,7 +20,8 @@ import { EndgameService } from './services/endgame.service';
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    GlobalComponentsModule
   ],
   declarations: [
     AgentBuilderChooserComponent,

@@ -20,14 +20,6 @@ import {
 import { NGXMonacoTextEditorComponent } from './ngx-monaco-text-editor.component';
 import { NGXMonacoTextEditorModule } from './ngx-monaco-text-editor.module';
 
-class MatDialogMock {
-  close() {
-    return {
-      afterClosed: () => of ()
-    };
-  }
-}
-
 describe('NGXMonacoTextEditorComponent', () => {
   let component: NGXMonacoTextEditorComponent;
   let fixture: ComponentFixture<NGXMonacoTextEditorComponent>;
@@ -53,7 +45,7 @@ describe('NGXMonacoTextEditorComponent', () => {
       ],
       providers: [
         ConfirmActionPopup,
-        { provide: MatDialogRef, useClass: MatDialogMock },
+        { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) },
         { provide: MAT_DIALOG_DATA, useValue: TextEditorConfigurationNoConfirmActionsInterface }
       ]
     }).compileComponents();

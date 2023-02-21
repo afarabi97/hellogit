@@ -1,21 +1,21 @@
-<a [class]="getStepClasses(job)" *ngFor="let job of jobs;" (click)="dropDownHandler(job)"
+<a *ngFor="let job of jobs;" [class]="get_classes(job)" (click)="click_job_state(job)"
   [ngStyle]="{'cursor':job.job_id === null ? 'default' : 'pointer' }">
-  <mat-icon class="material-icons-outlined" [inline]="true" mat-list-icon>{{ getStateIcon(job) }}</mat-icon>
-   <div class="top" *ngIf="!toggleDropDown">
-      {{ job.name }}: {{ getCurrentStatus(job) }}
+  <mat-icon class="material-icons-outlined" [inline]="true" mat-list-icon>{{ get_icon(job) }}</mat-icon>
+   <div class="top" *ngIf="!toggle_drop_down">
+      {{ job.name }}: {{ get_status(job) }}
       <em></em>
    </div>
-   <div class="dropDown" *ngIf="toggleDropDown && validateDropDownJob(job)" style="position: absolute;"
-   (click)="openJobConsole(job)">
+   <div class="dropDown" *ngIf="toggle_drop_down && validate_drop_down_job(job)" style="position: absolute;"
+   (click)="open_job_server_std_out_console(job)">
     <div class="icon">
-      <mat-icon class="material-icons-outlined" [inline]="true" mat-list-icon matTooltip=" {{ getCurrentStatus(job) }}">{{ getStateIcon(job) }}</mat-icon>
+      <mat-icon class="material-icons-outlined" [inline]="true" mat-list-icon matTooltip=" {{ get_status(job) }}">{{ get_icon(job) }}</mat-icon>
     </div>
     <div class="text" matTooltip="{{ job.description }}">
       {{ (job.description.length>18)? (job.description | slice:0:18)+'...':(job.description) }}
     </div>
     <div class="retry">
-      <button class="material-icons" [disabled]="getCurrentStatus(job) != 'Error'"
-       matTooltip="{{ displayButtonStatus(job) }}" (click)="retryJob(job)">refresh</button>
+      <button class="material-icons" [disabled]="job.error"
+       matTooltip="{{ retry_button_tooltip(job) }}" (click)="retry(job)">retry</button>
     </div>
   </div>
 </a>

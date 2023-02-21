@@ -1,71 +1,76 @@
 <h1 mat-dialog-title>Add MIP Dialog</h1>
-<div mat-dialog-content [formGroup]="nodeForm"
-     fxLayout="column" fxLayoutAlign="start stretch"
+<div mat-dialog-content
+     *ngIf="node_form_group"
+     [formGroup]="node_form_group"
+     fxLayout="column"
+     fxLayoutAlign="start stretch"
      style="overflow: unset;">
     <!-- Hostname -->
     <mat-form-field>
       <mat-label>Hostname</mat-label>
       <input matInput
             placeholder="Enter a node hostname without the domain" formControlName="hostname"
-            matTooltip="{{ getTooltip('hostname') }}"/>
-      <mat-icon matSuffix *ngIf="nodeForm.get('hostname')?.valid &&
-                                 nodeForm.get('hostname')?.touched"
+            matTooltip="{{ get_tooltip('hostname') }}"/>
+      <mat-icon matSuffix *ngIf="node_form_group.get('hostname')?.valid &&
+                                 node_form_group.get('hostname')?.touched"
                 color="primary">check_circle</mat-icon>
-      <mat-icon matSuffix *ngIf="nodeForm.get('hostname')?.invalid &&
-                                 nodeForm.get('hostname')?.touched"
+      <mat-icon matSuffix *ngIf="node_form_group.get('hostname')?.invalid &&
+                                 node_form_group.get('hostname')?.touched"
                 color="warn">error</mat-icon>
-      <mat-error>{{ getErrorMessage(nodeForm.get("hostname")) }}</mat-error>
+      <mat-error>{{ get_error_message(node_form_group.get("hostname")) }}</mat-error>
     </mat-form-field>
     <br />
     <!-- IP Address-->
-    <unused-ipaddress-autocomplete-ctrl
-      [formControlInput]="nodeForm.get('ip_address')"
-      matTooltip="{{ getTooltip('ip_address') }}"
-      [options]="availableIPs"
-      inputPlaceHolder='Enter your node IP address here'
-      [matError]="getErrorMessage(nodeForm.get('ip_address'))">
-    </unused-ipaddress-autocomplete-ctrl>
+    <cvah-unused-ipaddress-autocomplete-ctrl [form_control]="node_form_group.get('ip_address')"
+                                             [options]="available_ips"
+                                             [label]="'Enter your node IP address here'"
+                                             [mat_tooltip]="get_tooltip('ip_address')"
+                                             [mat_error]="get_error_message(node_form_group.get('ip_address'))">
+    </cvah-unused-ipaddress-autocomplete-ctrl>
 
     <!-- Deployment Type -->
     <div style="margin-top: 10px;">
       <label id="deployment-radio-group-label">Deployment Type</label>
       <mat-radio-group class="radio-group" aria-labelledby="deployment-radio-group-label"
-        (change)="onDeploymentTypeChange($event)"
+        (change)="deployment_type_change($event)"
         formControlName="deployment_type"
         fxLayout="column" fxLayoutAlign="space-between none" >
-        <mat-radio-button class="radio-button" *ngFor="let opt of deploymentOptions" [value]="opt.value">
-          {{ opt.text }}
+        <mat-radio-button class="radio-button" *ngFor="let opt of deployment_options" [value]="opt.value">
+          {{ opt.name }}
         </mat-radio-button>
       </mat-radio-group>
     </div>
 
-    <virtual-node-form #virtualNodeForm [isVisible]="isVirtualMachineDeployment()" [nodeForm]="nodeForm"></virtual-node-form>
+    <cvah-virtual-node-form #virtualNodeForm
+                            [node_form_group]="node_form_group"
+                            [is_visible]="is_virtual_deployment()">
+    </cvah-virtual-node-form>
 
-    <ng-container *ngIf="isBaremetalDeployment()">
+    <ng-container *ngIf="is_baremetal_deployment()">
       <!-- MAC Address -->
       <mat-form-field>
         <mat-label>MAC Address</mat-label>
         <input matInput placeholder="Enter a mac address" formControlName="mac_address"
-              matTooltip="{{ getTooltip('mac_address') }}"/>
-        <mat-icon matSuffix *ngIf="nodeForm.get('mac_address')?.valid &&
-                                   nodeForm.get('mac_address')?.touched"
+              matTooltip="{{ get_tooltip('mac_address') }}"/>
+        <mat-icon matSuffix *ngIf="node_form_group.get('mac_address')?.valid &&
+                                   node_form_group.get('mac_address')?.touched"
                   color="primary">check_circle</mat-icon>
-        <mat-icon matSuffix *ngIf="nodeForm.get('mac_address')?.invalid &&
-                                   nodeForm.get('mac_address')?.touched"
+        <mat-icon matSuffix *ngIf="node_form_group.get('mac_address')?.invalid &&
+                                   node_form_group.get('mac_address')?.touched"
                   color="warn">error</mat-icon>
-        <mat-error>{{ getErrorMessage(nodeForm.get("mac_address")) }}</mat-error>
+        <mat-error>{{ get_error_message(node_form_group.get("mac_address")) }}</mat-error>
       </mat-form-field>
     </ng-container>
 
     <div mat-dialog-actions>
       <button mat-raised-button
-              color="warn" (click)="onNoClick()">Cancel</button>
+              color="warn" (click)="cancel()">Cancel</button>
       <button mat-raised-button cdkFocusInitial
-              color="primary" [disabled]="!nodeForm.valid" (click)="onSubmit()">Add</button>
+              color="primary" [disabled]="!node_form_group.valid" (click)="add()">Add</button>
       <mat-checkbox
           disableRipple
           style="margin-top: 0; vertical-align: middle; margin-left: 10px"
-          (change)="checkDuplicate($event)" matTooltip="{{ getTooltip('duplicate_node') }}">
+          (change)="duplicate_node_change($event)" matTooltip="{{ get_tooltip('duplicate_node') }}">
           Duplicate Node
       </mat-checkbox>
     </div>

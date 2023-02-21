@@ -4,36 +4,13 @@ import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
-import { of, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 
 import { MockErrorMessageClass, MockHostInfoClass } from '../../../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { PCAPFormModule } from '../../pcap-form.module';
 import { ReplayPcapDialogComponent } from './replay-pcap-dialog.component';
-
-class MatDialogMock {
-  // When the component calls this.dialog.open(...) we'll return an object
-  // with an afterClosed method that allows to subscribe to the dialog result observable.
-  open() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-  closeAll() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-}
-
-class MatDialogRefMock {
-  close() {
-    return {
-      afterClosed: () => of ()
-    };
-  }
-}
 
 describe('ReplayPcapDialogComponent', () => {
   let component: ReplayPcapDialogComponent;
@@ -92,8 +69,8 @@ describe('ReplayPcapDialogComponent', () => {
         TestingModule
       ],
       providers: [
-        { provide: MatDialog, useClass: MatDialogMock },
-        { provide: MatDialogRef, useClass: MatDialogRefMock },
+        { provide: MatDialog, useFactory: () => jasmine.createSpyObj('MatDialog', ['open', 'closeAll']) },
+        { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) },
         { provide: MAT_DIALOG_DATA, useValue: 'test pcap name' }
       ]
     }).compileComponents();

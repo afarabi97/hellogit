@@ -188,7 +188,7 @@ export class RuleSetAddEditComponent implements OnInit {
     });
 
     /* istanbul ignore else */
-    if (is_edit){
+    if (is_edit) {
       rule_set_form_group.get('appType').disable();
       const sensorHostnameValues = rule_set.sensors.map((sensor: HostInfoClass) => sensor.hostname);
       rule_set_form_group.get('sensors').setValue(sensorHostnameValues);

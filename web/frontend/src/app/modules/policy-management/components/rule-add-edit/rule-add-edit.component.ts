@@ -6,14 +6,22 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import * as FileSaver from 'file-saver';
 import { Subject } from 'rxjs';
 
-import { ErrorMessageClass, ObjectUtilitiesClass, RuleClass, RuleSetClass, SuccessMessageClass } from '../../../../classes';
-import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
+import {
+  DialogFormControlClass,
+  DialogFormControlConfigClass,
+  ErrorMessageClass,
+  ObjectUtilitiesClass,
+  RuleClass,
+  RuleSetClass,
+  SuccessMessageClass
+} from '../../../../classes';
 import {
   CANCEL_DIALOG_OPTION,
   CONFIRM_DIALOG_OPTION,
   DIALOG_WIDTH_50PERCENT,
   MAT_SNACKBAR_CONFIGURATION_60000_DUR
 } from '../../../../constants/cvah.constants';
+import { DialogControlTypesEnum } from '../../../../enums/dialog-control-types.enum';
 import { get_form_control_value_from_form_group } from '../../../../functions/cvah.functions';
 import {
   BackingObjectInterface,
@@ -21,15 +29,11 @@ import {
   RuleInterface,
   RulePCAPTestInterface
 } from '../../../../interfaces';
-import {
-  DialogControlTypes,
-  DialogFormControl,
-  DialogFormControlConfigClass
-} from '../../../../modal-dialog-mat/modal-dialog-mat-form-types';
-import { ModalDialogMatComponent } from '../../../../modal-dialog-mat/modal-dialog-mat.component';
 import { GlobalPCAPService } from '../../../../services/global-pcap.service';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { RulesService } from '../../../../services/rules.service';
+import { ConfirmDialogComponent } from '../../../global-components/components/confirm-dialog/confirm-dialog.component';
+import { ModalDialogMatComponent } from '../../../global-components/components/modal-dialog-mat/modal-dialog-mat.component';
 import { EDIT } from '../../constants/policy-management.constant';
 import { DialogDataInterface } from '../../interfaces';
 
@@ -117,9 +121,9 @@ export class RuleAddEditComponent implements OnInit {
     const bypass_validation: DialogFormControlConfigClass = new DialogFormControlConfigClass();
     bypass_validation.label = 'Bypass Validation';
     bypass_validation.formState = false;
-    bypass_validation.controlType = DialogControlTypes.checkbox;
+    bypass_validation.controlType = DialogControlTypesEnum.checkbox;
     const bypassForm = this.form_builder_.group({
-      byPassValidation: new DialogFormControl(bypass_validation)
+      byPassValidation: new DialogFormControlClass(bypass_validation)
     });
     const mat_dialog_data: BackingObjectInterface = {
       title: 'Confirm Rule Submission',

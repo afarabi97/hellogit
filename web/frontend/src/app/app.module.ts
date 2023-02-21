@@ -15,14 +15,7 @@ import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, Operat
 import { AppComponent } from './app.component';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
 
-// Common components
-import { PasswordMessageComponent } from './components/password-message/password-message.component';
-import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
-import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.component';
-import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal-dialog-display-mat.component';
-
 // classes
-import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { ConfirmActionPopup } from './classes/ConfirmActionPopup';
 import { UserClass } from './classes';
 
@@ -36,7 +29,6 @@ import { DockerRegistryModule } from './modules/docker-registry/docker-registry.
 import { ElasticsearchColdLogIngestModule } from './modules/elasticsearch-cold-log-ingest/elasticsearch-cold-log-ingest.module';
 import { ElasticsearchIndexManagementModule } from './modules/elasticsearch-index-management/elasticsearch-index-management.module';
 import { ElasticsearchScaleModule } from './modules/elasticsearch-scale/elasticsearch-scale.module';
-import { GenericDialogModule } from './modules/generic-dialog/generic-dialog.module';
 import { HealthDashboardModule } from './modules/health-dashboard/health-dashboard.module';
 import { MipMngModule } from './modules/mip-mng/mip-mng.module';
 import { NodeMngModule } from './modules/node-mng/node-mng.module';
@@ -60,11 +52,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
 @NgModule({
   declarations: [
     AppComponent,
-    TopNavbarComponent,
-    ModalDialogMatComponent,
-    ModalDialogDisplayMatComponent,
-    ConfirmDialogComponent,
-    PasswordMessageComponent
+    TopNavbarComponent
   ],
   imports: [
     BrowserModule,
@@ -83,7 +71,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ElasticsearchColdLogIngestModule,
     ElasticsearchIndexManagementModule,
     ElasticsearchScaleModule,
-    GenericDialogModule,
     HealthDashboardModule,
     MipMngModule,
     NodeMngModule,
@@ -101,7 +88,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     PipesModule
   ],
   providers: [
-    SnackbarWrapper,
     ConfirmActionPopup,
     CookieService,
     AppLoadService,
@@ -114,11 +100,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
   ],
   bootstrap: [
     AppComponent
-  ],
-  entryComponents: [
-    ConfirmDialogComponent,
-    ModalDialogMatComponent,
-    ModalDialogDisplayMatComponent
   ]
 })
 export class AppModule { }

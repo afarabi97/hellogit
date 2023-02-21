@@ -53,7 +53,7 @@ export class SortingService {
    *
    * @param {ChartClass} a
    * @param {ChartClass} b
-   * @return {*}  {*}
+   * @return {*}
    * @memberof SortingService
    */
   chart_application_alphanum(a: ChartClass, b: ChartClass): any {

@@ -4,8 +4,8 @@ import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { GenericJobAndKeyClass } from '../classes';
-import { EntityConfig, GenericJobAndKeyInterface, GlobalJobServiceInterface } from '../interfaces';
+import { BackgroundJobClass, GenericJobAndKeyClass } from '../classes';
+import { BackgroundJobInterface, EntityConfig, GenericJobAndKeyInterface, GlobalJobServiceInterface } from '../interfaces';
 import { ApiService } from './abstract/api.service';
 
 const ENTITY_CONFIG: EntityConfig = { entityPart: '', type: 'GlobalJobService' };
@@ -30,6 +30,21 @@ export class GlobalJobService extends ApiService<any> implements GlobalJobServic
    */
   constructor() {
     super(ENTITY_CONFIG);
+  }
+
+  /**
+   * REST call to GET job
+   *
+   * @param {string} job_id
+   * @return {Observable<BackgroundJobClass>}
+   * @memberof GlobalJobService
+   */
+  job_get(job_id: string): Observable<BackgroundJobClass> {
+    const url: string = `${environment.JOB_SERVICE_BASE}${job_id}`;
+
+    return this.httpClient_.get<BackgroundJobInterface>(url)
+      .pipe(map((response: BackgroundJobInterface) => new BackgroundJobClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('job get', error)));
   }
 
   /**

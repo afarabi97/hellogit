@@ -1,7 +1,10 @@
 *** Variables ***
 # Templated variables
 # (default: '~' in fields to replace)
-${tmplLocNodeMgmtProgressBar}                       xpath=//tr[td[a[contains(text(),'~')]]]/td/app-node-state-progress-bar/a[3]/mat-icon[text()="check_circle"]
+${tmplLocNodeProvProgressBar}                       xpath=//tr[td[a[contains(text(),'~')]]]/td/cvah-node-state-progress-bar/a[2]/mat-icon[text()="check_circle"]
+${tmplLocNodeProvError}                             xpath=//tr[td[a[contains(text(),'~')]]]/td/cvah-node-state-progress-bar/a[2]/mat-icon[text()="cancel"]
+${tmplLocNodeDeployProgressBar}                     xpath=//tr[td[a[contains(text(),'~')]]]/td/cvah-node-state-progress-bar/a[3]/mat-icon[text()="check_circle"]
+${tmplLocNodeDeployError}                           xpath=//tr[td[a[contains(text(),'~')]]]/td/cvah-node-state-progress-bar/a[3]/mat-icon[text()="cancel"]
 
 # This is a special templated list variable
 ${tmplListLocRobotTestCleanupDeleteBtn}             xpath=//mat-card[2]//tr[td[a[contains(text(),'~')]]]//following-sibling::td[5]//button[@mattooltip='Delete Node']
@@ -9,18 +12,21 @@ ${tmplListLocRobotTestCleanupDeleteBtn}             xpath=//mat-card[2]//tr[td[a
 # Element Locators
 # Control Plane
 ${locSetupCPButton}                                 xpath=//button[./span[text()="Setup Control Plane"]]
-${locCPDeployState}                                 xpath=//app-node-mng//mat-card[1]//app-node-state-progress-bar/a[3]/mat-icon
+${locCPDeployState}                                 xpath=//app-node-mng//mat-card[1]//cvah-node-state-progress-bar/a[3]/mat-icon
 
+${locDeployKitButton}                               xpath=//button[./span[text()="Deploy Kit"]]
+
+# Add Node/MIP Dialog Locators
 ${locNodeMgmtAddNodeBtn}                            xpath=//button[span[text()='Add Node']]
-${locNodeHostnames}                                 xpath=//mat-card[2]/mat-card-content/table/tbody/tr/td[1]/a
+${locNodeMgmtAddMipBtn}                             xpath=//button[span[text()='Add MIP']]
+${locNodeHostnames}                                 xpath=//mat-card-content/table/tbody/tr/td/a
 ${locNodeMgmtHostnameInput}                         xpath=//input[@formcontrolname="hostname"]
-${locNodeMgmtAddNodeDialogIpAddressInput}           xpath=//unused-ipaddress-autocomplete-ctrl//mat-select
+${locNodeMgmtAddNodeDialogIpAddressInput}           xpath=//cvah-unused-ipaddress-autocomplete-ctrl//mat-select
 ${locNodeMgmtAddNodeDialogIpAddressDropdownOpt1}    xpath=//mat-option[position()=1]/span
-${locNodeMgmtAddNodeDialogServerRadioBtn}           xpath=//mat-radio-button[@value='Server']
-${locNodeMgmtAddNodeDialogSensorRadioBtn}           xpath=//mat-radio-button[@value='Sensor']
-${locNodeMgmtAddNodeDialogServiceRadioBtn}          xpath=//mat-radio-button[@value='Service']
+${tmplLocNodeMgmtAddNodeDialogRadioBtn}             xpath=//mat-radio-button[@value='~']
 ${locNodeMgmtAddNodeDialogVMRadioBtn}               xpath=//div[@class='mat-radio-container' and input[@value='Virtual']]
-${locNodeMgmtAddNodeDialogSubmitBtn}                xpath=//*[contains(@id, "mat-dialog-")]/add-node-dialog/div/div[2]/button[2]
+${locNodeMgmtAddNodeDialogSubmitBtn}                xpath=//add-node-dialog//button/span[text()="Add"]
+${locNodeMgmtAddMipDialogSubmitBtn}                 xpath=//cvah-add-mip-dialog//button/span[text()="Add"]
 
 # Cleanup Locators
 ${locNodeMgmtAddNodeDoubleConfirmDeleteBtn}         xpath=//button[@id='cvah-confirm-dialog-button-options2-not-double-confirm']/span

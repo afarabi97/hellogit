@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { of } from 'rxjs';
 
 import { MockRuleSetClass } from '../../../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
@@ -36,14 +35,6 @@ const create_mock_file_list = (files: MockFile[]) => {
 
   return file_list;
 };
-
-class MatDialogMock {
-  close() {
-    return {
-      afterClosed: () => of ()
-    };
-  }
-}
 
 const MOCK_DIALOG_DATA_RULE_SET_DEFINED: DialogDataInterface = {
   rule_set: MockRuleSetClass,
@@ -88,7 +79,7 @@ describe('RulesUploadComponent', () => {
         TestingModule
       ],
       providers: [
-        { provide: MatDialogRef, useClass: MatDialogMock },
+        { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) },
         { provide: MAT_DIALOG_DATA, useValue: MOCK_DIALOG_DATA_RULE_SET_DEFINED }
       ]
     }).compileComponents();

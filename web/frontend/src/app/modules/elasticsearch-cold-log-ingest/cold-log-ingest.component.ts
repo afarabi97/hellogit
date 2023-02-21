@@ -6,21 +6,24 @@ import { MatSelectChange } from '@angular/material/select';
 import { Title } from '@angular/platform-browser';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { ErrorMessageClass, GenericJobAndKeyClass, ObjectUtilitiesClass, StatusClass } from '../../classes';
+import {
+  DialogFormControlClass,
+  DialogFormControlConfigClass,
+  ErrorMessageClass,
+  GenericJobAndKeyClass,
+  ObjectUtilitiesClass,
+  StatusClass
+} from '../../classes';
 import {
   DIALOG_WIDTH_800PX,
   MAT_SNACKBAR_CONFIGURATION_60000_DUR,
   SUBMIT_DIALOG_OPTION
 } from '../../constants/cvah.constants';
+import { DialogControlTypesEnum } from '../../enums/dialog-control-types.enum';
 import { BackingObjectInterface } from '../../interfaces';
-import {
-  DialogControlTypes,
-  DialogFormControl,
-  DialogFormControlConfigClass
-} from '../../modal-dialog-mat/modal-dialog-mat-form-types';
-import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
 import { CatalogService } from '../../services/catalog.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
+import { ModalDialogMatComponent } from '../global-components/components/modal-dialog-mat/modal-dialog-mat.component';
 import { FileSetClass } from './classes/file-set.class';
 import { FilebeatModuleClass } from './classes/filebeat-module.class';
 import { WinlogbeatConfigurationClass } from './classes/winlogbeat-configuration.class';
@@ -222,7 +225,7 @@ export class ColdLogIngestComponent implements OnInit {
     password_form_control_config.validatorOrOpts = [Validators.required];
     password_form_control_config.asyncValidator = undefined;
     password_form_control_config.tooltip = undefined;
-    password_form_control_config.controlType = DialogControlTypes.password;
+    password_form_control_config.controlType = DialogControlTypesEnum.password;
     const winrm_port_form_control_config: DialogFormControlConfigClass = new DialogFormControlConfigClass();
     winrm_port_form_control_config.label = 'WinRM Port';
     winrm_port_form_control_config.formState = ObjectUtilitiesClass.notUndefNull(winlogbeat_configuration.winrm_port) &&
@@ -237,7 +240,7 @@ export class ColdLogIngestComponent implements OnInit {
     winrm_scheme_form_control_config.validatorOrOpts = [Validators.required];
     winrm_scheme_form_control_config.asyncValidator = undefined;
     winrm_scheme_form_control_config.tooltip = undefined;
-    winrm_scheme_form_control_config.controlType = DialogControlTypes.dropdown;
+    winrm_scheme_form_control_config.controlType = DialogControlTypesEnum.dropdown;
     winrm_scheme_form_control_config.options = ['http', 'https'];
     const winrm_transport_form_control_config: DialogFormControlConfigClass = new DialogFormControlConfigClass();
     winrm_transport_form_control_config.label = 'WinRM Transport';
@@ -247,15 +250,15 @@ export class ColdLogIngestComponent implements OnInit {
     winrm_transport_form_control_config.validatorOrOpts = [Validators.required];
     winrm_transport_form_control_config.asyncValidator = undefined;
     winrm_transport_form_control_config.tooltip = undefined;
-    winrm_transport_form_control_config.controlType = DialogControlTypes.dropdown;
+    winrm_transport_form_control_config.controlType = DialogControlTypesEnum.dropdown;
     winrm_transport_form_control_config.options = ['ntlm', 'basic'];
     const winlogBeatSetupForm = this.form_builder_.group({
-      windows_host: new DialogFormControl(windows_host_form_control_config),
-      username: new DialogFormControl(username_form_control_config),
-      password: new DialogFormControl(password_form_control_config),
-      winrm_port: new DialogFormControl(winrm_port_form_control_config),
-      winrm_scheme: new DialogFormControl(winrm_scheme_form_control_config),
-      winrm_transport: new DialogFormControl(winrm_transport_form_control_config)
+      windows_host: new DialogFormControlClass(windows_host_form_control_config),
+      username: new DialogFormControlClass(username_form_control_config),
+      password: new DialogFormControlClass(password_form_control_config),
+      winrm_port: new DialogFormControlClass(winrm_port_form_control_config),
+      winrm_scheme: new DialogFormControlClass(winrm_scheme_form_control_config),
+      winrm_transport: new DialogFormControlClass(winrm_transport_form_control_config)
     });
     const backing_object_interface: BackingObjectInterface = {
       title: 'Setup Winlog Beat',

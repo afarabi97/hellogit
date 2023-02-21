@@ -28,11 +28,11 @@ class AssociatedPodsApi(Resource):
 class ConfigMapsApi(Resource):
 
     @KUBERNETES_NS.doc(description="Get all the config map data.")
-    @KUBERNETES_NS.response(200, "List ConfigMapListModel", ConfigMapListModel.DTO)
+    @KUBERNETES_NS.response(200, "List ConfigMapListModel", [ConfigMapListModel.DTO])
     @KUBERNETES_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     def get(self) -> Response:
         try:
-            return get_config_maps(), 200
+            return get_config_maps()
         except Exception as exception:
             logger.exception(exception)
             return {"error_message": str(exception)}, 500

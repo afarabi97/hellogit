@@ -2,16 +2,22 @@ import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { environment } from "../../environments/environment";
 
-import { SnackbarWrapper } from '../classes/snackbar-wrapper';
+import { MatSnackbarConfigurationClass } from '../classes';
+import { MatSnackBarService } from '../services/mat-snackbar.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UnauthorizedInterceptor implements HttpInterceptor {
 
-  constructor(private snackbar: SnackbarWrapper) {}
+  /**
+   * Creates an instance of UnauthorizedInterceptor.
+   *
+   * @param {MatSnackBarService} mat_snackbar_service_
+   * @memberof UnauthorizedInterceptor
+   */
+  constructor(private mat_snackbar_service_: MatSnackBarService) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
@@ -25,9 +31,20 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
         if (err instanceof HttpErrorResponse) {
           const reload = () => window.location.reload();
           if (err.status === 401) {
-            this.snackbar.showSnackBar('Unauthorized Request. Please reload the page to re-login', 10000, 'Reload Page', reload);
+            const message: string = 'Unauthorized Request. Please reload the page to re-login';
+            const mat_snackbar_configuration: MatSnackbarConfigurationClass = {
+              timeInMS: 10000,
+              actionLabel: 'Reload Page',
+              action: reload
+            };
+            this.mat_snackbar_service_.displaySnackBar(message, mat_snackbar_configuration);
           } else if (err.status === 403) {
-            this.snackbar.showSnackBar('Forbidden. You do not have permissions for this request', -1, 'Dismiss');
+            const message: string = 'Forbidden. You do not have permissions for this request';
+            const mat_snackbar_configuration: MatSnackbarConfigurationClass = {
+              timeInMS: -1,
+              actionLabel: 'Dismiss'
+            };
+            this.mat_snackbar_service_.displaySnackBar(message, mat_snackbar_configuration);
           }
         }
       }));

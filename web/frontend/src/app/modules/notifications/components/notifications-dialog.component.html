@@ -1,0 +1,68 @@
+<h1 mat-dialog-title *ngIf="check_title_defined(title)" id="cvah-notifications-dialog-title">{{ title }}</h1>
+<div mat-dialog-content>
+  <div class="messageAll" fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10px">
+    <!--Buttons-->
+    <mat-card fxFlex="30%" class="messageList__card messageList__buttonGroup" fxLayoutGap="10px" fxLayout="column" fxLayoutAlign="start center">
+      <button mat-raised-button *ngFor="let notification_button of notification_button_list"
+              id="{{ 'cvah-notifications-dialog-button-name-' + notification_button.name.toLowerCase() }}"
+              [color]="get_selected_button_color(notification_button)" class="messageList__buttonGroup__button"
+              (click)="button_select(notification_button)">
+        <mat-icon style="font-size: 24px; margin-right: 10px;">{{ notification_button.icon }}</mat-icon>
+        {{ notification_button.name }}
+      </button>
+      <button mat-raised-button id="cvah-notifications-dialog-button-clear-all"
+              fxFlex="0 1 auto" color="warn" class="messageList__buttonGroup__button"
+              (click)="open_delete_all_notification_dialog_window()" [disabled]="!controller_maintainer">
+        Delete All
+      </button>
+    </mat-card>
+    <!--Messages-->
+    <div fxFlex class="messageCenter" fxLayout="column" fxLayoutAlign="center" (scroll)="host_listener_on_scroll($event)">
+      <div class="messageCenter__center__outerCard">
+        <ng-container *ngFor="let notification_button of notification_button_list; let i = index;">
+          <div class="messageCenter__center__outerCard__margin" *ngIf="(selected_notification_button.role === notification_button.role)">
+            <div *ngFor="let notification of notification_button.notifications; let j = index;" fxLayout="row" fxLayoutAlign="start center">
+              <mat-card class="messageCenter__center__outerCard__innerCard" fxLayout="row" fxLayoutGap="10px">
+                <div [ngSwitch]="notification.status" class="message-status-icon">
+                  <mat-icon *ngSwitchCase="'IN_PROGRESS'"
+                            style="font-size: 24px; margin-right: 10px;">sync</mat-icon>
+                  <mat-icon *ngSwitchCase="'ERROR'"
+                            style="font-size: 24px; margin-right: 10px;">warning</mat-icon>
+                  <mat-icon *ngSwitchCase="'COMPLETED'"
+                            style="font-size: 24px; margin-right: 10px;">done</mat-icon>
+                  <mat-icon *ngSwitchCase="'STARTED'"
+                            style="font-size: 24px; margin-right: 10px;">play_circle_outline</mat-icon>
+                  <mat-icon *ngSwitchCase="'DEPLOYED'"
+                            style="font-size: 24px; margin-right: 10px;">assignment_turned_in</mat-icon>
+                  <mat-icon *ngSwitchCase="'CANCELLED'"
+                            style="font-size: 24px; margin-right: 10px;">not_interested</mat-icon>
+                  <mat-icon *ngSwitchCase="'DELETED'"
+                            style="font-size: 24px; margin-right: 10px;">clear</mat-icon>
+                </div>
+                <div class="message-and-delete-wrapper" fxLayout="row" fxLayoutAlign="space-between center">
+                  <div class="messageCenter__center__outerCard__innerCard__left" fxFlex>
+                    <div id="{{ 'cvah-notifications-dialog-' + i + '-' + j + '-statusactionapp' }}">{{ notification.status }}&nbsp;{{ notification.action }}&nbsp;{{ notification.application }}</div>
+                    <div id="{{ 'cvah-notifications-dialog-' + i + '-' + j + '-message' }}">{{ notification.message }}</div>
+                    <div id="{{ 'cvah-notifications-dialog-' + i + '-' + j + '-exception' }}">{{ notification.exception }}</div>
+                    <div id="{{ 'cvah-notifications-dialog-' + i + '-' + j + '-timestamp' }}">{{ notification.timestamp }}</div>
+                    <div id="{{ 'cvah-notifications-dialog-' + i + '-' + j + '-displaytime' }}">{{ notification.displayTime }}</div>
+                  </div>
+                  <div class="messageCenter__center__outerCard__innerCard__right" *ngIf="controller_maintainer" fxFlex="none">
+                    <button mat-icon-button id="{{ 'cvah-notifications-dialog-' + i + '-' + j + '-button-delete' }}"
+                            (click)="delete_notification(notification)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </mat-card>
+            </div>
+            <div *ngIf="notification_button.notifications.length === 0;" class="no-new-messages" fxLayout="column" fxLayoutAlign="center center">
+              <mat-icon style="font-size: 36px;">notifications_none</mat-icon>
+              <div style="margin-top: 25px;">There are no new messages</div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

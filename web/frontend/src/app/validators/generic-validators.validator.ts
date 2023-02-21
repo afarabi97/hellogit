@@ -51,7 +51,7 @@ export function validateFromArray(validatorArray: ValidatorObjectInterface[], op
 }
 
 export function passwordValidator(validatorObject: ValidatorObjectInterface, control: AbstractControl, ops?: any): ValidationErrors | null {
-  if (!control.value){
+  if (!control.value) {
     return null;
   }
 

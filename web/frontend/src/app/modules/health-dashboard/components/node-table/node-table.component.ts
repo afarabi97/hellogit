@@ -3,7 +3,9 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { KitTokenClass } from '../../../../classes';
-import { ModalDialogDisplayMatComponent } from '../../../../modal-dialog-display-mat/modal-dialog-display-mat.component';
+import {
+  ModalDialogDisplayMatComponent
+} from '../../../global-components/components/modal-dialog-display-mat/modal-dialog-display-mat.component';
 import { HealthService } from '../../services/health.service';
 
 @Component({
@@ -59,6 +61,7 @@ export class HealthDashboardNodeTableComponent implements OnChanges {
       this.health_service.describe_node(node_name).subscribe(data => {
         this.dialog.open(ModalDialogDisplayMatComponent, {
           minWidth: '900px',
+          disableClose: true,
           data: { 'title': node_name, 'info': data['stdout'] }
         });
       });

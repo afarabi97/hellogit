@@ -1,13 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { of, throwError } from 'rxjs';
 
 import { MockErrorMessageClass, MockHiveSettingsClass } from '../../../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { MockServerStdoutMatDialogDataInterface } from '../../../../../../static-data/interface-objects';
-import { CANCEL_DIALOG_OPTION, CONFIRM_DIALOG_OPTION } from '../../../../constants/cvah.constants';
 import { HiveSettingsInterface } from '../../../../interfaces';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { SystemSettingsModule } from '../../system-settings.module';
@@ -170,6 +169,28 @@ describe('HiveSettingsComponent', () => {
         component['api_get_hive_settings_']();
 
         expect(component['global_hive_settings_service_'].get_hive_settings).toHaveBeenCalled();
+      });
+
+      it('should call from global_hive_settings_service_.get_hive_settings() and handle response and form admin_api_key with response.admin_api_key and org_admin_api_key with response.org_admin_api_key', () => {
+        reset();
+
+        component['api_get_hive_settings_']();
+
+        expect(component.hive_settings_form_group.get('admin_api_key').value).toEqual(MockHiveSettingsClass.admin_api_key);
+        expect(component.hive_settings_form_group.get('org_admin_api_key').value).toEqual(MockHiveSettingsClass.org_admin_api_key);
+      });
+
+      it('should call from global_hive_settings_service_.get_hive_settings() and handle response and form admin_api_key with empty string and org_admin_api_key with empty string', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['global_hive_settings_service_'], 'get_hive_settings').and.returnValue(of({}));
+
+        component['api_get_hive_settings_']();
+
+        expect(component.hive_settings_form_group.get('admin_api_key').value).toEqual('');
+        expect(component.hive_settings_form_group.get('org_admin_api_key').value).toEqual('');
       });
 
       it('should call from global_hive_settings_service_.get_hive_settings() and handle response and call set_hive_settings_form_group_()', () => {

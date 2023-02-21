@@ -38,7 +38,7 @@ export class PCAPService extends ApiService<any> implements PCAPServiceInterface
    * REST call to POST upload pcap
    *
    * @param {FormData} pcap_form_data
-   * @return {*}  {Observable<SuccessMessageClass>}
+   * @return {Observable<SuccessMessageClass>}
    * @memberof PCAPService
    */
   upload_pcap(pcap_form_data: FormData): Observable<SuccessMessageClass> {
@@ -51,7 +51,7 @@ export class PCAPService extends ApiService<any> implements PCAPServiceInterface
    * REST call to POST replay pcap
    *
    * @param {ReplayPCAPInterface} replay_pcap
-   * @return {*}  {Observable<GenericJobAndKeyClass>}
+   * @return {Observable<GenericJobAndKeyClass>}
    * @memberof PCAPService
    */
   replay_pcap(replay_pcap: ReplayPCAPInterface): Observable<GenericJobAndKeyClass> {
@@ -64,7 +64,7 @@ export class PCAPService extends ApiService<any> implements PCAPServiceInterface
    * REST call to DELETE pcap
    *
    * @param {string} pcap_name
-   * @return {*}  {Observable<SuccessMessageClass>}
+   * @return {Observable<SuccessMessageClass>}
    * @memberof PCAPService
    */
   delete_pcap(pcap_name: string): Observable<SuccessMessageClass> {

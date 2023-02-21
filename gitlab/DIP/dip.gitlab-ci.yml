@@ -269,9 +269,6 @@ System Function Testing:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py run-integration-tests
-  needs:
-    - job: robot:rulesets:sync
-      optional: true
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"

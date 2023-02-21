@@ -8,8 +8,14 @@ import { Title } from '@angular/platform-browser';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import * as FileSaver from 'file-saver';
 
-import { ErrorMessageClass, ObjectUtilitiesClass, StatusClass, SuccessMessageClass } from '../../classes';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import {
+  DialogFormControlClass,
+  DialogFormControlConfigClass,
+  ErrorMessageClass,
+  ObjectUtilitiesClass,
+  StatusClass,
+  SuccessMessageClass
+} from '../../classes';
 import {
   CANCEL_DIALOG_OPTION,
   COMMON_VALIDATORS,
@@ -20,17 +26,18 @@ import {
   DIALOG_WIDTH_80VW,
   MAT_SNACKBAR_CONFIGURATION_60000_DUR
 } from '../../constants/cvah.constants';
-import { BackingObjectInterface, ConfirmDialogMatDialogDataInterface, TextEditorConfigurationInterface } from '../../interfaces';
+import { DialogControlTypesEnum } from '../../enums/dialog-control-types.enum';
 import {
-  DialogControlTypes,
-  DialogFormControl,
-  DialogFormControlConfigClass
-} from '../../modal-dialog-mat/modal-dialog-mat-form-types';
-import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
+  BackingObjectInterface,
+  ConfirmDialogMatDialogDataInterface,
+  TextEditorConfigurationInterface
+} from '../../interfaces';
 import { CatalogService } from '../../services/catalog.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
+import { ConfirmDialogComponent } from '../global-components/components/confirm-dialog/confirm-dialog.component';
+import { ModalDialogMatComponent } from '../global-components/components/modal-dialog-mat/modal-dialog-mat.component';
 import { NGXMonacoTextEditorComponent } from '../ngx-monaco-text-editor/ngx-monaco-text-editor.component';
 import {
   AgentInstallerConfigurationClass,
@@ -47,6 +54,7 @@ import { AgentTargetDialogComponent } from './components/agent-target-dialog/age
 import {
   AGENT_BUILDER_CHOOSER_TITLE,
   AGENT_INSTALLER_CONFIGURATION_MAT_TABLE_COLUMNS,
+  CLOSE_CONFIRM_ACTION_CONFIGURATION,
   DOMAIN_PASSWORD_LABEL,
   HOST_MAT_TABLE_COLUMNS,
   INSTALL,
@@ -56,12 +64,11 @@ import {
   LOGSTASH_NOT_DEPLOYED_STATE_MESSAGE,
   REINSTALL,
   REINSTALL_WINDOWS_HOST,
+  SAVE_CONFIRM_ACTION_CONFIGURATION,
   UNINSTALL,
   UNINSTALL_WINDOWS_HOST,
   UNINSTALL_WINDOWS_HOSTS,
-  UNINSTALLS,
-  CLOSE_CONFIRM_ACTION_CONFIGURATION,
-  SAVE_CONFIRM_ACTION_CONFIGURATION
+  UNINSTALLS
 } from './constants/agent-builder-chooser.constant';
 import {
   AgentDetailsDialogDataInterface,
@@ -373,7 +380,7 @@ export class AgentBuilderChooserComponent implements OnInit {
                            sub_config: any): void {
     const is_editable = sub_config['hasEditableConfig'];
     this.agent_builder_service_.get_config_content(agent_installer_configuration.config_name, config_type).subscribe(data => {
-      if (data && data instanceof AppConfigContentClass){
+      if (data && data instanceof AppConfigContentClass) {
         const text_editor_configuration: TextEditorConfigurationInterface = {
           show_options: true,
           is_read_only: !is_editable,
@@ -528,9 +535,9 @@ export class AgentBuilderChooserComponent implements OnInit {
     hostnames_form_control.validatorOrOpts = Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]);
     hostnames_form_control.asyncValidator = undefined;
     hostnames_form_control.tooltip = 'The application will attempt to install agents to the Windows machines specified.';
-    hostnames_form_control.controlType = DialogControlTypes.textarea;
+    hostnames_form_control.controlType = DialogControlTypesEnum.textarea;
     const dialog_form_group: FormGroup = this.form_builder_.group({
-      hostnames: new DialogFormControl(hostnames_form_control)
+      hostnames: new DialogFormControlClass(hostnames_form_control)
     });
     const backing_object: BackingObjectInterface = {
       title: 'Add new Windows hosts',
@@ -706,10 +713,10 @@ export class AgentBuilderChooserComponent implements OnInit {
     passwordFormControlConfig.validatorOrOpts = Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]);
     passwordFormControlConfig.asyncValidator = undefined;
     passwordFormControlConfig.tooltip = undefined;
-    passwordFormControlConfig.controlType = DialogControlTypes.password;
+    passwordFormControlConfig.controlType = DialogControlTypesEnum.password;
     const dialog_form_group: FormGroup = this.form_builder_.group({
-      user_name: new DialogFormControl(userNameFormControlConfig),
-      password: new DialogFormControl(passwordFormControlConfig)
+      user_name: new DialogFormControlClass(userNameFormControlConfig),
+      password: new DialogFormControlClass(passwordFormControlConfig)
     });
     const backing_object: BackingObjectInterface = {
       title: title,

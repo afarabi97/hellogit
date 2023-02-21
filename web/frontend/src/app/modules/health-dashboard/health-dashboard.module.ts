@@ -4,6 +4,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { GlobalComponentsModule } from '../global-components/global-components.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { PipesModule } from '../utilily-modules/pipes.module';
 import { HealthDashboardDatastoresComponent } from './components/datastores/datastores.component';
@@ -12,6 +13,7 @@ import { HealthDashboardNodeTableComponent } from './components/node-table/node-
 import { PodLogModalDialogComponent } from './components/pod-table/components/pod-log-dialog/pod-log-dialog.component';
 import { HealthDashboardPodTableComponent } from './components/pod-table/pod-table.component';
 import { HealthDashboardComponent } from './health-dashboard.component';
+import { HealthDashboardStatusService } from './services/health-dashboard-status.service';
 import { HealthService } from './services/health.service';
 
 @NgModule({
@@ -22,7 +24,8 @@ import { HealthService } from './services/health.service';
     ReactiveFormsModule,
     MaterialModule,
     BrowserAnimationsModule,
-    PipesModule
+    PipesModule,
+    GlobalComponentsModule
   ],
   declarations: [
     HealthDashboardModalDialogComponent,
@@ -33,6 +36,7 @@ import { HealthService } from './services/health.service';
     HealthDashboardDatastoresComponent
   ],
   providers: [
+    HealthDashboardStatusService,
     HealthService
   ],
   entryComponents: [

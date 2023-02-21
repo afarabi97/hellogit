@@ -1,7 +1,7 @@
 import { ValidatorFn, Validators } from '@angular/forms';
-import { ConfirmActionConfigurationInterface } from 'src/app/interfaces';
 
 import { COMMON_VALIDATORS } from '../../../constants/cvah.constants';
+import { ConfirmActionConfigurationInterface } from '../../../interfaces';
 import { validateFromArray } from '../../../validators/generic-validators.validator';
 
 // Used for tab title and dialog titles

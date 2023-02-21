@@ -5,8 +5,6 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { ErrorMessageClass, SuccessMessageClass } from '../../../../classes';
-import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
-import { PasswordMessageComponent } from '../../../../components/password-message/password-message.component';
 import {
   COMMON_VALIDATORS,
   CONFIRM_DIALOG_OPTION,
@@ -16,6 +14,8 @@ import {
 } from '../../../../constants/cvah.constants';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
+import { ConfirmDialogComponent } from '../../../global-components/components/confirm-dialog/confirm-dialog.component';
+import { PasswordMessageComponent } from '../../../global-components/components/password-message/password-message.component';
 import { PASSWORD_CONFIRM_DIALOG } from '../../constants/tools.constant';
 import { KitPasswordInterface } from '../../interfaces/kit-password.interface';
 import { ToolsService } from '../../services/tools.service';

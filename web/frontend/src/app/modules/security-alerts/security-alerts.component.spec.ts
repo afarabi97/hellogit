@@ -32,12 +32,9 @@ import {
   MockUpdateAlertsInterfaceWithArkimeFields
 } from '../../../../static-data/interface-objects';
 import { MockAlertFields } from '../../../../static-data/return-data';
+import { DialogFormControlClass, DialogFormControlConfigClass } from '../../classes';
 import { CANCEL_DIALOG_OPTION, CONFIRM_DIALOG_OPTION, TRUE } from '../../constants/cvah.constants';
-import {
-  DialogControlTypes,
-  DialogFormControl,
-  DialogFormControlConfigClass
-} from '../../modal-dialog-mat/modal-dialog-mat-form-types';
+import { DialogControlTypesEnum } from '../../enums/dialog-control-types.enum';
 import { TestingModule } from '../testing-modules/testing.module';
 import { InjectorModule } from '../utilily-modules/injector.module';
 import {
@@ -74,29 +71,6 @@ import {
 import { AlertFormInterface } from './interfaces';
 import { SecurityAlertsComponent } from './security-alerts.component';
 import { SecurityAlertsModule } from './security-alerts.module';
-
-class MatDialogRefMock {
-  close() {
-    return {
-      afterClosed: () => of ()
-    };
-  }
-}
-
-class MatDialogMock {
-  // When the component calls this.dialog.open(...) we'll return an object
-  // with an afterClosed method that allows to subscribe to the dialog result observable.
-  open() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-  closeAll() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-}
 
 describe('SecurityAlertsComponent', () => {
   let component: SecurityAlertsComponent;
@@ -195,25 +169,25 @@ describe('SecurityAlertsComponent', () => {
   const event_tags_config: DialogFormControlConfigClass = new DialogFormControlConfigClass();
   event_tags_config.tooltip = EVENT_TAGS_CONFIG_TOOLTIP;
   event_tags_config.label = EVENT_TAGS_CONFIG_LABEL;
-  event_tags_config.controlType = DialogControlTypes.chips;
+  event_tags_config.controlType = DialogControlTypesEnum.chips;
   const event_description_config: DialogFormControlConfigClass = new DialogFormControlConfigClass();
   event_description_config.validatorOrOpts = [];
   event_description_config.tooltip = EVENT_DECRIPTION_CONFIG_TOOLTIP;
   event_description_config.label = EVENT_DECRIPTION_CONFIG_LABEL;
-  event_description_config.controlType = DialogControlTypes.textarea;
+  event_description_config.controlType = DialogControlTypesEnum.textarea;
   event_description_config.formState = `test`;
   const event_severity_config: DialogFormControlConfigClass = new DialogFormControlConfigClass();
   event_severity_config.tooltip = EVENT_SEVERITY_CONFIG_TOOLTIP;
   event_severity_config.label = EVENT_SEVERITY_CONFIG_LABEL;
   event_severity_config.formState = '2';
   event_severity_config.validatorOrOpts = [];
-  event_severity_config.controlType = DialogControlTypes.dropdown;
+  event_severity_config.controlType = DialogControlTypesEnum.dropdown;
   event_severity_config.options = ['1', '2', '3'];
   const escalate_event_form_group: FormGroup = new FormGroup({
-    event_title: new DialogFormControl(event_title_config),
-    event_tags: new DialogFormControl(event_tags_config),
-    event_severity: new DialogFormControl(event_severity_config),
-    event_description: new DialogFormControl(event_description_config)
+    event_title: new DialogFormControlClass(event_title_config),
+    event_tags: new DialogFormControlClass(event_tags_config),
+    event_severity: new DialogFormControlClass(event_severity_config),
+    event_description: new DialogFormControlClass(event_description_config)
   });
   const escalate_event_form_group_return: FormGroup = new FormGroup({
     event_title: new FormControl('title'),
@@ -249,8 +223,8 @@ describe('SecurityAlertsComponent', () => {
         TestingModule
       ],
       providers: [
-        { provide: MatDialogRef, useClass: MatDialogRefMock },
-        { provide: MatDialog, useClass: MatDialogMock },
+        { provide: MatDialog, useFactory: () => jasmine.createSpyObj('MatDialog', ['open', 'closeAll']) },
+        { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) },
         { provide: MAT_DIALOG_DATA, useValue: MockUpdateAlertsClassCaptureLoss }
       ]
     }).compileComponents();
@@ -1121,6 +1095,9 @@ describe('SecurityAlertsComponent', () => {
       it('should call acknowledge_event()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.acknowledge_event(MockUpdateAlertsClassCaptureLoss);
 
         expect(component.acknowledge_event).toHaveBeenCalled();
@@ -1128,6 +1105,9 @@ describe('SecurityAlertsComponent', () => {
 
       it('should call open_confirm_dialog_() from acknowledge_event()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.acknowledge_event(MockUpdateAlertsClassCaptureLoss);
 
@@ -1139,6 +1119,9 @@ describe('SecurityAlertsComponent', () => {
       it('should call unacknowledged_event()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.unacknowledged_event(MockUpdateAlertsClassCaptureLoss);
 
         expect(component.unacknowledged_event).toHaveBeenCalled();
@@ -1146,6 +1129,9 @@ describe('SecurityAlertsComponent', () => {
 
       it('should call open_confirm_dialog_() from unacknowledged_event()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.unacknowledged_event(MockUpdateAlertsClassCaptureLoss);
 
@@ -1157,6 +1143,9 @@ describe('SecurityAlertsComponent', () => {
       it('should call remove_alerts_confirm_dialog()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.remove_alerts_confirm_dialog(MockUpdateAlertsClassCaptureLoss);
 
         expect(component.remove_alerts_confirm_dialog).toHaveBeenCalled();
@@ -1164,6 +1153,9 @@ describe('SecurityAlertsComponent', () => {
 
       it('should call open_confirm_dialog_() from remove_alerts_confirm_dialog()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.remove_alerts_confirm_dialog(MockUpdateAlertsClassCaptureLoss);
 
@@ -1201,6 +1193,9 @@ describe('SecurityAlertsComponent', () => {
       it('should call escalate_alert()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.escalate_alert(MockUpdateAlertsClassCaptureLoss);
 
         expect(component.escalate_alert).toHaveBeenCalled();
@@ -1208,6 +1203,9 @@ describe('SecurityAlertsComponent', () => {
 
       it('should call escalate_alert() and update update_alert[event.escalted] with true', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.escalate_alert(MockUpdateAlertsClassCaptureLoss);
 
@@ -1217,6 +1215,9 @@ describe('SecurityAlertsComponent', () => {
       it('should call escalate_alert() and update update_alert.form with time_form_group', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.escalate_alert(MockUpdateAlertsClassCaptureLoss);
 
         expect(MockUpdateAlertsClassCaptureLoss.form).toEqual(component.time_form_group.getRawValue() as AlertFormInterface);
@@ -1224,6 +1225,9 @@ describe('SecurityAlertsComponent', () => {
 
       it('should call escalate_alert() and update update_alert.links with portal_links_', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.escalate_alert(MockUpdateAlertsClassCaptureLoss);
 
@@ -1233,6 +1237,9 @@ describe('SecurityAlertsComponent', () => {
       it('should call get_kibana_link_() from escalate_alert()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.escalate_alert(MockUpdateAlertsClassCaptureLoss);
 
         expect(component['get_kibana_link_']).toHaveBeenCalled();
@@ -1240,6 +1247,9 @@ describe('SecurityAlertsComponent', () => {
 
       it('should call get_link_() from escalate_alert()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.escalate_alert(MockUpdateAlertsClassCaptureLoss);
 
@@ -1249,6 +1259,9 @@ describe('SecurityAlertsComponent', () => {
       it('should call build_arkime_expression_() from escalate_alert()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.escalate_alert(MockUpdateAlertsClassCaptureLoss);
 
         expect(component['build_arkime_expression_']).toHaveBeenCalled();
@@ -1257,6 +1270,9 @@ describe('SecurityAlertsComponent', () => {
       it('should call get_arkime_link_() from escalate_alert()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.escalate_alert(MockUpdateAlertsClassCaptureLoss);
 
         expect(component['get_arkime_link_']).toHaveBeenCalled();
@@ -1264,6 +1280,9 @@ describe('SecurityAlertsComponent', () => {
 
       it('should call api_fork_join_get_hive_settings_and_get_alert_list_() from escalate_alert()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.escalate_alert(MockUpdateAlertsClassCaptureLoss);
 
@@ -2451,6 +2470,9 @@ describe('SecurityAlertsComponent', () => {
       it('should call api_fork_join_get_hive_settings_and_get_alert_list_()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component['api_fork_join_get_hive_settings_and_get_alert_list_'](MockUpdateAlertsClassCaptureLoss, test_kibana_link, test_arkime_link);
 
         expect(component['api_fork_join_get_hive_settings_and_get_alert_list_']).toHaveBeenCalled();
@@ -2458,6 +2480,9 @@ describe('SecurityAlertsComponent', () => {
 
       it('should call global_hive_settings_service_.get_hive_settings() from api_fork_join_get_hive_settings_and_get_alert_list_()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component['api_fork_join_get_hive_settings_and_get_alert_list_'](MockUpdateAlertsClassCaptureLoss, test_kibana_link, test_arkime_link);
 
@@ -2467,6 +2492,9 @@ describe('SecurityAlertsComponent', () => {
       it('should call alert_service_.get_alert_list() from api_fork_join_get_hive_settings_and_get_alert_list_()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component['api_fork_join_get_hive_settings_and_get_alert_list_'](MockUpdateAlertsClassCaptureLoss, test_kibana_link, test_arkime_link);
 
         expect(component['alert_service_'].get_alert_list).toHaveBeenCalled();
@@ -2474,6 +2502,9 @@ describe('SecurityAlertsComponent', () => {
 
       it('should call global_hive_settings_service_.get_hive_settings() and handle response of not right hive settings', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
@@ -2495,6 +2526,9 @@ describe('SecurityAlertsComponent', () => {
       it('should call alert_service_.get_alert_list() and handle response of undefined', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
         spyOn<any>(component['alert_service_'], 'get_alert_list').and.returnValue(of(undefined));
@@ -2506,6 +2540,9 @@ describe('SecurityAlertsComponent', () => {
 
       it('should call global_hive_settings_service_.get_hive_settings() and alert_service_.get_alert_list() and handle response and call open_escalate_alert_()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         // Change and recall twice so that way all response loops checked
         // Allows respy to change default spy created in spy service
@@ -2525,6 +2562,9 @@ describe('SecurityAlertsComponent', () => {
 
       it('should call alert_service_.get_alert_list() and handle error', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);

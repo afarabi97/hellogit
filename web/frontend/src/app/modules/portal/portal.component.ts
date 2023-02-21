@@ -5,8 +5,13 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { ObjectUtilitiesClass, PortalLinkClass, UserPortalLinkClass } from '../../classes';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import {
+  DialogFormControlClass,
+  DialogFormControlConfigClass,
+  ObjectUtilitiesClass,
+  PortalLinkClass,
+  UserPortalLinkClass
+} from '../../classes';
 import {
   CANCEL_DIALOG_OPTION,
   CONFIRM_DIALOG_OPTION,
@@ -15,12 +20,12 @@ import {
   MAT_SNACKBAR_CONFIGURATION_60000_DUR
 } from '../../constants/cvah.constants';
 import { BackingObjectInterface, ConfirmDialogMatDialogDataInterface, UserPortalLinkInterface } from '../../interfaces';
-import { DialogFormControl, DialogFormControlConfigClass } from '../../modal-dialog-mat/modal-dialog-mat-form-types';
-import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { PortalService } from '../../services/portal.service';
 import { UserService } from '../../services/user.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
+import { ConfirmDialogComponent } from '../global-components/components/confirm-dialog/confirm-dialog.component';
+import { ModalDialogMatComponent } from '../global-components/components/modal-dialog-mat/modal-dialog-mat.component';
 import { PORTAL_TITLE, TARGET_CONFIG_VALIDATORS } from './constants/portal.constant';
 
 /**
@@ -104,9 +109,9 @@ export class PortalComponent implements OnInit {
     descriptionFormControlConfig.formState = '';
     descriptionFormControlConfig.validatorOrOpts = Validators.compose([validateFromArray(TARGET_CONFIG_VALIDATORS.required)]);
     const form_group: FormGroup = this.form_builder_.group({
-      name: new DialogFormControl(nameFormControlConfig),
-      url: new DialogFormControl(urlFormControlConfig),
-      description: new DialogFormControl(descriptionFormControlConfig),
+      name: new DialogFormControlClass(nameFormControlConfig),
+      url: new DialogFormControlClass(urlFormControlConfig),
+      description: new DialogFormControlClass(descriptionFormControlConfig),
     });
     const mat_dialog_data: BackingObjectInterface = {
       title: 'Add Link',
@@ -125,7 +130,7 @@ export class PortalComponent implements OnInit {
       .subscribe(
         (response: FormGroup) => {
           /* istanbul ignore else */
-          if (ObjectUtilitiesClass.notUndefNull(response) && response.valid){
+          if (ObjectUtilitiesClass.notUndefNull(response) && response.valid) {
             this.api_add_user_portal_link_(response.getRawValue() as UserPortalLinkInterface);
           }
         });

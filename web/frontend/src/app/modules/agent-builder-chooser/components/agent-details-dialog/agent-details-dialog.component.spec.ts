@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { of } from 'rxjs';
 
 import {
   MockAgentInstallerConfigurationClass1,
@@ -13,14 +12,6 @@ import { TestingModule } from '../../../testing-modules/testing.module';
 import { AgentBuilderChooserModule } from '../../agent-builder-chooser.module';
 import { AgentDetailsDialogDataInterface } from '../../interfaces';
 import { AgentDetailsDialogComponent } from './agent-details-dialog.component';
-
-class MatDialogRefMock {
-  close() {
-    return {
-      afterClosed: () => of ()
-    };
-  }
-}
 
 describe('AgentDetailsDialogComponent', () => {
   let component: AgentDetailsDialogComponent;
@@ -43,7 +34,7 @@ describe('AgentDetailsDialogComponent', () => {
         TestingModule
       ],
       providers: [
-        { provide: MatDialogRef, useClass: MatDialogRefMock },
+        { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) },
         { provide: MAT_DIALOG_DATA, useValue: MOCK_DIALOG_DATA__AGENT_DETAILS_DIALOG_DATA }
       ]
     }).compileComponents();

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 import { of, throwError } from 'rxjs';
 
@@ -24,14 +24,6 @@ import {
 import { DialogDataInterface } from '../../interfaces';
 import { PolicyManagementModule } from '../../policy-management.module';
 import { RuleSetAddEditComponent } from './rule-set-add-edit.component';
-
-class MatDialogMock {
-  close() {
-    return {
-      afterClosed: () => of ()
-    };
-  }
-}
 
 const MOCK_DIALOG_DATA_ADD_RULE_SET: DialogDataInterface = {
   rule_set: undefined,
@@ -94,7 +86,8 @@ describe('RuleSetAddEditComponent', () => {
       ],
       providers: [
         SortingService,
-        { provide: MatDialogRef, useClass: MatDialogMock },
+        { provide: MatDialog, useFactory: () => jasmine.createSpyObj('MatDialog', ['open', 'closeAll']) },
+        { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) },
         { provide: MAT_DIALOG_DATA, useValue: ADD }
       ]
     }).compileComponents();

@@ -29,29 +29,6 @@ interface MockFile {
   mimeType: string;
 }
 
-class MatDialogMock {
-  // When the component calls this.dialog.open(...) we'll return an object
-  // with an afterClosed method that allows to subscribe to the dialog result observable.
-  open() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-  closeAll() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-}
-
-class MatDialogRefMock {
-  close() {
-    return {
-      afterClosed: () => of ()
-    };
-  }
-}
-
 const MOCK_DIALOG_DATA__ACTION_ADD__RULE_SET_DEFINED__RULE_UNDEFINED: DialogDataInterface = {
   rule_set: MockRuleSetClass,
   rule: undefined,
@@ -180,8 +157,8 @@ describe('RuleAddEditComponent', () => {
         TestingModule
       ],
       providers: [
-        { provide: MatDialog, useClass: MatDialogMock },
-        { provide: MatDialogRef, useClass: MatDialogRefMock },
+        { provide: MatDialog, useFactory: () => jasmine.createSpyObj('MatDialog', ['open', 'closeAll']) },
+        { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) },
         { provide: MAT_DIALOG_DATA, useValue: MOCK_DIALOG_DATA__ACTION_EDIT__RULE_SET_DEFINED__RULE_DEFINED }
       ]
     }).compileComponents();
@@ -343,6 +320,8 @@ describe('RuleAddEditComponent', () => {
       it('should call save()', () => {
         reset();
 
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(rule_form_group) } as MatDialogRef<typeof component>);
+
         component.save();
 
         expect(component.save).toHaveBeenCalled();
@@ -398,6 +377,8 @@ describe('RuleAddEditComponent', () => {
     describe('close()', () => {
       it('should call close()', () => {
         reset();
+
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(CONFIRM_DIALOG_OPTION) } as MatDialogRef<typeof component>);
 
         component.close();
 

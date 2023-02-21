@@ -57,7 +57,7 @@ export abstract class ObjectUtilitiesClass {
    * @static
    * @param {Object} object
    * @param {string} key
-   * @return {*}  {*}
+   * @return {*}
    * @memberof ObjectUtilitiesClass
    */
   static return_object_key_value(object: Object, key: string): any {
@@ -70,7 +70,7 @@ export abstract class ObjectUtilitiesClass {
    * @static
    * @template T
    * @param {T} object_to_copy
-   * @return {*}  {T}
+   * @return {T}
    * @memberof ObjectUtilitiesClass
    */
   static create_deep_copy<T>(object_to_copy: T): T {

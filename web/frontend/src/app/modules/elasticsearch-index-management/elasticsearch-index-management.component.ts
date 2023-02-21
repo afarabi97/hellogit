@@ -5,9 +5,9 @@ import { FormBuilder, FormControl, FormGroup, NgForm, Validators } from '@angula
 import { MatStepper } from '@angular/material/stepper';
 import { Title } from '@angular/platform-browser';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from 'src/app/constants/cvah.constants';
 
 import { ErrorMessageClass, ObjectUtilitiesClass, SuccessMessageClass } from '../../classes';
+import { MAT_SNACKBAR_CONFIGURATION_60000_DUR } from '../../constants/cvah.constants';
 import { MatOptionAltInterface } from '../../interfaces';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import {

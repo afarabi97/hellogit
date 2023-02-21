@@ -25,7 +25,6 @@ import {
   MockFormControlClassTextinputlist,
   MockFormControlClassZeekList,
   MockFormControlValueObject,
-  MockIfaceStateClassArray,
   MockIfaceStateClassENS192,
   MockIfaceStateClassENS224,
   MockNodeClassArray,
@@ -59,21 +58,6 @@ import {
 } from '../../constants/catalog.constants';
 import { CheckboxDependentApp, FormControlDependentApps, ProcessInterface } from '../../interfaces';
 import { CatalogPageComponent } from './catalog-page.component';
-
-class MatDialogMock {
-  // When the component calls this.dialog.open(...) we'll return an object
-  // with an afterClosed method that allows to subscribe to the dialog result observable.
-  open() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-  closeAll() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-}
 
 describe('CatalogPageComponent', () => {
   let component: CatalogPageComponent;
@@ -180,7 +164,7 @@ describe('CatalogPageComponent', () => {
         TestingModule
       ],
       providers: [
-        { provide: MatDialog, useClass: MatDialogMock }
+        { provide: MatDialog, useFactory: () => jasmine.createSpyObj('MatDialog', ['open', 'closeAll']) }
       ]
     }).compileComponents();
   }));
@@ -2078,6 +2062,9 @@ describe('CatalogPageComponent', () => {
       it('should call api_get_chart_statuses_() from catalog_service_.get_chart_info() if chart_info.devDependent is defined', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
         spyOn<any>(component['catalog_service_'], 'get_chart_info').and.returnValue(of(MockChartInfoClassArkime));
@@ -2089,6 +2076,9 @@ describe('CatalogPageComponent', () => {
 
       it('should call api_get_chart_statuses_() from catalog_service_.get_chart_info() if chart_info.devDependent is undefined / null', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component['api_get_chart_info_'](MockChartInfoClassSuricata.id);
 
@@ -2120,6 +2110,9 @@ describe('CatalogPageComponent', () => {
       it('should call api_get_chart_statuses_()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component['api_get_chart_statuses_']();
 
         expect(component['api_get_chart_statuses_']).toHaveBeenCalled();
@@ -2128,6 +2121,9 @@ describe('CatalogPageComponent', () => {
       it('should call catalog_service_.get_chart_statuses() from api_get_chart_statuses_()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component['api_get_chart_statuses_']();
 
         expect(component['catalog_service_'].get_chart_statuses).toHaveBeenCalled();
@@ -2135,6 +2131,9 @@ describe('CatalogPageComponent', () => {
 
       it('should call open_confirm_mat_dialog_() from catalog_service_.get_chart_statuses() if chart_info_dev_dependent && response.length === 0', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
@@ -2148,6 +2147,9 @@ describe('CatalogPageComponent', () => {
       it('should call catalog_service_.get_chart_statuses() and set statuses_ = response', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component['statuses_'] = null;
         component['api_get_chart_statuses_']();
 
@@ -2157,6 +2159,9 @@ describe('CatalogPageComponent', () => {
       it('should call api_get_chart_statuses_() from catalog_service_.get_chart_statuses()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component['api_get_chart_statuses_']();
 
         expect(component['api_get_catalog_nodes_']).toHaveBeenCalled();
@@ -2165,6 +2170,9 @@ describe('CatalogPageComponent', () => {
       it('should call api_get_saved_values_() from catalog_service_.get_chart_statuses()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component['api_get_chart_statuses_']();
 
         expect(component['api_get_saved_values_']).toHaveBeenCalled();
@@ -2172,6 +2180,9 @@ describe('CatalogPageComponent', () => {
 
       it('should call catalog_service_.get_chart_statuses() and handle error', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);

@@ -1,6 +1,7 @@
 import { HttpHeaders } from '@angular/common/http';
 
 import { MatSnackbarConfigurationClass } from '../classes';
+import { MatOptionInterface } from '../interfaces';
 
 // Used for passing button color to button
 export const PRIMARY_BUTTON_COLOR: string = 'primary';
@@ -46,6 +47,10 @@ export const MAT_SNACKBAR_CONFIGURATION_60000_DUR_OK: MatSnackbarConfigurationCl
   timeInMS: 60000,
   actionLabel: MAT_SNACKBAR_ACTION_LABEL_OK
 };
+export const MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS: MatSnackbarConfigurationClass = {
+  timeInMS: 60000,
+  actionLabel: MAT_SNACKBAR_ACTION_LABEL_DISMISS
+};
 
 // Feedback
 export const INVALID_FEEDBACK_INTERFACE: string = 'No interfaces found! Are you sure you have a second eligible interface that is not the management interface?';
@@ -72,12 +77,11 @@ export const KUBE_CIDR_CONSTRAINT: string =
 export const SPACE_NAME_CONSTRAINT: string = '^[a-zA-Z]{1,50}$';
 
 // MISC
-export const KIT_ID: string = "kit_form";
+export const KIT_ID: string = 'kit_form';
 export const PORTAL_ID: string = 'portal_links';
-export const CTRL_SELECTED: string = "A controller interface must first be selected.";
-export const SENSOR_APPS: string[] = ["bro", "suricata", "arkime"];
+export const CTRL_SELECTED: string = 'A controller interface must first be selected.';
+export const SENSOR_APPS: string[] = ['bro', 'suricata', 'arkime'];
 export const GENERAL_KIT_FAILURE_MSG: string = 'Kit failed to generate Kit inventory file for an unknown reason. Please check the logs files located in /var/log/tfplenum for more details.';
-export const NODE_TYPES: string[] = ["Server", "Sensor", "MIP"]; //Added MIP
 export const COMMON_VALIDATORS = {
   required: [
     { error_message: 'Required field', validatorFn: 'required' }
@@ -88,11 +92,11 @@ export const COMMON_VALIDATORS = {
   ],
   root_password: [
     { error_message: 'Required field', validatorFn: 'required' },
-    { error_message: "Root password did not meet the password requirements.", validatorFn: 'password' }
+    { error_message: 'Root password did not meet the password requirements.', validatorFn: 'password' }
   ],
   re_password: [
     { error_message: 'Required field', validatorFn: 'required' },
-    { error_message: "The passwords you entered do not match.  Please retype them carefully.", validatorFn: 'fieldMatch' }
+    { error_message: 'The passwords you entered do not match.  Please retype them carefully.', validatorFn: 'fieldMatch' }
   ],
   is_valid_space_name: [
     { error_message: 'Required field', validatorFn: 'required' },
@@ -117,3 +121,28 @@ export const WEBSOCKET_MESSAGE_MESSAGE_PROVISION_VIRTUAL_MACHINE: string = 'Prov
 // Boolean as String values
 export const TRUE: string = 'true';
 export const FALSE: string = 'false';
+
+// Node Deployment Options
+export const VIRTUAL: string = 'Virtual';
+export const BAREMETAL: string = 'Baremetal';
+export const SERVER: string = 'Server';
+export const SENSOR: string = 'Sensor';
+export const SERVICE: string = 'Service';
+export const MIP: string = 'MIP';
+export const MINIO: string = 'MinIO';
+
+// Node State
+export const ERROR: string = 'Error';
+export const COMPLETE: string = 'Complete';
+export const IN_PROGRESS: string = 'In Progress';
+export const PENDING: string = 'Pending';
+export const UNKNOWN: string = 'Unknown';
+
+export const CREATE: string = 'create';
+export const DEPLOY: string = 'deploy';
+export const CANCEL: string = 'cancel';
+export const DEPLOYMENT_OPTIONS: MatOptionInterface[] = [
+  { name: BAREMETAL, value: BAREMETAL },
+  { name: 'Virtual Machine', value: VIRTUAL }
+];
+export const NODE_TYPES: string[] = [SERVER, SENSOR, MIP]; //Added MIP

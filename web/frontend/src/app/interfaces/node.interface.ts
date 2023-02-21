@@ -28,5 +28,5 @@ export interface NodeInterface {
   virtual_data: number;
   virtual_mem: number;
   virtual_os: number;
-  vpn_status: string;
+  vpn_status: string | null;
 }

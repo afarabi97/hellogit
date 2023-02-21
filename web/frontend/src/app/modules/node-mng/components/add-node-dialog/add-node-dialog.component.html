@@ -54,15 +54,18 @@
     </mat-form-field>
 
     <!-- IP Address-->
-    <unused-ipaddress-autocomplete-ctrl *ngIf="nodeForm.get('node_type')?.touched"
-                                        [formControlInput]="nodeForm.get('ip_address')"
-                                        [options]="availableIPs"
-                                        labelInput='Enter your node IP address here'
-                                        matTooltipInput="{{ getTooltip('ip_address') }}"
-                                        [matError]="getErrorMessage(nodeForm.get('ip_address'))">
-    </unused-ipaddress-autocomplete-ctrl>
+    <cvah-unused-ipaddress-autocomplete-ctrl *ngIf="nodeForm.get('node_type')?.touched"
+                                             [form_control]="nodeForm.get('ip_address')"
+                                             [options]="availableIPs"
+                                             [label]="'Enter your node IP address here'"
+                                             [mat_tooltip]="getTooltip('ip_address')"
+                                             [mat_error]="getErrorMessage(nodeForm.get('ip_address'))">
+    </cvah-unused-ipaddress-autocomplete-ctrl>
 
-    <virtual-node-form #virtualNodeForm [isVisible]="isVirtualMachineDeployment()" [nodeForm]="nodeForm"></virtual-node-form>
+    <cvah-virtual-node-form #virtualNodeForm
+                            [node_form_group]="nodeForm"
+                            [is_visible]="isVirtualMachineDeployment()">
+    </cvah-virtual-node-form>
 
     <ng-container *ngIf="isBaremetalDeployment()">
 

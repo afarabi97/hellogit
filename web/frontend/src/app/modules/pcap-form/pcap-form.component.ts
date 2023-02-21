@@ -15,7 +15,6 @@ import {
   PCAPHashesClass,
   SuccessMessageClass
 } from '../../classes';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import {
   CANCEL_DIALOG_OPTION,
   CONFIRM_DIALOG_OPTION,
@@ -25,6 +24,7 @@ import {
 import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
 import { GlobalPCAPService } from '../../services/global-pcap.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
+import { ConfirmDialogComponent } from '../global-components/components/confirm-dialog/confirm-dialog.component';
 import { ReplayPcapDialogComponent } from './components/replay-pcap-dialog/replay-pcap-dialog.component';
 import { PCAP_DISPLAY_COLUMNS, PCAP_FORM_TITLE } from './constants/pcap-form.constants';
 import { ReplayPCAPInterface } from './interfaces/replay-pcap.interface';
@@ -110,7 +110,7 @@ export class PcapFormComponent implements OnInit {
    * Used for returning a string with all pcap hashes
    *
    * @param {PCAPHashesClass} pcap_hashes
-   * @return {*}  {string}
+   * @return {string}
    * @memberof PcapFormComponent
    */
   get_pcap_hashes(pcap_hashes: PCAPHashesClass): string {

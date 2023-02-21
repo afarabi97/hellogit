@@ -176,10 +176,10 @@ export class AgentInstallerDialogComponent implements OnInit {
     if (event.checked) {
       const element_spec_form_group: FormGroup = this.initialize_element_spec_form_group_(app_config);
 
-      if (app_config.configLocation){
+      if (app_config.configLocation) {
         element_spec_form_group.addControl("configLocation", new FormControl(app_config.configLocation));
       }
-      if (app_config.hasEditableConfig){
+      if (app_config.hasEditableConfig) {
         element_spec_form_group.addControl("hasEditableConfig", new FormControl(app_config.hasEditableConfig));
       } else {
         element_spec_form_group.addControl("hasEditableConfig", new FormControl(false));

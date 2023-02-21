@@ -5,7 +5,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { ConfigMapClass, ObjectUtilitiesClass } from '../../classes';
+import { ConfigMapClass, DialogFormControlClass, DialogFormControlConfigClass, ObjectUtilitiesClass } from '../../classes';
 import { ConfirmActionPopup } from '../../classes/ConfirmActionPopup';
 import {
   DIALOG_HEIGHT_90VH,
@@ -19,10 +19,9 @@ import {
   KeyStringValueStringPairInterface,
   TextEditorConfigurationInterface
 } from '../../interfaces';
-import { DialogFormControl, DialogFormControlConfigClass } from '../../modal-dialog-mat/modal-dialog-mat-form-types';
-import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { UserService } from '../../services/user.service';
+import { ModalDialogMatComponent } from '../global-components/components/modal-dialog-mat/modal-dialog-mat.component';
 import { NGXMonacoTextEditorComponent } from '../ngx-monaco-text-editor/ngx-monaco-text-editor.component';
 import { AssociatedPodClass } from './classes/associated-pod.class';
 import { ConfigMapEditClass } from './classes/config-map-edit.class';
@@ -177,7 +176,7 @@ export class ConfigmapsComponent implements OnInit {
       Validators.minLength(3), Validators.required, Validators.pattern('^[^<>:;,?"*|/]+$')
     ];
     const config_map_data_form_group: FormGroup = this.form_builder_.group({
-      name: new DialogFormControl(name_form_control_config)
+      name: new DialogFormControlClass(name_form_control_config)
     });
     const backing_object: BackingObjectInterface = {
       title: 'Add Config Map Data',

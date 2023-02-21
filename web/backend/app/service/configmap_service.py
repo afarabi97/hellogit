@@ -11,6 +11,7 @@ from flask import jsonify
 from kubernetes import client
 from kubernetes.client.models.v1_pod_list import V1PodList
 from rq.decorators import job
+from app.utils.logging import rq_logger
 
 _JOB_NAME = "tools"
 
@@ -28,7 +29,7 @@ def get_associated_pods(config_map_name: str) -> List[AssociatedPodModel]:
     return associated_pods
 
 
-def get_config_maps() -> ConfigMapListModel:
+def get_config_maps() -> List[ConfigMapListModel]:
     with KubernetesWrapper() as kube_apiv1:
         api_response = kube_apiv1.list_config_map_for_all_namespaces()
         return jsonify(api_response.to_dict())

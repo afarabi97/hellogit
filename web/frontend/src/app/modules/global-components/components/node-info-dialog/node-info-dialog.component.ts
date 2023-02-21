@@ -1,18 +1,37 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
+import { NodeClass } from '../../../../classes';
+
+/**
+ * Component used for displaying node related info
+ *
+ * @export
+ * @class NodeInfoDialogComponent
+ */
 @Component({
-  selector: 'node-info-dialog',
+  selector: 'cvah-node-info-dialog',
   templateUrl: 'node-info-dialog.component.html',
-  styleUrls: ['node-info-dialog.component.css']
+  styleUrls: ['node-info-dialog.component.scss']
 })
 export class NodeInfoDialogComponent {
 
-  constructor( public dialogRef: MatDialogRef<NodeInfoDialogComponent>,
-               @Inject(MAT_DIALOG_DATA) public backingObj: any) {
-  }
+  /**
+   * Creates an instance of NodeInfoDialogComponent.
+   *
+   * @param {MatDialogRef<NodeInfoDialogComponent>} mat_dialog_ref_
+   * @param {NodeClass} node
+   * @memberof NodeInfoDialogComponent
+   */
+  constructor(private mat_dialog_ref_: MatDialogRef<NodeInfoDialogComponent>,
+              @Inject(MAT_DIALOG_DATA) public node: NodeClass) { }
 
-  onNoClick(): void {
-    this.dialogRef.close();
+  /**
+   * Used for closing dialog window
+   *
+   * @memberof NodeInfoDialogComponent
+   */
+  close(): void {
+    this.mat_dialog_ref_.close();
   }
 }

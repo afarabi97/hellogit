@@ -18,6 +18,7 @@ class TFPlenumLibrary:
     EVERY_CHART_STATUS_ENDPOINT = "/catalog/charts/status"
     PCAP_UPLOAD_ENDPOINT = "/policy/pcap/upload"
     KIT_NODES_ENDPOINT = "/kit/nodes"
+    KIT_STATUS_ENDPOINT = "/kit/status"
 
     def __init__(self):
         self.COLOR_HEADER = "\033[95m"
@@ -262,6 +263,11 @@ class TFPlenumLibrary:
             self._alogger("check_app_packet_health", "No response from API")
         return None
 
+    @keyword
+    def check_kit_status(self):
+        response = self.api_get_kit_status(jsonify=False)
+        return response.json()
+
     # API Calls (not to be used in robot tests directly)
 
     def api_get_current_user(self, jsonify=True):
@@ -293,6 +299,9 @@ class TFPlenumLibrary:
     def api_get_packet_health(self, endpoint, jsonify=True):
         return self.execute_request(endpoint, jsonify=jsonify)
 
+    def api_get_kit_status(self, jsonify=True):
+        return self.execute_request(self.KIT_STATUS_ENDPOINT, jsonify=jsonify)
+
     def execute_request(self, endpoint, request_type="GET", files=None, payload=None, jsonify=True) -> Optional[Response | Dict | List]:
         files = files or {}
         payload = payload or {}
@@ -316,8 +325,9 @@ class TFPlenumLibrary:
             return response
 
     def _tfplenum_lib_test_setup(self):
-        if not self.TOKEN:
-            self.TOKEN = BuiltIn().get_variable_value(name="${API_TOKEN}")
+        curr_token = BuiltIn().get_variable_value(name="${API_TOKEN}")
+        if not self.TOKEN or self.TOKEN != curr_token:
+            self.TOKEN = curr_token
             self.HOST = BuiltIn().get_variable_value(name="${HOST}")
             self.HEADERS = {"Authorization": f"Bearer {self.TOKEN}"}
             self.BASE_API_URL = f"http://{self.HOST}/api"

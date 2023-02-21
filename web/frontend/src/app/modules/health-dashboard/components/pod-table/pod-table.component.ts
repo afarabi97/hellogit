@@ -3,8 +3,10 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { KitTokenClass, ObjectUtilitiesClass } from '../../../../classes';
-import { ModalDialogDisplayMatComponent } from '../../../../modal-dialog-display-mat/modal-dialog-display-mat.component';
 import { SortingService } from '../../../../services/sorting.service';
+import {
+  ModalDialogDisplayMatComponent
+} from '../../../global-components/components/modal-dialog-display-mat/modal-dialog-display-mat.component';
 import { HealthService } from '../../services/health.service';
 import { PodLogModalDialogComponent } from './components/pod-log-dialog/pod-log-dialog.component';
 
@@ -67,6 +69,7 @@ export class HealthDashboardPodTableComponent implements OnChanges {
     open_dialog_screen(modal, pod_name: string, data: Object) {
       this.dialog.open(modal, {
         minWidth: '900px',
+        disableClose: true,
         data: { 'title': pod_name, 'info': data }
       });
     }
@@ -84,7 +87,7 @@ export class HealthDashboardPodTableComponent implements OnChanges {
         return 'warning';
       } else if (sb === 'Terminating') {
         return 'circle';
-      } else if (this.is_pod_error_state(sb, warnings)){
+      } else if (this.is_pod_error_state(sb, warnings)) {
         return 'error';
       }
     }

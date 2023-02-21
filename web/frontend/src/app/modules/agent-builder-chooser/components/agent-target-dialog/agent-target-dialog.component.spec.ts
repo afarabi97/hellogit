@@ -3,21 +3,12 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
-import { of } from 'rxjs';
 
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { AgentBuilderChooserModule } from '../../agent-builder-chooser.module';
 import { SMB_PORT, WINRM_PORT, WINRM_PORT_SSL } from '../../constants/agent-builder-chooser.constant';
 import { AgentTargetDialogComponent } from './agent-target-dialog.component';
-
-class MatDialogRefMock {
-  close() {
-    return {
-      afterClosed: () => of ()
-    };
-  }
-}
 
 describe('AgentTargetDialogComponent', () => {
   let component: AgentTargetDialogComponent;
@@ -76,7 +67,7 @@ describe('AgentTargetDialogComponent', () => {
         TestingModule
       ],
       providers: [
-        { provide: MatDialogRef, useClass: MatDialogRefMock }
+        { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) }
       ]
     }).compileComponents();
   }));

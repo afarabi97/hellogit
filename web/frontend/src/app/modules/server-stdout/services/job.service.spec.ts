@@ -7,21 +7,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import {
-  MockBackgroundJobClass,
-  MockGenericJobAndKeyClass,
-  MockJobLogClass
-} from '../../../../../static-data/class-objects';
-import {
-  MockBackgroundJobInterface,
-  MockGenericJobAndKeyInterface,
-  MockJobLogInterface
-} from '../../../../../static-data/interface-objects';
+import { MockGenericJobAndKeyClass, MockJobLogClass } from '../../../../../static-data/class-objects';
+import { MockGenericJobAndKeyInterface, MockJobLogInterface } from '../../../../../static-data/interface-objects';
 import { environment } from '../../../../environments/environment';
 import { ErrorMessageClass, GenericJobAndKeyClass } from '../../../classes';
 import { InjectorModule } from '../../../modules/utilily-modules/injector.module';
 import { ApiService } from '../../../services/abstract/api.service';
-import { BackgroundJobClass, JobLogClass } from '../classes';
+import { JobLogClass } from '../classes';
 import { JobServiceInterface } from '../interfaces';
 import { JobService } from './job.service';
 
@@ -31,7 +23,6 @@ describe('JobService', () => {
 
   // Setup spy references
   let spyJobLogs: jasmine.Spy<any>;
-  let spyJobGet: jasmine.Spy<any>;
   let spyJobDelete: jasmine.Spy<any>;
 
   // Used to handle subscriptions
@@ -67,7 +58,6 @@ describe('JobService', () => {
 
     // Add method spies
     spyJobLogs = spyOn(service, 'job_logs').and.callThrough();
-    spyJobGet = spyOn(service, 'job_get').and.callThrough();
     spyJobDelete = spyOn(service, 'job_delete').and.callThrough();
   });
 
@@ -80,7 +70,6 @@ describe('JobService', () => {
     ngUnsubscribe$.next();
 
     spyJobLogs.calls.reset();
-    spyJobGet.calls.reset();
     spyJobDelete.calls.reset();
   };
   const after = () => {
@@ -163,82 +152,6 @@ describe('JobService', () => {
             });
 
         const xhrURL: string = `${environment.JOB_SERVICE_LOG}${MockGenericJobAndKeyClass.job_id}`;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        xhrRequest.flush(errorRequest, mockErrorResponse);
-
-        after();
-      });
-    });
-
-    describe('REST job_get()', () => {
-      it('should call job_get()', () => {
-        reset();
-
-        service.job_get(MockGenericJobAndKeyClass.job_id)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: BackgroundJobClass) => {
-            const objectKeys: string[] = Object.keys(response);
-            objectKeys.forEach((key: string) => {
-              if (!(response[key] instanceof Array)) {
-                expect(response[key]).toEqual(MockBackgroundJobClass[key]);
-              }
-            });
-
-            expect(service.job_get).toHaveBeenCalled();
-          });
-
-        const xhrURL: string = `${environment.JOB_SERVICE_BASE}${MockGenericJobAndKeyClass.job_id}`;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        expect(xhrRequest.request.method).toEqual(getType);
-
-        xhrRequest.flush(MockBackgroundJobInterface);
-
-        after();
-      });
-
-      it('should call job_get() and handle error message error', () => {
-        reset();
-
-        service.job_get(MockGenericJobAndKeyClass.job_id)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (response: BackgroundJobClass) => {},
-            (error: ErrorMessageClass | HttpErrorResponse) => {
-              if (error['error'] instanceof ErrorMessageClass) {
-                const objectKeys: string[] = Object.keys(error['error']);
-                objectKeys.forEach((key: string) => {
-                  if (!(error['error'][key] instanceof Array)) {
-                    expect(error['error'][key]).toEqual(errorMessageRequest[key]);
-                  }
-                });
-                expect(error['error']).toContain(errorMessageRequest);
-              }
-              expect(service.job_get).toHaveBeenCalled();
-            });
-
-        const xhrURL: string = `${environment.JOB_SERVICE_BASE}${MockGenericJobAndKeyClass.job_id}`;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        xhrRequest.flush(errorMessageRequest, mockErrorResponse);
-
-        after();
-      });
-
-      it('should call job_get() and handle error', () => {
-        reset();
-
-        service.job_get(MockGenericJobAndKeyClass.job_id)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (response: BackgroundJobClass) => {},
-            (error: HttpErrorResponse) => {
-              expect(error.error).toContain(errorRequest);
-              expect(service.job_get).toHaveBeenCalled();
-            });
-
-        const xhrURL: string = `${environment.JOB_SERVICE_BASE}${MockGenericJobAndKeyClass.job_id}`;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorRequest, mockErrorResponse);
@@ -332,20 +245,12 @@ export class JobServiceSpy implements JobServiceInterface {
     (job_id: string): Observable<JobLogClass[]> => this.call_fake_job_logs(job_id)
   );
 
-  job_get = jasmine.createSpy('job_get').and.callFake(
-    (job_id: string): Observable<GenericJobAndKeyClass> => this.call_fake_job_get(job_id)
-  );
-
   job_delete = jasmine.createSpy('job_delete').and.callFake(
     (job_id: string): Observable<GenericJobAndKeyClass> => this.call_fake_job_delete(job_id)
   );
 
   call_fake_job_logs(job_id: string): Observable<JobLogClass[]> {
     return of([MockJobLogClass]);
-  }
-
-  call_fake_job_get(job_id: string): Observable<BackgroundJobClass> {
-    return of(MockBackgroundJobClass);
   }
 
   call_fake_job_delete(job_id: string): Observable<GenericJobAndKeyClass> {

@@ -58,9 +58,3 @@ interface Status {
   qos_class: string;
   start_time: string;
 }
-
-
-export interface ApplicationStatus {
-  type: string[];
-  items: {};
-}

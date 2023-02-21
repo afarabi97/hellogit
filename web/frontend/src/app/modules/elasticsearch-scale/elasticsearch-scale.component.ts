@@ -6,7 +6,6 @@ import { Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { MatSnackbarConfigurationClass, NotificationClass, ObjectUtilitiesClass } from '../../classes';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import {
   CONFIRM_DIALOG_OPTION,
   DIALOG_HEIGHT_90VH,
@@ -19,6 +18,7 @@ import { TextEditorConfigurationInterface } from '../../interfaces';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { UserService } from '../../services/user.service';
 import { WebsocketService } from '../../services/websocket.service';
+import { ConfirmDialogComponent } from '../global-components/components/confirm-dialog/confirm-dialog.component';
 import { NGXMonacoTextEditorComponent } from '../ngx-monaco-text-editor/ngx-monaco-text-editor.component';
 import {
   ElasticsearchCheckClass,

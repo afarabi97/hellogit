@@ -25,11 +25,11 @@ import { NodeManagementComponent } from './node-mng.component';
     NodeManagementComponent,
     AddNodeDialogComponent
   ],
-  providers: [
-    NodeManagementComponent
-  ],
   entryComponents: [
     AddNodeDialogComponent
+  ],
+  providers: [
+    NodeManagementComponent
   ]
 })
 export class NodeMngModule { }

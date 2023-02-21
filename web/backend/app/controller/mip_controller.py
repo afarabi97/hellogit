@@ -30,7 +30,7 @@ def required_params(schema):
 class MIPSchema(Schema):
     hostname = marsh_fields.Str(required=True)
     ip_address = marsh_fields.IPv4(required=True)
-    deployment_type = marsh_fields.String(required=True)
+    deployment_type = marsh_fields.Str(required=True)
 
     # if baremetal
     mac_address = marsh_fields.Str(required=False, allow_none=True) # required if baremetal

@@ -4,11 +4,18 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 
-import { GeneralSettingsClass, KitStatusClass, KitSettingsClass, NodeClass, ObjectUtilitiesClass } from '../../../../classes';
-import { SnackbarWrapper } from '../../../../classes/snackbar-wrapper';
+import {
+  GeneralSettingsClass,
+  KitSettingsClass,
+  KitStatusClass,
+  MatSnackbarConfigurationClass,
+  NodeClass,
+  ObjectUtilitiesClass
+} from '../../../../classes';
 import { COMMON_VALIDATORS, PXE_TYPES } from '../../../../constants/cvah.constants';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
 import { KitSettingsService } from '../../../../services/kit-settings.service';
+import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { addNodeValidators } from '../../../../validators/add-node.validator';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
 import {
@@ -42,11 +49,12 @@ export class AddNodeDialogComponent implements OnInit {
   validationHostnames: string[] = [];
   validationIPs: string[] = [];
   validationMacs: string[] = [];
-  constructor( public dialogRef: MatDialogRef<AddNodeDialogComponent>,
-               private formBuilder: FormBuilder,
-               private kitSettingsSrv: KitSettingsService,
-               private snackbar: SnackbarWrapper,
-               @Inject(MAT_DIALOG_DATA) public pcap_name: any) {
+
+  constructor(public dialogRef: MatDialogRef<AddNodeDialogComponent>,
+              private formBuilder: FormBuilder,
+              private kitSettingsSrv: KitSettingsService,
+              private mat_snackbar_service_: MatSnackBarService,
+              @Inject(MAT_DIALOG_DATA) public pcap_name: any) {
     //TODO pass in unused IP Addresses
     this.isRaid = false;
     dialogRef.disableClose = true;
@@ -96,10 +104,11 @@ export class AddNodeDialogComponent implements OnInit {
       this.kitSettings = data;
 
       /* Exclude K8s IPs from valid IPs */
-      var k8s_ip = this.kitSettings.kubernetes_services_cidr.split('.');
-      var start_ip: number = parseInt(k8s_ip[3])
-      for (var i:number=start_ip; i<start_ip+32; i++)
+      const k8s_ip = this.kitSettings.kubernetes_services_cidr.split('.');
+      const start_ip: number = parseInt(k8s_ip[3], 10);
+      for (let i = start_ip; i < start_ip + 32; i++) {
         this.validationIPs.push(k8s_ip[0] + "." + k8s_ip[1] + "." + k8s_ip[2] + "." + i.toString());
+      }
     });
 
     this.kitSettingsSrv.getGeneralSettings().subscribe((data: GeneralSettingsClass) => {
@@ -142,7 +151,12 @@ export class AddNodeDialogComponent implements OnInit {
 
   onCreateNode(): void {
     this.kitSettingsSrv.addNode(this.nodeForm.value).subscribe(data => {
-      this.snackbar.showSnackBar(this.nodeForm.value.hostname + ' node created successfully.', -1, 'Dismiss');
+      const message: string = `${this.nodeForm.value.hostname} node created successfully.`;
+      const mat_snackbar_configuration: MatSnackbarConfigurationClass = {
+        timeInMS: -1,
+        actionLabel: 'Dismiss'
+      };
+      this.mat_snackbar_service_.displaySnackBar(message, mat_snackbar_configuration);
       if (this.isCreateDuplicate) {
         this.onDuplicateNode();
       } else {
@@ -151,15 +165,27 @@ export class AddNodeDialogComponent implements OnInit {
     },
     err => {
       if (ObjectUtilitiesClass.notUndefNull(err.error['error_message'])) {
-        this.snackbar.showSnackBar(err.error["error_message"], -1, 'Dismiss');
+        const mat_snackbar_configuration: MatSnackbarConfigurationClass = {
+          timeInMS: -1,
+          actionLabel: 'Dismiss'
+        };
+        this.mat_snackbar_service_.displaySnackBar(err.error["error_message"], mat_snackbar_configuration);
       } else if (ObjectUtilitiesClass.notUndefNull(err.error['post_validation'])) {
         if (typeof err.error['post_validation'] === 'object') {
           const post_validation: object = err.error['post_validation'];
           const post_validation_keys: string[] = Object.keys(post_validation);
           const message: string = this.construct_post_validation_error_message_(post_validation, post_validation_keys);
-          this.snackbar.showSnackBar(message, -1, 'Dismiss');
+          const mat_snackbar_configuration: MatSnackbarConfigurationClass = {
+            timeInMS: -1,
+            actionLabel: 'Dismiss'
+          };
+          this.mat_snackbar_service_.displaySnackBar(message, mat_snackbar_configuration);
         } else {
-          this.snackbar.showSnackBar(err.error["post_validation"], -1, 'Dismiss');
+          const mat_snackbar_configuration: MatSnackbarConfigurationClass = {
+            timeInMS: -1,
+            actionLabel: 'Dismiss'
+          };
+          this.mat_snackbar_service_.displaySnackBar(err.error["post_validation"], mat_snackbar_configuration);
         }
       }
     });
@@ -221,8 +247,8 @@ export class AddNodeDialogComponent implements OnInit {
     if (event.value === 'Sensor') {
       this.deploymentOptions.push({text: 'ISO Remote Sensor Download', value: 'Iso', disabled: false});
     }
-    this.virtualNodeForm.setDefaultValues(this.nodeType);
-    this.virtualNodeForm.setVirtualFormValidation(event);
+    this.virtualNodeForm.set_default_values(this.nodeType);
+    this.virtualNodeForm.set_virtual_form_validation(event);
   }
 
   setBaremetalValidation(event: MatRadioChange) {
@@ -271,8 +297,8 @@ export class AddNodeDialogComponent implements OnInit {
 
     this.updateNodeStatus();
     this.setBaremetalValidation(event);
-    this.virtualNodeForm.setDefaultValues(this.nodeType);
-    this.virtualNodeForm.setVirtualFormValidation(event);
+    this.virtualNodeForm.set_default_values(this.nodeType);
+    this.virtualNodeForm.set_virtual_form_validation(event);
   }
 
   isBaremetalDeployment(): boolean {
@@ -357,7 +383,6 @@ export class AddNodeDialogComponent implements OnInit {
     const subnet = this.settings.controller_interface.substring(0, index) + ".";
     let offset = 40;
     let number_of_addrs = 10;
-    console.log(this.nodeType);
     if (this.nodeType === "Sensor" || this.nodeType === "MinIO") {
       offset = 50;
       number_of_addrs = 46;

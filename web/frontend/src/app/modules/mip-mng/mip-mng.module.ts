@@ -25,11 +25,11 @@ import { MipManagementComponent } from './mip-mng.component';
     AddMipDialogComponent,
     MipManagementComponent
   ],
-  providers: [
-    MipManagementComponent
-  ],
   entryComponents: [
     AddMipDialogComponent
+  ],
+  providers: [
+    MipManagementComponent
   ]
 })
 export class MipMngModule { }

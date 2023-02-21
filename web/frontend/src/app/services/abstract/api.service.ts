@@ -2,7 +2,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
-import { ErrorMessageClass, MatSnackbarConfigurationClass, ObjectUtilitiesClass } from '../../classes';
+import { ErrorMessageClass, ObjectUtilitiesClass, PostValidationClass } from '../../classes';
+import { MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS } from '../../constants/cvah.constants';
 import { ApiServiceInterface, EntityConfig } from '../../interfaces';
 import { InjectorModule } from '../../modules/utilily-modules/injector.module';
 import { MatSnackBarService } from '../mat-snackbar.service';
@@ -50,11 +51,6 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
    * @memberof ApiService
    */
   handleError(operation: string = 'operation', httpErrorResponse?: HttpErrorResponse): Observable<any> {
-    const matSnackBarConfiguration: MatSnackbarConfigurationClass = {
-      timeInMS: 15000,
-      actionLabel: 'Dismiss'
-    };
-
     if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse)) {
       this.handleErrorConsole(httpErrorResponse);
       if (httpErrorResponse.error && httpErrorResponse.error['error_message']) {
@@ -63,13 +59,19 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
         const error_message: ErrorMessageClass = new ErrorMessageClass(httpErrorResponse.error);
 
         return throwError(error_message);
+      } else if (httpErrorResponse.error && httpErrorResponse.error['post_validation']) {
+        this.matSnackBarService.displaySnackBar(httpErrorResponse.error['post_validation']);
+
+        const post_validation_message: PostValidationClass = new PostValidationClass(httpErrorResponse.error);
+
+        return throwError(post_validation_message);
       } else if (httpErrorResponse.error && httpErrorResponse.error['message']) {
         this.matSnackBarService.displaySnackBar(httpErrorResponse.error['message']);
       } else{
-        this.matSnackBarService.displaySnackBar(`An error has occurred: ${httpErrorResponse.status}-${httpErrorResponse.statusText}`, matSnackBarConfiguration);
+        this.matSnackBarService.displaySnackBar(`An error has occurred: ${httpErrorResponse.status}-${httpErrorResponse.statusText}`, MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS);
       }
     } else {
-      this.matSnackBarService.displaySnackBar(`An error has occurred: ${operation}`, matSnackBarConfiguration);
+      this.matSnackBarService.displaySnackBar(`An error has occurred: ${operation}`, MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS);
     }
 
     return throwError(httpErrorResponse);
@@ -85,16 +87,16 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
    * @memberof ApiService
    */
   handleErrorAlt(operation: string = 'operation', httpErrorResponse: HttpErrorResponse): Observable<any> {
-    const matSnackBarConfiguration: MatSnackbarConfigurationClass = {
-      actionLabel: 'Dismiss'
-    };
     if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error) &&
         ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['error_message'])) {
-      this.matSnackBarService.displaySnackBar(httpErrorResponse.error['error_message'], matSnackBarConfiguration);
+      this.matSnackBarService.displaySnackBar(httpErrorResponse.error['error_message'], MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS);
+    } if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error) &&
+          ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['post_validation'])) {
+      this.matSnackBarService.displaySnackBar(httpErrorResponse.error['post_validation'], MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS);
     } else if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse.message)) {
-      this.matSnackBarService.displaySnackBar(httpErrorResponse.message, matSnackBarConfiguration);
+      this.matSnackBarService.displaySnackBar(httpErrorResponse.message, MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS);
     } else {
-      this.matSnackBarService.displaySnackBar(`An error has occurred: ${operation}`, matSnackBarConfiguration);
+      this.matSnackBarService.displaySnackBar(`An error has occurred: ${operation}`, MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS);
     }
     this.handleErrorConsole(httpErrorResponse);
 
@@ -115,23 +117,20 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
       console.error(`An error occurred: ${httpErrorResponse.error.type}`);
     } else {
       // The backend returned an unsuccessful response code.
-      // The response body may contain clues as to what went wrong,
-      const error_message: string = ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error) &&
-                                    ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['error_message']) ?
-                                      httpErrorResponse.error['error_message'] : httpErrorResponse.error;
+      // The response body may contain clues as to what went wrong
+      let error_message: string = '';
+      if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error) &&
+          ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['error_message'])) {
+        error_message = httpErrorResponse.error['error_message'];
+      } else if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error) &&
+                 ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['post_validation'])) {
+        error_message = httpErrorResponse.error['post_validation'];
+      } else {
+        error_message = httpErrorResponse.error;
+      }
       console.error(`Backend returned code ${httpErrorResponse.status}, error: ${error_message}, message: ${httpErrorResponse.message}`);
     }
     // return an observable with a user-facing error message
     return throwError('Something bad happened; please try again later.');
-  }
-
-  /**
-   * Handle http operation that succed
-   *
-   * @param {string} message
-   * @memberof ApiService
-   */
-  handleSuccess(message: string): void {
-    this.matSnackBarService.displaySnackBar(message, { timeInMS: 3000 });
   }
 }

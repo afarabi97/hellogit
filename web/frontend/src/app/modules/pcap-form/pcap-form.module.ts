@@ -6,6 +6,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { GlobalPCAPService } from '../../services/global-pcap.service';
 import { SensorHostInfoService } from '../../services/sensor-host-info.service';
+import { GlobalComponentsModule } from '../global-components/global-components.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { ReplayPcapDialogComponent } from './components/replay-pcap-dialog/replay-pcap-dialog.component';
 import { PcapFormComponent } from './pcap-form.component';
@@ -18,7 +19,8 @@ import { PCAPService } from './services/pcap.service';
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    GlobalComponentsModule
   ],
   declarations: [
     PcapFormComponent,

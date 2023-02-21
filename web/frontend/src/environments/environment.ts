@@ -112,6 +112,10 @@ export const environment = {
 
   ENDGAME_SERVICE_ENDGAME_SENSOR_PROFILES: `/api/agent/endgame/profiles`,
 
+  HEALTH_DASHBOARD_STATUS: `/api/health/dashboard/status`,
+  HEALTH_REMOTE_DASHBOARD_STATUS: `/api/health/remote/dashboard/status`,
+  HEALTH_DASHBOARD_STATUS_KIBANA_INFO_REMOTE: `/api/app/kibana/info/remote`,
+
   HEALTH_SERVICE_GET_NODES_STATUS: `/api/kubernetes/nodes/status`,
   HEALTH_SERVICE_GET_PODS_STATUS: `/api/kubernetes/pods/status`,
   HEALTH_SERVICE_GET_APPLICATIONS_STATUS: `/api/health/applications/status`,
@@ -136,11 +140,7 @@ export const environment = {
   POLICY_MANAGEMENT_SERVICE_CHECK_CATALOG_STATUS: `/api/catalog/chart`,
   POLICY_MANAGEMENT_SERVICE_GET_JOBS: `/api/jobs`,
 
-  KIT_TOKENS_SETTINGS_SERVICE: `/api/token`,
-  HEALTH_DASHBOARD_STATUS: `/api/health/dashboard/status`,
-  REMOTE_HEALTH_DASHBOARD_STATUS: `/api/health/remote/dashboard/status`,
-  HEALTH_DASHBOARD_KIBANA_INFO: `/api/app/kibana/info`,
-  REMOTE_HEALTH_DASHBOARD_KIBANA_INFO: `/api/app/kibana/info/remote`
+  KIT_TOKENS_SETTINGS_SERVICE: `/api/token`
 };
 
 /*

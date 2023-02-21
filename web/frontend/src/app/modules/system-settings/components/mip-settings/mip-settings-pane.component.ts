@@ -3,13 +3,13 @@ import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/fo
 import { MatDialog } from '@angular/material/dialog';
 
 import { GeneralSettingsClass, KitStatusClass, MipSettingsClass } from '../../../../classes';
-import { PasswordMessageComponent } from '../../../../components/password-message/password-message.component';
 import { KitStatusInterface } from '../../../../interfaces';
+import { KitSettingsService } from '../../../../services/kit-settings.service';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { UserService } from '../../../../services/user.service';
 import { WebsocketService } from '../../../../services/websocket.service';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
-import { KitSettingsService } from '../../../../services/kit-settings.service';
+import { PasswordMessageComponent } from '../../../global-components/components/password-message/password-message.component';
 import { kitSettingsValidators } from '../../validators/kit-settings.validator';
 
 @Component({

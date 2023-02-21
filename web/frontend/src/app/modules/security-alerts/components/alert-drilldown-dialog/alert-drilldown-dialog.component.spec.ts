@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { of, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 
 import {
   MockAlertListClassEndgame,
@@ -25,14 +25,6 @@ import {
 } from '../../constants/security-alerts.constant';
 import { SecurityAlertsModule } from '../../security-alerts.module';
 import { AlertDrillDownDialogComponent } from './alert-drilldown-dialog.component';
-
-class MatDialogRefMock {
-  close() {
-    return {
-      afterClosed: () => of ()
-    };
-  }
-}
 
 describe('AlertDrillDownDialogComponent', () => {
   let component: AlertDrillDownDialogComponent;
@@ -71,7 +63,7 @@ describe('AlertDrillDownDialogComponent', () => {
         TestingModule
       ],
       providers: [
-        { provide: MatDialogRef, useClass: MatDialogRefMock },
+        { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) },
         { provide: MAT_DIALOG_DATA, useValue: MockUpdateAlertsClassCaptureLoss }
       ]
     }).compileComponents();

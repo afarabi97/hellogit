@@ -9,7 +9,7 @@
        <!-- Hostname -->
        <ng-container matColumnDef="hostname">
            <th scope="col" mat-header-cell *matHeaderCellDef>Hostname</th>
-           <td mat-cell *matCellDef="let mip;"><a (click)="showMIPInfo(mip)">{{ mip.hostname }}</a></td>
+           <td mat-cell *matCellDef="let mip;"><a (click)="open_mip_info_dialog_window(mip)">{{ mip.hostname }}</a></td>
        </ng-container>
 
        <!-- Ip Address -->
@@ -28,7 +28,7 @@
        <ng-container matColumnDef="state">
          <th scope="col" mat-header-cell *matHeaderCellDef>State</th>
          <td mat-cell *matCellDef="let mip;">
-             <app-node-state-progress-bar #progressCircles [jobs]="mip.jobs"></app-node-state-progress-bar>
+             <cvah-node-state-progress-bar #progressCircles [jobs]="mip.jobs"></cvah-node-state-progress-bar>
          </td>
        </ng-container>
 
@@ -37,7 +37,7 @@
          <th scope="row" mat-header-cell *matHeaderCellDef>Actions</th>
          <td mat-cell *matCellDef="let mip; let j = index;">
              <div class="btn-group">
-              <button *ngIf="canDeleteNode(mip)" mat-icon-button matTooltip="Delete MIP" (click)="deleteMIP(mip)" color="warn"
+              <button *ngIf="can_delete_node(mip)" mat-icon-button matTooltip="Delete MIP" (click)="open_delete_node_confirm_dialog_window(mip)" color="warn"
                 [disabled]="mip.isRemoving">
                 <em class="material-icons">delete</em>
               </button>
@@ -46,13 +46,13 @@
      </ng-container>
 
        <!-- Table Rows -->
-       <tr mat-header-row *matHeaderRowDef="mipsColumns"></tr>
-       <tr mat-row *matRowDef="let rowData; columns: mipsColumns;"></tr>
+       <tr mat-header-row *matHeaderRowDef="mip_columns"></tr>
+       <tr mat-row *matRowDef="let rowData; columns: mip_columns;"></tr>
    </table>
    </mat-card-content>
    <mat-card-actions>
-     <button mat-raised-button color="primary" [disabled]="disableAddMipButton()"
-             (click)="addMip()">Add MIP</button>
+     <button mat-raised-button color="primary" [disabled]="disable_add_mip_button()"
+             (click)="open_add_mip_dialog_window()">Add MIP</button>
    </mat-card-actions>
  </mat-card>
 </div>

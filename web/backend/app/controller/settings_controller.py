@@ -144,13 +144,14 @@ class GeneralSettings(Resource):
         return JobIDModel(job).to_dict()
 
     @SETINGS_NS.response(200, "GeneralSettingsForm Model", GeneralSettingsForm.DTO)
+    @SETINGS_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     def get(self) -> Response:
         try:
             settings = GeneralSettingsForm.load_from_db()
             if settings:
-                return settings.to_dict()
+                return settings.to_dict(), 200
         except DBModelNotFound:
-            return {"message": "DBModelNotFound"}, 200
+            return { "error_message": "DBModelNotFound" }, 400
 
     @SETINGS_NS.expect(GeneralSettingsForm.DTO)
     @SETINGS_NS.response(200, "JobIDModel", JobIDModel.DTO)
@@ -237,13 +238,14 @@ class KitSettings(Resource):
 @SETINGS_NS.route("/mip")
 class MipSettings(Resource):
     @SETINGS_NS.response(200, "MipSettingsForm Model", MipSettingsForm.DTO)
+    @SETINGS_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     def get(self) -> Response:
         try:
             settings = MipSettingsForm.load_from_db()
             if settings:
                 return settings.to_dict()
         except DBModelNotFound:
-            return {"message": "DBModelNotFound"}, 200
+            return {"error_message": "MIP settings not found"}, 400
 
     @SETINGS_NS.expect(MipSettingsForm.DTO)
     @SETINGS_NS.response(400, "Error Model", COMMON_ERROR_DTO)

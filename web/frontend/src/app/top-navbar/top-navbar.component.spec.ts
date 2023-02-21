@@ -1,25 +1,25 @@
 import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { of as observableOf, of } from 'rxjs';
+import { of as observableOf } from 'rxjs';
 
 import { MockDIPTimeClass, MockKitStatusClass } from '../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../static-data/functions/clean-dom.function';
-import { SnackbarWrapper } from '../classes/snackbar-wrapper';
-import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { DateTimeModule } from '../modules/date-time/date-time.module';
+import {
+  ModalDialogMatComponent
+} from '../modules/global-components/components/modal-dialog-mat/modal-dialog-mat.component';
 import { NotificationsComponent } from '../modules/notifications/notifications.component';
 import { TestingModule } from '../modules/testing-modules/testing.module';
+import { ToolsService } from '../modules/tools/services/tools.service';
 import { InjectorModule } from '../modules/utilily-modules/injector.module';
 import { MaterialModule } from '../modules/utilily-modules/material.module';
 import { CapitalizeFirstPipe } from '../pipes/capitalize-first.pipe';
 import { ApiService } from '../services/abstract/api.service';
 import { CookieService } from '../services/cookies.service';
 import { WebsocketService } from '../services/websocket.service';
-import { ToolsService } from '../modules/tools/services/tools.service';
 import { getSideNavigationButtons } from './functions/navbar.functions';
 import { NavGroupInterface } from './interfaces';
 import { TopNavbarComponent } from './top-navbar.component';
@@ -62,7 +62,6 @@ class MockSocket {
     ],
     providers: [
       CookieService,
-      SnackbarWrapper,
       FormBuilder,
       ToolsService
     ]
@@ -88,21 +87,6 @@ describe('TopNavbarComponent', () => {
 
   const navGroupGood: NavGroupInterface = { id: '', label: 'testdocs', children: [] };
   const navGroupBad: NavGroupInterface = { id: '', label: undefined, children: [] };
-  const formGroup: FormGroup = new FormGroup({ 'dropdown': new FormControl() });
-  class MatDialogMock {
-    // When the component calls this.dialog.open(...) we'll return an object
-    // with an afterClosed method that allows to subscribe to the dialog result observable.
-    open() {
-      return {
-        afterClosed: () => of(formGroup)
-      };
-    }
-    closeAll() {
-      return {
-        afterClosed: () => of(formGroup)
-      };
-    }
-  }
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -111,8 +95,7 @@ describe('TopNavbarComponent', () => {
       ],
       providers: [
         ApiService,
-        { provide: WebsocketService, useClass: MockSocket },
-        { provide: MatDialog, useClass: MatDialogMock }
+        { provide: WebsocketService, useClass: MockSocket }
       ]
     }).compileComponents();
   }));
@@ -130,9 +113,6 @@ describe('TopNavbarComponent', () => {
     spyStartClockCounter = spyOn<any>(component, 'startClockCounter_').and.callThrough();
     spySetClock = spyOn<any>(component, 'setClock_').and.callThrough();
     spyGetCurrentDipTime = spyOn<any>(component, 'getCurrentDipTime_').and.callThrough();
-
-    // TODO - Remove once kitService has proper spy service in place
-    spyOn<any>(component['kitSettingsSrv'], 'getKitStatus').and.returnValue(of(MockKitStatusClass));
 
     // Detect changes
     fixture.detectChanges();

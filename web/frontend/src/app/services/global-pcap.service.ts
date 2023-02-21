@@ -35,7 +35,7 @@ export class GlobalPCAPService extends ApiService<any> implements GlobalPCAPServ
   /**
    * REST call to GET pcaps
    *
-   * @return {*}  {Observable<PCAPClass[]>}
+   * @return {Observable<PCAPClass[]>}
    * @memberof GlobalPCAPService
    */
   get_pcaps(): Observable<PCAPClass[]> {

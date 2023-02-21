@@ -234,7 +234,6 @@ APP_CONFIGMAP_EDITOR__BUTTON_CLOSE = 'app-configmap-editor-div-mat-card-mat-card
 APP_KIT_CLOCK__MAT_CARD_TITLE_A = 'app-kit-clock-mat-card-mat-card-header-mat-card-title-a' # a
 APP_KIT_CLOCK__A_EM_CHEVRON_RIGHT = 'app-kit-clock-mat-card-mat-card-header-mat-card-title-a-em-chevron-right' # em
 APP_KIT_CLOCK__A_EM_EXPAND_MORE = 'app-kit-clock-mat-card-mat-card-header-mat-card-title-a-em-expand-more' # em
-APP_KIT_CLOCK__APP_DATA_TIME = 'app-kit-clock-mat-card-mat-card-content-app-data-time' # app-date-time (internal)
 APP_KIT_CLOCK__BUTTON_CHANGE_CLOCK = 'app-kit-clock-mat-card-mat-card-actions-button-change-clock' # button
 
 
@@ -323,23 +322,23 @@ CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS1 = 'cvah-confirm-dialog-button-options1' # b
 
 
 # These are for date-time.component.html
-APP_KIT_CLOCK__APP_DATE_TIME_MAT_FORM_FIELD_PICKER_UPDATE = 'app-kit-clock-app-date-time-div-mat-form-field-picker-update' # mat-form-field
-APP_KIT_CLOCK__APP_DATE_TIME_PICKER_UPDATE_INPUT_PICKER_HIDDEN = 'app-kit-clock-app-date-time-div-mat-form-field-picker-update-input-picker-hidden' # input
-APP_KIT_CLOCK__APP_DATE_TIME_PICKER_UPDATE_INPUT_DATETIME = 'app-kit-clock-app-date-time-div-mat-form-field-picker-update-input-datetime' # input
-APP_KIT_CLOCK__APP_DATE_TIME_PICKER_UPDATE_MAT_DATEPICKER_TOGGLE = 'app-kit-clock-app-date-time-div-mat-form-field-picker-update-mat-datepicker-toggle' # mat-datepicker-toggle
-APP_KIT_CLOCK__APP_DATE_TIME_PICKER_UPDATE_MAT_DATEPICKER = 'app-kit-clock-app-date-time-div-mat-form-field-picker-update-mat-datepicker' # mat-datepicker
-APP_KIT_CLOCK__APP_DATE_TIME_MAT_FORM_FIELD_TIMEZONE = 'app-kit-clock-app-date-time-div-mat-form-field-timezone' # mat-form-field
-APP_KIT_CLOCK__APP_DATE_TIME_MAT_FORM_FIELD_TIMEZONE_MAT_SELECT = 'app-kit-clock-app-date-time-div-mat-form-field-timezone-mat-select' # mat-select
-# TODO app-kit-clock-app-date-time-div-mat-form-field-timezone-mat-select-mat-option-* # mat-option
+APP_KIT_CLOCK__CVAH_DATE_TIME_MAT_FORM_FIELD_PICKER_UPDATE = 'app-kit-clock-cvah-date-time-div-mat-form-field-picker-update' # mat-form-field
+APP_KIT_CLOCK__CVAH_DATE_TIME_PICKER_UPDATE_INPUT_PICKER_HIDDEN = 'app-kit-clock-cvah-date-time-div-mat-form-field-picker-update-input-picker-hidden' # input
+APP_KIT_CLOCK__CVAH_DATE_TIME_PICKER_UPDATE_INPUT_DATETIME = 'app-kit-clock-cvah-date-time-div-mat-form-field-picker-update-input-datetime' # input
+APP_KIT_CLOCK__CVAH_DATE_TIME_PICKER_UPDATE_MAT_DATEPICKER_TOGGLE = 'app-kit-clock-cvah-date-time-div-mat-form-field-picker-update-mat-datepicker-toggle' # mat-datepicker-toggle
+APP_KIT_CLOCK__CVAH_DATE_TIME_PICKER_UPDATE_MAT_DATEPICKER = 'app-kit-clock-cvah-date-time-div-mat-form-field-picker-update-mat-datepicker' # mat-datepicker
+APP_KIT_CLOCK__CVAH_DATE_TIME_MAT_FORM_FIELD_TIMEZONE = 'app-kit-clock-cvah-date-time-div-mat-form-field-timezone' # mat-form-field
+APP_KIT_CLOCK__CVAH_DATE_TIME_MAT_FORM_FIELD_TIMEZONE_MAT_SELECT = 'app-kit-clock-cvah-date-time-div-mat-form-field-timezone-mat-select' # mat-select
+# TODO app-kit-clock-cvah-date-time-div-mat-form-field-timezone-mat-select-mat-option-* # mat-option
 
-APP_MODAL_DIALOG__APP_DATE_TIME_MAT_FORM_FIELD_PICKER_UPDATE = 'app-modal-dialog-mat-app-date-time-div-mat-form-field-picker-update' # mat-form-field
-APP_MODAL_DIALOG__APP_DATE_TIME_PICKER_UPDATE_INPUT_PICKER_HIDDEN = 'app-modal-dialog-mat-app-date-time-div-mat-form-field-picker-update-input-picker-hidden' # input
-APP_MODAL_DIALOG__APP_DATE_TIME_PICKER_UPDATE_INPUT_DATETIME = 'app-modal-dialog-mat-app-date-time-div-mat-form-field-picker-update-input-datetime' # input
-APP_MODAL_DIALOG__APP_DATE_TIME_PICKER_UPDATE_MAT_DATEPICKER_TOGGLE = 'app-modal-dialog-mat-app-date-time-div-mat-form-field-picker-update-mat-datepicker-toggle' # mat-datepicker-toggle
-APP_MODAL_DIALOG__APP_DATE_TIME_PICKER_UPDATE_MAT_DATEPICKER = 'app-modal-dialog-mat-app-date-time-div-mat-form-field-picker-update-mat-datepicker' # mat-datepicker
-APP_MODAL_DIALOG__APP_DATE_TIME_MAT_FORM_FIELD_TIMEZONE = 'app-modal-dialog-mat-app-date-time-div-mat-form-field-timezone' # mat-form-field
-APP_MODAL_DIALOG__APP_DATE_TIME_MAT_FORM_FIELD_TIMEZONE_MAT_SELECT = 'app-modal-dialog-mat-app-date-time-div-mat-form-field-timezone-mat-select' # mat-select
-# TODO app-modal-dialog-mat-app-date-time-div-mat-form-field-timezone-mat-select-mat-option-* # mat-option
+CVAH_MODAL_DIALOG_MAT__CVAH_DATE_TIME_MAT_FORM_FIELD_PICKER_UPDATE = 'cvah-modal-dialog-mat-cvah-date-time-div-mat-form-field-picker-update' # mat-form-field
+CVAH_MODAL_DIALOG_MAT__CVAH_DATE_TIME_PICKER_UPDATE_INPUT_PICKER_HIDDEN = 'cvah-modal-dialog-mat-cvah-date-time-div-mat-form-field-picker-update-input-picker-hidden' # input
+CVAH_MODAL_DIALOG_MAT__CVAH_DATE_TIME_PICKER_UPDATE_INPUT_DATETIME = 'cvah-modal-dialog-mat-cvah-date-time-div-mat-form-field-picker-update-input-datetime' # input
+CVAH_MODAL_DIALOG_MAT__CVAH_DATE_TIME_PICKER_UPDATE_MAT_DATEPICKER_TOGGLE = 'cvah-modal-dialog-mat-cvah-date-time-div-mat-form-field-picker-update-mat-datepicker-toggle' # mat-datepicker-toggle
+CVAH_MODAL_DIALOG_MAT__CVAH_DATE_TIME_PICKER_UPDATE_MAT_DATEPICKER = 'cvah-modal-dialog-mat-cvah-date-time-div-mat-form-field-picker-update-mat-datepicker' # mat-datepicker
+CVAH_MODAL_DIALOG_MAT__CVAH_DATE_TIME_MAT_FORM_FIELD_TIMEZONE = 'cvah-modal-dialog-mat-cvah-date-time-div-mat-form-field-timezone' # mat-form-field
+CVAH_MODAL_DIALOG_MAT__CVAH_DATE_TIME_MAT_FORM_FIELD_TIMEZONE_MAT_SELECT = 'cvah-modal-dialog-mat-cvah-date-time-div-mat-form-field-timezone-mat-select' # mat-select
+# TODO cvah-modal-dialog-mat-cvah-date-time-div-mat-form-field-timezone-mat-select-mat-option-* # mat-option
 
 
 # These are for elasticsearch-cold-log-ingest.component.html
@@ -684,30 +683,29 @@ APP_MIP_CONFIG__GLOBAL__APP_MIP_CONFIG_PASSWORD__CONFIRM_PASSWORD_MAT_ERROR = 'a
 
 
 # These are for modal-dialog-display-mat.component.html
-APP_MODAL_DIALOG_DISPLAY_MAT__TITLE = 'app-modal-dialog-display-mat-h2-title' # h2
-APP_MODAL_DIALOG_DISPLAY_MAT__PRE_CODE_INFO = 'app-modal-dialog-display-mat-div-pre-code-info' # code
-APP_MODAL_DIALOG_DISPLAY_MAT__BUTTON_CLOSE = 'app-modal-dialog-display-mat-div-button-close' # button
+CVAH_MODAL_DIALOG_DISPLAY_MAT__TITLE = 'cvah-modal-dialog-display-mat-h2-title' # h2
+CVAH_MODAL_DIALOG_DISPLAY_MAT__INFO = 'cvah-modal-dialog-display-mat-info' # code
+CVAH_MODAL_DIALOG_DISPLAY_MAT__BUTTON_CLOSE = 'cvah-modal-dialog-display-mat-button-close' # button
 
 
 # These are for modal-dialog-mat.component.html
-APP_MODAL_DIALOG_MAT__TITLE = 'app-modal-dialog-mat-h2-title' # h2
-APP_MODAL_DIALOG_MAT__P_INSTRUCTIONS = 'app-modal-dialog-mat-div-p-instructions' # p
-# TODO app-modal-dialog-mat-div-*-mat-form-field-textinput # mat-form-field
-# TODO app-modal-dialog-mat-div-*-mat-form-field-textinput-mat-label # mat-label
-# TODO app-modal-dialog-mat-div-*-mat-form-field-textinput-input # input
-# TODO app-modal-dialog-mat-div-*-mat-form-field-texttextarea # mat-form-field
-# TODO app-modal-dialog-mat-div-*-mat-form-field-texttextarea-mat-label # mat-label
-# TODO app-modal-dialog-mat-div-*-mat-form-field-texttextarea-textarea # textarea
-# TODO app-modal-dialog-mat-div-*-mat-form-field-passwordinput # mat-form-field
-# TODO app-modal-dialog-mat-div-*-mat-form-field-passwordinput-mat-label # mat-label
-# TODO app-modal-dialog-mat-div-*-mat-form-field-passwordinput-input # input
-# TODO app-modal-dialog-mat-div-*-mat-form-field-select # mat-form-field
-# TODO app-modal-dialog-mat-div-*-mat-form-field-select-mat-select # mat-select
-# TODO app-modal-dialog-mat-div-*-mat-form-field-select-mat-select-mat-option-* # mat-option
-# TODO app-modal-dialog-mat-div-*-mat-error # mat-error
-# TODO app-modal-dialog-mat-div-*-app-date-time # app-date-time (internal)
-APP_MODAL_DIALOG_MAT__BUTTON_CANCEL = 'app-modal-dialog-mat-div-button-cancel' # button
-APP_MODAL_DIALOG_MAT__BUTTON_CONFIRM = 'app-modal-dialog-mat-div-button-confirm' # button
+CVAH_MODAL_DIALOG_MAT__TITLE = 'cvah-modal-dialog-mat-h2-title' # h2
+CVAH_MODAL_DIALOG_MAT__P_INSTRUCTIONS = 'cvah-modal-dialog-mat-div-p-instructions' # p
+# TODO cvah-modal-dialog-mat-div-*-mat-form-field-textinput # mat-form-field
+# TODO cvah-modal-dialog-mat-div-*-mat-form-field-textinput-mat-label # mat-label
+# TODO cvah-modal-dialog-mat-div-*-mat-form-field-textinput-input # input
+# TODO cvah-modal-dialog-mat-div-*-mat-form-field-texttextarea # mat-form-field
+# TODO cvah-modal-dialog-mat-div-*-mat-form-field-texttextarea-mat-label # mat-label
+# TODO cvah-modal-dialog-mat-div-*-mat-form-field-texttextarea-textarea # textarea
+# TODO cvah-modal-dialog-mat-div-*-mat-form-field-passwordinput # mat-form-field
+# TODO cvah-modal-dialog-mat-div-*-mat-form-field-passwordinput-mat-label # mat-label
+# TODO cvah-modal-dialog-mat-div-*-mat-form-field-passwordinput-input # input
+# TODO cvah-modal-dialog-mat-div-*-mat-form-field-select # mat-form-field
+# TODO cvah-modal-dialog-mat-div-*-mat-form-field-select-mat-select # mat-select
+# TODO cvah-modal-dialog-mat-div-*-mat-form-field-select-mat-select-mat-option-* # mat-option
+# TODO cvah-modal-dialog-mat-div-*-mat-error # mat-error
+CVAH_MODAL_DIALOG_MAT__BUTTON_CANCEL = 'cvah-modal-dialog-mat-div-button-cancel' # button
+CVAH_MODAL_DIALOG_MAT__BUTTON_CONFIRM = 'cvah-modal-dialog-mat-div-button-confirm' # button
 
 
 # These are for modal-table.component.html
@@ -739,13 +737,13 @@ CVAH_NODE_MAINTENANCE_FORM__MAT_EXPANSION_PANEL = 'cvah-node-maintenance-form-ex
 CVAH_NOTIFICATIONS_OPEN_DIALOG_WINDOW = 'cvah-notifications-open-dialog-window' # div
 CVAH_NOTIFICATIONS_LENGTH = 'cvah-notifications-length' # a
 # TODO cvah-notifications-dialog_window-button-name-* # button
-CVAH_NOTIFICATIONS_DIALOG_BUTTON_NAME_ALL = 'cvah-notifications-dialog-window-button-name-all' # button
-CVAH_NOTIFICATIONS_DIALOG_WINDOW_BUTTON_CLEAR_ALL = 'cvah-notifications-dialog-window-button-clear-all' # button
-# TODO cvah-notifications-dialog-window-*-*--statusactionapp # div
-# TODO cvah-notifications-dialog-window-*-message # div
-# TODO cvah-notifications-dialog-window-*-exception # div
-# TODO cvah-notifications-dialog-window-*-displaytime # div
-# TODO cvah-notifications-dialog-window-*-button-delete # button
+CVAH_NOTIFICATIONS_DIALOG_BUTTON_NAME_ALL = 'cvah-notifications-dialog-button-name-all' # button
+CVAH_NOTIFICATIONS_DIALOG_WINDOW_BUTTON_CLEAR_ALL = 'cvah-notifications-dialog-button-clear-all' # button
+# TODO cvah-notifications-dialog-*-*--statusactionapp # div
+# TODO cvah-notifications-dialog-*-message # div
+# TODO cvah-notifications-dialog-*-exception # div
+# TODO cvah-notifications-dialog-*-displaytime # div
+# TODO cvah-notifications-dialog-*-button-delete # button
 
 
 # These are for passwored-mangement.component.html

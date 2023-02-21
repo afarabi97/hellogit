@@ -61,21 +61,6 @@ interface MockFile {
   mimeType: string;
 }
 
-class MatDialogMock {
-  // When the component calls this.dialog.open(...) we'll return an object
-  // with an afterClosed method that allows to subscribe to the dialog result observable.
-  open() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-  closeAll() {
-    return {
-      afterClosed: () => of(null)
-    };
-  }
-}
-
 class MockSocket {
   getSocket() {
     return {'on': () => {}};
@@ -199,7 +184,7 @@ describe('AgentBuilderChooserComponent', () => {
       ],
       providers: [
         ApiService,
-        { provide: MatDialog, useClass: MatDialogMock },
+        { provide: MatDialog, useFactory: () => jasmine.createSpyObj('MatDialog', ['open', 'closeAll']) },
         { provide: WebsocketService, useClass: MockSocket }
       ]
     }).compileComponents();
@@ -555,6 +540,9 @@ describe('AgentBuilderChooserComponent', () => {
       it('should call agents_install()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.agents_install(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1);
 
         expect(component.agents_install).toHaveBeenCalled();
@@ -562,6 +550,9 @@ describe('AgentBuilderChooserComponent', () => {
 
       it('should call get_credentials_() from agents_install()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.agents_install(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1);
 
@@ -573,6 +564,9 @@ describe('AgentBuilderChooserComponent', () => {
       it('should call agents_uninstall()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.agents_uninstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1);
 
         expect(component.agents_uninstall).toHaveBeenCalled();
@@ -580,6 +574,9 @@ describe('AgentBuilderChooserComponent', () => {
 
       it('should call get_credentials_() from agents_uninstall()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.agents_uninstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1);
 
@@ -591,6 +588,9 @@ describe('AgentBuilderChooserComponent', () => {
       it('should call agent_uninstall()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.agent_uninstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1, MockHostClass1);
 
         expect(component.agent_uninstall).toHaveBeenCalled();
@@ -598,6 +598,9 @@ describe('AgentBuilderChooserComponent', () => {
 
       it('should call get_credentials_() from agent_uninstall()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.agent_uninstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1, MockHostClass1);
 
@@ -609,6 +612,9 @@ describe('AgentBuilderChooserComponent', () => {
       it('should call agent_reinstall()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.agent_reinstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1, MockHostClass1);
 
         expect(component.agent_reinstall).toHaveBeenCalled();
@@ -616,6 +622,9 @@ describe('AgentBuilderChooserComponent', () => {
 
       it('should call get_credentials_() from agent_reinstall()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.agent_reinstall(MockAgentInstallerConfigurationClass1, MockIPTargetListClass1, MockHostClass1);
 
@@ -626,6 +635,9 @@ describe('AgentBuilderChooserComponent', () => {
     describe('delete_agent_installer_configuration_confirm_dialog()', () => {
       it('should call delete_agent_installer_configuration_confirm_dialog()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.delete_agent_installer_configuration_confirm_dialog(MockAgentInstallerConfigurationClass1);
 
@@ -657,6 +669,9 @@ describe('AgentBuilderChooserComponent', () => {
       it('should call delete_ip_target_list_confirm_dialog()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.delete_ip_target_list_confirm_dialog(MockIPTargetListClass1);
 
         expect(component.delete_ip_target_list_confirm_dialog).toHaveBeenCalled();
@@ -687,6 +702,9 @@ describe('AgentBuilderChooserComponent', () => {
       it('should call new_agent_installer_configuration()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component.app_configs = MockAppConfigClassesArray;
         component.new_agent_installer_configuration();
 
@@ -707,6 +725,7 @@ describe('AgentBuilderChooserComponent', () => {
       it('should not call api_agent_save_config_() after mat dialog ref closed from within new_agent_installer_configuration()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.app_configs = MockAppConfigClassesArray;
@@ -719,6 +738,9 @@ describe('AgentBuilderChooserComponent', () => {
     describe('new_ip_target_list()', () => {
       it('should call new_ip_target_list()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.new_ip_target_list();
 
@@ -738,6 +760,7 @@ describe('AgentBuilderChooserComponent', () => {
       it('should not call api_agent_save_ip_target_list_() after mat dialog ref closed from within new_ip_target_list()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.new_ip_target_list();
@@ -833,6 +856,9 @@ describe('AgentBuilderChooserComponent', () => {
     describe('remove_hosts_from_ip_target_list()', () => {
       it('should call remove_hosts_from_ip_target_list()', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.remove_hosts_from_ip_target_list(MockIPTargetListClass1, host_list, MockHostClass1, 1);
 

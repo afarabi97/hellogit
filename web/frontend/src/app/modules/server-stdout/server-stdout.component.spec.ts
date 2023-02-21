@@ -286,21 +286,21 @@ describe('ServerStdoutComponent', () => {
         expect(component['api_job_get_']).toHaveBeenCalled();
       });
 
-      it('should call job_service_.job_get() from api_job_get_()', () => {
+      it('should call global_job_service_.job_get() from api_job_get_()', () => {
         reset();
 
         component['job_id_'] = MockGenericJobAndKeyClass.job_id;
         component['api_job_get_']();
 
-        expect(component['job_service_'].job_get).toHaveBeenCalled();
+        expect(component['global_job_service_'].job_get).toHaveBeenCalled();
       });
 
-      it('should call from job_service_.job_get() and handle response and set allow_retry = false', () => {
+      it('should call from global_job_service_.job_get() and handle response and set allow_retry = false', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['job_service_'], 'job_get').and.returnValue(of(MockBackgroundJobClassStarted));
+        spyOn<any>(component['global_job_service_'], 'job_get').and.returnValue(of(MockBackgroundJobClassStarted));
 
         component['job_id_'] = MockGenericJobAndKeyClass.job_id;
         component.allow_retry = true;
@@ -309,12 +309,12 @@ describe('ServerStdoutComponent', () => {
         expect(component.allow_retry).toBeFalse();
       });
 
-      it('should call from job_service_.job_get() and handle response and set allow_retry = true', () => {
+      it('should call from global_job_service_.job_get() and handle response and set allow_retry = true', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['job_service_'], 'job_get').and.returnValue(of(MockBackgroundJobClassFailed));
+        spyOn<any>(component['global_job_service_'], 'job_get').and.returnValue(of(MockBackgroundJobClassFailed));
 
         component['job_id_'] = MockGenericJobAndKeyClass.job_id;
         component.allow_retry = false;
@@ -323,12 +323,12 @@ describe('ServerStdoutComponent', () => {
         expect(component.allow_retry).toBeTrue();
       });
 
-      it('should call job_service_.job_get() and handle error response instance ErrorMessageClass', () => {
+      it('should call global_job_service_.job_get() and handle error response instance ErrorMessageClass', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['job_service_'], 'job_get').and.returnValue(throwError(MockErrorMessageClass));
+        spyOn<any>(component['global_job_service_'], 'job_get').and.returnValue(throwError(MockErrorMessageClass));
 
         component['job_id_'] = MockGenericJobAndKeyClass.job_id;
         component['api_job_get_']();
@@ -336,12 +336,12 @@ describe('ServerStdoutComponent', () => {
         expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
       });
 
-      it('should call job_service_.job_get() and handle error', () => {
+      it('should call global_job_service_.job_get() and handle error', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['job_service_'], 'job_get').and.returnValue(throwError(mock_http_error_response));
+        spyOn<any>(component['global_job_service_'], 'job_get').and.returnValue(throwError(mock_http_error_response));
 
         component['job_id_'] = MockGenericJobAndKeyClass.job_id;
         component['api_job_get_']();

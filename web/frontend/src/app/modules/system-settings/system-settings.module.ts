@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { GlobalHiveSettingsService } from '../../services/global-hive-settings.service';
+import { GlobalComponentsModule } from '../global-components/global-components.module';
 import { ServerStdoutModule } from '../server-stdout/server-stdout.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { GeneralSettingsPaneComponent } from './components/general-settings/general-settings-pane.component';
@@ -30,7 +31,8 @@ import { SystemSettingsComponent } from './system-settings.component';
     ReactiveFormsModule,
     MaterialModule,
     BrowserAnimationsModule,
-    ServerStdoutModule
+    ServerStdoutModule,
+    GlobalComponentsModule
   ],
   declarations: [
     GeneralSettingsPaneComponent,

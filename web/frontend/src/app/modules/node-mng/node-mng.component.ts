@@ -1,18 +1,20 @@
 import { Component, OnInit, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
-import { Router } from '@angular/router';
 import * as FileSaver from 'file-saver';
 
 import { JobClass, KitSettingsClass, KitStatusClass, NodeClass } from '../../classes';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { ConfirmDialogMatDialogDataInterface, ServerStdoutMatDialogDataInterface } from '../../interfaces';
 import { CatalogService } from '../../services/catalog.service';
 import { KitSettingsService } from '../../services/kit-settings.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { UserService } from '../../services/user.service';
 import { WebsocketService } from '../../services/websocket.service';
+import { ConfirmDialogComponent } from '../global-components/components/confirm-dialog/confirm-dialog.component';
 import { NodeInfoDialogComponent } from '../global-components/components/node-info-dialog/node-info-dialog.component';
+import {
+  NodeStateProgressBarComponent
+} from '../global-components/components/node-state-progress-bar/node-state-progress-bar.component';
 import { ServerStdoutComponent } from '../server-stdout/server-stdout.component';
 import { AddNodeDialogComponent } from './components/add-node-dialog/add-node-dialog.component';
 
@@ -23,7 +25,8 @@ const DIALOG_WIDTH = '1000px';
   templateUrl: './node-mng.component.html'
 })
 export class NodeManagementComponent implements OnInit {
-  @ViewChildren('progressCircles') public progressCircles;
+  // Used by a parent component
+  @ViewChildren('progressCircles') public progress_circles: NodeStateProgressBarComponent[];
   nodesColumns = ['hostname', 'ip_address', 'node_type', 'deployment_type', 'state', 'actions'];
   setupNodesColumns = ['hostname', 'node_type', 'state'];
   nodes: NodeClass[] = [];
@@ -39,7 +42,6 @@ export class NodeManagementComponent implements OnInit {
               private title: Title,
               private matSnackBarSrv: MatSnackBarService,
               private userService: UserService,
-              private router: Router,
               private dialog: MatDialog,
               private kitSettingsSvc: KitSettingsService,
               private _CatalogService: CatalogService) {
@@ -209,7 +211,7 @@ export class NodeManagementComponent implements OnInit {
     }
   }
 
-  openConsole(job_id: string): void {
+  open_job_server_std_out_console(job_id: string): void {
     const server_stdout_mat_dialog_data: ServerStdoutMatDialogDataInterface = {
       job_id: job_id
     };
@@ -239,7 +241,7 @@ export class NodeManagementComponent implements OnInit {
       if (response === option2) {
         this.kitSettingsSvc.deployKit().subscribe(data => {
           const job_id = data['job_id'];
-          this.openConsole(job_id);
+          this.open_job_server_std_out_console(job_id);
         });
       }
     });
@@ -251,7 +253,7 @@ export class NodeManagementComponent implements OnInit {
     } else {
       this.kitSettingsSvc.deployKit().subscribe(data => {
         const job_id = data['job_id'];
-        this.openConsole(job_id);
+        this.open_job_server_std_out_console(job_id);
       });
     }
   }
@@ -292,7 +294,6 @@ export class NodeManagementComponent implements OnInit {
       if (response === option2) {
         //TODO this method is currently stubbed out to be used to call REST
         this.kitSettingsSvc.refreshKit().subscribe(data => {
-          console.log(data);
         });
       }
     });
@@ -300,7 +301,6 @@ export class NodeManagementComponent implements OnInit {
 
   setupCtrlPlane(){
     this.kitSettingsSvc.setupControlPlane().subscribe(data => {
-      console.log(data);
     });
   }
 

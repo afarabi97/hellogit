@@ -2,14 +2,21 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angu
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
-import { GeneralSettingsClass, KitSettingsClass, KitStatusClass, ObjectUtilitiesClass } from '../../../../classes';
-import { PasswordMessageComponent } from '../../../../components/password-message/password-message.component';
+import {
+  BackgroundJobClass,
+  GeneralSettingsClass,
+  KitSettingsClass,
+  KitStatusClass,
+  ObjectUtilitiesClass
+} from '../../../../classes';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
 import { KitStatusInterface, ServerStdoutMatDialogDataInterface } from '../../../../interfaces';
+import { GlobalJobService } from '../../../../services/global-job.service';
 import { KitSettingsService } from '../../../../services/kit-settings.service';
 import { UserService } from '../../../../services/user.service';
 import { WebsocketService } from '../../../../services/websocket.service';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
+import { PasswordMessageComponent } from '../../../global-components/components/password-message/password-message.component';
 import { ServerStdoutComponent } from '../../../server-stdout/server-stdout.component';
 import { kitSettingsValidators } from '../../validators/kit-settings.validator';
 
@@ -43,6 +50,7 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
   kitJobRunning: boolean = false;
 
   constructor(private websocket_service_: WebsocketService,
+              private global_job_service_: GlobalJobService,
               private kitSettingsSrv: KitSettingsService,
               private userService: UserService,
               private dialog: MatDialog) {
@@ -93,7 +101,7 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
     }
 
     if (this.job_id && this.kitStatus.general_settings_configured){
-      this.kitSettingsSrv.getJob(this.job_id).subscribe(data => {
+      this.global_job_service_.job_get(this.job_id).subscribe((data: BackgroundJobClass) => {
         if (data && data['status'] === 'started'){
           this.kitJobRunning = true;
           this.kitButtonToolTip = 'Job is running...';
@@ -175,9 +183,11 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
 
   setKubernetes(dhcp_range) {
     this.kubernetes_ip_options = JSON.parse(JSON.stringify(this.unused_ip_addresses));
-    for(var x=0; x<this.kubernetes_ip_options.length; x++)
-      if(this.kubernetes_ip_options[x].endsWith(".32"))
+    for (let x=0; x<this.kubernetes_ip_options.length; x++) {
+      if (this.kubernetes_ip_options[x].endsWith(".32")) {
         this.kubernetes_ip_options.splice(x, 1);
+      }
+    }
     const index = this.kubernetes_ip_options.indexOf(dhcp_range);
     if (index !== -1) {
       this.kubernetes_ip_options.splice(index, 1);

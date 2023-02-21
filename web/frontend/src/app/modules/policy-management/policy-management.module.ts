@@ -6,6 +6,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { GlobalPCAPService } from '../../services/global-pcap.service';
 import { SensorHostInfoService } from '../../services/sensor-host-info.service';
+import { GlobalComponentsModule } from '../global-components/global-components.module';
 import { NGXMonacoTextEditorModule } from '../ngx-monaco-text-editor/ngx-monaco-text-editor.module';
 import { MaterialModule } from '../utilily-modules/material.module';
 import { RuleAddEditComponent } from './components/rule-add-edit/rule-add-edit.component';
@@ -21,7 +22,8 @@ import { PolicyManagementComponent } from './policy-management.component';
     ReactiveFormsModule,
     MaterialModule,
     BrowserAnimationsModule,
-    NGXMonacoTextEditorModule
+    NGXMonacoTextEditorModule,
+    GlobalComponentsModule
   ],
   declarations: [
     RuleSetAddEditComponent,

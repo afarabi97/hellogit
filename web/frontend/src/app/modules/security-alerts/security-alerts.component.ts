@@ -15,8 +15,13 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { forkJoin, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
-import { ErrorMessageClass, ObjectUtilitiesClass, PortalLinkClass } from '../../classes';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import {
+  DialogFormControlClass,
+  DialogFormControlConfigClass,
+  ErrorMessageClass,
+  ObjectUtilitiesClass,
+  PortalLinkClass
+} from '../../classes';
 import {
   CANCEL_DIALOG_OPTION,
   CONFIRM_DIALOG_OPTION,
@@ -25,18 +30,15 @@ import {
   SAVE_DIALOG_OPTION,
   TRUE
 } from '../../constants/cvah.constants';
+import { DialogControlTypesEnum } from '../../enums/dialog-control-types.enum';
 import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
-import {
-  DialogControlTypes,
-  DialogFormControl,
-  DialogFormControlConfigClass
-} from '../../modal-dialog-mat/modal-dialog-mat-form-types';
-import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
 import { CookieService } from '../../services/cookies.service';
 import { GlobalHiveSettingsService } from '../../services/global-hive-settings.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { PortalService } from '../../services/portal.service';
 import { WindowsRedirectHandlerService } from '../../services/windows_redirect_handler.service';
+import { ConfirmDialogComponent } from '../global-components/components/confirm-dialog/confirm-dialog.component';
+import { ModalDialogMatComponent } from '../global-components/components/modal-dialog-mat/modal-dialog-mat.component';
 import { AlertListClass, ModifyRemoveReturnClass } from './classes';
 import { AlertDrillDownDialogComponent } from './components/alert-drilldown-dialog/alert-drilldown-dialog.component';
 import {
@@ -1248,25 +1250,25 @@ export class SecurityAlertsComponent implements OnInit, AfterViewInit, OnChanges
             const event_tags_config: DialogFormControlConfigClass = new DialogFormControlConfigClass();
             event_tags_config.tooltip = EVENT_TAGS_CONFIG_TOOLTIP;
             event_tags_config.label = EVENT_TAGS_CONFIG_LABEL;
-            event_tags_config.controlType = DialogControlTypes.chips;
+            event_tags_config.controlType = DialogControlTypesEnum.chips;
             const event_description_config: DialogFormControlConfigClass = new DialogFormControlConfigClass();
             event_description_config.validatorOrOpts = [Validators.required];
             event_description_config.tooltip = EVENT_DECRIPTION_CONFIG_TOOLTIP;
             event_description_config.label = EVENT_DECRIPTION_CONFIG_LABEL;
-            event_description_config.controlType = DialogControlTypes.textarea;
+            event_description_config.controlType = DialogControlTypesEnum.textarea;
             event_description_config.formState = `[Kibana SIEM Link](${kibana_link})\n\n[Arkime Link](${arkime_link})`;
             const event_severity_config: DialogFormControlConfigClass = new DialogFormControlConfigClass();
             event_severity_config.tooltip = EVENT_SEVERITY_CONFIG_TOOLTIP;
             event_severity_config.label = EVENT_SEVERITY_CONFIG_LABEL;
             event_severity_config.formState = severity;
             event_severity_config.validatorOrOpts = [Validators.required];
-            event_severity_config.controlType = DialogControlTypes.dropdown;
+            event_severity_config.controlType = DialogControlTypesEnum.dropdown;
             event_severity_config.options = ['1', '2', '3'];
             const escalate_event_form_group: FormGroup = this.form_builder_.group({
-              event_title: new DialogFormControl(event_title_config),
-              event_tags: new DialogFormControl(event_tags_config),
-              event_severity: new DialogFormControl(event_severity_config),
-              event_description: new DialogFormControl(event_description_config)
+              event_title: new DialogFormControlClass(event_title_config),
+              event_tags: new DialogFormControlClass(event_tags_config),
+              event_severity: new DialogFormControlClass(event_severity_config),
+              event_description: new DialogFormControlClass(event_description_config)
             });
             this.open_escalate_alert_(update_alert, message, escalate_event_form_group);
           }

@@ -1,5 +1,5 @@
 
-import { BackgroundJobClass } from '../../src/app/modules/server-stdout/classes';
+import { BackgroundJobClass } from '../../src/app/classes';
 import {
   MockBackgroundJobInterface,
   MockBackgroundJobInterfaceFailed,
