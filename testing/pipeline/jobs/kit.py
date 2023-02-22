@@ -200,4 +200,3 @@ class KitSettingsJob:
 
     def run_test_teardown(self):
         self._close_test_ports()
-

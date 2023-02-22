@@ -346,13 +346,13 @@ class ArkimeReplayer:
     def run_arkime_docker_cmd(self, pcap: Path):
         pcap_name = pcap.name
         cmd = (
-            "docker run --rm -v {pcap_path}:/pcaps/{pcap_name} "
+            "docker run --network host --rm -v {pcap_path}:/pcaps/{pcap_name} "
             "-v {tmp_dir}/config.ini:/data/moloch/etc/config.ini "
             "-v {tmp_dir}/ca.crt:/etc/ssl/certs/container/ca.crt "
             "--add-host tfplenum-es-data-0.tfplenum-es-data.default.svc.cluster.local:{elastic_ip} "
             "localhost:5000/tfplenum/arkime:{version} "
             "/data/moloch/bin/moloch-capture -c /data/moloch/etc/config.ini "
-            "-r /pcaps/{pcap_name}"
+            "-r /pcaps/{pcap_name} "
         ).format(
             pcap_path=str(pcap),
             pcap_name=pcap_name,

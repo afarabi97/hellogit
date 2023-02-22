@@ -411,12 +411,12 @@
     insertbefore: ^[#\s]*Match
     validate: /usr/sbin/sshd -t -f %s
 
-- name: "RHEL-08-010292 | LOW | RHEL 8 must ensure the SSH server uses strong entropy"
-  lineinfile:
-    path: /etc/sysconfig/sshd
-    create: false
-    regexp: '^SSH_USE_STRONG_RNG='
-    line: "SSH_USE_STRONG_RNG=32"
+# - name: "RHEL-08-010292 | LOW | RHEL 8 must ensure the SSH server uses strong entropy"
+#   lineinfile:
+#     path: /etc/sysconfig/sshd
+#     create: false
+#     regexp: '^SSH_USE_STRONG_RNG='
+#     line: "SSH_USE_STRONG_RNG=32"
 
 - name: "RHEL-08-010370 | HIGH | Ensure GPG check is globally activated (yum)"
   ini_file:

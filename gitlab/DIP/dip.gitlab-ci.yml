@@ -262,8 +262,8 @@ LTAC Setup:
     untracked: true
   only:
     variables:
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "hw-developer-all"
+      - $PIPELINE == "developer-all" && $DEPLOY_LTAC == "yes"
+      - $PIPELINE == "hw-developer-all" && $DEPLOY_LTAC == "yes"
 
 Perform Security Scans:
   stage: security_scans

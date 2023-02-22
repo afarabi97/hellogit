@@ -1,0 +1,17 @@
+[nexus_baseos]
+name = Nexus Repository Baseos
+enabled = 1
+gpgcheck = 1
+baseurl = https://nexus.sil.lab/repository/rhel8-proxy/$releasever/$basearch/baseos/os
+ui_repoid_vars = releasever basearch
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+priority=1
+
+[nexus_appstream]
+name = Nexus RHEL x86_64 AppStream Proxy (RPMs)
+enabled = 1
+gpgcheck = 1
+baseurl = https://nexus.sil.lab/repository/rhel8-proxy/$releasever/$basearch/appstream/os
+ui_repoid_vars = releasever basearch
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+priority=1

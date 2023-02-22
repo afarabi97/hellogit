@@ -67,6 +67,7 @@ variables:
   RUN_POWER_FAILURE: "yes"
   RUN_BREAKINGPOINT: "no"
   RUN_SECURITY_SCANS: "yes"
+  DEPLOY_LTAC: "no"
   UPDATE_CODE: "yes"
   IS_CLEANUP: "no"
   RUN_ROBOT_REGRESSION: "no"

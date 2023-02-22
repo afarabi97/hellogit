@@ -318,8 +318,8 @@ GIP:
 - app: vcenter
   src:
     - Repo/GIP/Software/vcenter/VMware-VCSA-all-7.0.1-17004997.iso
-    - Repo/GIP/Software/vcenter/VMware-VMvisor-Installer-7.0.0-16324942.x86_64-DellEMC_Customized-A02.iso
-  dest: GIP/Data/CVAH 3.7/Software/vcenter
+    - Repo/GIP/Software/vcenter/VMware-VMvisor-Installer-7.0.0.update02-17630552.x86_64-DellEMC_Customized-A00_ks.iso
+  dest: staging_gip/v3.7/GIP/Data/CVAH 3.7/Software/vcenter
 
 - app: vms
   src:

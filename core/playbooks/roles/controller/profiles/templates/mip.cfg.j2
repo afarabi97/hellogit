@@ -19,10 +19,10 @@ eula --agreed
 
 # Network information
 {% if node_index is defined %}
-network --device={{ hostvars[node_index].mac | lower }} --bootproto=static --ip={{ hostvars[node_index].management_ipv4 }} --netmask={{ netmask }} --gateway={{ gateway }} --nameserver={{ dns }} --noipv6 --activate
+network --device={{ hostvars[node_index].mac | lower }} --bootproto=static --ip={{ hostvars[node_index].management_ipv4 }} --netmask={{ netmask }} --gateway={{ gateway }} --nameserver={{ dns }} --noipv6 --activate --onboot=yes
 network  --hostname={{ node_index }}
 {% else %}
-network  --bootproto=dhcp --device=eth0 --noipv6 --activate
+network  --bootproto=dhcp --device=eth0 --noipv6 --activate --onboot=yes
 network  --hostname=localhost.localdomain
 {% endif %}
 
@@ -90,8 +90,11 @@ EOF
 
 %include /tmp/partition_layout
 
-%packages
+%packages --ignoremissing
 @workstation
+# for pidgin
+@workstation-product --optional
+@internet-applications --optional
 @base
 # @compat-libraries
 @core
@@ -116,6 +119,11 @@ EOF
 elfutils-libelf-devel
 libglvnd-devel
 rasdaemon
+# For NVIDIA Drivers to work with Vulkan:
+vulkan-loader
+vulkan-tools
+vulkan-headers
+mesa-vulkan-drivers
 @Development Tools
 # @x11
 {% if node_index is defined and hostvars[node_index].deployment_type == "Virtual" %}
@@ -162,7 +170,7 @@ echo 'install_items="/etc/mypasswdfile /etc/crypttab"' > /etc/dracut.conf.d/99-m
 systemctl set-default graphical.target
 
 # instruct dracut to apply the configuration
-dracut -f
+dracut -f --regenerate-all
 
 #disable wayland
 sed -i 's/#WaylandEnable=false/WaylandEnable=false/' /etc/gdm/custom.conf
@@ -179,9 +187,9 @@ fi
 
 #install NVIDIA
 if $check_nvidia; then
-    curl -o /tmp/NVIDIA_Quadro_RHEL82_440_64.tar.gz http://{{ server_ip }}/MIP/NVIDIA_Quadro_RHEL82_440_64.tar.gz
-    tar -xvzf /tmp/NVIDIA_Quadro_RHEL82_440_64.tar.gz -C /tmp
-    /tmp/NVIDIA_Quadro_RHEL82_440_64/NVIDIA-Linux-x86_64-440.64.run --accept-license --silent
+    DRIVER=NVIDIA-Linux-x86_64-525.85.05.run
+    curl -o /tmp/$DRIVER http://{{ server_ip }}/MIP/$DRIVER
+    bash /tmp/$DRIVER --accept-license --silent -k $(rpm -qa | grep -i kernel-4 | cut -f 2,3 -d "-")
 fi
 
 #install AMD
@@ -191,6 +199,9 @@ if $check_amd; then
     /tmp/amdgpu-pro-20.10-1101037-rhel-8.1/amdgpu-install -y
 
 fi
+
+# instruct dracut to apply the configuration (Ensure GFX driver is also loaded)
+dracut -f --regenerate-all
 %end
 
 %anaconda

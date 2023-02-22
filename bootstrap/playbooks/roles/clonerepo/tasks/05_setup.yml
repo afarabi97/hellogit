@@ -71,3 +71,87 @@
     group: root
     setype: tftpdir_rw_t
     mode: '0644'
+# - name: Subscribe to RHEL
+#   community.general.redhat_subscription:
+#     state: present
+#     activationkey: "{{ RHEL_ACTIVATIONKEY }}"
+#     org_id: "{{ RHEL_ORGANIZATION }}"
+#     pool: '^(Red Hat Enterprise Server)$'
+#     auto_attach: true
+#     release: 8.7
+
+- name: Run DNF Clean All
+  shell: |
+    dnf clean all
+  register: results
+  changed_when: results.rc == 0
+
+# - name: Run Version Lock
+#   shell: |
+#     subscription-manager release --set=8.7
+#   register: results
+#   changed_when: results.rc == 0
+
+- name: Clean AppStream Folder
+  shell: |
+    rm -rf /var/www/html/offlinerepo/tfplenum/AppStream/*
+  register: results
+  changed_when: results.rc == 0
+
+- name: Clean BaseOS Folder
+  shell: |
+    rm -rf /var/www/html/offlinerepo/tfplenum/BaseOS/*
+  register: results
+  changed_when: results.rc == 0
+
+- name: Copy SELinux type enforcement file
+  copy: src=nexus.repo
+        dest=/etc/yum.repos.d/
+
+- name: Run RepoSync Commands (appstream)
+  shell: |
+    dnf reposync -n --norepopath --repoid=nexus_appstream --destdir=/var/www/html/offlinerepo/tfplenum/AppStream --download-metadata
+  register: results
+  changed_when: results.rc == 0
+
+- name: Run RepoSync Commands (baseos)
+  shell: |
+    dnf reposync -n --norepopath --repoid=nexus_baseos --destdir=/var/www/html/offlinerepo/tfplenum/BaseOS --download-metadata
+  register: results
+  changed_when: results.rc == 0
+
+- name: Upgrade Controller OS
+  shell: |
+    dnf -y upgrade
+  register: results
+  changed_when: results.rc == 0
+
+- name: Copy SELinux type enforcement file
+  copy: src=mod_shib-to-shibd.te
+        dest=/root/
+
+- name: Compile SELinux module file
+  command: checkmodule -m -M -o /root/mod_shib-to-shibd.mod /root/mod_shib-to-shibd.te
+
+- name: Build SELinux policy package
+  command: semodule_package -o /root/mod_shib-to-shibd.pp -m /root/mod_shib-to-shibd.mod
+
+- name: Load SELinux policy package
+  command: semodule -i /root/mod_shib-to-shibd.pp
+
+# Maybe cleanup later?
+#- name: Remove temporary files
+#  file: path=/root/mod_shib-to-shibd.*
+#        state=absent
+
+- name: Run DNF Clean All again
+  shell: |
+    dnf clean all
+  register: results
+  changed_when: results.rc == 0
+
+# - name: Un-Subscribe to RHEL
+#   community.general.redhat_subscription:
+#     state: absent
+#     activationkey: "{{ RHEL_ACTIVATIONKEY }}"
+#     org_id: "{{ RHEL_ORGANIZATION }}"

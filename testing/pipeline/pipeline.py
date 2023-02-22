@@ -341,6 +341,8 @@ class Runner:
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
                 job = KitSettingsJob(ctrl_settings, kit_settings)
                 job.run_test_teardown()
+            elif args.which == SubCmd.run_catalog:
+                catalog_parser.print_help()
             elif args.which == SubCmd.run_export:
                 export_parser.print_help()
             elif args.which == SubCmd.checkout_latest_code:

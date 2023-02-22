@@ -18,7 +18,6 @@
     dest: "{{ item.dest }}"
     timeout: 20
   loop:
-    - { "src": "kernel/{{ kernel_file }}", "dest": "{{ web_root }}/MIP/" }
     - { "src": "vmware/{{ vmware_file }}", "dest": "{{ web_root }}/MIP/" }
     - { "src": "vscode/{{ vscode_file }}", "dest": "{{ extras_dir }}/Packages" }
     - { "src": "gitkraken/{{ gitkraken_file }}", "dest": "{{ extras_dir }}/Packages" }

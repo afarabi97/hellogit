@@ -49,6 +49,23 @@
     owner: root
     mode: 0644
 
+- name: 'Delete Default Registries Files'
+  file:
+    path: "/etc/containers/{{ item }}"
+    state: absent
+  with_items:
+   - registries.conf.d
+   - registries.d
+
+- name: 'Create Default Registries Folders'
+  file:
+    path: "/etc/containers/{{ item }}"
+    state: directory
+    mode: '0750'
+  with_items:
+   - registries.conf.d
+   - registries.d
+
 - name: reload systemd
   systemd:
     daemon_reload: yes

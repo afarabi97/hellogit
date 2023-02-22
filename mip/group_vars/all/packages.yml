@@ -23,9 +23,6 @@ packages:
   #Modules required for grub splash page
   - grub2-efi-x64-modules
   #VMware packages
-  - kernel-4.18.0-193.el8.x86_64
-  - kernel-headers-4.18.0-193.el8.x86_64
-  - kernel-devel-4.18.0-193.el8.x86_64
   - gcc
   - libnsl*
   - make
@@ -108,7 +105,7 @@ mip_images_tar: MIP_Images_v1.tar
 twofa_tar: ans_2fa_rhel8_scripts_v3.tar.gz
 
 #Drivers
-nvidia_driver: NVIDIA_Quadro_RHEL82_440_64.tar.gz
+nvidia_driver: NVIDIA-Linux-x86_64-525.85.05.run
 amd_driver: amdgpu-pro-20.10-1101037-rhel-8.1.tar.xz
 
 #Third Party Software
@@ -120,9 +117,5 @@ vscode_file: code-1.59.1-1629375274.el8.x86_64.rpm
 # Redhat Microcode Software
 microcode_file: microcode_ctl-20210608-1.el8.x86_64.rpm
 
-# RHEL Kernel Update
-kernel_file: kernel-4.18.0-372.19.tar.gz
-
 software:
   - "{{ web_server }}/{{ vmware_file }}"
-  - "{{ web_server }}/{{ kernel_file }}"

@@ -115,13 +115,15 @@ function rhel_reposync() {
     repo_path="/var/www/html/repo"
     mkdir -p $repo_path
     pushd "$repo_path" > /dev/null
+    subscription-manager release --set=8.7
     for repo in ${SERVER_REPOS[@]}; do
         echo "Syncing $repo..."
-        dnf reposync -m --repoid=$repo --destdir=$repo_path --download-metadata
-        pushd $repo_path/$repo > /dev/null
-        rm -rf .repodata
-        rm -rf repodata
-        popd > /dev/null
+        dnf reposync -n --repoid=$repo --destdir=$repo_path --download-metadata
+        #This removes group metadata... -- leave comments for now - Suede
+        #pushd $repo_path/$repo > /dev/null
+        #rm -rf .repodata
+        #rm -rf repodata
+        #popd > /dev/null
     done
     createrepo $repo_path
     echo "RHEL sync complete"
@@ -183,6 +185,52 @@ enabled=1
 gpgcheck=1
 baseurl=file:///var/www/html/repo/
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+EOF
+}
+
+function setup_reposync_config() {
+    ip_addr=$(ip a show dev ens192 | grep -i "inet " | cut -d " " -f 6 | cut -d "/" -f 1)
+    cat << EOF > /var/www/html/reposync.repo
+[RepoSync_BaseOS]
+name=RepoSync_BaseOS
+metadata_expire=-1
+enabled=1
+gpgcheck=1
+baseurl=http://$ip_addr/repo/BaseOS
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[RepoSync_AppStream]
+name=RepoSync_AppStream
+metadata_expire=-1
+enabled=1
+gpgcheck=1
+baseurl=http://$ip_addr/repo/AppStream
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[RepoSync_Supplementary]
+name=RepoSync_Supplementary
+metadata_expire=-1
+enabled=1
+gpgcheck=1
+baseurl=http://$ip_addr/repo/supplementary
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[RepoSync_CodeReady_Builder]
+name=RepoSync_CodeReady_Builder
+metadata_expire=-1
+enabled=1
+gpgcheck=1
+baseurl=http://i$ip_addr/repo/codeready-builder
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+EOF
+
+cat << EOF > /var/www/html/repo/update.sh
+#!/bin/bash
+dnf clean all
+mv /etc/yum.repos.d/*.repo ~
+curl -o /etc/yum.repos.d/reposync.repo http://$ip_addr/repo/reposync.repo
+dnf upgrade -y
+reboot
 EOF
 }
 

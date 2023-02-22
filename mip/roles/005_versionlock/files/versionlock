@@ -1,8 +1,8 @@
 # Added locks on Tue Feb  4 08:30:31 2020
-0:kernel-4.18.0-193.el8.*
+0:kernel-4.18.0-425.10.1.el8.*
 
 # Added locks on Tue Feb  4 08:31:16 2020
-0:kernel-headers-4.18.0-193.el8.*
+0:kernel-headers-4.18.0-425.10.1.el8.*
 
 # Added locks on Tue Feb  4 08:31:28 2020
-0:kernel-devel-4.18.0-193.el8.*
+0:kernel-devel-4.18.0-425.10.1.el8.*

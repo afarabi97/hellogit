@@ -8,12 +8,12 @@
 # The only valid categories are: 'registries.search', 'registries.insecure',
 # and 'registries.block'.
 
-[registries.search]
-registries = ['{{ docker_registry_repo }}']
+#[registries.search]
+#registries = ['{{ docker_registry_repo }}']
 
 # If you need to access insecure registries, add the registry's fully-qualified name.
 # An insecure registry is one that does not have a valid SSL certificate or only does HTTP.
-[registries.insecure]
+#[registries.insecure]
 #registries = ['{{ docker_registry_repo }}']
 
 
@@ -21,5 +21,10 @@ registries = ['{{ docker_registry_repo }}']
 # and add the registries fully-qualified name.
 #
 # Docker only
-[registries.block]
-registries = []
+#[registries.block]
+#registries = []
+
+unqualified-search-registries = ["{{ docker_registry_repo }}"]
+
+[[registry]]
+location = "{{ docker_registry_repo }}"
