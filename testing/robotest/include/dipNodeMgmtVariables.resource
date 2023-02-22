@@ -6,8 +6,9 @@ ${tmplLocNodeProvError}                             xpath=//tr[td[a[contains(tex
 ${tmplLocNodeDeployProgressBar}                     xpath=//tr[td[a[contains(text(),'~')]]]/td/cvah-node-state-progress-bar/a[3]/mat-icon[text()="check_circle"]
 ${tmplLocNodeDeployError}                           xpath=//tr[td[a[contains(text(),'~')]]]/td/cvah-node-state-progress-bar/a[3]/mat-icon[text()="cancel"]
 
-# This is a special templated list variable
-${tmplListLocRobotTestCleanupDeleteBtn}             xpath=//mat-card[2]//tr[td[a[contains(text(),'~')]]]//following-sibling::td[5]//button[@mattooltip='Delete Node']
+# Templated variable for delete node button
+${tmplDeleteNodeBtn}                                xpath=//tr[td[a[contains(text(),'~')]]]//following-sibling::td[5]//button[@mattooltip='Delete Node']
+${tmplDeleteMipBtn}                                 xpath=//tr[td[a[contains(text(),'~')]]]//following-sibling::td[4]//button[@mattooltip='Delete MIP']
 
 # Element Locators
 # Control Plane
@@ -27,6 +28,3 @@ ${tmplLocNodeMgmtAddNodeDialogRadioBtn}             xpath=//mat-radio-button[@va
 ${locNodeMgmtAddNodeDialogVMRadioBtn}               xpath=//div[@class='mat-radio-container' and input[@value='Virtual']]
 ${locNodeMgmtAddNodeDialogSubmitBtn}                xpath=//add-node-dialog//button/span[text()="Add"]
 ${locNodeMgmtAddMipDialogSubmitBtn}                 xpath=//cvah-add-mip-dialog//button/span[text()="Add"]
-
-# Cleanup Locators
-${locNodeMgmtAddNodeDoubleConfirmDeleteBtn}         xpath=//button[@id='cvah-confirm-dialog-button-options2-not-double-confirm']/span

@@ -7,6 +7,7 @@ Documentation          Test suite for the virtual DIP controller. The following 
 
 Resource    ../../lib/dipCommonKeywords.resource
 Resource    ../../lib/dipCatalogKeywords.resource
+Resource    ../../lib/dipMipMgmtKeywords.resource
 Resource    ../../lib/dipNodeMgmtKeywords.resource
 Variables   ../../include/element_ids_frontend.py
 
@@ -30,11 +31,19 @@ Uninstall Apps From Catalog Page
     Set Selenium Speed            0.5s
     Clean Up Catalog Page
 
-Remove Node - Virtual
-    [Tags]  THISISCVAH-10221
-    [Documentation]  Removes virtual nodes that were added in the previous test
+Remove Additional Nodes And MIP - Virtual
+    [Tags]  THISISCVAH-13786
+    [Documentation]  Removes virtual nodes and MIP that were added in the 03__addVirtualNodes test suite
     Set Selenium Speed  0.5s
     Navigate To Node Management
-    Delete Node  text=robottest-sensor
-    Delete Node  text=robottest-service
+    Delete Node  hostname=robottest-sensor
+    Delete Node  hostname=robottest-service
+
+    Navigate To MIP Management
+    Delete MIP  hostname=robottest-mip
+
+    Navigate To Node Management
     Verify Node Was Deleted  robottest-sensor  robottest-service
+
+    Navigate To MIP Management
+    Verify Node Was Deleted  robottest-mip

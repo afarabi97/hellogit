@@ -1,9 +1,6 @@
 *** Settings ***
 Resource    ../include/dipNodeMgmtVariables.resource
 
-Library    SeleniumLibrary    15s
-Library    SSHLibrary         15s
-Library    String
 
 *** Keywords ***
 Setup Control Plane
@@ -62,7 +59,7 @@ MIP Setup
 
 Enter Virtual Node Information
     [Arguments]  ${node_type}  ${hostname}
-    [Documentation]  Adds virtual node (server, sensor, service) to the DIP kit
+    [Documentation]  Fills out the Add Node Dialog form on Node Management page
     ${node_exists} =  Check If Node Exists  ${hostname}
     IF  ${node_exists} == ${False}
         log  Entering node information in Add Node Dialog.
@@ -84,6 +81,7 @@ Enter Virtual Node Information
 
 Check If Node Exists
     [Arguments]  ${name}
+    [Documentation]  Checks if a node with a specified hostname already exists on the kit
     Sleep  2s
     ${node_name_loc} =  Catenate  SEPARATOR=  ${locNodeHostnames}  [contains(text(), '${name}')]
     ${count} =  Get Element Count  ${node_name_loc}
@@ -102,8 +100,8 @@ Check If Node Exists
 
 Verify Node Was Added
     [Arguments]  @{node_names}  ${server_setup}=${FALSE}
-    [Documentation]      Waits for a period of time to ensure
-    ...                  the newly added node has finish deploying
+    [Documentation]  Waits for a period of time to ensure
+    ...              the newly added node has finish deploying
     FOR  ${node}  IN  @{node_names}
         log  Verifying node was added: ${node}
         IF  ${server_setup}
@@ -116,18 +114,15 @@ Verify Node Was Added
     END
 
 Delete Node
-    [Arguments]  ${text}
-    [Documentation]    Deletes node with hostname passed in as ${text}.
-    ...                Change text to a specific name to
-    ...                use it a single node
-    log                Cleaning up the virtual nodes
-    shoot              AddNodeCleanup
-    ${node_name} =  lower  ${text}
-    ${delete_button} =  inject  ${tmplListLocRobotTestCleanupDeleteBtn}  ${node_name}
+    [Arguments]  ${hostname}
+    [Documentation]  Deletes node with hostname passed in as ${hostname}.
+    log  Delete node with hostname: ${hostname}
+    ${node_name} =  lower  ${hostname}
+    ${delete_button} =  inject  ${tmplDeleteNodeBtn}  ${node_name}
     ${count} =  Get Element Count  ${delete_button}
     IF  ${count} > 0
         click  ${delete_button}
-        click  ${locNodeMgmtAddNodeDoubleConfirmDeleteBtn}
+        click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
         Sleep  3s
     END
 

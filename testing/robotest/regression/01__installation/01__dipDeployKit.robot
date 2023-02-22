@@ -6,6 +6,7 @@ Documentation          Test suite for the virtual DIP controller. The following 
 ...                    teardown. This saves some time when executing several test cases.
 
 Resource    ../../lib/dipCommonKeywords.resource
+Resource    ../../lib/dipMipMgmtKeywords.resource
 Resource    ../../lib/dipNodeMgmtKeywords.resource
 Resource    ../../lib/dipSysSettingsKeywords.resource
 Variables   ../../include/element_ids_frontend.py
