@@ -4,6 +4,7 @@ export * from './accumulator.interface';
 export * from './calculated-space.interface';
 export * from './capacity-allocatable-remaining.interface';
 export * from './column-definitions.interface';
+export * from './column-definitions-localhost.interface';
 export * from './datastore.interface';
 export * from './describe-pod-node.interface';
 export * from './elasticsearch-object.interface';

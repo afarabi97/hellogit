@@ -101,7 +101,7 @@ export class HealthDashboardNodeTableComponent implements OnChanges {
     const token_changes: SimpleChange = changes['token'];
     /* istanbul ignore else */
     if (ObjectUtilitiesClass.notUndefNull(token_changes) &&
-        ((token_changes.currentValue !== token_changes.previousValue) || token_changes.isFirstChange)) {
+        (((token_changes.currentValue !== token_changes.previousValue) && (ObjectUtilitiesClass.notUndefNull(token_changes.previousValue))) || token_changes.isFirstChange)) {
       this.reload();
     }
   }

@@ -14,6 +14,7 @@ export const DIALOG_WIDTH_80VW: string = '80vw';
 export const DIALOG_HEIGHT_90VH: string = '90vh';
 export const DIALOG_WIDTH_35PERCENT: string = '35%';
 export const DIALOG_WIDTH_50PERCENT: string = '50%';
+export const DIALOG_WIDTH_400PX: string = '400px';
 export const DIALOG_WIDTH_500PX: string = '500px';
 export const DIALOG_WIDTH_800PX: string = '800px';
 export const DIALOG_WIDTH_900PX: string = '900px';

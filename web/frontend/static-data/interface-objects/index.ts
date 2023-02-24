@@ -56,6 +56,7 @@ export * from './job.interface';
 export * from './job-log.interface';
 export * from './key-value.interface';
 export * from './kit-form.interface';
+export * from './kit-settings.interface';
 export * from './kit-token.interface';
 export * from './kubernetes-config.interface';
 export * from './mat-dialog-data-title-infostring.interface';

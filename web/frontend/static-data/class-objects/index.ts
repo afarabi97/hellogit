@@ -43,6 +43,7 @@ export * from './job.class';
 export * from './job-log.class';
 export * from './key-value.class';
 export * from './kit-form.class';
+export * from './kit-settings.class';
 export * from './kit-token.class';
 export * from './kubernetes-config.class';
 export * from './mat-snackbar-configuration.class';

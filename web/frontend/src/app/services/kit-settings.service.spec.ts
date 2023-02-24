@@ -4,18 +4,30 @@ import { Observable, of } from 'rxjs';
 import {
   MockGeneralSettingsClass,
   MockGenericJobAndKeyClass,
+  MockKitSettingsClass,
   MockKitStatusClass,
   MockMipSettingsClass,
   MockNodeClassArray
 } from '../../../static-data/class-objects';
 import { MockUnusedIpAddresses } from '../../../static-data/return-data';
-import { GeneralSettingsClass, GenericJobAndKeyClass, KitStatusClass, MipSettingsClass, NodeClass } from '../classes';
+import {
+  GeneralSettingsClass,
+  GenericJobAndKeyClass,
+  KitSettingsClass,
+  KitStatusClass,
+  MipSettingsClass,
+  NodeClass
+} from '../classes';
 
 @Injectable()
 export class KitSettingsServiceSpy {
 
   getUnusedIPAddresses = jasmine.createSpy('getUnusedIPAddresses').and.callFake(
     (mng_ip: string, netmask: string): Observable<string[]> => this.call_fake_get_unused_ip_addresses(mng_ip, netmask)
+  );
+
+  getKitSettings = jasmine.createSpy('getKitSettings').and.callFake(
+    (): Observable<KitSettingsClass> => this.call_fake_get_kit_settings()
   );
 
   getMipSettings = jasmine.createSpy('getMipSettings').and.callFake(
@@ -44,6 +56,10 @@ export class KitSettingsServiceSpy {
 
   call_fake_get_unused_ip_addresses(mng_ip: string, netmask: string): Observable<string[]> {
     return of(MockUnusedIpAddresses);
+  }
+
+  call_fake_get_kit_settings(): Observable<KitSettingsClass> {
+    return of(MockKitSettingsClass);
   }
 
   call_fake_get_mip_settings(): Observable<MipSettingsClass> {

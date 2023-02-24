@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Subject } from 'rxjs';
 
 import { remove_styles_from_dom } from '../../../../../../../../static-data/functions/clean-dom.function';
 import { MockPodLogDialogDataInterface } from '../../../../../../../../static-data/interface-objects';
@@ -13,9 +12,6 @@ describe('PodLogDialogComponent', () => {
 
   // Setup spy references
   let spyClose: jasmine.Spy<any>;
-
-  // Used to handle subscriptions
-  const ngUnsubscribe$: Subject<void> = new Subject<void>();
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -45,9 +41,6 @@ describe('PodLogDialogComponent', () => {
   };
 
   afterAll(() => {
-    ngUnsubscribe$.next();
-    ngUnsubscribe$.complete();
-
     remove_styles_from_dom();
   });
 

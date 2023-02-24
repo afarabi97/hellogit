@@ -1,11 +1,20 @@
 import { ConfirmActionConfigurationInterface } from '../../../interfaces';
-import { ColumnDefinitionsInterface } from '../interfaces';
+import { ColumnDefinitionsInterface, ColumnDefinitionsLocalhostInterface } from '../interfaces';
 
+export const HEALTH_DASHBOARD_TITLE: string = 'Health';
+export const LOCALHOST: string = 'localhost';
 export const BYTES_PER_GIB: number = 1024 * 1024 * 1024;
 export const COLUMNS_FOR_DATASTORE_TABLE: string[] = [ 'name', 'free', 'capacity', 'percent_full' ];
 export const COLUMNS_FOR_SENSOR_TABLE: string[] = [ 'app', 'total_packets', 'total_packets_dropped' ];
 export const COLUMNS_FOR_SERVER_TABLE: string[] = [ 'node_name', 'thread_pool_name', 'rejects' ];
 export const COLUMNS_FOR_GROUP_HEADER_TABLE: string[] = [ 'node_name', 'group_status' ];
+export const COLUMN_DEFINITIONS_LOCALHOST_DASHBOARD: ColumnDefinitionsLocalhostInterface[] = [
+  { def: 'hostname', localhost_only: false },
+  { def: 'ipaddress', localhost_only: true },
+  { def: 'elasticsearch_status', localhost_only: true },
+  { def: 'kibana_status', localhost_only: true },
+  { def: 'actions', localhost_only: false }
+];
 export const COLUMN_DEFINITIONS_NODES: ColumnDefinitionsInterface[] = [
   { def: 'name', remote_access: true },
   { def: 'address', remote_access: true },
@@ -38,3 +47,5 @@ export const CLOSE_CONFIRM_ACTION_CONFIGURATION: ConfirmActionConfigurationInter
   useGeneralActionFunc: true,
   actionFunc: () => {}
 };
+export const KIT_UNAVAILABLE : string = 'No data present or data is too old. Check that the remote health agent is running on the selected kit.';
+export const KIBANA_LOGIN: string = 'Kibana Login';

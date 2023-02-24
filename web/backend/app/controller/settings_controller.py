@@ -194,13 +194,14 @@ class KitSettings(Resource):
         return JobIDModel(job).to_dict()
 
     @SETINGS_NS.response(200, "KitSettingsForm Model", KitSettingsForm.DTO)
+    @SETINGS_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     def get(self) -> Response:
         try:
             settings = KitSettingsForm.load_from_db()  # type: KitSettingsForm
             if settings:
                 return settings.to_dict()
         except DBModelNotFound:
-            return {"message": "DBModelNotFound"}, 200
+            return {"error_message": "Kit settings form not found"}, 400
 
 
     @SETINGS_NS.expect(KitSettingsForm.DTO)

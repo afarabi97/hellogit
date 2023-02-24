@@ -179,7 +179,7 @@ describe('HealthDashboardPodTableComponent', () => {
         expect(component.pod_displayed_cols).toHaveBeenCalled();
       });
 
-      it('should call pod_displayed_cols() and return ', () => {
+      it('should call pod_displayed_cols() and return all columns def', () => {
         reset();
 
         const return_value: string[] = component.pod_displayed_cols();
@@ -187,7 +187,7 @@ describe('HealthDashboardPodTableComponent', () => {
         expect(return_value).toEqual(columns_all);
       });
 
-      it('should call pod_displayed_cols() and return ', () => {
+      it('should call pod_displayed_cols() and return all remote access columns def', () => {
         reset();
 
         component.token = MockKitTokenClass;

@@ -44,7 +44,7 @@ describe('HealthDashboardNodeTableComponent', () => {
 
   // Test Data
   const simple_changes: SimpleChanges = new Object() as SimpleChanges;
-  const options_simple_change: SimpleChange = new SimpleChange(MockKitTokenClass, MockKitTokenClassAlt, true);
+  const options_simple_change: SimpleChange = new SimpleChange(undefined, MockKitTokenClassAlt, true);
   simple_changes['token'] = options_simple_change;
   const simple_changes_alt: SimpleChanges = new Object() as SimpleChanges;
   const options_simple_change_alt: SimpleChange = new SimpleChange(MockKitTokenClass, MockKitTokenClassAlt, false);
@@ -144,7 +144,7 @@ describe('HealthDashboardNodeTableComponent', () => {
         expect(component.node_displayed_cols).toHaveBeenCalled();
       });
 
-      it('should call node_displayed_cols() and return ', () => {
+      it('should call node_displayed_cols() and return all columns def', () => {
         reset();
 
         const return_value: string[] = component.node_displayed_cols();
@@ -152,7 +152,7 @@ describe('HealthDashboardNodeTableComponent', () => {
         expect(return_value).toEqual(columns_all);
       });
 
-      it('should call node_displayed_cols() and return ', () => {
+      it('should call node_displayed_cols() and return all remote access columns def', () => {
         reset();
 
         component.token = MockKitTokenClass;
