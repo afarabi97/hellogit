@@ -29,6 +29,7 @@ alias run_backend_docker_acceptance_tests='run_tfplenum_docker_test -S backend -
 alias run_debug_rqworker='systemctl stop rqworker@{1..20};redis-cli FLUSHDB;/opt/tfplenum/.venv/bin/rqworker --path /opt/tfplenum/web/backend/'
 alias start_rq_workers='systemctl start rqworker@{1..20};'
 alias refresh='source /root/.bashrc'
+alias create_git_excludes='cd /opt/tfplenum && git status --porcelain | grep '^??' | cut -c4- >> /opt/tfplenum/.git/info/exclude'
 
 if [ -f "/opt/tfplenum/.dev_bash_functions" ]; then
     # shellcheck disable=SC1091

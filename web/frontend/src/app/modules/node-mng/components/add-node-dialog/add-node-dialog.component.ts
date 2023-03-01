@@ -12,7 +12,7 @@ import {
   NodeClass,
   ObjectUtilitiesClass
 } from '../../../../classes';
-import { COMMON_VALIDATORS, PXE_TYPES } from '../../../../constants/cvah.constants';
+import { COMMON_VALIDATORS, CONTROL_PLANE, PXE_TYPES } from '../../../../constants/cvah.constants';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
 import { KitSettingsService } from '../../../../services/kit-settings.service';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
@@ -35,6 +35,7 @@ export interface DeploymentOption {
 })
 export class AddNodeDialogComponent implements OnInit {
   @ViewChild('virtualNodeForm') virtualNodeForm: VirtualNodeFormComponent;
+  control_plane_node_detected: boolean;
   isRaid: boolean;
   isCreateDuplicate: boolean;
   nodeForm: FormGroup;
@@ -55,6 +56,7 @@ export class AddNodeDialogComponent implements OnInit {
               private kitSettingsSrv: KitSettingsService,
               private mat_snackbar_service_: MatSnackBarService,
               @Inject(MAT_DIALOG_DATA) public pcap_name: any) {
+    this.control_plane_node_detected = false;
     //TODO pass in unused IP Addresses
     this.isRaid = false;
     dialogRef.disableClose = true;
@@ -119,6 +121,11 @@ export class AddNodeDialogComponent implements OnInit {
         }
 
         this.kitSettingsSrv.getNodes().subscribe((response: NodeClass[]) => {
+          response.forEach((node: NodeClass) => {
+            if (node.node_type === CONTROL_PLANE) {
+              this.control_plane_node_detected = true;
+            }
+          });
           for (const node of response) {
             this.validationHostnames.push(node['hostname'].split('.')[0]);
             this.validationIPs.push(node['ip_address']);

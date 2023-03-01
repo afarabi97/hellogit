@@ -1,9 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { AbstractControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatRadioChange } from '@angular/material/radio';
 
 import { ObjectUtilitiesClass } from '../../../../classes';
-import { MINIO, MIP, SENSOR, SERVER, SERVICE, VIRTUAL, LTAC } from '../../../../constants/cvah.constants';
+import { CONTROL_PLANE, LTAC, MINIO, MIP, SENSOR, SERVER, SERVICE, VIRTUAL } from '../../../../constants/cvah.constants';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
 import { addNodeValidators } from '../../../../validators/add-node.validator';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
@@ -56,29 +56,17 @@ export class VirtualNodeFormComponent {
   set_default_values(node_type: string): void {
     /* istanbul ignore else */
     if ((node_type === SERVER) || (node_type === SENSOR)) {
-      this.node_form_group.get('virtual_cpu').setValue(16);
-      this.node_form_group.get('virtual_mem').setValue(32);
-      this.node_form_group.get('virtual_os').setValue(100);
-      this.node_form_group.get('virtual_data').setValue(500);
+      this.set_virtual_group_values_(16, 32, 100, 500);
     } else if (node_type === SERVICE) {
-      this.node_form_group.get('virtual_cpu').setValue(16);
-      this.node_form_group.get('virtual_mem').setValue(24);
-      this.node_form_group.get('virtual_os').setValue(100);
-      this.node_form_group.get('virtual_data').setValue(500);
+      this.set_virtual_group_values_(16, 24, 100, 500);
     } else if (node_type === MIP) {
-      this.node_form_group.get('virtual_cpu').setValue(8);
-      this.node_form_group.get('virtual_mem').setValue(8);
-      this.node_form_group.get('virtual_os').setValue(500);
+      this.set_virtual_group_values_(8, 8, 500, null);
     } else if (node_type === MINIO) {
-      this.node_form_group.get('virtual_cpu').setValue(8);
-      this.node_form_group.get('virtual_mem').setValue(8);
-      this.node_form_group.get('virtual_os').setValue(100);
-      this.node_form_group.get('virtual_data').setValue(10000);
+      this.set_virtual_group_values_(8, 8, 100, 10000);
     } else if (node_type == LTAC) {
-      this.node_form_group.get('virtual_cpu').setValue(16);
-      this.node_form_group.get('virtual_mem').setValue(64);
-      this.node_form_group.get('virtual_os').setValue(256);
-      this.node_form_group.setControl('virtual_data', null);
+      this.set_virtual_group_values_(16, 64, 256, null);
+    } else if (node_type == CONTROL_PLANE) {
+      this.set_virtual_group_values_(8, 8, 50, null);
     }
   }
 
@@ -137,5 +125,26 @@ export class VirtualNodeFormComponent {
    */
   has_data_drive(): boolean {
     return ObjectUtilitiesClass.notUndefNull(this.node_form_group.get('virtual_data'));
+  }
+
+  /**
+   * Used for setting the virtual form control values for node_form_group
+   *
+   * @private
+   * @param {number} cpu_cores
+   * @param {number} memory_size
+   * @param {number} os_drive_size
+   * @param {(number | null)} data_drive_size
+   * @memberof VirtualNodeFormComponent
+   */
+  private set_virtual_group_values_(cpu_cores: number, memory_size: number, os_drive_size: number, data_drive_size: number | null): void {
+    this.node_form_group.get('virtual_cpu').setValue(cpu_cores);
+    this.node_form_group.get('virtual_mem').setValue(memory_size);
+    this.node_form_group.get('virtual_os').setValue(os_drive_size);
+    if (ObjectUtilitiesClass.notUndefNull(data_drive_size)) {
+      this.node_form_group.setControl('virtual_data', new FormControl(data_drive_size));
+    } else {
+      this.node_form_group.setControl('virtual_data', null);
+    }
   }
 }

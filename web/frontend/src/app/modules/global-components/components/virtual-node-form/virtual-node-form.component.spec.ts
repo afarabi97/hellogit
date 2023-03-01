@@ -6,6 +6,8 @@ import { remove_styles_from_dom } from '../../../../../../static-data/functions/
 import {
   BAREMETAL,
   COMMON_VALIDATORS,
+  CONTROL_PLANE,
+  LTAC,
   MINIO,
   MIP,
   SENSOR,
@@ -29,6 +31,7 @@ describe('VirtualNodeFormComponent', () => {
   let spySetDefaultValues: jasmine.Spy<any>;
   let spySetVirtualFormValidation: jasmine.Spy<any>;
   let spyHasDataDrive: jasmine.Spy<any>;
+  let spySetVirtualGroupValues: jasmine.Spy<any>;
 
   // Test Data
   const input_name: string = 'ip_address';
@@ -82,6 +85,7 @@ describe('VirtualNodeFormComponent', () => {
     spySetDefaultValues = spyOn(component, 'set_default_values').and.callThrough();
     spySetVirtualFormValidation = spyOn(component, 'set_virtual_form_validation').and.callThrough();
     spyHasDataDrive = spyOn(component, 'has_data_drive').and.callThrough();
+    spySetVirtualGroupValues = spyOn<any>(component, 'set_virtual_group_values_').and.callThrough();
 
     // Detect changes
     fixture.detectChanges();
@@ -93,11 +97,12 @@ describe('VirtualNodeFormComponent', () => {
     spySetDefaultValues.calls.reset();
     spySetVirtualFormValidation.calls.reset();
     spyHasDataDrive.calls.reset();
+    spySetVirtualGroupValues.calls.reset();
 
     node_form_group_with_data.get('virtual_cpu').setValue(undefined);
     node_form_group_with_data.get('virtual_mem').setValue(undefined);
     node_form_group_with_data.get('virtual_os').setValue(undefined);
-    node_form_group_with_data.get('virtual_data').setValue(undefined);
+    node_form_group_with_data.setControl('virtual_data', new FormControl(undefined));
 
     node_form_group_without_data.get('virtual_cpu').setValue(undefined);
     node_form_group_without_data.get('virtual_mem').setValue(undefined);
@@ -172,10 +177,11 @@ describe('VirtualNodeFormComponent', () => {
         component.set_default_values(SERVER);
         component.set_default_values(SENSOR);
         component.set_default_values(SERVICE);
+        component.set_default_values(MINIO);
         component.node_form_group = node_form_group_without_data;
         component.set_default_values(MIP);
-        component.node_form_group = node_form_group_with_data;
-        component.set_default_values(MINIO);
+        component.set_default_values(LTAC);
+        component.set_default_values(CONTROL_PLANE);
 
         expect(component.set_default_values).toHaveBeenCalled();
       });
@@ -231,6 +237,41 @@ describe('VirtualNodeFormComponent', () => {
         const return_value: boolean = component.has_data_drive();
 
         expect(return_value).toBeFalse();
+      });
+    });
+
+    describe('private set_virtual_group_values_()', () => {
+      it('should call set_virtual_group_values_()', () => {
+        reset();
+
+        component.node_form_group = node_form_group_with_data;
+        component['set_virtual_group_values_'](1, 1, 1, 1);
+
+        expect(component['set_virtual_group_values_']).toHaveBeenCalled();
+      });
+
+      it('should call set_virtual_group_values_() and and set node form group virtual values', () => {
+        reset();
+
+        component.node_form_group = node_form_group_with_data;
+        component['set_virtual_group_values_'](1, 1, 1, 1);
+
+        expect(component.node_form_group.get('virtual_cpu').value).toEqual(1);
+        expect(component.node_form_group.get('virtual_mem').value).toEqual(1);
+        expect(component.node_form_group.get('virtual_os').value).toEqual(1);
+        expect(component.node_form_group.get('virtual_data').value).toEqual(1);
+      });
+
+      it('should call set_virtual_group_values_() and and set node form group virtual values', () => {
+        reset();
+
+        component.node_form_group = node_form_group_with_data;
+        component['set_virtual_group_values_'](1, 1, 1, null);
+
+        expect(component.node_form_group.get('virtual_cpu').value).toEqual(1);
+        expect(component.node_form_group.get('virtual_mem').value).toEqual(1);
+        expect(component.node_form_group.get('virtual_os').value).toEqual(1);
+        expect(component.node_form_group.get('virtual_data')).toBeNull();
       });
     });
   });

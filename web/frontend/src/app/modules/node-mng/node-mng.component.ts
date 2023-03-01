@@ -19,6 +19,7 @@ import { ServerStdoutComponent } from '../server-stdout/server-stdout.component'
 import { AddNodeDialogComponent } from './components/add-node-dialog/add-node-dialog.component';
 import { CertInstallDialogComponent } from './components/cert-install-dialog/cert-install-dialog.component';
 
+
 const DIALOG_WIDTH = '1000px';
 
 @Component({
@@ -68,11 +69,8 @@ export class NodeManagementComponent implements OnInit {
   };
 
   disableAddNodeButton(){
-    if (this.kitStatus.control_plane_deployed && !this.kitStatus.deploy_kit_running){
-        return false;
-    }
-    return true;
-  };
+    return this.kitStatus.deploy_kit_running;
+  }
 
   disableDeployKitButton(){
     if (!this.kitStatus.jobs_running && this.kitStatus.ready_to_deploy){

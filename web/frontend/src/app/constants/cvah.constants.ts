@@ -133,6 +133,7 @@ export const SERVICE: string = 'Service';
 export const MIP: string = 'MIP';
 export const MINIO: string = 'MinIO';
 export const LTAC: string = 'LTAC';
+export const CONTROL_PLANE: string = 'Control-Plane';
 
 // Node State
 export const ERROR: string = 'Error';
@@ -148,7 +149,7 @@ export const DEPLOYMENT_OPTIONS: MatOptionInterface[] = [
   { name: BAREMETAL, value: BAREMETAL },
   { name: 'Virtual Machine', value: VIRTUAL }
 ];
-export const NODE_TYPES: string[] = [SERVER, SENSOR, MIP]; //Added MIP
+export const NODE_TYPES: string[] = [SERVER, SENSOR, MIP, CONTROL_PLANE]; //Added MIP
 
 // Pod State
 export const RUNNING: string = 'running';
