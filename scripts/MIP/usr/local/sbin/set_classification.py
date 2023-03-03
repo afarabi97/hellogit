@@ -15,6 +15,10 @@
 #	Version 3.0
 #	Re-written from a BORNE shell script into PYTHON for RHEL 8.2
 #
+#	17-Nov-2022	ceburkhard
+#	version 4.0
+#	Removed the VERSION from the menu output.
+#
 # ********************************************************************************
 #
 
@@ -29,6 +33,7 @@ from common_routines import Check_Root_User, Clear_The_Screen, Execute_Command
 from os import path
 from subprocess import check_output
 
+SET_CLASSIFICATION_VERSION = "4.0"
 
 class Classification_Banner_Class:
     def __init__(self):
@@ -55,7 +60,6 @@ class Classification_Banner_Class:
         self.Banner_Process_Name = "banner.service"
 
         self.Classification_Menu =                                  \
-            "The current version of this script is {}.\n" + \
             "*************************************************\n" + \
             "*                                               *\n" + \
             "*          C L A S S I F I C A T I O N          *\n" + \
@@ -80,7 +84,7 @@ class Classification_Banner_Class:
 
         self.Custom_Foreground_Color =                              \
             "*************************************************\n" + \
-            "*        B A C K G R O U N D   C O L O R        *\n" + \
+            "*        F O R E G R O U N D   C O L O R        *\n" + \
             "*************************************************\n" + \
             "*                                               *\n" + \
             "*              [1]   black                      *\n" + \
@@ -98,27 +102,17 @@ class Classification_Banner_Class:
             "*        B A C K G R O U N D   C O L O R        *\n" + \
             "*************************************************\n" + \
             "*                                               *\n" + \
-            "*              [0]   black                      *\n" + \
+            "*     [0]   black             [1]   blue        *\n" + \
             "*                                               *\n" + \
-            "*              [1]   blue                       *\n" + \
+            "*     [2]   brown             [3]   green       *\n" + \
             "*                                               *\n" + \
-            "*              [2]   brown                      *\n" + \
+            "*     [4]   grey              [5]   orange      *\n" + \
             "*                                               *\n" + \
-            "*              [3]   green                      *\n" + \
+            "*     [6]   purple            [7]   red         *\n" + \
             "*                                               *\n" + \
-            "*              [4]   grey                       *\n" + \
+            "*     [8]   white             [9]   yellow      *\n" + \
             "*                                               *\n" + \
-            "*              [5]   orange                     *\n" + \
-            "*                                               *\n" + \
-            "*              [6]   purple                     *\n" + \
-            "*                                               *\n" + \
-            "*              [7]   red                        *\n" + \
-            "*                                               *\n" + \
-            "*              [8]   white                      *\n" + \
-            "*                                               *\n" + \
-            "*              [9]   yellow                     *\n" + \
-            "*                                               *\n" + \
-            "*              [X]   exit                       *\n" + \
+            "*     [X]   exit                                *\n" + \
             "*                                               *\n" + \
             "*************************************************"
 
@@ -139,7 +133,6 @@ class Classification_Banner_Class:
         if path.exists(Classification_File_Full) == False:
             return self.Classification_Error(
                 "Configuration file {} is missing.".format(Classification_File_Full))
-
         return self.Background_File_Missing()
 
     def run(self):
@@ -169,7 +162,8 @@ class Classification_Banner_Class:
         Output_File = self.CVAH_Logo
         self.Classification_Copy_File(Input_File, Output_File)
         Input_File = "{}/{}-{}.jpg".format(self.Script_Dir,
-                                           self.Sys_Name, self.Background_Color)
+                                           self.Sys_Name,
+                                           self.Background_Color)
         Output_File = self.Share_Background.format(self.Sys_Name)
         try:
             os.remove(Output_File)
@@ -228,11 +222,9 @@ class Classification_Banner_Class:
         set_bkgrnd = subprocess.Popen([su, command])
 
         if set_bkgrnd.returncode != 0:
-            return self.Classification_Error(
-                'Failed to execute {}'.format(command))
+            return self.Classification_Error('Failed to execute {}'.format(command))
 
-        print(
-            "Classification banner & background successfully changed to {}".format(
+        print("Classification banner & background successfully changed to {}".format(
                 self.Classification_Type))
         return True
 
@@ -288,7 +280,7 @@ class Classification_Banner_Class:
 
     def Standard_Classification(self):
         Clear_The_Screen()
-        print(self.Classification_Menu.format(self.Version))
+        print(self.Classification_Menu)
         Classification = input("Please select a classification level: ")
         if Classification >= '1' and Classification <= '5':
             Number = int(Classification) - 1
@@ -312,7 +304,6 @@ class Classification_Banner_Class:
 def Set_Classification():
     if not Check_Root_User():
         print("You must be ROOT to run this script.")
-
     else:
         Set_Class_Banner = Classification_Banner_Class()
         while(Set_Class_Banner.Standard_Classification()):

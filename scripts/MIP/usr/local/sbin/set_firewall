@@ -33,6 +33,11 @@
 # 15Nov2021 V1.03
 #   Kassio Coutinho
 #	Removed firewalld enable requirement that was preventing script from running
+#
+# 05Jan2023 v4.0
+#    Carl Burkhard
+#       Updates per THISISCVAH-13319
+#
 #Description
 #=======================
 # This script sets firewall rules
@@ -49,7 +54,7 @@
 #     * Redistributions in binary form must reproduce the above copyright
 #       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
-
+#
 #     * Neither the name of `hostfw` nor the names of its contributors may
 #       be used to endorse or promote products derived from this software
 #       without specific prior written permission.
@@ -65,51 +70,38 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-VERSION="0.1.2"
+VERSION="4.0"
 
 # Simple host-based permit-by-exception nftables generation script.
 
 # Global variables.
-LOGEXCEPT="0"
-RESETCONN="0"
-ALLOWPING="1"
-ALLOWDHCP="1"
 ALLICMP="0"
-OB_TCP=""
-OB_UDP=""
-IB_TCP=""
-IB_UDP=""
+ALLOWALL="0"
+ALLOWDHCP="1"
+ALLOWPING="1"
+AUTOTRUST="0"
+DEFEXCLD="/etc/exclude.hosts"
+DEFTARGS="/etc/target.hosts"
+DEFTRUST="/etc/trusted.hosts"
+DENYALL="0"
+EX_TARGS=""
 FORWARD_TCP=""
 FORWARD_UDP=""
-IP=""
-OB_TARGS=""
 IB_TARGS=""
-EX_TARGS=""
-AUTOTRUST="0"
-ALLOWALL="0"
-DENYALL="0"
-SHOWRULES="0"
+IB_TCP=""
+IB_UDP=""
+IP=""
+LOGEXCEPT="0"
+OB_TARGS=""
+OB_TCP=""
+OB_UDP=""
 PRINTSTATUS="1"
-DEFTRUST="/etc/trusted.hosts"
-DEFTARGS="/etc/target.hosts"
-DEFEXCLD="/etc/exclude.hosts"
+RESETCONN="0"
+SHOWRULES="0"
 
 # You must be root (uid=0) to set nftables rules.
 if [ $(id -u) != "0" ]; then
 	echo "You must be root to run this command."
-	exit
-fi
-
-systemctl enable nftables
-systemctl start nftables
-
-FWCMD=`which nft 2>/dev/null`
-
-# We want to make sure nftables is available before we attempt to create
-# the rules.
-
-if [ -z $FWCMD ]; then
-	echo "Unable to find \`nft\` in path."
 	exit
 fi
 
@@ -246,6 +238,19 @@ while [ ! -z "$1" ]; do
 	esac
 	shift
 done
+
+systemctl enable nftables
+systemctl start nftables
+
+FWCMD=`which nft 2>/dev/null`
+
+# We want to make sure nftables is available before we attempt to create
+# the rules.
+
+if [ -z $FWCMD ]; then
+	echo "Unable to find \`nft\` in path."
+	exit
+fi
 
 # Handy wrapper to clear the rules.
 flush_rules()

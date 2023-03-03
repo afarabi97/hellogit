@@ -20,7 +20,12 @@
 #	28Oct2020 v2.00
 #		Dylan Sigler
 #		Updated for RHEL 8.2
-#       Updated to Python3
+#		Updated to Python3
+#
+#	17-Nov-2022 v4.0
+#		ceburkhard
+#		Changes necessary inputs to not allow for BLANK input.
+#
 
 # Description
 # ===========
@@ -39,6 +44,7 @@ SMB_CONF_FILE = '/etc/samba/smb.conf'
 SHARE_ROOT = '/cvah/data/assess/'
 MOUNT_ROOT = '/mnt/'
 
+SET_SMBCONFIG_VERSION="4.0"
 
 class smb_manager():
     def __init__(self):
@@ -72,6 +78,13 @@ class smb_manager():
         ]
         self.conf = ConfigParser()
         self.conf.read(SMB_CONF_FILE)
+
+    # Get input, reject blank lines.
+    def _input(self, prompt : str):
+        Answer = ""
+        while len(Answer) == 0 :
+            Answer = input (prompt)
+        return Answer
 
     # Restarts services to effect share changes
     def restart_smb(self):
@@ -134,7 +147,7 @@ class smb_manager():
     # share path
     def create_new_share(self):
         print('Enter x at any point to exit.')
-        name = input("Please enter a 'share name' to create: ")
+        name = self._input("Please enter a 'share name' to create: ")
         if name.lower() == 'x':
             return
 
@@ -142,11 +155,13 @@ class smb_manager():
         if comment.lower() == 'x':
             return
 
-        print("Please enter 'hosts allowed' access to this share")
-        print("* hosts must be 'space separated'")
-        print("* hosts are in 'x.x.x.x' format")
-        print("* entire subnets end with a '.'( i.e. x.x.x. is /24 )")
-        host = input('')
+        Prompt = """
+Please enter 'hosts allowed' access to this share\n
+* hosts must be 'space separated'
+* hosts are in 'x.x.x.x' format
+* entire subnets end with a '.'( i.e. x.x.x. is /24 )
+"""
+        host = self._input(Prompt)
         if host.lower() == 'x':
             return
 
@@ -179,30 +194,38 @@ class smb_manager():
     def delete_share(self):
         self.view_smb(include_vals=False)
 
+        print('Enter x at any point to exit.')
         print("The share directory will not be deleted")
-        self.conf.remove_section(input(
-            "Please enter the 'share name' to remove "))
-
-        self.conf.write(open(SMB_CONF_FILE, 'w'))
-
-        self.restart_smb()
+        Share = self._input( "Please enter the 'share name' to remove ")
+        if Share.lower() == 'x' :
+            return
+        else :
+            self.conf.remove_section(self._input( "Please enter the 'share name' to remove "))
+            self.conf.write(open(SMB_CONF_FILE, 'w'))
+            self.restart_smb()
 
     # Initiates a remote smb connect, lists remote shares, and connects to
     # remote shares
     def connect_remote_share(self):
-        ip = input("Please enter the 'IP address' of the remote machine ")
-        user = input("Please enter a 'user' to authenticate as ")
+        print('Enter x at any point to exit.')
+        ip = self._input("Please enter the 'IP address' of the remote machine ")
+        if ip.lower() == 'x':
+            return
+        user = self._input("Please enter a 'user' to authenticate as ")
+        if user.lower() == 'x':
+            return
 
         print('Aquiring list of shares from server..')
 
-        result = Execute_Command('smbclient -L {} &'.format(ip).split())
-        if result.returncode != 0:
+        result_code = system('smbclient -L localhost {}'.format(ip))
+        if result_code != 0:
             print('Unable to connect to remote share.')
             input("Press enter to continue.")
             return False
 
-        name = input(
-            "What is the 'share name' you would like to connect to? ")
+        name = self._input( "What is the 'share name' you would like to connect to? ")
+        if name.lower() == 'x':
+            return
 
         print('Creating share directory in ' + MOUNT_ROOT + name)
         Execute_Command('mkdir -p {}'.format(MOUNT_ROOT + name).split())
@@ -216,7 +239,6 @@ class smb_manager():
                 print('Unable to connect to remote share')
                 input("Press enter to continue.")
                 return False
-
         else:
             print('Connecting to remote share..')
             result = Execute_Command(

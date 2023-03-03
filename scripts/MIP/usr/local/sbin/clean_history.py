@@ -23,6 +23,8 @@
 import os
 from common_routines import Check_Root_User
 
+_VERSION="3.0"
+
 
 def Remove_Bash_History():
     os.system("truncate -s 0 /root/.bash_history /home/*/.bash_history 2>/dev/null")

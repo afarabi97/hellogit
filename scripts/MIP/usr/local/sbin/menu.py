@@ -16,6 +16,10 @@
 #		SSgt Czerwinski, Thomas J.
 #		*Created
 
+#       05Jan2023 V4.0
+#               Carl Burkhard
+#               Updated per THISISCVAH-13319
+
 # Description
 # ===========
 #	Menu class to facilitate creating terminal menus
@@ -25,6 +29,8 @@
 
 from collections import OrderedDict
 from subprocess import Popen, PIPE, STDOUT
+
+MENU_VERSION = "4.0"
 
 class Menu:
     def __init__(self):

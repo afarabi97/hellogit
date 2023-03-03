@@ -1,3 +1,4 @@
+#!/bin/python3
 # Info
 # ====
 #	file: set_mip.py
@@ -27,7 +28,12 @@
 #	21Oct2020 v2.00
 #		Dylan Sigler
 #		*Converted script from .sh to Python3
-#       *Updated for RHEL 8.2
+#               *Updated for RHEL 8.2
+
+#       05Jan2023  V4.0
+#               Carl Burkhard
+#               Updated per THISISCVAH-13319 ticket, specifically Network Configuration &
+#               Classification Banner Menu.
 
 # Description
 # ===========
@@ -46,9 +52,18 @@ import set_classification as classification
 import set_fwprofile as fwprofile
 import set_networking as set_network
 from set_smbconfig import smb_manager
+
+from common_routines import COMMON_ROUTINES_VERSION
+from menu import MENU_VERSION 
+from set_classification import SET_CLASSIFICATION_VERSION 
+from set_fwprofile import SET_FWPROFILE_VERSION 
+from set_networking import SET_NETWORKING_VERSION
+from set_smbconfig import SET_SMBCONFIG_VERSION
+from set_vmPortForward import SET_VMPORTFORWARD_VERSION
+
 ######################
 # Script Variables
-versionNum = "2.00"
+SET_MIP_VERSION = "4.0 "
 ######################
 
 
@@ -56,35 +71,28 @@ def mainmenu():
     while(True):
         Clear_The_Screen()
         print("""
-        ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        +                                                                      +
-        +                  Red Hat Setup Script {}                           +
-        +                                                                      +
-        ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        +                                                                      +
-        +        [ 1 ] Firewall Options                                        +
-        +                                                                      +
-        +                                                                      +
-        +        [ 2 ] Network Configuration (IP and Mac)                      +
-        +                                                                      +
-        +                                                                      +
-        +        [ 3 ] HostName Configuration                                  +
-        +                                                                      +
-        +                                                                      +
-        +        [ 4 ] Network Shares                                          +
-        +                                                                      +
-        +                                                                      +
-        +        [ 5 ] Classification Configuration                            +
-        +                                                                      +
-        +                                                                      +
-        +        [ Q ] Quick Setup Configuration (Firewall,Network,Hostname)   +
-        +                                                                      +
-        +                                                                      +
-        +        [ X ] Exit Script                                             +
-        +                                                                      +
-        +                                                                      +
-        ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        """.format(versionNum))
+    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +                  Red Hat Setup Script {}                           +
+    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +                                                                      +
+    +        [ 1 ] Firewall Options                                        +
+    +                                                                      +
+    +        [ 2 ] Network Configuration (IP and Mac)                      +
+    +                                                                      +
+    +        [ 3 ] HostName Configuration                                  +
+    +                                                                      +
+    +        [ 4 ] Network Shares                                          +
+    +                                                                      +
+    +        [ 5 ] Classification Configuration                            +
+    +                                                                      +
+    +        [ Q ] Quick Setup Configuration (Firewall,Network,Hostname)   +
+    +                                                                      +
+    +        [ V ] Show version of all Setup Python Script files           +
+    +                                                                      +
+    +        [ X ] Exit Script                                             +
+    +                                                                      +
+    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+""".format(SET_MIP_VERSION))
         command = input("Please make a Selection: ")
         if command == '1':
             Clear_The_Screen()
@@ -93,7 +101,6 @@ def mainmenu():
             Clear_The_Screen()
             set_network.main()
         elif command == '3':
-            Clear_The_Screen()
             hostname_func()
         elif command == '4':
             sm = smb_manager()
@@ -102,16 +109,28 @@ def mainmenu():
             Clear_The_Screen()
             classification.main()
         elif command.lower() == 'q':
-            Clear_The_Screen()
             quickSetup()
+        elif command.lower() == 'v':
+            show_version()
         elif command.lower() == 'x':
             return
         else:
             print("Invalid input")
             time.sleep(1)
 
+def show_version():
+    print("set_mip.py            version is {}".format(SET_MIP_VERSION))
+    print("common_routines.py    version is {}".format(COMMON_ROUTINES_VERSION))
+    print("menu.py               version is {}".format(MENU_VERSION ))
+    print("set_classification.py version is {}".format(SET_CLASSIFICATION_VERSION ))
+    print("set_fwprofile.py      version is {}".format(SET_FWPROFILE_VERSION ))
+    print("set_networking.py     version is {}".format(SET_NETWORKING_VERSION))
+    print("set_smbconfig.py      version is {}".format(SET_SMBCONFIG_VERSION))
+    print("set_vmPortForward.py  version is {}".format(SET_VMPORTFORWARD_VERSION))
+    time.sleep(5)
 
 def quickSetup():
+    Clear_The_Screen()
     print("""
 
         **************************

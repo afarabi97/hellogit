@@ -167,6 +167,7 @@ CPT:
 - app: Documentation
   src:
     - Repo/Shared/Documentation/MIP/App Docs/master
+    - Repo/Shared/Documentation/General-Documentation/THORS HAMMER/3.7.1
   dest: CPT/Data/CVAH 3.7/Documentation/MIP
 
 - app: Documentation
@@ -265,6 +266,7 @@ MDT:
 - app: Documentation
   src:
     - Repo/Shared/Documentation/MIP/App Docs/master
+    - Repo/Shared/Documentation/General-Documentation/THORS HAMMER/3.7.1
   dest: MDT/Data/CVAH 3.7/Documentation/MIP
 
 - app: Documentation

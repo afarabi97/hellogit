@@ -13,8 +13,8 @@
 #	History:
 #
 #	07-Oct-2020	ceburkhard
-#	Version 3.0
-#	Initial writinf of source.  New routine: Check_Root_User
+#	Version 4.0
+#	Initial writing of source.  New routine: Check_Root_User
 #
 # ********************************************************************************
 #
@@ -23,6 +23,7 @@ import getpass
 from os import system, name, geteuid
 import subprocess
 
+COMMON_ROUTINES_VERSION="4.0"
 
 def Check_Root_User():
     User = geteuid()
@@ -53,8 +54,7 @@ def Get_Yes_No(msg, x=True):
 
 def Execute_Command(bashCmd=[]):
     if bashCmd:
-        result = subprocess.run(
-            bashCmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = subprocess.run( bashCmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         result.stdout = result.stdout.decode('utf-8')
         result.stderr = result.stderr.decode('utf-8')
         #print("Command: ", " ".join(bashCmd))

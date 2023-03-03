@@ -24,7 +24,11 @@
 #	 21Oct2020 v3.00
 #		 Dylan Sigler
 #		 *Converted script from .sh to Python3
-#        *Updated for RHEL 8.2
+#                *Updated for RHEL 8.2
+
+#        05Jan2023 v4.0
+#                Carl Burkhard
+#                Updated per THISISCVAH-13319
 
 # Description
 # ===========
@@ -46,6 +50,8 @@ vmPort = 0
 extPort = 0
 correct = 0
 # ---------------------------------
+
+SET_VMPORTFORWARD_VERSION="4.0"
 
 
 def get_ether():
@@ -155,7 +161,6 @@ def vm_or_host():
         %%                   [1] VM (MIP)                       %%
         %%                                                      %%
         %%                   [2] Host (DIP)                     %%
-        %%                                                      %%
         %%                                                      %%
         %%                   [x] Exit                           %%
         %%                                                      %%

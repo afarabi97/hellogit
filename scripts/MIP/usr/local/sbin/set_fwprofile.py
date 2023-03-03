@@ -7,6 +7,11 @@
 # 	*version is major.minor format
 # 	*major is updated when new capability is added
 # 	*minor is updated on fixes and improvements
+#
+#	Version 3.8
+#       Corrected main menu to fit nicely in a 80X24 screen.
+#       Changed the "STATUS" page to show IP Rules & Filtering.
+#       cleaned up this source file.
 
 # History
 # =======================
@@ -34,12 +39,16 @@
 #       *Updated for RHEL 8.2
 #       *Didn't convert set_firewall to python because
 #           it would take more time than it's worth right now.
-
+#
 #	15Oct2021 v3.01
 #		Kassio Coutinho
 #		*Added sleep command for end user to view print statement
-
-
+#
+#	17-NOV-2022 V4.0
+#		Carl Burkhard
+#		Cleaned up source and menu.
+#		Changed STATUS output
+#
 # Description
 # =======================
 # This script changes the Firewall profile
@@ -50,6 +59,7 @@ from os import path
 import set_vmPortForward as portForward
 
 FW = "/usr/local/sbin/set_firewall"
+SET_FWPROFILE_VERSION = "4.0"
 
 
 def vmnat_clear():
@@ -133,8 +143,8 @@ def save():
 
 
 def status():
-    print(Execute_Command(['nft', 'list', 'table', 'ip', 'filter']).stdout)
-    input('Any button to contiue...')
+    print(Execute_Command(['/usr/local/sbin/set_fwstatus.sh']).stdout)
+    input('Press Any Key to continue...')
 
 
 options = [{'selector': '1',
@@ -144,10 +154,10 @@ options = [{'selector': '1',
             'description': 'Deny    -- Deny all traffic through the firewall.',
             'func': deny},
            {'selector': '3',
-            'description': 'Share   -- Set the default policy and allow for inbound connections to an SMB share and SSH.',
+            'description': 'Share   -- Set the default policy and allow for inbound connections\n        to an SMB share and SSH.',
             'func': share},
            {'selector': '4',
-            'description': 'Scan    -- Set the default policy but limit based on files in /etc/target.hosts and /etc/trusted.hosts.',
+            'description': 'Scan    -- Set the default policy but limit based on files in\n        /etc/target.hosts and /etc/trusted.hosts.',
             'func': scan},
            {'selector': '5',
             'description': 'Disable -- Disable the firewall completely. ',
