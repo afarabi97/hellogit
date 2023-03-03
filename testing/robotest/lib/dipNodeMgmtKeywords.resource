@@ -36,27 +36,6 @@ Node Setup
     Enter Virtual Node Information  MinIO  ${VM_PREFIX}-minio-5
     Verify Node Was Added  ${VM_PREFIX}-sensor-3  ${VM_PREFIX}-service-4  ${VM_PREFIX}-minio-5
 
-MIP Setup
-    [Documentation]  Adds a virtual MIP to the DIP kit
-    log  Adding a virtual MIP to the DIP kit
-    Navigate To MIP Management
-    ${mip_hostname} =  Set Variable  ${VM_PREFIX}-mip-6
-    ${node_exists} =  Check If Node Exists  ${mip_hostname}
-    IF  ${node_exists} == ${False}
-        click  ${locNodeMgmtAddMipBtn}
-        type  ${locNodeMgmtHostnameInput}  ${mip_hostname}
-        click  ${locNodeMgmtAddNodeDialogIpAddressInput}
-        click  ${locNodeMgmtAddNodeDialogIpAddressDropdownOpt1}
-        click  ${locNodeMgmtAddNodeDialogVMRadioBtn}
-        Wait Until Element Is Enabled  ${locNodeMgmtAddMipDialogSubmitBtn}
-        click  ${locNodeMgmtAddMipDialogSubmitBtn}
-        log  Completed entering MIP information.
-        Check For Snack Bar Container
-        Verify Node Was Added  ${mip_hostname}
-    ELSE
-        log  MIP with name "${mip_hostname}" already exists.
-    END
-
 Enter Virtual Node Information
     [Arguments]  ${node_type}  ${hostname}
     [Documentation]  Fills out the Add Node Dialog form on Node Management page
@@ -109,7 +88,7 @@ Verify Node Was Added
         ELSE
             ${verify_element}  inject  ${tmplLocNodeDeployProgressBar}  ${node}
         END
-        lookForElement  ${verify_element}  timeout=35m
+        lookForElement  ${verify_element}  timeout=40m
         log  Add Virtual Node was a success!
     END
 

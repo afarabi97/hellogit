@@ -51,8 +51,11 @@ Make API Request
     [Arguments]  ${expiration}
     [Documentation]  Make a backend API request to vefiry the API key allows the call to succeed.
     ${exp_in_sec} =  Evaluate  (${expiration} * 60 * 60)
-    ${nodes} =  Get Nodes
-    log  ${nodes}
+    log  Making API call with valid API key
+    ${kit_status} =  Check Kit Status
+    log  ${kit_status}
     log  Waiting ${exp_in_sec} seconds for API key to expire
+    log  Making API call with invalid (expired) API key
     Sleep  ${exp_in_sec}  reason=Wait for API key to expire
-    Run Keyword And Expect Error  AttributeError: 'NoneType' object has no attribute 'json'  Get Nodes
+    Run Keyword And Expect Error  AttributeError: 'NoneType' object has no attribute 'json'    Check Kit Status
+    log  SUCCESS: API key failed as expected after waiting ${exp_in_sec} seconds, the key is expired.

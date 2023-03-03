@@ -267,6 +267,7 @@ Verify Link Works
     Switch Window  MAIN
 
 Delete User Link
+    Set Selenium Speed  .5s
     ${delete_btn} =  Inject  ${CVAH_PORTAL_USER_PORTAL_LINK_BUTTON_DELETE}  0  replacement_pattern=*
     click  ${delete_btn}
     click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
