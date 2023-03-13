@@ -50,53 +50,42 @@ spec:
       - name: mattermost
         image: {{ .Values.mattermostImage }}
         imagePullPolicy: IfNotPresent
-        command:
-        - "/bin/sh"
-        - "-c"
-        - "/mattermost/config_file.sh; /entrypoint.sh mattermost"
         ports:
         - containerPort: 8065
         env:
-        - name: DB_HOST
-          value: localhost
-        - name: DB_PORT_NUMBER
-          value: "3306"
-        - name: MM_DBNAME
-          value: {{ .Values.sqlDatabase }}
-        - name: MM_USERNAME
-          value: {{ .Values.sqlUsername }}
-        - name: MM_PASSWORD
-          value: {{ .Values.sqlPassword }}
         - name: MM_SQLSETTINGS_DRIVERNAME
           value: "mysql"
-        - name: MM_SQLSETTINGS_DATASOURCE
-          value: {{ .Values.sqlUsername }}:{{ .Values.sqlPassword }}@tcp({{ .Values.sqlHost }}:3306)/{{ .Values.sqlDatabase }}?charset=utf8mb4,utf8@readTimeout=30s&writeTimeout=30s
-        - name: OPEN_ID_SECRET
+        - name: MM_CONFIG
           valueFrom:
             secretKeyRef:
-              name: mattermost-openid
-              key: openid-secret
+              name: {{ .Release.Name }}-datasource
+              key: datasource
+        - name: MM_SERVICESETTINGS_SITEURL
+          value: https://mattermost.{{ .Values.domain }}
+        - name: MM_SERVICESETTINGS_CONNECTIONSECURITY
+          value: TLS
+        - name: MM_SERVICESETTINGS_TLSCERTFILE
+          value: /etc/ssl/certs/container/tls.crt
+        - name: MM_SERVICESETTINGS_TLSKEYFILE
+          value: /etc/ssl/certs/container/tls.key
+        - name: MM_SERVICESETTINGS_USELETSENCRYPT
+          value: "false"
+        - name: MM_PLUGINSETTINGS_PLUGINSTATES
+          value: '{"com.mattermost.plugin-channel-export":{"Enable":true},"com.mattermost.apps":{"Enable":true},"playbooks":{"Enable":true}}'
         volumeMounts:
         - name: data
           mountPath: /mattermost/data
           subPath: app
-        - name: setup
-          mountPath: /mattermost/config_file.sh
-          subPath: config_file.sh
         - name: webca
           mountPath: /etc/ssl/certs/container
-          readOnly: true
+          readOnly: false
         - name: webca
           mountPath: /etc/ssl/certs/webCA.crt
-          readOnly: true
           subPath: ca.crt
+          readOnly: false
       nodeSelector:
         role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}
       volumes:
-      - name: setup
-        configMap:
-          name: {{ .Release.Name }}-setup
-          defaultMode: 0777
       - name: webca
         secret:
           defaultMode: 420
@@ -105,11 +94,3 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: {{ .Release.Name }}-pvc
-      # - name: mattermost-saml
-      #   secret:
-      #     secretName: mattermost-saml
-      #     defaultMode: 0444
-      # - name: sso-idp-metadata
-      #   secret:
-      #     secretName: sso-idp-metadata
-      #     defaultMode: 0444

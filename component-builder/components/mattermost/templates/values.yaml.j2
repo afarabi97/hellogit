@@ -3,7 +3,6 @@ mattermostImage: mattermost/mattermost-enterprise-edition:{{ component["app_vers
 python_image: tfplenum/python:{{ context["docker_versions"]["python_version"] }}
 busyboxImage: busybox:{{ context["docker_versions"]["busybox_version"] }}
 domain: lan
-auth_base: https://controller.lan/auth/realms/CVAH-SSO
 
 # database variables
 mariadbImage: mariadb:{{ context["docker_versions"]["mariadb_version"] }}

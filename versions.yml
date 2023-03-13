@@ -39,7 +39,7 @@ docker_versions:
   k8s_resizer_version: "2.3"
   k8s_version: "1.24.2"
   mariadb_version: 10.6.3
-  mattermost_version: 5.38.0
+  mattermost_version: 7.8.1
   metallb_version: "v0.13.3"
   misp_modules_version: 2.4.148
   misp_version: 2.4.148
@@ -112,7 +112,7 @@ helm_versions:
   hive: 1.0.6
   jcat_nifi: 1.0.3
   logstash: 1.0.4
-  mattermost: 1.0.4
+  mattermost: 1.0.5
   misp: 1.0.7
   netflow_filebeat: 1.0.3
   nifi: 1.0.4
