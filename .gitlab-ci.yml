@@ -205,7 +205,7 @@ variables:
 
   # Vars For Docker Images Used In Pipeline
   LATEST_CODE_CHECKER_IMAGE: "docker.nexus.sil.lab/tfplenum/code-checker:1.6"
-  LATEST_ROBOT_AUTOMATOR_IMAGE: "docker.nexus.sil.lab/tfplenum/robot-automator:1.6.0"
+  LATEST_ROBOT_AUTOMATOR_IMAGE: "docker.nexus.sil.lab/tfplenum/robot-automator:1.6.1"
   LATEST_VOMMIT_IMAGE: "docker.nexus.sil.lab/tfplenum/vommit:1.0.2"
 
   #MIP VM Templates
