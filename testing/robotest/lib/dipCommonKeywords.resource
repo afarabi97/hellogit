@@ -246,33 +246,6 @@ Get Kibana Credentials
     Set Global Variable     ${KIBANA_IP}
     Set Global Variable     ${KIBANA_PASSWORD}
 
-Add User Link
-    [Arguments]  ${name}  ${url}  ${description}
-    click  ${CVAH_PORTAL_TITLE_BUTTON_ADD_LINK}
-    type  ${locAddLinkNameInput}  ${name}
-    type  ${locAddLinkUrlInput}  ${url}
-    type  ${locAddLinkDescInput}  ${description}
-    click  ${CVAH_MODAL_DIALOG_MAT__BUTTON_CONFIRM}
-    ${loc_link_name} =  Inject  ${CVAH_PORTAL_USER_PORTAL_LINK_NAME}  0  replacement_pattern=*
-    lookForElement  ${loc_link_name}
-    Element Should Contain  ${loc_link_name}  ${name}
-
-Verify Link Works
-    [Arguments]  ${name}  ${url}
-    ${loc_link_url} =  Inject  ${CVAH_PORTAL_USER_PORTAL_LINK_URL}  0  replacement_pattern=*
-    click  ${loc_link_url}
-    Switch Window  NEW
-    Location Should Be  ${url}
-    Wait Until Page Contains  ${name}
-    Switch Window  MAIN
-
-Delete User Link
-    Set Selenium Speed  .5s
-    ${delete_btn} =  Inject  ${CVAH_PORTAL_USER_PORTAL_LINK_BUTTON_DELETE}  0  replacement_pattern=*
-    click  ${delete_btn}
-    click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
-    Wait Until Page Does Not Contain  ${locUserLinkFirstTile}
-
 Verify Nodes Are Ready
     [Documentation]  Checks the nodes table on Health page and verifies their status is "Ready"
     &{nodes_list} =  Get Nodes

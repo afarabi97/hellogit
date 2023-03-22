@@ -1,6 +1,7 @@
 *** Settings ***
 Resource    ../../lib/dipAPIDocsKeywords.resource
 Resource    ../../lib/dipCommonKeywords.resource
+Resource    ../../lib/dipPortalKeywords.resource
 Resource    ../../lib/dipToolsKeywords.resource
 
 Library    SeleniumLibrary    15s
@@ -15,6 +16,14 @@ Test Teardown     Close All Browsers
 Suite Teardown    Close All Connections
 
 *** Test Cases ***
+Verify Common Links On Portal Page
+    [Tags]  THISISCVAH-13831
+    [Documentation]  Verifies that the common links that should be present on the Portal page of the
+    ...              controller are visible with URL link, IP address, and login credentials.
+    ${installed_apps} =  Get Installed Catalog Apps
+    Navigate To Portal
+    Check For Common Link Tiles  ${installed_apps}
+
 Add And Delete Portal Link
     [Tags]  THISISCVAH-11520
     [Documentation]  Validates the functionality of the "add link" button located on the top-right

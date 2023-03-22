@@ -76,11 +76,6 @@ ${locTopNotificationMsg}        id=cvah-notifications-dialog-0-0-message
 
 ${locSnackBarContainerBtn}      xpath=//snack-bar-container//button/span[text() = "Close" or text() = "OK"]
 
-# Portal Page
-${locAddLinkNameInput}          xpath=//input[following-sibling::span//mat-label[text() = "Link Name"]]
-${locAddLinkUrlInput}           xpath=//input[following-sibling::span//mat-label[text() = "Link URL"]]
-${locAddLinkDescInput}          xpath=//input[following-sibling::span//mat-label[text() = "Link Description"]]
-${locUserLinkFirstTile}         xpath=//mat-grid-list/div[h3[text() = "User Links"]]/mat-grid-tile[1]
 ${locElasticLoginButton}        xpath=(//p[@class="euiTitle euiTitle--xsmall secLoginCard__title"])[2]
 
 #Tools Page

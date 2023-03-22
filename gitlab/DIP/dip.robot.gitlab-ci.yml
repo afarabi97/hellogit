@@ -242,6 +242,7 @@ robot:operations:
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
+      -v DOMAIN:$KIT_DOMAIN \
       -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
       -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
   artifacts:

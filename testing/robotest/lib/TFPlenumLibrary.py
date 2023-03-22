@@ -176,6 +176,20 @@ class TFPlenumLibrary:
             return {"status": True, "verified": verified_applications}
 
     @keyword
+    def get_installed_catalog_apps(self):
+        response = self.api_get_chart_statuses(jsonify=False)
+        json_response = response.json()
+
+        installed_apps = []
+        for full_app_item in json_response:
+            if full_app_item['nodes']:
+                for n in full_app_item['nodes']:
+                    if n['status'] == 'DEPLOYED':
+                        installed_apps.append(n['application'])
+
+        return installed_apps
+
+    @keyword
     def get_nodes(self):
         """
         Gets IP address and node type for each node on the kit.
