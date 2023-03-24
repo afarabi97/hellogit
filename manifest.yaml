@@ -134,15 +134,6 @@ CPT:
     - Repo/CPT/AppStore/TFTP Server/5.2-27.fc30
     - Repo/CPT/AppStore/Windows 10 Enterprise (x64)_v1809/1809
     - Repo/CPT/AppStore/Windows Server 2012 R2 Standard x64_v6.3(Build9600)/6.3
-    - Repo/CPT/VMs/ControlThings (prev SamuraiSTFU)/ControlThingsPlatform-v1bD
-    - Repo/CPT/VMs/Cuckoo Sandbox/2.0.7
-    - Repo/CPT/VMs/Endgame/3.23.3-32
-    - Repo/CPT/VMs/Kali Linux VM/2021.3
-    - Repo/CPT/VMs/Mockingbird/1.2.0
-    - Repo/CPT/VMs/REMnuX/2021.29.9
-    - Repo/CPT/VMs/SamuraiSTFU/1.9
-    - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7
-    - Repo/CPT/VMs/Windows 10 VM/22H2
     - Repo/Shared/AppStore/Citrix/2207
     - Repo/Shared/AppStore/Elastic Stack/7.16.2
     - Repo/Shared/AppStore/Grassmarlin/3.3
@@ -157,11 +148,24 @@ CPT:
     - Repo/Shared/AppStore/sysinternals suite/1.0
     - Repo/Shared/AppStore/TCPdump/4.9.3
     - Repo/Shared/AppStore/Visio Pro/2016
+  dest: CPT/Data/CVAH 3.7/Software/AppStore
+
+- app: VMs
+  src:
     - Repo/Shared/VMs/ACAS/22.06-1
     - Repo/Shared/VMs/Pfsense/2.5.2
     - Repo/Shared/VMs/Security Onion 2/2.3.190
     - Repo/Shared/VMs/Security Onion (original)/4.3-8
     - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-3
+    - Repo/CPT/VMs/ControlThings (prev SamuraiSTFU)/ControlThingsPlatform-v1bD
+    - Repo/CPT/VMs/Cuckoo Sandbox/2.0.7
+    - Repo/CPT/VMs/Endgame/3.23.3-32
+    - Repo/CPT/VMs/Kali Linux VM/2021.3
+    - Repo/CPT/VMs/Mockingbird/1.2.0
+    - Repo/CPT/VMs/REMnuX/2021.29.9
+    - Repo/CPT/VMs/SamuraiSTFU/1.9
+    - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7
+    - Repo/CPT/VMs/Windows 10 VM/22H2
   dest: CPT/Data/CVAH 3.7/Software/AppStore
 
 - app: Documentation
@@ -255,6 +259,10 @@ MDT:
     - Repo/Shared/AppStore/sysinternals suite/1.0
     - Repo/Shared/AppStore/TCPdump/4.9.3
     - Repo/Shared/AppStore/Visio Pro/2016
+  dest: MDT/Data/CVAH 3.7/Software/AppStore
+
+- app: VMs
+  src:
     - Repo/Shared/VMs/ACAS/22.06-1
     - Repo/Shared/VMs/Pfsense/2.5.2
     - Repo/Shared/VMs/Security Onion 2/2.3.190

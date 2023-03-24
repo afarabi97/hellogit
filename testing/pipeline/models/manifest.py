@@ -1,6 +1,7 @@
 from argparse import Namespace, ArgumentParser
 from models import Model
 import datetime
+from models.constants import SubCmd
 
 class ManifestSettings(Model):
 
@@ -15,7 +16,7 @@ class ManifestSettings(Model):
         self.drive_creation_path = namespace.drive_creation_path
         self.type = namespace.type
         self.version = namespace.version
-        self.manifest_file= 'manifest.yaml'
+        self.manifest_file= SubCmd.manifest_file
         self.staging_export_path = namespace.staging_export_path
 
     @staticmethod

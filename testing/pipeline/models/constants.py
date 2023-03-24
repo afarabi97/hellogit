@@ -29,6 +29,7 @@ class SubCmd:
 
     test_server_repository_vm = 'test-server-repository-vm'
     verify_manifest = 'verify-manifest'
+    manifest_file = 'manifest.yaml'
 
     # run-export subcommands
     add_docs_to_controller = 'add-docs-to-controller'

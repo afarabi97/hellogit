@@ -3,6 +3,7 @@ import os
 import re
 import subprocess
 import traceback
+import yaml
 
 from fabric import Connection
 from fabric.runners import Result
@@ -13,12 +14,18 @@ from time import sleep
 from util.connection_mngs import FabricConnectionWrapper
 from paramiko.ssh_exception import SSHException
 from typing import List
+from models.constants import SubCmd
 
 from uuid import uuid4
 
 ROOT_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../../../"
 PIPELINE_DIR = ROOT_DIR + "/testing/pipeline/"
 TEMPLATES_DIR = PIPELINE_DIR + "/templates"
+
+def load_manifest(file: str, type: str) -> dict:
+    with open (file, 'r') as file:
+        data = yaml.safe_load(file)
+    return data[type]
 
 def remote_sudo_cmd(shell: Connection, command: str, warn=False, hide=False):
     print(command)
@@ -342,6 +349,28 @@ class DriveCreationThread(DriveSuperThread):
             self._return_value = 1
             exit(self._return_value)
 
+    def create_link(self, vm_dir: str, dest_dir: str):
+        orgin_vm_path = vm_dir.split("/")[-2:-1]
+        orgin_vm_path = "/".join(orgin_vm_path)
+        orgin_type_path = dest_dir.split("/")[-3:]
+        orgin_type_path = "/".join(orgin_type_path)
+        link_src = self.xfs_data_path + "/" + orgin_type_path + "/" + orgin_vm_path
+        link_vm_path = vm_dir.split("/")[-3:-1]
+        link_vm_path = "/".join(link_vm_path)
+        link_type_path = dest_dir.split("/")[-3:-1]
+        link_type_path = "/".join(link_type_path)
+        link_dest = self.xfs_data_path + "/" + link_type_path + "/" + link_vm_path
+        self.remote_sudo_cmd(f"ln -s '{link_src}' '{link_dest}'")
+    
+    def create_vm_symlinks(self):
+        if (self.create_drive_type == 'CPT') or (self.create_drive_type == 'MDT'):
+            manifest = load_manifest(SubCmd.manifest_file, self.create_drive_type)
+            for path in manifest:
+                for src in path['src']:
+                    if path['app'] == 'VMs':
+                        self.create_link(src, path['dest'])
+
+
     def run(self):
         fabric = FabricConnectionWrapper(self.drive_settings.username,
                                          self.drive_settings.password,
@@ -367,6 +396,7 @@ class DriveCreationThread(DriveSuperThread):
                 self._mount()
 
             self._rsync_data_files()
+            self.create_vm_symlinks()
             self._unmount()
         except Exception as e:
             traceback.print_exc()
