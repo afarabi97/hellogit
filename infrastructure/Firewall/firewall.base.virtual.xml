@@ -173,8 +173,8 @@
 	<dhcpd>
 		<lan>
 			<range>
-				<from>10.40.192.240</from>
-				<to>10.40.192.250</to>
+				<from>10.40.193.224</from>
+				<to>10.40.193.254</to>
 			</range>
 			<enable></enable>
 			<dhcpleaseinlocaltime></dhcpleaseinlocaltime>
@@ -182,7 +182,7 @@
 			<defaultleasetime></defaultleasetime>
 			<maxleasetime></maxleasetime>
 			<netmask></netmask>
-			<gateway>10.40.192.1</gateway>
+			<gateway>10.40.193.1</gateway>
 			<domain>dmss</domain>
 			<domainsearchlist></domainsearchlist>
 			<ddnsdomain></ddnsdomain>
@@ -202,19 +202,19 @@
 			<ignorebootp></ignorebootp>
 			<ddnsupdate></ddnsupdate>
 			<ignoreclientuids></ignoreclientuids>
-			<ntpserver>10.40.192.1</ntpserver>
+			<ntpserver>10.40.193.1</ntpserver>
 		</lan>
 		<opt1>
 			<range>
-				<from>10.40.193.224</from>
-				<to>10.40.193.254</to>
+				<from>10.40.192.240</from>
+				<to>10.40.192.250</to>
 			</range>
 			<enable></enable>
 			<failover_peerip></failover_peerip>
 			<defaultleasetime></defaultleasetime>
 			<maxleasetime></maxleasetime>
 			<netmask></netmask>
-			<gateway>10.40.193.1</gateway>
+			<gateway>10.40.192.1</gateway>
 			<domain></domain>
 			<domainsearchlist></domainsearchlist>
 			<ddnsdomain></ddnsdomain>
@@ -235,7 +235,7 @@
 			<ignorebootp></ignorebootp>
 			<ddnsupdate></ddnsupdate>
 			<ignoreclientuids></ignoreclientuids>
-			<ntpserver>10.40.193.1</ntpserver>
+			<ntpserver>10.40.192.1</ntpserver>
 		</opt1>
 		<opt2>
 			<range>
