@@ -1,62 +1,24 @@
-from functools import wraps
-
-from app.models import DBModelNotFound, PostValidationError
-from app.service.mip_service import add_mip_to_database, deploy_mip
-from app.utils.logging import logger
+from app.middleware import handle_errors
+from app.models.common import COMMON_ERROR_MESSAGE
+from app.models.job_id import JobIDModel
+from app.models.mip import MIPSchemaModel
+from app.service.mip_service import post_mip
 from app.utils.namespaces import KIT_SETUP_NS
-from flask import Response, request
+from app.utils.validation import required_params
+from flask import Response
 from flask_restx import Resource
-from marshmallow import Schema, ValidationError
-from marshmallow import fields as marsh_fields
-
-def required_params(schema):
-    def decorator(fn):
-
-        @wraps(fn)
-        def wrapper(*args, **kwargs):
-            try:
-                schema.load(request.get_json())
-            except ValidationError as err:
-                error = {
-                    "status": "error",
-                    "messages": err.messages
-                }
-                return error, 400
-            return fn(*args, **kwargs)
-        return wrapper
-    return decorator
-
-
-class MIPSchema(Schema):
-    hostname = marsh_fields.Str(required=True)
-    ip_address = marsh_fields.IPv4(required=True)
-    deployment_type = marsh_fields.Str(required=True)
-
-    # if baremetal
-    mac_address = marsh_fields.Str(required=False, allow_none=True) # required if baremetal
-
-    # if virtual
-    virtual_cpu = marsh_fields.Integer(required=False, allow_none=True)
-    virtual_mem = marsh_fields.Integer(required=False, allow_none=True)
-    virtual_os = marsh_fields.Integer(required=False, allow_none=True)
 
 
 @KIT_SETUP_NS.route("/mip")
-class MipCtrl(Resource):
-    @required_params(MIPSchema())
+class MipCtrlApi(Resource):
+
+    @KIT_SETUP_NS.doc(description="Create a mip based off Schema payload.")
+    @KIT_SETUP_NS.doc(payload=MIPSchemaModel)
+    @KIT_SETUP_NS.response(202, "JobIDModel", JobIDModel.DTO)
+    @KIT_SETUP_NS.response(400, "ErrorMessage: Validation Error", COMMON_ERROR_MESSAGE)
+    @KIT_SETUP_NS.response(400, "ErrorMessage: PostValidation Error", COMMON_ERROR_MESSAGE)
+    @KIT_SETUP_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @required_params(MIPSchemaModel())
+    @handle_errors
     def post(self) -> Response:
-        try:
-            mip = add_mip_to_database(KIT_SETUP_NS.payload)
-            job = deploy_mip(mip)
-            return job, 202
-        except ValidationError as e:
-            logger.exception(e)
-            return e.normalized_messages(), 400
-        except DBModelNotFound:
-            logger.exception(e)
-            return {"error_message": "DBModelNotFound."}, 400
-        except PostValidationError as e:
-            logger.exception(e)
-            return {"post_validation": e.errors_msgs}, 400
-        except:
-            return "error", 500
+        return post_mip(KIT_SETUP_NS.payload), 202

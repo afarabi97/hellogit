@@ -13,7 +13,8 @@ import {
   MockNodeServerClass,
   MockNodeServerClassCreateAlt,
   MockPostValidationString,
-  MockPostValidationStringArray
+  MockPostValidationStringArray,
+  MockValidationErrorClass
 } from '../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
 import { NodeClass } from '../../classes';
@@ -494,6 +495,18 @@ describe('MipManagementComponent', () => {
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
         spyOn<any>(component['kit_settings_service_'], 'addMip').and.returnValue(throwError(MockErrorMessageClass));
+
+        component['api_add_mip_'](node_form_group_virtual);
+
+        expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
+      });
+
+      it('should call kit_settings_service_.addMip() and handle error response instance ValidationErrorClass', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['kit_settings_service_'], 'addMip').and.returnValue(throwError(MockValidationErrorClass));
 
         component['api_add_mip_'](node_form_group_virtual);
 

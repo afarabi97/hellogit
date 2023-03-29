@@ -44,3 +44,4 @@ export * from './status.class';
 export * from './success-message.class';
 export * from './user-portal-link.class';
 export * from './user.class';
+export * from './validation-error.class';

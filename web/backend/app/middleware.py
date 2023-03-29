@@ -268,9 +268,6 @@ def handle_errors(f):
     def wrapper(*args, **kwargs):
         try:
             return f(*args, **kwargs)
-        except ValidationError as validation_error:
-            logger.exception(validation_error)
-            return validation_error.normalized_messages(), 400
         except PostValidationError as post_validation_error:
             logger.exception(post_validation_error)
             return {"post_validation": post_validation_error.errors_msgs}, 400

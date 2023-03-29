@@ -73,4 +73,5 @@ export * from './text-editor-configuration.interface';
 export * from './upgrade-controller.interface';
 export * from './user-portal-link.interface';
 export * from './user.interface';
+export * from './validation-error.interface';
 export * from './validator-object.interface';

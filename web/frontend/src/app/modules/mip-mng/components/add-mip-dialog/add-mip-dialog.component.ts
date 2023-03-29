@@ -12,7 +12,8 @@ import {
   GenericJobAndKeyClass,
   NodeClass,
   ObjectUtilitiesClass,
-  PostValidationClass
+  PostValidationClass,
+  ValidationErrorClass
 } from '../../../../classes';
 import {
   BAREMETAL,
@@ -345,9 +346,23 @@ export class AddMipDialogComponent implements OnInit {
           const message: string = `started node creation job for ${hostname}.`;
           this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS);
         },
-        (error: ErrorMessageClass | PostValidationClass | HttpErrorResponse) => {
+        (error: ErrorMessageClass | ValidationErrorClass | PostValidationClass | HttpErrorResponse) => {
           if (error instanceof ErrorMessageClass) {
             this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else if (error instanceof ValidationErrorClass) {
+            const field_keys: string[] = Object.keys(error.messages);
+            let error_message: string = '';
+
+            field_keys.forEach((key: string, key_index: number) => {
+              error.messages[key].forEach((message: string, error_message_index: number) => {
+                error_message += `${key}: ${message}`;
+
+                if (((error.messages[key].length - 1) < error_message_index) && ((field_keys.length - 1) < key_index)) {
+                  error_message += '\n';
+                }
+              });
+              this.mat_snackbar_service_.displaySnackBar(error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            });
           } else if (error instanceof PostValidationClass) {
             if (error.post_validation instanceof Array) {
               let error_message: string;

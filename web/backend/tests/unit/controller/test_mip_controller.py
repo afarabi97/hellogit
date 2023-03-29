@@ -1,43 +1,54 @@
+import pytest
+from flask.testing import FlaskClient
 from pytest_mock.plugin import MockerFixture
-
-sample_configuration_2 = {"hostname": "miperest"}
-sample_configuration_3 = {"hostname": "tester", "ip_address": "10.40.20.40", "deployment_type": "Baremetal"}
-
-sample_configuration_1 = {"hostname": "miper", "ip_address": "10.40.20.4",
-                          "mac_address": None, "deployment_type": "Virtual", "virtual_cpu": 8, "virtual_mem": 8, "virtual_os": 500}
-sample_configuration_4 = {"hostname": "miper", "ip_address": "10.40.20.5", "mac_address": "66:5b:4e:c8:c6:f4",
-                          "deployment_type": "Baremetal", "virtual_cpu": 8, "virtual_mem": 8, "virtual_os": 500}
-# hostname
-# ip_address (for now)
-# static or dhcp (later)
-#   ip_address if static
-# deployment_type
-# if baremetal
-#   mac_address
-# else if virtual
-#   virtual_cpu
-#   virtual_memory
-#   virtual_os
-
-def test_create_mip(client, mocker: MockerFixture):
-    mocker.patch("app.models.nodes.Node._set_hostname",
-                 retrun_value="miper.test")
-    mocker.patch(
-        "app.controller.mip_controller.add_mip_to_database", return_value={})
-    mocker.patch("app.controller.mip_controller.deploy_mip",
-                 return_value="success")
-    results = client.post("/api/kit/mip", json=sample_configuration_1)
-    assert results.status_code == 202
-    results = client.post("/api/kit/mip", json=sample_configuration_2)
-    assert results.status_code == 400
+from tests.unit.models.mock_general_settings import \
+    MockGeneralSettingsFormModel
+from tests.unit.models.mock_job_id import MockJobIDModel
+from tests.unit.models.mock_mip_schema import (MipSchemaDBModel,
+                                               mock_mip_schema_1,
+                                               mock_mip_schema_2)
 
 
-def test_should_return_202_with_valid_hostname_and_ip_and_deployment_type(client, mocker: MockerFixture):
-    mocker.patch("app.models.nodes.Node._set_hostname",
-                 retrun_value="miper.test")
-    mocker.patch(
-        "app.controller.mip_controller.add_mip_to_database", return_value={})
-    mocker.patch("app.controller.mip_controller.deploy_mip",
-                 return_value="success")
-    results = client.post("/api/kit/mip", json=sample_configuration_3)
-    assert results.status_code == 202
+@pytest.fixture
+def general_settings_form():
+    return MockGeneralSettingsFormModel()
+
+
+@pytest.fixture
+def mip_schema_db_model():
+    return MipSchemaDBModel()
+
+
+# Test MipCtrlApi
+
+def test_post_mip_202(client: FlaskClient, mocker: MockerFixture) -> None:
+    mock_job_id_model = MockJobIDModel("2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6",
+                                       "rq:job:2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6")
+    mocker.patch("app.controller.mip_controller.post_mip", return_value=mock_job_id_model.to_dict())
+    response = client.post("/api/kit/mip", json=mock_mip_schema_1)
+    assert response.status_code == 202
+    assert response.json["job_id"] == mock_job_id_model.job_id
+
+
+def test_post_mip_400_ValidationError(client: FlaskClient) -> None:
+    response = client.post("/api/kit/mip", json=mock_mip_schema_2)
+    assert response.status_code == 400
+    assert response.json["status"]
+    assert response.json["messages"]
+
+
+def test_post_mip_400_PostValidationError(client: FlaskClient, mocker: MockerFixture, general_settings_form: MockGeneralSettingsFormModel, mip_schema_db_model: MipSchemaDBModel) -> None:
+    mips = [mip_schema_db_model]
+    error_message = ["Duplicate mip IP or hostname found. Only one is allowed."]
+    mocker.patch("app.models.nodes.GeneralSettingsForm.load_from_db", return_value=general_settings_form)
+    mocker.patch("app.models.nodes.Node.load_all_mips_from_db", return_value=mips)
+    response = client.post("/api/kit/mip", json=mock_mip_schema_1)
+    assert response.status_code == 400
+    assert response.json["post_validation"]["mip"] == error_message
+
+
+def test_post_mip_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
+    mocker.patch("app.controller.mip_controller.post_mip", side_effect=Exception({"error": "mocked error"}))
+    response = client.post("/api/kit/mip", json=mock_mip_schema_1)
+    assert response.status_code == 500
+    assert response.json["error_message"]

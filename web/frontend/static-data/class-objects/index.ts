@@ -71,5 +71,6 @@ export * from './system-version.class';
 export * from './update-alerts.class';
 export * from './user.class';
 export * from './user-portal-link.class';
+export * from './validation-error.class';
 export * from './windows-credentials.class';
 export * from './winlogbeat-configuration.class';

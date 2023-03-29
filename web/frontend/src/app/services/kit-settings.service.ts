@@ -136,6 +136,7 @@ export class KitSettingsService extends ApiService<any> {
             catchError((error: HttpErrorResponse) => this.handleError('delete node', error)));
   }
 
+  // Need to remeber to test for ValidationError and PostValidation
   addMip(payload): Observable<GenericJobAndKeyClass> {
     const url = `/api/kit/mip`;
     return this.httpClient_.post<GenericJobAndKeyInterface>(url, payload)
