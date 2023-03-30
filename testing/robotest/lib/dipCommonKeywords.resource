@@ -9,6 +9,7 @@ Library     SeleniumLibrary     15s    run_on_failure= loggy_obj.failure
 Library     SSHLibrary          15s
 Library     String
 Library     Collections
+Library     DateTime
 Library     TFPlenumLibrary.py
 
 
@@ -228,6 +229,28 @@ Check For Snack Bar Container
         Run Keyword And Continue On Failure  click  ${locSnackBarContainerBtn}
     END
     Register Keyword To Run On Failure  ${previous_kw}
+
+Compare Datetime (Frontend, Backend, Current)
+    click  ${APP_TOP_NAVBAR__SIDENAV_TRIGGER_MAT_ICON_ARROW_FORWARD}
+    lookForElement  ${APP_TOP_NAVBAR__MAT_LIST_ITEM_TIMEZONE_TIME}
+    ${ui_datetime} =  Get Text  ${APP_TOP_NAVBAR__MAT_LIST_ITEM_TIMEZONE_TIME}
+    ${api_datetime} =  Get Controller Datetime
+    ${current_datetime} =  Get Current Date  UTC  exclude_millis=True
+    ${frontend_datetime_str}  ${frontend_timezone} =  Split String From Right  ${ui_datetime}  max_split=1
+    ${frontend_datetime} =  Convert Date  ${frontend_datetime_str}  exclude_millis=True  date_format=%m-%d-%y %H:%M:%S
+    ${backend_datetime_str} =  Get From Dictionary  ${api_datetime}  datetime
+    ${backend_timezone} =  Get From Dictionary  ${api_datetime}  timezone
+    ${backend_datetime} =  Convert Date  ${backend_datetime_str}  exclude_millis=True  date_format=%m-%d-%Y %H:%M:%S
+    log  Frontend datetime: ${frontend_datetime}
+    log  Backend datetime: ${backend_datetime}
+    log  Current datetime: ${current_datetime}
+    log  Checking timedelta of the frontend, backend, and current datetime...
+    ${delta_1} =  Subtract Date From Date  ${current_datetime}  ${frontend_datetime}
+    ${delta_2} =  Subtract Date From Date  ${current_datetime}  ${backend_datetime}
+    ${delta_3} =  Subtract Date From Date  ${frontend_datetime}  ${backend_datetime}
+    # If timedelta greater than 1 second then times are off
+    IF  ${delta_1} > 1 or ${delta_2} > 1 or ${delta_3} > 1  Fail
+    log  Datetime of the Controller is correct.
 
 Get Kibana Credentials
     log  Retrieving Kibana Username and Password

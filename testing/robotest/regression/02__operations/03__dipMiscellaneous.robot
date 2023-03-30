@@ -16,6 +16,12 @@ Test Teardown     Close All Browsers
 Suite Teardown    Close All Connections
 
 *** Test Cases ***
+Check Controller Date And Time
+    [Tags]  THISISCVAH-13860
+    [Documentation]  Compares the datetime on the Controller UI with the response object from the
+    ...              backend API and also to the current datetime from Robot's DateTime library.
+    Compare Datetime (Frontend, Backend, Current)
+
 Verify Common Links On Portal Page
     [Tags]  THISISCVAH-13831
     [Documentation]  Verifies that the common links that should be present on the Portal page of the
