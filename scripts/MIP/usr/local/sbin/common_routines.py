@@ -4,7 +4,7 @@
 # ********************************************************************************
 # *										*
 # *	This  python  file  contains the COMMON routines used by the THOR	*
-# *	python scripts.  This makes it easier to  controll  common  rou‐	*
+# *	python scripts.  This makes it easier  to  controll  common  rou‐	*
 # *	tines  rather than having multiple copies of the same routine ev‐	*
 # *	erywhere.								*
 # *										*
@@ -16,6 +16,12 @@
 #	Version 4.0
 #	Initial writing of source.  New routine: Check_Root_User
 #
+#       27-Mar-2023 ceburkhard
+#       Version 4.1
+#       Updated per THISISCVAH-13766
+#       Added EXECUTE_COMMAND definition such that commands no longer
+#       need to be split up.  This causes issues with "sed" commands.
+#
 # ********************************************************************************
 #
 
@@ -23,7 +29,7 @@ import getpass
 from os import system, name, geteuid
 import subprocess
 
-COMMON_ROUTINES_VERSION="4.0"
+COMMON_ROUTINES_VERSION="4.1"
 
 def Check_Root_User():
     User = geteuid()
@@ -52,14 +58,15 @@ def Get_Yes_No(msg, x=True):
             return choice.lower()
 
 
+def Execute_Command_String(bashCmd: str):
+    if bashCmd != "":
+        result = system(bashCmd)
+        return result
+
+
 def Execute_Command(bashCmd=[]):
     if bashCmd:
         result = subprocess.run( bashCmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         result.stdout = result.stdout.decode('utf-8')
         result.stderr = result.stderr.decode('utf-8')
-        #print("Command: ", " ".join(bashCmd))
-        #print("Stdout: ", result.stdout)
-        #print("Stderr: ", result.stderr)
-        #print("Return code: ", result.returncode)
-        #input("press enter to continue")
         return result

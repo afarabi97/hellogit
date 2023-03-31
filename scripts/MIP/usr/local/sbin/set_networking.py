@@ -4,15 +4,20 @@
 #	v4.0
 #	Changed several INPUT statements to allow BLANK line.
 #
+#       27-MAR-2023 ceburkhard
+#       V4.1
+#       THISISCVAH-13766
+#
 
-from common_routines import Check_Root_User, Get_Yes_No, Execute_Command, Clear_The_Screen
+# THISISCVAH-13766 : Added Execute_Command_String to be imported.
+from common_routines import Check_Root_User, Get_Yes_No, Execute_Command, Clear_The_Screen, Execute_Command_String
 from menu import Menu
 from time import sleep
 from os import replace, path, remove, listdir
 import re
 import sys
 
-SET_NETWORKING_VERSION="4.0"
+SET_NETWORKING_VERSION="4.1"
 
 def get_ether():
     device_name = ""
@@ -73,10 +78,10 @@ def check_ifcfg():
 
 
 def valid_ip(IP):
-    regex = '''^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(
-            25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(
-            25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(
-            25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$'''
+    regex = '''^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.
+                (25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.
+                (25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.
+                (25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$'''
     if(re.search(regex, IP)):
         return True
     else:
@@ -105,33 +110,40 @@ def show_dev_info():
     input('Press enter to continue')
 
 
+# THISISCVAH-13766 : This function changed to better handle changing MAC Address.
 def mac_func():
     global global_opts
     reset = Get_Yes_No( 'Would you like to reset the mac to default? [y/n/x]: ')
     old_mac = ''
     dev_name = global_opts['ETHERNET_DEVICE'].replace(' ', '_')
+    filename = "/etc/sysconfig/network-scripts/ifcfg-{}".format(dev_name)
+    MAC_filename = "/etc/sysconfig/network-scripts/MAC-{}".format(dev_name)
     if reset == 'y':
-        filename = "/etc/sysconfig/network-scripts/MAC-{}".format(dev_name)
-        if path.exists(filename):
-            with open(filename, "r") as f:
-                old_mac = f.readline()
-            f.close()
-            path.delete(filename)
-            print("Applying mac address..{}".format(old_mac))
-            res = Execute_Command('ip link set dev {} down'.format(dev_name).split())
-            if res.returncode != 0:
-                print("Unable to bring down Ethernet Device {}".format(dev_name))
-            else :
-                Execute_Command('ip link set dev {} address {}'.format(dev_name, old_mac).split())
-                res = Execute_Command('ip link set dev {} up'.format(dev_name).split())
+        if Execute_Command_String(f'sed -n "/MACADDR/p" {filename}') == 0:
+            if path.exists(MAC_filename):
+                with open(MAC_filename, "r") as f:
+                    old_mac = f.readline()
+                f.close()
+                print("Re-applying mac address..{}".format(old_mac))
+                Execute_Command_String(f'sed -i "/MACADDR/d" {filename}')
+                res = Execute_Command('ip link set dev {} down'.format(dev_name).split())
                 if res.returncode != 0:
-                    print("Unable to bring {} back up. Check mac address.".format(dev_name))
+                    print("Unable to bring down Ethernet Device {}".format(dev_name))
                 else:
-                    netservice()
-                    print("Successfully changed to old mac address for {}".format(dev_name))
-                    print(Execute_Command('ip link show {}'.format(dev_name).split()).stdout)
+                    Execute_Command('ip link set dev {} address {}'.format(dev_name, old_mac).split())
+                    res = Execute_Command('ip link set dev {} up'.format(dev_name).split())
+                    if res.returncode != 0:
+                        print("Unable to bring {} back up. Check mac address.".format(dev_name))
+                    else:
+                        netservice()
+                        print("Successfully changed to old mac address for {}".format(dev_name))
+                        print("A REBOOT is required to get the OLD MAC to take effect.")
+                        print(Execute_Command('ip link show {}'.format(dev_name).split()).stdout)
+                        remove(MAC_filename)
+            else:
+                print("Unknown old mac address to revert to.")
         else:
-            printf("No old MAC address to revert to.")
+            print("No old MAC address to revert to.")
     else:
         mac = ''
         while True:
@@ -145,6 +157,8 @@ def mac_func():
         Old_MAC_Address = Execute_Command('ip -o link show {}'.format(dev_name).split())
         Execute_Command('ip link set dev {} down'.format(dev_name).split())
         Execute_Command('ip link set dev {} address {}'.format(dev_name, mac).split())
+        Execute_Command_String(f'sed -i "/MACADDR/d" {filename}')
+        Execute_Command_String(f'sed -i "$ a\MACADDR={mac}" {filename}')
         res = Execute_Command('ip link set dev {} up'.format(dev_name).split())
         if res.returncode != 0:
             print("Unable to bring {} back up. Check mac address.".format(dev_name))
@@ -152,12 +166,12 @@ def mac_func():
             netservice()
             print("Successfully changed mac address for {}".format(dev_name))
             print(res.stdout)
-            if path.exists(filename) == False:
+            if path.exists(MAC_filename) == False:
                 old_mac = Old_MAC_Address.stdout.split(" ")[19]
-                with open("/etc/sysconfig/network-scripts/MAC-{}".format(dev_name), "w") as f:
+                with open(MAC_filename, "w") as f:
                     f.write(old_mac)
                 f.close()
-    sleep(3)
+    sleep(5)
     return
 
 

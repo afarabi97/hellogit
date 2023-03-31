@@ -16,7 +16,7 @@
 
 - name: Verify Rhel ISO Checksum
   fail:
-    msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the invetory file."
+    msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the inventory file."
   when: iso_path_result2.stat.exists and iso_path_result2.stat.checksum != iso_rhel_checksum
 
 - name: Download LTAC ISO
@@ -35,5 +35,5 @@
 
 - name: Verify LTAC ISO Checksum
   fail:
-    msg: "It appears the iso checksum does not match for LTAC.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the invetory file."
+    msg: "It appears the iso checksum does not match for LTAC.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the inventory file."
   when: iso_path_result3.stat.exists and iso_path_result3.stat.checksum != iso_ltac_checksum

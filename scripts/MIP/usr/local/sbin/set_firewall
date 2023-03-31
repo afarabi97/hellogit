@@ -36,7 +36,11 @@
 #
 # 05Jan2023 v4.0
 #    Carl Burkhard
-#       Updates per THISISCVAH-13319
+#       Updated per THISISCVAH-13319
+#
+# 25Mar2023 V4.1
+#    Carl Burkhard
+#       Updated per THISISCVAH-13766 - Disable FIREWALLD and allow NFTABLES to do the work.
 #
 #Description
 #=======================
@@ -70,7 +74,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-VERSION="4.0"
+VERSION="4.1"
 
 # Simple host-based permit-by-exception nftables generation script.
 
@@ -239,6 +243,9 @@ while [ ! -z "$1" ]; do
 	shift
 done
 
+# Added the commands to stop and disable FIREWALLD (THISISCVAH-13766)
+systemctl stop firewalld 1>/dev/null 2>&1
+systemctl disable firewalld 1>/dev/null 2>&1
 systemctl enable nftables
 systemctl start nftables
 

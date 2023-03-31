@@ -49,6 +49,12 @@
 #		Cleaned up source and menu.
 #		Changed STATUS output
 #
+#       27-MAR-2023 V4.1
+#               Carl Burkhard
+#               Changed per THISISCVAH-13766.
+#               Remove all SYSTEMDTL command for FIREWALLD as it is now
+#               disabled on the MIP.
+#
 # Description
 # =======================
 # This script changes the Firewall profile
@@ -59,7 +65,7 @@ from os import path
 import set_vmPortForward as portForward
 
 FW = "/usr/local/sbin/set_firewall"
-SET_FWPROFILE_VERSION = "4.0"
+SET_FWPROFILE_VERSION = "4.1"
 
 
 def vmnat_clear():
@@ -77,17 +83,19 @@ def vmnat_clear():
         return
 
 
-def enable_firewalld():
-    result = Execute_Command(['systemctl', 'status', 'firewalld'])
-    if result.returncode != 0:
-        Execute_Command(['systemctl', 'start', 'firewalld'])
-        Execute_Command(['systemctl', 'enable', 'firewalld'])
+# THISISCVAH-13766 - Commented out these commands as FIREWALLD is not used.
+#def enable_firewalld():
+    #result = Execute_Command(['systemctl', 'status', 'firewalld'])
+    #if result.returncode != 0:
+        #Execute_Command(['systemctl', 'start', 'firewalld'])
+        #Execute_Command(['systemctl', 'enable', 'firewalld'])
 
 
 def default():
     print('Setting the default policy.')
     sleep(1)
-    enable_firewalld()
+    # THISISCVAH-13766 - Commented out these commands as FIREWALLD is not used.
+    #enable_firewalld()
     vmnat_clear()
     Execute_Command([FW])
 
@@ -95,7 +103,8 @@ def default():
 def deny():
     print('Denying all traffic')
     sleep(1)
-    enable_firewalld()
+    # THISISCVAH-13766 - Commented out these commands as FIREWALLD is not used.
+    #enable_firewalld()
     vmnat_clear()
     Execute_Command([FW, '-D'])
 
@@ -103,7 +112,8 @@ def deny():
 def share():
     print('Setting share policy')
     sleep(1)
-    enable_firewalld()
+    # THISISCVAH-13766 - Commented out these commands as FIREWALLD is not used.
+    #enable_firewalld()
     vmnat_clear()
     Execute_Command([FW, '-it', '22, 139, 445', '-ih', '/etc/trusted.hosts'])
 
@@ -111,7 +121,8 @@ def share():
 def scan():
     print('Setting scan policy')
     sleep(1)
-    enable_firewalld()
+    # THISISCVAH-13766 - Commented out these commands as FIREWALLD is not used.
+    #enable_firewalld()
     if not path.exists(
             '/etc/trusted.hosts') or not path.exists('/etc/target.hosts'):
         print("Make sure /etc/trusted.hosts and /etc/target.hosts exists.")
@@ -125,12 +136,14 @@ def disable():
     sleep(1)
     vmnat_clear()
     Execute_Command([FW, '-A'])
-    Execute_Command(['systemctl', 'stop', 'firewalld'])
-    Execute_Command(['systemctl', 'disable', 'firewalld'])
+    # THISISCVAH-13766 - Commented out these commands as FIREWALLD is not used.
+    #Execute_Command(['systemctl', 'stop', 'firewalld'])
+    #Execute_Command(['systemctl', 'disable', 'firewalld'])
 
 
 def forward():
-    enable_firewalld()
+    # THISISCVAH-13766 - Commented out these commands as FIREWALLD is not used.
+    #enable_firewalld()
     portForward.main()
 
 
