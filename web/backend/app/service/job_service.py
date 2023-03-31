@@ -157,7 +157,7 @@ def get_all_jobs() -> List[BackgroundJobModel]:
     all_jobs += started_registry.get_job_ids()
     all_jobs += finished_registry.get_job_ids()
     all_jobs += failed_registery.get_job_ids()
-    return _transform_jobs(Job.fetch_many(all_jobs, connection=REDIS_CLIENT))
+    return __transform_jobs(Job.fetch_many(all_jobs, connection=REDIS_CLIENT))
 
 
 def get_job_with_job_id(job_id: str) -> BackgroundJobModel:
@@ -171,7 +171,7 @@ def get_job_with_job_id(job_id: str) -> BackgroundJobModel:
 def delete_job_with_job_id(job_id: str) -> JobIDModel:
     job = Job.fetch(job_id, connection=REDIS_CLIENT) # type: Job
     if job:
-        return _delete_job(job_id)
+        return __delete_job(job_id)
     raise NoSuchJobError
 
 
@@ -195,7 +195,7 @@ def get_job_log(job_id: str) -> List[JobLogModel]:
     raise NoSuchJobError
 
 
-def _transform_jobs(job_objects: List[Job]) -> List[BackgroundJobModel]:
+def __transform_jobs(job_objects: List[Job]) -> List[BackgroundJobModel]:
     ret_val = []
     for job in job_objects:
         if job:
@@ -204,7 +204,7 @@ def _transform_jobs(job_objects: List[Job]) -> List[BackgroundJobModel]:
     return ret_val
 
 
-def _delete_job(job_id) -> JobIDModel:
+def __delete_job(job_id) -> JobIDModel:
     job_obj = NodeJob.load_jobs_by_job_id(job_id) # type: NodeJob
     if job_obj:
         job_obj.set_error("Job killed by User")
