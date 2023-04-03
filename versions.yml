@@ -32,7 +32,6 @@ docker_versions:
   elastic_winlogbeat_version: "7.15.2"
   hive_cortex_version: 3.1.1-1
   hive_version: 4.1.9-1
-  jcat_nifi_version: "AF-1.0"
   k8s_coredns_version: "v1.8.6"
   k8s_etcd_version: "3.5.3-0"
   k8s_pause_version: "3.7"
@@ -110,7 +109,6 @@ helm_versions:
   arkime_viewer: 1.0.4
   cortex: 1.0.5
   hive: 1.0.6
-  jcat_nifi: 1.0.3
   logstash: 1.0.4
   mattermost: 1.0.5
   misp: 1.0.7
@@ -131,7 +129,6 @@ helm_packages:
   - arkime-{{ helm_versions.arkime }}.tgz
   - cortex-{{ helm_versions.cortex }}.tgz
   - hive-{{ helm_versions.hive }}.tgz
-  - jcat-nifi-{{ helm_versions.jcat_nifi }}.tgz
   - logstash-{{ helm_versions.logstash }}.tgz
   - mattermost-{{ helm_versions.mattermost }}.tgz
   - misp-{{ helm_versions.misp }}.tgz
@@ -185,12 +182,6 @@ custom_rpm_packages:
       - "ext-docker.nexus.sil.lab/thehiveproject/thehive4:{{ docker_versions.hive_version }}"
       - "ext-docker.nexus.sil.lab/cassandra:{{ docker_versions.cassandra_version }}"
     rpm_requirements: "{{ other.rpm_common_requirements }}, tfplenum-python, tfplenum-nginx"
-  - name: "jcat-nifi"
-    helm_version: "{{ helm_versions.jcat_nifi }}"
-    app_version: "{{ docker_versions.jcat_nifi_version }}"
-    containers:
-      - "docker.nexus.sil.lab/tfplenum/jcat-nifi:{{ docker_versions.jcat_nifi_version }}"
-    rpm_requirements: "{{ other.rpm_common_requirements }}"
   - name: "kubernetes"
     containers:
       - "ext-docker.nexus.sil.lab/addon-resizer:{{ docker_versions.k8s_resizer_version }}"

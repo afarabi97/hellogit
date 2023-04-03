@@ -1,9 +1,0 @@
-ltac_cloudinit_path: /var/lib/cloud/instance
-
-create_cert_cmd: /var/bdp/bin/create_cert
-
-ltac_admin_user: "ltac_admin_user"
-
-ltac_admin_user_cert: "ltac_admin_user.p12"
-
-ltac_bdp_config_path: "/etc/bdp"

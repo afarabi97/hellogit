@@ -20,7 +20,6 @@
     - "{{ TFPLENUM_REPO_DIR }}"
     - "{{ extras_dir }}"
     - "{{ extras_dir }}/Packages"
-    - "{{ LTAC_REPO_DIR }}"
 
 - name: Create a directory for downloading elasticsearch plugins.
   file:

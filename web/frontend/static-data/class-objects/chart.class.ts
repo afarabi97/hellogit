@@ -4,7 +4,6 @@ import {
   MockChartInterfaceArkimeViewer,
   MockChartInterfaceCortex,
   MockChartInterfaceHive,
-  MockChartInterfaceJCATNIFI,
   MockChartInterfaceLogstash,
   MockChartInterfaceMattermost,
   MockChartInterfaceMisp,
@@ -24,7 +23,6 @@ export const MockChartClassArkime: ChartClass = new ChartClass(MockChartInterfac
 export const MockChartClassArkimeViewer: ChartClass = new ChartClass(MockChartInterfaceArkimeViewer);
 export const MockChartClassCortex: ChartClass = new ChartClass(MockChartInterfaceCortex);
 export const MockChartClassHive: ChartClass = new ChartClass(MockChartInterfaceHive);
-export const MockChartClassJCATNIFI: ChartClass = new ChartClass(MockChartInterfaceJCATNIFI);
 export const MockChartClassLogstash: ChartClass = new ChartClass(MockChartInterfaceLogstash);
 export const MockChartClassMattermost: ChartClass = new ChartClass(MockChartInterfaceMattermost);
 export const MockChartClassMisp: ChartClass = new ChartClass(MockChartInterfaceMisp);
@@ -43,7 +41,6 @@ export const MockChartClassArray: ChartClass[] = [
   MockChartClassArkimeViewer,
   MockChartClassCortex,
   MockChartClassHive,
-  MockChartClassJCATNIFI,
   MockChartClassLogstash,
   MockChartClassMattermost,
   MockChartClassMisp,

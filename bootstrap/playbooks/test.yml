@@ -11,9 +11,6 @@
           iso_rhel_checksum: "{{ iso_rhel_server_checksum }}"
           iso_rhel_url_labrepo: "{{ iso_rhel_server_url_labrepo }}"
           iso_rhel_path: "{{ iso_rhel_server_path }}"
-          iso_ltac_checksum: "{{ iso_ltac_server_checksum }}"
-          iso_ltac_url_labrepo: "{{ iso_ltac_server_url_labrepo }}"
-          iso_ltac_path: "{{ tfplenumoffline_dir }}/{{ iso_ltac_server_name }}"
       - name: Import DIP/GIP variables
         include_vars:
           file: "{{ dip_core_vars }}"

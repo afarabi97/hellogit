@@ -20,12 +20,6 @@
     marker: "# {mark} Node {{ node_index }}"
     block: ""
 
-- name: Remove {{ node_index }} SSH Host Key Entry
-  ansible.builtin.known_hosts:
-    name: "{{ node_index }}"
-    path: /root/.ssh/known_hosts
-    state: absent
-
 - name: Remove {{ node_index }} dnsmasq Entry
   blockinfile:
     path: /etc/dnsmasq.d/30-dnsmasq-pxeclients.conf

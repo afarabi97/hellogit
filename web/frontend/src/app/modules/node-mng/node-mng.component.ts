@@ -17,7 +17,6 @@ import {
 } from '../global-components/components/node-state-progress-bar/node-state-progress-bar.component';
 import { ServerStdoutComponent } from '../server-stdout/server-stdout.component';
 import { AddNodeDialogComponent } from './components/add-node-dialog/add-node-dialog.component';
-import { CertInstallDialogComponent } from './components/cert-install-dialog/cert-install-dialog.component';
 
 
 const DIALOG_WIDTH = '1000px';
@@ -104,14 +103,6 @@ export class NodeManagementComponent implements OnInit {
     });
   }
 
-  canDownloadCert(node: NodeClass): boolean{
-    if (node.isDeployed &&
-        node.node_type === "LTAC") {
-      return true;
-    }
-    return false;
-  }
-
   isJobRunningButtonGroup(node: NodeClass): boolean {
     return false;
   }
@@ -124,10 +115,7 @@ export class NodeManagementComponent implements OnInit {
   }
 
   canDeleteNode(node: NodeClass){
-    if (node.node_type === 'Sensor' ||
-        node.node_type === 'Service' ||
-        node.node_type === "MinIO" ||
-        node.node_type === "LTAC") {
+    if (node.node_type === 'Sensor' || node.node_type === 'Service' || node.node_type === "MinIO") {
       return true;
     }
     if (node.node_type === 'Server' && !node.isDeployed) {
@@ -187,12 +175,6 @@ export class NodeManagementComponent implements OnInit {
         //TODO we need to delete the node here and unjoin it from kubernetes cluster.
         this.matSnackBarSrv.displaySnackBar('TODO stubbed out retryNodeJob()');
       }
-    });
-  }
-
-  downloadCert(node: NodeClass){
-    const dialogRef = this.dialog.open(CertInstallDialogComponent, {
-      data: node
     });
   }
 

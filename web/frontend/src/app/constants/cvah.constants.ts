@@ -132,7 +132,6 @@ export const SENSOR: string = 'Sensor';
 export const SERVICE: string = 'Service';
 export const MIP: string = 'MIP';
 export const MINIO: string = 'MinIO';
-export const LTAC: string = 'LTAC';
 export const CONTROL_PLANE: string = 'Control-Plane';
 
 // Node State

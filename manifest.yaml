@@ -315,16 +315,6 @@ MDT:
   dest: MDT/Data/CVAH 3.7/Firmware
 
 GIP:
-- app: jcat
-  src:
-    - Repo/GIP/jcat/1.0/appconfig.json
-    - Repo/GIP/jcat/1.0/Chart.yaml
-    - Repo/GIP/jcat/1.0/jcat-nifi.tar
-    - Repo/GIP/jcat/1.0/jcat-notes
-    - Repo/GIP/jcat/1.0/templates
-    - Repo/GIP/jcat/1.0/values.yaml
-  dest: GIP/Data/CVAH 3.7/jcat
-
 - app: vcenter
   src:
     - Repo/GIP/Software/vcenter/VMware-VCSA-all-7.0.1-17004997.iso

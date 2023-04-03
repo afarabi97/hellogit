@@ -24,30 +24,6 @@
   vars:
     uefi: true
 
-- name: Create LTAC bios kickstart {{ node_index }}
-  template:
-    src: "ltac.ks.cfg"
-    dest: "{{ ks_template_dir }}/{{ node_index }}.cfg"
-    owner: root
-    group: root
-    mode: 0644
-    setype: httpd_sys_content_t
-  when: hostvars[node_index].pxe_type == 'bios' and hostvars[node_index].node_type == 'LTAC'
-  vars:
-    uefi: false
-
-- name: Create LTAC uefi kickstart {{ node_index }}
-  template:
-    src: "ltac.ks.cfg"
-    dest: "{{ ks_template_dir }}/uefi/{{ node_index }}.cfg"
-    owner: root
-    group: root
-    mode: 0644
-    setype: httpd_sys_content_t
-  when: hostvars[node_index].pxe_type == 'uefi' and hostvars[node_index].node_type == 'LTAC'
-  vars:
-    uefi: true
-
 - name: Create bios pxe menu for {{ node_index }}
   template:
     src: "default.j2"

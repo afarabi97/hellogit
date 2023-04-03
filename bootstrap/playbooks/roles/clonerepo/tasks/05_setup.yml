@@ -39,38 +39,6 @@
   register: results
   changed_when: results.rc == 0
 
-- name: Copy dirs from LTAC iso
-  shell: |
-    7z x -aos -o{{ LTAC_REPO_DIR }} {{ iso_ltac_path }}
-  register: results
-  changed_when: results.rc == 0
-
-- name: Create tftpboot
-  file:
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-    setype: tftpdir_rw_t
-    path: "/var/lib/tftpboot/"
-
-- name: Copy file with owner and permissions
-  copy:
-    src: "{{ tfplenumoffline_dir }}/ltac/images/pxeboot/initrd.img"
-    dest: /var/lib/tftpboot/initrd.img.ltac
-    owner: root
-    group: root
-    setype: tftpdir_rw_t
-    mode: '0644'
-
-- name: Copy file with owner and permissions
-  copy:
-    src: "{{ tfplenumoffline_dir }}/ltac/images/pxeboot/vmlinuz"
-    dest: /var/lib/tftpboot/vmlinuz.ltac
-    owner: root
-    group: root
-    setype: tftpdir_rw_t
-    mode: '0644'
 # - name: Subscribe to RHEL
 #   community.general.redhat_subscription:
 #     state: present
@@ -100,7 +68,7 @@
 - name: Create AppStream Folder
   file:
     path: /var/www/html/offlinerepo/tfplenum/AppStream/
-    state: present
+    state: directory
 
 - name: Remove BaseOS Folder
   file:
@@ -110,7 +78,7 @@
 - name: Create BaseOS Folder
   file:
     path: /var/www/html/offlinerepo/tfplenum/BaseOS/
-    state: present
+    state: directory
 
 - name: Copy SELinux type enforcement file
   copy: src=nexus.repo

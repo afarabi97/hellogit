@@ -47,7 +47,6 @@ include:
   - local: component-builder/components/arkime-viewer/arkime-viewer.ci.yml
   - local: component-builder/components/cortex/cortex.ci.yml
   - local: component-builder/components/hive/hive.ci.yml
-  - local: component-builder/components/jcat-nifi/jcat-nifi.ci.yml
   - local: component-builder/components/mattermost/mattermost.ci.yml
   - local: component-builder/components/misp/misp.ci.yml
   - local: component-builder/components/misp-modules/misp-modules.ci.yml
@@ -88,7 +87,7 @@ release:
     ALL_COMPONENTS=$(ls component-builder/components)
     echo "$ALL_COMPONENTS"
     for component in $ALL_COMPONENTS
-    do  
+    do
         binary_name=tfplenum-$component-$RPM_VERSION-$RPM_RELEASE_NUM.el8.x86_64.rpm
         cmd="${cmd} --assets-link \"{\\\"name\\\":\\\"${binary_name}\\\",\\\"url\\\":\\\"${REGISTRY_URL}/${binary_name}\\\"}\""
     done

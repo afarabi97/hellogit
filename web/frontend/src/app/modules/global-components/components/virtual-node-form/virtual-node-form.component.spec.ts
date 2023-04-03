@@ -7,7 +7,6 @@ import {
   BAREMETAL,
   COMMON_VALIDATORS,
   CONTROL_PLANE,
-  LTAC,
   MINIO,
   MIP,
   SENSOR,
@@ -180,7 +179,6 @@ describe('VirtualNodeFormComponent', () => {
         component.set_default_values(MINIO);
         component.node_form_group = node_form_group_without_data;
         component.set_default_values(MIP);
-        component.set_default_values(LTAC);
         component.set_default_values(CONTROL_PLANE);
 
         expect(component.set_default_values).toHaveBeenCalled();

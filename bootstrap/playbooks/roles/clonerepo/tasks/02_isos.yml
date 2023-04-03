@@ -18,22 +18,3 @@
   fail:
     msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the inventory file."
   when: iso_path_result2.stat.exists and iso_path_result2.stat.checksum != iso_rhel_checksum
-
-- name: Download LTAC ISO
-  get_url:
-    checksum: "sha256:{{ iso_ltac_checksum }}"
-    url: "{{ iso_ltac_url_labrepo }}"
-    dest: "{{ iso_ltac_path }}"
-    setype: httpd_sys_content_t
-    timeout: 20
-
-- name: check if LTAC iso exists
-  stat:
-    path: "{{ iso_ltac_path }}"
-    checksum_algorithm: sha256
-  register: iso_path_result3
-
-- name: Verify LTAC ISO Checksum
-  fail:
-    msg: "It appears the iso checksum does not match for LTAC.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the inventory file."
-  when: iso_path_result3.stat.exists and iso_path_result3.stat.checksum != iso_ltac_checksum

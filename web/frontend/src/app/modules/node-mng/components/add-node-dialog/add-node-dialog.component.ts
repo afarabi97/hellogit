@@ -390,7 +390,7 @@ export class AddNodeDialogComponent implements OnInit {
     const subnet = this.settings.controller_interface.substring(0, index) + ".";
     let offset = 40;
     let number_of_addrs = 10;
-    if (this.nodeType === "Sensor" || this.nodeType === "MinIO" || this.nodeType === "LTAC") {
+    if (this.nodeType === "Sensor" || this.nodeType === "MinIO") {
       offset = 50;
       number_of_addrs = 46;
     }

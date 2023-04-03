@@ -168,8 +168,7 @@ Service Setup:
     --start-index $START_INDEX \
     --num-nodes $NUM_SERVICE_NODES \
     --os-raid "$VM_RAID" \
-    --dns-servers $DNS_SERVERS \
-    --os-drive-size $SERVICE_SIZE_GB
+    --dns-servers $DNS_SERVERS
   retry: 2
   artifacts:
     untracked: true
@@ -233,37 +232,6 @@ MIP Setup:
   artifacts:
     untracked: true
   extends: .all-mip-hw
-
-LTAC Setup:
-  stage: node-setup
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    echo "VM_PREFIX is $VM_PREFIX"
-    START_INDEX=$(($NUM_SERVERS+$NUM_SENSORS+$NUM_SERVICE_NODES+3))
-    echo "$START_INDEX"
-    python3 testing/pipeline/pipeline.py \
-    add-node \
-    --node-type LTAC \
-    --deployment-type Virtual \
-    --vm-prefix "$VM_PREFIX" \
-    --cpu $LTAC_CPU \
-    --memory $LTAC_MEM \
-    --start-index $START_INDEX \
-    --num-nodes 1 \
-    --os-raid "$VM_RAID" \
-    --dns-servers $DNS_SERVERS \
-    --os-drive-size $LTAC_SIZE_GB \
-    --data-drive-size $LTAC_SIZE_GB
-  retry: 2
-  artifacts:
-    untracked: true
-  only:
-    variables:
-      - $PIPELINE == "developer-all" && $DEPLOY_LTAC == "yes"
-      - $PIPELINE == "hw-developer-all" && $DEPLOY_LTAC == "yes"
 
 Perform Security Scans:
   stage: security_scans

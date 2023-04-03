@@ -72,15 +72,6 @@ export const MockChartInterfaceHive: ChartInterface = {
     }
   ]
 };
-export const MockChartInterfaceJCATNIFI: ChartInterface = {
-  application: 'jcat-nifi',
-  version: '1.0.2',
-  appVersion: 'AF-1.0',
-  description: 'JCAT-Nifi appliance to forward data to ELICSAR',
-  pmoSupported: false,
-  isSensorApp: false,
-  nodes: []
-};
 export const MockChartInterfaceLogstash: ChartInterface = {
   application: 'logstash',
   version: '1.0.2',
@@ -275,7 +266,6 @@ export const MockChartInterfaceArray: ChartInterface[] = [
     MockChartInterfaceArkimeViewer,
     MockChartInterfaceCortex,
     MockChartInterfaceHive,
-    MockChartInterfaceJCATNIFI,
     MockChartInterfaceLogstash,
     MockChartInterfaceMattermost,
     MockChartInterfaceMisp,

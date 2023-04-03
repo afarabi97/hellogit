@@ -21,18 +21,9 @@ search --no-floppy --set=root -l 'RHEL-8.2.x86_64'
 
 ### BEGIN /etc/grub.d/10_linux ###
 menuentry 'Install {{ ansible_distribution }}' --class fedora --class gnu-linux --class gnu --class os {
-    {% if node_index is defined and hostvars[node_index].node_type == "LTAC" %}
-        echo "Loading vmlinuz.ltac"
-        linuxefi /vmlinuz.ltac fips=1 inst.ks=http://{{ server_ip }}/ks/uefi/{{ node_index }}.cfg nocloudinit
-
-        echo "Loading initrd.img.ltac"
-        initrdefi /initrd.img.ltac
-    {% else %}
         echo "Loading vmlinuz"
         linuxefi /vmlinuz {% if node_index is defined and hostvars[node_index].node_type == "MIP" %}modprobe.blacklist=nouveau{% endif %} inst.ks=http://{{ server_ip }}/ks/uefi/{% if node_index is defined %}{{ node_index }}.cfg{% else %}{{ kick_cfg }}{% endif %}
 
         echo "Loading initrd.img"
         initrdefi /initrd.img
-    {% endif %}
-
 }

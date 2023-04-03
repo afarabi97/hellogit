@@ -13,13 +13,11 @@
                      (change)="onNodeTypeChange($event)"
                      fxLayout="column"
                      fxLayoutAlign="space-between none">
-        <mat-radio-button *ngIf="!control_plane_node_detected" class="radio-button" value="Control-Plane">Control-Plane</mat-radio-button>             
+        <mat-radio-button *ngIf="!control_plane_node_detected" class="radio-button" value="Control-Plane">Control-Plane</mat-radio-button>
         <mat-radio-button class="radio-button" value="Server">Server</mat-radio-button>
         <mat-radio-button class="radio-button" value="Sensor">Sensor</mat-radio-button>
         <mat-radio-button class="radio-button" value="Service">Service</mat-radio-button>
         <mat-radio-button class="radio-button" value="MinIO">Minio</mat-radio-button>
-        <mat-radio-button class="radio-button" value="LTAC">LTAC</mat-radio-button>
-        <mat-radio-button class="radio-button" value="Control-Plane">Control-Plane</mat-radio-button>
     </mat-radio-group>
 
     <!-- Deployment Type -->
@@ -196,7 +194,7 @@
               [disabled]="!nodeForm.valid"
               (click)="onSubmit()">Add</button>
       <mat-checkbox disableRipple
-                    *ngIf="nodeType != 'MinIO' && nodeType != 'LTAC' && nodeType != 'Control-Plane'"
+                    *ngIf="nodeType != 'MinIO' && nodeType != 'Control-Plane'"
                     style="margin-top: 0; vertical-align: middle; margin-left: 10px"
                     (change)="checkDuplicate($event)"
                     matTooltip="{{ getTooltip('duplicate_node') }}">

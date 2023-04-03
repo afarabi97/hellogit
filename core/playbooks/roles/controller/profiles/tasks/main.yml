@@ -1,7 +1,7 @@
 ---
 
 - set_fact: # noqa unnamed-task
-    all_groups: "{{ groups['servers']|default([]) + groups['sensors']|default([]) + groups['control_plane']|default([]) + groups['mips']|default([]) + groups['MinIO']|default([]) + groups['LTAC']|default([]) }}"
+    all_groups: "{{ groups['servers']|default([]) + groups['sensors']|default([]) + groups['control_plane']|default([]) + groups['mips']|default([]) + groups['MinIO']|default([]) }}"
 
 - set_fact: # noqa unnamed-task
     dip_nodes: "{{ node }}"

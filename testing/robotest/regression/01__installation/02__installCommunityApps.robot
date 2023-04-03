@@ -19,4 +19,4 @@ Install PMO Applications - Logstash Suricata Zeek Rocketchat And Wikijs
     [Documentation]              Check functionality of the Catalog
     ...                          page by installing  PMO supported apps
     Set Selenium Speed            0.5s
-    Install Independent Apps      Mattermost    Nifi    Jcat-nifi    Redmine    Netflow-filebeat
+    Install Independent Apps      Mattermost    Nifi    Redmine    Netflow-filebeat

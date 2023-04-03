@@ -3,7 +3,7 @@ import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/fo
 import { MatRadioChange } from '@angular/material/radio';
 
 import { ObjectUtilitiesClass } from '../../../../classes';
-import { CONTROL_PLANE, LTAC, MINIO, MIP, SENSOR, SERVER, SERVICE, VIRTUAL } from '../../../../constants/cvah.constants';
+import { CONTROL_PLANE, MINIO, MIP, SENSOR, SERVER, SERVICE, VIRTUAL } from '../../../../constants/cvah.constants';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
 import { addNodeValidators } from '../../../../validators/add-node.validator';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
@@ -63,9 +63,7 @@ export class VirtualNodeFormComponent {
       this.set_virtual_group_values_(8, 8, 500, null);
     } else if (node_type === MINIO) {
       this.set_virtual_group_values_(8, 8, 100, 10000);
-    } else if (node_type == LTAC) {
-      this.set_virtual_group_values_(16, 64, 256, null);
-    } else if (node_type == CONTROL_PLANE) {
+    } else if (node_type === CONTROL_PLANE) {
       this.set_virtual_group_values_(8, 8, 50, null);
     }
   }
