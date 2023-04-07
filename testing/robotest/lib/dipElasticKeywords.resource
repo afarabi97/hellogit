@@ -57,7 +57,6 @@ Backup And Close Indexes
         Append To List  ${index_name_list}  ${name}
         click  ${element}
     END
-    shoot  Index elements checked
     Press Keys  None  ESCAPE
     log  ${index_name_list}
     click  ${CVAH_ELASTICSEARCH_INDEX_MANAGEMENT_BUTTON_UPDATE}
@@ -65,3 +64,4 @@ Backup And Close Indexes
     lookFor  Curator job submitted check notifications for progress.
     click  ${APP_TOP_NAVBAR__MAT_LIST_ITEM_NOTIFICATIONS_MAT_ICON}
     Wait Until Element Contains  ${locTopNotificationMsg}  Curator Backup Indices job completed.  2m
+    Press Keys  None  ESCAPE  ESCAPE

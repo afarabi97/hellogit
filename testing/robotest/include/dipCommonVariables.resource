@@ -57,6 +57,7 @@ ${locPreserveTimestampCheckbox}  xpath=//mat-checkbox[@formcontrolname="preserve
 ### DIP Controller Variables ###
 # Side Nav Buttons
 ${locNavIconTmpl}               xpath=//mat-icon[following-sibling::div/h4[text() = "~"]]
+${locLogoutNavIcon}             xpath=//mat-icon[text() = "exit_to_app"]
 ${locPortalPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Portal"]]
 ${locAlertsPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Alerts"]]
 ${locSystemSettingsNavIcon}     xpath=//mat-icon[following-sibling::div/h4[text() = "System Settings"]]

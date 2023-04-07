@@ -7,8 +7,8 @@ robot:sso_login:
   script: |
     python3 -m run.runner -c regression/01__installation \
       -t 00__dipInitialSSOLogin \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -r $ROBOT_ZEPHYR_CYCLE \
+      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
@@ -34,8 +34,8 @@ robot:deploy_kit:
     vcenter_password=`echo "$VCENTER_PASSWORD" | base64 -d`
     python3 -m run.runner -c regression/01__installation \
       -t 01__dipDeployKit \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -r $ROBOT_ZEPHYR_CYCLE \
+      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
@@ -64,8 +64,8 @@ robot:catalog:independents:
   script: |
     python3 -m run.runner -c regression/01__installation \
       -t 02__installPMOApps \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -r $ROBOT_ZEPHYR_CYCLE \
+      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
@@ -99,8 +99,8 @@ robot:catalog:community:
   script: |
     python3 -m run.runner -c regression/01__installation \
       -t 02__installCommunityApps \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -r $ROBOT_ZEPHYR_CYCLE \
+      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
@@ -134,8 +134,8 @@ robot:catalog:arkime:
   script: |
     python3 -m run.runner -c regression/01__installation \
       -t 02__installArkime \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -r $ROBOT_ZEPHYR_CYCLE \
+      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
@@ -169,8 +169,8 @@ robot:catalog:CHM:
   script: |
     python3 -m run.runner -c regression/01__installation \
       -t 02__installCortexMispHive \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -r $ROBOT_ZEPHYR_CYCLE \
+      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
@@ -204,8 +204,8 @@ robot:add_virtual_nodes:
   script: |
     python3 -m run.runner -c regression/01__installation \
       -t 03__addVirtualNodes \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -r $ROBOT_ZEPHYR_CYCLE \
+      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
@@ -236,8 +236,8 @@ robot:operations:
     curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
     curl -k -o /usr/src/robot/data-with-image_robot.pcap  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/pcap/data-with-image_robot.pcap
     python3 -m run.runner -c "regression/02__operations" \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -r $ROBOT_ZEPHYR_CYCLE \
+      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
@@ -264,8 +264,8 @@ robot:cleanup:
   script: |
     python3 -m run.runner -c regression/03__cleanup \
       -t 00__dipCleanup \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -r $ROBOT_ZEPHYR_CYCLE \
+      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
@@ -290,8 +290,8 @@ robot:integration:
   script: |
     python3 -m run.runner -c integration \
       -t dipNewTests \
-      -r $ROBOT_REGRESSION_ZEPHYR_CYCLE \
-      -p $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
+      -r $ROBOT_ZEPHYR_CYCLE \
+      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \

@@ -46,6 +46,7 @@ Check Content Of API Key
     Should Be Equal As Integers  ${expected_expiration}  ${actual_expiration}
     ${actual_roles} =  Get From Dictionary  ${payload_dict}  roles
     Lists Should Be Equal  ${roles_arg}  ${actual_roles}
+    Go Back
 
 Make API Request
     [Arguments]  ${expiration}

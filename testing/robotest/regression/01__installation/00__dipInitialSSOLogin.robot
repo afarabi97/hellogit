@@ -8,7 +8,7 @@ Library    String
 
 Test Setup        Run Keywords             Runner Open Browser    ${HOST}                         ${BROWSER}
                   ...                      AND                    Set DIP Kit Global Variables
-Test Teardown     Close Browser
+Test Teardown     Run Keywords             Log Out Of Controller  AND  Close All Browsers
 
 *** Test Cases ***
 Perform Initial SSO for DIP Controller

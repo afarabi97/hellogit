@@ -200,8 +200,8 @@ variables:
   # Robot flags
   JIRA_PROJECT_KEY: "THISISCVAH"
   ROBOT_BROWSER: Chrome
-  ROBOT_REGRESSION_ZEPHYR_CYCLE: INTEGRATION
-  ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION: Unscheduled
+  ROBOT_ZEPHYR_CYCLE: REGRESSION
+  ROBOT_ZEPHYR_PROJECT_VERSION: Unscheduled
 
   # Vars For Docker Images Used In Pipeline
   LATEST_CODE_CHECKER_IMAGE: "docker.nexus.sil.lab/tfplenum/code-checker:1.6"

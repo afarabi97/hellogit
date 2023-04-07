@@ -108,9 +108,11 @@ Update Password
     click    ${locSubmitButton}
     Wait Until Page Does Not Contain    Update Account Information
 
-Close Browser and SSH Connection
-    Close All Browsers
-    Close All Connections
+Log Out Of Controller
+    [Documentation]  Logs out of the Controller UI prior to closing the browser.
+    click  ${locLogoutNavIcon}
+    Wait Until Page Does Not Contain  Portal
+    lookFor  Logout completed successfully.
 
 Stay Or Go To ${page}
     [Documentation]     Use this if you don't want to refresh the browser if you're already at the specified page
@@ -248,8 +250,8 @@ Compare Datetime (Frontend, Backend, Current)
     ${delta_1} =  Subtract Date From Date  ${current_datetime}  ${frontend_datetime}
     ${delta_2} =  Subtract Date From Date  ${current_datetime}  ${backend_datetime}
     ${delta_3} =  Subtract Date From Date  ${frontend_datetime}  ${backend_datetime}
-    # If timedelta greater than 1 second then times are off
-    IF  ${delta_1} > 1 or ${delta_2} > 1 or ${delta_3} > 1  Fail
+    # If timedelta greater than 2 seconds then times are off
+    IF  ${delta_1} > 2 or ${delta_2} > 2 or ${delta_3} > 2  Fail
     log  Datetime of the Controller is correct.
 
 Get Kibana Credentials

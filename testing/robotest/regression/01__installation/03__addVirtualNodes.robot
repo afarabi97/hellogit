@@ -12,7 +12,7 @@ Suite Setup       Open SSH Connection      ${HOST}                ${HOST_USERNAM
 Test Setup        Run Keywords             Runner Open Browser    ${HOST}                         ${BROWSER}
                   ...                      AND                    Set DIP Kit Global Variables
                   ...                      AND                    Log Into DIP Controller  ${SSO_ADMIN_USERNAME}    ${NEW_SSO_ADMIN_PASSWORD}
-Test Teardown     Close Browser
+Test Teardown     Run Keywords             Log Out Of Controller  AND  Close All Browsers
 Suite Teardown    Close All Connections
 
 *** Test Cases ***

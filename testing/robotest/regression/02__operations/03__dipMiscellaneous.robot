@@ -12,7 +12,7 @@ Suite Setup       Open SSH Connection      ${HOST}                ${HOST_USERNAM
 Test Setup        Run Keywords             Runner Open Browser    ${HOST}                         ${BROWSER}
                   ...                      AND                    Set DIP Kit Global Variables
                   ...                      AND                    Log Into DIP Controller  ${SSO_ADMIN_USERNAME}    ${NEW_SSO_ADMIN_PASSWORD}
-Test Teardown     Close All Browsers
+Test Teardown     Run Keywords             Log Out Of Controller  AND  Close All Browsers
 Suite Teardown    Close All Connections
 
 *** Test Cases ***
@@ -58,6 +58,7 @@ TFPlenum API Documentation Page
     [Documentation]  This test validates that the API docs page loads and does not return an error.
     Navigate To API Docs
     Validate API Documentation
+    Switch Window  MAIN
 
 Check Nodes On Health Page
     [Documentation]  Verify all kit nodes are listed and in the "Ready" state
