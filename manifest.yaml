@@ -82,6 +82,7 @@ CPT:
     - Repo/CPT/AppStore/Woraauthbf/0.22.r2
     - Repo/CPT/AppStore/Xmco Lan Manager to NT Crack/3.5.0
     - Repo/Shared/AppStore/RHEL Server 7.8/7.8
+    - Repo/Shared/AppStore/RHEL Server 8.2/8.2
   dest: CPT/Data/CVAH 3.7/Software/AppStore/1_ARCHIVE
 
 - app: AppStore
@@ -143,8 +144,6 @@ CPT:
     - Repo/Shared/AppStore/PowerShell/7.1.4-1
     - Repo/Shared/AppStore/puTTY/0.76
     - Repo/Shared/AppStore/PuttyCAC/0.76
-    - Repo/Shared/AppStore/RHEL Server 8.2/8.2
-    - Repo/Shared/AppStore/RHEL Server 8.7/8.7
     - Repo/Shared/AppStore/StigViewer/2.9
     - Repo/Shared/AppStore/sysinternals suite/1.0
     - Repo/Shared/AppStore/TCPdump/4.9.3
@@ -235,6 +234,7 @@ MDT:
 - app: archive
   src:
     - Repo/Shared/AppStore/RHEL Server 7.8/7.8
+    - Repo/Shared/AppStore/RHEL Server 8.2/8.2
   dest: MDT/Data/CVAH 3.7/Software/AppStore/1_ARCHIVE
 
 - app: AppStore
@@ -255,8 +255,6 @@ MDT:
     - Repo/Shared/AppStore/Powershell/7.1.4-1
     - Repo/Shared/AppStore/puTTY/0.76
     - Repo/Shared/AppStore/PuttyCAC/0.76
-    - Repo/Shared/AppStore/RHEL Server 8.2/8.2
-    - Repo/Shared/AppStore/RHEL Server 8.7/8.7
     - Repo/Shared/AppStore/StigViewer/2.9
     - Repo/Shared/AppStore/sysinternals suite/1.0
     - Repo/Shared/AppStore/TCPdump/4.9.3
