@@ -7,8 +7,7 @@ ${tmplLocNodeDeployProgressBar}                     xpath=//tr[td[a[contains(tex
 ${tmplLocNodeDeployError}                           xpath=//tr[td[a[contains(text(),'~')]]]/td/cvah-node-state-progress-bar/a[3]/mat-icon[text()="cancel"]
 
 # Templated variable for delete node button
-${tmplDeleteNodeBtn}                                xpath=//tr[td[a[contains(text(),'~')]]]//following-sibling::td[5]//button[@mattooltip='Delete Node']
-${tmplDeleteMipBtn}                                 xpath=//tr[td[a[contains(text(),'~')]]]//following-sibling::td[4]//button[@mattooltip='Delete MIP']
+${tmplDeleteNodeBtn}                                xpath=//tr[td[a[contains(text(),'~')]]]//button[@mattooltip='Delete Node']
 
 # Element Locators
 # Control Plane
@@ -17,9 +16,8 @@ ${locCPDeployState}                                 xpath=//app-node-mng//mat-ca
 
 ${locDeployKitButton}                               xpath=//button[./span[text()="Deploy Kit"]]
 
-# Add Node/MIP Dialog Locators
+# Add Node Dialog Locators
 ${locNodeMgmtAddNodeBtn}                            xpath=//button[span[text()='Add Node']]
-${locNodeMgmtAddMipBtn}                             xpath=//button[span[text()='Add MIP']]
 ${locNodeHostnames}                                 xpath=//mat-card-content/table/tbody/tr/td/a
 ${locNodeMgmtHostnameInput}                         xpath=//input[@formcontrolname="hostname"]
 ${locNodeMgmtAddNodeDialogIpAddressInput}           xpath=//cvah-unused-ipaddress-autocomplete-ctrl//mat-select
@@ -27,4 +25,3 @@ ${locNodeMgmtAddNodeDialogIpAddressDropdownOpt1}    xpath=//mat-option[position(
 ${tmplLocNodeMgmtAddNodeDialogRadioBtn}             xpath=//mat-radio-button[@value='~']
 ${locNodeMgmtAddNodeDialogVMRadioBtn}               xpath=//div[@class='mat-radio-container' and input[@value='Virtual']]
 ${locNodeMgmtAddNodeDialogSubmitBtn}                xpath=//add-node-dialog//button/span[text()="Add"]
-${locNodeMgmtAddMipDialogSubmitBtn}                 xpath=//cvah-add-mip-dialog//button/span[text()="Add"]
