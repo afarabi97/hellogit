@@ -65,6 +65,7 @@
 			<pagenamefirst></pagenamefirst>
 			<loginshowhost></loginshowhost>
 			<statusmonitoringsettingspanel></statusmonitoringsettingspanel>
+			<session_timeout>10</session_timeout>
 		</webgui>
 		<disablesegmentationoffloading></disablesegmentationoffloading>
 		<disablelargereceiveoffloading></disablelargereceiveoffloading>
