@@ -92,17 +92,25 @@
 #   register: results
 #   changed_when: results.rc == 0
 
-- name: Clean AppStream Folder
-  shell: |
-    rm -rf /var/www/html/offlinerepo/tfplenum/AppStream/*
-  register: results
-  changed_when: results.rc == 0
+- name: Remove AppStream Folder
+  file:
+    path: /var/www/html/offlinerepo/tfplenum/AppStream/
+    state: absent
 
-- name: Clean BaseOS Folder
-  shell: |
-    rm -rf /var/www/html/offlinerepo/tfplenum/BaseOS/*
-  register: results
-  changed_when: results.rc == 0
+- name: Create AppStream Folder
+  file:
+    path: /var/www/html/offlinerepo/tfplenum/AppStream/
+    state: present
+
+- name: Remove BaseOS Folder
+  file:
+    path: /var/www/html/offlinerepo/tfplenum/BaseOS/
+    state: absent
+
+- name: Create BaseOS Folder
+  file:
+    path: /var/www/html/offlinerepo/tfplenum/BaseOS/
+    state: present
 
 - name: Copy SELinux type enforcement file
   copy: src=nexus.repo
@@ -132,12 +140,18 @@
 
 - name: Compile SELinux module file
   command: checkmodule -m -M -o /root/mod_shib-to-shibd.mod /root/mod_shib-to-shibd.te
+  register: results
+  changed_when: results.rc == 0
 
 - name: Build SELinux policy package
   command: semodule_package -o /root/mod_shib-to-shibd.pp -m /root/mod_shib-to-shibd.mod
+  register: results
+  changed_when: results.rc == 0
 
 - name: Load SELinux policy package
   command: semodule -i /root/mod_shib-to-shibd.pp
+  register: results
+  changed_when: results.rc == 0
 
 # Maybe cleanup later?
 #- name: Remove temporary files

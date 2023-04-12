@@ -33,6 +33,4 @@ def run_command(command: str,
     return sout.decode('utf-8'), proc.poll()
 
 def encryptPassword(password: str):
-    chars = string.ascii_letters + string.digits
-    salt = random.choice(chars) + random.choice(chars)
-    return crypt.crypt(password, salt)
+    return crypt.crypt(password)
