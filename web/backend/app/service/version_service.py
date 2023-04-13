@@ -1,6 +1,7 @@
 import configparser
 import socket
 from datetime import datetime
+from app.models.version_information import VersionInformationModel
 
 from app.utils.constants import PROJECT_ROOT_DIR
 
@@ -39,9 +40,7 @@ def get_build_date() -> str:
     config = configparser.ConfigParser()
     config.read(INI)
     try:
-        date = datetime.strptime(
-            config["tfplenum"]["build_date"], "%Y-%m-%dT%H:%M:%S%z"
-        )
+        date = datetime.strptime(config["tfplenum"]["build_date"], "%Y-%m-%dT%H:%M:%S%z")
         return date.strftime("%B %d, %Y")
     except KeyError:
         return None
@@ -61,3 +60,7 @@ def get_auth_base() -> str:
         return base_template.format(hostname=hostname)
     except Exception:
         return base_template.format(hostname="controller.lan")
+
+
+def get_version_information() -> VersionInformationModel:
+    return VersionInformationModel(get_version(), get_build_date(), get_commit_hash()).DTO

@@ -12,9 +12,8 @@ from app.models.settings.kit_settings import GeneralSettingsForm
 from app.service.job_service import run_command2
 from app.service.rulesync_service import perform_rulesync
 from app.service.socket_service import NotificationCode, NotificationMessage
-from app.service.system_info_service import get_auth_base
-from app.utils.collections import (mongo_catalog_saved_values,
-                                   mongo_ruleset)
+from app.service.version_service import get_auth_base
+from app.utils.collections import mongo_catalog_saved_values, mongo_ruleset
 from app.utils.connection_mngs import REDIS_CLIENT, KubernetesWrapper
 from app.utils.constants import NODE_TYPES
 from app.utils.logging import logger, rq_logger
