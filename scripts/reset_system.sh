@@ -87,7 +87,7 @@ function parse_command_line_args {
 function reset_password {
     rm -f /etc/passwd.lock
     rm -f /etc/shadow.lock
-    run_cmd usermod --password Q9sIxtbggUGaw root
+    run_cmd usermod --password '$6$mK9QTRDvjnoDUFsi$l/NzWjPcs.NF73uK1CUfgPM0tbJgc1h50fM7T6I5tALeErXej.4gO.OWIbHr1hPugYat6OBFt7Qx5pxUhYcqn0' root
 }
 
 function update_network_scripts {

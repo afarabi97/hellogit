@@ -112,7 +112,7 @@ def export(vcenter_settings: VCenterSettings,
         serr="VM Release Name is BLANK!"
         logging.info(serr)
         logging.error(serr)
-        raise(255) 
+        raise(255)
 
     logging.info("Exporting OVA file to %s. This can take a few hours before it completes." % staging_destination_path)
     logging.info("Command: %s" % cmd)
@@ -174,7 +174,7 @@ class ControllerExport:
         payload["commands"] = [
             {"vm_shell": "/usr/bin/sed", "vm_shell_args": "-i '/.ontroller/d' /etc/hosts"},
             {"vm_shell": '/bin/nmcli', "vm_shell_args": "connection modify 'Bridge br0' ipv4.method auto ipv4.addresses '' ipv4.gateway '' ipv4.dns ''"},
-            {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password {export_password} root"}
+            {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password '{export_password}' root"}
         ]
         payload["release_template_name"] = self._release_vm_name
         execute_playbook([CTRL_EXPORT_PREP], payload)
@@ -209,7 +209,7 @@ class GIPServiceExport(ControllerExport):
         payload["commands"] = [
             {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete ens192'},
             {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete "Wired connection 1"'},
-            {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password {export_password} root"}
+            {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password '{export_password}' root"}
         ]
         payload["release_template_name"] = release_vm_name
         execute_playbook([CTRL_EXPORT_PREP], payload)
@@ -235,7 +235,7 @@ class ReposyncServerExport(ControllerExport):
         payload["commands"] = [
             {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete ens192'},
             {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete "Wired connection 1"'},
-            {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password {export_password} root"}
+            {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password '{export_password}' root"}
         ]
         execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
 
