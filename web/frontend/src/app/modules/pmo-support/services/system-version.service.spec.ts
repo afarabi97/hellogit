@@ -85,11 +85,7 @@ describe('SystemVersionService', () => {
           .subscribe((response: SystemVersionClass) => {
             const objectKeys: string[] = Object.keys(response);
             objectKeys.forEach((key: string) => {
-              if (key === 'commit_hash') {
-                expect(response[key]).toEqual(MockSystemVersionClass[key].substring(0, 8));
-              } else {
-                expect(response[key]).toEqual(MockSystemVersionClass[key]);
-              }
+              expect(response[key]).toEqual(MockSystemVersionClass[key]);
             });
             expect(service.get_system_version).toHaveBeenCalled();
           });

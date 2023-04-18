@@ -18,9 +18,9 @@ export class SystemVersionClass implements SystemVersionInterface {
    * @param {SystemVersionInterface} system_version_interface
    * @memberof SystemVersionClass
    */
-  constructor(system_version_interface: SystemVersionInterface){
+  constructor(system_version_interface: SystemVersionInterface) {
     this.version = system_version_interface.version;
-    this.commit_hash = system_version_interface.commit_hash.substring(0, 8);
+    this.commit_hash = system_version_interface.commit_hash;
     this.build_date = system_version_interface.build_date;
   }
 }

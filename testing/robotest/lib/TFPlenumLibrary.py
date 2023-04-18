@@ -20,6 +20,7 @@ class TFPlenumLibrary:
     KIT_NODES_ENDPOINT = "/kit/nodes"
     KIT_STATUS_ENDPOINT = "/kit/status"
     DATETIME_ENDPOINT = "/tools/controller/datetime"
+    VERSION_INFO_ENDPOINT = "/version/information"
 
     def __init__(self):
         self.COLOR_HEADER = "\033[95m"
@@ -288,6 +289,11 @@ class TFPlenumLibrary:
         response = self.api_get_controller_datetime(jsonify=False)
         return response.json()
 
+    @keyword
+    def get_version_information(self):
+        response = self.api_get_version_information(jsonify=False)
+        return response.json()
+
     # API Calls (not to be used in robot tests directly)
 
     def api_get_current_user(self, jsonify=True):
@@ -324,6 +330,9 @@ class TFPlenumLibrary:
 
     def api_get_controller_datetime(self, jsonify=True):
         return self.execute_request(self.DATETIME_ENDPOINT, jsonify=jsonify)
+
+    def api_get_version_information(self, jsonify=True):
+        return self.execute_request(self.VERSION_INFO_ENDPOINT, jsonify=jsonify)
 
     def execute_request(self, endpoint, request_type="GET", files=None, payload=None, jsonify=True) -> Optional[Response | Dict | List]:
         files = files or {}

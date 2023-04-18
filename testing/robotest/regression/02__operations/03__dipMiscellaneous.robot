@@ -3,6 +3,7 @@ Resource    ../../lib/dipAPIDocsKeywords.resource
 Resource    ../../lib/dipCommonKeywords.resource
 Resource    ../../lib/dipPortalKeywords.resource
 Resource    ../../lib/dipToolsKeywords.resource
+Resource    ../../lib/dipPmoSupportKeywords.resource
 
 Library    SeleniumLibrary    15s
 Library    SSHLibrary         15s
@@ -42,16 +43,16 @@ Add And Delete Portal Link
     Verify Link Works  ${name}  ${url}
     Delete User Link
 
-Verify Support Page Information
+Verify Content On Support Page
     [Tags]  THISISCVAH-8225
-    [Documentation]  Verifies Service Now web link, email address
-    ...              and the System Version Number when running a baremetal kit.
-    log     Verifying the version number listed on the Support page
+    [Documentation]  Verifies that the Controller has correct information on the Support Page under
+    ...              all four sections (Help Desk, Service Now, PMO Support Site, Version Information).
+    log  Checking contents of all four sections of the Support page.
     Navigate To Support
-    Sleep  2s  reason=Version number loads slightly after the element loads onto the page
-    Run Keyword if  ${IS_BARE_METAL_KIT}  Element Should Contain  ${CVAH_PMO_SUPPORT__P_VERSION}  ${KIT_VERSION}
-    Element Should Contain  ${CVAH_PMO_SUPPORT__A_SERVICENOW_WEBSITE}  https://afdco.servicenowservices.com/sp
-    Element Should Contain  ${CVAH_PMO_SUPPORT__A_SERVICENOW_MAIL}  afdco@servicenowservices.com
+    Check Help Desk Section
+    Check Service Now Section
+    Check PMO Support Site Section
+    Check Version Information Section
 
 TFPlenum API Documentation Page
     [Tags]  THISISCVAH-11921
