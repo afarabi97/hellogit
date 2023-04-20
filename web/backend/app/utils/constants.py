@@ -200,8 +200,19 @@ class ColdLogModules:
         for key in cls.__dict__:
             if key.isupper():
                 ret_val.append(cls.__dict__[key].to_dict())
-
         return ret_val
+
+    @classmethod
+    def valid_fileset_types(cls) -> list:
+        valid_filesets = []
+        for module in ColdLogModules.to_list():
+            for fileset_object in iter(module['filesets']):
+                valid_filesets.append(fileset_object['value'])
+        return valid_filesets
+
+    @classmethod
+    def is_valid_fileset_type(cls, fileset_type: str) -> bool:
+        return any(x == fileset_type for x in ColdLogModules.valid_fileset_types())
 
 
 ColdLogModules._initalize()

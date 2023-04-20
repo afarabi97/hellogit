@@ -48,9 +48,9 @@ def validate_suricata_rule(rule: Dict) -> Tuple[bool, str]:
                "suricata -c /etc/suricata/suricata.yaml -T").format(tmp_dir=tmpdirname,
                                                                     version=SURICATA_IMAGE_VERSION)
 
-        stdout, ret_val = run_command2(pull_docker_cmd, use_shell=True)
+        stdout, ret_val = run_command2(pull_docker_cmd)
         if ret_val == 0:
-            stdout, ret_val = run_command2(cmd, use_shell=True)
+            stdout, ret_val = run_command2(cmd)
             if ret_val == 0:
                 return True, ""
 
@@ -74,7 +74,7 @@ def validate_zeek_script(rule: Dict) -> Tuple[bool, str]:
 
         pull_docker_cmd = "docker pull localhost:5000/tfplenum/zeek:{}".format(
             ZEEK_IMAGE_VERSION)
-        stdoutput, ret_val = run_command2(pull_docker_cmd, use_shell=True)
+        stdoutput, ret_val = run_command2(pull_docker_cmd)
         if ret_val == 0:
             cmd = ("docker run --rm "
                    "-v {tmp_dir}:{script_dir} --entrypoint /opt/zeek/bin/zeek "
@@ -84,7 +84,7 @@ def validate_zeek_script(rule: Dict) -> Tuple[bool, str]:
                                                             script_dir=ZEEK_SCRIPT_DIR,
                                                             file_to_test=filename)
 
-            stdoutput, ret_val = run_command2(cmd, use_shell=True)
+            stdoutput, ret_val = run_command2(cmd)
             if ret_val == 0:
                 return True, ""
 
@@ -129,9 +129,9 @@ def validate_zeek_intel(rule: Dict) -> Tuple[bool, str]:
                    script_dir=ZEEK_INTEL_PATH,
                    tmp_dir=rules_tmp_dir,
                    version=ZEEK_IMAGE_VERSION)
-        stdoutput, ret_val = run_command2(pull_docker_cmd, use_shell=True)
+        stdoutput, ret_val = run_command2(pull_docker_cmd)
         if ret_val == 0:
-            stdoutput, ret_val = run_command2(cmd, use_shell=True)
+            stdoutput, ret_val = run_command2(cmd)
 
             if stdoutput == '':
                 return True, ""
@@ -157,7 +157,7 @@ def validate_zeek_signature(rule: Dict) -> Tuple[bool, str]:
 
         pull_docker_cmd = "docker pull localhost:5000/tfplenum/zeek:{}".format(
             ZEEK_IMAGE_VERSION)
-        stdoutput, ret_val = run_command2(pull_docker_cmd, use_shell=True)
+        stdoutput, ret_val = run_command2(pull_docker_cmd)
         if ret_val == 0:
             cmd = ("docker run --rm "
                    "-v {tmp_dir}:{sig_path} --entrypoint /opt/zeek/bin/zeek "
@@ -165,7 +165,7 @@ def validate_zeek_signature(rule: Dict) -> Tuple[bool, str]:
                    "-s {sig_path}").format(tmp_dir=filepath,
                                            version=ZEEK_IMAGE_VERSION,
                                            sig_path=ZEEK_SIG_PATH)
-            stdoutput, ret_val = run_command2(cmd, use_shell=True)
+            stdoutput, ret_val = run_command2(cmd)
             if ret_val == 0:
                 return True, ""
 
@@ -176,11 +176,13 @@ def does_file_have_ext(some_path: str, extension: str) -> bool:
     file_ext = some_path[pos:]
     return file_ext.lower() == extension
 
+
 def _get_file_header(rule_set: dict, file: TextIOWrapper):
     if rule_set['appType'] == RULE_TYPES[2]:
         header = file.readline()
         return header
     return None
+
 
 def create_rule_from_file(path: Path, rule_set: Dict, ignore_errors: bool = False, by_pass_validation: bool = False) -> Union[Dict, List[Dict]]:
     # If the file is greater than 5 MB we need to split up the file into smaller pieces
@@ -244,10 +246,6 @@ def process_zipfile(export_path: str, some_zip: str, rule_set: Dict, by_pass_val
                     ret_val.append(rule_or_rules)
     return ret_val
 
-def does_file_have_ext(some_path: str, extension: str) -> bool:
-    pos = some_path.rfind(".")
-    file_ext = some_path[pos:]
-    return file_ext.lower() == extension
 
 def test_pcap_against_suricata_rule(pcap_name: str, rule_content: str) -> Response:
     with tempfile.TemporaryDirectory() as rules_tmp_dir:
@@ -269,9 +267,9 @@ def test_pcap_against_suricata_rule(pcap_name: str, rule_content: str) -> Respon
                         results_dir=results_tmp_dir,
                         pcap_name=pcap_name,
                         version=SURICATA_IMAGE_VERSION)
-            output, ret_val = run_command2(pull_docker_cmd, use_shell=True)
+            output, ret_val = run_command2(pull_docker_cmd)
             if ret_val == 0:
-                output, ret_val = run_command2(cmd, use_shell=True)
+                output, ret_val = run_command2(cmd)
                 if ret_val == 0:
                     results = Path(results_tmp_dir)
                     for results_path in results.glob("eve-*"):
@@ -304,9 +302,9 @@ def test_pcap_against_zeek_script(pcap_name: str, rule_content: str) -> Response
                                                                                pcap_name=pcap_name,
                                                                                results_dir=results_tmp_dir,
                                                                                file_to_test=filename)
-            stdoutput, ret_val = run_command2(pull_docker_cmd, use_shell=True)
+            stdoutput, ret_val = run_command2(pull_docker_cmd)
             if ret_val == 0:
-                stdoutput, ret_val = run_command2(cmd, use_shell=True)
+                stdoutput, ret_val = run_command2(cmd)
                 if stdoutput != '':
                     with Path(results_tmp_dir + '/stdout.log').open('w') as output:
                         output.write(stdoutput)
@@ -354,9 +352,9 @@ def test_pcap_against_zeek_intel(pcap_name: str, rule_content: str) -> Response:
                        script_dir=ZEEK_INTEL_PATH,
                        tmp_dir=rules_tmp_dir,
                        version=ZEEK_IMAGE_VERSION)
-            stdoutput, ret_val = run_command2(pull_docker_cmd, use_shell=True)
+            stdoutput, ret_val = run_command2(pull_docker_cmd)
             if ret_val == 0:
-                stdoutput, ret_val = run_command2(cmd, use_shell=True)
+                stdoutput, ret_val = run_command2(cmd)
                 if stdoutput != '':
                     with Path(rules_tmp_dir + '/stdout.log').open('w') as output:
                         output.write(stdoutput)
@@ -394,9 +392,9 @@ def test_pcap_against_zeek_signature(pcap_name: str, rule_content: str) -> Respo
                                                                  pcap_name=pcap_name,
                                                                  results_dir=results_tmp_dir,
                                                                  file_to_test=filename)
-            stdoutput, ret_val = run_command2(pull_docker_cmd, use_shell=True)
+            stdoutput, ret_val = run_command2(pull_docker_cmd)
             if ret_val == 0:
-                stdoutput, ret_val = run_command2(cmd, use_shell=True)
+                stdoutput, ret_val = run_command2(cmd)
                 if stdoutput != '':
                     with Path(results_tmp_dir + '/stdout.log').open('w') as output:
                         output.write(stdoutput)
@@ -409,13 +407,14 @@ def test_pcap_against_zeek_signature(pcap_name: str, rule_content: str) -> Respo
 
     return {"error_message": stdoutput}, 400
 
+
 def _create_rule_srv_wrapper(rule_set: Dict,
-                            rule_name: str,
-                            rule_content: str,
-                            is_enabled: bool = True,
-                            ignore_errors: bool = False,
-                            by_pass_validation: bool = False,
-                            header: str = None):
+                             rule_name: str,
+                             rule_content: str,
+                             is_enabled: bool = True,
+                             ignore_errors: bool = False,
+                             by_pass_validation: bool = False,
+                             header: str = None):
     rule = {
         "ruleName": rule_name,
         "rule": rule_content,
@@ -455,7 +454,8 @@ def _get_file_name(filename: str, count: int) -> str:
     pos = filename.rfind('.')
     return "{}_{}{}".format(filename[0:pos], count, filename[pos:])
 
-def check_zeek_exec_module(rule_type:str, rule: str):
+
+def check_zeek_exec_module(rule_type: str, rule: str):
     if rule_type == RULE_TYPES[1] and "Exec::" in rule:
         return True
     return False

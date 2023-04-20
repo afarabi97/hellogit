@@ -5,7 +5,9 @@ import traceback
 from pathlib import Path
 from typing import Dict
 from uuid import uuid4
+import re
 
+from fabric import Connection
 from app.models.ruleset import PCAPReplayModel
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
@@ -22,43 +24,74 @@ from rq.decorators import job
 from .catalog_service import get_node_apps
 
 
+def _validate_linux_network_interface(interface_name: str, conn: Connection) -> bool:
+    """Validate if a network interface exists. This function will check if the interface name matches the CNDN convention and if the interface file exists in the /sys/class/net directory on the remote host.
+
+    Args:
+        interface_name (str): Name of the network interface
+        conn (Connection): Connection object to a remote host.
+    Returns:
+        bool: True if the network interface exists, False otherwise
+    """
+
+    # Remove any leading/trailing whitespace
+    interface_name = interface_name.strip()
+
+    # Check if the interface name matches the CNDN convention
+    if not re.match(r'^[a-z]{2}\w{0,14}$', interface_name):
+        return False
+
+    # Check if the interface file exists in the /sys/class/net directory
+    interface_file = '/sys/class/net/{}'.format(interface_name)
+
+    if not conn.run('test -e {}'.format(interface_file), warn=True).ok:
+        return False
+    return True
+
+
+def send_notification(notification: NotificationMessage, status: NotificationCode, message: str):
+    # Send notification to the user via WebSocket about the status of the replay.
+    notification.set_status(status=status.name)
+    notification.set_message(message)
+    # "Completed tcpreplay of {}.".format(replay.pcap))
+    notification.post_to_websocket_api()
+
+
 @job("default", connection=REDIS_CLIENT, timeout="30m")
 def replay_pcap_using_tcpreplay(payload: Dict, root_password: str):
     get_app_context().push()
     replay = PCAPReplayModel(payload)
     notification = NotificationMessage(role="pcap")
-    notification.set_status(status=NotificationCode.STARTED.name)
-    notification.set_message("{} replay started.".format(replay.pcap))
-    notification.post_to_websocket_api()
+    send_notification(notification, NotificationCode.STARTED,
+                      "{} replay started.".format(replay.pcap))
 
     try:
         pcap_file = Path(PCAP_UPLOAD_DIR + "/" + replay.pcap)
         if not pcap_file.exists() or not pcap_file.is_file():
-            notification.set_status(status=NotificationCode.ERROR.name)
-            notification.set_message(
-                "{} does not exist or is not a file.".format(str(pcap_file))
-            )
-            notification.post_to_websocket_api()
+            send_notification(notification, NotificationCode.ERROR,
+                              "{} does not exist or is not a file.".format(str(pcap_file)))
 
         with FabricConnectionManager(
             "root", root_password, replay.sensor_ip
         ) as ssh_con:
-            remote_pcap = "/tmp/{}".format(replay.pcap)
-            ssh_con.put(str(pcap_file), remote_pcap)
-            for iface in replay.ifaces:
-                ssh_con.run(
-                    "tcpreplay --mbps=100 -i {} {}".format(iface, remote_pcap))
-            ssh_con.run("rm -f {}".format(remote_pcap))
-
-        notification.set_status(status=NotificationCode.COMPLETED.name)
-        notification.set_message(
-            "Completed tcpreplay of {}.".format(replay.pcap))
-        notification.post_to_websocket_api()
+            run_safe_tcpreplay(replay, ssh_con, pcap_file)
+        send_notification(notification, NotificationCode.COMPLETED,
+                          "Completed tcpreplay of {}.".format(replay.pcap))
     except Exception as e:
         traceback.print_exc()
-        notification.set_status(status=NotificationCode.ERROR.name)
-        notification.set_message(str(e))
-        notification.post_to_websocket_api()
+        send_notification(notification, NotificationCode.ERROR, str(e))
+
+
+def run_safe_tcpreplay(replay, ssh_con, pcap_file):
+    remote_pcap = "/tmp/{}".format(replay.pcap)
+    ssh_con.put(str(pcap_file), remote_pcap)
+    for iface in replay.ifaces:
+        if not _validate_linux_network_interface(iface, ssh_con):
+            raise ValueError("Invalid network interface: {}".format(iface))
+        else:
+            ssh_con.run(
+                "tcpreplay --mbps=100 -i {} {}".format(iface, remote_pcap))
+    ssh_con.run("rm -f {}".format(remote_pcap))
 
 
 def _get_configmap_data(search_dict: Dict, namespace: str, data_name: str):
@@ -417,7 +450,7 @@ class ArkimeReplayer:
             shutil.rmtree(self.tmp_dir)
 
 
-@job("default", connection=REDIS_CLIENT, timeout="30m")
+@ job("default", connection=REDIS_CLIENT, timeout="30m")
 def replay_pcap_using_preserve_timestamp(payload: Dict, root_password: str):
     get_app_context().push()
     replay = PCAPReplayModel(payload)

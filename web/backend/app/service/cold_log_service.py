@@ -268,7 +268,7 @@ class ColdLogsProcessor:
                        module_section)
 
             rq_logger.debug(run_cmd)
-            job = AsyncJob(JOB_NAME.capitalize(), "", run_cmd, use_shell=True)
+            job = AsyncJob(JOB_NAME.capitalize(), "", run_cmd, use_shell=False)
             result = job.run_async_command()
             self._remove_lifecyle_settings_from_index()
             return result, container_name

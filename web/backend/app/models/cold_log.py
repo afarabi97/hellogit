@@ -3,7 +3,7 @@ from typing import Dict
 
 from app.models import Model
 from app.utils.collections import mongo_configurations
-from app.utils.constants import WINDOWS_COLD_LOG_CONFIG_ID
+from app.utils.constants import WINDOWS_COLD_LOG_CONFIG_ID, ColdLogModules
 from werkzeug.datastructures import FileStorage, ImmutableMultiDict
 from werkzeug.utils import secure_filename
 
@@ -23,19 +23,25 @@ class ColdLogUploadModel(Model):
                      payload: ImmutableMultiDict,
                      form: ImmutableMultiDict):
         cold_log_form = json.loads(form['cold_log_form'], encoding="utf-8")
-        self.module = cold_log_form["module"]
-        self.fileset = cold_log_form["fileset"]
-        self.index_suffix = cold_log_form["index_suffix"]
-        self.upload_file = payload['upload_file']
-        self.filename = secure_filename(self.upload_file.filename)
-        self.send_to_logstash = cold_log_form["send_to_logstash"]
+        if self._inputs_are_valid(cold_log_form):
+            self.module = cold_log_form["module"]
+            self.fileset = cold_log_form["fileset"]
+            self.index_suffix = cold_log_form["index_suffix"]
+            self.upload_file = payload['upload_file']
+            self.filename = secure_filename(self.upload_file.filename)
+            self.send_to_logstash = cold_log_form["send_to_logstash"]
+        else:
+            raise ValueError("Invalid Cold Log Form Parameter")
 
     def from_dictionary(self, payload: Dict):
-        self.module = payload["module"]
-        self.index_suffix = payload["index_suffix"]
-        self.filename = payload['filename']
-        self.fileset = payload["fileset"]
-        self.send_to_logstash = payload["send_to_logstash"]
+        if self._inputs_are_valid(payload):
+            self.module = payload["module"]
+            self.index_suffix = payload["index_suffix"]
+            self.filename = payload['filename']
+            self.fileset = payload["fileset"]
+            self.send_to_logstash = payload["send_to_logstash"]
+        else:
+            raise ValueError("Invalid Cold Log Form Parameter")
 
     def is_windows(self) -> bool:
         return self.module == "windows"
@@ -60,6 +66,10 @@ class ColdLogUploadModel(Model):
             'fileset': self.fileset
         }
 
+    def _inputs_are_valid(self, inputs) -> bool:
+        # guard clause for unknown fileset types
+        if not ColdLogModules.is_valid_fileset_type(inputs["fileset"]): return False
+        return True
 
 class WinlogbeatInstallModel(Model):
 

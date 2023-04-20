@@ -7,6 +7,7 @@ from contextlib import ExitStack
 from json.decoder import JSONDecodeError
 from pathlib import Path
 from typing import Dict, List, Union
+from shlex import quote
 
 import requests
 import urllib3
@@ -262,7 +263,9 @@ class AgentInstallerDelConfigs(Resource):
 
 
 def _authenticate_with_kinit(username: str, password: str, dns_suffix: str):
-    dns_suffix = dns_suffix.upper()
+    dns_suffix = quote(dns_suffix.upper())
+    password = quote(password)
+    username = quote(username)
     # TODO make sure special characters like ! work.
     cmd = "echo '{password}' | kinit {username}@{dns_suffix}".format(password=password,
                                                                      username=username,

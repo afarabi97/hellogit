@@ -207,7 +207,7 @@ def execute_kubelet_cmd(cmd: str) -> bool:
 
     try:
         stdout, ret_code = run_command2(
-            command=cmd, working_dir=WORKING_DIR, use_shell=True
+            command=cmd, working_dir=WORKING_DIR, use_shell=False
         )
         if ret_code == 0:
             return True
@@ -287,7 +287,7 @@ def _inspect_chart(application: str) -> dict:
     stdout, ret_code = run_command2(
         command="helm inspect chart chartmuseum/" + application,
         working_dir=WORKING_DIR,
-        use_shell=True,
+        use_shell=False,
     )
     if ret_code == 0 and stdout != "":
         chart = yaml.full_load(stdout.strip())
@@ -301,7 +301,7 @@ def _inspect_readme(application: str) -> dict:
     stdout, ret_code = run_command2(
         command="helm inspect readme chartmuseum/" + application,
         working_dir=WORKING_DIR,
-        use_shell=True,
+        use_shell=False,
     )
     if ret_code == 0 and stdout != "":
         appconfig = yaml.full_load(stdout.strip())
@@ -343,7 +343,7 @@ def get_helm_list(application: str = None) -> list:
             return []
         cmd = "helm list --all -o json --filter='" + application + "$'"
     stdout, ret_code = run_command2(
-        command=cmd, working_dir=WORKING_DIR, use_shell=True
+        command=cmd, working_dir=WORKING_DIR, use_shell=False
     )
 
     if ret_code == 0 and stdout != "":
@@ -409,7 +409,7 @@ def get_values(application) -> dict:
     stdout, ret_code = run_command2(
         command="helm inspect values chartmuseum/" + application,
         working_dir=WORKING_DIR,
-        use_shell=True,
+        use_shell=False,
     )
     if ret_code == 0 and stdout != "":
         try:
@@ -494,12 +494,12 @@ def _build_values(values: dict):
 
 def _purge_helm_app_on_failure(deployment_name: str, namespace: str):
     cmd = "helm uninstall {} --namespace {}".format(deployment_name, namespace)
-    run_command2(command=cmd, use_shell=True, working_dir=WORKING_DIR)
+    run_command2(command=cmd, use_shell=False, working_dir=WORKING_DIR)
 
 
 def _update_helm_charts():
     stdout, ret_code = run_command2(
-        command="helm repo update", working_dir=WORKING_DIR, use_shell=True
+        command="helm repo update", working_dir=WORKING_DIR, use_shell=False
     )
     if ret_code == 0:
         print("helm repo cache updated.")
@@ -577,9 +577,10 @@ def install_helm_apps(
                 while True:
                     sleep(0.25)
                     filter_data = filter(
-                                      lambda d: d["deployment_name"] == deployment_name,
-                                      get_app_state(application=application, namespace=namespace)
-                                  )
+                        lambda d: d["deployment_name"] == deployment_name,
+                        get_app_state(application=application,
+                                      namespace=namespace)
+                    )
                     list_data = list(filter_data)
                     length = len(list_data)
                     if (length > 0):
@@ -588,7 +589,8 @@ def install_helm_apps(
                 notification.set_exception(exception=None)
                 notification.set_status(
                     status=NotificationCode.IN_PROGRESS.name)
-                notification.set_additional_data(data=get_app_state(application=application, namespace=namespace))
+                notification.set_additional_data(data=get_app_state(
+                    application=application, namespace=namespace))
                 notification.post_to_websocket_api()
             except Exception as exc:
                 # Send Update Notification to websocket
@@ -614,7 +616,8 @@ def install_helm_apps(
     while len(
         list(
             filter(
-                lambda d: (d["deployment_name"] in deployment_names) and (d["status"].lower() == "deployed"),
+                lambda d: (d["deployment_name"] in deployment_names) and (
+                    d["status"].lower() == "deployed"),
                 get_app_state(application=application, namespace=namespace)
             )
         )
@@ -639,7 +642,7 @@ def install_helm_command(
         return response
     tpath = _write_values(deployment_name, value_items)
     stdout, _ = run_command2(
-        command="helm repo update", working_dir=WORKING_DIR, use_shell=True
+        command="helm repo update", working_dir=WORKING_DIR, use_shell=False
     )
     rq_logger.debug(stdout)
 
@@ -656,7 +659,7 @@ def install_helm_command(
     )
     rq_logger.info(cmd)
     stdout, ret_code = run_command2(
-        command=cmd, working_dir=WORKING_DIR, use_shell=True
+        command=cmd, working_dir=WORKING_DIR, use_shell=False
     )
 
     # Retry one more time.
@@ -666,12 +669,12 @@ def install_helm_command(
         stdout, _ = run_command2(
             command=f"helm uninstall {deployment_name}",
             working_dir=WORKING_DIR,
-            use_shell=True,
+            use_shell=False,
         )
         rq_logger.debug(stdout)
         rq_logger.info("Retrying: " + cmd)
         stdout, ret_code = run_command2(
-            command=cmd, working_dir=WORKING_DIR, use_shell=True
+            command=cmd, working_dir=WORKING_DIR, use_shell=False
         )
 
     notification = NotificationMessage(
@@ -768,9 +771,11 @@ def delete_helm_apps(application: str, namespace: str, nodes: List, from_helm_de
                 )
                 while True:
                     filter_data = filter(
-                                      lambda d: (d["deployment_name"] == deployment_to_uninstall) and (d["status"].lower() == "uninstalling"),
-                                      get_app_state(application=application, namespace=namespace)
-                                  )
+                        lambda d: (d["deployment_name"] == deployment_to_uninstall) and (
+                            d["status"].lower() == "uninstalling"),
+                        get_app_state(application=application,
+                                      namespace=namespace)
+                    )
                     list_data = list(filter_data)
                     length = len(list_data)
                     if (length > 0):
@@ -823,12 +828,13 @@ def delete_helm_apps(application: str, namespace: str, nodes: List, from_helm_de
         perform_rulesync.delay()
     return response
 
+
 def _remove_sensor_from_ruleset_assignment(node: str, app_type_to_find: str):
     rulesets = mongo_ruleset().find({})
     for ruleset in rulesets:
         if app_type_to_find in ruleset["appType"].lower():
             mongo_ruleset().update_one({"_id": ruleset["_id"]},
-                        {'$pull': {"sensors": {"hostname": node}}})
+                                       {'$pull': {"sensors": {"hostname": node}}})
 
 
 @job("default", connection=REDIS_CLIENT, timeout="30m")
@@ -844,7 +850,7 @@ def delete_helm_command(
         + namespace
         + " --wait",
         working_dir=WORKING_DIR,
-        use_shell=True,
+        use_shell=False,
     )
 
     notification = NotificationMessage(
@@ -892,7 +898,8 @@ def reinstall_helm_apps(
     application: str, namespace: str, nodes: List, node_affinity: str, values: List
 ):
     get_app_context().push()
-    delete_helm_apps(application=application, namespace=namespace, nodes=nodes, from_helm_delete_ctrl=False)
+    delete_helm_apps(application=application, namespace=namespace,
+                     nodes=nodes, from_helm_delete_ctrl=False)
     install_helm_apps(
         application=application,
         namespace=namespace,
