@@ -6,3 +6,4 @@ web/frontend/node_modules/
 *.log
 component-builder/pipeline-images/code-checker/Dockerfile
 component-builder/pipeline-images/code-checker/build.sh
+.gitlint

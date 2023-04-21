@@ -12,8 +12,9 @@
 # ignore=title-trailing-punctuation, T3
 ignore=B3
 
+regex-style-search=true
 # verbosity should be a value between 1 and 3, the commandline -v flags take precedence over this
-verbosity = 3
+verbosity = 2
 
 # By default gitlint will ignore merge, revert, fixup and squash commits.
 # ignore-merge-commits=true
@@ -35,7 +36,7 @@ verbosity = 3
 # fail-without-commits=true
 
 # Enable debug mode (prints more output). Disabled by default.
-debug=true
+debug=false
 
 # Enable community contributed rules
 # See http://jorisroovers.github.io/gitlint/contrib_rules for details
@@ -43,8 +44,8 @@ debug=true
 
 # Set the extra-path where gitlint will search for user defined rules
 # See http://jorisroovers.github.io/gitlint/user_defined_rules for details
-# May not work smoothly in gitlab, component-builder/pipeline-images/vommit/rules
-extra-path=/root/rules/
+# May not work smoothly in gitlab, /root/rules/
+extra-path=/root/rules
 
 # This is an example of how to configure the "title-max-length" rule and
 # set the line-length it enforces to 50
@@ -79,13 +80,13 @@ min-length=23
 # default = True
 # ignore-merge-commits=false
 
-[body-changed-file-mention]
+# [body-changed-file-mention]
 # List of files that need to be explicitly mentioned in the body when they are changed
 # This is useful for when developers often erroneously edit certain files or git submodules.
 # By specifying this rule, developers can only change the file when they explicitly reference
 # it in the commit message.
 # files=gitlint-core/gitlint/rules.py,README.md
-files=versions.yml,manifest.yml,aliases,.gitlab-ci.yml,README.md,,requirements.txt,.bot.yml
+# files=versions.yml,manifest.yml,aliases,.gitlab-ci.yml,README.md,,requirements.txt,.bot.yml,.gitlint,gitlab/code-analysis.yml,gitlab/confluence-publish.yml,gitlab/lint-and-unit-test.yml,gitlab/pipeline-rules.yml,gitlab/test-compile.yml,gitlab/DIP/dip.acceptance.gitlab-ci.yml,gitlab/DIP/dip.baremetal-gitlab-ci.yml,gitlab/DIP/dip.docs.gitlab-ci.yml,gitlab/DIP/dip.export.gitlab-ci.yml,gitlab/DIP/dip.gitlab-ci.yml,gitlab/DIP/dip.manifest.gitlab-ci.yml,gitlab/DIP/dip.robot.gitlab-ci.yml,gitlab/Drive/drive.create.gitlab-ci.yml,gitlab/Drive/powershell.gitlab-export.yml,gitlab/Drive/repo.export.gitlab-ci.yml,gitlab/Drive/repo.gitlab-ci.yml,gitlab/GIP/gip.docs.gitlab-ci.yml,gitlab/GIP/gip.export.gitlab-ci.yml,gitlab/MIP/mip.docs.gitlab-ci.yml,gitlab/RPM/tfplenum.rpm.gitlab-ci.yml
 
 # [body-match-regex]
 # python-style regex that the commit-msg body must match.
@@ -98,13 +99,16 @@ files=versions.yml,manifest.yml,aliases,.gitlab-ci.yml,README.md,,requirements.t
 # regex=[^@]+@foo.com
 
 # [ignore-by-title]
+[ignore-by-title]
 # Ignore certain rules for commits of which the title matches a regex
 # E.g. Match commit titles that start with "Release"
 # regex=^Release(.*)
+regex=^\(loc\)
 
 # Ignore certain rules, you can reference them by their id or by their full name
 # Use 'all' to ignore all rules
 # ignore=T1,body-min-length
+ignore=all
 
 # [ignore-by-body]
 # Ignore certain rules for commits of which the body has a line that matches a regex
@@ -129,9 +133,3 @@ files=versions.yml,manifest.yml,aliases,.gitlab-ci.yml,README.md,,requirements.t
 # Use 'all' to ignore all rules
 # ignore=T1,body-min-length
 
-# This is a contrib rule - a community contributed rule. These are disabled by default.
-# You need to explicitly enable them one-by-one by adding them to the "contrib" option
-# under [general] section above.
-# [contrib-title-conventional-commits]
-# Specify allowed commit types. For details see: https://www.conventionalcommits.org/
-# types = bugfix,user-story,epic

@@ -1,7 +1,7 @@
 Commit Lint:
   stage: commit-lint
   image:
-    name: docker.nexus.sil.lab/tfplenum/vommit:0.2
+    name: $LATEST_VOMMIT_IMAGE
     entrypoint: [""]
   tags:
     - docker-runner
@@ -13,4 +13,4 @@ Commit Lint:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "(script) Current working directory is $(pwd)"
     exit_code=0
-    gitlint --extra-path /root/rules -vv --commit "$CI_COMMIT_SHA" || exit_code=$?; if [ $exit_code -ne 0 ]; then echo -e "\nThe Total Errors: $exit_code\n"; exit 1; else echo -e "GITLINT PASSED\n"; fi;
+    gitlint --config /root/.gitlint-docker --commit "$CI_COMMIT_SHA" || exit_code=$?; if [ $exit_code -ne 0 ]; then echo -e "\nThe Total Errors: $exit_code\n"; exit 1; else echo -e "GITLINT PASSED\n"; fi;

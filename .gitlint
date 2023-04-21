@@ -12,6 +12,8 @@
 # ignore=title-trailing-punctuation, T3
 ignore=B3
 
+regex-style-search=true
+
 # verbosity should be a value between 1 and 3, the commandline -v flags take precedence over this
 verbosity = 2
 
