@@ -360,7 +360,7 @@ class DriveCreationThread(DriveSuperThread):
         link_type_path = dest_dir.split("/")[-3:-1]
         link_type_path = "/".join(link_type_path)
         link_dest = self.xfs_data_path + "/" + link_type_path + "/" + link_vm_path
-        self.remote_sudo_cmd(f"ln -s '{link_src}' '{link_dest}'")
+        self.remote_sudo_cmd(f"ln -s -r '{link_src}' '{link_dest}'")
     
     def create_vm_symlinks(self):
         if (self.create_drive_type == 'CPT') or (self.create_drive_type == 'MDT'):
@@ -369,7 +369,6 @@ class DriveCreationThread(DriveSuperThread):
                 for src in path['src']:
                     if path['app'] == 'VMs':
                         self.create_link(src, path['dest'])
-
 
     def run(self):
         fabric = FabricConnectionWrapper(self.drive_settings.username,

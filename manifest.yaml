@@ -135,6 +135,7 @@ CPT:
     - Repo/CPT/AppStore/TFTP Server/5.2-27.fc30
     - Repo/CPT/AppStore/Windows 10 Enterprise (x64)_v1809/1809
     - Repo/CPT/AppStore/Windows Server 2012 R2 Standard x64_v6.3(Build9600)/6.3
+    - Repo/Shared/AppStore/RHEL Server 8.7/8.7
     - Repo/Shared/AppStore/Citrix/2207
     - Repo/Shared/AppStore/Elastic Stack/7.16.2
     - Repo/Shared/AppStore/Grassmarlin/3.3
@@ -246,6 +247,7 @@ MDT:
     - Repo/MDT/AppStore/Powershell Community Extensions/3.3.2
     - Repo/MDT/AppStore/Powershell Remote Registry (PSRR)/3.0
     - Repo/MDT/AppStore/SCAP Compliance Checker/4.2
+    - Repo/Shared/AppStore/RHEL Server 8.7/8.7
     - Repo/Shared/AppStore/Citrix/2207
     - Repo/Shared/AppStore/Elastic Stack/7.16.2
     - Repo/Shared/AppStore/Grassmarlin/3.3
