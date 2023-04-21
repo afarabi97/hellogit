@@ -86,97 +86,12 @@
         <mat-error>{{ getErrorMessage(nodeForm.get("mac_address")) }}</mat-error>
       </mat-form-field>
 
-      <!-- Boot Drive -->
-      <mat-form-field *ngIf="!isRaid" style="margin-top: 5px;">
-        <mat-label>Boot Drive</mat-label>
-        <input matInput
-               placeholder="Enter a Boot Drive"
-               formControlName="boot_drives"
-               matTooltip="{{ getTooltip('boot_drives') }}"/>
-        <mat-icon matSuffix *ngIf="nodeForm.get('boot_drives')?.valid &&
-                                   nodeForm.get('boot_drives')?.touched"
-                  color="primary">check_circle</mat-icon>
-        <mat-icon matSuffix *ngIf="nodeForm.get('boot_drives')?.invalid &&
-                                   nodeForm.get('boot_drives')?.touched"
-                  color="warn">error</mat-icon>
-        <mat-error>{{ getErrorMessage(nodeForm.get("boot_drives")) }}</mat-error>
-      </mat-form-field>
-
-      <!-- Data Drive -->
-      <mat-form-field *ngIf="!isRaid">
-        <mat-label>Data Drive</mat-label>
-        <input matInput
-               placeholder="Enter a Data Drive"
-               formControlName="data_drives"
-               matTooltip="{{ getTooltip('data_drives') }}"/>
-        <mat-icon matSuffix *ngIf="nodeForm.get('data_drives')?.valid &&
-                         nodeForm.get('data_drives')?.touched"
-                  color="primary">check_circle</mat-icon>
-        <mat-icon matSuffix *ngIf="nodeForm.get('data_drives')?.invalid &&
-                                   nodeForm.get('data_drives')?.touched"
-                  color="warn">error</mat-icon>
-        <mat-error>{{ getErrorMessage(nodeForm.get("data_drives"))}}</mat-error>
-      </mat-form-field>
-
-      <!-- Raid Drives -->
-      <mat-form-field *ngIf="isRaid">
-        <mat-label>Raid Drives</mat-label>
-        <input matInput
-               placeholder="Enter list of drives"
-               formControlName="raid_drives"
-               matTooltip="{{ getTooltip('raid_drives') }}" />
-        <mat-icon matSuffix *ngIf="nodeForm.get('raid_drives')?.valid &&
-                         nodeForm.get('raid_drives')?.touched"
-                  color="primary">check_circle</mat-icon>
-        <mat-icon matSuffix *ngIf="nodeForm.get('raid_drives')?.invalid &&
-                                   nodeForm.get('raid_drives')?.touched"
-                  color="warn">error</mat-icon>
-        <mat-error>{{ getErrorMessage(nodeForm.get("raid_drives"))}}</mat-error>
-      </mat-form-field>
-
-      <!-- Root Partition Size -->
-      <mat-form-field *ngIf="isRaid">
-        <mat-label>Raid Root Partition Size (GB)</mat-label>
-        <input matInput
-               placeholder="Enter the size of the Root Partition"
-               formControlName="os_raid_root_size"
-               type="number"
-               min="50"
-               matTooltip="{{ getTooltip('os_raid_root_size') }}" />
-        <mat-icon matSuffix *ngIf="nodeForm.get('os_raid_root_size')?.valid &&
-                         nodeForm.get('os_raid_root_size')?.touched"
-                  color="primary">check_circle</mat-icon>
-        <mat-icon matSuffix *ngIf="nodeForm.get('os_raid_root_size')?.invalid &&
-                                   nodeForm.get('os_raid_root_size')?.touched"
-                  color="warn">error</mat-icon>
-        <mat-error>{{ getErrorMessage(nodeForm.get("os_raid_root_size"))}}</mat-error>
-      </mat-form-field>
-
       <mat-checkbox disableRipple
                     style="padding-bottom: 25px;"
-                    (change)="checkRaidChanged($event)"
-                    formControlName="os_raid"
-                    matTooltip="{{ getTooltip('os_raid') }}">
-        Software RAID all drives
+                    formControlName="raid0_override"
+                    matTooltip="{{ getTooltip('raid0_override') }}">
+        RAID 0 override
       </mat-checkbox>
-
-      <!-- PXE Type -->
-      <mat-form-field>
-        <mat-label>PXE Type</mat-label>
-        <mat-select disableRipple
-                    formControlName="pxe_type"
-                    matTooltip="{{ getTooltip('pxe_type') }}">
-          <mat-option *ngFor="let pxe of pxe_types; let i = index;"
-                      [value]="pxe">{{ pxe }}</mat-option>
-        </mat-select>
-        <mat-icon matSuffix *ngIf="nodeForm.get('pxe_type')?.valid &&
-                         nodeForm.get('pxe_type')?.touched"
-                  color="primary">check_circle</mat-icon>
-        <mat-icon matSuffix *ngIf="nodeForm.get('pxe_type')?.invalid &&
-                                   nodeForm.get('pxe_type')?.touched"
-                  color="warn">error</mat-icon>
-        <mat-error>{{ getErrorMessage(nodeForm.get("pxe_type"))}}</mat-error>
-      </mat-form-field>
     </ng-container>
 
     <ng-container *ngIf="isISOSensorDeployment()">

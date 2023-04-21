@@ -109,22 +109,6 @@ export class KitSettingsService extends ApiService<any> {
 
   addNode(payload): Observable<Object> {
     const url = `/api/kit/node`;
-    if ('boot_drives' in payload && typeof payload['boot_drives'] === 'string'){
-      payload['boot_drives'] = payload['boot_drives'].split(',');
-    }
-    if ('data_drives' in payload && typeof payload['data_drives'] === 'string'){
-      payload['data_drives'] = payload['data_drives'].split(',');
-    }
-    if ('os_raid' in payload ){
-      if (payload['os_raid']){
-        if (!Array.isArray(payload['raid_drives'])) {
-          payload['raid_drives'] = payload['raid_drives'].split(',');
-        }
-      }else{
-        payload['raid_drives'] = [];
-      }
-    }
-
     return this.httpClient_.post(url, payload).pipe();
   }
 

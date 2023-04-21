@@ -99,7 +99,6 @@ Server Setup:
     --memory $SERVER_MEM \
     --start-index 1 \
     --num-nodes $NUM_SERVERS \
-    --os-raid "$VM_RAID" \
     --dns-servers $DNS_SERVERS
   artifacts:
     untracked: true
@@ -139,7 +138,6 @@ Sensor Setup:
     --memory $SENSOR_MEM \
     --start-index $START_INDEX \
     --num-nodes $NUM_SENSORS \
-    --os-raid "$VM_RAID" \
     --dns-servers $DNS_SERVERS
   retry: 2
   artifacts:
@@ -167,7 +165,6 @@ Service Setup:
     --memory $SERVICE_MEM \
     --start-index $START_INDEX \
     --num-nodes $NUM_SERVICE_NODES \
-    --os-raid "$VM_RAID" \
     --dns-servers $DNS_SERVERS
   retry: 2
   artifacts:
@@ -196,7 +193,6 @@ MinIO Setup:
     --memory $MINIO_MEM \
     --start-index $START_INDEX \
     --num-nodes 1 \
-    --os-raid "$VM_RAID" \
     --dns-servers $DNS_SERVERS \
     --data-drive-size $MINIO_SIZE_GB
   retry: 2
@@ -226,7 +222,6 @@ MIP Setup:
     --memory $MIP_MEM \
     --start-index $START_INDEX \
     --num-nodes $NUM_MIPS \
-    --os-raid "$VM_RAID" \
     --dns-servers $DNS_SERVERS
   retry: 2
   artifacts:

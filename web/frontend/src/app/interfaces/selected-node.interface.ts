@@ -9,8 +9,6 @@ import { StatusInterface } from './status.interface';
  * @interface SelectedNodeInterface
  */
 export interface SelectedNodeInterface {
-  boot_drives: string[];
-  data_drives: string[];
   deployment_name: string;
   deployment_type: string;
   deviceFacts: DeviceFactsInterface;
@@ -19,10 +17,7 @@ export interface SelectedNodeInterface {
   jobs: JobInterface[];
   mac_address: string;
   node_type: string;
-  os_raid: boolean;
-  os_raid_root_size: number;
-  pxe_type: string;
-  raid_drives: string[];
+  raid0_override: boolean;
   status?: StatusInterface;
   virtual_cpu: number;
   virtual_data: number;

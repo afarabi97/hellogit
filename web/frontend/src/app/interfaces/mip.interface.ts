@@ -11,6 +11,5 @@ export interface MIPInterface {
   hostname: string;
   ip_address: string;
   mac_address: string;
-  pxe_type: boolean;
   jobs: JobInterface[];
 }

@@ -12,8 +12,6 @@ import { StatusClass } from './status.class';
  */
 export class NodeClass implements NodeInterface {
   _id?: string;
-  boot_drives: string[];
-  data_drives: string[];
   deployment_name?: string;
   deployment_type: string;
   deviceFacts: DeviceFactsClass;
@@ -23,10 +21,7 @@ export class NodeClass implements NodeInterface {
   jobs?: JobClass[];
   mac_address: string;
   node_type: string;
-  os_raid: boolean;
-  os_raid_root_size: number;
-  pxe_type: string;
-  raid_drives: string[];
+  raid0_override: boolean;
   virtual_cpu: number;
   virtual_data: number;
   virtual_mem: number;
@@ -44,8 +39,6 @@ export class NodeClass implements NodeInterface {
    */
   constructor(node_interface: NodeInterface) {
     this._id = node_interface._id;
-    this.boot_drives = node_interface.boot_drives;
-    this.data_drives = node_interface.data_drives;
     this.deployment_name = node_interface.deployment_name;
     this.deployment_type = node_interface.deployment_type;
     this.hostname = node_interface.hostname;
@@ -53,10 +46,6 @@ export class NodeClass implements NodeInterface {
     this.is_remote = node_interface.is_remote;
     this.mac_address = node_interface.mac_address;
     this.node_type = node_interface.node_type;
-    this.os_raid = node_interface.os_raid;
-    this.os_raid_root_size = node_interface.os_raid_root_size;
-    this.pxe_type = node_interface.pxe_type;
-    this.raid_drives = node_interface.raid_drives;
     this.virtual_cpu = node_interface.virtual_cpu;
     this.virtual_data = node_interface.virtual_data;
     this.virtual_mem = node_interface.virtual_mem;

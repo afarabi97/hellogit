@@ -11,19 +11,7 @@ export const MockRoleProcessInterfaceSensor: RoleProcessInterface = {
         hostname: 'fake-sensor3.fake',
         ip_address: '10.40.31.70',
         mac_address: '72:eb:b6:00:be:ba',
-        data_drives: [
-          'sdb'
-        ],
-        boot_drives: [
-          'sda'
-        ],
-        raid_drives: [
-          'sda',
-          'sdb'
-        ],
-        pxe_type: 'BIOS',
-        os_raid: false,
-        os_raid_root_size: 50,
+        raid0_override: false,
         node_type: 'Sensor',
         deviceFacts: {
           potential_monitor_interfaces: [
@@ -138,17 +126,7 @@ export const MockRoleProcessInterfaceServer: RoleProcessInterface = {
         hostname: 'server',
         ip_address: '10.40.31.65',
         mac_address: '00:1b:ea:8f:90:c8',
-        data_drives: [
-          'sdb'
-        ],
-        boot_drives: [
-          'sda'
-        ],
-        raid_drives: [
-        ],
-        pxe_type: 'UEFI',
-        os_raid: false,
-        os_raid_root_size: 0,
+        raid0_override: false,
         node_type: 'Control-Plane',
         deviceFacts: {
           potential_monitor_interfaces: [

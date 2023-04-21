@@ -8,7 +8,6 @@
     group: root
     mode: 0644
     setype: httpd_sys_content_t
-  when: hostvars[node_index].pxe_type == 'uefi'
   vars:
     uefi: true
 
@@ -23,7 +22,6 @@
     mode: 0644
     setype: "tftpdir_rw_t"
   register: tftp
-  when: hostvars[node_index].pxe_type == 'uefi'
 
 - name: Add {{ node_index }} to DHCP
   blockinfile:

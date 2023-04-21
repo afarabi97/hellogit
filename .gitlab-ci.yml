@@ -20,7 +20,7 @@ variables:
   VCENTER_PORTGROUP: ""
   VCENTER_DATASTORE: "DEV-vSAN"
   VCENTER_CLUSTER: "DEV_Cluster"
-  TEMPLATE_TO_CLONE: "RHEL8 Template"
+  TEMPLATE_TO_CLONE: "RHEL8 Template Update"
   VM_GATEWAY: "10.40.12.1"
   RHEL_SUB_METHOD: "standard"
   RHEL_ORGANIZATION: "7403688"
@@ -43,6 +43,7 @@ variables:
   SENSOR_MEM: 16384
   SERVICE_CPU: 24
   SERVICE_MEM: 32
+  SERVICE_SIZE_GB: 100
 
   MINIO_CPU: 8
   MINIO_MEM: 8
@@ -53,7 +54,6 @@ variables:
   NUM_MIPS: 1
 
   # Yes no flag variables
-  VM_RAID: "no"
   BUILD_FROM_RELEASE: "no"
   RUN_REMOTE_NODE: "no"
   RUN_INTEGRATION: "yes"
@@ -95,11 +95,10 @@ variables:
 
   # Hardware specific variables
   REDFISH_USER: "root"
-  PXE_TYPE: "UEFI"
   ESXI_DATASTORE: "datastore1"
   ESXI_PORTGROUP: "Internal"
   CONTROLLER_OVA: DIP_Controller
-  TEMPLATE_OVA: "rhel8_template.ova"
+  TEMPLATE_OVA: "rhel8_template_update.ova"
   REDFISH_PASSWORD: ""
   MANAGEMENT_PASSWORD: ""
   CONTROLLER_GATEWAY: ""
@@ -109,11 +108,6 @@ variables:
   MP_EXTERNAL_IP: ""
   PFSENSE_IP: ""
   SWITCH_IP: ""
-  BOOT_DRIVE: "sda"
-  DATA_DRIVE: "sdb"
-
-  SENSOR_BOOT_DRIVE: "sda"
-  SENSOR_DATA_DRIVE: "sdb"
 
   SERVER_MACADDRESS_OVERRIDES: "nothing"
   SENSOR_MACADDRESS_OVERRIDES: "nothing"

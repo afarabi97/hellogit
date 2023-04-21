@@ -16,7 +16,7 @@ from app.models.settings.kit_settings import GeneralSettingsForm
 from app.utils.collections import Collections, get_collection, mongo_jobs
 from app.utils.constants import (CORE_DIR, DEPLOYMENT_TYPES, JOB_CREATE,
                                  JOB_DEPLOY, JOB_PROVISION, JOB_REMOVE,
-                                 MAC_BASE, MIP_DIR, NODE_TYPES, PXE_TYPES,
+                                 MAC_BASE, MIP_DIR, NODE_TYPES,
                                  TEMPLATE_DIR)
 from app.utils.namespaces import KIT_SETUP_NS
 from flask_restx import fields
@@ -128,16 +128,7 @@ class NodeSchema(Schema):
     hostname = marsh_fields.Str(required=True)
     ip_address = marsh_fields.IPv4(required=True)
     mac_address = marsh_fields.Str(required=False, allow_none=True)
-    data_drives = marsh_fields.List(marsh_fields.Str(
-        required=True), required=False, allow_none=True)
-    boot_drives = marsh_fields.List(marsh_fields.Str(
-        required=True), required=False, allow_none=True)
-    raid_drives = marsh_fields.List(marsh_fields.Str(
-        required=False), required=False, allow_none=True)
-    pxe_type = marsh_fields.Str(required=False, allow_none=True, validate=validate.OneOf(
-        ["BIOS", "UEFI", "SCSI/SATA/USB", "NVMe"]))
-    os_raid = marsh_fields.Bool(required=False, allow_none=True)
-    os_raid_root_size = marsh_fields.Integer(required=False)
+    raid0_override = marsh_fields.Bool(required=False, allow_none=True)
     node_type = marsh_fields.Str(required=False, validate=validate.OneOf(
         ["Server", "Sensor", "Undefined", "Control-Plane", "MinIO", "MIP", "Service"]))
     error = marsh_fields.Str()
@@ -164,18 +155,6 @@ class NodeSchema(Schema):
         if len(errors) > 0:
             raise ValidationError(errors)
 
-    @validates("boot_drives")
-    def validate_boot_drive(self, value: List[str]):
-        self.validate_drive(value, "Boot drive")
-
-    @validates("data_drives")
-    def validate_data_drive(self, value: List[str]):
-        self.validate_drive(value, "Data drive")
-
-    @validates("raid_drives")
-    def validate_raid_drive(self, value: List[str]):
-        self.validate_drive(value, "Raid drive")
-
     @validates("mac_address")
     def validate_mac_address(self, value: str):
         if value:
@@ -192,23 +171,7 @@ class Node(Model):
         "hostname": fields.String(required=True, example="server1", description="The hostname of the node."),
         "ip_address": fields.String(required=True, example="10.40.12.146", description="The static IP Address of the node."),
         "mac_address": fields.String(required=True, example="00:0a:29:6e:7f:ff", description="The MAC Address of the node's management interface."),
-        "data_drives": fields.List(fields.String(example="sdb",
-                                                 description="Required field when os_raid is set to false. \
-                                                              The data drive for the Node.  For servers, its \
-                                                              used for Elasticsearch data and for sensors its \
-                                                              used to store the raw PCAP data.")),
-        "boot_drives": fields.List(fields.String(example="sda",
-                                                 description="Required field when os_raid is set to false. \
-                                                              The boot or operating system (OS) drive for \
-                                                              the Node."),
-                                   required=True),
-        "raid_drives": fields.List(fields.String(example="sdb",
-                                                 description="Required field with os_raid is set to true. \
-                                                              A list of the drives being setup for OS Raid")),
-        "pxe_type": fields.String(required=True, example="BIOS", description="Can be either UEFI or BIOS depending on hardware boot type."),
-        "os_raid": fields.Boolean(required=True, default=False, description="When set to true OS is used for setting up the RAID. Set it to false if RAID is setup through BIOS on the hardware."),
-        "os_raid_root_size": fields.Integer(description="Required field when os_raid is set to true. \
-                                                         Size of os raid root size in GB."),
+        "raid0_override": fields.Boolean(required=True, default=False, description="When set to true the Data drive / parition is forced to be in RAID 0."),
         "node_type": fields.String(example="Server", description="During Kit configuration this gets set to either Server or Sensor"),
         "deviceFacts": fields.Nested(DeviceFacts.DTO, default={}),
         "deployment_type": fields.String(example="Baremetal or Virtual"),
@@ -223,13 +186,8 @@ class Node(Model):
     def __init__(self,
                  hostname: str = None,
                  ip_address: str = None,
-                 pxe_type: str = None,
                  mac_address: str = None,
-                 os_raid: bool = None,
-                 data_drives: List[str] = [],
-                 boot_drives: List[str] = [],
-                 raid_drives: List[str] = [],
-                 os_raid_root_size: int = 0,
+                 raid0_override: bool = None,
                  node_type: str = "Undefined",
                  deviceFacts: Dict = {},
                  deployment_type: str = None,
@@ -243,12 +201,7 @@ class Node(Model):
         self.hostname = self._set_hostname(hostname)
         self.ip_address = ip_address
         self.mac_address = self._set_mac_address(mac_address, node_type)
-        self.data_drives = data_drives
-        self.boot_drives = boot_drives
-        self.raid_drives = raid_drives
-        self.pxe_type = PXE_TYPES.scsi_sata_usb.value if node_type == NODE_TYPES.mip.value else pxe_type
-        self.os_raid = os_raid
-        self.os_raid_root_size = os_raid_root_size
+        self.raid0_override = raid0_override
         # Kit specific fields add later on
         self.node_type = node_type
         self.deviceFacts = deviceFacts
@@ -750,18 +703,7 @@ class MIPNodesInventoryGenerator:
     def __init__(self, mips: Dict):
         self._template_ctx = mips
 
-    def _map_mip_model(self) -> None:
-        for node in self._template_ctx["mips"]:
-            if node["pxe_type"] == "SCSI/SATA/USB":
-                node["model"] = "SCSI/SATA/USB"
-                node["pxe_type"] = "UEFI"
-
-            elif node["pxe_type"] == "NVMe":
-                node["model"] = "NVMe"
-                node["pxe_type"] = "UEFI"
-
     def generate(self) -> None:
-        self._map_mip_model()
         template = JINJA_ENV.get_template('mip_nodes.yml')
         mip_nodes_template = template.render(template_ctx=self._template_ctx)
 

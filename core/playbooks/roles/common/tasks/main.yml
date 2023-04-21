@@ -1,4 +1,9 @@
 ---
+
+- name: Set Hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
 - name: Add pip config
   blockinfile:
     path: /root/.pip/pip.conf

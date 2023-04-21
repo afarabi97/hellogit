@@ -36,7 +36,7 @@ class NodeSettings(Model):
         self.network_block_index = 0
         self.network_id = ''
         self.node_type = self.valid_node_types[2]
-        self.os_raid = False
+        self.raid0_override = False
         self.password = ''
         self.pipeline = ''
         self.portgroup = ''
@@ -59,7 +59,7 @@ class NodeSettings(Model):
     def from_namespace(self, namespace: Namespace, node_type: str=None):
         self.dns_servers = namespace.dns_servers
         self.domain = namespace.domain
-        self.os_raid = namespace.os_raid == 'yes'
+        self.raid0_override = namespace.raid0_override == 'yes'
         self.service_node = namespace.service_node == 'yes'
         self.vm_prefix = namespace.vm_prefix
 
@@ -128,7 +128,7 @@ class NodeSettings(Model):
                             help="The network block index to use. If left as default it will default to 1 which uses 64 as the last octet. [64, 128, 192]",
                             default=0, choices=range(0, 3), type=int)
         parser.add_argument("--network-id", dest="network_id", help="The network ID the application will be selecting IPs from.", required=True)
-        parser.add_argument('--os-raid', dest='os_raid', default='no', help="Sets OS either enabled or disabled. Use yes|no when setting it.")
+        parser.add_argument('--raid0-override', dest='raid0_override', default='no', help="Forces data drive to use RAID 0.")
         parser.add_argument("--pipeline", dest="pipeline", required=False, default="developer-all")
         parser.add_argument("--portgroup", dest="portgroup", help="The managment network or portgroup name on the vsphere or esxi server.", required=True)
         parser.add_argument('--service-node', dest="service_node", type=str, default='no', help="Create a service node to run catalog apps.")
@@ -172,7 +172,7 @@ class HwNodeSettings(Model):
         self.oob_ip = ''
         self.oob_password = ''
         self.oob_user = ''
-        self.os_raid = False
+        self.raid0_override = False
         self.password = ''
         self.raid_controller_health = ''
         self.raid_storage_tb = 0

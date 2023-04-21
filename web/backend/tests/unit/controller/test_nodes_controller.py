@@ -44,18 +44,7 @@ def test_add_minio(client: FlaskClient, mocker: MockerFixture):
         "node_type":"MinIO",
         "deployment_type":"Virtual",
         "mac_address":"",
-        "data_drives":[
-            "sdb"
-        ],
-        "boot_drives":[
-            "sda"
-        ],
-        "raid_drives":[
-
-        ],
-        "os_raid":False,
-        "os_raid_root_size":50,
-        "pxe_type":None,
+        "raid0_override":False,
         "virtual_cpu":8,
         "virtual_mem":8,
         "virtual_os":100,

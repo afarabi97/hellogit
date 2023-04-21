@@ -31,6 +31,7 @@
   dnf:
     name: [ buildah, cri-tools, runc, container-selinux, criu ]
     state: absent
+  ignore_errors: yes
 
 - name: Copy custom Makefile
   copy:

@@ -6,7 +6,7 @@ sample_configuration_3 = {"hostname": "tester", "ip_address": "10.40.20.40", "de
 sample_configuration_1 = {"hostname": "miper", "ip_address": "10.40.20.4",
                           "mac_address": None, "deployment_type": "Virtual", "virtual_cpu": 8, "virtual_mem": 8, "virtual_os": 500}
 sample_configuration_4 = {"hostname": "miper", "ip_address": "10.40.20.5", "mac_address": "66:5b:4e:c8:c6:f4",
-                          "pxe_type": "SCSI/SATA/USB", "deployment_type": "Baremetal", "virtual_cpu": 8, "virtual_mem": 8, "virtual_os": 500}
+                          "deployment_type": "Baremetal", "virtual_cpu": 8, "virtual_mem": 8, "virtual_os": 500}
 # hostname
 # ip_address (for now)
 # static or dhcp (later)

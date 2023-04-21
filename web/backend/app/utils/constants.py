@@ -107,14 +107,6 @@ JOB_REMOVE = "remove"
 MAC_BASE = "00:1b:ea:00:00:00"
 CONTROLLER_INTERFACE_NAME = "br0"
 
-
-class PXE_TYPES(Enum):
-    uefi = "UEFI"
-    bios = "BIOS"
-    scsi_sata_usb = "SCSI/SATA/USB"
-    nvme = "NVMe"
-
-
 class FileSet:
     def __init__(self, value: str, name: str, tooltip: str = ""):
         self.value = value

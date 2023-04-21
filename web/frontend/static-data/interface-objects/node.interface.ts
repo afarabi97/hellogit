@@ -6,19 +6,7 @@ export const MockNodeServerInterface: NodeInterface = {
   "hostname": "fake-server1.fake",
   "ip_address": "10.40.31.68",
   "mac_address": "1a:09:69:bf:8d:7e",
-  "data_drives": [
-      "sdb"
-  ],
-  "boot_drives": [
-      "sda"
-  ],
-  "raid_drives": [
-      "sda",
-      "sdb"
-  ],
-  "pxe_type": "BIOS",
-  "os_raid": false,
-  "os_raid_root_size": 50,
+  "raid0_override": false,
   "node_type": "Server",
   "deviceFacts": MockDeviceFactsServerInterface,
   "deployment_type": "Baremetal",
@@ -74,19 +62,7 @@ export const MockNodeServerInterfaceCreateAlt: NodeInterface = {
   "hostname": "fake-server2.fake",
   "ip_address": "10.40.31.69",
   "mac_address": "1a:09:69:bf:8c:7e",
-  "data_drives": [
-      "sdb"
-  ],
-  "boot_drives": [
-      "sda"
-  ],
-  "raid_drives": [
-      "sda",
-      "sdb"
-  ],
-  "pxe_type": "BIOS",
-  "os_raid": false,
-  "os_raid_root_size": 50,
+  "raid0_override": false,
   "node_type": "Server",
   "deviceFacts": MockDeviceFactsServerInterface,
   "deployment_type": "Baremetal",
@@ -116,19 +92,7 @@ export const MockNodeSensorInterface: NodeInterface = {
   "hostname": "fake-dev-sensor3.fake",
   "ip_address": "10.40.31.70",
   "mac_address": "96:f9:c9:c2:54:e2",
-  "data_drives": [
-      "sdb"
-  ],
-  "boot_drives": [
-      "sda"
-  ],
-  "raid_drives": [
-      "sda",
-      "sdb"
-  ],
-  "pxe_type": "BIOS",
-  "os_raid": false,
-  "os_raid_root_size": 50,
+  "raid0_override": false,
   "node_type": "Sensor",
   "deviceFacts": MockDeviceFactsSensorInterface,
   "deployment_type": "Baremetal",
@@ -184,19 +148,7 @@ export const MockNodeSensorInterfaceNoJobs: NodeInterface = {
   "hostname": "fake-dev-sensor4.fake",
   "ip_address": "10.40.31.72",
   "mac_address": "96:f9:c9:c3:54:e2",
-  "data_drives": [
-      "sdb"
-  ],
-  "boot_drives": [
-      "sda"
-  ],
-  "raid_drives": [
-      "sda",
-      "sdb"
-  ],
-  "pxe_type": "BIOS",
-  "os_raid": false,
-  "os_raid_root_size": 50,
+  "raid0_override": false,
   "node_type": "Sensor",
   "deviceFacts": MockDeviceFactsSensorInterface,
   "deployment_type": "Baremetal",
@@ -214,16 +166,7 @@ export const MockNodeInterfaceArray: NodeInterface[] = [
     "hostname": "control-plane.fake",
     "ip_address": "10.40.31.65",
     "mac_address": "00:1b:ea:c0:27:e9",
-    "data_drives": [
-        "sdb"
-    ],
-    "boot_drives": [
-        "sda"
-    ],
-    "raid_drives": [],
-    "pxe_type": "UEFI",
-    "os_raid": false,
-    "os_raid_root_size": 0,
+    "raid0_override": false,
     "node_type": "Control-Plane",
     "deviceFacts": {
         "potential_monitor_interfaces": [],
@@ -276,16 +219,7 @@ export const MockNodeInterfaceArray: NodeInterface[] = [
     "hostname": "fake-server1.fake",
     "ip_address": "10.40.31.68",
     "mac_address": "d6:79:63:90:59:64",
-    "data_drives": [
-        "sdb"
-    ],
-    "boot_drives": [
-        "sda"
-    ],
-    "raid_drives": [],
-    "pxe_type": "BIOS",
-    "os_raid": false,
-    "os_raid_root_size": 50,
+    "raid0_override": false,
     "node_type": "Server",
     "deviceFacts": {
         "potential_monitor_interfaces": [],
@@ -345,16 +279,7 @@ export const MockNodeInterfaceArray: NodeInterface[] = [
     "hostname": "fake-server2.fake",
     "ip_address": "10.40.31.69",
     "mac_address": "fe:2b:a2:10:40:52",
-    "data_drives": [
-        "sdb"
-    ],
-    "boot_drives": [
-        "sda"
-    ],
-    "raid_drives": [],
-    "pxe_type": "BIOS",
-    "os_raid": false,
-    "os_raid_root_size": 50,
+    "raid0_override": false,
     "node_type": "Server",
     "deviceFacts": {
         "potential_monitor_interfaces": [],
@@ -414,16 +339,7 @@ export const MockNodeInterfaceArray: NodeInterface[] = [
     "hostname": "fake-service4.fake",
     "ip_address": "10.40.31.71",
     "mac_address": "00:1b:ea:a4:ef:86",
-    "data_drives": [
-        "sdb"
-    ],
-    "boot_drives": [
-        "sda"
-    ],
-    "raid_drives": [],
-    "pxe_type": "UEFI",
-    "os_raid": false,
-    "os_raid_root_size": 50,
+    "raid0_override": false,
     "node_type": "Service",
     "deviceFacts": {
         "potential_monitor_interfaces": [],
@@ -483,16 +399,7 @@ export const MockNodeInterfaceArray: NodeInterface[] = [
     "hostname": "fake-sensor3.fake",
     "ip_address": "10.40.31.134",
     "mac_address": "9e:07:38:26:7e:71",
-    "data_drives": [
-        "sdb"
-    ],
-    "boot_drives": [
-        "sda"
-    ],
-    "raid_drives": [],
-    "pxe_type": "BIOS",
-    "os_raid": false,
-    "os_raid_root_size": 50,
+    "raid0_override": false,
     "node_type": "Sensor",
     "deviceFacts": {
       "potential_monitor_interfaces": [
@@ -556,8 +463,6 @@ export const MockNodeInterfaceArray: NodeInterface[] = [
     "virtual_data": 500
   },
   {
-    boot_drives: [],
-    data_drives: [],
     deployment_type: "Virtual",
     deviceFacts: {
       "potential_monitor_interfaces": [
@@ -631,10 +536,7 @@ export const MockNodeInterfaceArray: NodeInterface[] = [
     ],
     mac_address: "00:1b:ea:f9:cb:9d",
     node_type: "MIP",
-    os_raid: null,
-    os_raid_root_size: 0,
-    pxe_type: "SCSI/SATA/USB",
-    raid_drives: [],
+    raid0_override: null,
     virtual_cpu: 8,
     virtual_data: 500,
     virtual_mem: 8,

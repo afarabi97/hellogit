@@ -60,7 +60,7 @@ class KitSettingsJob:
     def _set_boot_order_and_reboot(self, node: HardwareNodeSettingsV2):
         token = redfish.get_token(node.idrac_ip_address, node.redfish_user, node.redfish_password)
         logging.info("Setting boot order for {}".format(node.idrac_ip_address))
-        redfish.set_pxe_boot(node.idrac_ip_address, token, node.pxe_type)
+        redfish.set_pxe_boot(node.idrac_ip_address, token, "uefi")
         logging.info("Restarting server {}".format(node.idrac_ip_address))
         result = redfish.restart_server(node.idrac_ip_address, token)
         redfish.logout(token)

@@ -45,25 +45,5 @@ export const addNodeValidators = {
     { ops: { pattern: /([5-9][0-9])|([1-9][0-9]{2,})/ },
              error_message: 'You must enter a valid number for disk. A minimum of 50GB is required.',
              validatorFn: 'pattern' }
-  ],
-  boot_drives: [
-    { error_message: 'Boot Drive is required', validatorFn: 'required' },
-    { ops: { pattern: /^([a-z|0-9]{3,7})(,[a-z|0-9]{3,7})*$/},
-             error_message: 'Boot Drive must be a single drive or a comma separated list with at least 2 drives for example sda,sdb',
-             validatorFn: 'pattern' },
-  ],
-  data_drives: [
-    { error_message: 'Data Drive is required', validatorFn: 'required' },
-    { ops: { pattern:  /^([a-z|0-9]{3,7})(,[a-z|0-9]{3,7})*$/},
-             error_message: 'Data Drive must be a single drive or a comma separated list with at least 2 drives for example sda,sdb',
-             validatorFn: 'pattern' },
-  ],
-  pxe_type: [{ error_message: 'PXE Type start is required', validatorFn: 'required' }],
-  raid_drives: [
-    { error_message: 'Raid drives should be a comma separated list of drives for raid when software raid enabled for example sda,sdb', validatorFn: 'required' },
-    { ops: { pattern: /^([a-z|0-9]{3,7})(,[a-z|0-9]{3,7})+$/},
-             error_message: 'Raid Drives must be a comma separated list with at least 2 drives for example sda,sdb',
-             validatorFn: 'pattern' },
-  ],
-  os_raid_root_size: [{ error_message: 'Root Data parition size is required', validatorFn: 'required' }],
+  ]
 };

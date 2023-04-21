@@ -105,10 +105,7 @@ Hardware Server Setup:
     --redfish-password "$REDFISH_PASSWORD" \
     --redfish-user "$REDFISH_USER" \
     --start-index 1 \
-    --pxe-type "$PXE_TYPE" \
     --idrac-ip-addresses $SERVER_OOB \
-    --boot-drives $BOOT_DRIVE \
-    --data-drives $DATA_DRIVE \
     --mac-overrides $SERVER_MACADDRESS_OVERRIDES
   artifacts:
     untracked: true
@@ -142,10 +139,7 @@ Hardware Sensor Setup:
     --redfish-password "$REDFISH_PASSWORD" \
     --redfish-user "$REDFISH_USER" \
     --start-index 1 \
-    --pxe-type "$PXE_TYPE" \
     --idrac-ip-addresses $SENSOR_OOB \
-    --boot-drives $SENSOR_BOOT_DRIVE \
-    --data-drives $SENSOR_DATA_DRIVE \
     --mac-overrides $SENSOR_MACADDRESS_OVERRIDES
   artifacts:
     untracked: true
@@ -235,7 +229,7 @@ Mandiant Automation:
   retry: 2
   only:
     variables:
-      - $RUN_CATALOG == "yes" && $RUN_MANDIANT == "yes" && $PIPELINE == "hw-developer-all"
+      - $RUN_MANDIANT == "yes" && $PIPELINE == "hw-developer-all"
       - $PIPELINE == "run-mandiant"
 
 BreakingPoint Automation:

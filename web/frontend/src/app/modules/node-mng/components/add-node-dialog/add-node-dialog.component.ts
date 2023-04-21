@@ -12,7 +12,7 @@ import {
   NodeClass,
   ObjectUtilitiesClass
 } from '../../../../classes';
-import { COMMON_VALIDATORS, CONTROL_PLANE, PXE_TYPES } from '../../../../constants/cvah.constants';
+import { COMMON_VALIDATORS, CONTROL_PLANE } from '../../../../constants/cvah.constants';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
 import { KitSettingsService } from '../../../../services/kit-settings.service';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
@@ -42,7 +42,6 @@ export class AddNodeDialogComponent implements OnInit {
   deploymentOptions: DeploymentOption[];
   kitStatus: Partial<KitStatusClass> = {};
   kitSettings: Partial<KitSettingsClass> = {};
-  pxe_types: string[] = PXE_TYPES;
   availableIPs: string[] = [];
   settings: Partial<GeneralSettingsClass> = {};
   nodeType: string;
@@ -57,8 +56,6 @@ export class AddNodeDialogComponent implements OnInit {
               private mat_snackbar_service_: MatSnackBarService,
               @Inject(MAT_DIALOG_DATA) public pcap_name: any) {
     this.control_plane_node_detected = false;
-    //TODO pass in unused IP Addresses
-    this.isRaid = false;
     dialogRef.disableClose = true;
   }
 
@@ -78,12 +75,7 @@ export class AddNodeDialogComponent implements OnInit {
         new FormControl(undefined, Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
       // Baremetal form fields
       mac_address: new FormControl(''),
-      data_drives: new FormControl('sdb'),
-      boot_drives: new FormControl('sda'),
-      raid_drives: new FormControl('sda,sdb'),
-      os_raid: new FormControl(false),
-      os_raid_root_size: new FormControl(50),
-      pxe_type: this.nodeForm ? this.nodeForm.value.pxe_type : new FormControl(),
+      raid0_override: new FormControl(false),
 
       // Virtual form fields
       virtual_cpu: new FormControl(),
@@ -260,41 +252,17 @@ export class AddNodeDialogComponent implements OnInit {
 
   setBaremetalValidation(event: MatRadioChange) {
     const mac_address = this.nodeForm.get('mac_address');
-    const data_drives = this.nodeForm.get('data_drives');
-    const boot_drives = this.nodeForm.get('boot_drives');
-    const pxe_type = this.nodeForm.get('pxe_type');
-    const raid_drives = this.nodeForm.get('raid_drives');
 
     if (event.value === 'Baremetal') {
       mac_address.setValidators(Validators.compose([validateFromArray(addNodeValidators.mac_address,
         { uniqueArray: this.validationMacs })]));
-      data_drives.setValidators(Validators.compose([validateFromArray(addNodeValidators.data_drives)]));
-      boot_drives.setValidators(Validators.compose([validateFromArray(addNodeValidators.boot_drives)]));
-      pxe_type.setValidators(Validators.compose([validateFromArray(addNodeValidators.pxe_type)]));
-      raid_drives.setValidators(Validators.compose([validateFromArray(addNodeValidators.raid_drives)]));
     } else {
       mac_address.clearValidators();
-      data_drives.clearValidators();
-      boot_drives.clearValidators();
-      pxe_type.clearValidators();
-      raid_drives.clearValidators();
     }
 
     mac_address.markAsPristine();
     mac_address.markAsUntouched();
     mac_address.updateValueAndValidity();
-    data_drives.markAsPristine();
-    data_drives.markAsUntouched();
-    data_drives.updateValueAndValidity();
-    boot_drives.markAsPristine();
-    boot_drives.markAsUntouched();
-    boot_drives.updateValueAndValidity();
-    pxe_type.markAsPristine();
-    pxe_type.markAsUntouched();
-    pxe_type.updateValueAndValidity();
-    raid_drives.markAsPristine();
-    raid_drives.markAsUntouched();
-    raid_drives.updateValueAndValidity();
   }
 
   onDeploymentTypeChange(event: MatRadioChange) {
@@ -333,31 +301,9 @@ export class AddNodeDialogComponent implements OnInit {
     return control.errors ? control.errors.error_message : '';
   }
 
-  checkRaidChanged(event: MatCheckboxChange) {
-    const checked: boolean = event.checked;
-    const boot_drives = this.nodeForm.get('boot_drives');
-    const data_drives = this.nodeForm.get('data_drives');
-    const raid_drive = this.nodeForm.get('raid_drives');
-    const os_raid_root_size = this.nodeForm.get('os_raid_root_size');
-    if (checked) {
-      this.isRaid = true;
-      data_drives.disable();
-      boot_drives.disable();
-      raid_drive.enable();
-      os_raid_root_size.enable();
-    } else {
-      this.isRaid = false;
-      data_drives.enable();
-      boot_drives.enable();
-      raid_drive.disable();
-      os_raid_root_size.disable();
-    }
-  }
-
   checkDuplicate(event: MatCheckboxChange) {
     this.isCreateDuplicate = event.checked;
   }
-
 
   getTooltip(inputName: string): string {
     return COMMON_TOOLTIPS[inputName];

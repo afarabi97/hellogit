@@ -9,14 +9,7 @@ all:
           {{ node.hostname }}:
             management_ipv4: {{ node.ip_address }}
             mac: {{ node.mac_address }}
-            boot_drive:
-            {%- for drive in node.boot_drives %}
-              - {{ drive | lower() }}
-            {%- endfor %}
-            data_drive: []
-            os_raid: False
-            os_raid_root_size: 50
-            pxe_type: {{ node.pxe_type | lower() }}
+            raid0_override: False
             node_type: {{ node.node_type }}
             deployment_type: {{ node.deployment_type }}
             memory: 8192

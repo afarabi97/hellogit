@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+from app.common import OK_RESPONSE
 from app.middleware import controller_admin_required, login_required_roles
 from app.models import DBModelNotFound, PostValidationError
 from app.models.common import COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE
@@ -14,12 +15,13 @@ from app.service.node_service import (execute, gather_device_facts,
                                       get_all_nodes_with_jobs, refresh_kit,
                                       send_notification,
                                       update_device_facts_job)
+from app.service.socket_service import NotificationCode, NotificationMessage
 from app.service.vpn_service import VpnService
 from app.utils.collections import mongo_catalog_saved_values
 from app.utils.logging import logger
 from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_CREATE,
                                  JOB_DEPLOY, JOB_PROVISION, JOB_REMOVE,
-                                 MAC_BASE, NODE_TYPES, PXE_TYPES)
+                                 MAC_BASE, NODE_TYPES)
 from app.utils.namespaces import KIT_SETUP_NS
 from flask import Response, send_file
 from flask_restx import Resource
@@ -161,7 +163,6 @@ class NewNodeCtrl(Resource):
                 node.hostname = "{}.{}".format(node.hostname, settings.domain)
             if node.deployment_type == DEPLOYMENT_TYPES.virtual.value:
                 node.mac_address = str(RandMac(MAC_BASE, True)).strip("'")
-                node.pxe_type = PXE_TYPES.uefi.value
             node.post_validation()
             node.create()
 
@@ -353,11 +354,8 @@ class ControlPlaneCtrl(Resource):
                 "node_type": NODE_TYPES.control_plane.value,
                 "deployment_type": DEPLOYMENT_TYPES.virtual.value,
                 "ip_address": settings.controller_interface + 1,
-                "pxe_type": PXE_TYPES.uefi.value,
                 "mac_address": str(RandMac(MAC_BASE, True)).strip("'"),
-                "os_raid": False,
-                "boot_drives": ["sda"],
-                "data_drives": ["sdb"]
+                "raid0_override": False
             }
             node = Node.load_node_from_request(control_plane)  # type: Node
             if not node.hostname.endswith(settings.domain):
@@ -391,3 +389,22 @@ class KitRefresh(Resource):
 
 
         return self._refresh_kit(new_nodes=nodes, control_plane=cp)
+
+@KIT_SETUP_NS.route("/kickstart_failure")
+class KickstartFailure(Resource):
+
+    def post(self):
+        payload = KIT_SETUP_NS.payload
+        msg = (f"The {payload['hardware_model']} is not in its expected drive configuration. "
+               f"Please check the BIOs settings and follow instructions. "
+               f"If hardware has a BOSS card or an SD card, please make sure that only one virtual drive is created in the hardware RAID controller."
+               f"The nvme drive count is {payload['nvme_drive_count']}. "
+               f"The sd_drive_count is {payload['sd_drive_count']}.")
+        notification = NotificationMessage(
+            role="nodes",
+            application="Kickstart".capitalize())
+        notification.set_status(NotificationCode.ERROR.name)
+        notification.set_message(msg)
+        notification.post_to_websocket_api()
+
+        return OK_RESPONSE

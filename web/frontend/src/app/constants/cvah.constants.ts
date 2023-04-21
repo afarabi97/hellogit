@@ -105,8 +105,6 @@ export const COMMON_VALIDATORS = {
     { ops: { pattern: new RegExp(SPACE_NAME_CONSTRAINT) }, error_message: 'Please enter a valid space name of 1-50 uppercase and lowercase letters.', validatorFn: 'pattern' }
   ]
 };
-export const PXE_TYPES: string[] = ['BIOS', 'UEFI'];
-export const MIP_PXE_TYPES: string[] = ['SCSI/SATA/USB', 'NVMe'];
 
 // Websocket
 export const WEBSOCKET_MESSAGE_ROLE_CATALOG: string = 'catalog';
@@ -133,6 +131,7 @@ export const SERVICE: string = 'Service';
 export const MIP: string = 'MIP';
 export const MINIO: string = 'MinIO';
 export const CONTROL_PLANE: string = 'Control-Plane';
+export const LTAC: string = 'LTAC';
 
 // Node State
 export const ERROR: string = 'Error';

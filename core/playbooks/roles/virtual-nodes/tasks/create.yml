@@ -81,7 +81,7 @@
         state: poweredoff
         networks: "{{ networks }}"
         hardware:
-          boot_firmware: "{% if hostvars[node].pxe_type == 'uefi' %}efi{% else %}bios{% endif %}"
+          boot_firmware: "efi"
           memory_mb: "{{ hostvars[node].memory }}"
           num_cpus: "{{ hostvars[node].cpu }}"
         disk: "{{ disks }}"
@@ -121,7 +121,6 @@
     validate_certs: no
     moid: "{{ vm_facts.instance.moid }}"
     secure_boot_enabled: False
-  when: hostvars[node].pxe_type == 'uefi'
 
 - name: Set Key
   set_fact:

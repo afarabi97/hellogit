@@ -24,17 +24,12 @@ class NodeSettingsV2(Model):
     def __init__(self,
                  kit_settings: KitSettingsV2):
         super().__init__()
-        self.boot_drives = ["sda"]
-        self.data_drives = ["sdb"]
         self.deployment_type = ''
         self.hostname = ''
         self.ip_address = ''
         self.mac_address = ''
         self.node_type = ''
-        self.os_raid = False
-        self.os_raid_root_size = 50
-        self.pxe_type = "BIOS"
-        self.raid_drives = ["sda","sdb"]
+        self.raid0_override = False
 
         # Other fields not part of api payload
         self.cpu = 0
@@ -89,19 +84,10 @@ class NodeSettingsV2(Model):
                     "node_type": self.node_type,
                     "deployment_type": self.deployment_type,
                     "mac_address": self.mac_address,
-                    "data_drives": self.data_drives,
-                    "boot_drives": self.boot_drives,
-                    "raid_drives": self.raid_drives,
-                    "os_raid": self.os_raid,
-                    "os_raid_root_size":self.os_raid_root_size,
-                    "pxe_type":self.pxe_type
+                    "raid0_override": self.raid0_override
                   }
 
-        if not self.os_raid:
-            ret_val["raid_drives"] = []
-
         if self.deployment_type == self.DEPLOYMENT_TYPES[1]: # Virtual
-            ret_val["pxe_type"] = None
             ret_val["mac_address"] = None
             ret_val["virtual_cpu"] = self.cpu
             ret_val["virtual_mem"] = self.memory
@@ -135,12 +121,7 @@ class NodeSettingsV2(Model):
         self.node_type = obj['node_type']
         self.deployment_type = obj['deployment_type']
         self.mac_address = obj['mac_address']
-        self.data_drives = obj['data_drives']
-        self.boot_drives = obj['boot_drives']
-        self.raid_drives = obj['raid_drives']
-        self.os_raid = obj['os_raid']
-        self.os_raid_root_size = obj['os_raid_root_size']
-        self.pxe_type = obj['pxe_type']
+        self.raid0_override = obj['raid0_override']
         self.device_facts = obj['deviceFacts']
 
     def from_namespace(self, namespace: Namespace, index: int):
@@ -150,7 +131,7 @@ class NodeSettingsV2(Model):
         self.node_type = namespace.node_type
         self.vm_prefix = namespace.vm_prefix
         self.set_hostname(self.vm_prefix, self.node_type)
-        self.os_raid = namespace.os_raid == 'yes'
+        self.raid0_override = namespace.raid0_override == 'yes'
         self.deployment_type = namespace.deployment_type
         self.ip_address = IPAddressManager(self.network_id, self.network_block_index).get_next_node_address_v2(self.index)
         self.mac_address = str(RandMac(MAC_BASE)).strip("'")
@@ -198,7 +179,7 @@ class NodeSettingsV2(Model):
         parser.add_argument('--node-type', dest='node_type',
                             required=True, help="The type of node",
                             choices=cls.NODE_TYPES)
-        parser.add_argument('--os-raid', dest='os_raid', default='no', help="Sets OS either enabled or disabled. Use yes|no when setting it.")
+        parser.add_argument('--raid0-override', dest='raid0_override', default='no', help="Forces data drive to be RAID 0.")
         parser.add_argument('--num-nodes', type=int, dest="num_nodes", required=True)
         parser.add_argument('--start-index', type=int, dest="start_index", required=True,
                             help="The index of the server or sensor.", default=1)
@@ -241,12 +222,9 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
                         interface = client.run("nmcli dev status | grep ethernet | head -n 1 | awk '{print $1}'").stdout.strip()
                         mip_mac = client.run("ip address show dev {} | grep link/ether | awk '{{print $2}}'".format(interface)).stdout.strip()
                         hw_type = client.run("dmidecode | grep  -A3 'System Information' | grep 'Product Name' | awk '{print $4}'").stdout.strip()
-                        pxe_type = cls._pxe_type(hw_type)
                         hostname = cls._generate_mip_hostname(hw_type, count, namespace, ctrl_settings)
-
                         node.hostname = hostname
                         node.mac_address = mip_mac
-                        node.pxe_type = pxe_type
                         node.node_type = namespace.node_type
                         node.ip_address = mip_ip
                         node.deployment_type = namespace.deployment_type
@@ -279,13 +257,6 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
     def _generate_mip_hostname(cls, hw_type, num, namespace : Namespace, ctrl_settings: HwControllerSetupSettings) -> str:
         hostname = "mip-{}-{}-{}.{}".format(hw_type, num, namespace.short_hash, ctrl_settings.node.domain)
         return hostname
-
-    @classmethod
-    def _pxe_type(cls, hw_type) -> str:
-        if hw_type == "7720":
-            return "SCSI/SATA/USB"
-        else:
-            return "NVMe"
 
     def get_server_info(self):
         token = redfish.get_token(self.idrac_ip_address,
@@ -338,12 +309,9 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
         self.redfish_password = self.b64decode_string(namespace.redfish_password)
         self.set_hostname()
         self.set_ipaddress()
-        self.pxe_type = namespace.pxe_type
         self.set_idrac_values(self)
         self.mip_ip_address = namespace.mip_ip_address
         self.short_hash = namespace.short_hash
-        self.data_drives = namespace.data_drives
-        self.boot_drives = namespace.boot_drives
         if namespace.mac_overrides[0] != 'nothing':
             if len(namespace.mac_overrides) > 0 and index < len(namespace.mac_overrides):
                 self.mac_address = namespace.mac_overrides[index]
@@ -363,19 +331,15 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
         parser.add_argument('--deployment-type', dest='deployment_type',
                             required=True, help="The deployment type for node.",
                             choices=["Baremetal"])
-        parser.add_argument('--os-raid', dest='os_raid', default='no', help="Sets OS either enabled or disabled. Use yes|no when setting it.")
+        parser.add_argument('--raid0-override', dest='raid0_override', default='no', help="Forces RAID to level 0.")
         parser.add_argument('--idrac-ip-addresses', dest="idrac_ip_addresses", help="The desired IP Address of the node.", required=False, nargs="+")
         parser.add_argument("--redfish-password", dest="redfish_password", help="The redfish password used for idrac out of band management.")
         parser.add_argument("--redfish-user", dest="redfish_user", help="The redfish username used for idrac out of band management", default="root")
         parser.add_argument('--start-index', type=int, dest="start_index", required=False,
                             help="The index of the server or sensor.", default=1)
-        parser.add_argument('--pxe-type', dest='pxe_type', required=False, choices=["UEFI", "BIOS"],
-                            help="Sets the PXE type of the nodes being kickstarted.", default= "UEFI")
         parser.add_argument("--mip-ip-address", dest="mip_ip_address", nargs="+",
                             help="IP address of mips being built (IP address for each MIP needs to be preconfigured)", required=False)
         parser.add_argument('--short-hash', dest='short_hash', help="short commit hash", default="null")
-        parser.add_argument('--boot-drives', dest='boot_drives', default=['sda'], nargs="+", help="Sets the os drive device name.  This can be found in /dev/")
-        parser.add_argument('--data-drives', dest='data_drives', default=['sdb'],  nargs="+", help="Sets the data drive device name.  This can be found in /dev/")
         parser.add_argument('--mac-overrides', dest='mac_overrides', default=['nothing'],  nargs="+", help="Overrides the MACs based on the node index.")
 
 def load_control_plane_nodes_from_mongo(ctrl_settings: Union[ControllerSetupSettings, HwControllerSetupSettings],

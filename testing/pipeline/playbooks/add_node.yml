@@ -61,7 +61,7 @@
         - size_gb: 50
           type: thin
           datastore: "{{ vcenter.datastore }}"
-        - size_gb: 5
+        - size_gb: 50
           type: thin
           datastore: "{{ vcenter.datastore }}"
       delegate_to: localhost
@@ -97,7 +97,7 @@
         - size_gb: 50
           type: thin
           datastore: "{{ vcenter.datastore }}"
-        - size_gb: 15
+        - size_gb: 50
           type: thin
           datastore: "{{ vcenter.datastore }}"
       delegate_to: localhost

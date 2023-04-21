@@ -1,10 +1,10 @@
 ---
 all:
   children:
-    MinIO:
+    LTAC:
         hosts:
           {%- for node in template_ctx.nodes %}
-          {%- if node.node_type == "MinIO" %}
+          {%- if node.node_type == "LTAC" %}
           {{ node.hostname }}:
             ansible_user: root
             ansible_connection: ssh

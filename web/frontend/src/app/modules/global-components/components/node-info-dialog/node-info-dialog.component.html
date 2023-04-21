@@ -11,15 +11,17 @@
           <h4 mat-line>Hostname: {{ node?.hostname }}</h4>
         </mat-list-item>
 
-        <mat-list-item>
-          <mat-icon mat-list-icon>developer_board</mat-icon>
-          <h4 mat-line>CPU Cores: {{ node?.deviceFacts['cpus_available'] | number:'1.0-2' }}</h4>
-        </mat-list-item>
+        <ng-container *ngIf="node?.deviceFacts">
+          <mat-list-item>
+            <mat-icon mat-list-icon>developer_board</mat-icon>
+            <h4 mat-line>CPU Cores: {{ node?.deviceFacts['cpus_available'] | number:'1.0-2' }}</h4>
+          </mat-list-item>
 
-        <mat-list-item>
-          <mat-icon mat-list-icon>memory</mat-icon>
-          <h4 mat-line>Memory: {{ node?.deviceFacts['memory_available'] | number:'1.0-2' }} GB</h4>
-        </mat-list-item>
+          <mat-list-item>
+            <mat-icon mat-list-icon>memory</mat-icon>
+            <h4 mat-line>Memory: {{ node?.deviceFacts['memory_available'] | number:'1.0-2' }} GB</h4>
+          </mat-list-item>
+        </ng-container>
 
         <mat-list-item>
           <mat-icon mat-list-icon>info</mat-icon>
@@ -31,26 +33,30 @@
           <h4 mat-line>Mng MAC: {{ node?.mac_address }}</h4>
         </mat-list-item>
 
-        <mat-list-item *ngFor="let disk of node?.deviceFacts['disks']">
-          <mat-icon mat-list-icon>sd_storage</mat-icon>
-          <h4 mat-line>{{ disk.name }} Drive:
-            <span *ngIf="disk.size_tb < 1">{{disk.size_gb | number: "1.0-2" }} GB</span>
-            <span *ngIf="disk.size_tb > 1">{{disk.size_tb | number: "1.0-2" }} TB</span>
-          </h4>
-        </mat-list-item>
+        <ng-container *ngIf="node?.deviceFacts">
+          <mat-list-item *ngFor="let disk of node?.deviceFacts['disks']">
+            <mat-icon mat-list-icon>sd_storage</mat-icon>
+            <h4 mat-line>{{ disk.name }} Drive:
+              <span *ngIf="disk.size_tb < 1">{{disk.size_gb | number: "1.0-2" }} GB</span>
+              <span *ngIf="disk.size_tb > 1">{{disk.size_tb | number: "1.0-2" }} TB</span>
+            </h4>
+          </mat-list-item>
+        </ng-container>
       </mat-list>
     </div>
     <div fxLayoutAlign="start stretch" style="background-color: #222; margin-left: 15px; overflow: auto;" fxFlex="<flex-grow> <flex-shrink>">
-      <mat-list>
-        <mat-list-item style="height:auto;" *ngFor="let iface of node?.deviceFacts['interfaces']">
-          <mat-icon mat-list-icon>cloud</mat-icon>
-          <h4 mat-line>{{ iface.name }}
-            <div>{{iface.ip_address}}</div>
-            <div>{{iface.mac_address}}</div>
-            <div>{{iface.speed}}</div>
-          </h4>
-        </mat-list-item>
-      </mat-list>
+      <ng-container *ngIf="node?.deviceFacts">
+        <mat-list>
+          <mat-list-item style="height:auto;" *ngFor="let iface of node?.deviceFacts['interfaces']">
+            <mat-icon mat-list-icon>cloud</mat-icon>
+            <h4 mat-line>{{ iface.name }}
+              <div>{{iface.ip_address}}</div>
+              <div>{{iface.mac_address}}</div>
+              <div>{{iface.speed}}</div>
+            </h4>
+          </mat-list-item>
+        </mat-list>
+      </ng-container>
     </div>
   </div>
   <div mat-dialog-actions>

@@ -27,12 +27,7 @@ all:
               ansible_connection: ssh
               management_ipv4: "{{ node.ip_address }}"
               mac: {{ node.mac_address }}
-              boot_drive: {{ node.boot_drives }}
-              data_drive: {{ node.data_drives }}
-              pxe_type: {{ node.pxe_type | lower() }}
-              os_raid: {{ node.os_raid }}
-              os_raid_root_size: {{ node.os_raid_root_size | default(50) }}
-              raid_drives: {{ node.raid_drives }}
+              raid0_override: {{ node.raid0_override }}
               node_type: {{ node.node_type }}
               deployment_type: {{ node.deployment_type }}
               {%- if node.deployment_type == "Virtual" %}
@@ -64,12 +59,7 @@ all:
               ansible_connection: ssh
               management_ipv4: {{ node.ip_address }}
               mac: {{ node.mac_address }}
-              boot_drive: {{ node.boot_drives }}
-              data_drive: {{ node.data_drives }}
-              pxe_type: {{ node.pxe_type | lower() }}
-              os_raid: {{ node.os_raid }}
-              os_raid_root_size: {{ node.os_raid_root_size | default(50) }}
-              raid_drives: {{ node.raid_drives }}
+              raid0_override: {{ node.raid0_override }}
               node_type: {{ node.node_type }}
               deployment_type: {{ node.deployment_type }}
               {%- if node.deployment_type == "Virtual" %}

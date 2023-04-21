@@ -13,7 +13,6 @@ export class MIPClass implements MIPInterface {
   hostname: string;
   ip_address: string;
   mac_address: string;
-  pxe_type: boolean;
   jobs: JobClass[];
 
   /**
@@ -27,7 +26,6 @@ export class MIPClass implements MIPInterface {
     this.hostname = mip_interface.hostname;
     this.ip_address = mip_interface.ip_address;
     this.mac_address = mip_interface.mac_address;
-    this.pxe_type = mip_interface.pxe_type;
     this.jobs = mip_interface.jobs.map((job: JobInterface) => new JobClass(job));
   }
 }
