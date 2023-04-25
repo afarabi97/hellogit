@@ -7,11 +7,11 @@ import yaml
 from app.common import FORBIDDEN_RESPONSE
 from app.models import DBModelNotFound, PostValidationError
 from app.utils.constants import (CONTROLLER_ADMIN_ROLE,
-                                 CONTROLLER_MAINTAINER_ROLE, OPERATOR_ROLE,
-                                 REALM_ADMIN_ROLE, WEB_DIR, DEFAULT_REQUIRED_ROLES)
-from app.utils.exceptions import NoSuchNodeJobError
+                                 CONTROLLER_MAINTAINER_ROLE,
+                                 DEFAULT_REQUIRED_ROLES, OPERATOR_ROLE,
+                                 REALM_ADMIN_ROLE, WEB_DIR)
+from app.utils.exceptions import InternalServerError, NoSuchNodeJobError
 from app.utils.logging import logger
-from marshmallow.exceptions import ValidationError
 from rq.exceptions import NoSuchJobError
 from werkzeug.wrappers import Request, Response
 
@@ -271,15 +271,18 @@ def handle_errors(f):
         except PostValidationError as post_validation_error:
             logger.exception(post_validation_error)
             return {"post_validation": post_validation_error.errors_msgs}, 400
-        except DBModelNotFound as db_model_not_found:
-            logger.exception(db_model_not_found)
-            return {"post_validation": [str(db_model_not_found)]}, 400
+        except DBModelNotFound:
+            logger.exception("Requested database object not found.")
+            return {"error_message": "Requested database object not found."}, 400
         except NoSuchJobError:
             logger.exception("ErrorMessage: Job does not exist")
             return {"error_message": "Job does not exist."}, 404
         except NoSuchNodeJobError:
             logger.exception("ErrorMessage: Node job does not exist")
             return {"error_message": "Node job does not exist."}, 404
+        except InternalServerError:
+            logger.exception("ErrorMessage: Internal Server Error")
+            return {"error_message": "Internal Server Error."}, 500
         except Exception as exception:
             logger.exception(exception)
             return {"error_message": str(exception)}, 500

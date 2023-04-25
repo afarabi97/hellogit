@@ -4,6 +4,7 @@ from typing import Dict, List, Union
 
 from app.models.device_facts import (DeviceFacts,
                                      create_device_facts_from_ansible_setup)
+from app.models.kit_status import KitStatusModel
 from app.models.nodes import Command, Node, NodeJob, _generate_inventory
 from app.models.settings.esxi_settings import EsxiSettingsForm
 from app.models.settings.general_settings import GeneralSettingsForm
@@ -62,7 +63,7 @@ def get_all_nodes_with_jobs() -> list:
     return results
 
 
-def get_kit_status() -> dict:
+def get_kit_status() -> KitStatusModel.DTO:
     control_plane_deployed = False
     general_settings_configured = False
     kit_settings_configured = False
@@ -101,10 +102,7 @@ def get_kit_status() -> dict:
                 if node_job.complete or node_job.error:
                     deploy_kit_running = False
             if node_job.name == JOB_DEPLOY:
-                if (
-                    node.node_type == NODE_TYPES.control_plane.value
-                    and node_job.complete
-                ):
+                if (node.node_type == NODE_TYPES.control_plane.value and node_job.complete):
                     control_plane_deployed = True
                 if node.node_type == NODE_TYPES.server.value and node_job.complete:
                     num_of_servers_deployed += 1
@@ -124,31 +122,16 @@ def get_kit_status() -> dict:
             if jobs_inprogress > 0:
                 jobs_running = True
 
-    if (
-        control_plane_deployed
-        and general_settings_configured
-        and kit_settings_configured
-        and esxi_settings_configured
-    ):
-        if (
-            num_of_servers_provisioned >= 2
-            and jobs_inprogress == 0
-            and jobs_pending == 0
-        ):
+    if (control_plane_deployed and general_settings_configured and kit_settings_configured and esxi_settings_configured):
+        if (num_of_servers_provisioned >= 2 and jobs_inprogress == 0 and jobs_pending == 0):
             ready_to_deploy = True
         if num_of_servers_deployed >= 2:
             base_kit_deployed = True
 
-    return {
-        "control_plane_deployed": control_plane_deployed,
-        "general_settings_configured": general_settings_configured,
-        "kit_settings_configured": kit_settings_configured,
-        "esxi_settings_configured": esxi_settings_configured,
-        "ready_to_deploy": ready_to_deploy,
-        "base_kit_deployed": base_kit_deployed,
-        "jobs_running": jobs_running,
-        "deploy_kit_running": deploy_kit_running,
-    }
+    return KitStatusModel(control_plane_deployed=control_plane_deployed, general_settings_configured=general_settings_configured,
+                          kit_settings_configured=kit_settings_configured, esxi_settings_configured=esxi_settings_configured,
+                          ready_to_deploy=ready_to_deploy, base_kit_deployed=base_kit_deployed,
+                          jobs_running=jobs_running, deploy_kit_running=deploy_kit_running).to_dict()
 
 
 def _execute_job(cmd_object: Command) -> bool:

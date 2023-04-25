@@ -165,12 +165,9 @@ class GeneralSettings(Resource):
     def post(self) -> Response:
         notification = NotificationMessage(role=_JOB_NAME.lower())
         try:
-            general_settings = GeneralSettingsForm.load_from_request(
-                SETINGS_NS.payload)
+            general_settings = GeneralSettingsForm.load_from_request(SETINGS_NS.payload)
             general_settings.save_to_db()
-            notification.set_and_send(
-                message="General Settings Saved", status=NotificationCode.COMPLETED.name
-            )
+            notification.set_and_send(message="General Settings Saved", status=NotificationCode.COMPLETED.name)
             send_notification()
         except ValidationError as e:
             notification.set_and_send(

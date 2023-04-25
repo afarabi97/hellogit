@@ -16,3 +16,7 @@ class NoSuchNodeJobError(Exception):
 
 class NoDiagnosticLogError(Exception):
     pass
+
+
+class InternalServerError(Exception):
+    pass
