@@ -118,14 +118,6 @@ class ControllerSetupJob:
             client.run("yum install -y tfplenum-cli")
             client.run("tfplenum-cli setup controller")
 
-    def _is_built_already(self) -> bool:
-        commit_hash = self.ctrl_settings.node.commit_hash
-        vms = get_vms_in_folder("Releases", self.ctrl_settings.vcenter)
-        for vm_name in vms:
-            if CONTROLLER_PREFIX in vm_name and commit_hash in vm_name:
-                return True
-        return False
-
     def setup_controller(self):
         if self.ctrl_settings.rpm_build == "dev" or self.ctrl_settings.rpm_build == "stable":
             execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.ctrl_settings.to_dict())

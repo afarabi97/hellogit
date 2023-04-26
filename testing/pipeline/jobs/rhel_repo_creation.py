@@ -57,7 +57,7 @@ class RHELExportJob(RHELCreationJob):
 
     def build_export(self):
         if self.repo_settings.node.pipeline == "export-all" and self._is_built_already():
-                pass
+            pass
         else:
             print("Building RHEL server for export")
             execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.repo_settings.to_dict())
