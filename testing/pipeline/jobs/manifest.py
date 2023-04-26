@@ -4,10 +4,15 @@ import shutil
 import os
 import sys
 import re
+from jinja2 import Environment, Template, select_autoescape
+from jinja2.loaders import FileSystemLoader
 
-def load_manifest(file: str, type: str) -> dict:
+def load_manifest(file: str, type: str, ver: str) -> dict:
+        yaml_dict = {}
         with open (file, 'r') as file:
-            data = yaml.safe_load(file)
+            template = Template(file.read())
+            rendered_template = template.render(yaml_dict, VERSION=ver)
+            data = yaml.safe_load(rendered_template)
         return data[type]
 
 class VerifyManifestJob():
@@ -16,7 +21,7 @@ class VerifyManifestJob():
         self.manifest = manifest
 
     def verify_paths_exist(self):
-        manifest = load_manifest(self.manifest.manifest_file, self.manifest.type)
+        manifest = load_manifest(self.manifest.manifest_file, self.manifest.type, self.manifest.version)
         unverified_path = []
 
         for path in manifest:
@@ -95,7 +100,7 @@ class BuildManifestJob():
         return path[pos:]
 
     def build_manifest(self):
-        manifest = load_manifest(self.manifest.manifest_file, self.manifest.type)
+        manifest = load_manifest(self.manifest.manifest_file, self.manifest.type, self.manifest.version)
         self.check_release_folder()
 
         for path in manifest:

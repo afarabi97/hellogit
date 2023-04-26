@@ -14,6 +14,9 @@ from time import sleep
 from util.connection_mngs import FabricConnectionWrapper
 from paramiko.ssh_exception import SSHException
 from typing import List
+from models.constants import SubCmd
+from jinja2 import Environment, Template, select_autoescape
+from jinja2.loaders import FileSystemLoader
 
 from uuid import uuid4
 from models.constants import SubCmd
@@ -52,10 +55,14 @@ ERROR_MESSAGE = [
         "ERROR 25: Drive verificatio for disk {} had errors. ({})",                                   # 25
         "ERROR 26: Cound not un-mount disk {} after verification. ({})" ]                             # 26
 
-def load_manifest(file: str, type: str) -> dict:
-    with open (file, 'r') as file:
-        data = yaml.safe_load(file)
-    return data[type]
+def load_manifest(file: str, type: str, ver: str) -> dict:
+        yaml_dict = {}
+        with open (file, 'r') as file:
+            template = Template(file.read())
+            rendered_template = template.render(yaml_dict, VERSION=ver)
+            data = yaml.safe_load(rendered_template)
+        return data[type]
+
 
 def remote_sudo_cmd(shell: Connection, command: str, warn=False, hide=False):
     print(command)
@@ -67,7 +74,6 @@ def get_plugged_in_drives(shell: Connection) -> List[str]:
     #    shell (Connection): Fabric connection to the remote device.
     # Returns:
     #    List[str]: ['/dev/sda','/dev/sdb'...]
- 
     ret_val = remote_sudo_cmd(shell, "ls -1 /dev/sd[a-z]", hide=True)
     all_devices = ret_val.stdout.split("\n")
     filtered_devices = []
@@ -283,7 +289,7 @@ class DriveCreationThread(DriveSuperThread):
 
     def create_vm_symlinks(self):
         if (self.create_drive_type == 'CPT') or (self.create_drive_type == 'MDT'):
-            manifest = load_manifest(SubCmd.manifest_file, self.create_drive_type)
+            manifest = load_manifest(SubCmd.manifest_file, self.create_drive_type, self.drive_settings.drive_creation_version)
             for path in manifest:
                 for src in path['src']:
                     if path['app'] == 'VMs':

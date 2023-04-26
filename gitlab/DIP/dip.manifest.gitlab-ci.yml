@@ -6,6 +6,7 @@ Verify CPT Manifest:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     cmd="python3 testing/pipeline/pipeline.py verify-manifest
+        --version $TFPLENUM_EXPORT_VERSION
         --drive-creation-path $MASTER_DRIVE_CREATION_PATH
         --staging-export-path $DIP_STAGING
         --type CPT"
@@ -26,6 +27,7 @@ Verify MDT Manifest:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py verify-manifest \
+    --version $TFPLENUM_EXPORT_VERSION \
     --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
     --staging-export-path $DIP_STAGING \
     --type MDT
@@ -44,6 +46,7 @@ Verify GIP Manifest:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py verify-manifest \
+    --version $TFPLENUM_EXPORT_VERSION \
     --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
     --staging-export-path $GIP_STAGING \
     --type GIP
@@ -62,6 +65,7 @@ Verify MULTIBOOT Manifest:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py verify-manifest \
+    --version $TFPLENUM_EXPORT_VERSION \
     --drive-creation-path $MASTER_DRIVE_CREATION_PATH \
     --staging-export-path $DIP_STAGING \
     --type MULTIBOOT

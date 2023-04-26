@@ -1,4 +1,4 @@
-VERSION: 3.7
+VERSION: "{{ VERSION }}"
 MULTIBOOT:
 - app: exes
   src:
@@ -26,7 +26,7 @@ CPT:
 - app: RhelRepo
   src:
     - Repo/Shared/VMs/RhelRepo/ReadMe.txt
-  dest: CPT/Data/CVAH 3.7/Software/VMs/RhelRepo
+  dest: "CPT/Data/CVAH {{ VERSION }}/Software/VMs/RhelRepo"
 
 - app: archive
   src:
@@ -83,7 +83,7 @@ CPT:
     - Repo/CPT/AppStore/Xmco Lan Manager to NT Crack/3.5.0
     - Repo/Shared/AppStore/RHEL Server 7.8/7.8
     - Repo/Shared/AppStore/RHEL Server 8.2/8.2
-  dest: CPT/Data/CVAH 3.7/Software/AppStore/1_ARCHIVE
+  dest: "CPT/Data/CVAH {{ VERSION }}/Software/AppStore/1_ARCHIVE"
 
 - app: AppStore
   src:
@@ -149,7 +149,7 @@ CPT:
     - Repo/Shared/AppStore/sysinternals suite/1.0
     - Repo/Shared/AppStore/TCPdump/4.9.3
     - Repo/Shared/AppStore/Visio Pro/2016
-  dest: CPT/Data/CVAH 3.7/Software/AppStore
+  dest: "CPT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
 - app: VMs
   src:
@@ -167,18 +167,18 @@ CPT:
     - Repo/CPT/VMs/SamuraiSTFU/1.9
     - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7
     - Repo/CPT/VMs/Windows 10 VM/22H2
-  dest: CPT/Data/CVAH 3.7/Software/AppStore
+  dest: "CPT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
 - app: Documentation
   src:
     - Repo/Shared/Documentation/MIP/App Docs/master
     - Repo/Shared/Documentation/General-Documentation/THORS HAMMER/3.7.1
-  dest: CPT/Data/CVAH 3.7/Documentation/MIP
+  dest: "CPT/Data/CVAH {{ VERSION }}/Documentation/MIP"
 
 - app: Documentation
   src:
     - Repo/Shared/Documentation/DIP/App Docs/master
-  dest: CPT/Data/CVAH 3.7/Documentation/DIP
+  dest: "CPT/Data/CVAH {{ VERSION }}/Documentation/DIP"
 
 - app: Documentation
   src:
@@ -208,7 +208,7 @@ CPT:
     - Repo/Shared/Documentation/VMs/ACAS/22.06-1
     - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.190
     - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
-  dest: CPT/Data/CVAH 3.7/Documentation/AppStore
+  dest: "CPT/Data/CVAH {{ VERSION }}/Documentation/AppStore"
 
 - app: firmware
   src:
@@ -224,19 +224,19 @@ CPT:
     - Repo/Firmware/HP DL160/DL160
     - Repo/Firmware/Supermicro x10 X10DRLi/3_86
     - Repo/Firmware/Thinkmate x8 X8DTL3/313
-  dest: CPT/Data/CVAH 3.7/Firmware
+  dest: "CPT/Data/CVAH {{ VERSION }}/Firmware"
 
 MDT:
 - app: RhelRepo
   src:
     - Repo/Shared/VMs/RhelRepo/ReadMe.txt
-  dest: MDT/Data/CVAH 3.7/Software/VMs/RhelRepo
+  dest: "MDT/Data/CVAH {{ VERSION }}/Software/VMs/RhelRepo"
 
 - app: archive
   src:
     - Repo/Shared/AppStore/RHEL Server 7.8/7.8
     - Repo/Shared/AppStore/RHEL Server 8.2/8.2
-  dest: MDT/Data/CVAH 3.7/Software/AppStore/1_ARCHIVE
+  dest: "MDT/Data/CVAH {{ VERSION }}/Software/AppStore/1_ARCHIVE"
 
 - app: AppStore
   src:
@@ -261,7 +261,7 @@ MDT:
     - Repo/Shared/AppStore/sysinternals suite/1.0
     - Repo/Shared/AppStore/TCPdump/4.9.3
     - Repo/Shared/AppStore/Visio Pro/2016
-  dest: MDT/Data/CVAH 3.7/Software/AppStore
+  dest: "MDT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
 - app: VMs
   src:
@@ -271,18 +271,18 @@ MDT:
     - Repo/Shared/VMs/Security Onion (original)/4.3-8
     - Repo/MDT/VMs/Windows 10 VM/22H2
     - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-3
-  dest: MDT/Data/CVAH 3.7/Software/AppStore
+  dest: "MDT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
 - app: Documentation
   src:
     - Repo/Shared/Documentation/MIP/App Docs/master
     - Repo/Shared/Documentation/General-Documentation/THORS HAMMER/3.7.1
-  dest: MDT/Data/CVAH 3.7/Documentation/MIP
+  dest: "MDT/Data/CVAH {{ VERSION }}/Documentation/MIP"
 
 - app: Documentation
   src:
     - Repo/Shared/Documentation/DIP/App Docs/master
-  dest: MDT/Data/CVAH 3.7/Documentation/DIP
+  dest: "MDT/Data/CVAH {{ VERSION }}/Documentation/DIP"
 
 - app: Documentation
   src:
@@ -298,7 +298,7 @@ MDT:
     - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.190
     - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
     - Repo/Shared/Documentation/VMs/ACAS/22.06-1
-  dest: MDT/Data/CVAH 3.7/Documentation/AppStore
+  dest: "MDT/Data/CVAH {{ VERSION }}/Documentation/AppStore"
 
 - app: firmware
   src:
@@ -314,14 +314,14 @@ MDT:
     - Repo/Firmware/HP DL160/DL160
     - Repo/Firmware/Supermicro x10 X10DRLi/3_86
     - Repo/Firmware/Thinkmate x8 X8DTL3/313
-  dest: MDT/Data/CVAH 3.7/Firmware
+  dest: "MDT/Data/CVAH {{ VERSION }}/Firmware"
 
 GIP:
 - app: vcenter
   src:
-    - Repo/GIP/Software/vcenter/VMware-VCSA-all-7.0.1-17004997.iso
-    - Repo/GIP/Software/vcenter/VMware-VMvisor-Installer-7.0.0.update02-17630552.x86_64-DellEMC_Customized-A00_ks.iso
-  dest: staging_gip/v3.7/GIP/Data/CVAH 3.7/Software/vcenter
+    - Repo/GIP/Software/vcenter/VMware-VCSA-all-7.0.3-21477706.iso
+    - Repo/GIP/Software/vcenter/VMware-VMvisor-Installer-7.0.0.update03-20842708.x86_64-Dell_Customized-A10.iso
+  dest: "staging_gip/v{{ VERSION }}/GIP/Data/CVAH {{ VERSION }}/Software/vcenter"
 
 - app: vms
   src:
@@ -335,4 +335,4 @@ GIP:
     - Repo/GIP/Software/VM/GIP_Server_3.5_12-18-20.ova
     - Repo/GIP/Software/VM/sat-6-isos
     - Repo/GIP/Software/VM/sat-6-upgrade
-  dest: GIP/Data/CVAH 3.7/Software/VM
+  dest: "GIP/Data/CVAH {{ VERSION }}/Software/VM"
