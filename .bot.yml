@@ -76,17 +76,6 @@ pull_request_rules:
           - "{{ author }}"
         labels:
           - "backport"
-  - name: backport patches to release/3.7.2.0 branch
-    conditions:
-      - merged
-      - label=backport-v3.7.2.0
-    actions:
-      backport:
-        branch: release/3.7.2.0
-        assignees:
-          - "{{ author }}"
-        labels:
-          - "backport"
   - name: backport patches to release/3.8.0.0 branch
     conditions:
       - merged
@@ -94,6 +83,17 @@ pull_request_rules:
     actions:
       backport:
         branch: release/3.8.0.0
+        assignees:
+          - "{{ author }}"
+        labels:
+          - "backport"
+  - name: backport patches to release/3.9.0.0 branch
+    conditions:
+      - merged
+      - label=backport-v3.9.0.0
+    actions:
+      backport:
+        branch: release/3.9.0.0
         assignees:
           - "{{ author }}"
         labels:
