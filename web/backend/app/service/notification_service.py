@@ -1,28 +1,29 @@
+from typing import List
+
 import pymongo
-from app.utils.collections import mongo_notifications
-from bson import ObjectId
-from flask import Response
 from app.models.common import COMMON_SUCCESS_MESSAGE
+from app.models.notification import NotificationModel
+from app.utils.collections import mongo_notifications
+from app.utils.constants import NUMBER_OF_NOTIFICATION_ITEMS
+from bson import ObjectId
 
-NUMBER_OF_NOTIFICATION_ITEMS = 30
 
+def get_notifications(offset: str, role: str) -> List[NotificationModel]:
+    """
+    Gets all notifications from mongodb
+    """
+    filter_obj = {}
+    if role != "all":
+        filter_obj = {"role": role}
 
-def get_notifications(offset: str, role: str) -> list:
-        """
-        Gets all notifications from mongodb
-        """
-        filter_obj = {}
-        if role != "all":
-            filter_obj = {"role": role}
+    notifications = List[NotificationModel(mongo_notifications().find(filter_obj)
+                                           .sort("timestamp", pymongo.DESCENDING)
+                                           .skip(int(offset))
+                                           .limit(NUMBER_OF_NOTIFICATION_ITEMS))]
 
-        notifications = list(mongo_notifications().find(filter_obj)
-                             .sort("timestamp", pymongo.DESCENDING)
-                             .skip(int(offset))
-                             .limit(NUMBER_OF_NOTIFICATION_ITEMS))
-
-        for notification in notifications:
-            notification["_id"] = str(notification["_id"])
-        return notifications
+    for notification in notifications:
+        notification["_id"] = str(notification["_id"])
+    return notifications
 
 
 def delete_notifications_del() -> COMMON_SUCCESS_MESSAGE:

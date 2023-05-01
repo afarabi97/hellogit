@@ -55,8 +55,14 @@ CA_BUNDLE = "/etc/pki/tls/certs/ca-bundle.crt"
 
 REDIS = "redis://"
 
-# Diagnostics service
+# Diagnostics Service
 DOWNLOAD_DIR = "/var/www/html/downloads"
+
+# Notification Service
+NUMBER_OF_NOTIFICATION_ITEMS = 30
+
+# Model field patterns
+IP_ADDRESS_PATTERN = "^(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])$"
 
 
 class NODE_TYPES(Enum):

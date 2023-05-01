@@ -18,6 +18,14 @@ class NoDiagnosticLogError(Exception):
     pass
 
 
+class NotFoundError(Exception):
+    pass
+
+
+class ResponseConflictError(Exception):
+    pass
+
+
 class InternalServerError(Exception):
     pass
 

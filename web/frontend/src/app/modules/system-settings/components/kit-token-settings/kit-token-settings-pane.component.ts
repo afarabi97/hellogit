@@ -3,12 +3,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTable } from '@angular/material/table';
 
-import { KitTokenClass } from '../../../../classes';
-import { DIALOG_WIDTH_800PX } from '../../../../constants/cvah.constants';
+import { KitTokenClass, SuccessMessageClass } from '../../../../classes';
+import { DIALOG_WIDTH_800PX, MAT_SNACKBAR_CONFIGURATION_60000_DUR_OK } from '../../../../constants/cvah.constants';
 import { KitTokenInterface } from '../../../../interfaces';
 import { KitTokenSettingsService } from '../../services/kit-token-settings.service';
 import { AddKitTokenComponent } from './components/add-kit-token-dialog/add-kit-token.component';
 import { CopyTokenModalDialogComponent } from './components/copy-token-dialog/copy-token-dialog.component';
+import { MatSnackBarService } from 'src/app/services/mat-snackbar.service';
 
 @Component({
   selector: 'app-kit-token-settings-pane',
@@ -24,7 +25,8 @@ export class KitTokenSettingsPaneComponent implements OnInit {
 
   constructor(private kit_token_settings_service: KitTokenSettingsService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar,) {}
+    private snackBar: MatSnackBar,
+    private mat_snackbar_service_: MatSnackBarService) {}
 
   ngOnInit() {
     this.kit_token_settings_service.get_kit_tokens().subscribe(kit_tokens => {
@@ -46,7 +48,8 @@ export class KitTokenSettingsPaneComponent implements OnInit {
   }
 
   delete_token(kit_token_id) {
-    this.kit_token_settings_service.delete_kit_token(kit_token_id).subscribe(_ => {
+    this.kit_token_settings_service.delete_kit_token(kit_token_id).subscribe((response: SuccessMessageClass) => {
+      this.mat_snackbar_service_.generate_return_success_snackbar_message(response.success_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR_OK);
       this.kit_tokens = this.kit_tokens.filter(kit_token => kit_token.kit_token_id !== kit_token_id);
     });
   }

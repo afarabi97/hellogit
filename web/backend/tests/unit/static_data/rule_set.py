@@ -1,4 +1,3 @@
-
 from typing import List
 
 from app.models.ruleset import RuleModel, RuleSetModel

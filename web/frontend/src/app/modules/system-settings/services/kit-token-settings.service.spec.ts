@@ -7,9 +7,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of as observableOf, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+import { MockSuccessMessageClass } from '../../../../../static-data/class-objects';
 import { MockKitTokenInterface } from '../../../../../static-data/interface-objects';
 import { environment } from '../../../../environments/environment';
-import { KitTokenClass } from '../../../classes';
+import { KitTokenClass, SuccessMessageClass } from '../../../classes';
 import { KitTokenInterface } from '../../../interfaces';
 import { ApiService } from '../../../services/abstract/api.service';
 import {
@@ -172,7 +173,7 @@ describe('KitTokenSettingsService', () => {
 
         service.delete_kit_token(MockKitTokenInterface.kit_token_id)
           .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response) => {
+          .subscribe((response: SuccessMessageClass) => {
             expect(service.delete_kit_token).toHaveBeenCalled();
           });
 
@@ -192,7 +193,7 @@ describe('KitTokenSettingsService', () => {
         service.delete_kit_token(MockKitTokenInterface.kit_token_id)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
-            (response) => {},
+            (response: SuccessMessageClass) => {},
             (error: HttpErrorResponse) => {
               expect(error.error).toContain(errorRequest);
               expect(service.delete_kit_token).toHaveBeenCalled();
@@ -213,7 +214,7 @@ describe('KitTokenSettingsService', () => {
 export class KitTokenSettingsServiceSpy implements KitTokenSettingsServiceInterface {
   get_kit_tokens = jasmine.createSpy('get_kit_tokens').and.callFake((): Observable<Array<KitTokenClass>> => this.call_fake_get_kit_tokens());
   create_kit_token = jasmine.createSpy('create_kit_token').and.callFake((kit_token: KitTokenInterface): Observable<KitTokenClass> => this.call_fake_create_kit_token(kit_token));
-  delete_kit_token = jasmine.createSpy('delete_kit_token').and.callFake((kit_token_id: string): Observable<null> => this.call_fake_delete_kit_token(kit_token_id));
+  delete_kit_token = jasmine.createSpy('delete_kit_token').and.callFake((kit_token_id: string): Observable<SuccessMessageClass> => this.call_fake_delete_kit_token(kit_token_id));
 
   call_fake_get_kit_tokens(): Observable<Array<KitTokenClass>> {
     return observableOf([MockKitTokenInterface]);
@@ -223,7 +224,7 @@ export class KitTokenSettingsServiceSpy implements KitTokenSettingsServiceInterf
     return observableOf(new KitTokenClass(kit_token));
   }
 
-  call_fake_delete_kit_token(kit_token_id: string): Observable<null> {
-    return observableOf(null);
+  call_fake_delete_kit_token(kit_token_id: string): Observable<SuccessMessageClass> {
+    return observableOf(MockSuccessMessageClass);
   }
 }

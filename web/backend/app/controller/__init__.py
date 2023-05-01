@@ -1,9 +1,9 @@
 from app.utils.namespaces import (AGENT_NS, ALERTS_NS, APP_NS, CATALOG_NS,
                                   COLDLOG_NS, COMMON_NS, CURATOR_NS,
                                   DEVICE_FACTS_NS, DIAGNOSTICS_NS, HEALTH_NS,
-                                  HIVE_NS, JOB_NS, KIT_SETUP_NS, KUBERNETES_NS,
-                                  NOTIFICATIONS_NS, POLICY_NS, PORTAL_NS,
-                                  SCALE_NS, SETINGS_NS, TOKEN_NS, TOOLS_NS,
+                                  HIVE_NS, JOB_NS, KIT_SETUP_NS, KIT_TOKEN_NS,
+                                  KUBERNETES_NS, NOTIFICATIONS_NS, POLICY_NS,
+                                  PORTAL_NS, SCALE_NS, SETINGS_NS, TOOLS_NS,
                                   VERSION_NS)
 from flask import Blueprint
 from flask_restx import Api
@@ -39,11 +39,11 @@ api.add_namespace(POLICY_NS)
 api.add_namespace(HIVE_NS)
 api.add_namespace(JOB_NS)
 api.add_namespace(KIT_SETUP_NS)
+api.add_namespace(KIT_TOKEN_NS)
 api.add_namespace(KUBERNETES_NS)
 api.add_namespace(NOTIFICATIONS_NS)
 api.add_namespace(PORTAL_NS)
 api.add_namespace(SCALE_NS)
 api.add_namespace(SETINGS_NS)
-api.add_namespace(TOKEN_NS)
 api.add_namespace(TOOLS_NS)
 api.add_namespace(VERSION_NS)

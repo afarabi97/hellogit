@@ -140,7 +140,7 @@ export const environment = {
   POLICY_MANAGEMENT_SERVICE_CHECK_CATALOG_STATUS: `/api/catalog/chart`,
   POLICY_MANAGEMENT_SERVICE_GET_JOBS: `/api/jobs`,
 
-  KIT_TOKENS_SETTINGS_SERVICE: `/api/token`
+  KIT_TOKENS_SETTINGS_SERVICE: `/api/kit-token`
 };
 
 /*

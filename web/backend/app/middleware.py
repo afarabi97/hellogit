@@ -11,7 +11,8 @@ from app.utils.constants import (CONTROLLER_ADMIN_ROLE,
                                  DEFAULT_REQUIRED_ROLES, OPERATOR_ROLE,
                                  REALM_ADMIN_ROLE, WEB_DIR)
 from app.utils.exceptions import (InternalServerError, NoSuchLogArchiveError,
-                                  NoSuchLogError, NoSuchNodeJobError)
+                                  NoSuchLogError, NoSuchNodeJobError,
+                                  NotFoundError, ResponseConflictError)
 from app.utils.logging import logger
 from rq.exceptions import NoSuchJobError
 from werkzeug.wrappers import Request, Response
@@ -287,6 +288,12 @@ def handle_errors(f):
         except NoSuchLogArchiveError as exception:
             logger.exception(exception)
             return {"error_message": str(exception)}, 404
+        except NotFoundError:
+            logger.exception("ErrorMessage: Data Object Not Found")
+            return {"error_message": "Data Object Not Found"}, 404
+        except ResponseConflictError:
+            logger.exception("ErrorMessage: Response Conflict")
+            return {"error_message": "Response Conflict"}, 409
         except InternalServerError:
             logger.exception("ErrorMessage: Internal Server Error")
             return {"error_message": "Internal Server Error."}, 500

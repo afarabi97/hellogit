@@ -1,90 +1,47 @@
-import subprocess
-
-from app.common import (CONFLICT_RESPONSE, ERROR_RESPONSE, NO_CONTENT,
-                        NOTFOUND_RESPONSE)
-from app.middleware import login_required_roles
-from app.models.kit_tokens import kit_token, kit_token_list
-from app.utils.collections import mongo_kit_tokens
-from app.utils.logging import logger
-from app.utils.namespaces import TOKEN_NS
-from bson import ObjectId
-from flask import Response, request
+from app.middleware import handle_errors, login_required_roles
+from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
+from app.models.kit_tokens import KitTokenModel, KitTokenSchemaModel
+from app.service.kit_tokens_service import (delete_kit_tokens, get_kit_tokens,
+                                            post_kit_tokens)
+from app.utils.namespaces import KIT_TOKEN_NS
+from app.utils.validation import required_params
+from flask import Response
 from flask_restx import Resource
 
 
-def generate_api_key(ipaddress: str):
-    api_gen_cmd = '/opt/tfplenum/.venv/bin/python3 /opt/sso-idp/gen_api_token.py --uid {} --roles "metrics" --displayName "Metrics Token" --exp 9999'.format(
-        ipaddress
-    )
-    proc = subprocess.Popen(
-        api_gen_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-    )
-    stdout, _ = proc.communicate()
-    return stdout.decode("utf-8").strip()
+@KIT_TOKEN_NS.route("")
+class KitTokensApi(Resource):
 
-
-@TOKEN_NS.route("")
-class KitTokens(Resource):
-    @TOKEN_NS.response(200, "The request succeeded, list kit tokens.", kit_token_list)
-    @TOKEN_NS.response(500, "The request failed, internal server error.")
-    @login_required_roles(
-        ["controller-admin", "controller-maintainer"], all_roles_req=False
-    )
+    @KIT_TOKEN_NS.doc(description="Get all kit tokens.")
+    @KIT_TOKEN_NS.response(200, "List KitTokenModel", [KitTokenModel.DTO])
+    @KIT_TOKEN_NS.response(500, "ErrorMessage: Internal Server Error", COMMON_ERROR_MESSAGE)
+    @login_required_roles(["controller-admin", "controller-maintainer"], all_roles_req=False)
+    @handle_errors
     def get(self) -> Response:
-        try:
-            response = []
-            for kit_token in mongo_kit_tokens().find():
-                kit_token_id = str(kit_token.pop("_id"))
-                kit_token["kit_token_id"] = kit_token_id
-                response.append(kit_token)
-            return response
-        except Exception as e:
-            logger.exception(e)
-        return ERROR_RESPONSE, 500
+        return get_kit_tokens(), 200
 
-    @TOKEN_NS.response(201, "The request succeeded, and a kit token was created.", kit_token)
-    @TOKEN_NS.response(500, "The request failed, internal server error.")
-    @TOKEN_NS.expect(kit_token, validate=True)
-    @login_required_roles(
-        ["controller-admin", "controller-maintainer"], all_roles_req=False
-    )
+
+    @KIT_TOKEN_NS.doc(description="Post a kit token from passed payload.")
+    @KIT_TOKEN_NS.doc(payload=KitTokenModel)
+    @KIT_TOKEN_NS.response(201, "KitTokenModel", KitTokenModel.DTO)
+    @KIT_TOKEN_NS.response(409, "ErrorMessage: Response Conflict", COMMON_ERROR_MESSAGE)
+    @KIT_TOKEN_NS.response(500, "ErrorMessage: Internal Server Error", COMMON_ERROR_MESSAGE)
+    @login_required_roles(["controller-admin", "controller-maintainer"], all_roles_req=False)
+    @required_params(KitTokenSchemaModel())
+    @handle_errors
     def post(self) -> Response:
-        try:
-            data = request.get_json()
-            kit_token = data.copy()
-            kit_token["token"] = generate_api_key(kit_token["ipaddress"])
-
-            if mongo_kit_tokens().find_one({"ipaddress": kit_token["ipaddress"]}):
-                return CONFLICT_RESPONSE
-
-            object_id = ObjectId()
-            kit_token["_id"] = object_id
-            mongo_kit_tokens().insert_one(kit_token)
-
-            kit_token["kit_token_id"] = str(object_id)
-            del kit_token["_id"]
-
-            return (kit_token, 201)
-        except Exception as e:
-            logger.exception(e)
-        return ERROR_RESPONSE, 500
+        return post_kit_tokens(KIT_TOKEN_NS.payload), 201
 
 
-@TOKEN_NS.route("/<kit_token_id>")
-class KitTokens(Resource):
-    @TOKEN_NS.response(204, "Request succeeded, There is no content to return.")
-    @TOKEN_NS.response(500, "The request failed, internal server error.")
-    @login_required_roles(
-        ["controller-admin", "controller-maintainer"], all_roles_req=False
-    )
-    def delete(self, kit_token_id) -> Response:
-        try:
-            document = mongo_kit_tokens().delete_one(
-                {"_id": ObjectId(kit_token_id)})
-            if document.deleted_count == 0:
-                return NOTFOUND_RESPONSE
-            else:
-                return NO_CONTENT
-        except Exception as e:
-            logger.exception(e)
-        return ERROR_RESPONSE, 500
+@KIT_TOKEN_NS.route("/<kit_token_id>")
+@KIT_TOKEN_NS.doc(params={"kit_token_id": "A kit token used for delete"})
+class KitTokensApi(Resource):
+
+    @KIT_TOKEN_NS.doc(description="Delete a kit token by ID.")
+    @KIT_TOKEN_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
+    @KIT_TOKEN_NS.response(404, "ErrorMessage: Data Object Not Found", COMMON_ERROR_MESSAGE)
+    @KIT_TOKEN_NS.response(500, "ErrorMessage: Internal Server Error", COMMON_ERROR_MESSAGE)
+    @login_required_roles(["controller-admin", "controller-maintainer"], all_roles_req=False)
+    @handle_errors
+    def delete(self, kit_token_id: str) -> Response:
+        return delete_kit_tokens(kit_token_id), 200

@@ -7,15 +7,15 @@ from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_CREATE,
                                  NODE_TYPES)
 
 
-def post_mip(configuration: Dict) -> JobIDModel:
-    mip = __add_mip_to_database(configuration)
+def post_mip(payload: Dict) -> JobIDModel:
+    mip = __add_mip_to_database(payload)
     job = __deploy_mip(mip)
     return job
 
 
-def __add_mip_to_database(configuration: Dict) -> Node:
-    configuration['node_type'] = NODE_TYPES.mip.value
-    mip = Node.load_node_from_request(configuration)
+def __add_mip_to_database(payload: Dict) -> Node:
+    payload['node_type'] = NODE_TYPES.mip.value
+    mip = Node.load_node_from_request(payload)
     mip.create()
     send_notification()
     return mip

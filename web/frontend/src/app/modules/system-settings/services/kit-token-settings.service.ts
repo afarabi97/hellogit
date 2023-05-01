@@ -4,8 +4,8 @@ import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
-import { KitTokenClass } from '../../../classes';
-import { EntityConfig, KitTokenInterface } from '../../../interfaces';
+import { KitTokenClass, SuccessMessageClass } from '../../../classes';
+import { EntityConfig, KitTokenInterface, SuccessMessageInterface } from '../../../interfaces';
 import { ApiService } from '../../../services/abstract/api.service';
 import { KitTokenSettingsServiceInterface } from '../interfaces/service-interfaces/kit-token-settings-service.interface';
 
@@ -40,8 +40,10 @@ export class KitTokenSettingsService extends ApiService<any> implements KitToken
     );
   }
 
-  delete_kit_token(kit_token_id: string): Observable<null> {
+  delete_kit_token(kit_token_id: string): Observable<SuccessMessageClass> {
     const url = `${environment.KIT_TOKENS_SETTINGS_SERVICE}/${kit_token_id}`;
-    return this.httpClient_.delete(url).pipe(catchError((error: HttpErrorResponse) => this.handleError('delete kit_token', error)));
+    return this.httpClient_.delete<SuccessMessageInterface>(url)
+                           .pipe(map((kt: SuccessMessageInterface) => new SuccessMessageClass(kt)),
+                                 catchError((error: HttpErrorResponse) => this.handleError('delete kit_token', error)));
   }
 }

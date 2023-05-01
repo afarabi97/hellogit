@@ -1,18 +1,22 @@
-from app.utils.namespaces import TOKEN_NS
+from app.models import Model
+from app.utils.constants import IP_ADDRESS_PATTERN
+from app.utils.namespaces import KIT_TOKEN_NS
 from flask_restx import fields
+from marshmallow import Schema
+from marshmallow import fields as marsh_fields
 
-IP_ADDRESS_PATTERN = "^(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])$"
 
-kit_token = TOKEN_NS.model(
-    "KitToken",
-    {
-        "ipaddress": fields.String(pattern=IP_ADDRESS_PATTERN),
-        "kit_token_id": fields.String(required=False),
-    },
-    strict=True,
-)
+class KitTokenSchemaModel(Schema):
+    ipaddress = marsh_fields.IPv4(required=True)
+    kit_token_id = marsh_fields.Str(required=False)
 
-kit_token_list = TOKEN_NS.schema_model(
-    "KitTokenList", {"type": "array", "items": {
-        "$ref": "#/definitions/KitToken"}}
-)
+class KitTokenModel(Model):
+    schema = KitTokenSchemaModel()
+    DTO = KIT_TOKEN_NS.model('KitTokenModel', {
+        "ipaddress": fields.String(required=True, pattern=IP_ADDRESS_PATTERN, example="10.40.12.146", description="The static IP Address of the kit token."),
+        "kit_token_id": fields.String(required=False)
+    })
+
+    def __init__(self, ipaddress: str, kit_token_id: str):
+        self.DTO["ipaddress"] = ipaddress
+        self.DTO["kit_token_id"] = kit_token_id

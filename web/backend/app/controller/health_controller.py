@@ -339,7 +339,6 @@ class SuricataPackets(Resource):
                 for node in nodes:
                     node_name = node["node_name"]
                     total_packets, total_dropped = get_suricata_stats(node)
-                    print(total_packets, total_dropped)
                     percent_dropped = (
                         total_dropped / total_packets * 100 if total_packets > 0 else 0
                     )
