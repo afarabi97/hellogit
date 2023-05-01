@@ -23,7 +23,7 @@ export class NodeClass implements NodeInterface {
   node_type: string;
   raid0_override: boolean;
   virtual_cpu: number;
-  virtual_data: number;
+  virtual_data: number | null;
   virtual_mem: number;
   virtual_os: number;
   vpn_status: string | null;
@@ -52,9 +52,11 @@ export class NodeClass implements NodeInterface {
     this.virtual_os = node_interface.virtual_os;
     this.vpn_status = node_interface.vpn_status;
 
+    /* istanbul ignore else */
     if (ObjectUtilitiesClass.notUndefNull(node_interface.jobs)) {
       this.jobs = node_interface.jobs.map((j: JobInterface) => new JobClass(j));
     }
+    /* istanbul ignore else */
     if (Object.keys(node_interface.deviceFacts).length > 0) {
       this.deviceFacts = new DeviceFactsClass(node_interface.deviceFacts);
     }

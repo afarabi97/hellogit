@@ -83,10 +83,10 @@ export class VirtualNodeFormComponent {
     if (event.value === VIRTUAL) {
       virtual_cpu.setValidators(Validators.compose([validateFromArray(addNodeValidators.virtual_cpu)]));
       virtual_mem.setValidators(Validators.compose([validateFromArray(addNodeValidators.virtual_mem)]));
-      virtual_os.setValidators(Validators.compose([validateFromArray(addNodeValidators.os_drive)]));
+      virtual_os.setValidators(Validators.compose([validateFromArray(addNodeValidators.virtual_os_drive)]));
       /* istanbul ignore else */
       if (ObjectUtilitiesClass.notUndefNull(virtual_data)) {
-        virtual_data.setValidators(Validators.compose([validateFromArray(addNodeValidators.data_drive)]));
+        virtual_data.setValidators(Validators.compose([validateFromArray(addNodeValidators.virtual_data_drive)]));
       }
     } else {
       virtual_cpu.clearValidators();

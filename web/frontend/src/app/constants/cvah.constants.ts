@@ -124,14 +124,16 @@ export const FALSE: string = 'false';
 
 // Node Deployment Options
 export const VIRTUAL: string = 'Virtual';
+export const VIRTUAL_MACHINE: string = 'Virtual Machine';
 export const BAREMETAL: string = 'Baremetal';
+export const ISO: string = 'Iso';
+export const ISO_REMOTE_SENSOR_DOWNLOAD: string = 'Iso Remote Sensor Download';
 export const SERVER: string = 'Server';
 export const SENSOR: string = 'Sensor';
 export const SERVICE: string = 'Service';
 export const MIP: string = 'MIP';
 export const MINIO: string = 'MinIO';
 export const CONTROL_PLANE: string = 'Control-Plane';
-export const LTAC: string = 'LTAC';
 
 // Node State
 export const ERROR: string = 'Error';
@@ -145,7 +147,13 @@ export const DEPLOY: string = 'deploy';
 export const CANCEL: string = 'cancel';
 export const DEPLOYMENT_OPTIONS: MatOptionInterface[] = [
   { name: BAREMETAL, value: BAREMETAL },
-  { name: 'Virtual Machine', value: VIRTUAL }
+  { name: VIRTUAL_MACHINE, value: VIRTUAL }
+];
+export const DEPLOYMENT_OPTIONS_NODE: MatOptionInterface[] = [
+  { name: BAREMETAL, value: BAREMETAL, disabled: false },
+  { name: VIRTUAL_MACHINE, value: VIRTUAL, disabled: false },
+  { name: VIRTUAL_MACHINE, value: VIRTUAL, disabled: true },
+  { name: ISO_REMOTE_SENSOR_DOWNLOAD, value: ISO, disabled: false }
 ];
 export const NODE_TYPES: string[] = [SERVER, SENSOR, MIP, CONTROL_PLANE]; //Added MIP
 

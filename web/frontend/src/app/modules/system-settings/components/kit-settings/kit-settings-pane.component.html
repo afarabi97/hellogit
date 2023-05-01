@@ -1,4 +1,4 @@
-<mat-card [formGroup]="kitForm">
+<mat-card>
   <mat-card-header *ngIf="hasTitle">
     <mat-card-title>
       <a id="app-settings-kitsettings-form-mat-card-mat-card-header-mat-card-title-a" (click)="toggleCard()">
@@ -10,7 +10,7 @@
         </a>
     </mat-card-title>
   </mat-card-header>
-  <mat-card-content *ngIf="isCardVisible || !hasTitle" fxLayout="column" fxLayoutAlign="space-around stretch">
+  <mat-card-content *ngIf="(isCardVisible || !hasTitle) && kitForm" fxLayout="column" fxLayoutAlign="space-around stretch">
     <form [formGroup]="kitForm">
       <div fxLayout="column" fxLayoutAlign="start stretch">
         <p>Requires General Settings to be completed</p>

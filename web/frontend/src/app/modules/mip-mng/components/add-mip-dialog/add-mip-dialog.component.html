@@ -32,7 +32,7 @@
     <div style="margin-top: 10px;">
       <label id="deployment-radio-group-label">Deployment Type</label>
       <mat-radio-group class="radio-group" aria-labelledby="deployment-radio-group-label"
-        (change)="deployment_type_change($event)"
+        (change)="change_deployment_type($event)"
         formControlName="deployment_type"
         fxLayout="column" fxLayoutAlign="space-between none" >
         <mat-radio-button class="radio-button" *ngFor="let opt of deployment_options" [value]="opt.value">
@@ -43,7 +43,7 @@
 
     <cvah-virtual-node-form #virtualNodeForm
                             [node_form_group]="node_form_group"
-                            [is_visible]="is_virtual_deployment()">
+                            [is_visible]="is_virtual_machine_deployment()">
     </cvah-virtual-node-form>
 
     <ng-container *ngIf="is_baremetal_deployment()">

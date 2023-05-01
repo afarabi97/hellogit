@@ -8,4 +8,5 @@
 export interface MatOptionInterface {
   value: string;
   name?: string;
+  disabled?: boolean;
 }

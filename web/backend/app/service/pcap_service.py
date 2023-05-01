@@ -450,7 +450,7 @@ class ArkimeReplayer:
             shutil.rmtree(self.tmp_dir)
 
 
-@ job("default", connection=REDIS_CLIENT, timeout="30m")
+@job("default", connection=REDIS_CLIENT, timeout="30m")
 def replay_pcap_using_preserve_timestamp(payload: Dict, root_password: str):
     get_app_context().push()
     replay = PCAPReplayModel(payload)

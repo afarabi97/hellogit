@@ -178,6 +178,7 @@ describe('VirtualNodeFormComponent', () => {
         component.set_default_values(SERVICE);
         component.set_default_values(MINIO);
         component.node_form_group = node_form_group_without_data;
+        // Will need LTAC added
         component.set_default_values(MIP);
         component.set_default_values(CONTROL_PLANE);
 

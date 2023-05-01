@@ -4,8 +4,8 @@ import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { GeneralSettingsClass, GenericJobAndKeyClass, KitStatusClass, MipSettingsClass, NodeClass } from '../classes';
-import { EntityConfig, GeneralSettingsInterface, GenericJobAndKeyInterface, KitStatusInterface, MipSettingsInterface, NodeInterface } from '../interfaces';
+import { GeneralSettingsClass, GenericJobAndKeyClass, KitSettingsClass, KitStatusClass, MipSettingsClass, NodeClass } from '../classes';
+import { EntityConfig, GeneralSettingsInterface, GenericJobAndKeyInterface, KitSettingsInterface, KitStatusInterface, MipSettingsInterface, NodeInterface } from '../interfaces';
 import { ApiService } from './abstract/api.service';
 
 const ENTITY_CONFIG: EntityConfig = { entityPart: '', type: 'KitSettingsService' };
@@ -53,9 +53,11 @@ export class KitSettingsService extends ApiService<any> {
     return this.httpClient_.post(url, settingsForm).pipe();
   }
 
-  getKitSettings(): Observable<Object> {
+  getKitSettings(): Observable<KitSettingsClass> {
     const url = `/api/settings/kit`;
-    return this.httpClient_.get(url).pipe();
+    return this.httpClient_.get<KitSettingsInterface>(url)
+      .pipe(map((response: KitSettingsInterface) => new KitSettingsClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('get kit settings', error)));
   }
 
   updateKitSettings(settingsForm): Observable<Object> {
@@ -107,9 +109,12 @@ export class KitSettingsService extends ApiService<any> {
     return this.httpClient_.post(url, null).pipe();
   }
 
-  addNode(payload): Observable<Object> {
+  addNode(payload): Observable<GenericJobAndKeyClass> {
     const url = `/api/kit/node`;
-    return this.httpClient_.post(url, payload).pipe();
+
+    return this.httpClient_.post<GenericJobAndKeyInterface>(url, payload)
+      .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('delete node', error)));
   }
 
   updateGatherFacts(node: string): Observable<Object> {
@@ -131,7 +136,7 @@ export class KitSettingsService extends ApiService<any> {
 
   deleteNode(hostname: string): Observable<GenericJobAndKeyClass> {
     const url = `/api/kit/node/${hostname}`;
-    return this.httpClient_.delete(url)
+    return this.httpClient_.delete<GenericJobAndKeyInterface>(url)
       .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
             catchError((error: HttpErrorResponse) => this.handleError('delete node', error)));
   }

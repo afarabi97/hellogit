@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import * as FileSaver from 'file-saver';
 
-import { JobClass, KitSettingsClass, KitStatusClass, NodeClass } from '../../classes';
+import { ErrorMessageClass, JobClass, KitSettingsClass, KitStatusClass, NodeClass, ObjectUtilitiesClass } from '../../classes';
 import { ConfirmDialogMatDialogDataInterface, ServerStdoutMatDialogDataInterface } from '../../interfaces';
 import { CatalogService } from '../../services/catalog.service';
 import { KitSettingsService } from '../../services/kit-settings.service';
@@ -17,10 +17,15 @@ import {
 } from '../global-components/components/node-state-progress-bar/node-state-progress-bar.component';
 import { ServerStdoutComponent } from '../server-stdout/server-stdout.component';
 import { AddNodeDialogComponent } from './components/add-node-dialog/add-node-dialog.component';
+import { CONTROL_PLANE, MAT_SNACKBAR_CONFIGURATION_60000_DUR, MINIO, SENSOR, SERVER, SERVICE } from 'src/app/constants/cvah.constants';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AddNodeMatDialogDataInterface } from './interfaces/add-node-mat-dialog-data.interface';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 
 const DIALOG_WIDTH = '1000px';
 
+@UntilDestroy({ checkProperties: true })
 @Component({
   selector: 'app-node-mng',
   templateUrl: './node-mng.component.html'
@@ -30,13 +35,14 @@ export class NodeManagementComponent implements OnInit {
   @ViewChildren('progressCircles') public progress_circles: NodeStateProgressBarComponent[];
   nodesColumns = ['hostname', 'ip_address', 'node_type', 'deployment_type', 'state', 'actions'];
   setupNodesColumns = ['hostname', 'node_type', 'state'];
-  nodes: NodeClass[] = [];
+  nodes: NodeClass[];
+  nodes_filtered: NodeClass[] = [];
   controlPlaneNodes: any[] = [];
   controllerMaintainer: boolean;
   ioConnection: any;
   isoSensorExists: boolean = false;
   kitStatus: Partial<KitStatusClass> = {};
-  kitSettings: Partial<KitSettingsClass> = {};
+  kitSettings: KitSettingsClass;
   buttonisDisabled: boolean = true;
 
   constructor(public _WebsocketService:WebsocketService,
@@ -44,9 +50,32 @@ export class NodeManagementComponent implements OnInit {
               private matSnackBarSrv: MatSnackBarService,
               private userService: UserService,
               private dialog: MatDialog,
-              private kitSettingsSvc: KitSettingsService,
-              private _CatalogService: CatalogService) {
+              private kit_settings_service_: KitSettingsService,
+              private _CatalogService: CatalogService,
+              private mat_snackbar_service_: MatSnackBarService) {
     this.controllerMaintainer = this.userService.isControllerMaintainer();
+    this.nodes = [];
+  }
+
+  ngOnInit() {
+    this.title.setTitle('Node Management');
+    this.socketRefresh();
+    this.getKitStatus();
+    this.getNodeData();
+    this.kit_settings_service_.getKitSettings()
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: KitSettingsClass) => {
+          this.kitSettings = response;
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = 'retrieving kit settings';
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        });
   }
 
   disabledRKbutton(){
@@ -78,17 +107,6 @@ export class NodeManagementComponent implements OnInit {
     return true;
   }
 
-  ngOnInit() {
-    this.title.setTitle('Node Management');
-    this.socketRefresh();
-    this.getKitStatus();
-    this.getNodeData();
-
-    this.kitSettingsSvc.getKitSettings().subscribe((data) => {
-      this.kitSettings = data;
-    });
-  }
-
   canGatherFacts(node: NodeClass): boolean{
     if (node.isDeployed) {
       return true;
@@ -97,7 +115,7 @@ export class NodeManagementComponent implements OnInit {
   }
 
   updateGatherFacts(node: NodeClass){
-    this.kitSettingsSvc.updateGatherFacts(node.hostname).subscribe(data => {
+    this.kit_settings_service_.updateGatherFacts(node.hostname).subscribe(data => {
       this.matSnackBarSrv.displaySnackBar(`Device facts job started for ${node.hostname} \
         Check Notifications for results.`);
     });
@@ -125,9 +143,14 @@ export class NodeManagementComponent implements OnInit {
   }
 
   addNode(){
-    const dialogRef = this.dialog.open(AddNodeDialogComponent, {
+    const add_node_mat_dialog_data: AddNodeMatDialogDataInterface = {
+      kit_settings: this.kitSettings,
+      nodes: this.nodes
+    };
+    this.dialog.open(AddNodeDialogComponent, {
       width: DIALOG_WIDTH,
-      data: 'Blank'
+      disableClose: true,
+      data: add_node_mat_dialog_data
     });
   }
 
@@ -189,7 +212,7 @@ export class NodeManagementComponent implements OnInit {
   }
 
   downloadOpenVPNCerts(node: NodeClass){
-    this.kitSettingsSvc.getNodeVpnConfig(node.hostname).subscribe(data => {
+    this.kit_settings_service_.getNodeVpnConfig(node.hostname).subscribe(data => {
       const config_blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
       FileSaver.saveAs(config_blob, `${node.hostname}.conf`);
       this.matSnackBarSrv.displaySnackBar(`Downloading VPN Config for ${node.hostname}`);
@@ -237,7 +260,7 @@ export class NodeManagementComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(response => {
       if (response === option2) {
-        this.kitSettingsSvc.deployKit().subscribe(data => {
+        this.kit_settings_service_.deployKit().subscribe(data => {
           const job_id = data['job_id'];
           this.open_job_server_std_out_console(job_id);
         });
@@ -249,7 +272,7 @@ export class NodeManagementComponent implements OnInit {
     if (this.kitStatus.base_kit_deployed){
       this.redeployKit();
     } else {
-      this.kitSettingsSvc.deployKit().subscribe(data => {
+      this.kit_settings_service_.deployKit().subscribe(data => {
         const job_id = data['job_id'];
         this.open_job_server_std_out_console(job_id);
       });
@@ -291,14 +314,14 @@ export class NodeManagementComponent implements OnInit {
     dialogRef.afterClosed().subscribe(response => {
       if (response === option2) {
         //TODO this method is currently stubbed out to be used to call REST
-        this.kitSettingsSvc.refreshKit().subscribe(data => {
+        this.kit_settings_service_.refreshKit().subscribe(data => {
         });
       }
     });
   }
 
   setupCtrlPlane(){
-    this.kitSettingsSvc.setupControlPlane().subscribe(data => {
+    this.kit_settings_service_.setupControlPlane().subscribe(data => {
     });
   }
 
@@ -335,7 +358,7 @@ export class NodeManagementComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(response => {
       if (response === confirm_dialog.option2) {
-        this.kitSettingsSvc.deleteNode(node.hostname).subscribe(data => {
+        this.kit_settings_service_.deleteNode(node.hostname).subscribe(data => {
           node.isRemoving = true;
         });
       }
@@ -363,7 +386,7 @@ export class NodeManagementComponent implements OnInit {
 
   private socketRefresh(){
     this._WebsocketService.getSocket().on('node-state-change', (data: any) => {
-      this.refreshNodes(data);
+      this.getNodeData();
 
     });
     this._WebsocketService.getSocket().on('kit-status-change', (data: any) => {
@@ -372,15 +395,27 @@ export class NodeManagementComponent implements OnInit {
   }
 
   private getKitStatus(){
-    this.kitSettingsSvc.getKitStatus().subscribe((data: KitStatusClass) => {
+    this.kit_settings_service_.getKitStatus().subscribe((data: KitStatusClass) => {
       this.kitStatus = data;
     });
   }
 
   private getNodeData(){
-      this.kitSettingsSvc.getNodes().subscribe((data: NodeClass[]) => {
-        this.refreshNodes(data);
-      });
+    this.kit_settings_service_.getNodes()
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: NodeClass[]) => {
+          this.nodes = response;
+          this.refreshNodes(response);
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = 'retrieving nodes';
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        });
   }
 
   private refreshNodes(data: NodeClass[]){
@@ -405,6 +440,6 @@ export class NodeManagementComponent implements OnInit {
       }
     }
     this.controlPlaneNodes = cpArray;
-    this.nodes = nodesArray;
+    this.nodes_filtered = nodesArray;
   }
 }

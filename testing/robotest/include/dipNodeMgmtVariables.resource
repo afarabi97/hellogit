@@ -24,4 +24,5 @@ ${locNodeMgmtAddNodeDialogIpAddressInput}           xpath=//cvah-unused-ipaddres
 ${locNodeMgmtAddNodeDialogIpAddressDropdownOpt1}    xpath=//mat-option[position()=1]/span
 ${tmplLocNodeMgmtAddNodeDialogRadioBtn}             xpath=//mat-radio-button[@value='~']
 ${locNodeMgmtAddNodeDialogVMRadioBtn}               xpath=//div[@class='mat-radio-container' and input[@value='Virtual']]
-${locNodeMgmtAddNodeDialogSubmitBtn}                xpath=//add-node-dialog//button/span[text()="Add"]
+${locNodeMgmtAddNodeDialogSubmitBtn}                xpath=//cvah-add-node-dialog//button/span[text()="Add"]
+${locNodeMgmtAddMipDialogSubmitBtn}                 xpath=//cvah-add-mip-dialog//button/span[text()="Add"]

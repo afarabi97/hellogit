@@ -20,7 +20,7 @@ export interface NodeInterface {
   node_type: string;
   raid0_override: boolean;
   virtual_cpu: number;
-  virtual_data: number;
+  virtual_data: number | null;
   virtual_mem: number;
   virtual_os: number;
   vpn_status: string | null;

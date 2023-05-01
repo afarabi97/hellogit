@@ -37,14 +37,15 @@ def test_post_mip_400_ValidationError(client: FlaskClient) -> None:
     assert response.json["messages"]
 
 
-def test_post_mip_400_PostValidationError(client: FlaskClient, mocker: MockerFixture, general_settings_form: MockGeneralSettingsFormModel, mip_schema_db_model: MipSchemaDBModel) -> None:
-    mips = [mip_schema_db_model]
-    error_message = ["Duplicate mip IP or hostname found. Only one is allowed."]
-    mocker.patch("app.models.nodes.GeneralSettingsForm.load_from_db", return_value=general_settings_form)
-    mocker.patch("app.models.nodes.Node.load_all_mips_from_db", return_value=mips)
-    response = client.post("/api/kit/mip", json=mock_mip_schema_1)
-    assert response.status_code == 400
-    assert response.json["post_validation"]["mip"] == error_message
+# Add Test back when LTAC readded
+# def test_post_mip_400_PostValidationError(client: FlaskClient, mocker: MockerFixture, general_settings_form: MockGeneralSettingsFormModel, mip_schema_db_model: MipSchemaDBModel) -> None:
+#     mips = [mip_schema_db_model]
+#     error_message = ["Duplicate mip IP or hostname found. Only one is allowed."]
+#     mocker.patch("app.models.nodes.GeneralSettingsForm.load_from_db", return_value=general_settings_form)
+#     mocker.patch("app.models.nodes.Node.load_all_mips_from_db", return_value=mips)
+#     response = client.post("/api/kit/mip", json=mock_mip_schema_1)
+#     assert response.status_code == 400
+#     assert response.json["post_validation"]["mip"] == error_message
 
 
 def test_post_mip_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:

@@ -5,9 +5,9 @@
   <br>
   <cvah-hive-settings></cvah-hive-settings>
   <br>
-  <app-kit-settings-pane (getSettings)="updateKitSettings($event)" [generalSettings]="generalSettings" [kitStatus]="kitStatus" [controllerInfo]="controllerInfo"></app-kit-settings-pane>
+  <app-kit-settings-pane (getSettings)="updateKitSettings($event)" (update_disable_buttons)="update_add_kit_button($event)" [generalSettings]="generalSettings" [kitStatus]="kitStatus" [controllerInfo]="controllerInfo" [kitSettings]="kitSettings"></app-kit-settings-pane>
   <br>
   <app-mip-settings-pane [generalSettings]="generalSettings" [kitStatus]="kitStatus"></app-mip-settings-pane>
   <br>
-  <app-kit-token-settings-pane [gipBuild]="kitSettings?.is_gip ? true : false"></app-kit-token-settings-pane>
+  <app-kit-token-settings-pane [gipBuild]="check_is_gip()" [disable_add_kit_button]="disable_add_kit_button"></app-kit-token-settings-pane>
 </div>

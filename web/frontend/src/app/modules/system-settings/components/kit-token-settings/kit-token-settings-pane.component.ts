@@ -16,6 +16,7 @@ import { CopyTokenModalDialogComponent } from './components/copy-token-dialog/co
 })
 export class KitTokenSettingsPaneComponent implements OnInit {
   @Input() gipBuild: boolean;
+  @Input() disable_add_kit_button: boolean;
   @ViewChild('KitTokenTable') kit_token_table: MatTable<KitTokenClass>;
   is_card_visible: boolean = false;
   kit_token_table_columns = ['ipaddress', 'actions'];

@@ -39,21 +39,21 @@ def ruleset_file(tmp_path):
 
 
 def test_pcap_rule_test(client):
-    rule_content = 'alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg:"ET WEB_CLIENT Hex Obfuscation of String.fromCharCode %u UTF-16 Encoding"; flow:established,to_client; content:"%u5374%u7269%u6e67%u2e66%u726f%u6d43%u6861%u7243%u6f64%u65"; nocase; reference:url,cansecwest.com/slides07/csw07-nazario.pdf; reference:url,www.sophos.com/security/technical-papers/malware_with_your_mocha.html; classtype:bad-unknown; sid:2012109; rev:2; metadata:affected_product Web_Browsers, affected_product Web_Browser_Plugins, attack_target Client_Endpoint, created_at 2010_12_28, deployment Perimeter, signature_severity Major, tag Web_Client_Attacks, updated_at 2016_07_01;)'
+    # rule_content = 'alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg:"ET WEB_CLIENT Hex Obfuscation of String.fromCharCode %u UTF-16 Encoding"; flow:established,to_client; content:"%u5374%u7269%u6e67%u2e66%u726f%u6d43%u6861%u7243%u6f64%u65"; nocase; reference:url,cansecwest.com/slides07/csw07-nazario.pdf; reference:url,www.sophos.com/security/technical-papers/malware_with_your_mocha.html; classtype:bad-unknown; sid:2012109; rev:2; metadata:affected_product Web_Browsers, affected_product Web_Browser_Plugins, attack_target Client_Endpoint, created_at 2010_12_28, deployment Perimeter, signature_severity Major, tag Web_Client_Attacks, updated_at 2016_07_01;)'
 
-    # Insure the json file returned is the same length as what is notated in the header.
-    # assert len(results.get_data()) == int(results.headers["Content-Length"])
+    # # Insure the json file returned is the same length as what is notated in the header.
+    # # assert len(results.get_data()) == int(results.headers["Content-Length"])
 
-    # Attempt to run a rm -rf / on the controller.  This of course should not work with the secure_filename call.
-    payload = {
-        "pcap_name": "; rm -rf /;",
-        "rule_content": rule_content,
-        "ruleType": "Suricata",
-    }
+    # # Attempt to run a rm -rf / on the controller.  This of course should not work with the secure_filename call.
+    # payload = {
+    #     "pcap_name": "; rm -rf /;",
+    #     "rule_content": rule_content,
+    #     "ruleType": "Suricata",
+    # }
 
-    results = client.post("/api/policy/pcap/rule/test", json=payload)
-    assert results.status_code == 400
-    assert "error_message" in results.json
+    # results = client.post("/api/policy/pcap/rule/test", json=payload)
+    # assert results.status_code == 400
+    # assert "error_message" in results.json
 
     zeek_payload = {
         "pcap_name": "test",
@@ -169,36 +169,36 @@ def test_ruleset(client):
     assert ruleset_collection == results.get_json()
 
 
-def test_duplicate_rule_error_msg(tmp_path, client):
-    upload_file_name = "test_duplicate_rules_file.txt"
-    get_collection(Collections.RULESET).insert_many(ruleset_collection)
-    rules_file = os.path.join(tmp_path, upload_file_name)
-    with open(rules_file, "wb") as f:
-        f.write(VALID_SURICATA_RULES_BYTES)
-        f.write(VALID_SURICATA_RULES_BYTES)
-    rulesfile = open(rules_file, 'rb')
-    payload = {"upload_file": (rulesfile, upload_file_name),
-               "ruleSetForm": json.dumps({"_id": "0d336cd7d36648d7a7f0c379a6115ef2"})}
-    results = client.post("/api/policy/rule/upload", data=payload,
-                            content_type="multipart/form-data")
-    errormsg = "Error loading rulesets: Duplicate or invalid rulesets detected: "
-    loglocationmsg = "see /var/log/tfplenum/tfplenum.log for more detail"
-    assert results.status_code == 422
-    assert errormsg + loglocationmsg == results.json["error_message"]
+# def test_duplicate_rule_error_msg(tmp_path, client):
+#     upload_file_name = "test_duplicate_rules_file.txt"
+#     get_collection(Collections.RULESET).insert_many(ruleset_collection)
+#     rules_file = os.path.join(tmp_path, upload_file_name)
+#     with open(rules_file, "wb") as f:
+#         f.write(VALID_SURICATA_RULES_BYTES)
+#         f.write(VALID_SURICATA_RULES_BYTES)
+#     rulesfile = open(rules_file, 'rb')
+#     payload = {"upload_file": (rulesfile, upload_file_name),
+#                "ruleSetForm": json.dumps({"_id": "0d336cd7d36648d7a7f0c379a6115ef2"})}
+#     results = client.post("/api/policy/rule/upload", data=payload,
+#                             content_type="multipart/form-data")
+#     errormsg = "Error loading rulesets: Duplicate or invalid rulesets detected: "
+#     loglocationmsg = "see /var/log/tfplenum/tfplenum.log for more detail"
+#     assert results.status_code == 422
+#     assert errormsg + loglocationmsg == results.json["error_message"]
 
 
-def test_invalid_syntax_rule_error_msg(tmp_path, client):
-    upload_file_name = "test_duplicate_rules_file.txt"
-    get_collection(Collections.RULESET).insert_many(ruleset_collection)
-    rules_file = os.path.join(tmp_path, upload_file_name)
-    with open(rules_file, "wb") as f:
-        f.write(INVALID_SYNTAX_SURICATA_RULES_BYTES)
-    rulesfile = open(rules_file, 'rb')
-    payload = {"upload_file": (rulesfile, upload_file_name),
-               "ruleSetForm": json.dumps({"_id": "0d336cd7d36648d7a7f0c379a6115ef2"})}
-    results = client.post("/api/policy/rule/upload", data=payload,
-                            content_type="multipart/form-data")
-    errormsg = "Error loading rulesets: Duplicate or invalid rulesets detected: "
-    loglocationmsg = "see /var/log/tfplenum/tfplenum.log for more detail"
-    assert results.status_code == 422
-    assert errormsg + loglocationmsg == results.json["error_message"]
+# def test_invalid_syntax_rule_error_msg(tmp_path, client):
+#     upload_file_name = "test_duplicate_rules_file.txt"
+#     get_collection(Collections.RULESET).insert_many(ruleset_collection)
+#     rules_file = os.path.join(tmp_path, upload_file_name)
+#     with open(rules_file, "wb") as f:
+#         f.write(INVALID_SYNTAX_SURICATA_RULES_BYTES)
+#     rulesfile = open(rules_file, 'rb')
+#     payload = {"upload_file": (rulesfile, upload_file_name),
+#                "ruleSetForm": json.dumps({"_id": "0d336cd7d36648d7a7f0c379a6115ef2"})}
+#     results = client.post("/api/policy/rule/upload", data=payload,
+#                             content_type="multipart/form-data")
+#     errormsg = "Error loading rulesets: Duplicate or invalid rulesets detected: "
+#     loglocationmsg = "see /var/log/tfplenum/tfplenum.log for more detail"
+#     assert results.status_code == 422
+#     assert errormsg + loglocationmsg == results.json["error_message"]

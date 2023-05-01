@@ -12,15 +12,11 @@ from app.models.job_id import JobIDModel
 from app.models.settings.esxi_settings import EsxiSettingsForm
 from app.models.settings.general_settings import GeneralSettingsForm
 from app.models.settings.kit_settings import KitSettingsForm
-from app.models.settings.minio_settings import RepoSettingsModel
 from app.models.settings.mip_settings import MipSettingsForm
-from app.service.elastic_service import setup_s3_repository
 from app.service.node_service import execute, send_notification
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.constants import DEPLOYMENT_JOBS
-from app.utils.elastic import Timeout, wait_for_elastic_cluster_ready
 from app.utils.logging import logger
-from app.utils.minio import MinIOManager
 from app.utils.namespaces import SETINGS_NS
 from flask import Response
 from flask_restx import Resource
@@ -90,8 +86,7 @@ def _test_esxi_client(esxi_settings: EsxiSettingsForm) -> dict:
                             datastores.append(ds.name)
                     if vmFolders:
                         for folder in vmFolders:
-                            if isinstance(folder, vim.Folder):
-                                folders.append(folder.name)
+                            _get_esxi_client_folders(folders=folders, folder=folder, folder_name_extended="")
                 except Exception as exc:
                     logger.error(str(exc))
                     pass
@@ -135,6 +130,15 @@ def _test_esxi_client(esxi_settings: EsxiSettingsForm) -> dict:
             pass
         logger.error(str(exc))
         return {"message": str(exc)}, 400
+
+def _get_esxi_client_folders(folders: list, folder, folder_name_extended: str) -> None:
+    if isinstance(folder, vim.Folder):
+        folder_name_extended = folder_name_extended + folder.name
+        folders.append(folder_name_extended)
+        if folder.childEntity:
+            folder_name_extended = folder_name_extended + "/"
+            for next_folder in folder.childEntity:
+                _get_esxi_client_folders(folders=folders, folder=next_folder, folder_name_extended=folder_name_extended)
 
 
 @SETINGS_NS.route("/general")

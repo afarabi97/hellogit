@@ -5,5 +5,5 @@
  * @interface PostValidationInterface
  */
 export interface PostValidationInterface {
-  post_validation: string | string[];
+  post_validation: string[] | object;
 }

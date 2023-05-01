@@ -33,7 +33,7 @@ import {
   NodeStateProgressBarComponent
 } from '../global-components/components/node-state-progress-bar/node-state-progress-bar.component';
 import { AddMipDialogComponent } from './components/add-mip-dialog/add-mip-dialog.component';
-import { MIP_MANAGEMENT__TITLE, MIP_TABLE_COLUMNS } from './constants/mip-mang.constant';
+import { MIP_MANAGEMENT_TITLE, MIP_TABLE_COLUMNS } from './constants/mip-mang.constant';
 
 /**
  * Component used for mip related methods
@@ -83,7 +83,7 @@ export class MipManagementComponent implements OnInit {
    * @memberof MipManagementComponent
    */
   ngOnInit(): void {
-    this.title_.setTitle(MIP_MANAGEMENT__TITLE);
+    this.title_.setTitle(MIP_MANAGEMENT_TITLE);
     this.websocket_get_socket_on_node_state_change_();
     this.api_get_nodes_();
     this.api_get_mip_settings_();
@@ -220,6 +220,35 @@ export class MipManagementComponent implements OnInit {
   }
 
   /**
+   * Used for constructing message displayed in a snackbar for post validation object
+   *
+   * @private
+   * @param {object} post_validation
+   * @param {string[]} post_validation_keys
+   * @return {string}
+   * @memberof MipManagementComponent
+   */
+  private construct_post_validation_error_message_(post_validation: object, post_validation_keys: string[]): string {
+    let message: string = '';
+    post_validation_keys.forEach((key: string, index: number) => {
+      const errors: string[] = post_validation[key];
+      errors.forEach((error: string, index_error: number) => {
+        message += `${key}:     ${error}`;
+        /* istanbul ignore else */
+        if (index_error !== (errors.length - 1)) {
+          message += `\n`;
+        }
+      });
+      /* istanbul ignore else */
+      if (index !== (post_validation_keys.length - 1)) {
+        message += `\n\n`;
+      }
+    });
+
+    return message;
+  }
+
+  /**
    * Used for setting up websocket on node state change so that html table data is updated
    *
    * @private
@@ -319,8 +348,14 @@ export class MipManagementComponent implements OnInit {
                 }
               });
               this.mat_snackbar_service_.displaySnackBar(error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            } else if (typeof error.post_validation === 'object') {
+              const post_validation: object = error.post_validation;
+              const post_validation_keys: string[] = Object.keys(post_validation);
+              const message: string = this.construct_post_validation_error_message_(post_validation, post_validation_keys);
+              this.mat_snackbar_service_.displaySnackBar(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
             } else {
-              this.mat_snackbar_service_.displaySnackBar(error.post_validation, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+              const message: string = 'Post validation message was not returned in correct format';
+              this.mat_snackbar_service_.displaySnackBar(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
             }
           } else {
             const message: string = 'adding mip';

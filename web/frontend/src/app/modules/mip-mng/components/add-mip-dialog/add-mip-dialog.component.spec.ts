@@ -9,12 +9,13 @@ import { throwError } from 'rxjs';
 import {
   MockErrorMessageClass,
   MockGeneralSettingsClass,
-  MockPostValidationString,
+  MockPostValidationObject,
   MockPostValidationStringArray,
   MockValidationErrorClass
 } from '../../../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { MockUnusedIpAddresses } from '../../../../../../static-data/return-data';
+import { PostValidationClass } from '../../../../classes';
 import { BAREMETAL, VIRTUAL } from '../../../../constants/cvah.constants';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
 import { addNodeValidators } from '../../../../validators/add-node.validator';
@@ -30,9 +31,9 @@ describe('AddMipDialogComponent', () => {
 
   // Setup spy references
   let spyNGOnInit: jasmine.Spy<any>;
-  let spyIsVirtualDeployment: jasmine.Spy<any>;
+  let spyIsVirtualMachineDeployment: jasmine.Spy<any>;
   let spyIsBaremetalDeployment: jasmine.Spy<any>;
-  let spyDeploymentTypeChange: jasmine.Spy<any>;
+  let spyChangeDeploymentType: jasmine.Spy<any>;
   let spyGetErrorMessage: jasmine.Spy<any>;
   let spyGetTooltip: jasmine.Spy<any>;
   let spyCancel: jasmine.Spy<any>;
@@ -40,12 +41,14 @@ describe('AddMipDialogComponent', () => {
   let spyDuplicateNodeChange: jasmine.Spy<any>;
   let spyInitializeNodeFormGroup: jasmine.Spy<any>;
   let spySetNodeFormGroup: jasmine.Spy<any>;
+  let spyConstructPostValidationErrorMessage: jasmine.Spy<any>;
   let spyApiGetGeneralSettings: jasmine.Spy<any>;
   let spyApiGetUnusedIpAddresses: jasmine.Spy<any>;
   let spyApiGetNodes: jasmine.Spy<any>;
   let spyApiAddMip: jasmine.Spy<any>;
 
   // Test Data
+  const post_validation_keys: string[] = Object.keys(MockPostValidationObject.post_validation);
   const mat_radio_change_baremetal: MatRadioChange = {
     source: {} as any,
     value: BAREMETAL
@@ -112,9 +115,9 @@ describe('AddMipDialogComponent', () => {
 
     // Add method spies
     spyNGOnInit = spyOn(component, 'ngOnInit').and.callThrough();
-    spyIsVirtualDeployment = spyOn(component, 'is_virtual_deployment').and.callThrough();
+    spyIsVirtualMachineDeployment = spyOn(component, 'is_virtual_machine_deployment').and.callThrough();
     spyIsBaremetalDeployment = spyOn(component, 'is_baremetal_deployment').and.callThrough();
-    spyDeploymentTypeChange = spyOn(component, 'deployment_type_change').and.callThrough();
+    spyChangeDeploymentType = spyOn(component, 'change_deployment_type').and.callThrough();
     spyGetErrorMessage = spyOn(component, 'get_error_message').and.callThrough();
     spyGetTooltip = spyOn(component, 'get_tooltip').and.callThrough();
     spyCancel = spyOn(component, 'cancel').and.callThrough();
@@ -122,6 +125,7 @@ describe('AddMipDialogComponent', () => {
     spyDuplicateNodeChange = spyOn(component, 'duplicate_node_change').and.callThrough();
     spyInitializeNodeFormGroup = spyOn<any>(component, 'initialize_node_form_group_').and.callThrough();
     spySetNodeFormGroup = spyOn<any>(component, 'set_node_form_group_').and.callThrough();
+    spyConstructPostValidationErrorMessage = spyOn<any>(component, 'construct_post_validation_error_message_').and.callThrough();
     spyApiGetGeneralSettings = spyOn<any>(component, 'api_get_general_settings_').and.callThrough();
     spyApiGetUnusedIpAddresses = spyOn<any>(component, 'api_get_unused_ip_addresses_').and.callThrough();
     spyApiGetNodes = spyOn<any>(component, 'api_get_nodes_').and.callThrough();
@@ -133,9 +137,9 @@ describe('AddMipDialogComponent', () => {
 
   const reset = () => {
     spyNGOnInit.calls.reset();
-    spyIsVirtualDeployment.calls.reset();
+    spyIsVirtualMachineDeployment.calls.reset();
     spyIsBaremetalDeployment.calls.reset();
-    spyDeploymentTypeChange.calls.reset();
+    spyChangeDeploymentType.calls.reset();
     spyGetErrorMessage.calls.reset();
     spyGetTooltip.calls.reset();
     spyCancel.calls.reset();
@@ -143,6 +147,7 @@ describe('AddMipDialogComponent', () => {
     spyDuplicateNodeChange.calls.reset();
     spyInitializeNodeFormGroup.calls.reset();
     spySetNodeFormGroup.calls.reset();
+    spyConstructPostValidationErrorMessage.calls.reset();
     spyApiGetGeneralSettings.calls.reset();
     spyApiGetUnusedIpAddresses.calls.reset();
     spyApiGetNodes.calls.reset();
@@ -182,30 +187,30 @@ describe('AddMipDialogComponent', () => {
       });
     });
 
-    describe('is_virtual_deployment()', () => {
-      it('should call is_virtual_deployment()', () => {
+    describe('is_virtual_machine_deployment()', () => {
+      it('should call is_virtual_machine_deployment()', () => {
         reset();
 
-        component.is_virtual_deployment();
+        component.is_virtual_machine_deployment();
 
-        expect(component.is_virtual_deployment).toHaveBeenCalled();
+        expect(component.is_virtual_machine_deployment).toHaveBeenCalled();
       });
 
-      it('should call is_virtual_deployment() and return true', () => {
+      it('should call is_virtual_machine_deployment() and return true', () => {
         reset();
 
         component['initialize_node_form_group_']();
         component.node_form_group.get('deployment_type').setValue(VIRTUAL);
-        const return_value: boolean = component.is_virtual_deployment();
+        const return_value: boolean = component.is_virtual_machine_deployment();
 
         expect(return_value).toBeTrue();
       });
 
-      it('should call is_virtual_deployment() and return false', () => {
+      it('should call is_virtual_machine_deployment() and return false', () => {
         reset();
 
         component.node_form_group = undefined;
-        const return_value: boolean = component.is_virtual_deployment();
+        const return_value: boolean = component.is_virtual_machine_deployment();
 
         expect(return_value).toBeFalse();
       });
@@ -240,8 +245,8 @@ describe('AddMipDialogComponent', () => {
       });
     });
 
-    describe('deployment_type_change()', () => {
-      it('should call deployment_type_change()', () => {
+    describe('change_deployment_type()', () => {
+      it('should call change_deployment_type()', () => {
         reset();
 
         component['initialize_node_form_group_']();
@@ -249,10 +254,23 @@ describe('AddMipDialogComponent', () => {
 
         fixture.detectChanges();
 
-        component.deployment_type_change(mat_radio_change_virtual);
-        component.deployment_type_change(mat_radio_change_baremetal);
+        component.change_deployment_type(mat_radio_change_virtual);
+        component.change_deployment_type(mat_radio_change_baremetal);
 
-        expect(component.deployment_type_change).toHaveBeenCalled();
+        expect(component.change_deployment_type).toHaveBeenCalled();
+      });
+
+      it('should call is_virtual_machine_deployment() from change_deployment_type()', () => {
+        reset();
+
+        component['initialize_node_form_group_']();
+        component.node_form_group.get('deployment_type').setValue(VIRTUAL);
+
+        fixture.detectChanges();
+
+        component.change_deployment_type(mat_radio_change_virtual);
+
+        expect(component.is_virtual_machine_deployment).toHaveBeenCalled();
       });
     });
 
@@ -406,6 +424,24 @@ describe('AddMipDialogComponent', () => {
         component['set_node_form_group_'](node_form_group_baremetal);
 
         expect(component.node_form_group).toEqual(node_form_group_baremetal);
+      });
+    });
+
+    describe('private construct_post_validation_error_message_()', () => {
+      it('should call construct_post_validation_error_message_()', () => {
+        reset();
+
+        component['construct_post_validation_error_message_'](MockPostValidationObject.post_validation, post_validation_keys);
+
+        expect(component['construct_post_validation_error_message_']).toHaveBeenCalled();
+      });
+
+      it('should call construct_post_validation_error_message_() and return error message', () => {
+        reset();
+
+        const return_value: string = component['construct_post_validation_error_message_'](MockPostValidationObject.post_validation, post_validation_keys);
+
+        expect(return_value.length > 0).toBeTrue();
       });
     });
 
@@ -657,7 +693,7 @@ describe('AddMipDialogComponent', () => {
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'addMip').and.returnValue(throwError(MockPostValidationString));
+        spyOn<any>(component['kit_settings_service_'], 'addMip').and.returnValue(throwError(new PostValidationClass('im a string error' as any)));
 
         component.node_form_group = node_form_group_virtual;
         component['api_add_mip_'](hostname);
@@ -671,6 +707,32 @@ describe('AddMipDialogComponent', () => {
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
         spyOn<any>(component['kit_settings_service_'], 'addMip').and.returnValue(throwError(MockPostValidationStringArray));
+
+        component.node_form_group = node_form_group_virtual;
+        component['api_add_mip_'](hostname);
+
+        expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
+      });
+
+      it('should call kit_settings_service_.addMip() and handle error response instance PostValidationClass object and call construct_post_validation_error_message_()', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['kit_settings_service_'], 'addMip').and.returnValue(throwError(MockPostValidationObject));
+
+        component.node_form_group = node_form_group_virtual;
+        component['api_add_mip_'](hostname);
+
+        expect(component['construct_post_validation_error_message_']).toHaveBeenCalled();
+      });
+
+      it('should call kit_settings_service_.addMip() and handle error response instance PostValidationClass object', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['kit_settings_service_'], 'addMip').and.returnValue(throwError(MockPostValidationObject));
 
         component.node_form_group = node_form_group_virtual;
         component['api_add_mip_'](hostname);

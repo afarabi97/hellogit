@@ -28,6 +28,6 @@
     </table>
 </mat-card-content>
   <mat-card-actions *ngIf="is_card_visible">
-    <button mat-raised-button color="primary" [disabled]=!gipBuild (click)=add_kit_token_dialog()>Add Kit</button>
+    <button mat-raised-button color="primary" [disabled]="!gipBuild || disable_add_kit_button" (click)="add_kit_token_dialog()">Add Kit</button>
 </mat-card-actions>
 </mat-card>

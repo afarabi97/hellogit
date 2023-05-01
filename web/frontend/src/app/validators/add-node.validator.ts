@@ -34,13 +34,13 @@ export const addNodeValidators = {
              error_message: 'You must enter a valid number for memory. A minimum of 8 GB of RAM is required.',
              validatorFn: 'pattern' }
   ],
-  os_drive: [
+  virtual_os_drive: [
     { error_message: 'OS drive is required', validatorFn: 'required' },
     { ops: { pattern: /([5-9][0-9])|([1-9][0-9]{2,})/ },
              error_message: 'You must enter a valid number for disk. A minimum of 50GB is required.',
              validatorFn: 'pattern' }
   ],
-  data_drive: [
+  virtual_data_drive: [
     { error_message: 'Data drive is required', validatorFn: 'required' },
     { ops: { pattern: /([5-9][0-9])|([1-9][0-9]{2,})/ },
              error_message: 'You must enter a valid number for disk. A minimum of 50GB is required.',

@@ -38,6 +38,10 @@ export class KitSettingsServiceSpy {
     (): Observable<GeneralSettingsClass> => this.call_fake_get_general_settings()
   );
 
+  addNode = jasmine.createSpy('addNode').and.callFake(
+    (payload): Observable<GenericJobAndKeyClass> => this.call_fake_add_node(payload)
+  );
+
   getNodes = jasmine.createSpy('getNodes').and.callFake(
     (): Observable<NodeClass[]> => this.call_fake_get_nodes()
   );
@@ -68,6 +72,10 @@ export class KitSettingsServiceSpy {
 
   call_fake_get_general_settings(): Observable<GeneralSettingsClass> {
     return of(MockGeneralSettingsClass);
+  }
+
+  call_fake_add_node(payload): Observable<GenericJobAndKeyClass> {
+    return of(MockGenericJobAndKeyClass);
   }
 
   call_fake_get_nodes(): Observable<NodeClass[]> {

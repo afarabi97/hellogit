@@ -8,7 +8,7 @@ import { PostValidationInterface } from '../interfaces';
  * @implements {PostValidationInterface}
  */
 export class PostValidationClass implements PostValidationInterface {
-  post_validation: string | string[];
+  post_validation: string[] | object;
 
   /**
    * Creates an instance of PostValidationClass.

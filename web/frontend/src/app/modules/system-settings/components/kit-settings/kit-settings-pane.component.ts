@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChange,
+  SimpleChanges
+} from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -10,7 +20,7 @@ import {
   ObjectUtilitiesClass
 } from '../../../../classes';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
-import { KitStatusInterface, ServerStdoutMatDialogDataInterface } from '../../../../interfaces';
+import { KitSettingsInterface, KitStatusInterface, ServerStdoutMatDialogDataInterface } from '../../../../interfaces';
 import { GlobalJobService } from '../../../../services/global-job.service';
 import { KitSettingsService } from '../../../../services/kit-settings.service';
 import { UserService } from '../../../../services/user.service';
@@ -30,10 +40,11 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
   @Input() generalSettings: Partial<GeneralSettingsClass> = {};
   @Input() kitStatus: Partial<KitStatusClass> = {};
   @Input() controllerInfo: any = {};
-  @Output() public getSettings = new EventEmitter<any>();
+  @Input() kitSettings: KitSettingsClass;
+  @Output() getSettings = new EventEmitter<KitSettingsClass>();
+  @Output() update_disable_buttons = new EventEmitter<boolean>();
 
   kitForm: FormGroup;
-  kitSettings: KitSettingsClass;
   dhcp_range_options: string[] = [];
   kubernetes_ip_options: string[] = [];
   unused_ip_addresses: string[] = [];
@@ -53,7 +64,8 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
               private global_job_service_: GlobalJobService,
               private kitSettingsSrv: KitSettingsService,
               private userService: UserService,
-              private dialog: MatDialog) {
+              private dialog: MatDialog,
+              private chanage_detector_ref_: ChangeDetectorRef) {
     this.hasTitle = true;
     this.controllerMaintainer = this.userService.isControllerMaintainer();
     this.job_id = null;
@@ -61,18 +73,20 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.socketRefresh();
-    this.createFormGroup();
   }
 
   ngAfterViewInit(): void {
-    this.kitSettingsSrv.getKitSettings().subscribe((data: KitSettingsClass) => {
-      this.kitSettings = data;
-      this.updateFormGroup();
-      this.checkJob();
-    });
+    this.chanage_detector_ref_.detectChanges();
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    const kit_settings_changes: SimpleChange = changes['kitSettings'];
+    /* istanbul ignore else */
+    if (ObjectUtilitiesClass.notUndefNull(kit_settings_changes) &&
+        kit_settings_changes.currentValue !== kit_settings_changes.previousValue) {
+      this.createFormGroup();
+      this.checkJob();
+    }
     if (ObjectUtilitiesClass.notUndefNull(this.kitStatus)) {
       this.checkJob();
     }
@@ -96,8 +110,10 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
 
     if(this.kitStatus.general_settings_configured){
       this.kitForm.enable();
+      this.update_disable_buttons.emit(false);
     } else{
       this.kitForm.disable();
+      this.update_disable_buttons.emit(true);
     }
 
     if (this.job_id && this.kitStatus.general_settings_configured){
@@ -106,10 +122,13 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
           this.kitJobRunning = true;
           this.kitButtonToolTip = 'Job is running...';
           this.kitForm.disable();
+          this.update_disable_buttons.emit(true);
         } else{
           this.kitJobRunning = false;
           this.kitButtonToolTip = '';
           this.kitForm.enable();
+          this.update_disable_buttons.emit(false);
+          this.getSettings.emit(this.kitSettings);
           if (this.kitStatus.control_plane_deployed) {
             this.kitForm.get('kubernetes_services_cidr').disable();
             this.kitForm.get('password').disable();
@@ -146,9 +165,6 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
   }
 
   saveKitSettings() {
-    if (this.kitForm.get('is_gip').value == null || this.kitForm.get('is_gip').value === undefined){
-      this.kitForm.get('is_gip').setValue(false);
-    }
     if (!this.kitForm.get('upstream_ntp').value){
       this.kitForm.get('upstream_ntp').setValue(null);
     }
@@ -156,9 +172,9 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
       this.kitForm.get('upstream_dns').setValue(null);
     }
 
-    this.kitSettings = this.kitForm.getRawValue();
-    const form = this.kitForm.getRawValue();
-    form['is_gip'] = form['is_gip'] === "GIP" ? true: false;
+    const form = new Object(this.kitForm.getRawValue());
+    form['is_gip'] = form['is_gip'] === "GIP";
+    this.kitSettings = new KitSettingsClass(form as KitSettingsInterface);
 
     this.kitSettingsSrv.updateKitSettings(form).subscribe((data) => {
       const job_id = data['job_id'];
@@ -166,7 +182,6 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
       this.kitSettings.job_id = job_id;
       this.kitForm.disable();
       this.checkJob();
-      this.getSettings.emit(this.kitSettings);
     });
   }
 
@@ -214,38 +229,14 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
     });
   }
 
-
-  private updateFormGroup(){
-    if (!this.kitSettings || !this.kitForm){
-      return;
-    }
-    let is_gip = "DIP";
-    if (this.kitSettings.is_gip){
-      is_gip = this.kitSettings.is_gip ? "GIP": "DIP";
-    }
-
-    this.kitForm.get('password').setValue(this.kitSettings ? this.kitSettings.password : '');
-    this.kitForm.get('re_password').setValue(this.kitSettings ? this.kitSettings.password : '');
-    this.kitForm.get('upstream_ntp').setValue(this.kitSettings ? this.kitSettings.upstream_ntp : null);
-    this.kitForm.get('upstream_dns').setValue(this.kitSettings ? this.kitSettings.upstream_dns : null);
-    this.kitForm.get('kubernetes_services_cidr').setValue(this.kitSettings ? this.kitSettings.kubernetes_services_cidr : '');
-    this.kitForm.get('is_gip').setValue(is_gip);
-  }
-
   private createFormGroup() {
-    const password = new FormControl('');
-    const re_password = new FormControl('');
-
     this.kitForm = new FormGroup({
-      'password': password,
-      're_password': re_password,
-      'upstream_ntp': new FormControl(null,
-        Validators.compose([validateFromArray(kitSettingsValidators.upstream_ntp)])),
-      'upstream_dns': new FormControl(null,
-        Validators.compose([validateFromArray(kitSettingsValidators.upstream_dns)])),
-      'kubernetes_services_cidr': new FormControl('',
-        Validators.compose([validateFromArray(kitSettingsValidators.kubernetes_services_cidr)])),
-      'is_gip': new FormControl(null)
+      'password': new FormControl(this.kitSettings ? this.kitSettings.password : ''),
+      're_password': new FormControl(this.kitSettings ? this.kitSettings.password : ''),
+      'upstream_ntp': new FormControl(this.kitSettings ? this.kitSettings.upstream_ntp : null, Validators.compose([validateFromArray(kitSettingsValidators.upstream_ntp)])),
+      'upstream_dns': new FormControl(this.kitSettings ? this.kitSettings.upstream_dns : null, Validators.compose([validateFromArray(kitSettingsValidators.upstream_dns)])),
+      'kubernetes_services_cidr': new FormControl(this.kitSettings ? this.kitSettings.kubernetes_services_cidr : '', Validators.compose([validateFromArray(kitSettingsValidators.kubernetes_services_cidr)])),
+      'is_gip': new FormControl(this.kitSettings.is_gip ? "GIP": "DIP")
     });
 
     // Since re_password is dependent on password, the formcontrol for password must exist first. Then we can add the dependency for validation
@@ -257,8 +248,8 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
       validateFromArray(kitSettingsValidators.re_password,
         { parentControl: this.kitForm.get('password') })
     ]);
-    password.setValidators(root_verify);
-    re_password.setValidators(re_verify);
+    this.kitForm.get('password').setValidators(root_verify);
+    this.kitForm.get('re_password').setValidators(re_verify);
   }
 
   private socketRefresh(){

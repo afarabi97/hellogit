@@ -12,12 +12,12 @@ import {
   MockNodeSensorClassNoJobs,
   MockNodeServerClass,
   MockNodeServerClassCreateAlt,
-  MockPostValidationString,
+  MockPostValidationObject,
   MockPostValidationStringArray,
   MockValidationErrorClass
 } from '../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
-import { NodeClass } from '../../classes';
+import { NodeClass, PostValidationClass } from '../../classes';
 import { CANCEL_DIALOG_OPTION, CONFIRM_DIALOG_OPTION, VIRTUAL } from '../../constants/cvah.constants';
 import { ApiService } from '../../services/abstract/api.service';
 import { NodeManagementComponent } from '../node-mng/node-mng.component';
@@ -39,6 +39,7 @@ describe('MipManagementComponent', () => {
   let spyOpenAddMipDialogWindow: jasmine.Spy<any>;
   let spyUpdateMipsData: jasmine.Spy<any>;
   let spySetMips: jasmine.Spy<any>;
+  let spyConstructPostValidationErrorMessage: jasmine.Spy<any>;
   let spyWebsocketGetSocketOnNodeStateChange: jasmine.Spy<any>;
   let spyApiGetNodes: jasmine.Spy<any>;
   let spyApiGetMipSettings: jasmine.Spy<any>;
@@ -46,6 +47,7 @@ describe('MipManagementComponent', () => {
   let spyApiDeleteNode: jasmine.Spy<any>;
 
   // Test Data
+  const post_validation_keys: string[] = Object.keys(MockPostValidationObject.post_validation);
   const node_form_group_virtual: FormGroup = new FormGroup({
     hostname: new FormControl('test-node'),
     ip_address: new FormControl('10.40.31.5'),
@@ -92,6 +94,7 @@ describe('MipManagementComponent', () => {
     spyOpenAddMipDialogWindow = spyOn(component, 'open_add_mip_dialog_window').and.callThrough();
     spyUpdateMipsData = spyOn<any>(component, 'update_mips_data_').and.callThrough();
     spySetMips = spyOn<any>(component, 'set_mips_').and.callThrough();
+    spyConstructPostValidationErrorMessage = spyOn<any>(component, 'construct_post_validation_error_message_').and.callThrough();
     spyWebsocketGetSocketOnNodeStateChange = spyOn<any>(component, 'websocket_get_socket_on_node_state_change_').and.callThrough();
     spyApiGetNodes = spyOn<any>(component, 'api_get_nodes_').and.callThrough();
     spyApiGetMipSettings = spyOn<any>(component, 'api_get_mip_settings_').and.callThrough();
@@ -111,6 +114,7 @@ describe('MipManagementComponent', () => {
     spyOpenAddMipDialogWindow.calls.reset();
     spyUpdateMipsData.calls.reset();
     spySetMips.calls.reset();
+    spyConstructPostValidationErrorMessage.calls.reset();
     spyWebsocketGetSocketOnNodeStateChange.calls.reset();
     spyApiGetNodes.calls.reset();
     spyApiGetMipSettings.calls.reset();
@@ -353,6 +357,24 @@ describe('MipManagementComponent', () => {
       });
     });
 
+    describe('private construct_post_validation_error_message_()', () => {
+      it('should call construct_post_validation_error_message_()', () => {
+        reset();
+
+        component['construct_post_validation_error_message_'](MockPostValidationObject.post_validation, post_validation_keys);
+
+        expect(component['construct_post_validation_error_message_']).toHaveBeenCalled();
+      });
+
+      it('should call construct_post_validation_error_message_() and return error message', () => {
+        reset();
+
+        const return_value: string = component['construct_post_validation_error_message_'](MockPostValidationObject.post_validation, post_validation_keys);
+
+        expect(return_value.length > 0).toBeTrue();
+      });
+    });
+
     describe('private websocket_get_socket_on_node_state_change_()', () => {
       it('should call websocket_get_socket_on_node_state_change_()', () => {
         reset();
@@ -518,7 +540,7 @@ describe('MipManagementComponent', () => {
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'addMip').and.returnValue(throwError(MockPostValidationString));
+        spyOn<any>(component['kit_settings_service_'], 'addMip').and.returnValue(throwError(new PostValidationClass('im a string error' as any)));
 
         component['api_add_mip_'](node_form_group_virtual);
 
@@ -531,6 +553,30 @@ describe('MipManagementComponent', () => {
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
         spyOn<any>(component['kit_settings_service_'], 'addMip').and.returnValue(throwError(MockPostValidationStringArray));
+
+        component['api_add_mip_'](node_form_group_virtual);
+
+        expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
+      });
+
+      it('should call kit_settings_service_.addMip() and handle error response instance PostValidationClass object and call construct_post_validation_error_message_()', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['kit_settings_service_'], 'addMip').and.returnValue(throwError(MockPostValidationObject));
+
+        component['api_add_mip_'](node_form_group_virtual);
+
+        expect(component['construct_post_validation_error_message_']).toHaveBeenCalled();
+      });
+
+      it('should call kit_settings_service_.addMip() and handle error response instance PostValidationClass object', () => {
+        reset();
+
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['kit_settings_service_'], 'addMip').and.returnValue(throwError(MockPostValidationObject));
 
         component['api_add_mip_'](node_form_group_virtual);
 

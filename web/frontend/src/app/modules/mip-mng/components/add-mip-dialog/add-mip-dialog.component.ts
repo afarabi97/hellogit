@@ -104,10 +104,10 @@ export class AddMipDialogComponent implements OnInit {
    * @return {boolean}
    * @memberof AddMipDialogComponent
    */
-  is_virtual_deployment(): boolean {
+  is_virtual_machine_deployment(): boolean {
     return ObjectUtilitiesClass.notUndefNull(this.node_form_group) &&
-           this.node_form_group.get('deployment_type') ?
-             this.node_form_group.get('deployment_type').value === VIRTUAL : false;
+           this.node_form_group.get('deployment_type') &&
+           this.node_form_group.get('deployment_type').value === VIRTUAL;
   }
 
   /**
@@ -118,8 +118,8 @@ export class AddMipDialogComponent implements OnInit {
    */
   is_baremetal_deployment(): boolean {
     return ObjectUtilitiesClass.notUndefNull(this.node_form_group) &&
-           this.node_form_group.get('deployment_type') ?
-             this.node_form_group.get('deployment_type').value === BAREMETAL : false;
+           this.node_form_group.get('deployment_type') &&
+           this.node_form_group.get('deployment_type').value === BAREMETAL;
   }
 
   /**
@@ -128,19 +128,24 @@ export class AddMipDialogComponent implements OnInit {
    * @param {MatRadioChange} event
    * @memberof AddMipDialogComponent
    */
-  deployment_type_change(event: MatRadioChange): void {
+  change_deployment_type(event: MatRadioChange): void {
     this.api_get_nodes_();
     const mac_address: AbstractControl = this.node_form_group.get('mac_address');
     if (event.value === BAREMETAL) {
       mac_address.setValidators(Validators.compose([validateFromArray(addNodeValidators.mac_address,
-        { uniqueArray: this.validation_macs_ })]));
+                                                                      { uniqueArray: this.validation_macs_ })]));
     } else {
-      mac_address.setValidators(null);
+      mac_address.clearValidators();
     }
+    mac_address.markAsPristine();
+    mac_address.markAsUntouched();
     mac_address.updateValueAndValidity();
 
-    this.virtual_node_form_.set_default_values(MIP);
-    this.virtual_node_form_.set_virtual_form_validation(event);
+    /* istanbul ignore else */
+    if (this.is_virtual_machine_deployment()) {
+      this.virtual_node_form_.set_default_values(MIP);
+      this.virtual_node_form_.set_virtual_form_validation(event);
+    }
   }
 
   /**
@@ -241,6 +246,35 @@ export class AddMipDialogComponent implements OnInit {
   }
 
   /**
+   * Used for constructing message displayed in a snackbar for post validation object
+   *
+   * @private
+   * @param {object} post_validation
+   * @param {string[]} post_validation_keys
+   * @return {string}
+   * @memberof AddMipDialogComponent
+   */
+  private construct_post_validation_error_message_(post_validation: object, post_validation_keys: string[]): string {
+    let message: string = '';
+    post_validation_keys.forEach((key: string, index: number) => {
+      const errors: string[] = post_validation[key];
+      errors.forEach((error: string, index_error: number) => {
+        message += `${key}:     ${error}`;
+        /* istanbul ignore else */
+        if (index_error !== (errors.length - 1)) {
+          message += `\n`;
+        }
+      });
+      /* istanbul ignore else */
+      if (index !== (post_validation_keys.length - 1)) {
+        message += `\n\n`;
+      }
+    });
+
+    return message;
+  }
+
+  /**
    * Used for making api rest call to get general settings
    *
    * @private
@@ -327,7 +361,6 @@ export class AddMipDialogComponent implements OnInit {
    *
    * @private
    * @param {string} hostname
-   * @param {boolean} create_duplicate
    * @memberof AddMipDialogComponent
    */
   private api_add_mip_(hostname: string): void {
@@ -375,8 +408,14 @@ export class AddMipDialogComponent implements OnInit {
                 }
               });
               this.mat_snackbar_service_.displaySnackBar(error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+            } else if (typeof error.post_validation === 'object') {
+              const post_validation: object = error.post_validation;
+              const post_validation_keys: string[] = Object.keys(post_validation);
+              const message: string = this.construct_post_validation_error_message_(post_validation, post_validation_keys);
+              this.mat_snackbar_service_.displaySnackBar(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
             } else {
-              this.mat_snackbar_service_.displaySnackBar(error.post_validation, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+              const message: string = 'Post validation message was not returned in correct format';
+              this.mat_snackbar_service_.displaySnackBar(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
             }
           } else {
             const message: string = 'adding mip';

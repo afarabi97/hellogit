@@ -11,12 +11,15 @@ import { KitSettingsService } from '../../services/kit-settings.service';
 })
 export class SystemSettingsComponent implements OnInit {
   generalSettings: Partial<GeneralSettingsClass> = {};
-  kitSettings: Partial<KitSettingsClass> = {};
+  kitSettings: KitSettingsClass;
   kitStatus: Partial<KitStatusClass> = {};
   controllerInfo: any = {};
+  disable_add_kit_button: boolean;
 
   constructor(private title: Title,
-          private kitSettingsSrv: KitSettingsService) { }
+          private kitSettingsSrv: KitSettingsService) {
+    this.disable_add_kit_button = true;
+  }
 
   ngOnInit() {
     this.title.setTitle('System Settings');
@@ -30,6 +33,10 @@ export class SystemSettingsComponent implements OnInit {
     this.kitSettingsSrv.getControllerInfo().subscribe(data => {
       this.controllerInfo = data;
     });
+    this.kitSettingsSrv.getKitSettings().subscribe((data: KitSettingsClass) => {
+      this.kitSettings = data;
+      this.disable_add_kit_button = false;
+    });
   }
 
   public updateGeneralSettings(value: GeneralSettingsClass): void {
@@ -38,5 +45,13 @@ export class SystemSettingsComponent implements OnInit {
 
   public updateKitSettings(value: KitSettingsClass): void {
     this.kitSettings = value;
+  }
+
+  update_add_kit_button(event: boolean): void {
+    this.disable_add_kit_button = event;
+  }
+
+  check_is_gip(): boolean {
+    return this.kitSettings?.is_gip;
   }
 }
