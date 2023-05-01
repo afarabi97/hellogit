@@ -115,11 +115,15 @@ data:
       SSLCertificateKeyFile /etc/ssl/certs/container/tls.key
       SSLCertificateChainFile /etc/ssl/certs/container/ca.crt
 
-      ProxyPreserveHost On
-      ProxyPass /  http://127.0.0.1:{{ .Values.nifi_port }}/ retry=0
-      ProxyPassReverse / http://localhost:{{ .Values.nifi_port }}/
+      ProxyPreserveHost Off
+      SSLProxyEngine on
+      SSLProxyCheckPeerCN off
+      SSLProxyCheckPeerName off
+
+      ProxyPass /  https://${HOSTNAME}:{{ .Values.nifi_port }}/ retry=0
+      ProxyPassReverse / https://${HOSTNAME}:{{ .Values.nifi_port }}/
       RequestHeader add X-ProxyScheme "https"
-      RequestHeader add X-ProxyHost "nifi.{{ .Values.domain }}"
+      RequestHeader add X-ProxyHost "${HOSTNAME}"
       RequestHeader add X-ProxyPort "443"
 
       <If "-T req('Authorization')">

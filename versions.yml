@@ -31,7 +31,7 @@ docker_versions:
   elastic_operator: 1.9.1
   elastic_winlogbeat_version: "7.15.2"
   hive_cortex_version: 3.1.1-1
-  hive_version: 4.1.9-1
+  hive_version: 4.1.24-1
   k8s_coredns_version: "v1.8.6"
   k8s_etcd_version: "3.5.3-0"
   k8s_pause_version: "3.7"
@@ -44,7 +44,7 @@ docker_versions:
   misp_version: 2.4.148
   mongodb_version: 4.4.3
   nginx_version: 1.20.1
-  nifi_version: 1.12.1
+  nifi_version: 1.21.0
   python_version: 3.9.0
   redis_version: 6.2.5-alpine
   redmine_version: "4.2.1"
@@ -108,12 +108,12 @@ helm_versions:
   arkime: 1.0.4
   arkime_viewer: 1.0.4
   cortex: 1.0.5
-  hive: 1.0.6
+  hive: 1.0.7
   logstash: 1.0.4
   mattermost: 1.0.5
   misp: 1.0.7
   netflow_filebeat: 1.0.3
-  nifi: 1.0.4
+  nifi: 1.0.5
   redmine: 1.0.5
   remote_health_agent: 1.0.2
   rocketchat: 1.1.20

@@ -78,8 +78,8 @@ spec:
         - "-c"
         - "/setup.sh; /opt/nifi/scripts/start.sh"
         ports:
-        - name: http
-          containerPort: 8080
+        - name: https
+          containerPort: 8443
         env:
         - name: NIFI_WEB_HTTP_HOST
           value: localhost

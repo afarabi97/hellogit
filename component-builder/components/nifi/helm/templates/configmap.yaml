@@ -10,6 +10,7 @@ data:
     [ -f "${scripts_dir}/common.sh" ] && . "${scripts_dir}/common.sh"
 
     prop_replace 'nifi.flow.configuration.file' "./flowfile_repository/flow.xml.gz"
+    prop_replace 'nifi.security.allow.anonymous.authentication' "true"
 
     # WebCA truststore
     echo "Create WebCA TrustStore"
