@@ -1,10 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { GeneralSettingsClass, GenericJobAndKeyClass, KitSettingsClass, KitStatusClass, MipSettingsClass, NodeClass } from '../classes';
+import { GeneralSettingsClass, GenericJobAndKeyClass, KitSettingsClass, KitStatusClass, MipSettingsClass, NodeClass, ObjectUtilitiesClass } from '../classes';
 import { EntityConfig, GeneralSettingsInterface, GenericJobAndKeyInterface, KitSettingsInterface, KitStatusInterface, MipSettingsInterface, NodeInterface } from '../interfaces';
 import { ApiService } from './abstract/api.service';
 
@@ -56,7 +56,13 @@ export class KitSettingsService extends ApiService<any> {
   getKitSettings(): Observable<KitSettingsClass> {
     const url = `/api/settings/kit`;
     return this.httpClient_.get<KitSettingsInterface>(url)
-      .pipe(map((response: KitSettingsInterface) => new KitSettingsClass(response)),
+      .pipe(map((response: KitSettingsInterface) => {
+              if (ObjectUtilitiesClass.notUndefNull(response)) {
+                return new KitSettingsClass(response);
+              } else {
+                throwError({ "error_message": "Data has not been setup please update and save kit settings" });
+              }
+            }),
             catchError((error: HttpErrorResponse) => this.handleError('get kit settings', error)));
   }
 
@@ -70,7 +76,13 @@ export class KitSettingsService extends ApiService<any> {
   getMipSettings(): Observable<MipSettingsClass> {
     const url = `/api/settings/mip`;
     return this.httpClient_.get(url)
-      .pipe(map((response: MipSettingsInterface) => new MipSettingsClass(response)),
+      .pipe(map((response: MipSettingsInterface) => {
+              if (ObjectUtilitiesClass.notUndefNull(response)) {
+                return new MipSettingsClass(response);
+              } else {
+                throwError({ "error_message": "Data has not been setup please update and save mip settings" });
+              }
+            }),
             catchError((error: HttpErrorResponse) => this.handleError('get mip settings', error)));
   }
 
