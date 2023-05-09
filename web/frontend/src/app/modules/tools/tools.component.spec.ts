@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { remove_styles_from_dom } from '../../../../static-data/functions/clean-dom.function';
+import { TestingModule } from '../testing-modules/testing.module';
 import { ToolsFormComponent } from './tools.component';
 import { ToolsModule } from './tools.module';
 
@@ -14,7 +15,8 @@ describe('ToolsFormComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
-        ToolsModule
+        ToolsModule,
+        TestingModule
       ]
     }).compileComponents();
   }));

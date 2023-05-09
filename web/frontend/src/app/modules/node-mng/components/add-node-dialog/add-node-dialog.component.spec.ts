@@ -1,11 +1,17 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 
-import { MockKitStatusClass, MockKitStatusClassAlt } from '../../../../../../static-data/class-objects';
+import {
+  MockKitSettingsClass,
+  MockKitStatusClass,
+  MockKitStatusClassAlt,
+  MockNodeClassArray
+} from '../../../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
 import { DEPLOYMENT_OPTIONS_NODE, MINIO, SENSOR, VIRTUAL } from '../../../../constants/cvah.constants';
 import { TestingModule } from '../../../testing-modules/testing.module';
+import { AddNodeMatDialogDataInterface } from '../../interfaces/add-node-mat-dialog-data.interface';
 import { NodeMngModule } from '../../node-mng.module';
 import { AddNodeDialogComponent } from './add-node-dialog.component';
 
@@ -40,6 +46,10 @@ describe('AddNodeDialogComponent', () => {
   let spyApiAddNode: jasmine.Spy<any>;
 
   // Test Data
+  const MOCK_DIALOG_DATA__ADD_NODE_MAT_DIALOG_DATA: AddNodeMatDialogDataInterface = {
+    kit_settings: MockKitSettingsClass,
+    nodes: MockNodeClassArray
+  };
   const mat_radio_change_sensor: MatRadioChange = {
     source: {} as any,
     value: SENSOR
@@ -66,7 +76,8 @@ describe('AddNodeDialogComponent', () => {
         TestingModule
       ],
       providers: [
-        { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) }
+        { provide: MatDialogRef, useFactory: () => jasmine.createSpyObj('MatDialogRef', ['close', 'afterClosed']) },
+        { provide: MAT_DIALOG_DATA, useValue: MOCK_DIALOG_DATA__ADD_NODE_MAT_DIALOG_DATA }
       ]
     }).compileComponents();
   }));
