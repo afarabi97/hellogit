@@ -60,7 +60,6 @@ include:
   - local: component-builder/components/python/python.ci.yml
   - local: component-builder/components/remote-health-agent/remote-health-agent.ci.yml
   - local: component-builder/components/kubernetes/kubernetes.ci.yml
-  - local: component-builder/components/kubernetes/chartmuseum/chartmuseum.ci.yml
   - local: component-builder/components/elasticsearch/elasticsearch.ci.yml
   - local: component-builder/components/elasticsearch/logstash/logstash.ci.yml
   - local: component-builder/components/mariadb/mariadb.ci.yml
