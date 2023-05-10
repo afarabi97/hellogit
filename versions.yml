@@ -27,7 +27,7 @@ docker_versions:
   calico_version: "v3.23.2"
   cassandra_version: 4.0.1
   cert_manager_version: v1.5.4
-  elastic_7_version: "7.16.2"
+  elastic_7_version: "7.16.3"
   elastic_operator: 1.9.1
   elastic_winlogbeat_version: "7.15.2"
   hive_cortex_version: 3.1.1-1
@@ -107,19 +107,19 @@ setup_package_list:
 helm_versions:
   arkime: 1.0.4
   arkime_viewer: 1.0.4
-  cortex: 1.0.5
-  hive: 1.0.7
-  logstash: 1.0.4
+  cortex: 1.0.6
+  hive: 1.0.8
+  logstash: 1.0.6
   mattermost: 1.0.5
-  misp: 1.0.7
-  netflow_filebeat: 1.0.3
+  misp: 1.0.8
+  netflow_filebeat: 1.0.4
   nifi: 1.0.5
   redmine: 1.0.5
   remote_health_agent: 1.0.2
   rocketchat: 1.1.20
-  suricata: 1.0.3
+  suricata: 1.0.4
   wikijs: 1.0.4
-  zeek: 1.1.6
+  zeek: 1.1.7
 
 other:
   rpm_common_requirements: "docker-ce, docker-distribution, tfplenum"

@@ -9,6 +9,7 @@
       - component-builder/components/elasticsearch/logstash/helm/**/*
       - component-builder/components/elasticsearch/logstash/templates/Chart.yaml.j2
       - component-builder/components/elasticsearch/logstash/templates/values.yaml.j2
+      - versions.yml
   except:
     - tags
     - schedules

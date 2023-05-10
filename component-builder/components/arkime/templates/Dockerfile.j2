@@ -4,7 +4,11 @@ ARG MOLOCH_VERSION={{ context["docker_versions"]["arkime_version"] }}
 
 COPY run_moloch.sh /data/moloch/bin/run_moloch.sh
 
-RUN dnf install -y 'dnf-command(config-manager)' && dnf config-manager --set-enabled powertools && \
+RUN pushd /etc/yum.repos.d/ && \
+    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
+    popd && \
+    dnf install -y 'dnf-command(config-manager)' && dnf config-manager --set-enabled powertools && \
     dnf install -y epel-release && dnf install -y "https://s3.amazonaws.com/files.molo.ch/builds/centos-8/moloch-$MOLOCH_VERSION-1.x86_64.rpm" && dnf clean all && \
     curl -o /tmp/GeoLite2-Country.tar.gz "http://misc.labrepo.sil.lab/GeoLite2-Country.tar.gz" && \
     curl -o /tmp/GeoLite2-ASN.tar.gz "http://misc.labrepo.sil.lab/GeoLite2-ASN.tar.gz" && \

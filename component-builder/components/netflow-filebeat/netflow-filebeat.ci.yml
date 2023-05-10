@@ -9,6 +9,7 @@
       - component-builder/components/netflow-filebeat/helm/**/*
       - component-builder/components/netflow-filebeat/templates/Chart.yaml.j2
       - component-builder/components/netflow-filebeat/templates/values.yaml.j2
+      - versions.yml
   except:
     - tags
     - schedules

@@ -1,5 +1,5 @@
 $return_value = 0x00
-$file_beat_version = "7.16.2"
+$file_beat_version = "7.16.3"
 
 function set_filebeat_archive_name() {
     $arch = (Get-WmiObject Win32_Processor).AddressWidth
