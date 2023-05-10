@@ -363,6 +363,8 @@ export class CatalogPageComponent implements OnInit {
       title: `Advanced Configuration: ${this.chart_info.id.charAt(0).toUpperCase() + this.chart_info.id.slice(1)}`,
       text: this.get_value_form_group_json_object(node),
       use_language: 'json',
+      display_save: true,
+      disable_save: false,
       confirm_save: UPDATE_CONFIRM_ACTION_CONFIGURATION,
       confirm_close: CLOSE_CONFIRM_ACTION_CONFIGURATION
     };

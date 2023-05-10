@@ -13,6 +13,7 @@ export const TextEditorConfigurationAltActionFuncTrueInterface: TextEditorConfig
   title: 'Fake Title',
   text: 'Fake Code String',
   use_language: 'yaml',
+  display_save: true,
   disable_save: true,
   confirm_save: ConfirmActionConfigurationSaveAltActionFunctionTrueInterface,
   confirm_close: ConfirmActionConfigurationCloseAltActionFunctionTrueInterface
@@ -23,6 +24,7 @@ export const TextEditorConfigurationAltActionFuncFalseInterface: TextEditorConfi
   title: 'Fake Title',
   text: 'Fake Code String',
   use_language: 'yaml',
+  display_save: true,
   disable_save: false,
   confirm_save: ConfirmActionConfigurationSaveAltActionFunctionFalseInterface,
   confirm_close: ConfirmActionConfigurationCloseAltActionFunctionFalseInterface
@@ -33,5 +35,6 @@ export const TextEditorConfigurationNoConfirmActionsInterface: TextEditorConfigu
   title: 'Fake Title',
   text: 'Fake Code String',
   use_language: 'yaml',
+  display_save: true,
   disable_save: false
 };

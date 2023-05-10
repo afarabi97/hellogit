@@ -70,8 +70,10 @@ export class ElasticsearchScaleComponent implements OnInit {
   status: boolean;
   // Used for turning on and off the progress bar within html
   loading: boolean;
-  // Used for retaining if user is maintainer
+  // Used for disabling or allowing particular button or features to controller maintainer
   private controller_maintainer_: boolean;
+  // Used for disabling or allowing particular button or features to controller admin
+  private controller_admin_: boolean;
 
   /**
    * Creates an instance of ElasticsearchScaleComponent.
@@ -97,6 +99,7 @@ export class ElasticsearchScaleComponent implements OnInit {
     this.status = false;
     this.loading = true;
     this.controller_maintainer_ = this.user_service_.isControllerMaintainer();
+    this.controller_admin_ = this.user_service_.isControllerAdmin();
   }
 
   /**
@@ -190,12 +193,13 @@ export class ElasticsearchScaleComponent implements OnInit {
    */
   private open_text_editor_(elasticsearch_configuration: ElasticsearchConfigurationClass): void {
     const text_editor_configuration: TextEditorConfigurationInterface = {
-      show_options: true,
-      is_read_only: false,
+      show_options: this.controller_maintainer_ || this.controller_admin_,
+      is_read_only: !this.controller_maintainer_ || !this.controller_admin_,
       title: 'Elasticsearch Configuration',
       text: elasticsearch_configuration.elastic,
       use_language: 'yaml',
-      disable_save: !this.controller_maintainer_,
+      display_save: this.controller_maintainer_ || this.controller_admin_,
+      disable_save: !this.controller_maintainer_ || !this.controller_admin_,
       confirm_save: SAVE_CONFIRM_ACTION_CONFIGURATION,
       confirm_close: CLOSE_CONFIRM_ACTION_CONFIGURATION
     };

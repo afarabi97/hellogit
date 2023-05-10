@@ -11,6 +11,7 @@ export interface TextEditorConfigurationInterface {
   text: string;
   use_language: string;
   title?: string;
+  display_save?: boolean;
   disable_save?: boolean;
   confirm_save?: ConfirmActionConfigurationInterface;
   confirm_close?: ConfirmActionConfigurationInterface;

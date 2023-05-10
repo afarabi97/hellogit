@@ -387,6 +387,7 @@ export class AgentBuilderChooserComponent implements OnInit {
           title: `Editing ${config_type}.yml`,
           text: data.content,
           use_language: 'yaml',
+          display_save: is_editable,
           disable_save: !is_editable,
           confirm_save: SAVE_CONFIRM_ACTION_CONFIGURATION,
           confirm_close: CLOSE_CONFIRM_ACTION_CONFIGURATION

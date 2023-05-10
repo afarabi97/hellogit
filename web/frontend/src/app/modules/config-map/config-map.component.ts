@@ -58,6 +58,8 @@ export class ConfigmapsComponent implements OnInit {
   config_map_visible: boolean[];
   // Used for disabling or allowing particular button or features to controller maintainer
   controller_maintainer: boolean;
+  // Used for disabling or allowing particular button or features to controller admin
+  controller_admin_: boolean;
 
   /**
    * Creates an instance of ConfigmapsComponent.
@@ -81,6 +83,7 @@ export class ConfigmapsComponent implements OnInit {
     this.config_map_visible = [];
     this.config_maps = [];
     this.controller_maintainer = this.user_service_.isControllerMaintainer();
+    this.controller_admin_ = this.user_service_.isControllerAdmin();
   }
 
   /**
@@ -240,14 +243,15 @@ export class ConfigmapsComponent implements OnInit {
     const language: string = config_map_data_name.endsWith('.yml') ||
                              config_map_data_name.endsWith('.yaml') ? 'yaml' : 'txt';
     const text_editor_configuration: TextEditorConfigurationInterface = {
-      show_options: this.controller_maintainer,
-      is_read_only: !this.controller_maintainer,
+      show_options: this.controller_maintainer || this.controller_admin_,
+      is_read_only: !this.controller_maintainer || !this.controller_admin_,
       title: `${!this.controller_maintainer ? 'Viewing' : 'Editing'} config map data: ${config_map_data_name}`,
       text: ObjectUtilitiesClass.notUndefNull(config_map.data) &&
             ObjectUtilitiesClass.notUndefNull(config_map.data[config_map_data_name]) ?
               config_map.data[config_map_data_name] : '',
       use_language: language,
-      disable_save: !this.controller_maintainer,
+      display_save: this.controller_maintainer || this.controller_admin_,
+      disable_save: !this.controller_maintainer || !this.controller_admin_,
       confirm_save: SAVE_CONFIRM_ACTION_CONFIGURATION,
       confirm_close: CLOSE_CONFIRM_ACTION_CONFIGURATION
     };

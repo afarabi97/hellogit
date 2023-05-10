@@ -327,7 +327,8 @@ export class HealthDashboardPodTableComponent implements OnChanges {
       title: pod_name,
       text: text,
       use_language: 'plaintext',
-      disable_save: false,
+      display_save: false,
+      disable_save: true,
       confirm_save: undefined,
       confirm_close: CLOSE_CONFIRM_ACTION_CONFIGURATION
     };
