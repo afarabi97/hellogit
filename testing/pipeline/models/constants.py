@@ -11,6 +11,7 @@ class SubCmd:
     gip_setup = 'gip-setup'
 
     run_bp = 'run-bp'
+    run_catalog = 'run-catalog'
     run_cleanup = 'run-cleanup'
     run_disk_fillup_tests = 'run-disk-fillup-tests'
     run_export = 'run-export'
@@ -30,6 +31,26 @@ class SubCmd:
     test_server_repository_vm = 'test-server-repository-vm'
     verify_manifest = 'verify-manifest'
     manifest_file = 'manifest.yaml'
+
+    # run-catalog subcommands
+    install = "install"
+    uninstall = "uninstall"
+    reinstall = "reinstall"
+
+    suricata = "suricata"
+    arkime_capture = "arkime-capture"
+    arkime_viewer = "arkime-viewer"
+    zeek = "zeek"
+    logstash = "logstash"
+    wikijs = "wikijs"
+    misp = "misp"
+    hive = "hive"
+    cortex = "cortex"
+    rocketchat = "rocketchat"
+    mattermost = "mattermost"
+    nifi = "nifi"
+    redmine = "redmine"
+    netflow_filebeat = "netflow-filebeat"
 
     # run-export subcommands
     add_docs_to_controller = 'add-docs-to-controller'

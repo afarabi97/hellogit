@@ -48,6 +48,7 @@ class NodeSettingsV2(Model):
         self.username = 'root'
         self.virtual_data = 500
         self.vm_prefix = ''
+        self.monitoring_interfaces = ["ens224"]
 
     def get_monitoring_interfaces_from_mongo(self) -> List[str]:
         with MongoConnectionManager(self.kit_settings.settings.controller_interface) as mongo:
@@ -137,6 +138,7 @@ class NodeSettingsV2(Model):
         self.mac_address = str(RandMac(MAC_BASE)).strip("'")
         self.dns_servers = namespace.dns_servers
         self.sensing_mac = str(RandMac(MAC_BASE)).strip("'")
+        self.monitoring_interfaces = namespace.monitoring_interfaces
 
         try:
             self.memory = int(namespace.memory)
@@ -184,6 +186,8 @@ class NodeSettingsV2(Model):
         parser.add_argument('--start-index', type=int, dest="start_index", required=True,
                             help="The index of the server or sensor.", default=1)
         parser.add_argument('--vm-prefix', dest='vm_prefix', required=True, help="The prefix name of the VM(s)")
+        parser.add_argument('--monitoring-interfaces', dest='monitoring_interfaces', required=False, \
+                             default=["ens224"], nargs="+", help="The monitoring interfaces for the sensors.")
 
 
 class HardwareNodeSettingsV2(NodeSettingsV2):
@@ -341,6 +345,8 @@ class HardwareNodeSettingsV2(NodeSettingsV2):
                             help="IP address of mips being built (IP address for each MIP needs to be preconfigured)", required=False)
         parser.add_argument('--short-hash', dest='short_hash', help="short commit hash", default="null")
         parser.add_argument('--mac-overrides', dest='mac_overrides', default=['nothing'],  nargs="+", help="Overrides the MACs based on the node index.")
+        parser.add_argument('--monitoring-interfaces', dest='monitoring_interfaces', required=False, \
+                             default=["ens224"], nargs="+", help="The monitoring interfaces for the sensors.")
 
 def load_control_plane_nodes_from_mongo(ctrl_settings: Union[ControllerSetupSettings, HwControllerSetupSettings],
                                        kit_settings: KitSettingsV2) -> List[NodeSettingsV2]:

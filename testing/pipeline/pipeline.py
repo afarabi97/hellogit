@@ -1,8 +1,9 @@
 import logging
 import sys
 import traceback
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 
+from jobs.catalog import CatalogJob
 from jobs.ctrl_setup import ControllerSetupJob, checkout_latest_code
 from jobs.drive_creation import DriveCreationJobv2, DriveHashCreationJob
 from jobs.export import (ConfluenceExport, ControllerExport, GIPServiceExport,
@@ -14,6 +15,7 @@ from jobs.manifest import BuildManifestJob, VerifyManifestJob
 from jobs.oscap import OSCAPScanJob
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
 from jobs.vm_builder import StandAloneKali, StandAloneREMnux
+from models.catalog import CatalogSettings
 from models.common import RepoSettings
 from models.constants import SubCmd
 from models.ctrl_setup import ControllerSetupSettings
@@ -46,6 +48,20 @@ class Runner:
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         ch.setFormatter(formatter)
         kit_builder.addHandler(ch)
+
+    def _run_catalog(self, application: str, process: str, args: Namespace):
+        ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+        kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
+
+        nodes = YamlManager.load_nodes_from_yaml_files(
+            ctrl_settings, kit_settings)
+        catalog_settings = CatalogSettings()
+        catalog_settings.set_from_kickstart(nodes, kit_settings, args)
+        YamlManager.save_to_yaml(catalog_settings)
+
+        executor = CatalogJob(ctrl_settings, kit_settings,
+                              catalog_settings, nodes)
+        executor.run_catalog(application, process)
 
     def _set_parser(self, sub_command, help, settings=None):
         parser = self.subparsers.add_parser(sub_command, help=help)
@@ -106,6 +122,12 @@ class Runner:
             SubCmd.run_export,
             "This command is used to export various artifacts from the pipeline.",
             ExportSettings
+        )
+
+        catalog_parser = self._set_parser(
+            SubCmd.run_catalog,
+            "This subcommand installs applications on your Kit.",
+            CatalogSettings
         )
 
         self._set_parser(
@@ -346,12 +368,16 @@ class Runner:
                 kit_settings = YamlManager.load_kit_settingsv2_from_yaml()
                 job = KitSettingsJob(ctrl_settings, kit_settings)
                 job.run_test_teardown()
+            elif args.which == SubCmd.run_catalog:
+                catalog_parser.print_help()
             elif args.which == SubCmd.run_export:
                 export_parser.print_help()
             elif args.which == SubCmd.checkout_latest_code:
                 repo_settings = RepoSettings()
                 repo_settings.from_namespace(args)
                 checkout_latest_code(repo_settings)
+            else:
+                self._run_catalog(args.which, args.process, args)
         except ValueError as e:
             logging.exception(e)
             exit(1)

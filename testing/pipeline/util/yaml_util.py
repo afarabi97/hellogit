@@ -3,6 +3,12 @@ import os
 from typing import List, Union
 
 import ruamel.yaml
+from models.catalog import (CatalogSettings, ArkimeCaptureSettings,
+                            ArkimeViewerSettings, ZeekSettings,
+                            LogstashSettings, SuricataSettings,
+                            WikijsSettings, MispSettings, HiveSettings,
+                            RocketchatSettings, CortexSettings, MattermostSettings,
+                            RedmineSettings, NifiSettings, NetflowFilebeatSettings)
 from models.common import (ESXiSettings, HwNodeSettings, Model, NodeSettings,
                            RepoSettings, VCenterSettings)
 from models.ctrl_setup import (ControllerSetupSettings,
@@ -41,6 +47,21 @@ class YamlManager:
             cls.yaml.register_class(VCenterSettings)
             cls.yaml.register_class(ESXiSettings)
             cls.yaml.register_class(RepoSettings)
+            cls.yaml.register_class(CatalogSettings)
+            cls.yaml.register_class(SuricataSettings)
+            cls.yaml.register_class(ArkimeCaptureSettings)
+            cls.yaml.register_class(ArkimeViewerSettings)
+            cls.yaml.register_class(ZeekSettings)
+            cls.yaml.register_class(LogstashSettings)
+            cls.yaml.register_class(WikijsSettings)
+            cls.yaml.register_class(MispSettings)
+            cls.yaml.register_class(HiveSettings)
+            cls.yaml.register_class(CortexSettings)
+            cls.yaml.register_class(RocketchatSettings)
+            cls.yaml.register_class(MattermostSettings)
+            cls.yaml.register_class(NifiSettings)
+            cls.yaml.register_class(RedmineSettings)
+            cls.yaml.register_class(NetflowFilebeatSettings)
             cls.yaml.register_class(GIPServiceSettings)
             cls.yaml.register_class(RHELRepoSettings)
             cls.yaml.register_class(RemoteNodeSettings)
