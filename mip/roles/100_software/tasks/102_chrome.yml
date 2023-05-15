@@ -17,11 +17,6 @@
     option: enabled
     value: 0
 
-- name: Create hidden file for validation if playbooks crash
-  file:
-    path: /operator/.DO_NOT_DELETE/.103
-    state: touch
-
 - name: Allow Chrome through SELinux
   ansible.posix.seboolean:
     name: unconfined_chrome_sandbox_transition
