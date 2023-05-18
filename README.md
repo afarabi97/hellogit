@@ -60,10 +60,10 @@ This section attempts to highlight the most relevant folders and files relevant 
 
 | Link | DESCRIPTION | 
 | ---      | ---      |
-| [Install guide](https://confluence.di2e.net/display/THISISCVAH/v3.7+R440+Common+Node+Deployable+Interceptor+Platform+%28DIP%29+Installation+Guide?src=contextnavpagetreemode) | Main install guide for common node installations. |
-| [Operations guide](https://confluence.di2e.net/display/THISISCVAH/v3.7+Deployable+Interceptor+Platform+%28DIP%29+Operations+Guide?src=contextnavpagetreemode) | Main operations guide for common node installations. |
-| [VDD for CPT](https://confluence.di2e.net/display/THISISCVAH/v3.6+Cyber+Protection+Team+%28CPT%29+VDD?src=contextnavpagetreemode) | The version description document for cyber protection teams. |
-| [VDD for MDT](https://confluence.di2e.net/display/THISISCVAH/v3.6+Mission+Defense+Team+%28MDT%29+VDD) | The version description document for mission defense teams. |
+| [Install guide](https://confluence.levelup.cce.af.mil/display/THISISCVAH/v3.7+R440+Common+Node+Deployable+Interceptor+Platform+%28DIP%29+Installation+Guide) | Main install guide for common node installations. |
+| [Operations guide](https://confluence.levelup.cce.af.mil/display/THISISCVAH/v3.7+Deployable+Interceptor+Platform+%28DIP%29+Operations+Guide) | Main operations guide for common node installations. |
+| [VDD for CPT](https://confluence.levelup.cce.af.mil/display/THISISCVAH/v3.7+Cyber+Protection+Team+%28CPT%29+VDD) | The version description document for cyber protection teams. |
+| [VDD for MDT](https://confluence.levelup.cce.af.mil/display/THISISCVAH/v3.7+Mission+Defense+Team+%28MDT%29+VDD) | The version description document for mission defense teams. |
 
 ## How to cut a release and build a drive
 [Click here to see document](docs/build_drive_procedures.md)
