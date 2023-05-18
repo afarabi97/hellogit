@@ -5,19 +5,31 @@ from atlassian import Confluence
 from datetime import datetime, timedelta
 from time import sleep
 from typing import List, Union, Dict
+import requests
+from requests import HTTPError
 
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
 ACCEPT_ENCODING = 'gzip, deflate, br'
 ACCEPT_LANG = 'en-US,en;q=0.9'
-HOST = 'confluence.di2e.net'
-ORIGIN = 'https://confluence.di2e.net'
+HOST = 'confluence.levelup.cce.af.mil'
+ORIGIN = 'https://confluence.levelup.cce.af.mil'
 
 class PageNotFound(Exception):
     pass
 
 
 class MyConfluenceExporter(Confluence):
+    def __init__(self, url, bearer_token):
+        self.bearer_token = bearer_token
+        self.session = requests.Session()
+        self.session.verify = False
+        self.session.headers['Authorization']=str(f'Bearer {bearer_token}')
+        self.default_headers['Authorization']=str(f'Bearer {bearer_token}')
+        self.verify_ssl = False
+        super().__init__(url, self.session)
+
     valid_formats = ("HTML", "PDF")
+    session = None
 
     def _check_if_pdf_ready(self,
                             page_id: int,
@@ -25,7 +37,8 @@ class MyConfluenceExporter(Confluence):
         headers = {'Accept': 'text/html, */*; q=0.01',
                    'User-Agent': USER_AGENT,
                    'X-Requested-With': 'XMLHttpRequest',
-                   'X-Atlassian-Token': 'no-check'}
+                   'X-Atlassian-Token': 'no-check',
+                   'Authorization': f'Bearer {self.bearer_token}'}
         time_submitted = int(time.time() * 1000)
         poll_url = self.url + ("/plugins/contentexporter/"
                                "poll.action?pageId={page_id}&hash={pdfHash}&_={timeSubmitted}"
@@ -58,7 +71,8 @@ class MyConfluenceExporter(Confluence):
             'Accept-Language': ACCEPT_LANG,
             'Connection': 'keep-alive',
             'Host': HOST,
-            'User-Agent': USER_AGENT
+            'User-Agent': USER_AGENT,
+            'Authorization': f'Bearer {self.bearer_token}'
         }
 
         poll_url = self.url + ("/plugins/servlet/scroll-pdf/api/exports/"
@@ -105,7 +119,8 @@ class MyConfluenceExporter(Confluence):
             'Host': HOST,
             'Upgrade-Insecure-Requests': '1',
             'User-Agent': USER_AGENT,
-            'X-Atlassian-Token': 'no-check'
+            'X-Atlassian-Token': 'no-check',
+            'Authorization': f'Bearer {self.bearer_token}'
         }
         file_to_save = ""
         download_url = self.url + ("/plugins/contentexporter/download.action"
@@ -158,15 +173,18 @@ class MyConfluenceExporter(Confluence):
         pages = self.get_child_pages(page_id)
         for page in pages:
             out_content.append(int(page['id']))
-            self._get_content_array(space, page['id'], out_content)
+            return self._get_content_array(space, page['id'], out_content)
 
     def _get_content_page_ids(self, space: str, title: str) -> List[int]:
         print(space)
         print(title)
+        self.verify_ssl = False
         page = self.get_page_by_title(space, title)
         if page:
             content = [int(page['id'])]
-            self._get_content_array(space, page['id'], content)
+            subcontent = self._get_content_array(space, page['id'], content)
+            if(subcontent):
+                content.append(subcontent)
             return content
         raise PageNotFound("{} does not exist in confluence. Did you type the page title exactly? \
                            Its case sensitive. Also, try surrounding it with double quotes on the command line.".format(title))
@@ -190,7 +208,8 @@ class MyConfluenceExporter(Confluence):
             'ORIGIN': ORIGIN,
             'X-Atlassian-Token': 'no-check',
             'User-Agent': USER_AGENT,
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'Authorization': f'Bearer {self.bearer_token}'
         }
 
         export_params = {
@@ -226,9 +245,10 @@ class MyConfluenceExporter(Confluence):
                                export_path: str,
                                export_version: str,
                                title: str,
-                               space: str='THISISCVAH',
+                               space: str="THISISCVAH",
                                timeout_min: int=5) -> str:
-
+        self.verify_ssl = False
+        #print(self.default_headers)
         page = self.get_page_by_title(space, title)
         page_id = str(page['id'])
         return self._download_pdf3(page_id, export_path, export_version, timeout_min, title)
@@ -274,7 +294,8 @@ class MyConfluenceExporter(Confluence):
             'ORIGIN': ORIGIN,
             'X-Atlassian-Token': 'no-check',
             'User-Agent': USER_AGENT,
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'Authorization': 'Bearer {self.bearer_token}'
         }
 
         for page_id in page_ids:

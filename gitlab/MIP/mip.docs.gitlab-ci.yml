@@ -25,16 +25,13 @@
 
 MIP Setup Documents:
   stage: docs
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/" \
-    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/" \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$MIP_CONFLUENCE_SETUP_DOCS"
@@ -48,16 +45,13 @@ MIP Setup Documents:
 
 MIP User Documents:
   stage: docs
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/" \
-    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/" \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$MIP_CONFLUENCE_USER_DOCS"
@@ -71,14 +65,13 @@ MIP User Documents:
 
 MIP Maintenance Documents:
   stage: docs
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/" \
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
@@ -94,14 +87,13 @@ MIP Maintenance Documents:
 
 MIP TroubleShooting Documents:
   stage: docs
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/" \
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \

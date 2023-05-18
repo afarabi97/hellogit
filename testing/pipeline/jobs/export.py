@@ -257,31 +257,33 @@ class ConfluenceExport:
 
     def export_html_docs(self):
         cpt_export_path, mdt_export_path, staging_export_path = create_export_path(self.html_export_settings.export_loc)
-        confluence = MyConfluenceExporter(url=self.html_export_settings.confluence.url,
-                                          username=self.html_export_settings.confluence.username,
-                                          password=self.html_export_settings.confluence.password)
-        stage_html_docs_path = confluence.export_page_w_children(str(staging_export_path),
-                                                                 self.html_export_settings.export_loc.export_version,
-                                                                 "HTML",
-                                                                 self.html_export_settings.page_title)
-        pos = stage_html_docs_path.rfind("/") + 1
-        file_name = stage_html_docs_path[pos:]
+        print(f"self.html_export_settings.page_title: {self.html_export_settings.page_title}")
+        file_list = self.html_export_settings.page_title.split(",")
+        print(f"file list: {file_list}")
+        for page_title in file_list:
+            print(f"Exporting: {page_title}")
+            confluence = MyConfluenceExporter(url=self.html_export_settings.confluence.url, bearer_token=self.html_export_settings.confluence.bearer_token)
+            stage_html_docs_path = confluence.export_page_w_children(str(staging_export_path),
+                                                                self.html_export_settings.export_loc.export_version,
+                                                                "HTML",
+                                                                page_title)
+            pos = stage_html_docs_path.rfind("/") + 1
+            file_name = stage_html_docs_path[pos:]
 
-        cpt_html_docs_path = "{}/{}".format(str(cpt_export_path), file_name)
-        clear_based_on_pattern(str(cpt_export_path), "*.zip")
-        shutil.move(stage_html_docs_path, cpt_html_docs_path)
+            cpt_html_docs_path = "{}/{}".format(str(cpt_export_path), file_name)
+            clear_based_on_pattern(str(cpt_export_path), "*.zip")
+            shutil.move(stage_html_docs_path, cpt_html_docs_path)
 
-        mdt_html_docs_path = "{}/{}".format(str(mdt_export_path), file_name)
-        clear_based_on_pattern(str(mdt_export_path), "*.zip")
-        shutil.copy2(cpt_html_docs_path, mdt_html_docs_path)
+            mdt_html_docs_path = "{}/{}".format(str(mdt_export_path), file_name)
+            clear_based_on_pattern(str(mdt_export_path), "*.zip")
+            shutil.copy2(cpt_html_docs_path, mdt_html_docs_path)
 
     def export_pdf_docs(self):
         cpt_export_path, mdt_export_path, staging_export_path = create_export_path(self.pdf_export_settings.export_loc)
-        confluence = MyConfluenceExporter(url=self.pdf_export_settings.confluence.url,
-                                          username=self.pdf_export_settings.confluence.username,
-                                          password=self.pdf_export_settings.confluence.password)
-
+        print(f"self.pdf_export_settings.page_titles_ary: {self.pdf_export_settings.page_titles_ary}")
+        confluence = MyConfluenceExporter(url=self.pdf_export_settings.confluence.url, bearer_token=self.pdf_export_settings.confluence.bearer_token)
         for page_title in self.pdf_export_settings.page_titles_ary:
+            print(f"Exporting: {page_title}")
             stage_pdf_path = confluence.export_single_page_pdf(str(staging_export_path),
                                                                self.pdf_export_settings.export_loc.export_version,
                                                                page_title)
@@ -314,9 +316,7 @@ class ConfluenceExport:
             self._push_file_and_unzip(file_to_push, ctrl_settings)
         else:
             page_title = self.html_export_settings.page_title
-            confluence = MyConfluenceExporter(url=self.html_export_settings.confluence.url,
-                                              username=self.html_export_settings.confluence.username,
-                                              password=self.html_export_settings.confluence.password)
+            confluence = MyConfluenceExporter(url=self.html_export_settings.confluence.url, bearer_token=self.html_export_settings.confluence.bearer_token)
             with tempfile.TemporaryDirectory() as export_path:
                 file_to_push = confluence.export_page_w_children(export_path, self.html_export_settings.export_loc.export_version, "HTML", page_title)
                 self._push_file_and_unzip(file_to_push, ctrl_settings)
@@ -324,14 +324,10 @@ class ConfluenceExport:
 
     def set_perms_restricted_on_page(self):
         page_title = self.html_export_settings.page_title
-        confluence = MyConfluenceExporter(url=self.html_export_settings.confluence.url,
-                                          username=self.html_export_settings.confluence.username,
-                                          password=self.html_export_settings.confluence.password)
+        confluence = MyConfluenceExporter(url=self.html_export_settings.confluence.url, bearer_token=self.html_export_settings.confluence.bearer_token)
         confluence.set_permissions(page_title)
 
     def set_perms_unrestricted_on_page(self):
         page_title = self.html_export_settings.page_title
-        confluence = MyConfluenceExporter(url=self.html_export_settings.confluence.url,
-                                          username=self.html_export_settings.confluence.username,
-                                          password=self.html_export_settings.confluence.password)
+        confluence = MyConfluenceExporter(url=self.html_export_settings.confluence.url, bearer_token=self.html_export_settings.confluence.bearer_token)
         confluence.set_permissions(page_title, is_restricted=False)

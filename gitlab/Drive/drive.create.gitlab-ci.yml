@@ -11,7 +11,7 @@ Clear Staging Environment:
   retry: 2
   only:
     variables:
-      - $PIPELINE == "export-docs"
+#      - $PIPELINE == "export-docs"
       - $PIPELINE == "export-all"
       - $PIPELINE == "minor-release"
 
@@ -29,6 +29,7 @@ Clear GIP Staging Environment:
   only:
     variables:
       - $PIPELINE == "export-gip"
+#      - $PIPELINE == "export-docs"
 
 Hash Master GIP Folder:
   stage: hashfiles
@@ -49,6 +50,7 @@ Hash Master GIP Folder:
     variables:
       - $PIPELINE == "export-gip"
       - $PIPELINE == "drive-only" && $CREATE_DRIVE_TYPE == "GIP" && $EXPORT_PERFORM_CHECKSUM == "yes"
+      - $PIPELINE == "export-docs" && $CREATE_DRIVE_TYPE == "GIP" && $EXPORT_PERFORM_CHECKSUM == "yes"
 
 Hash Master CPT Folder:
   stage: hashfiles
@@ -71,6 +73,8 @@ Hash Master CPT Folder:
       - $PIPELINE == "minor-release"
       - $PIPELINE == "drive-only" && $EXPORT_PERFORM_CHECKSUM == "yes" && ( $CREATE_DRIVE_TYPE == "Mixed" || $CREATE_DRIVE_TYPE == "CPT" )
       - $PIPELINE == "export-controller-only"
+      - $PIPELINE == "export-docs" && $EXPORT_PERFORM_CHECKSUM == "yes" && ( $CREATE_DRIVE_TYPE == "Mixed" || $CREATE_DRIVE_TYPE == "CPT" )
+
 
 Hash Master MDT Folder:
   stage: hashfiles
@@ -93,6 +97,7 @@ Hash Master MDT Folder:
       - $PIPELINE == "minor-release"
       - $PIPELINE == "drive-only" && $EXPORT_PERFORM_CHECKSUM == "yes" && ( $CREATE_DRIVE_TYPE == "Mixed" || $CREATE_DRIVE_TYPE == "MDT" )
       - $PIPELINE == "export-controller-only"
+      - $PIPELINE == "export-docs" && $EXPORT_PERFORM_CHECKSUM == "yes" && ( $CREATE_DRIVE_TYPE == "Mixed" || $CREATE_DRIVE_TYPE == "MDT" )
 
 Create Drives:
   stage: publish

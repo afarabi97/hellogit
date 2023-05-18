@@ -1,15 +1,19 @@
 DIP Setup Documents:
   stage: docs
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "DIP Setup Documents - Current working directory is $(pwd)"
+    echo "DIP Documentation Variables: "
+    echo "DIP_CPT_DOC_EXPORT_LOC: $DIP_CPT_DOC_EXPORT_LOC"
+    echo "DIP_MDT_DOC_EXPORT_LOC: $DIP_MDT_DOC_EXPORT_LOC"
+    echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
+    echo "DIP_CONFLUENCE_SETUP_DOCS: $DIP_CONFLUENCE_SETUP_DOCS"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/" \
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
@@ -25,16 +29,20 @@ DIP Setup Documents:
 
 DIP User Documents:
   stage: docs
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "DIP User Documents - Current working directory is $(pwd)"
+    echo "DIP Documentation Variables: "
+    echo "DIP_CPT_DOC_EXPORT_LOC: $DIP_CPT_DOC_EXPORT_LOC"
+    echo "DIP_MDT_DOC_EXPORT_LOC: $DIP_MDT_DOC_EXPORT_LOC"
+    echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
+    echo "DIP_CONFLUENCE_SETUP_DOCS: $DIP_CONFLUENCE_SETUP_DOCS"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/" \
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
@@ -50,16 +58,20 @@ DIP User Documents:
 
 DIP Appendix Documents:
   stage: docs
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "DIP User Documents - Current working directory is $(pwd)"
+    echo "DIP Documentation Variables: "
+    echo "DIP_CPT_DOC_EXPORT_LOC: $DIP_CPT_DOC_EXPORT_LOC"
+    echo "DIP_MDT_DOC_EXPORT_LOC: $DIP_MDT_DOC_EXPORT_LOC"
+    echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
+    echo "DIP_CONFLUENCE_SETUP_DOCS: $DIP_CONFLUENCE_SETUP_DOCS"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/" \
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
@@ -75,16 +87,20 @@ DIP Appendix Documents:
 
 DIP Maintenance Documents:
   stage: docs
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "DIP MAINT Documents - Current working directory is $(pwd)"
+    echo "DIP Documentation Variables: "
+    echo "DIP_CPT_DOC_EXPORT_LOC: $DIP_CPT_DOC_EXPORT_LOC"
+    echo "DIP_MDT_DOC_EXPORT_LOC: $DIP_MDT_DOC_EXPORT_LOC"
+    echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
+    echo "DIP_CONFLUENCE_SETUP_DOCS: $DIP_CONFLUENCE_SETUP_DOCS"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/" \
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
@@ -100,16 +116,20 @@ DIP Maintenance Documents:
 
 DIP TroubleShooting Documents:
   stage: docs
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "DIP Trouble Documents - Current working directory is $(pwd)"
+    echo "DIP Documentation Variables: "
+    echo "DIP_CPT_DOC_EXPORT_LOC: $DIP_CPT_DOC_EXPORT_LOC"
+    echo "DIP_MDT_DOC_EXPORT_LOC: $DIP_MDT_DOC_EXPORT_LOC"
+    echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
+    echo "DIP_CONFLUENCE_SETUP_DOCS: $DIP_CONFLUENCE_SETUP_DOCS"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/" \
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
@@ -124,16 +144,20 @@ DIP TroubleShooting Documents:
 
 CPT VDD Documents:
   stage: docs
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "DIP VDD Documents - Current working directory is $(pwd)"
+    echo "DIP Documentation Variables: "
+    echo "DIP_CPT_DOC_EXPORT_LOC: $DIP_CPT_DOC_EXPORT_LOC"
+    echo "DIP_MDT_DOC_EXPORT_LOC: $DIP_MDT_DOC_EXPORT_LOC"
+    echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
+    echo "DIP_CONFLUENCE_SETUP_DOCS: $DIP_CONFLUENCE_SETUP_DOCS"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --cpt-export-path "$CPT_VDD_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
@@ -147,7 +171,7 @@ CPT VDD Documents:
 
 MDT VDD Documents:
   stage: docs
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -155,8 +179,7 @@ MDT VDD Documents:
     echo "DIP VDD Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --mdt-export-path "$MDT_VDD_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
@@ -180,8 +203,7 @@ Minor Release VDD Documents:
     python3 testing/pipeline/pipeline.py \
     --system-name "DIP" \
     run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --cpt-export-path "$MINOR_RELEASE_CPT_VDD_LOC" \
     --mdt-export-path "$MINOR_RELEASE_MDT_VDD_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
@@ -204,8 +226,7 @@ Supplemental Documents:
     python3 testing/pipeline/pipeline.py \
     --system-name "DIP" \
     run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --cpt-export-path "$SUP_CPT_DOC_EXPORT_LOC" \
     --mdt-export-path "$SUP_MDT_DOC_EXPORT_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \

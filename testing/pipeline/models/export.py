@@ -7,9 +7,8 @@ from models.drive_creation import DriveCreationSettingsv2
 class ConfluenceSettings(Model):
 
     def __init__(self):
-        self.url = 'https://confluence.di2e.net'
-        self.password = ''
-        self.username = ''
+        self.url = 'https://confluence.levelup.cce.af.mil'
+        self.bearer_token = ''
 
 
 class ExportLocSettings(Model):
@@ -33,6 +32,11 @@ class HtmlExportSettings(Model):
         self.confluence = ConfluenceSettings()
         self.export_loc = ExportLocSettings()
         self.page_title = ''
+
+    @property
+    def page_titles_ary(self):
+        result = self.page_title.split(',')
+        return [i.strip() for i in result]
 
 
 class PDFExportSettings(Model):
@@ -61,11 +65,11 @@ class ExportSettings(Model):
              namespace.which == SubCmd.set_perms or
              namespace.which == SubCmd.unset_perms ):
              populate_model_from_namespace(self.html_export, namespace)
-             self.html_export.confluence.password = self.b64decode_string(self.html_export.confluence.password)
+             #self.html_export.confluence.password = self.b64decode_string(self.html_export.confluence.password)
 
         if namespace.which == SubCmd.export_single_page_pdf:
              populate_model_from_namespace(self.pdf_export, namespace)
-             self.pdf_export.confluence.password = self.b64decode_string(self.pdf_export.confluence.password)
+             #self.pdf_export.confluence.password = self.b64decode_string(self.pdf_export.confluence.password)
 
         if ( namespace.which == SubCmd.export_ctrl or
              namespace.which == SubCmd.export_mip_ctrl or

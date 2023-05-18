@@ -18,6 +18,7 @@ Verify CPT Manifest:
     variables:
       - $PIPELINE == "verify-manifest"
       - $PIPELINE == "export-all"
+#      - $PIPELINE == "export-docs"
 
 Verify MDT Manifest:
   stage: verify-manifest
@@ -37,6 +38,7 @@ Verify MDT Manifest:
     variables:
       - $PIPELINE == "verify-manifest"
       - $PIPELINE == "export-all"
+#      - $PIPELINE == "export-docs"
 
 Verify GIP Manifest:
   stage: verify-manifest
@@ -56,6 +58,7 @@ Verify GIP Manifest:
     variables:
       - $PIPELINE == "verify-manifest"
       - $PIPELINE == "export-gip"
+#      - $PIPELINE == "export-docs"
 
 Verify MULTIBOOT Manifest:
   stage: verify-manifest
@@ -96,6 +99,7 @@ Build CPT Manifest:
   only:
     variables:
       - $PIPELINE == "export-all"
+#      - $PIPELINE == "export-docs"
 
 Build MDT Manifest:
   stage: build-manifest
@@ -115,6 +119,7 @@ Build MDT Manifest:
   only:
     variables:
       - $PIPELINE == "export-all"
+#      - $PIPELINE == "export-docs"
 
 Build GIP Manifest:
   stage: build-manifest
@@ -134,6 +139,7 @@ Build GIP Manifest:
   only:
     variables:
       - $PIPELINE == "export-gip"
+#      - $PIPELINE == "export-docs"
 
 Build MULTIBOOT Manifest:
   stage: build-manifest

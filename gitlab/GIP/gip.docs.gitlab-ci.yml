@@ -1,6 +1,6 @@
 Download GIP Documents:
   stage: docs
-  needs: ["Clear GIP Staging Environment", "Build GIP Manifest"]
+  #needs: ["Clear GIP Staging Environment", "Build GIP Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -20,5 +20,5 @@ Download GIP Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "export-docs"
+      - $PIPELINE == "export-gip-docs"
       - $PIPELINE == "export-gip"
