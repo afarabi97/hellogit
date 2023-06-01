@@ -70,8 +70,9 @@ Hash Master CPT Folder:
   only:
     variables:
       - $PIPELINE == "export-all"
-      - $PIPELINE == "minor-release"
+      - $PIPELINE == "minor-release" && $EXPORT_PERFORM_CHECKSUM == "yes" && ( $CREATE_DRIVE_TYPE == "Mixed" || $CREATE_DRIVE_TYPE == "CPT" )
       - $PIPELINE == "drive-only" && $EXPORT_PERFORM_CHECKSUM == "yes" && ( $CREATE_DRIVE_TYPE == "Mixed" || $CREATE_DRIVE_TYPE == "CPT" )
+      - $PIPELINE == "minor-drive-only" && $EXPORT_PERFORM_CHECKSUM == "yes" && ( $CREATE_DRIVE_TYPE == "Mixed" || $CREATE_DRIVE_TYPE == "CPT" )
       - $PIPELINE == "export-controller-only"
       - $PIPELINE == "export-docs" && $EXPORT_PERFORM_CHECKSUM == "yes" && ( $CREATE_DRIVE_TYPE == "Mixed" || $CREATE_DRIVE_TYPE == "CPT" )
 
@@ -94,8 +95,9 @@ Hash Master MDT Folder:
   only:
     variables:
       - $PIPELINE == "export-all"
-      - $PIPELINE == "minor-release"
+      - $PIPELINE == "minor-release" && $EXPORT_PERFORM_CHECKSUM == "yes" && ( $CREATE_DRIVE_TYPE == "Mixed" || $CREATE_DRIVE_TYPE == "CPT" )
       - $PIPELINE == "drive-only" && $EXPORT_PERFORM_CHECKSUM == "yes" && ( $CREATE_DRIVE_TYPE == "Mixed" || $CREATE_DRIVE_TYPE == "MDT" )
+      - $PIPELINE == "minor-drive-only" && $EXPORT_PERFORM_CHECKSUM == "yes" && ( $CREATE_DRIVE_TYPE == "Mixed" || $CREATE_DRIVE_TYPE == "MDT" )
       - $PIPELINE == "export-controller-only"
       - $PIPELINE == "export-docs" && $EXPORT_PERFORM_CHECKSUM == "yes" && ( $CREATE_DRIVE_TYPE == "Mixed" || $CREATE_DRIVE_TYPE == "MDT" )
 
@@ -119,8 +121,29 @@ Create Drives:
     variables:
       - $PIPELINE == "export-all"
       - $PIPELINE == "minor-release"
+      - $PIPELINE == "minor-drive-only"
       - $PIPELINE == "drive-only"
       - $PIPELINE == "export-controller-only"
+
+Update Drives:
+  stage: publish
+  tags:
+    - tfplenum-buildv2
+  script: |
+    cmd="python3 testing/pipeline/pipeline.py run-export update-drives
+         --create-drive-type \"$CREATE_DRIVE_TYPE\"
+         --username \"$MASTER_DRIVE_CREATION_USERNAME\"
+         --password \"$MASTER_DRIVE_CREATION_PASSWORD\"
+         --ipaddress \"$MASTER_DRIVE_CREATION_IPADDRESS\"
+         --drive-creation-version \"$TFPLENUM_EXPORT_VERSION\"
+         --drive-creation-path \"$MASTER_DRIVE_CREATION_PATH\"
+         --staging-export-path \"$STAGING_DIP_DIRECTORY\"
+         --burn-multiboot \"$CREATE_MULTIBOOT\""
+    echo "$cmd"
+    eval $cmd
+  only:
+    variables:
+      - $PIPELINE == "update-drive-only"
 
 Create GIP Drives:
   stage: publish
@@ -163,6 +186,7 @@ Check Drives:
     variables:
       - $PIPELINE == "export-all"
       - $PIPELINE == "minor-release"
+      - $PIPELINE == "minor-drive-only"
       - $PIPELINE == "drive-only"
       - $PIPELINE == "export-controller-only"
 

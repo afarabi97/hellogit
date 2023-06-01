@@ -192,43 +192,65 @@ MDT VDD Documents:
       - $PIPELINE == "export-all"
 
 
-Minor Release VDD Documents:
+Minor Release CPT VDD Documents:
   stage: docs
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "DIP VDD Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
     run-export export-single-page-pdf \
     --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
-    --cpt-export-path "$MINOR_RELEASE_CPT_VDD_LOC" \
-    --mdt-export-path "$MINOR_RELEASE_MDT_VDD_LOC" \
+    --cpt-export-path "$MINOR_CPT_VDD_EXPORT_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$CONFLUENCE_VDD_DOCS"
+    --page-titles "$CONFLUENCE_CPT_VDD_DOCS"
   retry: 2
   allow_failure: true
   only:
     variables:
       - $PIPELINE == "minor-release"
+      - $PIPELINE == "minor-drive-only" && $MINOR_DRIVE_DOCS == "yes"
+      - $PIPELINE == "minor-release-docs"
+
+Minor Release MDT VDD Documents:
+  stage: docs
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "DIP VDD Documents - Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    run-export export-single-page-pdf \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
+    --mdt-export-path "$MINOR_MDT_VDD_EXPORT_LOC" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
+    --export-version "$TFPLENUM_EXPORT_VERSION" \
+    --page-titles "$CONFLUENCE_MDT_VDD_DOCS"
+  retry: 2
+  allow_failure: true
+  only:
+    variables:
+      - $PIPELINE == "minor-release"
+      - $PIPELINE == "minor-drive-only" && $MINOR_DRIVE_DOCS == "yes"
+      - $PIPELINE == "minor-release-docs"
 
 Supplemental Documents:
   stage: docs
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Supplemental Documents: $CONFLUENCE_SUP_DOCS - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
     run-export export-single-page-pdf \
     --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
-    --cpt-export-path "$SUP_CPT_DOC_EXPORT_LOC" \
-    --mdt-export-path "$SUP_MDT_DOC_EXPORT_LOC" \
+    --cpt-export-path "$MINOR_CPT_SUP_EXPORT_LOC" \
+    --mdt-export-path "$MINOR_MDT_SUP_EXPORT_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$CONFLUENCE_SUP_DOCS"
@@ -237,3 +259,5 @@ Supplemental Documents:
   only:
     variables:
       - $PIPELINE == "minor-release"
+      - $PIPELINE == "minor-drive-only" && $MINOR_DRIVE_DOCS == "yes"
+      - $PIPELINE == "minor-release-docs"

@@ -249,6 +249,7 @@ class MyConfluenceExporter(Confluence):
                                timeout_min: int=5) -> str:
         self.verify_ssl = False
         #print(self.default_headers)
+        self._session.headers['Authorization']=f'Bearer {self.bearer_token}'
         page = self.get_page_by_title(space, title)
         page_id = str(page['id'])
         return self._download_pdf3(page_id, export_path, export_version, timeout_min, title)

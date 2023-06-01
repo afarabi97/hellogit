@@ -318,6 +318,11 @@ class Runner:
                 drive_settings.from_namespace(args)
                 executor = DriveCreationJobv2(drive_settings)
                 executor.execute()
+            elif args.which == SubCmd.update_drives:
+                drive_settings = DriveCreationSettingsv2()
+                drive_settings.from_namespace(args)
+                executor = DriveCreationJobv2(drive_settings)
+                executor.execute()
             elif args.which == SubCmd.verify_manifest:
                 manifest_settings = ManifestSettings()
                 manifest_settings.from_namespace(args)

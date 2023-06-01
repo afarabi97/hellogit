@@ -35,6 +35,7 @@ class SubCmd:
     add_docs_to_controller = 'add-docs-to-controller'
     check_master_drive_hashes = 'check-master-drive-hashes'
     create_drives = 'create-drives'
+    update_drives = 'update-drives'
     create_master_drive_hashes = 'create-master-drive-hashes'
     export_ctrl = 'export-ctrl'
     export_gip_service_vm = 'export-gip-service-vm'
