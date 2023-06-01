@@ -14,7 +14,7 @@ def test_get_new_status_200(client: FlaskClient, mocker: MockerFixture) -> None:
     mocker.patch("app.controller.kit_controller.get_new_kit_status", return_value=mock_kit_status)
     response = client.get("/api/kit/status")
     assert response.status_code == 200
-    assert json_object_key_value_checker(mock_kit_status, response.json) == True
+    assert json_object_key_value_checker(response.json, mock_kit_status) == True
 
 
 def test_get_new_status_400_DBModelNotFound(client: FlaskClient, mocker: MockerFixture) -> None:

@@ -1,7 +1,7 @@
 import json
 
 
-def json_object_key_value_checker(mock_list: dict, json_response: json) -> bool:
+def json_object_key_value_checker(json_response: json, mock_list: dict) -> bool:
     json_dict = json_response
     pass_value = True
 

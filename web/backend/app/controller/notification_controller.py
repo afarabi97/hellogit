@@ -1,9 +1,9 @@
-import pymongo
-from app.common import OK_RESPONSE
-from app.middleware import controller_maintainer_required
-from app.utils.collections import mongo_notifications
+from app.middleware import controller_maintainer_required, handle_errors
+from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
+from app.service.notification_service import (delete_notification_id,
+                                              delete_notifications_del,
+                                              get_notifications)
 from app.utils.namespaces import NOTIFICATIONS_NS
-from bson import ObjectId
 from flask import Response
 from flask_restx import Resource
 
@@ -11,52 +11,35 @@ NUMBER_OF_NOTIFICATION_ITEMS = 30
 
 
 @NOTIFICATIONS_NS.route('/<offset>/<role>')
-class Notifications(Resource):
+class NotificationsCtrlApi(Resource):
 
+    @NOTIFICATIONS_NS.doc(description="Gets all notifications from mongodb.")
     @NOTIFICATIONS_NS.response(200, 'Notifications')
+    @NOTIFICATIONS_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @handle_errors
     def get(self, offset: str, role: str) -> Response:
-        """
-        Gets all notifications from mongodb
-        """
-        filter_obj = {}
-        if role != "all":
-            filter_obj = {"role": role}
-
-        notifications = list(mongo_notifications().find(filter_obj)
-                             .sort("timestamp", pymongo.DESCENDING)
-                             .skip(int(offset))
-                             .limit(NUMBER_OF_NOTIFICATION_ITEMS))
-
-        for notification in notifications:
-            notification["_id"] = str(notification["_id"])
-        return notifications
+        return get_notifications(offset, role)
 
 
 @NOTIFICATIONS_NS.route('')
-class NotificationsDel(Resource):
+class NotificationsDelCtrlApi(Resource):
 
-    @NOTIFICATIONS_NS.response(200, 'Deleted Notifications')
+    @NOTIFICATIONS_NS.doc(description="Delete all notifications from mongodb.")
+    @NOTIFICATIONS_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
+    @NOTIFICATIONS_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
+    @handle_errors
     def delete(self) -> Response:
-        """
-        Delete all notifications from mongodb
-
-        """
-        mongo_notifications().delete_many({})
-        return OK_RESPONSE
+        return delete_notifications_del()
 
 
 @NOTIFICATIONS_NS.route('/<notification_id>')
-class DeleteNotifications(Resource):
+class DeleteNotificationsCtrlApi(Resource):
 
-    @NOTIFICATIONS_NS.response(200, 'Deleted Notification')
+    @NOTIFICATIONS_NS.doc(description="Delete a notification using _id.")
+    @NOTIFICATIONS_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
+    @NOTIFICATIONS_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
-    def delete(self, notification_id) -> Response:
-        """
-        Delete a notification using _id
-
-        :param _id: notification id
-        """
-
-        mongo_notifications().delete_one({"_id": ObjectId(notification_id)})
-        return OK_RESPONSE
+    @handle_errors
+    def delete(self, notification_id: str)-> Response:
+        return delete_notification_id(notification_id)
