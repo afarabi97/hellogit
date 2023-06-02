@@ -162,6 +162,8 @@ describe('ElasticsearchScaleComponent', () => {
         reset();
 
         // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.open_run_confirm_dialog();
@@ -172,6 +174,8 @@ describe('ElasticsearchScaleComponent', () => {
       it('should call open_cant_run_dialog_() after mat dialog ref closed from within open_run_confirm_dialog(), note: component.status = true', () => {
         reset();
 
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(CONFIRM_DIALOG_OPTION) } as MatDialogRef<typeof component>);
         component.status = true;
 
@@ -183,6 +187,8 @@ describe('ElasticsearchScaleComponent', () => {
       it('should call run_elasticsearch_scale_() after mat dialog ref closed from within open_run_confirm_dialog(), note: component.status = false', () => {
         reset();
 
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(CONFIRM_DIALOG_OPTION) } as MatDialogRef<typeof component>);
         component.status = false;
 
@@ -197,6 +203,8 @@ describe('ElasticsearchScaleComponent', () => {
         reset();
 
         // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         component.edit_elasticsearch_configuration();
@@ -208,6 +216,8 @@ describe('ElasticsearchScaleComponent', () => {
         reset();
 
         // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         component.edit_elasticsearch_configuration();
@@ -230,6 +240,11 @@ describe('ElasticsearchScaleComponent', () => {
       it('should call run_elasticsearch_scale_()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component['run_elasticsearch_scale_']();
 
         expect(component['run_elasticsearch_scale_']).toHaveBeenCalled();
@@ -237,6 +252,11 @@ describe('ElasticsearchScaleComponent', () => {
 
       it('should call run_elasticsearch_scale_() and set component.loading = true', () => {
         reset();
+
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component.loading = false;
 
@@ -250,6 +270,11 @@ describe('ElasticsearchScaleComponent', () => {
       it('should call api_post_elastic_nodes_() from run_elasticsearch_scale_()', () => {
         reset();
 
+        // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
+
         component['run_elasticsearch_scale_']();
 
         expect(component['api_post_elastic_nodes_']).toHaveBeenCalled();
@@ -261,6 +286,8 @@ describe('ElasticsearchScaleComponent', () => {
         reset();
 
         // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         component['open_text_editor_'](MockElasticsearchConfigurationClass);
@@ -354,6 +381,8 @@ describe('ElasticsearchScaleComponent', () => {
         reset();
 
         // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component['api_post_elastic_nodes_'](MockElasticsearchNodeReturnInterface);
@@ -365,6 +394,8 @@ describe('ElasticsearchScaleComponent', () => {
         reset();
 
         // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component['api_post_elastic_nodes_'](MockElasticsearchNodeReturnInterface);
@@ -376,6 +407,8 @@ describe('ElasticsearchScaleComponent', () => {
         reset();
 
         // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component['api_post_elastic_nodes_'](MockElasticsearchNodeReturnInterface);
@@ -387,6 +420,8 @@ describe('ElasticsearchScaleComponent', () => {
         reset();
 
         // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         component['api_get_elastic_nodes_']();
@@ -402,6 +437,8 @@ describe('ElasticsearchScaleComponent', () => {
         reset();
 
         // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of({}) } as MatDialogRef<typeof component>);
 
         // Allows respy to change default spy created in spy service
@@ -419,6 +456,8 @@ describe('ElasticsearchScaleComponent', () => {
         reset();
 
         // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         component['api_get_elastic_full_config_']();
@@ -430,6 +469,8 @@ describe('ElasticsearchScaleComponent', () => {
         reset();
 
         // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         component['api_get_elastic_full_config_']();
@@ -441,6 +482,8 @@ describe('ElasticsearchScaleComponent', () => {
         reset();
 
         // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         component['api_get_elastic_full_config_']();
@@ -452,6 +495,8 @@ describe('ElasticsearchScaleComponent', () => {
         reset();
 
         // Need to add this because called method or something is trying to open a dialog. the dialog will be tested seperate
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(null) } as MatDialogRef<typeof component>);
 
         // Allows respy to change default spy created in spy service

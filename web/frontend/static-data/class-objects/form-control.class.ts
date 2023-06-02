@@ -31,7 +31,7 @@ export const MockFormControlClassRegexandRequired: FormControlClass = new FormCo
 export const MockFormControlValueObject: Object = {
   fake_textinput: 'fake input value',
   fake_textbox: 'fake textbox value',
-  fake_textinputlist: '[\'192.168.0.0/24\']',
+  fake_textinputlist: '["192.168.0.0/24"]',
   fake_invisible: 'server',
   fake_checkbox: true,
   fake_interface: [ 'ens224' ],

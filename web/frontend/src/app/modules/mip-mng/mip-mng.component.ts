@@ -265,7 +265,7 @@ export class MipManagementComponent implements OnInit {
    * @memberof MipManagementComponent
    */
   private api_get_nodes_(): void {
-    this.kit_settings_service_.getNodes()
+    this.kit_settings_service_.get_nodes()
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: NodeClass[]) => {
@@ -372,7 +372,7 @@ export class MipManagementComponent implements OnInit {
    * @memberof MipManagementComponent
    */
   private api_delete_node_(node: NodeClass): void {
-    this.kit_settings_service_.deleteNode(node.hostname)
+    this.kit_settings_service_.delete_node(node.hostname)
       .pipe(untilDestroyed(this))
       .subscribe(
         (respopnse: GenericJobAndKeyClass) => {

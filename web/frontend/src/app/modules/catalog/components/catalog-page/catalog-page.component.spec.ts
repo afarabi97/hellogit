@@ -1415,9 +1415,7 @@ describe('CatalogPageComponent', () => {
         reset();
 
         const saved_values_suricata: SavedValueClass[] = MockSavedValueClassSuricata.map((sv: SavedValueClass) => ObjectUtilitiesClass.create_deep_copy(sv));
-        saved_values_suricata[0].values['external_net'] = [
-          '192.168.0.0/24'
-        ];
+        saved_values_suricata[0].values['external_net'] = ["192.168.0.0/24"];
 
         component['config_array_'] = null;
         component.chart_info = MockChartInfoClassSuricata;
@@ -1794,7 +1792,7 @@ describe('CatalogPageComponent', () => {
 
         const nodes: NodeClass[] = component.process_form_group.getRawValue().selectedNodes.filter((n: NodeClass) => n.node_type === SENSOR_VALUE);
 
-        expect(nodes[0].deployment_name).toEqual(MockStatusClassSuricataDeployed.deployment_name);
+        expect(nodes[1].deployment_name).toEqual(MockStatusClassSuricataDeployed.deployment_name);
       });
 
       it('should call set_deployment_name_() and set process_form_group.selectedNodes deployment_name = status.deployment_name when status.hostname === null', () => {

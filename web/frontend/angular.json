@@ -34,10 +34,7 @@
             ],
             "styles": [
               "src/styles.scss",
-              {
-                "input": "src/theming/dark-theme.scss",
-                "bundleName": "dark-theme"
-              }
+              "src/theming/dark-theme.scss"
             ],
             "allowedCommonJsDependencies": [
               "socket.io-client",
@@ -104,12 +101,19 @@
             "tsConfig": "src/tsconfig.spec.json",
             "karmaConfig": "src/karma.conf.js",
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/theming/dark-theme.scss"
             ],
             "scripts": [],
             "assets": [
               "src/favicon.ico",
               "src/assets"
+            ],
+            "codeCoverageExclude": [
+              "src/**/*.class.ts",
+              "src/**/*.constant.ts",
+              "src/**/*.enum.ts",
+              "src/**/*.interface.ts"
             ]
           }
         }

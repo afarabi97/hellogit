@@ -14,7 +14,7 @@ export const MockFormControlInterfaceTextbox: FormControlInterface = {
 };
 export const MockFormControlInterfaceTextinputlist: FormControlInterface = {
   type: 'textinputlist',
-  default_value: '[\'192.168.0.0/24\']',
+  default_value: '["192.168.0.0/24"]',
   description: 'Enter Value',
   name: 'fake_textinputlist'
 };

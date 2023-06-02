@@ -137,7 +137,7 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   buildNavBar(): void {
     this.sideNavigationButtons = getSideNavigationButtons(this.userService_, false, []);
     this.changeDetectorRef_.detectChanges();
-    forkJoin({ htmlSpaces: this.global_tools_service_.get_spaces(), kitData: this.kitSettingsSrv.getKitStatus() })
+    forkJoin({ htmlSpaces: this.global_tools_service_.get_spaces(), kitData: this.kitSettingsSrv.get_kit_status() })
       .pipe(takeUntil(this.ngUnsubscribe$_))
       .subscribe((data: { htmlSpaces: string[]; kitData: KitStatusClass}) => {
         this.htmlSpaces = data.htmlSpaces;

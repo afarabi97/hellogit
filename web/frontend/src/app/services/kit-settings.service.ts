@@ -4,8 +4,26 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { GeneralSettingsClass, GenericJobAndKeyClass, KitSettingsClass, KitStatusClass, MipSettingsClass, NodeClass, ObjectUtilitiesClass } from '../classes';
-import { EntityConfig, GeneralSettingsInterface, GenericJobAndKeyInterface, KitSettingsInterface, KitStatusInterface, MipSettingsInterface, NodeInterface } from '../interfaces';
+import {
+  GeneralSettingsClass,
+  GenericJobAndKeyClass,
+  KitSettingsClass,
+  KitStatusClass,
+  MipSettingsClass,
+  NodeClass,
+  ObjectUtilitiesClass,
+  SuccessMessageClass
+} from '../classes';
+import {
+  EntityConfig,
+  GeneralSettingsInterface,
+  GenericJobAndKeyInterface,
+  KitSettingsInterface,
+  KitStatusInterface,
+  MipSettingsInterface,
+  NodeInterface,
+  SuccessMessageInterface
+} from '../interfaces';
 import { ApiService } from './abstract/api.service';
 
 const ENTITY_CONFIG: EntityConfig = { entityPart: '', type: 'KitSettingsService' };
@@ -106,22 +124,28 @@ export class KitSettingsService extends ApiService<any> {
     return this.httpClient_.post(url, settingsForm).pipe();
   }
 
-  getControlPlane(): Observable<Object> {
+  setup_control_plane(): Observable<GenericJobAndKeyClass> {
     const url = `/api/kit/control-plane`;
-    return this.httpClient_.get(url).pipe();
+    return this.httpClient_.post<GenericJobAndKeyInterface>(url, null)
+      .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('refresh kit', error)));
   }
 
-  setupControlPlane(): Observable<Object> {
-    const url = `/api/kit/control-plane`;
-    return this.httpClient_.post(url, null).pipe();
-  }
-
-  refreshKit(): Observable<Object> {
+  refresh_kit(): Observable<GenericJobAndKeyClass> {
     const url = `/api/kit/rebuild`;
-    return this.httpClient_.post(url, null).pipe();
+    return this.httpClient_.post<GenericJobAndKeyInterface>(url, null)
+      .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('refresh kit', error)));
   }
 
-  addNode(payload): Observable<GenericJobAndKeyClass> {
+  update_device_facts(node: string): Observable<SuccessMessageClass> {
+    const url = `/api/kit/node/${node}/update`;
+    return this.httpClient_.put<SuccessMessageInterface>(url, {})
+      .pipe(map((response: SuccessMessageInterface) => new SuccessMessageClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('update device facts', error)));
+  }
+
+  add_node(payload): Observable<GenericJobAndKeyClass> {
     const url = `/api/kit/node`;
 
     return this.httpClient_.post<GenericJobAndKeyInterface>(url, payload)
@@ -129,24 +153,14 @@ export class KitSettingsService extends ApiService<any> {
             catchError((error: HttpErrorResponse) => this.handleError('delete node', error)));
   }
 
-  updateGatherFacts(node: string): Observable<Object> {
-    const url = `/api/kit/node/${node}/update`;
-    return this.httpClient_.put(url, {}).pipe();
-  }
-
-  getNodes(): Observable<NodeClass[]> {
+  get_nodes(): Observable<NodeClass[]> {
     const url = `/api/kit/nodes`;
     return this.httpClient_.get<NodeInterface[]>(url)
       .pipe(map((response: NodeInterface[]) => response.map((node: NodeInterface) => new NodeClass(node))),
             catchError((error: HttpErrorResponse) => this.handleError('get nodes', error)));
   }
 
-  getNode(node: string): Observable<Object> {
-    const url = `/api/kit/node/${node}`;
-    return this.httpClient_.get(url).pipe();
-  }
-
-  deleteNode(hostname: string): Observable<GenericJobAndKeyClass> {
+  delete_node(hostname: string): Observable<GenericJobAndKeyClass> {
     const url = `/api/kit/node/${hostname}`;
     return this.httpClient_.delete<GenericJobAndKeyInterface>(url)
       .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
@@ -166,20 +180,23 @@ export class KitSettingsService extends ApiService<any> {
     return this.httpClient_.get(url).pipe();
   }
 
-  deployKit(): Observable<Object> {
+  deploy_kit(): Observable<GenericJobAndKeyClass> {
     const url = `/api/kit/deploy`;
-    return this.httpClient_.get(url).pipe();
+    return this.httpClient_.get(url)
+      .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('deploy kit', error)));
   }
 
-  getKitStatus(): Observable<KitStatusClass> {
+  get_kit_status(): Observable<KitStatusClass> {
     const url = `/api/kit/status`;
     return this.httpClient_.get(url)
       .pipe(map((response: KitStatusInterface) => new KitStatusClass(response)),
             catchError((error: HttpErrorResponse) => this.handleError('get kit status', error)));
   }
 
-  getNodeVpnConfig(node: string){
-    const url = `/api/kit/node/${node}/generate-vpn`;
-    return this.httpClient_.get(url, { responseType: 'blob' }).pipe();
+  get_open_vpn_certs(node_hostname: string): Observable<Blob> {
+    const url = `/api/kit/node/${node_hostname}/generate-vpn`;
+    return this.httpClient_.get(url, { responseType: 'blob' })
+      .pipe(catchError((error: HttpErrorResponse) => this.handleError(' get open vpn certs', error)));
   }
 }

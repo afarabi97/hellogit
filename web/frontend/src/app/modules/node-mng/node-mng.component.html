@@ -4,11 +4,11 @@
       <mat-card-title>Kit Setup</mat-card-title>
     </mat-card-header>
     <mat-card-content fxLayout="column" fxLayoutAlign="space-around stretch">
-      <table mat-table [dataSource]="controlPlaneNodes" aria-describedby="Kit Setup Nodes">
+      <table mat-table [dataSource]="setup_nodes" aria-describedby="Kit Setup Nodes">
         <!-- Hostname -->
         <ng-container matColumnDef="hostname">
             <th scope="col" mat-header-cell *matHeaderCellDef>Hostname</th>
-            <td  mat-cell *matCellDef="let node;"><a (click)="showNodeInfo(node)">{{ node.hostname }}</a></td>
+            <td  mat-cell *matCellDef="let node;"><a (click)="open_node_info_dialog_window(node)">{{ node.hostname }}</a></td>
         </ng-container>
 
         <!-- IP Address -->
@@ -32,15 +32,15 @@
         </ng-container>
 
         <!-- Table Rows -->
-        <tr mat-header-row *matHeaderRowDef="setupNodesColumns"></tr>
-        <tr mat-row *matRowDef="let rowData; columns: setupNodesColumns;"></tr>
+        <tr mat-header-row *matHeaderRowDef="setup_node_columns"></tr>
+        <tr mat-row *matRowDef="let rowData; columns: setup_node_columns;"></tr>
     </table>
     </mat-card-content>
     <mat-card-actions>
       <button mat-raised-button color="warn"
-              (click)="refreshKit()" [disabled]="disabledRKbutton()">Refresh Kit</button>
+              (click)="refresh_kit()" [disabled]="disable_refresh_kit_button()">Refresh Kit</button>
       <button mat-raised-button color="primary"
-              (click)="setupCtrlPlane()" [disabled]="disableSCPbutton()">Setup Control Plane</button>
+              (click)="setup_control_plane()" [disabled]="disable_setup_control_plane_button()">Setup Control Plane</button>
     </mat-card-actions>
   </mat-card>
   <br />
@@ -53,7 +53,7 @@
         <!-- Hostname -->
         <ng-container matColumnDef="hostname">
             <th scope="col" mat-header-cell *matHeaderCellDef>Hostname</th>
-            <td mat-cell *matCellDef="let node;"><a (click)="showNodeInfo(node)">{{ node.hostname }}</a> <mat-icon *ngIf="getVpnStatus(node)" mat-list-icon>vpn_key</mat-icon></td>
+            <td mat-cell *matCellDef="let node;"><a (click)="open_node_info_dialog_window(node)">{{ node.hostname }}</a> <mat-icon *ngIf="get_vpn_status(node)" mat-list-icon>vpn_key</mat-icon></td>
         </ng-container>
 
         <!-- Ip Address -->
@@ -89,23 +89,24 @@
           <th scope="row" mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let node; let j = index;">
               <div class="btn-group">
-                <button *ngIf="canDeleteNode(node)" mat-icon-button matTooltip="Delete Node"
-                        (click)="canRemove(node)"
+                <button *ngIf="can_delete_node(node)" mat-icon-button matTooltip="Delete Node"
+                        (click)="delete_node(node)"
                         color="warn" [disabled]="node.isRemoving">
                   <em class="material-icons">delete</em>
                 </button>
 
-                <button *ngIf="canGatherFacts(node)" mat-icon-button
+                <button *ngIf="can_refresh_device_facts(node)" mat-icon-button
                          matTooltip="Refresh Device Facts" color="primary"
-                         (click)="updateGatherFacts(node)">
+                         (click)="refresh_device_facts(node)">
                   <em class="material-icons">refresh</em>
                 </button>
 
               <!--BUTTONS WILL BE REPLACED WITH JOB PROGRESS BAR-->
 
-                <button *ngIf="isISOButtonGroup(node)" mat-icon-button
+                <button *ngIf="is_iso_button_group(node)" mat-icon-button
                         matTooltip="Download OpenVPN Certificates" color="primary"
-                        (click)="downloadOpenVPNCerts(node)">
+                        [disabled]="is_iso_node_deployed()"
+                        (click)="download_open_vpn_certs(node)">
                     <em class="material-icons">cloud_download</em>
                 </button>
 
@@ -115,18 +116,18 @@
       </ng-container>
 
         <!-- Table Rows -->
-        <tr mat-header-row *matHeaderRowDef="nodesColumns"></tr>
-        <tr mat-row *matRowDef="let rowData; columns: nodesColumns;"></tr>
+        <tr mat-header-row *matHeaderRowDef="node_columns"></tr>
+        <tr mat-row *matRowDef="let rowData; columns: node_columns;"></tr>
     </table>
     </mat-card-content>
     <mat-card-actions>
       <button mat-raised-button color="primary"
-              (click)="addNode()" [disabled]="disableAddNodeButton()">Add Node</button>
-      <button mat-raised-button color="primary" [disabled]="disableDeployKitButton()"
-              (click)="deployKit()">Deploy Kit</button>
+              (click)="open_add_node_dialog_window()" [disabled]="disable_add_node_button()">Add Node</button>
+      <button mat-raised-button color="primary" [disabled]="disable_deploy_kit_button()"
+              (click)="deploy_kit()">Deploy Kit</button>
       <button mat-raised-button color="primary"
               matTooltip="Download ISO" color="primary"
-              (click)="downloadISO()" *ngIf="isoSensorExists">Download ISO</button>
+              (click)="download_iso()" *ngIf="iso_sensor_detected">Download ISO</button>
     </mat-card-actions>
   </mat-card>
 </div>

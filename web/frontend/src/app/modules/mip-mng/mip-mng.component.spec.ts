@@ -394,15 +394,15 @@ describe('MipManagementComponent', () => {
         expect(component['api_get_nodes_']).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getNodes() from api_get_nodes_()', () => {
+      it('should call kit_settings_service_.get_nodes() from api_get_nodes_()', () => {
         reset();
 
         component['api_get_nodes_']();
 
-        expect(component['kit_settings_service_'].getNodes).toHaveBeenCalled();
+        expect(component['kit_settings_service_'].get_nodes).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getNodes() and handle response and update_mips_data_', () => {
+      it('should call kit_settings_service_.get_nodes() and handle response and call update_mips_data_()', () => {
         reset();
 
         component['api_get_nodes_']();
@@ -410,24 +410,24 @@ describe('MipManagementComponent', () => {
         expect(component['update_mips_data_']).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getNodes() and handle error response instance ErrorMessageClass', () => {
+      it('should call kit_settings_service_.get_nodes() and handle error response instance ErrorMessageClass', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'getNodes').and.returnValue(throwError(MockErrorMessageClass));
+        spyOn<any>(component['kit_settings_service_'], 'get_nodes').and.returnValue(throwError(MockErrorMessageClass));
 
         component['api_get_nodes_']();
 
         expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getNodes() and handle error', () => {
+      it('should call kit_settings_service_.get_nodes() and handle error', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'getNodes').and.returnValue(throwError(mock_http_error_response));
+        spyOn<any>(component['kit_settings_service_'], 'get_nodes').and.returnValue(throwError(mock_http_error_response));
 
         component['api_get_nodes_']();
 
@@ -605,15 +605,15 @@ describe('MipManagementComponent', () => {
         expect(component['api_delete_node_']).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.deleteNode() from api_delete_node_()', () => {
+      it('should call kit_settings_service_.delete_node() from api_delete_node_()', () => {
         reset();
 
         component['api_delete_node_'](MockNodeServerClass);
 
-        expect(component['kit_settings_service_'].deleteNode).toHaveBeenCalled();
+        expect(component['kit_settings_service_'].delete_node).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.deleteNode() and handle response and call mat_snackbar_service_.generate_return_success_snackbar_message()', () => {
+      it('should call kit_settings_service_.delete_node() and handle response and call mat_snackbar_service_.generate_return_success_snackbar_message()', () => {
         reset();
 
         component['api_delete_node_'](MockNodeServerClass);
@@ -621,24 +621,24 @@ describe('MipManagementComponent', () => {
         expect(component['mat_snackbar_service_'].generate_return_success_snackbar_message).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.deleteNode() and handle error response instance ErrorMessageClass', () => {
+      it('should call kit_settings_service_.delete_node() and handle error response instance ErrorMessageClass', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'deleteNode').and.returnValue(throwError(MockErrorMessageClass));
+        spyOn<any>(component['kit_settings_service_'], 'delete_node').and.returnValue(throwError(MockErrorMessageClass));
 
         component['api_delete_node_'](MockNodeServerClass);
 
         expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.deleteNode() and handle error', () => {
+      it('should call kit_settings_service_.delete_node() and handle error', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'deleteNode').and.returnValue(throwError(mock_http_error_response));
+        spyOn<any>(component['kit_settings_service_'], 'delete_node').and.returnValue(throwError(mock_http_error_response));
 
         component['api_delete_node_'](MockNodeServerClass);
 

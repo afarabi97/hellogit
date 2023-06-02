@@ -562,15 +562,15 @@ describe('AddMipDialogComponent', () => {
         expect(component['api_get_nodes_']).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getNodes() from api_get_nodes_()', () => {
+      it('should call kit_settings_service_.get_nodes() from api_get_nodes_()', () => {
         reset();
 
         component['api_get_nodes_']();
 
-        expect(component['kit_settings_service_'].getNodes).toHaveBeenCalled();
+        expect(component['kit_settings_service_'].get_nodes).toHaveBeenCalled();
       });
 
-      it('should call from kit_settings_service_.getNodes() and handle response and set validation_hostnames_, validation_ips_, validation_macs_ from response', () => {
+      it('should call from kit_settings_service_.get_nodes() and handle response and set validation_hostnames_, validation_ips_, validation_macs_ from response', () => {
         reset();
 
         component['api_get_nodes_']();
@@ -580,7 +580,7 @@ describe('AddMipDialogComponent', () => {
         expect(component['validation_macs_']).not.toEqual([]);
       });
 
-      it('should call kit_settings_service_.getNodes() and handle response and call initialize_node_form_group_() when call_initialize_node_form_group variable set to true', () => {
+      it('should call kit_settings_service_.get_nodes() and handle response and call initialize_node_form_group_() when call_initialize_node_form_group variable set to true', () => {
         reset();
 
         component['api_get_nodes_'](true);
@@ -588,24 +588,24 @@ describe('AddMipDialogComponent', () => {
         expect(component['initialize_node_form_group_']).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getNodes() and handle error response instance ErrorMessageClass', () => {
+      it('should call kit_settings_service_.get_nodes() and handle error response instance ErrorMessageClass', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'getNodes').and.returnValue(throwError(MockErrorMessageClass));
+        spyOn<any>(component['kit_settings_service_'], 'get_nodes').and.returnValue(throwError(MockErrorMessageClass));
 
         component['api_get_nodes_']();
 
         expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getNodes() and handle error', () => {
+      it('should call kit_settings_service_.get_nodes() and handle error', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'getNodes').and.returnValue(throwError(mock_http_error_response));
+        spyOn<any>(component['kit_settings_service_'], 'get_nodes').and.returnValue(throwError(mock_http_error_response));
 
         component['api_get_nodes_']();
 

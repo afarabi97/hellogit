@@ -9,7 +9,7 @@ import {
   MockNodeClassArray
 } from '../../../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
-import { DEPLOYMENT_OPTIONS_NODE, MINIO, SENSOR, VIRTUAL } from '../../../../constants/cvah.constants';
+import { CONTROL_PLANE, DEPLOYMENT_OPTIONS_NODE, MINIO, SENSOR, VIRTUAL } from '../../../../constants/cvah.constants';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { AddNodeMatDialogDataInterface } from '../../interfaces/add-node-mat-dialog-data.interface';
 import { NodeMngModule } from '../../node-mng.module';
@@ -54,11 +54,10 @@ describe('AddNodeDialogComponent', () => {
     source: {} as any,
     value: SENSOR
   };
-  // Will need CONTROL_PLANE added
-  // const mat_radio_change_control_plane: MatRadioChange = {
-  //   source: {} as any,
-  //   value: CONTROL_PLANE
-  // };
+  const mat_radio_change_control_plane: MatRadioChange = {
+    source: {} as any,
+    value: CONTROL_PLANE
+  };
   const mat_radio_change_minio: MatRadioChange = {
     source: {} as any,
     value: MINIO
@@ -219,12 +218,11 @@ describe('AddNodeDialogComponent', () => {
       it('should call change_node_type() and set create_duplicate_ = false if event.value = CONTROL_PLANE | MINIO | LTAC', () => {
         reset();
 
-        // Will need CONTROL_PLANE added
-        // component['create_duplicate_'] = true;
+        component['create_duplicate_'] = true;
         component['kit_status_'] = MockKitStatusClass;
-        // component.change_node_type(mat_radio_change_control_plane);
+        component.change_node_type(mat_radio_change_control_plane);
 
-        // expect(component['create_duplicate_']).toBeFalse();
+        expect(component['create_duplicate_']).toBeFalse();
 
         // Will need LTAC added
         // component['create_duplicate_'] = true;

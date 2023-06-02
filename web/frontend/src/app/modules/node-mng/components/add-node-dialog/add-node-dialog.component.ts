@@ -495,7 +495,7 @@ export class AddNodeDialogComponent implements OnInit {
    * @memberof AddNodeDialogComponent
    */
   private api_get_kit_status_(): void {
-    this.kit_settings_service_.getKitStatus()
+    this.kit_settings_service_.get_kit_status()
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: KitStatusClass) => {
@@ -568,7 +568,7 @@ export class AddNodeDialogComponent implements OnInit {
    * @memberof AddNodeDialogComponent
    */
   private api_add_node_(): void {
-    this.kit_settings_service_.addNode(this.node_form_group.value)
+    this.kit_settings_service_.add_node(this.node_form_group.value)
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: GenericJobAndKeyClass) => {

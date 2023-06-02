@@ -329,7 +329,7 @@ export class AddMipDialogComponent implements OnInit {
    * @memberof AddMipDialogComponent
    */
   private api_get_nodes_(call_initialize_node_form_group: boolean = false): void {
-    this.kit_settings_service_.getNodes()
+    this.kit_settings_service_.get_nodes()
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: NodeClass[]) => {

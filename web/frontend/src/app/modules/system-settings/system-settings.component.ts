@@ -26,7 +26,7 @@ export class SystemSettingsComponent implements OnInit {
     this.kitSettingsSrv.getGeneralSettings().subscribe((data: GeneralSettingsClass) => {
       this.generalSettings = data;
     });
-    this.kitSettingsSrv.getKitStatus().subscribe((data: KitStatusClass) => {
+    this.kitSettingsSrv.get_kit_status().subscribe((data: KitStatusClass) => {
       this.kitStatus = data;
     });
 

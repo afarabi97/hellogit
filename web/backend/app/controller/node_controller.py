@@ -129,7 +129,7 @@ class NodeUpdateFactsCtrl(Resource):
                 settings = MipSettingsForm.load_from_db()  # type: MipSettingsForm
             if settings:
                 update_device_facts_job.delay(node, settings)
-                return "Update node facts started", 200
+                return {"success_message": "Update node facts started"}, 200
         except Exception as exc:
             return {" error_message": str(exc)}, 400
         return {"error_message": "Unknown error"}, 500
@@ -321,25 +321,6 @@ class ControlPlaneCtrl(Resource):
         job = execute.delay(
             node=node, exec_type=DEPLOYMENT_JOBS.setup_control_plane)
         return JobIDModel(job).to_dict()
-
-    @KIT_SETUP_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
-    @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
-    @login_required_roles()
-    def get(self) -> Response:
-        try:
-            results = []
-            nodes = Node.load_control_plane_from_db()  # type: Node
-            for node in nodes:
-                job_list = []
-                jobs = NodeJob.load_jobs_by_node(node)  # type: NodeJob
-                for job in jobs:
-                    job_list.append(job.to_dict())
-                node_json = node.to_dict()
-                node_json["jobs"] = job_list
-                results.append(node_json)
-            return results
-        except DBModelNotFound:
-            return {"error_message": "DBModelNotFound."}, 400
 
     @KIT_SETUP_NS.response(200, 'JobIDModel', JobIDModel.DTO)
     @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)

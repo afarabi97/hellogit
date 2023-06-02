@@ -10,6 +10,7 @@ export const WARN_BUTTON_COLOR: string = 'warn';
 
 // Used for passing specific dialog width when opening a mat dialog
 export const DIALOG_WIDTH_50VW: string = '50vw';
+export const DIALOG_WIDTH_75VW: string = '75vw';
 export const DIALOG_WIDTH_80VW: string = '80vw';
 export const DIALOG_HEIGHT_90VH: string = '90vh';
 export const DIALOG_WIDTH_35PERCENT: string = '35%';
@@ -144,6 +145,7 @@ export const UNKNOWN: string = 'Unknown';
 
 export const CREATE: string = 'create';
 export const DEPLOY: string = 'deploy';
+export const REMOVE: string = 'remove';
 export const CANCEL: string = 'cancel';
 export const DEPLOYMENT_OPTIONS: MatOptionInterface[] = [
   { name: BAREMETAL, value: BAREMETAL },
