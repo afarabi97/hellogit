@@ -14,6 +14,8 @@ spec:
     metadata:
       labels:
         component: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       initContainers:
       - name: nifi-init
@@ -23,7 +25,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "chown -R 1000:1000 {{ .Values.nifi_base_dir }}"
+        - "chown -R 1000:1000 {{ .Values.nifi_base_dir }}; chown -R 1000:1000 /opt"
         volumeMounts:
         - name: nifi-data
           mountPath: {{ .Values.nifi_base_dir }}/logs
@@ -73,6 +75,8 @@ spec:
       - name: nifi
         image: "{{ .Values.nifi_image }}:{{ .Values.nifi_version }}"
         imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
         command:
         - "/bin/sh"
         - "-c"
@@ -83,6 +87,36 @@ spec:
         env:
         - name: NIFI_WEB_HTTP_HOST
           value: localhost
+        - name: NIFI_WEB_PROXY_HOST
+          value: localhost,localost:8443,nifi.{{ .Values.domain }},nifi.{{ .Values.domain }}:8443
+        - name: NIFI_WEB_HTTPS_HOST
+          value: 0.0.0.0
+        - name: NIFI_REMOTE_INPUT_HOST
+          value: nifi.{{ .Values.domain }}
+        - name: NIFI_CLUSTER_ADDRESS
+          value: nifi.{{ .Values.domain }}
+        - name: NIFI_WEB_HTTPS_PORT
+          value: "8443"
+        - name: AUTH
+          value: tls
+        - name: KEYSTORE_PATH
+          value: {{ .Values.nifi_base_dir }}/conf/keystore.jks
+        - name: KEYSTORE_TYPE
+          value: JKS
+        - name: KEYSTORE_PASSWORD
+          value: changeit
+        - name: TRUSTSTORE_PATH
+          value: {{ .Values.nifi_base_dir }}/conf/truststore.jks
+        - name: TRUSTSTORE_TYPE
+          value: JKS
+        - name: TRUSTSTORE_PASSWORD
+          value: changeit
+        - name: INITIAL_ADMIN_IDENTITY
+          value: admin
+        - name: NIFI_SECURITY_USER_AUTHORIZER
+          value: managed-authorizer
+        - name: NIFI_SECURITY_USER_LOGIN_IDENTITY_PROVIDER
+          value: single-user-provider
         volumeMounts:
         - name: config
           mountPath: /setup.sh
@@ -111,6 +145,10 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
+        - name: nifi-saml
+          mountPath: /etc/nifi-saml-certs/
+        - name: sso-idp-metadata
+          mountPath: /etc/idp/
       restartPolicy: Always
       nodeSelector:
         role: {{ if .Values.serviceNode }}service{{ else }}server{{ end }}

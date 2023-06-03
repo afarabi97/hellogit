@@ -9,9 +9,33 @@ data:
     scripts_dir='/opt/nifi/scripts'
     [ -f "${scripts_dir}/common.sh" ] && . "${scripts_dir}/common.sh"
 
-    prop_replace 'nifi.flow.configuration.file' "./flowfile_repository/flow.xml.gz"
-    prop_replace 'nifi.security.allow.anonymous.authentication' "true"
+    grep -i nifi /etc/hosts | sed s/$(hostname)/nifi.{{ .Values.domain }}/g >> /etc/hosts
+    echo Enabling auto-reload of certs
+    prop_replace 'nifi.security.autoreload.enabled' 'true'
+    prop_replace 'nifi.security.autoreload.interval' '60 secs'
 
-    # WebCA truststore
-    echo "Create WebCA TrustStore"
-    keytool -importcert -noprompt -trustcacerts -file /etc/ssl/certs/container/ca.crt -alias webCA -keystore {{ .Values.nifi_base_dir }}/files/webCA.jks -storepass changeit
+    prop_replace 'nifi.flow.configuration.file' "./flowfile_repository/flow.xml.gz"
+    prop_replace 'nifi.security.user.login.identity.provider' 'single-user-provider'
+    /opt/nifi/nifi-current/bin/nifi.sh set-single-user-credentials admin password123456
+
+    prop_replace 'nifi.security.user.saml.idp.metadata.url' 'file:///etc/idp/idp.metadata.xml'
+    prop_replace 'nifi.security.user.saml.sp.entity.id' 'https://nifi.{{ .Values.domain }}/shibboleth'
+    prop_replace 'nifi.security.user.saml.group.attribute.name' 'member'
+    prop_replace 'nifi.security.user.saml.http.client.truststore.strategy' 'JDK'
+    prop_replace 'nifi.security.user.saml.request.signing.enabled' 'true'
+
+    echo Import Keystore Keys
+    cat /etc/ssl/certs/container/tls.crt /etc/ssl/certs/container/ca.crt >> /opt/nifi/nifi-current/conf/nifi.pem
+    openssl pkcs12 -export -out /opt/nifi/nifi-current/conf/nifi.p12 -inkey /etc/ssl/certs/container/tls.key -in /opt/nifi/nifi-current/conf/nifi.pem -name nifi-key -password pass:changeit
+    keytool -importkeystore -srckeystore /opt/nifi/nifi-current/conf/nifi.p12 -srcstoretype pkcs12 -srcalias nifi-key -destkeystore /opt/nifi/nifi-current/conf/keystore.jks -deststoretype jks -destalias nifi-key -storepass changeit -srcstorepass changeit
+    keytool -importcert -trustcacerts -alias webCA -file /etc/ssl/certs/container/ca.crt -keystore /opt/nifi/nifi-current/conf/truststore.jks -storepass changeit -noprompt
+
+    echo Create nifi-saml.p12
+    openssl pkcs12 -export -out /opt/nifi/nifi-current/conf/nifi-saml.p12 -in /etc/nifi-saml-certs/tls.crt -inkey /etc/nifi-saml-certs/tls.key -name nifi-saml -password pass:changeit
+
+    echo Import nifi-saml to /opt/nifi/nifi-current/conf/keystore.jks
+    keytool -importkeystore -srckeystore /opt/nifi/nifi-current/conf/nifi-saml.p12 -srcstoretype pkcs12 -srcalias nifi-saml -destkeystore /opt/nifi/nifi-current/conf/keystore.jks -deststoretype jks -destalias nifi-saml -storepass changeit -srcstorepass changeit
+    echo Import idp-saml to truststore
+    keytool -importcert -trustcacerts -alias idp-saml -file /etc/idp/idp.crt -keystore /opt/nifi/nifi-current/conf/truststore.jks -storepass changeit -noprompt
+
+    sed -i '/nifi.web.proxy.context.path/d' /opt/nifi/nifi-current/conf/nifi.properties

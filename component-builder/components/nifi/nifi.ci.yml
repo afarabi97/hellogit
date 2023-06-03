@@ -6,9 +6,11 @@
   only:
     changes:
       - component-builder/components/nifi/helm/*
+      - component-builder/components/nifi/helm/templates/*
       - component-builder/components/nifi/helm/**/*
       - component-builder/components/nifi/templates/Chart.yaml.j2
       - component-builder/components/nifi/templates/values.yaml.j2
+      - versions.yml
   except:
     - tags
     - schedules

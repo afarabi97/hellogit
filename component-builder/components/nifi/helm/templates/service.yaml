@@ -8,7 +8,7 @@ spec:
   ports:
   - name: https
     port: 443
-    targetPort: https
+    #targetPort: 8443
   selector:
     component: {{ .Release.Name }}
   type: LoadBalancer

@@ -10,7 +10,8 @@ data:
       <!-- The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. -->
       <ApplicationDefaults entityID="https://nifi.{{ .Values.domain }}/shibboleth" signing="true"
           REMOTE_USER="uid eppn subject-id pairwise-id persistent-id"
-          cipherSuites="DEFAULT:!EXP:!LOW:!aNULL:!eNULL:!DES:!IDEA:!SEED:!RC4:!3DES:!kRSA:!SSLv2:!SSLv3:!TLSv1:!TLSv1.1">
+          cipherSuites="DEFAULT:!EXP:!LOW:!aNULL:!eNULL:!DES:!IDEA:!SEED:!RC4:!3DES:!kRSA:!SSLv2:!SSLv3:!TLSv1:!TLSv1.1"
+          metadataAttributePrefix="Meta-">
           <!--
           Controls session lifetimes, address checks, cookie handling, and the protocol handlers.
           Each Application has an effectively unique handlerURL, which defaults to "/Shibboleth.sso"
@@ -57,6 +58,11 @@ data:
 
           <!-- Default filtering policy for recognized attributes, lets other data pass. -->
           <AttributeFilter type="XML" validate="true" path="attribute-policy.xml"/>
+
+          <AttributeExtractor type="Chaining">
+            <AttributeExtractor type="XML" path="attribute-map.xml"/>
+            <AttributeExtractor type="KeyDescriptor" signingId="Signing-Keys"/>
+          </AttributeExtractor>
 
           <!-- Simple file-based resolvers for separate signing/encryption keys. -->
           <CredentialResolver type="File" use="signing"
@@ -120,10 +126,12 @@ data:
       SSLProxyCheckPeerCN off
       SSLProxyCheckPeerName off
 
-      ProxyPass /  https://${HOSTNAME}:{{ .Values.nifi_port }}/ retry=0
-      ProxyPassReverse / https://${HOSTNAME}:{{ .Values.nifi_port }}/
+      ProxyPass /  https://localhost:{{ .Values.nifi_port }}/ retry=0
+      ProxyPassReverse / https://localhost:{{ .Values.nifi_port }}/
+      ProxyPassReverse / https://localhost:443/
+      ProxyPassReverse / https://localhost/
       RequestHeader add X-ProxyScheme "https"
-      RequestHeader add X-ProxyHost "${HOSTNAME}"
+      RequestHeader add X-ProxyHost "nifi.{{ .Values.domain }}"
       RequestHeader add X-ProxyPort "443"
 
       <If "-T req('Authorization')">
