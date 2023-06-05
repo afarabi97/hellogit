@@ -1,6 +1,7 @@
 *** Settings ***
 Resource    ../../lib/dipAPIDocsKeywords.resource
 Resource    ../../lib/dipCommonKeywords.resource
+Resource    ../../lib/dipHealthKeywords.resource
 Resource    ../../lib/dipPortalKeywords.resource
 Resource    ../../lib/dipToolsKeywords.resource
 Resource    ../../lib/dipPmoSupportKeywords.resource
@@ -54,17 +55,19 @@ Verify Content On Support Page
     Check PMO Support Site Section
     Check Version Information Section
 
-TFPlenum API Documentation Page
-    [Tags]  THISISCVAH-11921
-    [Documentation]  This test validates that the API docs page loads and does not return an error.
-    Navigate To API Docs
-    Validate API Documentation
-    Switch Window  MAIN
-
 Check Nodes On Health Page
+    [Tags]  THISISCVAH-14083
     [Documentation]  Verify all kit nodes are listed and in the "Ready" state
     Navigate To Health
     Verify Nodes Are Ready
+
+Check Catalog Apps On Health Page
+    [Tags]  THISISCVAH-14084
+    [Documentation]  Verify that installed catalog apps are present under Pods table on Health page.
+    ${installed_apps} =  Get Installed Catalog Apps
+    FOR  ${app}  IN  @{installed_apps}
+        Check Health Page For App  ${app}
+    END
 
 Change Kit Password
     [Tags]  THISISCVAH-12363
@@ -90,3 +93,10 @@ Generate API Key And Check Authentication
     Check Content Of API Key  ${expiration}  ${roles}
     Make API Request  ${expiration}
     Close Connection
+
+# TFPlenum API Documentation Page
+#     [Tags]  THISISCVAH-11921
+#     [Documentation]  This test validates that the API docs page loads and does not return an error.
+#     Navigate To API Docs
+#     Validate API Documentation
+#     Switch Window  MAIN

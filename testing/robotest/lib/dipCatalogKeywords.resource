@@ -194,28 +194,6 @@ Check Notifications For App
     Press Keys  None  ESCAPE
     Sleep  5s
 
-Check Health Page For App
-    [Arguments]  ${application_name}
-    [Documentation]  Visual confirmation on the Health Page that the app is installed
-    log     Check Health Page For App ${application_name}
-    Navigate To Health
-    Wait Until Page Does Not Contain  Pod Errors  5m
-    ${app_name_lower} =  Convert To Lower Case  ${application_name}
-    ${expected_text} =  Set Variable If
-    ...  '${app_name_lower}' == 'arkime'  -${app_name_lower}-  ${app_name_lower}  # else var just assigned app name
-    ${app_on_health_page} =  Set Variable  False
-    lookFor  Pods
-    ${pod_table_loc} =  Set Variable  xpath=//cvah-health-dashboard-pod-table//tbody/tr/td[1]/span[1]
-    Wait Until Element Is Visible  ${pod_table_loc}
-    ${pod_status_tables} =  Get WebElements  ${pod_table_loc}
-    FOR  ${table}  IN  @{pod_status_tables}
-        click  ${table}
-        Sleep  1s
-        ${app_on_health_page} =  Run Keyword And Return Status  Page Should Contain  ${expected_text}
-        Run Keyword If	'${app_on_health_page}' == 'True'  Exit For Loop
-    END
-    Run Keyword if  '${app_on_health_page}'=='False'  Fail  ${application_name} not listed on Health page
-
 Uninstall Multiple Apps
     [Arguments]  @{application_list}
     [Documentation]  Uninstalls one or many apps from Catalog page.
