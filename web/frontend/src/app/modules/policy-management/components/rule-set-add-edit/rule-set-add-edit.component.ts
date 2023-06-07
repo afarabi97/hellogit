@@ -5,12 +5,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { HostInfoClass, ObjectUtilitiesClass, RuleSetClass } from '../../../../classes';
+import { DataMethodsClass, HostInfoClass, ObjectUtilitiesClass, RuleSetClass } from '../../../../classes';
 import {
   MAT_SNACKBAR_CONFIGURATION_3000_DUR,
   MAT_SNACKBAR_CONFIGURATION_60000_DUR
 } from '../../../../constants/cvah.constants';
-import { get_form_control_value_from_form_group } from '../../../../functions/cvah.functions';
 import { MatOptionInterface } from '../../../../interfaces';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
 import { SensorHostInfoService } from '../../../../services/sensor-host-info.service';
@@ -125,7 +124,7 @@ export class RuleSetAddEditComponent implements OnInit {
    * @memberof RuleSetAddEditComponent
    */
   is_rule_set_enabled(): boolean {
-    return get_form_control_value_from_form_group<boolean>(this.rule_set_form_group, 'isEnabled');
+    return DataMethodsClass.get_form_control_value_from_form_group<boolean>(this.rule_set_form_group, 'isEnabled');
   }
 
   /**
@@ -134,7 +133,7 @@ export class RuleSetAddEditComponent implements OnInit {
    * @memberof RuleSetAddEditComponent
    */
   submit(): void {
-    const sensors: string[] = get_form_control_value_from_form_group<string[]>(this.rule_set_form_group, 'sensors');
+    const sensors: string[] = DataMethodsClass.get_form_control_value_from_form_group<string[]>(this.rule_set_form_group, 'sensors');
     const valuesToSendBack = [];
     for (const hostname of sensors) {
       for (const hostObj of this.sensor_list_) {

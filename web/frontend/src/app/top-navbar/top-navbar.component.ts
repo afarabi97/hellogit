@@ -2,9 +2,8 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@ang
 import { forkJoin, interval, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { KitStatusClass, NotificationClass, ObjectUtilitiesClass } from '../classes';
+import { DataMethodsClass, KitStatusClass, NotificationClass, ObjectUtilitiesClass } from '../classes';
 import { MAT_SNACKBAR_CONFIGURATION_60000_DUR, WEBSOCKET_MESSAGE_STATUS_COMPLETED } from '../constants/cvah.constants';
-import { returnDate } from '../functions/cvah.functions';
 import { NotificationsComponent } from '../modules/notifications/notifications.component';
 import { CookieService } from '../services/cookies.service';
 import { GlobalToolsService } from '../services/global-tools.service';
@@ -13,8 +12,8 @@ import { MatSnackBarService } from '../services/mat-snackbar.service';
 import { UserService } from '../services/user.service';
 import { WebsocketService } from '../services/websocket.service';
 import { DIPTimeClass } from './classes/dip-time.class';
+import { NavBarMethodsClass } from './classes/navbar-methods.class';
 import { WEBSOCKET_MESSAGE_ROLE_DOCUMENNTATION_UPLOAD } from './constants/navbar.constants';
-import { getSideNavigationButtons } from './functions/navbar.functions';
 import { NavGroupInterface } from './interfaces';
 import { NavBarService } from './services/navbar.service';
 
@@ -135,7 +134,7 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
    * @memberof TopNavbarComponent
    */
   buildNavBar(): void {
-    this.sideNavigationButtons = getSideNavigationButtons(this.userService_, false, []);
+    this.sideNavigationButtons = NavBarMethodsClass.getSideNavigationButtons(this.userService_, false, []);
     this.changeDetectorRef_.detectChanges();
     forkJoin({ htmlSpaces: this.global_tools_service_.get_spaces(), kitData: this.kitSettingsSrv.get_kit_status() })
       .pipe(takeUntil(this.ngUnsubscribe$_))
@@ -147,7 +146,7 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
           this.kitStatus = data.kitData.base_kit_deployed;
         }
         //TODO fix the nav bar with new kit status
-        this.sideNavigationButtons = getSideNavigationButtons(this.userService_, this.kitStatus, this.htmlSpaces);
+        this.sideNavigationButtons = NavBarMethodsClass.getSideNavigationButtons(this.userService_, this.kitStatus, this.htmlSpaces);
         this.changeDetectorRef_.detectChanges();
       });
   }
@@ -206,8 +205,8 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
     const dateParts = datetime.split(' ')[0].split("-");
     const timeParts = datetime.split(' ')[1].split(":");
 
-    this.time = returnDate( parseInt(dateParts[2], 10), parseInt(dateParts[0], 10) - 1, parseInt(dateParts[1], 10),
-                            parseInt(timeParts[0], 10), parseInt(timeParts[1], 10), parseInt(timeParts[2], 10) );
+    this.time = DataMethodsClass.returnDate(parseInt(dateParts[2], 10), parseInt(dateParts[0], 10) - 1, parseInt(dateParts[1], 10),
+                                            parseInt(timeParts[0], 10), parseInt(timeParts[1], 10), parseInt(timeParts[2], 10));
   }
 
   /**

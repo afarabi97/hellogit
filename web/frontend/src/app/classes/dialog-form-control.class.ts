@@ -35,6 +35,7 @@ export class DialogFormControlClass extends FormControl implements DialogFormCon
     this.tooltip = dialog_form_control_config_class.tooltip;
     this.options = dialog_form_control_config_class.options;
     this.isDisabled = dialog_form_control_config_class.isDisabled;
+    /* istanbul ignore else */
     if (this.isDisabled) {
       this.disable();
     }

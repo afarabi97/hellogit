@@ -4,6 +4,7 @@ export * from './chart-info.class';
 export * from './chart.class';
 export * from './config-map.class';
 export * from './config-map-metadata.class';
+export * from './data-methods.class';
 export * from './default-ipv4-settings.class';
 export * from './device-facts.class';
 export * from './dialog-form-control.class';

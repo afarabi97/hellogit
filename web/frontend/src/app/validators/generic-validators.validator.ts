@@ -1,7 +1,7 @@
 import { AbstractControl, FormArray, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
 
+import { DataMethodsClass } from '../classes';
 import { IP_CONSTRAINT } from '../constants/cvah.constants';
-import { is_ipv4_in_subnet } from '../functions/cvah.functions';
 import { ValidatorObjectInterface } from '../interfaces';
 
 export class errorObject {
@@ -187,7 +187,7 @@ export function validateIPAddress(validatorObject: ValidatorObjectInterface, con
       const netmask = ops.parentFormGroup.get('netmask');
       // start validating using previous validation
       if (controller_interface.value !== undefined && pat.test(control.value)) {
-        if (!is_ipv4_in_subnet(control.value, controller_interface.value, netmask.value)) {
+        if (!DataMethodsClass.is_ipv4_in_subnet(control.value, controller_interface.value, netmask.value)) {
           error = new errorObject({ control: control, error_message: `The value ${control.value} is not in the correct subnet` });
         }
 

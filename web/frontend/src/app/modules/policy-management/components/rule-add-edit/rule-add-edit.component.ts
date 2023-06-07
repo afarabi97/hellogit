@@ -7,6 +7,7 @@ import * as FileSaver from 'file-saver';
 import { Subject } from 'rxjs';
 
 import {
+  DataMethodsClass,
   DialogFormControlClass,
   DialogFormControlConfigClass,
   ErrorMessageClass,
@@ -22,7 +23,6 @@ import {
   MAT_SNACKBAR_CONFIGURATION_60000_DUR
 } from '../../../../constants/cvah.constants';
 import { DialogControlTypesEnum } from '../../../../enums/dialog-control-types.enum';
-import { get_form_control_value_from_form_group } from '../../../../functions/cvah.functions';
 import {
   BackingObjectInterface,
   ConfirmDialogMatDialogDataInterface,
@@ -109,7 +109,7 @@ export class RuleAddEditComponent implements OnInit {
    * @memberof RuleAddEditComponent
    */
   is_rule_enabled(): boolean {
-    return get_form_control_value_from_form_group<boolean>(this.rule_form_group, 'isEnabled');
+    return DataMethodsClass.get_form_control_value_from_form_group<boolean>(this.rule_form_group, 'isEnabled');
   }
 
   /**

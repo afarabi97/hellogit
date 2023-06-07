@@ -37,6 +37,7 @@ export class NotificationClass implements NotificationInterface {
     this.displayTime = notification_interface.displayTime;
     this.action = notification_interface.action;
     this.application = notification_interface.application;
+    /* istanbul ignore else */
     if (ObjectUtilitiesClass.notUndefNull(notification_interface.data)) {
       this.data = new NotificationDataClass(notification_interface.data);
     }

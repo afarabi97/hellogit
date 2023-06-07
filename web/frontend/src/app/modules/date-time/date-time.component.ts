@@ -4,10 +4,8 @@ import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatSelectChange } from '@angular/material/select';
 
-import { ObjectUtilitiesClass } from '../../classes';
-import { returnDate } from '../../functions/cvah.functions';
+import { DataMethodsClass, ObjectUtilitiesClass } from '../../classes';
 import { TIMEZONES } from './constants/date-time.constants';
-import { getCurrentDate } from './functions/date-time.functions';
 
 /**
  * Component used for date time realted functionality
@@ -30,10 +28,10 @@ export class DateTimeComponent implements OnChanges {
   @Input() uniqueHTMLID: string;
   @Input() datetime: FormControl;
   @Input() timezone: FormControl;
-  @Input() format = 'MM/dd/yyyy HH:mm:ss';
+  @Input() format: string;
   @Input() placeholder: string;
-  timeZones = TIMEZONES;
-  value: Date = null;
+  timeZones: string[];
+  value: Date;
   isDisabled: boolean;
 
   /**
@@ -43,6 +41,9 @@ export class DateTimeComponent implements OnChanges {
    * @memberof DateTimeComponent
    */
   constructor(private datePipe_: DatePipe) {
+    this.format  = 'MM/dd/yyyy HH:mm:ss';
+    this.timeZones = TIMEZONES;
+    this.value = null;
     this.isDisabled = false;
   }
 
@@ -91,8 +92,8 @@ export class DateTimeComponent implements OnChanges {
     // create a new reference so Angular will pick up that the binding changed
     // and update the UI
     const hoursMinutesSeconds = this.getHoursMinutesSeconds_();
-    this.value = returnDate( selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(),
-                             hoursMinutesSeconds[0], hoursMinutesSeconds[1], hoursMinutesSeconds[2] );
+    this.value = DataMethodsClass.returnDate(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(),
+                                             hoursMinutesSeconds[0], hoursMinutesSeconds[1], hoursMinutesSeconds[2]);
   }
 
   /**
@@ -105,8 +106,8 @@ export class DateTimeComponent implements OnChanges {
     const prevDate = new Date(this.value);
     const newDate = new Date(event.target.value);
     if (newDate.toString() !== 'Invalid Date') {
-      this.value = returnDate( newDate.getFullYear(), newDate.getMonth(), newDate.getDate(),
-                               newDate.getHours(), newDate.getMinutes(), newDate.getSeconds() );
+      this.value = DataMethodsClass.returnDate(newDate.getFullYear(), newDate.getMonth(), newDate.getDate(),
+                                               newDate.getHours(), newDate.getMinutes(), newDate.getSeconds());
       this.datetime.setValue(this.datePipe_.transform(this.value, this.format));
       this.datetime.setErrors(null);
     } else {
@@ -130,7 +131,7 @@ export class DateTimeComponent implements OnChanges {
       timezonestr = browserTimezone;
     }
 
-    this.value = getCurrentDate(timezonestr);
+    this.value = DataMethodsClass.getCurrentDate(timezonestr);
     /* istanbul ignore else */
     if (ObjectUtilitiesClass.notUndefNull(this.value) &&
         ObjectUtilitiesClass.notUndefNull(this.datetime)) {

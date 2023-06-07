@@ -20,7 +20,7 @@ import { CapitalizeFirstPipe } from '../pipes/capitalize-first.pipe';
 import { ApiService } from '../services/abstract/api.service';
 import { CookieService } from '../services/cookies.service';
 import { WebsocketService } from '../services/websocket.service';
-import { getSideNavigationButtons } from './functions/navbar.functions';
+import { NavBarMethodsClass } from './classes/navbar-methods.class';
 import { NavGroupInterface } from './interfaces';
 import { TopNavbarComponent } from './top-navbar.component';
 
@@ -221,8 +221,8 @@ describe('TopNavbarComponent', () => {
 
         expect(component.htmlSpaces).toEqual(htmlSpacesData);
         expect(component.kitStatus).toEqual(MockKitStatusClass.base_kit_deployed);
-        expect(component.sideNavigationButtons).toEqual(getSideNavigationButtons(component['userService_'],
-                                                                                 component.kitStatus, component.htmlSpaces));
+        expect(component.sideNavigationButtons).toEqual(NavBarMethodsClass.getSideNavigationButtons(component['userService_'],
+                                                                                                    component.kitStatus, component.htmlSpaces));
       });
     });
 

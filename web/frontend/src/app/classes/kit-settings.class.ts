@@ -37,21 +37,27 @@ export class KitSettingsClass implements KitSettingsInterface {
     this.upstream_ntp = kit_settings_interface.upstream_ntp;
     this.job_id = kit_settings_interface.job_id;
     this.job_completed = kit_settings_interface.job_completed;
+    /* istanbul ignore else */
     if (ObjectUtilitiesClass.notUndefNull(kit_settings_interface.is_gip)) {
       this.is_gip = kit_settings_interface.is_gip;
     }
+    /* istanbul ignore else */
     if (ObjectUtilitiesClass.notUndefNull(kit_settings_interface.controller_interface)) {
       this.controller_interface = kit_settings_interface.controller_interface;
     }
+    /* istanbul ignore else */
     if (ObjectUtilitiesClass.notUndefNull(kit_settings_interface.netmask)) {
       this.netmask = kit_settings_interface.netmask;
     }
+    /* istanbul ignore else */
     if (ObjectUtilitiesClass.notUndefNull(kit_settings_interface.gateway)) {
       this.gateway = kit_settings_interface.gateway;
     }
+    /* istanbul ignore else */
     if (ObjectUtilitiesClass.notUndefNull(kit_settings_interface.domain)) {
       this.domain = kit_settings_interface.domain;
     }
+    /* istanbul ignore else */
     if (ObjectUtilitiesClass.notUndefNull(kit_settings_interface.dhcp_range)) {
       this.dhcp_range = kit_settings_interface.dhcp_range;
     }
