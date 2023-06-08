@@ -11,13 +11,13 @@ misc_versions:
   crio_version: "v1.24.1"
   docker_distribution: "2.6.2-2"
   emerging_threat_rules_version: "suricata-5.0" # suricata-6.0 rules havent been released yet. (https://rules.emergingthreats.net/open/)
-  helm_version: "v3.7.1"
+  helm_version: "v3.8.0"
   iso_rhel_version: "8.2"
   keycloak_version: "11.0.3"
   kubetail: "1.6.12"
   node_version: v14.5.0
   npm: "6.14.5"
-  rpm_version: "3.7.0"
+  rpm_version: "3.8.0"
   support_diagnostics: "8.1.1"
   tfplenum_cli_version: 3.7.0-5.el8.x86_64
 

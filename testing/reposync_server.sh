@@ -6,6 +6,7 @@ SERVER_REPOS=("codeready-builder-for-rhel-8-x86_64-rpms"
               "rhel-8-for-x86_64-baseos-rpms"
               "rhel-8-for-x86_64-supplementary-rpms"
              )
+RELEASE_VERSION="8.7"
 
 function run_cmd {
 	local command="$@"
@@ -25,15 +26,16 @@ function root_check() {
 }
 
 function run_stigs() {
-    run_cmd dnf -y install ansible
+    run_cmd dnf -y install ansible-core ansible-collection-ansible-utils ansible-collection-redhat-rhel_mgmt ansible-collection-ansible-posix ansible-collection-community-general
     pushd /opt/tfplenum/rhel8-stigs > /dev/null
-    ansible all --list-hosts
+    # Not sure this is actually necessary? - Suede
+    #ansible all --list-hosts
     ansible-playbook site.yml --connection=local -i localhost,
     popd > /dev/null
 }
 
 function install_deps() {
-    run_cmd dnf -y update
+    run_cmd dnf -y update --releasever $RELEASE_VERSION
     run_cmd dnf -y install httpd dnf-utils createrepo
     run_cmd dnf -y install mod_ssl
     echo "Dependencies installed..."
@@ -115,7 +117,7 @@ function rhel_reposync() {
     repo_path="/var/www/html/repo"
     mkdir -p $repo_path
     pushd "$repo_path" > /dev/null
-    subscription-manager release --set=8.7
+    subscription-manager release --set=$RELEASE_VERSION
     for repo in ${SERVER_REPOS[@]}; do
         echo "Syncing $repo..."
         dnf reposync -n --repoid=$repo --destdir=$repo_path --download-metadata

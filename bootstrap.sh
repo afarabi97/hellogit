@@ -1,6 +1,6 @@
 #!/bin/bash
 set -x
-export CVAH_VERSION=3.7.0
+export CVAH_VERSION=3.8.0
 bootstrap_version=1.5.0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 RHEL_VERSION="8.2"

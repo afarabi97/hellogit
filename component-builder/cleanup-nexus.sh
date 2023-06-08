@@ -2,8 +2,8 @@
 ALL_COMPONENTS=$(ls components)
 NEXUS_USER="tfplenum-bot"
 NEXUS_PASSWORD=""
-RPM_VERSION="3.7.0"
-RPM_RELEASE_NUM="19"
+RPM_VERSION="3.8.0"
+RPM_RELEASE_NUM="0"
 REGISTRY_URL="https://nexus.sil.lab/repository/tfplenum-stable"
 
 for component in $ALL_COMPONENTS repo

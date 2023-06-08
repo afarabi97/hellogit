@@ -317,22 +317,35 @@ MDT:
   dest: "MDT/Data/CVAH {{ VERSION }}/Firmware"
 
 GIP:
+# - app: jcat
+#   src:
+#     - Repo/GIP/jcat/1.0/appconfig.json
+#     - Repo/GIP/jcat/1.0/Chart.yaml
+#     - Repo/GIP/jcat/1.0/jcat-nifi.tar
+#     - Repo/GIP/jcat/1.0/jcat-notes
+#     - Repo/GIP/jcat/1.0/templates
+#     - Repo/GIP/jcat/1.0/values.yaml
+#   dest: staging_gip/v3.7/GIP/Data/CVAH 3.7/jcat
+
 - app: vcenter
   src:
     - Repo/GIP/Software/vcenter/VMware-VCSA-all-7.0.3-21477706.iso
-    - Repo/GIP/Software/vcenter/VMware-VMvisor-Installer-7.0.0.update03-20842708.x86_64-Dell_Customized-A10.iso
+    - Repo/GIP/Software/vcenter/VMware-VMvisor-Installer-7.0.0.update02-17630552.x86_64-DellEMC_Customized-A01.iso
   dest: "staging_gip/v{{ VERSION }}/GIP/Data/CVAH {{ VERSION }}/Software/vcenter"
 
 - app: vms
   src:
-    - Repo/GIP/Software/VM/3.5_GIP-Server_01-15-21.ova
-    - Repo/GIP/Software/VM/CVAH-ACAS.ova
-    - Repo/GIP/Software/VM/GIP_Chrony_Proxy-2021-01-08.ova
-    - Repo/GIP/Software/VM/GIP_Chrony_Proxy-2021-01-15.ova
-    - Repo/GIP/Software/VM/GIP_Samba_VM_3.5_12-14-2020.ova
-    - Repo/GIP/Software/VM/GIP_Satellite_20210112.ova
-    - Repo/GIP/Software/VM/GIP_Satellite_20210117.ova
-    - Repo/GIP/Software/VM/GIP_Server_3.5_12-18-20.ova
-    - Repo/GIP/Software/VM/sat-6-isos
-    - Repo/GIP/Software/VM/sat-6-upgrade
-  dest: "GIP/Data/CVAH {{ VERSION }}/Software/VM"
+    - Repo/GIP/Software/VM/GIP_DNS_20230512.ova
+    - Repo/GIP/Software/VM/GIP_WSUS_20230512.ova
+    - Repo/GIP/Software/VM/libre
+  dest: staging_gip/v3.7/GIP/Data/CVAH 3.7/Software/VM
+#     - Repo/GIP/Software/VM/3.5_GIP-Server_01-15-21.ova
+#     - Repo/GIP/Software/VM/CVAH-ACAS.ova
+#     - Repo/GIP/Software/VM/GIP_Chrony_Proxy-2021-01-08.ova
+#     - Repo/GIP/Software/VM/GIP_Chrony_Proxy-2021-01-15.ova
+#     - Repo/GIP/Software/VM/GIP_Samba_VM_3.5_12-14-2020.ova
+#     - Repo/GIP/Software/VM/GIP_Satellite_20210112.ova
+#     - Repo/GIP/Software/VM/GIP_Satellite_20210117.ova
+#     - Repo/GIP/Software/VM/GIP_Server_3.5_12-18-20.ova
+#     - Repo/GIP/Software/VM/sat-6-isos
+#     - Repo/GIP/Software/VM/sat-6-upgrade

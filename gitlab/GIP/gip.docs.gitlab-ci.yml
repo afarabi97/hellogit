@@ -6,10 +6,14 @@ Download GIP Documents:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "GIP Setup Documents - Current working directory is $(pwd)"
-    cmd="python3 testing/pipeline/pipeline.py
+    echo "GIP Documentation Variables: "
+    echo "GIP_DOC_EXPORT_LOC: $GIP_DOC_EXPORT_LOC"
+    echo "DRIVE_GIP_STAGING_FOLDER: $DRIVE_GIP_STAGING_FOLDER"
+    echo "GIP_CONFLUENCE_DOCS: $GIP_CONFLUENCE_DOCS"
+    echo "TFPLENUM_EXPORT_VERSION: $TFPLENUM_EXPORT_VERSION"
+         cmd="python3 testing/pipeline/pipeline.py
          run-export export-single-page-pdf
-         --username \"$CONFLUENCE_USERNAME\"
-         --password \"$CONFLUENCE_PASSWORD\"
+         --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
          --cpt-export-path \"$GIP_DOC_EXPORT_LOC\"
          --staging-export-path \"$DRIVE_GIP_STAGING_FOLDER\"
          --export-version \"$TFPLENUM_EXPORT_VERSION\"

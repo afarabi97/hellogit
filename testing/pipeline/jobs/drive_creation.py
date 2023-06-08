@@ -63,7 +63,6 @@ def load_manifest(file: str, type: str, ver: str) -> dict:
             data = yaml.safe_load(rendered_template)
         return data[type]
 
-
 def remote_sudo_cmd(shell: Connection, command: str, warn=False, hide=False):
     print(command)
     return shell.sudo(command, warn=warn, hide=hide)

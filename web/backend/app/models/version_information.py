@@ -5,7 +5,7 @@ from flask_restx import fields
 
 class VersionInformationModel(Model):
     DTO = VERSION_NS.model('VersionInformationModel', {
-        "version": fields.String(example="3.7.0",
+        "version": fields.String(example="3.8.0",
                                  description="The version number."),
         "build_date": fields.String(example="June 09, 2022",
                                     description="The date the version was released."),
