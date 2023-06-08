@@ -51,6 +51,13 @@ class PDFExportSettings(Model):
         result = self.page_titles.split(',')
         return [i.strip() for i in result]
 
+class DocsExportSettings(Model):
+
+    def __init__(self):
+        self.confluence = ConfluenceSettings()
+        self.export_loc = ExportLocSettings()
+        self.export_type = 'DIP'
+        self.sub_pages = 'False'
 
 class ExportSettings(Model):
 
@@ -58,6 +65,7 @@ class ExportSettings(Model):
         self.html_export = HtmlExportSettings()
         self.pdf_export = PDFExportSettings()
         self.export_loc = ExportLocSettings()
+        self.doc_export = DocsExportSettings()
 
     def from_namespace(self, namespace: Namespace):
         if ( namespace.which == SubCmd.export_html_docs or
@@ -70,6 +78,8 @@ class ExportSettings(Model):
         if namespace.which == SubCmd.export_single_page_pdf:
              populate_model_from_namespace(self.pdf_export, namespace)
              #self.pdf_export.confluence.password = self.b64decode_string(self.pdf_export.confluence.password)
+        if namespace.which == SubCmd.export_docs:
+            populate_model_from_namespace(self.doc_export, namespace)
 
         if ( namespace.which == SubCmd.export_ctrl or
              namespace.which == SubCmd.export_mip_ctrl or
@@ -91,6 +101,12 @@ class ExportSettings(Model):
                                                   help=export_single_page_pdf_help)
         add_args_from_instance(export_pdf_parser, PDFExportSettings(), True)
         export_pdf_parser.set_defaults(which=SubCmd.export_single_page_pdf)
+
+        export_docs_help="This subcommand can be used to export pdf confluence documents using the manifest."
+        export_docs_parser = subparsers.add_parser(SubCmd.export_docs,
+                                                  help=export_docs_help)
+        add_args_from_instance(export_docs_parser, DocsExportSettings(), True)
+        export_docs_parser.set_defaults(which=SubCmd.export_docs)
 
         add_docs_to_controller_help="This subcommand can be used to publish html documentation to your Kits controller."
         publish_html_doc_parser = subparsers.add_parser(SubCmd.add_docs_to_controller,

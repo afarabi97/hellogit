@@ -1,3 +1,32 @@
+Download GIP Documents Using Manifest:
+  stage: docs
+  #needs: ["Clear GIP Staging Environment", "Build GIP Manifest"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Download GIP Documents Using Manifest - Current working directory is $(pwd)"
+    echo "GIP Manifest Documentation Variables: "
+    echo "PIPELINE: $PIPELINE"
+    echo "MANIFEST_DOCS: $MANIFEST_DOCS"
+    echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
+      cmd="python3 testing/pipeline/pipeline.py \
+      run-export export-docs \
+      --bearer-token \"$CONFLUENCE_BEARER_TOKEN\" \
+      --staging-export-path \"$DRIVE_STAGING_FOLDER\" \
+      --export-version \"$TFPLENUM_EXPORT_VERSION\" \
+      --sub-pages \"False\" \
+      --export-type \"GIP\""
+    echo "$cmd"
+    eval $cmd
+  retry: 2
+  allow_failure: true
+  only:
+    variables:
+      - $PIPELINE == "export-gip-docs-manifest"
+      - $PIPELINE == "export-gip-docs" && $MANIFEST_DOCS == "yes"
+      - $PIPELINE == "export-gip" && $MANIFEST_DOCS == "yes"
+
 Download GIP Documents:
   stage: docs
   #needs: ["Clear GIP Staging Environment", "Build GIP Manifest"]
@@ -5,6 +34,8 @@ Download GIP Documents:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "PIPELINE: $PIPELINE"
+    echo "MANIFEST_DOCS: $MANIFEST_DOCS"
     echo "GIP Setup Documents - Current working directory is $(pwd)"
     echo "GIP Documentation Variables: "
     echo "GIP_DOC_EXPORT_LOC: $GIP_DOC_EXPORT_LOC"
@@ -12,9 +43,9 @@ Download GIP Documents:
     echo "GIP_CONFLUENCE_DOCS: $GIP_CONFLUENCE_DOCS"
     echo "TFPLENUM_EXPORT_VERSION: $TFPLENUM_EXPORT_VERSION"
          cmd="python3 testing/pipeline/pipeline.py
-         run-export export-single-page-pdf
+         run-export export-single-page-pdf \
          --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
-         --cpt-export-path \"$GIP_DOC_EXPORT_LOC\"
+         --cpt-export-path \"$GIP_DOC_EXPORT_LOC\" \
          --staging-export-path \"$DRIVE_GIP_STAGING_FOLDER\"
          --export-version \"$TFPLENUM_EXPORT_VERSION\"
          --page-titles \"$GIP_CONFLUENCE_DOCS\""
@@ -24,5 +55,5 @@ Download GIP Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "export-gip-docs"
-      - $PIPELINE == "export-gip"
+      - $PIPELINE == "export-gip-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-gip" && $MANIFEST_DOCS == "no"

@@ -1,3 +1,25 @@
+DIP Manifest Documents:
+  stage: docs
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "DIP Manifest Documents - Current working directory is $(pwd)"
+    echo "DIP Manifest Documentation Variables: "
+    echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
+    python3 testing/pipeline/pipeline.py \
+    run-export export-docs \
+    --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
+    --export-version "$TFPLENUM_EXPORT_VERSION" \
+    --sub-pages "False"
+  retry: 2
+  allow_failure: true
+  rules:
+    - if: $PIPELINE == "export-docs" && $MANIFEST_DOCS == "yes"
+    - if: $PIPELINE == "export-manifest-docs"
+    - if: $PIPELINE == "export-all" && $MANIFEST_DOCS == "yes"
+
 DIP Setup Documents:
   stage: docs
   #needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
@@ -23,8 +45,8 @@ DIP Setup Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
+      - $PIPELINE == "export-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-all" && $MANIFEST_DOCS == "no"
 
 
 DIP User Documents:
@@ -52,8 +74,8 @@ DIP User Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
+      - $PIPELINE == "export-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-all" && $MANIFEST_DOCS == "no"
 
 
 DIP Appendix Documents:
@@ -81,8 +103,8 @@ DIP Appendix Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
+      - $PIPELINE == "export-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-all" && $MANIFEST_DOCS == "no"
 
 
 DIP Maintenance Documents:
@@ -110,8 +132,8 @@ DIP Maintenance Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
+      - $PIPELINE == "export-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-all" && $MANIFEST_DOCS == "no"
 
 
 DIP TroubleShooting Documents:
@@ -139,8 +161,8 @@ DIP TroubleShooting Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
+      - $PIPELINE == "export-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-all" && $MANIFEST_DOCS == "no"
 
 CPT VDD Documents:
   stage: docs
@@ -166,8 +188,8 @@ CPT VDD Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
+      - $PIPELINE == "export-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-all" && $MANIFEST_DOCS == "no"
 
 MDT VDD Documents:
   stage: docs
@@ -188,8 +210,8 @@ MDT VDD Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
+      - $PIPELINE == "export-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-all" && $MANIFEST_DOCS == "no"
 
 
 Minor Release CPT VDD Documents:
@@ -211,9 +233,10 @@ Minor Release CPT VDD Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "minor-release"
-      - $PIPELINE == "minor-drive-only" && $MINOR_DRIVE_DOCS == "yes"
-      - $PIPELINE == "minor-release-docs"
+      - $PIPELINE == "minor-release" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "minor-drive-only" && $MINOR_DRIVE_DOCS == "yes" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "minor-release-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-docs" && $MINOR_DRIVE_DOCS == "yes" && $MANIFEST_DOCS == "no"
 
 Minor Release MDT VDD Documents:
   stage: docs
@@ -234,9 +257,10 @@ Minor Release MDT VDD Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "minor-release"
-      - $PIPELINE == "minor-drive-only" && $MINOR_DRIVE_DOCS == "yes"
-      - $PIPELINE == "minor-release-docs"
+      - $PIPELINE == "minor-release" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "minor-drive-only" && $MINOR_DRIVE_DOCS == "yes" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "minor-release-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-docs" && $MINOR_DRIVE_DOCS == "yes" && $MANIFEST_DOCS == "no"
 
 Supplemental Documents:
   stage: docs
@@ -258,6 +282,7 @@ Supplemental Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "minor-release"
-      - $PIPELINE == "minor-drive-only" && $MINOR_DRIVE_DOCS == "yes"
-      - $PIPELINE == "minor-release-docs"
+      - $PIPELINE == "minor-release" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "minor-drive-only" && $MINOR_DRIVE_DOCS == "yes" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "minor-release-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-docs" && $MINOR_DRIVE_DOCS == "yes" && $MANIFEST_DOCS == "no"

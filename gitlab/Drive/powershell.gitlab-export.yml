@@ -1,6 +1,6 @@
 Export Powershell Modules to App Store:
   stage: export
-  needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
+  # needs: ["Clear Staging Environment", "Build CPT Manifest", "Build MDT Manifest"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -33,4 +33,4 @@ Export Powershell Modules to App Store:
 
   only:
     variables:
-      - $PIPELINE == "export-all"
+      - $PIPELINE == "export-all" && $EXPORT_POWERSHELL == "yes"

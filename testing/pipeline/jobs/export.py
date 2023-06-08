@@ -24,6 +24,9 @@ from util.constants import (CONTROLLER_PREFIX, PIPELINE_DIR,
 from util.docs_exporter import MyConfluenceExporter
 from util.general import encryptPassword
 from util.ssh import test_nodes_up_and_alive
+from util.constants import (ROOT_DIR, VM_BUILDER_DIR)
+import ruamel.yaml as yaml
+from jinja2 import Template
 
 CTRL_EXPORT_PREP = PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"
 
@@ -40,6 +43,17 @@ def create_export_path(export_loc: ExportLocSettings) -> Tuple[Path]:
 
     return cpt_export_path, mdt_export_path, staging_export_path
 
+def create_export_path2(export_loc: ExportLocSettings, dest: str) -> Tuple[Path]:
+    staging_export_path = Path(export_loc.staging_export_path + '/')
+    staging_export_path.mkdir(parents=True, exist_ok=True)
+
+    cpt_export_path = Path(f"{staging_export_path}/CPT/{dest}")
+    cpt_export_path.mkdir(parents=True, exist_ok=True)
+
+    mdt_export_path = Path(f"{staging_export_path}/MDT/{dest}")
+    mdt_export_path.mkdir(parents=True, exist_ok=True)
+
+    return cpt_export_path, mdt_export_path, staging_export_path
 
 def clear_based_on_pattern(some_path: Union[str, Path], pattern: str):
     if isinstance(some_path, str):
@@ -254,6 +268,7 @@ class ConfluenceExport:
     def __init__(self, export_settings: ExportSettings):
         self.html_export_settings = export_settings.html_export
         self.pdf_export_settings = export_settings.pdf_export
+        self.doc_export_settings = export_settings.doc_export
 
     def export_html_docs(self):
         cpt_export_path, mdt_export_path, staging_export_path = create_export_path(self.html_export_settings.export_loc)
@@ -278,6 +293,56 @@ class ConfluenceExport:
                 mdt_html_docs_path = "{}/{}".format(str(mdt_export_path), file_name)
                 clear_based_on_pattern(str(mdt_export_path), "*.zip")
                 shutil.copy2(cpt_html_docs_path, mdt_html_docs_path)
+
+    def get_doc_manifest(self, ver: str):
+        file = ROOT_DIR + "release-doc-manifest.yaml"
+        data = None
+        yaml_dict = {}
+        with open(file, 'r') as file:
+            template = Template(file.read())
+            rendered_template = template.render(yaml_dict, VERSION=ver)
+            data = yaml.safe_load(rendered_template)
+        return data
+
+    def export_manifest_docs(self):
+        confluence = MyConfluenceExporter(url=self.doc_export_settings.confluence.url, bearer_token=self.doc_export_settings.confluence.bearer_token)
+        version = self.doc_export_settings.export_loc.export_version
+        manifest = self.get_doc_manifest(version)
+        print(f"Staging Export Path: {self.doc_export_settings.export_loc.staging_export_path}", flush=True)
+        print(f"Export Version: {version}", flush=True)
+        for page_group in manifest:
+            if(page_group=="VERSION"):
+                continue
+            for component in manifest[page_group]:
+                if((self.doc_export_settings.export_type=="DIP" and (page_group in ["CPT","MDT","SHARED"])) or
+                        (self.doc_export_settings.export_type=="GIP" and page_group=="GIP")):
+                    for page_title in component['titles']:
+                        if(len(page_title)>0):
+                            print(f"Exporting: {page_title}", flush=True)
+                            stage_pdf_path = []
+                            print(f"Exporting Sub-Pages: {self.doc_export_settings.sub_pages}", flush=True)
+                            cpt_export_path, mdt_export_path, staging_export_path = create_export_path2(self.doc_export_settings.export_loc,component['dest'])
+                            stage_pdf_path.extend(confluence.export_single_page_pdf(str(staging_export_path),
+                                                                    self.doc_export_settings.export_loc.export_version,
+                                                                    page_title, sub_pages=(self.doc_export_settings.sub_pages=="True")))
+                            for export_pdf_path in stage_pdf_path:
+                                if(len(export_pdf_path)==0):
+                                    continue
+                                if((self.doc_export_settings.export_type=="DIP" and (page_group in ["CPT","SHARED"])) or
+                                                (self.doc_export_settings.export_type=="GIP" and page_group=="GIP")):
+                                    pos = str(export_pdf_path).rfind("/") + 1
+                                    file_name = str(export_pdf_path)[pos:]
+                                    cpt_pdf_path = f"{str(cpt_export_path)}/{file_name}"
+                                    print(f"Moving {str(export_pdf_path)} to: {cpt_pdf_path}", flush=True)
+                                    shutil.move(str(export_pdf_path), cpt_pdf_path)
+                                    if(page_group=="SHARED"):
+                                        mdt_pdf_path = f"{str(mdt_export_path)}/{file_name}"
+                                        print(f"Copying {cpt_pdf_path} to: {mdt_pdf_path}", flush=True)
+                                        shutil.copy2(cpt_pdf_path, mdt_pdf_path)
+                                elif(page_group=="MDT"):
+                                    mdt_pdf_path = f"{str(mdt_export_path)}/{file_name}"
+                                    print(f"Copying {cpt_pdf_path} to: {mdt_pdf_path}", flush=True)
+                                    shutil.move(str(export_pdf_path), mdt_pdf_path)
 
     def export_pdf_docs(self):
         cpt_export_path, mdt_export_path, staging_export_path = create_export_path(self.pdf_export_settings.export_loc)

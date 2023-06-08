@@ -9,6 +9,7 @@ class ManifestSettings(Model):
         self.version = ''
         self.type = ''
         self.manifest_file = ''
+        self.release_doc_manifest_file = ''
         self.drive_creation_path = ''
         self.staging_export_path = ''
 
@@ -17,6 +18,7 @@ class ManifestSettings(Model):
         self.type = namespace.type
         self.version = namespace.version
         self.manifest_file= SubCmd.manifest_file
+        self.release_doc_manifest_file = SubCmd.release_doc_manifest_file
         self.staging_export_path = namespace.staging_export_path
 
     @staticmethod

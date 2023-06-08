@@ -39,8 +39,8 @@ MIP Setup Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
+      - $PIPELINE == "export-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-all" && $MANIFEST_DOCS == "no"
 
 
 MIP User Documents:
@@ -59,8 +59,8 @@ MIP User Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
+      - $PIPELINE == "export-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-all" && $MANIFEST_DOCS == "no"
 
 
 MIP Maintenance Documents:
@@ -81,8 +81,8 @@ MIP Maintenance Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
+      - $PIPELINE == "export-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-all" && $MANIFEST_DOCS == "no"
 
 
 MIP TroubleShooting Documents:
@@ -103,5 +103,5 @@ MIP TroubleShooting Documents:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
+      - $PIPELINE == "export-docs" && $MANIFEST_DOCS == "no"
+      - $PIPELINE == "export-all" && $MANIFEST_DOCS == "no"

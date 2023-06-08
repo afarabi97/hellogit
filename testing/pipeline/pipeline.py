@@ -301,6 +301,11 @@ class Runner:
                 export_settings.from_namespace(args)
                 executor = ConfluenceExport(export_settings)
                 executor.export_pdf_docs()
+            elif args.which == SubCmd.export_docs:
+                export_settings = ExportSettings()
+                export_settings.from_namespace(args)
+                executor = ConfluenceExport(export_settings)
+                executor.export_manifest_docs()
             elif args.which == SubCmd.add_docs_to_controller:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
                 export_settings = ExportSettings()

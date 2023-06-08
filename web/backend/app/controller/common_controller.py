@@ -100,6 +100,7 @@ class UnusedIPAddresses(Resource):
             available_ip_addresses = [
                 x for x in available_ip_addresses if not filter_ip(x)
             ]
+            #remove shit that's in node.ip_address
             return available_ip_addresses
         except ipaddress.AddressValueError as e:
             return {"error_message": "Invalid IP Address Error"}, 500

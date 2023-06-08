@@ -31,6 +31,7 @@ class SubCmd:
     test_server_repository_vm = 'test-server-repository-vm'
     verify_manifest = 'verify-manifest'
     manifest_file = 'manifest.yaml'
+    release_doc_manifest_file = 'release-doc-manifest.yaml'
 
     # run-catalog subcommands
     install = "install"
@@ -64,6 +65,7 @@ class SubCmd:
     export_mip_ctrl = 'export-mip-ctrl'
     export_reposync_server = 'export-reposync-server'
     export_single_page_pdf = 'export-single-page-pdf'
+    export_docs = 'export-docs'
     set_perms = 'set-perms'
     unset_perms = 'unset-perms'
 

@@ -151,22 +151,36 @@ class MyConfluenceExporter(Confluence):
     def _download_pdf3(self, page_id: int, export_path: str, export_version: str, timeout_min: int, title: str):
         url = f"{self.url}/spaces/flyingpdf/pdfpageexport.action?pageId={page_id}"
         file_to_save = ""
-        with self._session.request(
-                method='GET',
-                url=url,
-                # headers=headers,
-                timeout=self.timeout,
-                verify=self.verify_ssl,
-                stream=True
-            ) as response:
-                response.raise_for_status()
-                file_to_save = "{}/{}_{}_Manual.pdf".format(export_path, title.replace(' ', '_'), export_version)
-                with open(file_to_save, 'wb') as f:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
+        success = False
+        delay = 10
+        attempt = 0
+        while ((not success) and (attempt < 10)):
+            attempt+=1
+            try:
+                with self._session.request(
+                        method='GET',
+                        url=url,
+                        # headers=headers,
+                        # timeout=self.timeout,
+                        timeout=timeout_min * 60,
+                        verify=self.verify_ssl,
+                        stream=True
+                    ) as response:
+                        response.raise_for_status()
+                        file_to_save = f"{export_path}/{title.replace(' ', '_')}_{export_version}_Manual.pdf"
+                        success = True
+                        with open(file_to_save, 'wb') as f:
+                            for chunk in response.iter_content(chunk_size=8192):
+                                if chunk:
+                                    f.write(chunk)
 
-                print("Successfully exported documentation to {}".format(file_to_save))
+                        print("Successfully exported documentation to {}".format(file_to_save), flush=True)
+            except HTTPError as err:
+                if(err.response.status_code==400 or err.response.status_code==500):
+                    print(f"Server Status Code: {err.response.status_code}. Trying again in {delay} seconds.", flush=True)
+                    sleep(delay)
+                else:
+                    raise err
         return file_to_save
 
     def _get_content_array(self, space: str, page_id: str, out_content: List[int]):
@@ -250,9 +264,17 @@ class MyConfluenceExporter(Confluence):
         self.verify_ssl = False
         #print(self.default_headers)
         self._session.headers['Authorization']=f'Bearer {self.bearer_token}'
-        page = self.get_page_by_title(space, title)
-        page_id = str(page['id'])
-        return self._download_pdf3(page_id, export_path, export_version, timeout_min, title)
+        main_page = self.get_page_by_title(space, title)
+        if(main_page is None):
+            print(f"Requested page: \"{title}\" not found.", flush=True)
+            return None
+        page_id = str(main_page['id'])
+        ret.append(self._download_pdf3(page_id, export_path, export_version, timeout_min, title))
+        if(sub_pages):
+            pages = self.get_child_pages(page_id)
+            for page in pages:
+                ret.extend(self.export_single_page_pdf(export_path, export_version, page['title'], space, timeout_min, sub_pages))
+        return ret
 
     def export_page_w_children(self,
                                export_path: str,

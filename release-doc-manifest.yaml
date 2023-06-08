@@ -1,0 +1,67 @@
+VERSION: "{{ VERSION }}"
+
+#### MIP/DIP Shared (CPT & MDT) Documents ####
+SHARED:
+# - type: MIP Guides
+#   titles:
+#     - v3.7 Mobile Interceptor Platform (MIP) Installation Guide
+#     - v3.7 Mobile Interceptor Platform (MIP) Maintenance Guide
+#     - v3.7 Mobile Interceptor Platform (MIP) Operations Guide
+#     - v3.7 Mobile Interceptor Platform (MIP) Troubleshooting Guide
+#   dest: "Data/CVAH {{ VERSION }}/Documentation/MIP/Guides"
+
+ - type: DIP Guides
+   titles:
+#     - v3.7 R440 Common Node Deployable Interceptor Platform (DIP) Training Guide
+#     - v3.7 R440 Legacy Deployable Interceptor Platform (DIP) Training Guide
+#     - v3.7 R440 Legacy Deployable Interceptor Platform (DIP) Maintenance Guide
+#     - v3.7 R440 Common Node Deployable Interceptor Platform (DIP) Maintenance Guide
+#     - v3.7 Deployable Interceptor Platform (DIP) Troubleshooting Guide
+#     - v3.7 Deployable Interceptor Platform (DIP) Operations Guide
+#     # - v3.7 R440 Common Node Deployable Interceptor Platform (DIP) Architecture
+#     # - v3.7 R440 Legacy Deployable Interceptor Platform (DIP) Architecture
+#     # - v3.7 7720 Mobile Interceptor Platform (MIP) Architecture
+#     # - v3.7 7730 Mobile Interceptor Platform (MIP) Architecture
+#     # - v3.7 7750 Mobile Interceptor Platform (MIP) Architecture
+#     - v3.7 Appendix A - Enterprise IP Tables
+#     - v3.7 Appendix B - DIP Kit IP Configuration
+#     - v3.7 Appendix C - Spare Network
+      - v3.7.2 Supplemental Guide
+   dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/Guides"
+
+#### CPT ONLY Documents ####
+CPT:
+- type: VDD
+  titles:
+    - v3.7.2 Cyber Protection Team (CPT) VDD
+    # - v3.7.1 Cyber Protection Team (CPT) VDD
+    # - v3.7 Cyber Protection Team (CPT) VDD
+    # - v3.7 Glossary
+  dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/VDD"
+
+#### MDT ONLY Documents ####
+MDT:
+- type: VDD
+  titles:
+    - v3.7.2 Mission Defense Team (MDT) VDD
+    # - v3.7.1 Mission Defense Team (MDT) VDD
+    # - v3.7 Mission Defense Team (MDT) VDD
+    # - v3.7 Glossary
+  dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/VDD"
+
+#### GIP Documents ####
+GIP:
+- type: Docs
+  titles:
+    - v3.7 Garrison Interceptor Platform (GIP) VDD
+    - v3.7.1 Supplemental Guide
+    - v3.7.2 Supplemental Guide
+    - v3.7 Garrison Interceptor Platform (GIP) Installation Guide (PMO Only)
+    - v3.7 Garrison Interceptor Platform (GIP) Operations Guide
+    - v3.7 Garrison Interceptor Platform (GIP) Maintenance Guide
+    - v3.7 Garrison Interceptor Platform (GIP) Troubleshooting Guide
+    - v3.7 Appendix A - 2 GIP Enterprise IP Plan
+    - v3.7 Summary of Changes
+    #- v3.7.1 Summary of Changes
+    #- v3.7.2 Summary of Changes
+  dest: "GIP/Data/CVAH {{ VERSION }}/Documentation"
