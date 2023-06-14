@@ -128,3 +128,20 @@ Deploy Kit
     ELSE
         log  Base kit is already deployed.
     END
+
+Check Node Info Content
+    [Arguments]  &{node_info}
+    ${hostname_elements} =  Get WebElements  xpath=//cvah-node-mng//mat-card[2]//tbody/tr/td[1]/a
+    FOR  ${hostname_element}  IN  @{hostname_elements}
+        ${hostname} =  Get Text  ${hostname_element}
+        click  ${hostname_element}
+        Sleep  1s
+        Element Should Contain  xpath=//cvah-node-info-dialog//div[1]/mat-list/mat-list-item[1]//h4  Hostname: ${hostname}
+        Element Should Contain  xpath=//cvah-node-info-dialog//div[1]/mat-list/mat-list-item[2]//h4  CPU Cores: ${node_info}[${hostname}][3]
+        Element Should Contain  xpath=//cvah-node-info-dialog//div[1]/mat-list/mat-list-item[3]//h4  Memory: ${node_info}[${hostname}][4]
+        Element Should Contain  xpath=//cvah-node-info-dialog//div[1]/mat-list/mat-list-item[4]//h4  IP Address: ${node_info}[${hostname}][0]
+        Element Should Contain  xpath=//cvah-node-info-dialog//div[1]/mat-list/mat-list-item[5]//h4  Mng MAC: ${node_info}[${hostname}][2]
+        Element Should Contain  xpath=//cvah-node-info-dialog//div[1]/mat-list/mat-list-item[6]//h4  sda Drive: ${node_info}[${hostname}][5] GB
+        Element Should Contain  xpath=//cvah-node-info-dialog//div[1]/mat-list/mat-list-item[7]//h4  sdb Drive: ${node_info}[${hostname}][6] GB
+        Press Keys  None  ESCAPE
+    END

@@ -8,6 +8,8 @@ Library     TFPlenumLibrary.py
 Validate API Documentation
     [Documentation]  Checks to make sure API Docs page loads successfully and all sections are present.
     log  Checking API Documentation page
+    Sleep  5s  reason=API Docs page takes time to load
+    reload
     ${api_section_list} =  Create List  agent  alerts  app  catalog  coldlog  common  curator  diagnostics  health  hive  policy
     ...                                 jobs  kit  kubernetes  notifications  portal  scale  settings  token  tools  version
     FOR  ${item}  IN  @{api_section_list}

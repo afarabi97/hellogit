@@ -2,6 +2,7 @@
 Resource    ../../lib/dipAPIDocsKeywords.resource
 Resource    ../../lib/dipCommonKeywords.resource
 Resource    ../../lib/dipHealthKeywords.resource
+Resource    ../../lib/dipNodeMgmtKeywords.resource
 Resource    ../../lib/dipPortalKeywords.resource
 Resource    ../../lib/dipToolsKeywords.resource
 Resource    ../../lib/dipPmoSupportKeywords.resource
@@ -55,6 +56,14 @@ Verify Content On Support Page
     Check PMO Support Site Section
     Check Version Information Section
 
+Check Node Info Dialog Boxes
+    [Tags]  THISISCVAH-14154
+    [Documentation]  Checks content of node info dialogs for each node on the Node Management page
+    Navigate To Node Management
+    &{nodes_list} =  Get Nodes
+    log  ${nodes_list}
+    Check Node Info Content  &{nodes_list}
+
 Check Nodes On Health Page
     [Tags]  THISISCVAH-14083
     [Documentation]  Verify all kit nodes are listed and in the "Ready" state
@@ -92,6 +101,7 @@ Generate API Key And Check Authentication
     Generate Global API Auth Token  ${expiration}  ${roles}
     Check Content Of API Key  ${expiration}  ${roles}
     Make API Request  ${expiration}
+    Generate Global API Auth Token  # Create new API token for remaining tests
     Close Connection
 
 # TFPlenum API Documentation Page

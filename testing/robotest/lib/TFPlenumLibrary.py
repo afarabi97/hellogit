@@ -204,7 +204,14 @@ class TFPlenumLibrary:
 
         nodes = {}
         for node in json_response:
-            nodes[node['hostname']] = (node['ip_address'], node['node_type'])
+            ip_address = node['ip_address']
+            node_type = node['node_type']
+            mac_address = node['mac_address']
+            cpu_cores = node['deviceFacts']['cpus_available']
+            memory_gb = round(node['deviceFacts']['memory_gb'], 2)
+            sda_size_gb = int(node['deviceFacts']['disks'][0]['size_gb'])
+            sdb_size_gb = int(node['deviceFacts']['disks'][1]['size_gb'])
+            nodes[node['hostname']] = (ip_address, node_type, mac_address, cpu_cores, memory_gb, sda_size_gb, sdb_size_gb)
         return nodes
 
     @keyword
