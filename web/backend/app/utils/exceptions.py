@@ -20,3 +20,11 @@ class NoDiagnosticLogError(Exception):
 
 class InternalServerError(Exception):
     pass
+
+
+class NoSuchLogError(Exception):
+    pass
+
+
+class NoSuchLogArchiveError(Exception):
+    pass

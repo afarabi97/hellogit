@@ -10,7 +10,8 @@ from app.utils.constants import (CONTROLLER_ADMIN_ROLE,
                                  CONTROLLER_MAINTAINER_ROLE,
                                  DEFAULT_REQUIRED_ROLES, OPERATOR_ROLE,
                                  REALM_ADMIN_ROLE, WEB_DIR)
-from app.utils.exceptions import InternalServerError, NoSuchNodeJobError
+from app.utils.exceptions import (InternalServerError, NoSuchLogArchiveError,
+                                  NoSuchLogError, NoSuchNodeJobError)
 from app.utils.logging import logger
 from rq.exceptions import NoSuchJobError
 from werkzeug.wrappers import Request, Response
@@ -280,6 +281,12 @@ def handle_errors(f):
         except NoSuchNodeJobError:
             logger.exception("ErrorMessage: Node job does not exist")
             return {"error_message": "Node job does not exist."}, 404
+        except NoSuchLogError as exception:
+            logger.exception(exception)
+            return {"error_message": str(exception)}, 404
+        except NoSuchLogArchiveError as exception:
+            logger.exception(exception)
+            return {"error_message": str(exception)}, 404
         except InternalServerError:
             logger.exception("ErrorMessage: Internal Server Error")
             return {"error_message": "Internal Server Error."}, 500

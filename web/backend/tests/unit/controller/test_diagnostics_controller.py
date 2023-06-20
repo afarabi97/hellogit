@@ -1,21 +1,61 @@
-from pytest_mock.plugin import MockerFixture
+from app.utils.exceptions import NoSuchLogArchiveError, NoSuchLogError
 from flask.testing import FlaskClient
+from pytest_mock.plugin import MockerFixture
+from tests.unit.models.mock_job_id import MockJobIDModel
+from tests.unit.static_data.success_message import success_message
+from tests.unit.utils.mock_object_variable_tester import \
+    json_object_key_value_checker
 
-from fakeredis import FakeStrictRedis
-from rq import Queue
-from app.service.diagnostics_service import run_diagnostics
 
-import pytest
+# Test DiagnosticsCtrlApi
 
-@pytest.mark.skip(reason="Too long.")
-def test_download_diagnostics(client: FlaskClient, mocker: MockerFixture):
-    fake_redis = FakeStrictRedis()
-    queue = Queue(is_async=False, connection=FakeStrictRedis())
-    job = queue.enqueue(run_diagnostics)
-    assert job.is_finished
-    mocker.patch("app.service.diagnostics_service.run_diagnostics.delay", return_value=job)
+def test_post_diagnostics_200_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
+    mock_job_id_model = MockJobIDModel("2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6",
+                                       "rq:job:2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6")
+    mocker.patch("app.controller.diagnostics_controller.post_diagnostics", return_value=mock_job_id_model.to_dict())
     response = client.post("/api/diagnostics")
     assert response.status_code == 200
-    response = client.get(f"/api/diagnostics/download/{response.json['job_id']}")
-    assert response.status_code == 200
+    assert json_object_key_value_checker(response.json, mock_job_id_model.to_dict()) == True
 
+
+def test_post_diagnostics_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
+    mocker.patch("app.controller.diagnostics_controller.post_diagnostics", side_effect=Exception({"error": "mocked error"}))
+    response = client.post("/api/diagnostics")
+    assert response.status_code == 500
+    assert response.json["error_message"]
+
+
+def test_get_download_diagnostics_200_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
+    mock_job_id_model = MockJobIDModel("2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6",
+                                       "rq:job:2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6")
+    mocker.patch("app.controller.diagnostics_controller.get_diagnostics", return_value=success_message)
+    response = client.get(f"/api/diagnostics/download/{mock_job_id_model.job_id}")
+    assert response.status_code == 200
+    assert response.json["success_message"] == success_message["success_message"]
+
+
+def test_get_download_diagnostics_404_NoSuchLogError(client: FlaskClient, mocker: MockerFixture) -> None:
+    mock_job_id_model = MockJobIDModel("2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6",
+                                       "rq:job:2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6")
+    mocker.patch("app.controller.diagnostics_controller.get_diagnostics", side_effect=NoSuchLogError(f"Couldn't find the log for {mock_job_id_model.job_id}."))
+    response = client.get(f"/api/diagnostics/download/{mock_job_id_model.job_id}")
+    assert response.status_code == 404
+    assert response.json["error_message"]
+
+
+def test_get_download_archive_diagnostics_404_NoSuchLogARchiveError(client: FlaskClient, mocker: MockerFixture) -> None:
+    mock_job_id_model = MockJobIDModel("2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6",
+                                       "rq:job:2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6")
+    mocker.patch("app.controller.diagnostics_controller.get_diagnostics", side_effect=NoSuchLogArchiveError(f"Couldn't find the archive for {mock_job_id_model.job_id}."))
+    response = client.get(f"/api/diagnostics/download/{mock_job_id_model.job_id}")
+    assert response.status_code == 404
+    assert response.json["error_message"]
+
+
+def test_get_download_diagnostics_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
+    mock_job_id_model = MockJobIDModel("2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6",
+                                       "rq:job:2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6")
+    mocker.patch("app.controller.diagnostics_controller.get_diagnostics", side_effect=Exception({"error": "mocked error"}))
+    response = client.get(f"/api/diagnostics/download/{mock_job_id_model.job_id}")
+    assert response.status_code == 500
+    assert response.json["error_message"]

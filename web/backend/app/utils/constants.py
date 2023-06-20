@@ -55,6 +55,9 @@ CA_BUNDLE = "/etc/pki/tls/certs/ca-bundle.crt"
 
 REDIS = "redis://"
 
+# Diagnostics service
+DOWNLOAD_DIR = "/var/www/html/downloads"
+
 
 class NODE_TYPES(Enum):
     server = "Server"
