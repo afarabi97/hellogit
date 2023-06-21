@@ -48,7 +48,8 @@ Download GIP Documents:
          --cpt-export-path \"$GIP_DOC_EXPORT_LOC\" \
          --staging-export-path \"$DRIVE_GIP_STAGING_FOLDER\"
          --export-version \"$TFPLENUM_EXPORT_VERSION\"
-         --page-titles \"$GIP_CONFLUENCE_DOCS\""
+         --page-titles \"$GIP_CONFLUENCE_DOCS\"
+         --sub-pages \"False\""
     echo "$cmd"
     eval $cmd
   retry: 2

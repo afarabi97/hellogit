@@ -29,12 +29,21 @@ MIP Setup Documents:
   tags:
     - tfplenum-buildv2
   script: |
+    echo "MIP Setup Documents - Current working directory is $(pwd)"
+    echo "MIP Documentation Variables: "
+    echo "MIP_CONFLUENCE_SETUP_DOCS: $MIP_CONFLUENCE_SETUP_DOCS"
+    echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
+    echo "MIP_CPT_DOC_EXPORT_LOC: $MIP_CPT_DOC_EXPORT_LOC"
+    echo "MIP_MDT_DOC_EXPORT_LOC: $MIP_MDT_DOC_EXPORT_LOC"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
     --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
+    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/" \
+    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$MIP_CONFLUENCE_SETUP_DOCS"
+    --page-titles "$MIP_CONFLUENCE_SETUP_DOCS" \
+    --sub-pages "False"
   retry: 2
   allow_failure: true
   only:
@@ -49,12 +58,21 @@ MIP User Documents:
   tags:
     - tfplenum-buildv2
   script: |
+    echo "MIP Setup Documents - Current working directory is $(pwd)"
+    echo "MIP Documentation Variables: "
+    echo "MIP_CONFLUENCE_SETUP_DOCS: $MIP_CONFLUENCE_SETUP_DOCS"
+    echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
+    echo "MIP_CPT_DOC_EXPORT_LOC: $MIP_CPT_DOC_EXPORT_LOC"
+    echo "MIP_MDT_DOC_EXPORT_LOC: $MIP_MDT_DOC_EXPORT_LOC"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
     --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
+    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/" \
+    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$MIP_CONFLUENCE_USER_DOCS"
+    --page-titles "$MIP_CONFLUENCE_USER_DOCS" \
+    --sub-pages "False"
   retry: 2
   allow_failure: true
   only:
@@ -69,6 +87,12 @@ MIP Maintenance Documents:
   tags:
     - tfplenum-buildv2
   script: |
+    echo "MIP Setup Documents - Current working directory is $(pwd)"
+    echo "MIP Documentation Variables: "
+    echo "MIP_CONFLUENCE_SETUP_DOCS: $MIP_CONFLUENCE_SETUP_DOCS"
+    echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
+    echo "MIP_CPT_DOC_EXPORT_LOC: $MIP_CPT_DOC_EXPORT_LOC"
+    echo "MIP_MDT_DOC_EXPORT_LOC: $MIP_MDT_DOC_EXPORT_LOC"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
     --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
@@ -76,7 +100,8 @@ MIP Maintenance Documents:
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$MIP_CONFLUENCE_MAIN_DOCS"
+    --page-titles "$MIP_CONFLUENCE_MAIN_DOCS" \
+    --sub-pages "False"
   retry: 2
   allow_failure: true
   only:
@@ -91,6 +116,12 @@ MIP TroubleShooting Documents:
   tags:
     - tfplenum-buildv2
   script: |
+    echo "MIP Setup Documents - Current working directory is $(pwd)"
+    echo "MIP Documentation Variables: "
+    echo "MIP_CONFLUENCE_SETUP_DOCS: $MIP_CONFLUENCE_SETUP_DOCS"
+    echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
+    echo "MIP_CPT_DOC_EXPORT_LOC: $MIP_CPT_DOC_EXPORT_LOC"
+    echo "MIP_MDT_DOC_EXPORT_LOC: $MIP_MDT_DOC_EXPORT_LOC"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
     --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
@@ -98,7 +129,8 @@ MIP TroubleShooting Documents:
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$MIP_CONFLUENCE_TROUBLE_DOCS"
+    --page-titles "$MIP_CONFLUENCE_TROUBLE_DOCS" \
+    --sub-pages "False"
   retry: 2
   allow_failure: true
   only:

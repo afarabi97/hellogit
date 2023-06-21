@@ -260,8 +260,10 @@ class MyConfluenceExporter(Confluence):
                                export_version: str,
                                title: str,
                                space: str="THISISCVAH",
-                               timeout_min: int=5) -> str:
+                               timeout_min: int=5,
+                               sub_pages: bool=False) -> List:
         self.verify_ssl = False
+        ret = list()
         #print(self.default_headers)
         self._session.headers['Authorization']=f'Bearer {self.bearer_token}'
         main_page = self.get_page_by_title(space, title)

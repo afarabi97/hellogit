@@ -45,6 +45,7 @@ class PDFExportSettings(Model):
         self.confluence = ConfluenceSettings()
         self.export_loc = ExportLocSettings()
         self.page_titles = ''
+        self.sub_pages = 'False'
 
     @property
     def page_titles_ary(self):

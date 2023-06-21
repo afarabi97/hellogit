@@ -40,7 +40,8 @@ DIP Setup Documents:
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$DIP_CONFLUENCE_SETUP_DOCS"
+    --page-titles "$DIP_CONFLUENCE_SETUP_DOCS" \
+    --sub-pages "False"
   retry: 2
   allow_failure: true
   only:
@@ -61,7 +62,7 @@ DIP User Documents:
     echo "DIP_CPT_DOC_EXPORT_LOC: $DIP_CPT_DOC_EXPORT_LOC"
     echo "DIP_MDT_DOC_EXPORT_LOC: $DIP_MDT_DOC_EXPORT_LOC"
     echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
-    echo "DIP_CONFLUENCE_SETUP_DOCS: $DIP_CONFLUENCE_SETUP_DOCS"
+    echo "DIP_CONFLUENCE_USER_DOCS: $DIP_CONFLUENCE_USER_DOCS"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
     --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
@@ -69,7 +70,8 @@ DIP User Documents:
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$DIP_CONFLUENCE_USER_DOCS"
+    --page-titles "$DIP_CONFLUENCE_USER_DOCS" \
+    --sub-pages "False"
   retry: 2
   allow_failure: true
   only:
@@ -85,12 +87,12 @@ DIP Appendix Documents:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "DIP User Documents - Current working directory is $(pwd)"
+    echo "DIP Appendix Documents - Current working directory is $(pwd)"
     echo "DIP Documentation Variables: "
     echo "DIP_CPT_DOC_EXPORT_LOC: $DIP_CPT_DOC_EXPORT_LOC"
     echo "DIP_MDT_DOC_EXPORT_LOC: $DIP_MDT_DOC_EXPORT_LOC"
     echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
-    echo "DIP_CONFLUENCE_SETUP_DOCS: $DIP_CONFLUENCE_SETUP_DOCS"
+    echo "DIP_CONFLUENCE_APPENDIX_DOCS: $DIP_CONFLUENCE_APPENDIX_DOCS"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
     --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
@@ -98,7 +100,8 @@ DIP Appendix Documents:
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$DIP_CONFLUENCE_APPENDIX_DOCS"
+    --page-titles "$DIP_CONFLUENCE_APPENDIX_DOCS" \
+    --sub-pages "True"
   retry: 2
   allow_failure: true
   only:
@@ -119,7 +122,7 @@ DIP Maintenance Documents:
     echo "DIP_CPT_DOC_EXPORT_LOC: $DIP_CPT_DOC_EXPORT_LOC"
     echo "DIP_MDT_DOC_EXPORT_LOC: $DIP_MDT_DOC_EXPORT_LOC"
     echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
-    echo "DIP_CONFLUENCE_SETUP_DOCS: $DIP_CONFLUENCE_SETUP_DOCS"
+    echo "DIP_CONFLUENCE_MAIN_DOCS: $DIP_CONFLUENCE_MAIN_DOCS"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
     --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
@@ -127,7 +130,8 @@ DIP Maintenance Documents:
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$DIP_CONFLUENCE_MAIN_DOCS"
+    --page-titles "$DIP_CONFLUENCE_MAIN_DOCS" \
+    --sub-pages "False"
   retry: 2
   allow_failure: true
   only:
@@ -148,7 +152,7 @@ DIP TroubleShooting Documents:
     echo "DIP_CPT_DOC_EXPORT_LOC: $DIP_CPT_DOC_EXPORT_LOC"
     echo "DIP_MDT_DOC_EXPORT_LOC: $DIP_MDT_DOC_EXPORT_LOC"
     echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
-    echo "DIP_CONFLUENCE_SETUP_DOCS: $DIP_CONFLUENCE_SETUP_DOCS"
+    echo "DIP_CONFLUENCE_TROUBLE_DOCS: $DIP_CONFLUENCE_TROUBLE_DOCS"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
     --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
@@ -156,7 +160,8 @@ DIP TroubleShooting Documents:
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$DIP_CONFLUENCE_TROUBLE_DOCS"
+    --page-titles "$DIP_CONFLUENCE_TROUBLE_DOCS" \
+    --sub-pages "False"
   retry: 2
   allow_failure: true
   only:
@@ -176,14 +181,15 @@ CPT VDD Documents:
     echo "DIP_CPT_DOC_EXPORT_LOC: $DIP_CPT_DOC_EXPORT_LOC"
     echo "DIP_MDT_DOC_EXPORT_LOC: $DIP_MDT_DOC_EXPORT_LOC"
     echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
-    echo "DIP_CONFLUENCE_SETUP_DOCS: $DIP_CONFLUENCE_SETUP_DOCS"
+    echo "CPT_CONFLUENCE_VDD_DOCS: $CPT_CONFLUENCE_VDD_DOCS"
     python3 testing/pipeline/pipeline.py \
     run-export export-single-page-pdf \
     --bearer-token "$CONFLUENCE_BEARER_TOKEN" \
     --cpt-export-path "$CPT_VDD_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$CPT_CONFLUENCE_VDD_DOCS"
+    --page-titles "$CPT_CONFLUENCE_VDD_DOCS" \
+    --sub-pages "False"
   retry: 2
   allow_failure: true
   only:
@@ -205,7 +211,8 @@ MDT VDD Documents:
     --mdt-export-path "$MDT_VDD_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$MDT_CONFLUENCE_VDD_DOCS"
+    --page-titles "$MDT_CONFLUENCE_VDD_DOCS" \
+    --sub-pages "False"
   retry: 2
   allow_failure: true
   only:
@@ -228,7 +235,8 @@ Minor Release CPT VDD Documents:
     --cpt-export-path "$MINOR_CPT_VDD_EXPORT_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$CONFLUENCE_CPT_VDD_DOCS"
+    --page-titles "$CONFLUENCE_CPT_VDD_DOCS" \
+    --sub-pages "False"
   retry: 2
   allow_failure: true
   only:
@@ -252,7 +260,8 @@ Minor Release MDT VDD Documents:
     --mdt-export-path "$MINOR_MDT_VDD_EXPORT_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$CONFLUENCE_MDT_VDD_DOCS"
+    --page-titles "$CONFLUENCE_MDT_VDD_DOCS" \
+    --sub-pages "False"
   retry: 2
   allow_failure: true
   only:
@@ -277,7 +286,8 @@ Supplemental Documents:
     --mdt-export-path "$MINOR_MDT_SUP_EXPORT_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$CONFLUENCE_SUP_DOCS"
+    --page-titles "$CONFLUENCE_SUP_DOCS" \
+    --sub-pages "False"
   retry: 2
   allow_failure: true
   only:

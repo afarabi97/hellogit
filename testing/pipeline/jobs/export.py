@@ -351,17 +351,22 @@ class ConfluenceExport:
         for page_title in self.pdf_export_settings.page_titles_ary:
             if(len(page_title)>0):
                 print(f"Exporting: {page_title}")
-                stage_pdf_path = confluence.export_single_page_pdf(str(staging_export_path),
+                stage_pdf_path = []
+                print(f"Exporting Sub-Pages: {self.pdf_export_settings.sub_pages}")
+                stage_pdf_path.extend(confluence.export_single_page_pdf(str(staging_export_path),
                                                                 self.pdf_export_settings.export_loc.export_version,
-                                                                page_title)
-                pos = stage_pdf_path.rfind("/") + 1
-                file_name = stage_pdf_path[pos:]
-                cpt_pdf_path = "{}/{}".format(str(cpt_export_path), file_name)
-                shutil.move(stage_pdf_path, cpt_pdf_path)
+                                                                page_title, sub_pages=(self.pdf_export_settings.sub_pages=="True")))
+                for export_pdf_path in stage_pdf_path:
+                    pos = str(export_pdf_path).rfind("/") + 1
+                    file_name = str(export_pdf_path)[pos:]
+                    cpt_pdf_path = "{}/{}".format(str(cpt_export_path), file_name)
+                    print(f"Moving {str(export_pdf_path)} to: {cpt_pdf_path}")
+                    shutil.move(str(export_pdf_path), cpt_pdf_path)
 
-                # Is this necessary? Does MDT have its own set of files to export, or are they the same?
-                mdt_pdf_path = "{}/{}".format(str(mdt_export_path), file_name)
-                shutil.copy2(cpt_pdf_path, mdt_pdf_path)
+                    # Is this necessary? Does MDT have its own set of files to export, or are they the same?
+                    mdt_pdf_path = "{}/{}".format(str(mdt_export_path), file_name)
+                    print(f"Copying {cpt_pdf_path} to: {mdt_pdf_path}")
+                    shutil.copy2(cpt_pdf_path, mdt_pdf_path)
 
     def _push_file_and_unzip(self,
                              file_to_push: str,
