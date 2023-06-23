@@ -14,7 +14,6 @@ export class NodeClass implements NodeInterface {
   _id?: string;
   deployment_name?: string;
   deployment_type: string;
-  deviceFacts: DeviceFactsClass;
   hostname: string;
   ip_address: string;
   is_remote?: boolean;
@@ -30,6 +29,7 @@ export class NodeClass implements NodeInterface {
   isDeployed?: boolean;
   isRemoving?: boolean;
   status?: StatusClass;
+  deviceFacts?: DeviceFactsClass;
 
   /**
    * Creates an instance of NodeClass.
@@ -57,7 +57,8 @@ export class NodeClass implements NodeInterface {
       this.jobs = node_interface.jobs.map((j: JobInterface) => new JobClass(j));
     }
     /* istanbul ignore else */
-    if (Object.keys(node_interface.deviceFacts).length > 0) {
+    if (Object.keys(node_interface.deviceFacts) &&
+        Object.keys(node_interface.deviceFacts).length > 0) {
       this.deviceFacts = new DeviceFactsClass(node_interface.deviceFacts);
     }
   }

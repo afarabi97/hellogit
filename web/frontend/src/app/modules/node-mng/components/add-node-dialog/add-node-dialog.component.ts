@@ -568,7 +568,7 @@ export class AddNodeDialogComponent implements OnInit {
    * @memberof AddNodeDialogComponent
    */
   private api_add_node_(): void {
-    this.kit_settings_service_.add_node(this.node_form_group.value)
+    this.kit_settings_service_.add_node(this.node_form_group.getRawValue())
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: GenericJobAndKeyClass) => {

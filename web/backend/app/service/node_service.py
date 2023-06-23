@@ -517,11 +517,7 @@ class NodeService:
 
 
 @job("default", connection=REDIS_CLIENT, timeout="120m")
-def execute(
-    exec_type: DEPLOYMENT_JOBS = DEPLOYMENT_JOBS.base_kit,
-    stage: str = JOB_CREATE,
-    node: Union[Node, List[Node]] = None,
-):
+def execute(exec_type: DEPLOYMENT_JOBS = DEPLOYMENT_JOBS.base_kit, stage: str = JOB_CREATE, node: Union[Node, List[Node]] = None):
     get_app_context().push()
     try:
         success = False
@@ -534,7 +530,8 @@ def execute(
 
         notification = NotificationMessage(role=_JOB_NAME_NOTIFICATION.lower())
         msg = ""
-        if isinstance(node, Node):
+        is_instance_of_node = isinstance(node, Node)
+        if is_instance_of_node:
             msg = "{} {} job started on node '{}'.".format(
                 exec_type.value, stage, node.hostname
             )
@@ -563,7 +560,7 @@ def execute(
         is_successful = _execute_job(command)
         if (is_successful
             and node
-            and isinstance(node, Node)
+            and is_instance_of_node
             and node.node_type == NODE_TYPES.minio.value
             and stage == JOB_DEPLOY):
 

@@ -20,7 +20,7 @@ class RedisJobsApi(Resource):
     @handle_errors
     @login_required_roles()
     def get(self) -> Response:
-        return get_all_jobs(), 200
+        return get_all_jobs()
 
 
 @JOB_NS.route("/<job_id>")
@@ -33,17 +33,17 @@ class RedisJobApi(Resource):
     @handle_errors
     @login_required_roles()
     def get(self, job_id: str) -> Response:
-        return get_job_with_job_id(job_id), 200
+        return get_job_with_job_id(job_id)
 
 
     @JOB_NS.doc(description="Deletes a Job by ID. This API REST call will also kill the Job if it is running.")
     @JOB_NS.response(200, "JobIDModel", JobIDModel.DTO)
-    @JOB_NS.response(404, "ErrorMessage: Job does not exist", COMMON_ERROR_MESSAGE)
+    @JOB_NS.response(404, "ErrorMessage: NoSuchJobError", COMMON_ERROR_MESSAGE)
     @JOB_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @handle_errors
     @controller_admin_required
     def delete(self, job_id: str) -> Response:
-        return delete_job_with_job_id(job_id), 200
+        return delete_job_with_job_id(job_id)
 
 
 @JOB_NS.route("/<job_id>/retry")
@@ -52,13 +52,13 @@ class RedisJobRetryApi(Resource):
 
     @JOB_NS.doc(description="Retry a Job by ID. This API REST call will also kill the Job if it is running.")
     @JOB_NS.response(200, "JobIDModel", JobIDModel.DTO)
-    @JOB_NS.response(404, "ErrorMessage: Job does not exist", COMMON_ERROR_MESSAGE)
-    @JOB_NS.response(404, "ErrorMessage: Node job does not exist", COMMON_ERROR_MESSAGE)
+    @JOB_NS.response(404, "ErrorMessage: NoSuchJobError", COMMON_ERROR_MESSAGE)
+    @JOB_NS.response(404, "ErrorMessage: NoSuchNodeJobError", COMMON_ERROR_MESSAGE)
     @JOB_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @handle_errors
     @controller_admin_required
     def put(self, job_id: str) -> Response:
-        return put_job_retry(job_id), 200
+        return put_job_retry(job_id)
 
 
 @JOB_NS.route("/log/<job_id>")
@@ -67,9 +67,9 @@ class RedisJobLogApi(Resource):
 
     @JOB_NS.doc(description="Retrieves all of the terminal log lines for an entire job.")
     @JOB_NS.response(200, "List JobLogModel", [JobLogModel.DTO])
-    @JOB_NS.response(404, "ErrorMessage: Job does not exist", COMMON_ERROR_MESSAGE)
+    @JOB_NS.response(404, "ErrorMessage: NoSuchJobError", COMMON_ERROR_MESSAGE)
     @JOB_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @handle_errors
     @login_required_roles()
     def get(self, job_id: str) -> Response:
-        return get_job_log(job_id), 200
+        return get_job_log(job_id)

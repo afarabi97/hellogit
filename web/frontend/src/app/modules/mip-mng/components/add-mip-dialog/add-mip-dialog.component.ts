@@ -364,7 +364,7 @@ export class AddMipDialogComponent implements OnInit {
    * @memberof AddMipDialogComponent
    */
   private api_add_mip_(hostname: string): void {
-    this.kit_settings_service_.addMip(this.node_form_group.value)
+    this.kit_settings_service_.addMip(this.node_form_group.getRawValue())
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: GenericJobAndKeyClass) => {

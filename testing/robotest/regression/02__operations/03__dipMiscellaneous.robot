@@ -104,9 +104,9 @@ Generate API Key And Check Authentication
     Generate Global API Auth Token  # Create new API token for remaining tests
     Close Connection
 
-# TFPlenum API Documentation Page
-#     [Tags]  THISISCVAH-11921
-#     [Documentation]  This test validates that the API docs page loads and does not return an error.
-#     Navigate To API Docs
-#     Validate API Documentation
-#     Switch Window  MAIN
+TFPlenum API Documentation Page
+    [Tags]  THISISCVAH-11921
+    [Documentation]  This test validates that the API docs page loads and does not return an error.
+    Navigate To API Docs
+    Wait Until Keyword Succeeds  2 min  3 sec  Validate API Documentation
+    Switch Window  MAIN

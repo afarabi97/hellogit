@@ -13,6 +13,7 @@ def test_get_associated_pods_with_config_map_name_200(client: FlaskClient, mocke
     assert response.status_code == 200
     assert response.json[0] == ASSOCIATED_PODS[0]
 
+
 def test_get_associated_pods_with_config_map_name_500_Exception(client: FlaskClient, mocker: MockerFixture):
     mocker.patch("app.controller.configmap_controller.get_associated_pods", side_effect=Exception({"error": "mocked error"}))
     response = client.get("/api/kubernetes/associated/pods/a")
@@ -28,7 +29,8 @@ def test_get_config_maps_200(client: FlaskClient, mocker: MockerFixture):
     assert response.status_code == 200
     assert response.json == CONFIG_MAP_LIST
 
-def test_get_config_maps_500(client: FlaskClient, mocker: MockerFixture):
+
+def test_get_config_maps_500_Exception(client: FlaskClient, mocker: MockerFixture):
     mocker.patch("app.controller.configmap_controller.get_config_maps", side_effect=Exception({"error": "mocked error"}))
     response = client.get("/api/kubernetes/configmaps")
     assert response.status_code == 500
@@ -42,6 +44,7 @@ def test_put_config_map_200(client: FlaskClient, mocker: MockerFixture):
     response = client.put("/api/kubernetes/configmap", json=CONFIG_MAP_SAVE)
     assert response.status_code == 200
     assert response.json["name"] == CONFIG_MAP_SAVED["name"]
+
 
 def test_put_config_map_500_Exception(client: FlaskClient, mocker: MockerFixture):
     mocker.patch("app.controller.configmap_controller.put_config_map", side_effect=Exception({"error": "mocked error"}))

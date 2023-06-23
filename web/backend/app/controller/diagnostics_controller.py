@@ -25,9 +25,9 @@ class DiagnosticsCtrlApi(Resource):
 
     @DIAGNOSTICS_NS.doc(description="Gets the dianostic information.")
     @DIAGNOSTICS_NS.response(200, "FileDownload", DIAGNOSTICS_NS.schema_model('Diagnostics', {'type': 'file'}))
-    @DIAGNOSTICS_NS.response(404, "ErrorMessage: Log not found", COMMON_ERROR_MESSAGE)
-    @DIAGNOSTICS_NS.response(404, "ErrorMessage: Log archive not found", COMMON_ERROR_MESSAGE)
+    @DIAGNOSTICS_NS.response(404, "ErrorMessage: NoSuchLogError", COMMON_ERROR_MESSAGE)
+    @DIAGNOSTICS_NS.response(404, "ErrorMessage: NoSuchLogArchiveError", COMMON_ERROR_MESSAGE)
     @DIAGNOSTICS_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @handle_errors
-    def get(self, job_id) -> Response:
+    def get(self, job_id: str) -> Response:
         return get_diagnostics(job_id)

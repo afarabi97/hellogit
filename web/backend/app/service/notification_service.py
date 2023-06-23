@@ -26,7 +26,7 @@ def get_notifications(offset: str, role: str) -> List[NotificationModel]:
     return notifications
 
 
-def delete_notifications_del() -> COMMON_SUCCESS_MESSAGE:
+def delete_notifications() -> COMMON_SUCCESS_MESSAGE:
     """
     Delete all notifications from mongodb
 

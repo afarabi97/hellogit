@@ -16,4 +16,4 @@ class VersionCtrlApi(Resource):
     @handle_errors
     @login_required_roles()
     def get(self) -> Response:
-        return get_version_information(), 200
+        return get_version_information()

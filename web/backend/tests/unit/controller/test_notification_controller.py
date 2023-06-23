@@ -15,6 +15,7 @@ def test_get_notifications(client: FlaskClient, mocker: MockerFixture) -> None:
     assert response.status_code == 200
     assert json_object_key_value_checker(response.json, mock_notification) == True
 
+
 def test_get_notifications_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
     offset = 0
     role = "all"
@@ -27,13 +28,14 @@ def test_get_notifications_500_Exception(client: FlaskClient, mocker: MockerFixt
 # Test NotificationsDelCtrlApi
 
 def test_delete_notifications_del_200(client: FlaskClient, mocker: MockerFixture) -> None:
-    mocker.patch("app.controller.notification_controller.delete_notifications_del", return_value=success_message)
+    mocker.patch("app.controller.notification_controller.delete_notifications", return_value=success_message)
     response = client.delete("/api/notifications")
     assert response.status_code == 200
     assert response.json["success_message"] == success_message["success_message"]
 
+
 def test_delete_notifications_del_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
-    mocker.patch("app.controller.notification_controller.delete_notifications_del", side_effect=Exception({"error": "mocked error"}))
+    mocker.patch("app.controller.notification_controller.delete_notifications", side_effect=Exception({"error": "mocked error"}))
     response = client.delete("/api/notifications")
     assert response.status_code == 500
     assert response.json["error_message"]
@@ -47,6 +49,7 @@ def test_delete_notifciation_id_200(client: FlaskClient, mocker: MockerFixture) 
     response = client.delete(f"/api/notifications/{notification_id}")
     assert response.status_code == 200
     assert response.json["success_message"] == success_message["success_message"]
+
 
 def test_delete_notifciation_id_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
     notification_id = "6483b8810d915a491e38afd5"

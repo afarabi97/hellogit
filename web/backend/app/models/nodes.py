@@ -135,10 +135,10 @@ class NodeSchema(Schema):
     deviceFacts = marsh_fields.Dict()
     deployment_type = marsh_fields.String(required=False, allow_none=True)
     vpn_status = marsh_fields.Bool(required=False, allow_none=True)
-    virtual_cpu = marsh_fields.Integer(required=False)
-    virtual_mem = marsh_fields.Integer(required=False)
-    virtual_os = marsh_fields.Integer(required=False)
-    virtual_data = marsh_fields.Integer(required=False)
+    virtual_cpu = marsh_fields.Integer(required=False, allow_none=True)
+    virtual_mem = marsh_fields.Integer(required=False, allow_none=True)
+    virtual_os = marsh_fields.Integer(required=False, allow_none=True)
+    virtual_data = marsh_fields.Integer(required=False, allow_none=True)
 
     @post_load
     def create_Node(self, data: Dict, many: bool, partial: bool):

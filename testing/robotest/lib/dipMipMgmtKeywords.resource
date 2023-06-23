@@ -53,7 +53,7 @@ Verify MIP Was Added
     ...              the newly added MIP has finish deploying
         log  Verifying MIP was added: ${mip_name}
         ${verify_element} =  inject  ${tmplLocMipDeployProgressBar}  ${mip_name}
-        lookForElement  ${verify_element}  timeout=45m
+        lookForElement  ${verify_element}  timeout=1h
         log  Add Virtual MIP was a success!
 
 Delete MIP

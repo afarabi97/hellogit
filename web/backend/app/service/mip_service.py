@@ -8,12 +8,12 @@ from app.utils.constants import (DEPLOYMENT_JOBS, DEPLOYMENT_TYPES, JOB_CREATE,
 
 
 def post_mip(payload: Dict) -> JobIDModel:
-    mip = __add_mip_to_database(payload)
-    job = __deploy_mip(mip)
+    mip = _add_mip_to_database(payload)
+    job = _deploy_mip(mip)
     return job
 
 
-def __add_mip_to_database(payload: Dict) -> Node:
+def _add_mip_to_database(payload: Dict) -> Node:
     payload['node_type'] = NODE_TYPES.mip.value
     mip = Node.load_node_from_request(payload)
     mip.create()
@@ -21,12 +21,10 @@ def __add_mip_to_database(payload: Dict) -> Node:
     return mip
 
 
-def __deploy_mip(node: Node) -> JobIDModel:
+def _deploy_mip(node: Node) -> JobIDModel:
     if node.deployment_type == DEPLOYMENT_TYPES.virtual.value:
-        job = execute.delay(
-            node=node, exec_type=DEPLOYMENT_JOBS.create_virtual)
+        job = execute.delay(node=node, exec_type=DEPLOYMENT_JOBS.create_virtual)
         return JobIDModel(job).to_dict()
     elif node.deployment_type == DEPLOYMENT_TYPES.baremetal.value:
-        job = execute.delay(
-            node=node, exec_type=DEPLOYMENT_JOBS.kickstart_profiles, stage=JOB_CREATE)
+        job = execute.delay(node=node, exec_type=DEPLOYMENT_JOBS.kickstart_profiles, stage=JOB_CREATE)
         return JobIDModel(job).to_dict()

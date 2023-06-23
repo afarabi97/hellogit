@@ -312,7 +312,7 @@ export class MipManagementComponent implements OnInit {
    * @memberof MipManagementComponent
    */
   private api_add_mip_(node_form_group: FormGroup): void {
-    this.kit_settings_service_.addMip(node_form_group.value)
+    this.kit_settings_service_.addMip(node_form_group.getRawValue())
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: GenericJobAndKeyClass) => {

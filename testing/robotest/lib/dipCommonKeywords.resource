@@ -49,7 +49,7 @@ Open Chrome
     Call Method                ${chrome_options}             add_argument                                         disable-web-security
     Call Method                ${chrome_options}             add_argument                                         allow-running-insecure-content
     Call Method                ${chrome_options}             add_argument                                         ignore-certificate-errors
-    Create WebDriver  Chrome    chrome_options=${chrome_options}
+    Create WebDriver  Chrome    options=${chrome_options}
     Go To    https://${host}
 
 handle selenium failure
@@ -113,10 +113,6 @@ Log Out Of Controller
     click  ${locLogoutNavIcon}
     Wait Until Page Does Not Contain  Portal
     lookFor  Logout completed successfully.
-
-Stay Or Go To ${page}
-    [Documentation]     Use this if you don't want to refresh the browser if you're already at the specified page
-
 
 Check If Still Logged Into Controller
     [Documentation]  If logged out of controller, this keyword will log back in.
@@ -237,7 +233,8 @@ Compare Datetime (Frontend, Backend, Current)
     lookForElement  ${APP_TOP_NAVBAR__MAT_LIST_ITEM_TIMEZONE_TIME}
     ${ui_datetime} =  Get Text  ${APP_TOP_NAVBAR__MAT_LIST_ITEM_TIMEZONE_TIME}
     ${api_datetime} =  Get Controller Datetime
-    ${current_datetime} =  Get Current Date  UTC  exclude_millis=True
+    ${current_datetime_utc} =  Get Current Date  UTC  exclude_millis=True
+    ${current_datetime_local} =  Subtract Time From Date  ${current_datetime_utc}  4 hours  exclude_millis=True
     ${frontend_datetime_str}  ${frontend_timezone} =  Split String From Right  ${ui_datetime}  max_split=1
     ${frontend_datetime} =  Convert Date  ${frontend_datetime_str}  exclude_millis=True  date_format=%m-%d-%y %H:%M:%S
     ${backend_datetime_str} =  Get From Dictionary  ${api_datetime}  datetime
@@ -245,10 +242,10 @@ Compare Datetime (Frontend, Backend, Current)
     ${backend_datetime} =  Convert Date  ${backend_datetime_str}  exclude_millis=True  date_format=%m-%d-%Y %H:%M:%S
     log  Frontend datetime: ${frontend_datetime}
     log  Backend datetime: ${backend_datetime}
-    log  Current datetime: ${current_datetime}
+    log  Current datetime: ${current_datetime_local}
     log  Checking timedelta of the frontend, backend, and current datetime...
-    ${delta_1} =  Subtract Date From Date  ${current_datetime}  ${frontend_datetime}
-    ${delta_2} =  Subtract Date From Date  ${current_datetime}  ${backend_datetime}
+    ${delta_1} =  Subtract Date From Date  ${current_datetime_local}  ${frontend_datetime}
+    ${delta_2} =  Subtract Date From Date  ${current_datetime_local}  ${backend_datetime}
     ${delta_3} =  Subtract Date From Date  ${frontend_datetime}  ${backend_datetime}
     # If timedelta greater than 2 seconds then times are off
     IF  ${delta_1} > 2 or ${delta_2} > 2 or ${delta_3} > 2  Fail

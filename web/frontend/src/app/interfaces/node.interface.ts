@@ -11,7 +11,6 @@ export interface NodeInterface {
   _id?: string;
   deployment_name?: string;
   deployment_type: string;
-  deviceFacts: DeviceFactsInterface;
   hostname: string;
   ip_address: string;
   is_remote?: boolean;
@@ -24,4 +23,5 @@ export interface NodeInterface {
   virtual_mem: number;
   virtual_os: number;
   vpn_status: string | null;
+  deviceFacts?: DeviceFactsInterface;
 }

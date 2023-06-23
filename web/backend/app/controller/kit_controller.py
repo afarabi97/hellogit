@@ -15,12 +15,12 @@ class KitStatusCtrlApi(Resource):
 
     @KIT_SETUP_NS.doc(description="Gets kit status.")
     @KIT_SETUP_NS.response(200, "KitStatusModel", KitStatusModel.DTO)
-    @KIT_SETUP_NS.response(400, "ErrorMessage: Requested database object not found.", COMMON_ERROR_MESSAGE)
-    @KIT_SETUP_NS.response(500, "ErrorMessage: Internal Server Error.", COMMON_ERROR_MESSAGE)
+    @KIT_SETUP_NS.response(400, "ErrorMessage: DBModelNotFound", COMMON_ERROR_MESSAGE)
+    @KIT_SETUP_NS.response(500, "ErrorMessage: InternalServerError", COMMON_ERROR_MESSAGE)
     @login_required_roles(NODE_STATE_ADMIN_ROLES)
     @handle_errors
     def get(self) -> Response:
-        return get_new_kit_status(), 200
+        return get_new_kit_status()
 
 
 @KIT_SETUP_NS.route("/deploy")
@@ -32,4 +32,4 @@ class KitCtrlApi(Resource):
     @controller_admin_required
     @handle_errors
     def get(self) -> Response:
-        return get_execute_kit_job(), 200
+        return get_execute_kit_job()

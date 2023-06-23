@@ -2,7 +2,7 @@ from app.middleware import controller_maintainer_required, handle_errors
 from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
 from app.models.notification import NotificationModel
 from app.service.notification_service import (delete_notification_id,
-                                              delete_notifications_del,
+                                              delete_notifications,
                                               get_notifications)
 from app.utils.namespaces import NOTIFICATIONS_NS
 from flask import Response
@@ -31,7 +31,7 @@ class NotificationsDelCtrlApi(Resource):
     @controller_maintainer_required
     @handle_errors
     def delete(self) -> Response:
-        return delete_notifications_del()
+        return delete_notifications()
 
 
 @NOTIFICATIONS_NS.route('/<notification_id>')

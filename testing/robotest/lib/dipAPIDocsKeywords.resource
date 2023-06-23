@@ -10,10 +10,12 @@ Validate API Documentation
     log  Checking API Documentation page
     Sleep  5s  reason=API Docs page takes time to load
     reload
+    shoot  api docs page after reload
     ${api_section_list} =  Create List  agent  alerts  app  catalog  coldlog  common  curator  diagnostics  health  hive  policy
-    ...                                 jobs  kit  kubernetes  notifications  portal  scale  settings  token  tools  version
+    ...                                 jobs  kit  kit-token  kubernetes  notifications  portal  scale  settings  tools  version
     FOR  ${item}  IN  @{api_section_list}
-        Wait Until Page Contains Element  xpath=//span[text()="${item}"]
+        Wait Until Page Contains Element  xpath=//span[text()="${item}"]  timeout=5s
+
     END
     Page Should Contain Element  xpath=//h4/span[text()="Models"]
     log  API Documentation page loaded successfully and all sections are present

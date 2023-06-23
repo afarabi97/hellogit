@@ -17,7 +17,7 @@ def test_get_kit_tokens_200(client: FlaskClient, mocker: MockerFixture) -> None:
     assert json_object_key_value_checker(response.json[0], mock_kit_tokens[0]) == True
 
 
-def test_get_kit_tokens_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
+def test_get_kit_tokens_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
     mocker.patch("app.controller.kit_tokens_controller.get_kit_tokens", side_effect=Exception({"error": "mocked error"}))
     response = client.get("/api/kit-token")
     assert response.status_code == 500
@@ -31,14 +31,14 @@ def test_post_kit_tokens_201(client: FlaskClient, mocker: MockerFixture) -> None
     assert json_object_key_value_checker(response.json, mock_kit_tokens[0]) == True
 
 
-def test_post_kit_tokens_ResponseConflictError(client: FlaskClient, mocker: MockerFixture) -> None:
+def test_post_kit_tokens_409_ResponseConflictError(client: FlaskClient, mocker: MockerFixture) -> None:
     mocker.patch("app.controller.kit_tokens_controller.post_kit_tokens", side_effect=ResponseConflictError)
     response = client.post("/api/kit-token", json=mock_kit_tokens[0])
     assert response.status_code == 409
     assert response.json["error_message"]
 
 
-def test_post_kit_tokens_InternalServerError(client: FlaskClient, mocker: MockerFixture) -> None:
+def test_post_kit_tokens_500_InternalServerError(client: FlaskClient, mocker: MockerFixture) -> None:
     mocker.patch("app.controller.kit_tokens_controller.post_kit_tokens", side_effect=InternalServerError)
     response = client.post("/api/kit-token", json=mock_kit_tokens[0])
     assert response.status_code == 500
@@ -53,7 +53,7 @@ def test_delete_kit_tokens_204(client: FlaskClient, mocker: MockerFixture) -> No
     assert json_object_key_value_checker(response.json, mock_kit_tokens[0]) == True
 
 
-def test_delete_kit_tokens_ResponseConflictError(client: FlaskClient, mocker: MockerFixture) -> None:
+def test_delete_kit_tokens_404_ResponseConflictError(client: FlaskClient, mocker: MockerFixture) -> None:
     mock_kit_token_id = mock_kit_tokens[0]["kit_token_id"]
     mocker.patch("app.controller.kit_tokens_controller.delete_kit_tokens", side_effect=NotFoundError)
     response = client.delete(f"/api/kit-token/{mock_kit_token_id}")
@@ -61,7 +61,7 @@ def test_delete_kit_tokens_ResponseConflictError(client: FlaskClient, mocker: Mo
     assert response.json["error_message"]
 
 
-def test_delete_kit_tokens_InternalServerError(client: FlaskClient, mocker: MockerFixture) -> None:
+def test_delete_kit_tokens__500_InternalServerError(client: FlaskClient, mocker: MockerFixture) -> None:
     mock_kit_token_id = mock_kit_tokens[0]["kit_token_id"]
     mocker.patch("app.controller.kit_tokens_controller.delete_kit_tokens", side_effect=InternalServerError)
     response = client.delete(f"/api/kit-token/{mock_kit_token_id}")

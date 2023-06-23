@@ -11,7 +11,6 @@ from flask import jsonify
 from kubernetes import client
 from kubernetes.client.models.v1_pod_list import V1PodList
 from rq.decorators import job
-from app.utils.logging import rq_logger
 
 _JOB_NAME = "tools"
 
