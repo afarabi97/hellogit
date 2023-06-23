@@ -3,7 +3,15 @@
 # These are dev commands that are used in the dev environment.
 # They are not used in the production environment.
 # They are not included in the rpm package.
-
+function run_cmd {
+    local command="$@"
+    eval $command
+    local ret_val=$?
+    if [ $ret_val -ne 0 ]; then
+        echo "$command returned error code $ret_val"
+        exit 1
+    fi
+}
 
 function pip_install_through_nexus() {
     #/ Usage: pip_install_through_nexus [<flags_or_pypackages>]
@@ -154,4 +162,47 @@ function run_tfplenum_docker_test () {
         echo "This is best ran from the root tfplenum directory"
         pushd /opt/tfplenum/ > /dev/null && docker run --rm --volume="$PWD"/web:/opt/tfplenum/web/ -it docker.nexus.sil.lab/tfplenum/code-checker:1.6 /bin/bash -c "pushd /opt/tfplenum/web/ && ./run_tfplenum_tests.sh -T $TEST_TYPE -S $TEST_SECTION --from-code-checker --with-coverage"
     fi
+}
+
+function disk_pressure_close_indices () {
+    # Usage: disk_pressure_close_indices
+    # First step to relieving disk pressure. Close indices before deleting them.
+    # RUN disk_pressure_delete_indices after this.
+
+    # Get API token
+    temp_api_token="Authorization: Bearer $(maintainer_token)"
+
+    local myurl=$(run_cmd hostnamectl --static)
+    local open_indices=$(curl "https://${myurl}/api/curator/indices/open" -H "${temp_api_token}" -H "Content-Type: application/json" --compressed --silent)
+    local close_payload=$(echo $open_indices | docker run --rm -i stedolan/jq -r 'reduce .[] as $item ({"action": "CloseIndices", "index_list": []}; .index_list += [$item.index])')
+    local close_index_response=$(curl "https://${myurl}/api/curator/process" -H "${temp_api_token}" -H "Content-Type: application/json" --compressed --silent -d "${close_payload}")
+    echo $close_index_response | json_pp
+    echo "Closing Indices"
+}
+
+function disk_pressure_delete_indices () {
+    # Use this function to delete indices that are already closed when disk pressure is high
+
+    # Get the maintainer token
+    temp_api_token="Authorization: Bearer $(maintainer_token)"
+
+    # Get the indices ready for deletion. This will return a list of indices that are closed.
+    local myurl=$(run_cmd hostnamectl --static)
+    local closed_indices=$(curl "https://${myurl}/api/curator/indices/close" -H "${temp_api_token}" -H "Content-Type: application/json" --compressed --silent)
+    local delete_payload=$(echo $closed_indices | docker run --rm -i stedolan/jq -r 'reduce .[] as $item ({"action": "DeleteIndices", "index_list": []}; .index_list += [$item.index])')
+    local delete_index_response=$(curl "https://${myurl}/api/curator/process" -H "${temp_api_token}" -H "Content-Type: application/json" --compressed --silent -d "${delete_payload}")
+    echo $delete_index_response | json_pp
+    echo "Deleting Indices"
+}
+
+function relieve_disk_pressure () {
+    # Use this function to relieve disk pressure by first closing and then deleting indices
+    # Tell the function how long you want to wait before attempting to delete the previously open indices
+    local wait_time=15
+    echo "Attempting to relieve disk pressure"
+    run_cmd disk_pressure_close_indices
+    echo "Waiting ${wait_time} seconds before deleting indices"
+    run_cmd sleep ${wait_time}
+    run_cmd disk_pressure_delete_indices
+    echo "Hopefully disk pressure is relieved. If not, run this function again."
 }
