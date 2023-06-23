@@ -16,10 +16,10 @@ def get_notifications(offset: str, role: str) -> List[NotificationModel]:
     if role != "all":
         filter_obj = {"role": role}
 
-    notifications = List[NotificationModel(mongo_notifications().find(filter_obj)
-                                           .sort("timestamp", pymongo.DESCENDING)
-                                           .skip(int(offset))
-                                           .limit(NUMBER_OF_NOTIFICATION_ITEMS))]
+    notifications = list(mongo_notifications().find(filter_obj)
+                                              .sort("timestamp", pymongo.DESCENDING)
+                                              .skip(int(offset))
+                                              .limit(NUMBER_OF_NOTIFICATION_ITEMS))
 
     for notification in notifications:
         notification["_id"] = str(notification["_id"])

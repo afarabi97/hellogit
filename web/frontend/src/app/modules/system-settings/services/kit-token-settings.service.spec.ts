@@ -8,7 +8,7 @@ import { Observable, of as observableOf, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { MockSuccessMessageClass } from '../../../../../static-data/class-objects';
-import { MockKitTokenInterface } from '../../../../../static-data/interface-objects';
+import { MockKitTokenInterface, MockSuccessMessageInterface } from '../../../../../static-data/interface-objects';
 import { environment } from '../../../../environments/environment';
 import { KitTokenClass, SuccessMessageClass } from '../../../classes';
 import { KitTokenInterface } from '../../../interfaces';
@@ -182,7 +182,7 @@ describe('KitTokenSettingsService', () => {
 
         expect(xhrRequest.request.method).toEqual(deleteType);
 
-        xhrRequest.flush(null, {status: 204, statusText: 'No Content'});
+        xhrRequest.flush(MockSuccessMessageInterface);
 
         after();
       });
