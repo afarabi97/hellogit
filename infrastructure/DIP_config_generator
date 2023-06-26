@@ -28,15 +28,15 @@ def write_switch_config(global_kit_id, folder, template="Switch/switch.base.dell
     with open(SCRIPT_DIR + folder + "/switch_dell_4112.conf", "w") as conf:
         conf.write(configuration)
 
-def write_sff_switch_config(global_kit_id, folder, template="Switch/sff.base.dell.xml"):
+def write_sff_switch_config(global_kit_id, folder, template="Switch/sffv2.base.dell.xml"):
     a, b = decode(global_kit_id)
     with open(SCRIPT_DIR + template, "r") as conf:
        configuration = conf.read()
-    configuration = configuration.replace("10.19.128", f"10.{a}.{b}") # Management Port
-    configuration = configuration.replace("10.19.129", f"10.{a}.{b+1}") # Internal Port
-    configuration = configuration.replace("10.19.130", f"10.{a}.{b+2}") # DMZ Port
-    configuration = configuration.replace("10.19.131", f"10.{a}.{b+3}") # P2P Port
-    configuration = configuration.replace("SW-DIP-019001", f"SW-DIP-{global_kit_id}")
+    configuration = configuration.replace("10.20.136", f"10.{a}.{b}") # Management Port
+    configuration = configuration.replace("10.20.137", f"10.{a}.{b+1}") # Internal Port
+    configuration = configuration.replace("10.20.138", f"10.{a}.{b+2}") # DMZ Port
+    configuration = configuration.replace("10.20.139", f"10.{a}.{b+3}") # P2P Port
+    configuration = configuration.replace("SW-DIP-019003", f"SW-DIP-{global_kit_id}")
     with open(SCRIPT_DIR + folder + "/switch_dell_5212.conf", "w") as conf:
         conf.write(configuration)
 
@@ -53,7 +53,7 @@ def write_aux_switch_config(global_kit_id, folder):
 
 def write_sff_aux_switch_config(global_kit_id, folder):
     a, b = decode(global_kit_id)
-    with open(SCRIPT_DIR + "Switch/sff.aux.dell-updated.xml", "r") as conf:
+    with open(SCRIPT_DIR + "Switch/sffv2.aux.dell.xml", "r") as conf:
        configuration = conf.read()
     configuration = configuration.replace("10.19.128", f"10.{a}.{b}") # Management Port
     configuration = configuration.replace("10.19.129", f"10.{a}.{b+1}") # Internal Port

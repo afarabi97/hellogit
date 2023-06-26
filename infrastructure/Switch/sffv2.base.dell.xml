@@ -1,0 +1,3602 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config
+  xmlns:ncx="http://netconfcentral.org/ns/yuma-ncx"
+  ncx:last-modified="2016-11-03T18:37:27Z" ncx:etag="1741"
+  xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <aaa xmlns="http://www.dellemc.com/networking/os10/dell-system">
+    <authentication>
+      <user-authentication-order>local</user-authentication-order>
+    </authentication>
+    <console>
+      <user-authentication-order>local</user-authentication-order>
+    </console>
+  </aaa>
+  <classifier-entry xmlns="http://www.dellemc.com/networking/os10/dell-diffserv-classifier">
+    <name>class-iscsi</name>
+    <mtype>application</mtype>
+  </classifier-entry>
+  <classifier-entry xmlns="http://www.dellemc.com/networking/os10/dell-diffserv-classifier">
+    <name>class-trust</name>
+    <mtype>qos</mtype>
+    <match>match-any</match>
+  </classifier-entry>
+  <cli-config xmlns="http://www.dellemc.com/networking/os10/dell-cli">
+    <features>
+      <name>config-os9-style</name>
+    </features>
+  </cli-config>
+  <config xmlns="http://www.dellemc.com/networking/os10/dell-policy">
+    <access-list>
+      <name>VTY-ACCESS</name>
+      <role>ipv4</role>
+      <description-string>SSH_Management_Access</description-string>
+      <rule>
+        <seq-no>10</seq-no>
+        <command-string>permit ip 10.20.136.0/24 any</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>15</seq-no>
+        <command-string>permit ip 10.20.139.0/30 any</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-prefix>10.20.139.0/30</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9999</seq-no>
+        <command-string>deny ip any any log</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-any>true</source-any>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <log-enabled>true</log-enabled>
+          <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+    </access-list>
+    <access-list>
+      <name>MANAGEMENTv6</name>
+      <role>ipv6</role>
+      <rule>
+        <seq-no>10</seq-no>
+        <remark>explicit deny</remark>
+        <command-string>remark "explicit deny"</command-string>
+      </rule>
+      <rule>
+        <seq-no>20</seq-no>
+        <command-string>deny ipv6 any any log</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-any>true</source-any>
+            <ip-protocol>41</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <log-enabled>true</log-enabled>
+          <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+    </access-list>
+    <access-list>
+      <name>INTERNALv6</name>
+      <role>ipv6</role>
+      <rule>
+        <seq-no>10</seq-no>
+        <remark>explicit deny</remark>
+        <command-string>remark "explicit deny"</command-string>
+      </rule>
+      <rule>
+        <seq-no>20</seq-no>
+        <command-string>deny ipv6 any any log</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-any>true</source-any>
+            <ip-protocol>41</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <log-enabled>true</log-enabled>
+          <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+    </access-list>
+    <access-list>
+      <name>P2Pv6</name>
+      <role>ipv6</role>
+      <rule>
+        <seq-no>10</seq-no>
+        <remark>explicit deny</remark>
+        <command-string>remark "explicit deny"</command-string>
+      </rule>
+      <rule>
+        <seq-no>20</seq-no>
+        <command-string>deny ipv6 any any log</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-any>true</source-any>
+            <ip-protocol>41</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <log-enabled>true</log-enabled>
+          <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+    </access-list>
+    <access-list>
+      <name>P2P_IN</name>
+      <role>ipv4</role>
+      <rule>
+        <seq-no>1</seq-no>
+        <command-string>permit ip any any</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-any>true</source-any>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>10</seq-no>
+        <remark>dell switches need this</remark>
+        <command-string>remark "dell switches need this"</command-string>
+      </rule>
+      <rule>
+        <seq-no>20</seq-no>
+        <command-string>permit ip 10.20.139.0/30 10.20.139.0/30</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.139.0/30</destination-prefix>
+            <source-prefix>10.20.139.0/30</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>30</seq-no>
+        <remark>V-207134 (1 line)</remark>
+        <command-string>remark "V-207134 (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>40</seq-no>
+        <command-string>deny icmp any any log fragment</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-any>true</source-any>
+            <ip-protocol>1</ip-protocol>
+            <fragments>true</fragments>
+          </match-ip>
+        </condition>
+        <action>
+          <log-enabled>true</log-enabled>
+          <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>50</seq-no>
+        <remark>external/dmz/pfsense dns to controller (1 line)</remark>
+        <command-string>remark "external/dmz/pfsense dns to controller (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>60</seq-no>
+        <command-string>permit udp any eq 53 host 10.20.137.15</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.137.15</destination-host>
+            <source-any>true</source-any>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>53</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>70</seq-no>
+        <remark>remote Sensor VPN (1 line)</remark>
+        <command-string>remark "remote Sensor VPN (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>80</seq-no>
+        <command-string>permit udp any host 10.20.137.15 eq 1194</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.137.15</destination-host>
+            <source-any>true</source-any>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>1194</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>90</seq-no>
+        <remark>pfsense dns/ntp to controller (2 lines)</remark>
+        <command-string>remark "pfsense dns/ntp to controller (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>100</seq-no>
+        <command-string>permit udp host 10.20.139.2 host 10.20.137.15 eq 53</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.137.15</destination-host>
+            <source-host>10.20.139.2</source-host>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>53</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>110</seq-no>
+        <command-string>permit udp host 10.20.139.2 host 10.20.137.15 eq 123</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.137.15</destination-host>
+            <source-host>10.20.139.2</source-host>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>123</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>120</seq-no>
+        <remark>external ntp to controller (1 line)</remark>
+        <command-string>remark "external ntp to controller (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>130</seq-no>
+        <command-string>permit udp any eq 123 host 10.20.137.15</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.137.15</destination-host>
+            <source-any>true</source-any>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>123</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>140</seq-no>
+        <remark>Internal to Endgame 443 return path (1 line)</remark>
+        <command-string>remark "Internal to Endgame 443 return path (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>150</seq-no>
+        <command-string>permit tcp host 10.20.138.200 eq 443 10.20.137.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-host>10.20.138.200</source-host>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>160</seq-no>
+        <remark>Unable to filter by icmp types so allowing icmp (1 line)</remark>
+        <command-string>remark "Unable to filter by icmp types so allowing icmp (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>170</seq-no>
+        <command-string>permit icmp host 10.20.139.2 host 10.20.139.1</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.139.1</destination-host>
+            <source-host>10.20.139.2</source-host>
+            <ip-protocol>1</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>180</seq-no>
+        <remark>DMZ to Elasticsearch (1 line)</remark>
+        <command-string>remark "DMZ to Elasticsearch (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>190</seq-no>
+        <command-string>permit tcp 10.20.138.0/24 10.20.137.0/24 eq 9200</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.20.138.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>9200</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>200</seq-no>
+        <remark>endgame dns/ntp to controller</remark>
+        <command-string>remark "endgame dns/ntp to controller"</command-string>
+      </rule>
+      <rule>
+        <seq-no>210</seq-no>
+        <command-string>permit udp host 10.20.138.200 host 10.20.137.15 eq 53</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.137.15</destination-host>
+            <source-host>10.20.138.200</source-host>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>53</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>220</seq-no>
+        <command-string>permit udp host 10.20.138.200 host 10.20.137.15 eq 123</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.137.15</destination-host>
+            <source-host>10.20.138.200</source-host>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>123</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>230</seq-no>
+        <remark>endgame to kibana</remark>
+        <command-string>remark "endgame to kibana"</command-string>
+      </rule>
+      <rule>
+        <seq-no>240</seq-no>
+        <command-string>permit tcp host 10.20.138.200 10.20.137.0/24 eq 443</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-host>10.20.138.200</source-host>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>250</seq-no>
+        <remark>Endgame Agent (mpnet) to logstash</remark>
+        <command-string>remark "Endgame Agent (mpnet) to logstash"</command-string>
+      </rule>
+      <rule>
+        <seq-no>260</seq-no>
+        <command-string>permit tcp any 10.20.137.0/24 eq 5045</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-any>true</source-any>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>5045</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>270</seq-no>
+        <remark>remote gip to kit ssh/https</remark>
+        <command-string>remark "remote gip to kit ssh/https"</command-string>
+      </rule>
+      <rule>
+        <seq-no>280</seq-no>
+        <command-string>permit tcp 10.20.2.0/24 10.20.136.0/22 eq 443</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.136.0/22</destination-prefix>
+            <source-prefix>10.20.2.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>290</seq-no>
+        <command-string>permit tcp 10.20.2.0/24 10.20.136.0/22 eq 22</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.136.0/22</destination-prefix>
+            <source-prefix>10.20.2.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>22</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>300</seq-no>
+        <remark>Controller to Endgame Agent (mpnet) (return traffic)</remark>
+        <command-string>remark "Controller to Endgame Agent (mpnet) (return traffic)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>310</seq-no>
+        <command-string>permit tcp any eq 5985 host 10.20.137.15</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.137.15</destination-host>
+            <source-any>true</source-any>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>5985</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>320</seq-no>
+        <remark>remote gip to internal</remark>
+        <command-string>remark "remote gip to internal"</command-string>
+      </rule>
+      <rule>
+        <seq-no>330</seq-no>
+        <command-string>permit ip 10.20.0.0/17 10.20.137.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.20.0.0/17</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>340</seq-no>
+        <command-string>permit ip 10.10.102.0/24 any</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-prefix>10.10.102.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>350</seq-no>
+        <command-string>permit ip 10.2.2.0/24 any</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-prefix>10.2.2.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9998</seq-no>
+        <remark>explicit deny</remark>
+        <command-string>remark "explicit deny"</command-string>
+      </rule>
+      <rule>
+        <seq-no>9999</seq-no>
+        <command-string>deny ip any any log</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-any>true</source-any>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <log-enabled>true</log-enabled>
+          <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+    </access-list>
+    <access-list>
+      <name>MANAGEMENT_IN</name>
+      <role>ipv4</role>
+      <rule>
+        <seq-no>10</seq-no>
+        <remark>dell switches need the next line</remark>
+        <command-string>remark "dell switches need the next line"</command-string>
+      </rule>
+      <rule>
+        <seq-no>20</seq-no>
+        <command-string>permit ip 10.20.136.0/24 10.20.136.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.136.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>30</seq-no>
+        <remark>V-207134 (1 line)</remark>
+        <command-string>remark "V-207134 (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>40</seq-no>
+        <command-string>deny icmp any any log fragment</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-any>true</source-any>
+            <ip-protocol>1</ip-protocol>
+            <fragments>true</fragments>
+          </match-ip>
+        </condition>
+        <action>
+          <log-enabled>true</log-enabled>
+          <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>50</seq-no>
+        <remark>management ntp to controller (1 line)</remark>
+        <command-string>remark "management ntp to controller (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>60</seq-no>
+        <command-string>permit udp 10.20.136.0/24 host 10.20.137.15 eq 123</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.137.15</destination-host>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>123</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>70</seq-no>
+        <remark>Allow MINIO (1 line)</remark>
+        <command-string>remark "Allow MINIO (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>80</seq-no>
+        <command-string>permit tcp 10.20.136.0/24 10.20.137.0/24 eq 9000</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>9000</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>90</seq-no>
+        <remark>management to internal 443 (1 line)</remark>
+        <command-string>remark "management to internal 443 (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>100</seq-no>
+        <command-string>permit tcp 10.20.136.0/24 10.20.137.0/24 eq 443</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>110</seq-no>
+        <remark>management to dmz (2 lines)</remark>
+        <command-string>remark "management to dmz (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>120</seq-no>
+        <command-string>permit tcp 10.20.136.0/24 10.20.138.0/24 eq 443</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.138.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>121</seq-no>
+        <command-string>permit tcp 10.20.138.0/24 eq 443 10.20.136.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.136.0/24</destination-prefix>
+            <source-prefix>10.20.138.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>130</seq-no>
+        <command-string>permit tcp 10.20.136.0/24 10.20.138.0/24 eq 22</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.138.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>22</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>131</seq-no>
+        <command-string>permit tcp 10.20.138.0/24 eq 22 10.20.136.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.136.0/24</destination-prefix>
+            <source-prefix>10.20.138.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>22</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>140</seq-no>
+        <remark>management to internal remote access (5 lines)</remark>
+        <command-string>remark "management to internal remote access (5 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>150</seq-no>
+        <command-string>permit tcp 10.20.136.0/24 10.20.137.0/24 eq 22</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>22</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>160</seq-no>
+        <command-string>permit tcp 10.20.136.0/24 10.20.137.0/24 eq 445</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>445</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>170</seq-no>
+        <command-string>permit tcp 10.20.136.0/24 10.20.137.0/24 eq 139</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>139</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>180</seq-no>
+        <command-string>permit tcp 10.20.136.0/24 10.20.137.0/24 eq 135</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>135</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>190</seq-no>
+        <command-string>permit tcp 10.20.136.0/24 10.20.137.0/24 eq 3389</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>3389</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>200</seq-no>
+        <remark>allow ping/trace to internal network from management (1 line)</remark>
+        <command-string>remark "allow ping/trace to internal network from management (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>210</seq-no>
+        <command-string>permit icmp 10.20.136.0/24 10.20.137.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>1</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>220</seq-no>
+        <remark>allow ping/trace to dmz network from management (1 line)</remark>
+        <command-string>remark "allow ping/trace to dmz network from management (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>230</seq-no>
+        <command-string>permit icmp 10.20.136.0/24 10.20.138.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.138.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>1</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>240</seq-no>
+        <remark>management to controller dns (1 line)</remark>
+        <command-string>remark "management to controller dns (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>250</seq-no>
+        <command-string>permit udp 10.20.136.0/24 host 10.20.137.15 eq 53</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.137.15</destination-host>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>53</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>260</seq-no>
+        <remark>remote gip to kit ssh/https return path (2 lines)</remark>
+        <command-string>remark "remote gip to kit ssh/https return path (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>270</seq-no>
+        <command-string>permit tcp 10.20.136.0/24 eq 22 10.20.2.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.2.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>22</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>280</seq-no>
+        <command-string>permit tcp 10.20.136.0/24 eq 443 10.20.2.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.2.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>290</seq-no>
+        <remark>esxi return path to controller (1 line)</remark>
+        <command-string>remark "esxi return path to controller (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>300</seq-no>
+        <command-string>permit tcp host 10.20.136.2 eq 443 host 10.20.137.15</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.137.15</destination-host>
+            <source-host>10.20.136.2</source-host>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>310</seq-no>
+        <remark>internal to management https return path (1 line)</remark>
+        <command-string>remark "internal to management https return path (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>320</seq-no>
+        <command-string>permit tcp 10.20.136.0/24 eq 443 10.20.137.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>330</seq-no>
+        <remark>management to remote gip</remark>
+        <command-string>remark "management to remote gip"</command-string>
+      </rule>
+      <rule>
+        <seq-no>340</seq-no>
+        <command-string>permit ip 10.20.136.0/24 10.10.102.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.10.102.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>350</seq-no>
+        <command-string>permit ip 10.20.136.0/24 10.2.2.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.2.2.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+    </access-list>
+    <access-list>
+      <name>INTERNAL_IN</name>
+      <role>ipv4</role>
+      <rule>
+        <seq-no>10</seq-no>
+        <remark>PXE BOOTP</remark>
+        <command-string>remark "PXE BOOTP"</command-string>
+      </rule>
+      <rule>
+        <seq-no>30</seq-no>
+        <remark>dell switches need these four lines</remark>
+        <command-string>remark "dell switches need these four lines"</command-string>
+      </rule>
+      <rule>
+        <seq-no>40</seq-no>
+        <command-string>permit ip 10.20.137.0/24 10.20.137.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>41</seq-no>
+        <command-string>permit ip 10.20.137.0/24 10.233.0.0/16</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.233.0.0/16</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>50</seq-no>
+        <command-string>permit ip 10.233.0.0/16 10.233.0.0/16</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.233.0.0/16</destination-prefix>
+            <source-prefix>10.233.0.0/16</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>51</seq-no>
+        <command-string>permit ip 10.233.0.0/16 10.20.137.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.233.0.0/16</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>60</seq-no>
+        <remark>allow 443 and 22 to endgame from internal (2 lines)</remark>
+        <command-string>remark "allow 443 and 22 to endgame from internal (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>70</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 host 10.20.138.200 eq 443</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.138.200</destination-host>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>80</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 host 10.20.138.200 eq 22</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.138.200</destination-host>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>22</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>90</seq-no>
+        <remark>Elasticsearch to DMZ (1 line)</remark>
+        <command-string>remark "Elasticsearch to DMZ (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>100</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 eq 9200 10.20.138.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.138.0/24</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>9200</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>110</seq-no>
+        <remark>dns/ntp reverse path from controller to pfsense (2 lines)</remark>
+        <command-string>remark "dns/ntp reverse path from controller to pfsense (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>120</seq-no>
+        <command-string>permit udp host 10.20.137.15 eq 123 host 10.20.139.2</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.139.2</destination-host>
+            <source-host>10.20.137.15</source-host>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>123</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>130</seq-no>
+        <command-string>permit udp host 10.20.137.15 eq 53 host 10.20.139.2</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.139.2</destination-host>
+            <source-host>10.20.137.15</source-host>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>53</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>140</seq-no>
+        <remark>dns/ntp reverse path from controller to management (2 lines)</remark>
+        <command-string>remark "dns/ntp reverse path from controller to management (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>150</seq-no>
+        <command-string>permit udp host 10.20.137.15 eq 123 10.20.136.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.136.0/24</destination-prefix>
+            <source-host>10.20.137.15</source-host>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>123</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>160</seq-no>
+        <command-string>permit udp host 10.20.137.15 eq 53 10.20.136.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.136.0/24</destination-prefix>
+            <source-host>10.20.137.15</source-host>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>53</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>170</seq-no>
+        <remark>allow dns/ntp from controller upstream (2 lines)</remark>
+        <command-string>remark "allow dns/ntp from controller upstream (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>180</seq-no>
+        <command-string>permit udp host 10.20.137.15 any eq 53</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-host>10.20.137.15</source-host>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>53</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>190</seq-no>
+        <command-string>permit udp host 10.20.137.15 any eq 123</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-host>10.20.137.15</source-host>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>123</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>200</seq-no>
+        <remark>dns for metricbeat (2 lines)</remark>
+        <command-string>remark "dns for metricbeat (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>210</seq-no>
+        <command-string>permit udp 10.20.137.0/24 10.233.0.0/18 eq 53</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.233.0.0/18</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>53</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>220</seq-no>
+        <command-string>permit udp 10.233.0.0/18 eq 53 10.20.137.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.233.0.0/18</source-prefix>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>53</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>230</seq-no>
+        <remark>needed for metricbeat to start on sensors (2 lines)</remark>
+        <command-string>remark "needed for metricbeat to start on sensors (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>240</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 10.233.0.0/18 eq 5601</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.233.0.0/18</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>5601</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>250</seq-no>
+        <command-string>permit tcp 10.233.0.0/18 eq 5601 10.20.137.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.233.0.0/18</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>5601</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>260</seq-no>
+        <remark>needed for elasticsearch to start (2 lines)</remark>
+        <command-string>remark "needed for elasticsearch to start (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>270</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 10.233.0.0/18 eq 9200</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.233.0.0/18</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>9200</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>280</seq-no>
+        <command-string>permit tcp 10.233.0.0/18 eq 9200 10.20.137.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.233.0.0/18</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>9200</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>290</seq-no>
+        <remark>needed for chartmuseum to start (2 lines)</remark>
+        <command-string>remark "needed for chartmuseum to start (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>300</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 10.233.0.0/18 eq 8080</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.233.0.0/18</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>8080</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>310</seq-no>
+        <command-string>permit tcp 10.233.0.0/18 eq 8080 10.20.137.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.137.0/24</destination-prefix>
+            <source-prefix>10.233.0.0/18</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>8080</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>320</seq-no>
+        <remark>controller to esxi https (1 line)</remark>
+        <command-string>remark "controller to esxi https (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>330</seq-no>
+        <command-string>permit tcp host 10.20.137.15 host 10.20.136.2 eq 443</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.136.2</destination-host>
+            <source-host>10.20.137.15</source-host>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>340</seq-no>
+        <remark> control plane to cert-manager (1 line)</remark>
+        <command-string>remark " control plane to cert-manager (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>350</seq-no>
+        <command-string>permit tcp host 10.20.137.16 10.233.0.0/18 eq 10250</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.233.0.0/18</destination-prefix>
+            <source-host>10.20.137.16</source-host>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>10250</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>360</seq-no>
+        <remark>cert-manager back to control plane (1 line)</remark>
+        <command-string>remark "cert-manager back to control plane (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>370</seq-no>
+        <command-string>permit tcp 10.233.0.0/18 eq 10250 host 10.20.137.16</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.137.16</destination-host>
+            <source-prefix>10.233.0.0/18</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>10250</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>380</seq-no>
+        <remark>endgame to controller ntp and dns return path (2 lines)</remark>
+        <command-string>remark "endgame to controller ntp and dns return path (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>390</seq-no>
+        <command-string>permit udp host 10.20.137.15 eq 123 host 10.20.138.200</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.138.200</destination-host>
+            <source-host>10.20.137.15</source-host>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>123</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>400</seq-no>
+        <command-string>permit udp host 10.20.137.15 eq 53 host 10.20.138.200</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.138.200</destination-host>
+            <source-host>10.20.137.15</source-host>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>53</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>410</seq-no>
+        <remark>endgame to elastic return path (1 line)</remark>
+        <command-string>remark "endgame to elastic return path (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>420</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 eq 9200 host 10.20.138.200</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.138.200</destination-host>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>9200</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>430</seq-no>
+        <remark>endgame to kibana reverse path (1 line)</remark>
+        <command-string>remark "endgame to kibana reverse path (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>440</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 eq 443 host 10.20.138.200</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.138.200</destination-host>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>450</seq-no>
+        <remark>remote gip to kit ssh/https return path (2 lines)</remark>
+        <command-string>remark "remote gip to kit ssh/https return path (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>460</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 eq 22 10.20.2.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.2.0/24</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>22</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>470</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 eq 443 10.20.2.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.2.0/24</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>480</seq-no>
+        <remark>Internal to Management 443/22 return traffic (2 lines)</remark>
+        <command-string>remark "Internal to Management 443/22 return traffic (2 lines)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>490</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 eq 443 10.20.136.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.136.0/24</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>500</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 eq 22 10.20.136.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.136.0/24</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>22</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>510</seq-no>
+        <remark>allow logstash to 10.30.202.0/24 (mpnet) (1 line)</remark>
+        <command-string>remark "allow logstash to 10.30.202.0/24 (mpnet) (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>520</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 eq 5045 any</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>5045</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>530</seq-no>
+        <remark>remote Sensor VPN (1 line)</remark>
+        <command-string>remark "remote Sensor VPN (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>540</seq-no>
+        <command-string>permit udp host 10.20.137.15 eq 1194 any</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-host>10.20.137.15</source-host>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>1194</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>550</seq-no>
+        <remark>Controller to Endgame Agent (1 line)</remark>
+        <command-string>remark "Controller to Endgame Agent (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>560</seq-no>
+        <command-string>permit tcp host 10.20.137.15 any eq 5985</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-host>10.20.137.15</source-host>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>5985</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>570</seq-no>
+        <remark>minio back to management (1 line)</remark>
+        <command-string>remark "minio back to management (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>580</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 eq 9000 10.20.136.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.136.0/24</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>9000</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>590</seq-no>
+        <remark>internal to management https (1 line)</remark>
+        <command-string>remark "internal to management https (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>600</seq-no>
+        <command-string>permit tcp 10.20.137.0/24 10.20.136.0/24 eq 443</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.136.0/24</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>6</ip-protocol>
+            <match-tcp>
+              <destination-port-range>
+                <comparator-port>443</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>610</seq-no>
+        <remark>internal to remote gip</remark>
+        <command-string>remark "internal to remote gip"</command-string>
+      </rule>
+      <rule>
+        <seq-no>620</seq-no>
+        <command-string>permit ip 10.20.137.0/24 10.20.0.0/17</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.0.0/17</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>630</seq-no>
+        <command-string>permit ip 10.20.137.0/24 any</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>9998</seq-no>
+        <remark>explicit deny</remark>
+        <command-string>remark "explicit deny"</command-string>
+      </rule>
+      <rule>
+        <seq-no>9999</seq-no>
+        <command-string>deny ip any any log</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-any>true</source-any>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <log-enabled>true</log-enabled>
+          <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>20</seq-no>
+        <command-string>permit udp any eq 68 any eq 67</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-any>true</source-any>
+            <ip-protocol>17</ip-protocol>
+            <match-tcp>
+              <source-port-range>
+                <comparator-port>68</comparator-port>
+                <comparator>eq</comparator>
+              </source-port-range>
+              <destination-port-range>
+                <comparator-port>67</comparator-port>
+                <comparator>eq</comparator>
+              </destination-port-range>
+            </match-tcp>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>21</seq-no>
+        <remark>v-207134 (1 line)</remark>
+        <command-string>remark "v-207134 (1 line)"</command-string>
+      </rule>
+      <rule>
+        <seq-no>22</seq-no>
+        <command-string>deny icmp any any log fragment</command-string>
+        <condition>
+          <match-ip>
+            <destination-any>true</destination-any>
+            <source-any>true</source-any>
+            <ip-protocol>1</ip-protocol>
+            <fragments>true</fragments>
+          </match-ip>
+        </condition>
+        <action>
+          <log-enabled>true</log-enabled>
+          <packet-handling>deny</packet-handling>
+        </action>
+      </rule>
+    </access-list>
+    <access-list>
+      <name>INTERNAL_PBR</name>
+      <role>ipv4</role>
+      <rule>
+        <seq-no>10</seq-no>
+        <remark>to dmz</remark>
+        <command-string>remark "to dmz"</command-string>
+      </rule>
+      <rule>
+        <seq-no>20</seq-no>
+        <command-string>permit ip 10.20.137.0/24 10.20.138.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.138.0/24</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>30</seq-no>
+        <remark>to mgmt ip</remark>
+        <command-string>remark "to mgmt ip"</command-string>
+      </rule>
+      <rule>
+        <seq-no>40</seq-no>
+        <command-string>permit ip 10.20.137.0/24 host 10.20.136.3</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.136.3</destination-host>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>50</seq-no>
+        <remark>to remote gip</remark>
+        <command-string>remark "to remote gip"</command-string>
+      </rule>
+      <rule>
+        <seq-no>60</seq-no>
+        <command-string>permit ip 10.20.137.0/24 10.20.0.0/17</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.0.0/17</destination-prefix>
+            <source-prefix>10.20.137.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+    </access-list>
+    <access-list>
+      <name>MANAGEMENT_PBR</name>
+      <role>ipv4</role>
+      <rule>
+        <seq-no>10</seq-no>
+        <remark>to dmz</remark>
+        <command-string>remark "to dmz"</command-string>
+      </rule>
+      <rule>
+        <seq-no>20</seq-no>
+        <command-string>permit ip 10.20.136.0/24 10.20.138.0/24</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.138.0/24</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>30</seq-no>
+        <remark>to mgmt ip</remark>
+        <command-string>remark "to mgmt ip"</command-string>
+      </rule>
+      <rule>
+        <seq-no>40</seq-no>
+        <command-string>permit ip 10.20.136.0/24 host 10.20.136.3</command-string>
+        <condition>
+          <match-ip>
+            <destination-host>10.20.136.3</destination-host>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+      <rule>
+        <seq-no>50</seq-no>
+        <remark>to remote gip</remark>
+        <command-string>remark "to remote gip"</command-string>
+      </rule>
+      <rule>
+        <seq-no>60</seq-no>
+        <command-string>permit ip 10.20.136.0/24 10.20.0.0/17</command-string>
+        <condition>
+          <match-ip>
+            <destination-prefix>10.20.0.0/17</destination-prefix>
+            <source-prefix>10.20.136.0/24</source-prefix>
+            <ip-protocol>4</ip-protocol>
+          </match-ip>
+        </condition>
+        <action>
+          <packet-handling>permit</packet-handling>
+        </action>
+      </rule>
+    </access-list>
+    <route-map>
+      <rm-name>INTERNAL_PBR_RMAP</rm-name>
+      <rule>
+        <seq-no>10</seq-no>
+        <packet-handling>permit</packet-handling>
+        <match-node>
+          <ipv4-acl-list>INTERNAL_PBR</ipv4-acl-list>
+        </match-node>
+        <set-action>
+          <ipv4-nexthop>
+            <address>10.20.139.2</address>
+            <vrf>default</vrf>
+          </ipv4-nexthop>
+        </set-action>
+      </rule>
+    </route-map>
+    <route-map>
+      <rm-name>MANAGEMENT_PBR_RMAP</rm-name>
+      <rule>
+        <seq-no>10</seq-no>
+        <packet-handling>permit</packet-handling>
+        <match-node>
+          <ipv4-acl-list>MANAGEMENT_PBR</ipv4-acl-list>
+        </match-node>
+        <set-action>
+          <ipv4-nexthop>
+            <address>10.20.136.3</address>
+            <vrf>default</vrf>
+          </ipv4-nexthop>
+        </set-action>
+      </rule>
+    </route-map>
+    <policy-vty-config>
+      <vty-acl>
+        <ip-type>ipv4</ip-type>
+        <name>VTY-ACCESS</name>
+      </vty-acl>
+    </policy-vty-config>
+  </config>
+  <dns-resolver xmlns="http://www.dellemc.com/networking/os10/dell-dns">
+    <vrf>default</vrf>
+    <hostname>lan</hostname>
+    <server>10.20.137.40</server>
+    <server>10.20.137.15</server>
+  </dns-resolver>
+  <errdisable xmlns="http://www.dellemc.com/networking/os10/dell-system">
+    <recovery-bpduguard>true</recovery-bpduguard>
+  </errdisable>
+  <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+    <interface>
+      <name>ethernet1/1/15</name>
+      <description>DIP-DIP Trunk</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <enabled>true</enabled>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <mode xmlns="http://www.dellemc.com/networking/os10/dell-interface">MODE_L2HYBRID</mode>
+      <mtu xmlns="http://www.dellemc.com/networking/os10/dell-interface">1532</mtu>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>mgmt1/1/1</name>
+      <type
+        xmlns:base-if="http://www.dellemc.com/networking/os10/dell-base-interface-common">base-if:management</type>
+      <enabled>false</enabled>
+      <duplex xmlns="http://www.dellemc.com/networking/os10/dell-interface">auto</duplex>
+      <ipv4 xmlns="http://www.dellemc.com/networking/os10/dell-ip">
+        <dhcp-config>
+          <is-dhcp>true</is-dhcp>
+          <vendor-class-enable>false</vendor-class-enable>
+        </dhcp-config>
+      </ipv4>
+      <ipv6 xmlns="http://www.dellemc.com/networking/os10/dell-ip">
+        <autoconfig>true</autoconfig>
+        <intf-v6-enabled>true</intf-v6-enabled>
+      </ipv6>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>true</tx-enable>
+        <rx-enable>true</rx-enable>
+      </lldp>
+      <mtu xmlns="http://www.dellemc.com/networking/os10/dell-interface">1500</mtu>
+      <speed xmlns="http://www.dellemc.com/networking/os10/dell-interface">AUTO</speed>
+    </interface>
+    <interface>
+      <name>null0</name>
+      <type
+        xmlns:base-if="http://www.dellemc.com/networking/os10/dell-base-interface-common">base-if:null</type>
+      <enabled>true</enabled>
+    </interface>
+    <interface>
+      <name>vlan1</name>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:l2vlan</type>
+      <enabled>false</enabled>
+    </interface>
+    <interface>
+      <name>ethernet1/1/1:1</name>
+      <description>Server Trunk</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <mode xmlns="http://www.dellemc.com/networking/os10/dell-interface">MODE_L2HYBRID</mode>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/2:1</name>
+      <description>Management Port</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/3:1</name>
+      <description>Management Port</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/4:1</name>
+      <description>Management Port</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/5:1</name>
+      <description>DMZ Port</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/6:1</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/7:1</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/8:1</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/9:1</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/10:1</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/11:1</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/12:1</name>
+      <description>External MPN - DHCP</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/13:1</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/13:2</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/13:3</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/13:4</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/14:1</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/14:2</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/14:3</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>ethernet1/1/14:4</name>
+      <description>Internal Network</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+      <lldp xmlns="http://www.dellemc.com/networking/os10/dell-lldp">
+        <tx-enable>false</tx-enable>
+        <rx-enable>false</rx-enable>
+      </lldp>
+      <lldp-med-cfg xmlns="http://www.dellemc.com/networking/os10/dell-lldp-med">
+        <med-enable>false</med-enable>
+      </lldp-med-cfg>
+      <qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+        <flow-control-rx>true</flow-control-rx>
+        <unknown-unicast-rate-pps>1</unknown-unicast-rate-pps>
+        <multicast-rate-pps>100000</multicast-rate-pps>
+        <broadcast-rate-pps>100000</broadcast-rate-pps>
+      </qos-cfg>
+      <xstp-cfg xmlns="http://www.dellemc.com/networking/os10/dell-xstp">
+        <interface-common>
+          <br-index>0</br-index>
+          <config>
+            <guard>root</guard>
+            <edge-port-basic>enable</edge-port-basic>
+            <bpdu-guard>enable</bpdu-guard>
+            <bpdu-filter>enable</bpdu-filter>
+          </config>
+        </interface-common>
+      </xstp-cfg>
+    </interface>
+    <interface>
+      <name>vlan32</name>
+      <description>Management</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:l2vlan</type>
+      <ipv4 xmlns="http://www.dellemc.com/networking/os10/dell-ip">
+        <address>
+          <primary-addr>10.20.136.1/24</primary-addr>
+        </address>
+      </ipv4>
+      <ipv6 xmlns="http://www.dellemc.com/networking/os10/dell-ip">
+        <ra>
+          <hop-limit>32</hop-limit>
+        </ra>
+      </ipv6>
+      <policy-acl-config xmlns="http://www.dellemc.com/networking/os10/dell-policy">
+        <access-group>
+          <role>ipv4</role>
+          <direction>in</direction>
+          <vrf>0</vrf>
+          <name>MANAGEMENT_IN</name>
+        </access-group>
+        <access-group>
+          <role>ipv6</role>
+          <direction>in</direction>
+          <vrf>0</vrf>
+          <name>MANAGEMENTv6</name>
+        </access-group>
+      </policy-acl-config>
+      <policy-pbr-config xmlns="http://www.dellemc.com/networking/os10/dell-policy">
+        <pbr-route-map-group>
+          <ip-type>ipv4</ip-type>
+          <vrf>0</vrf>
+          <route-map-name>MANAGEMENT_PBR_RMAP</route-map-name>
+        </pbr-route-map-group>
+      </policy-pbr-config>
+      <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/1:1</tagged-ports>
+      <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/15</tagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/2:1</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/3:1</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/4:1</untagged-ports>
+    </interface>
+    <interface>
+      <name>vlan33</name>
+      <description>P2P TO PFSENSE CARVED FROM SPARE VLAN</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:l2vlan</type>
+      <ipv4 xmlns="http://www.dellemc.com/networking/os10/dell-ip">
+        <address>
+          <primary-addr>10.20.139.1/30</primary-addr>
+        </address>
+      </ipv4>
+      <ipv6 xmlns="http://www.dellemc.com/networking/os10/dell-ip">
+        <ra>
+          <hop-limit>32</hop-limit>
+        </ra>
+      </ipv6>
+      <policy-acl-config xmlns="http://www.dellemc.com/networking/os10/dell-policy">
+        <access-group>
+          <role>ipv4</role>
+          <direction>in</direction>
+          <vrf>0</vrf>
+          <name>P2P_IN</name>
+        </access-group>
+        <access-group>
+          <role>ipv6</role>
+          <direction>in</direction>
+          <vrf>0</vrf>
+          <name>P2Pv6</name>
+        </access-group>
+      </policy-acl-config>
+      <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/1:1</tagged-ports>
+      <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/15</tagged-ports>
+    </interface>
+    <interface>
+      <name>vlan35</name>
+      <description>Internal</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:l2vlan</type>
+      <dhcp-relay-if-cfgs xmlns="http://www.dellemc.com/networking/os10/dell-dhcp">
+        <vrf-name>default</vrf-name>
+        <server-address>10.20.137.15</server-address>
+      </dhcp-relay-if-cfgs>
+      <ipv4 xmlns="http://www.dellemc.com/networking/os10/dell-ip">
+        <address>
+          <primary-addr>10.20.137.1/24</primary-addr>
+        </address>
+      </ipv4>
+      <ipv6 xmlns="http://www.dellemc.com/networking/os10/dell-ip">
+        <ra>
+          <hop-limit>32</hop-limit>
+        </ra>
+      </ipv6>
+      <policy-acl-config xmlns="http://www.dellemc.com/networking/os10/dell-policy">
+        <access-group>
+          <role>ipv4</role>
+          <direction>in</direction>
+          <vrf>0</vrf>
+          <name>INTERNAL_IN</name>
+        </access-group>
+        <access-group>
+          <role>ipv6</role>
+          <direction>in</direction>
+          <vrf>0</vrf>
+          <name>INTERNALv6</name>
+        </access-group>
+      </policy-acl-config>
+      <policy-pbr-config xmlns="http://www.dellemc.com/networking/os10/dell-policy">
+        <pbr-route-map-group>
+          <ip-type>ipv4</ip-type>
+          <vrf>0</vrf>
+          <route-map-name>INTERNAL_PBR_RMAP</route-map-name>
+        </pbr-route-map-group>
+      </policy-pbr-config>
+      <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/1:1</tagged-ports>
+      <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/15</tagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/6:1</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/7:1</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/8:1</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/9:1</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/10:1</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/11:1</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/13:1</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/13:2</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/13:3</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/13:4</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/14:1</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/14:2</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/14:3</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/14:4</untagged-ports>
+    </interface>
+    <interface>
+      <name>vlan36</name>
+      <description>External</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:l2vlan</type>
+      <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/1:1</tagged-ports>
+      <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/15</tagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/12:1</untagged-ports>
+    </interface>
+    <interface>
+      <name>vlan37</name>
+      <description>DMZ</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:l2vlan</type>
+      <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/1:1</tagged-ports>
+      <tagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/15</tagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/5:1</untagged-ports>
+    </interface>
+    <interface>
+      <name>vlan688</name>
+      <description>Native</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:l2vlan</type>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/1:1</untagged-ports>
+      <untagged-ports xmlns="http://www.dellemc.com/networking/os10/dell-interface">ethernet1/1/15</untagged-ports>
+    </interface>
+    <interface>
+      <name>vlan999</name>
+      <description>Unused Port</description>
+      <type
+        xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:l2vlan</type>
+    </interface>
+    <vlan-globals xmlns="http://www.dellemc.com/networking/os10/dell-interface">
+      <default-vlan-id>vlan999</default-vlan-id>
+    </vlan-globals>
+  </interfaces>
+  <ip-config xmlns="http://www.dellemc.com/networking/os10/dell-ip">
+    <ipv6>
+      <ipv6-enable>true</ipv6-enable>
+      <unicast-routing>true</unicast-routing>
+    </ipv6>
+  </ip-config>
+  <iscsi-cfg xmlns="http://www.dellemc.com/networking/os10/dell-iscsi-optimization">
+    <target>
+      <port>3260</port>
+    </target>
+    <target>
+      <port>860</port>
+    </target>
+  </iscsi-cfg>
+  <login xmlns="http://www.dellemc.com/networking/os10/dell-system">
+    <limit>3</limit>
+  </login>
+  <login-statistics xmlns="http://www.dellemc.com/networking/os10/dell-system">
+    <config>
+      <enable>true</enable>
+    </config>
+  </login-statistics>
+  <mcast-snooping-global-config xmlns="http://www.dellemc.com/networking/os10/dell-multicast-snooping">
+    <igmp-snooping>
+      <enable>true</enable>
+      <flood>false</flood>
+    </igmp-snooping>
+    <mld-snooping>
+      <enable>true</enable>
+    </mld-snooping>
+  </mcast-snooping-global-config>
+  <nacm xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-acm">
+    <enable-nacm>true</enable-nacm>
+    <read-default>permit</read-default>
+    <write-default>deny</write-default>
+    <exec-default>permit</exec-default>
+    <groups>
+      <group>
+        <name>netoperator</name>
+        <user-name>guest</user-name>
+      </group>
+      <group>
+        <name>netadmin</name>
+      </group>
+      <group>
+        <name>secadmin</name>
+      </group>
+      <group>
+        <name>sysadmin</name>
+        <user-name>admin</user-name>
+        <user-name>amazon</user-name>
+      </group>
+      <group>
+        <name>service</name>
+        <user-name>service</user-name>
+      </group>
+    </groups>
+    <rule-list>
+      <name>guest-acl</name>
+      <group>netoperator</group>
+      <rule>
+        <name>permit-edit-config</name>
+        <module-name>ietf-netconf</module-name>
+        <rpc-name>edit-config</rpc-name>
+        <access-operations>create update delete exec</access-operations>
+        <action>deny</action>
+        <comment>Do not allow guests to edit the configuration.</comment>
+      </rule>
+    </rule-list>
+    <rule-list>
+      <name>sysadmin-acl</name>
+      <group>sysadmin</group>
+      <rule>
+        <name>permit-all</name>
+        <module-name>*</module-name>
+        <access-operations>*</access-operations>
+        <action>permit</action>
+        <comment>Allow the admin group complete access except serviceability commands</comment>
+      </rule>
+    </rule-list>
+    <rule-list>
+      <name>service-acl</name>
+      <group>service</group>
+      <rule>
+        <name>permit-all</name>
+        <module-name>*</module-name>
+        <access-operations>*</access-operations>
+        <action>permit</action>
+        <comment>Allow the service group complete access to all operations and data</comment>
+      </rule>
+    </rule-list>
+  </nacm>
+  <policy-entry xmlns="http://www.dellemc.com/networking/os10/dell-diffserv-policy">
+    <name>policy-iscsi</name>
+    <ptype>application</ptype>
+  </policy-entry>
+  <port-groups xmlns="http://www.dellemc.com/networking/os10/dell-port-group">
+    <port-group>
+      <id>port-group1/1/1</id>
+      <phy-mode>ETHERNET</phy-mode>
+      <breakout-mode>BREAKOUT_4x4</breakout-mode>
+      <port-speed>10GIGE</port-speed>
+    </port-group>
+    <port-group>
+      <id>port-group1/1/2</id>
+      <phy-mode>ETHERNET</phy-mode>
+      <breakout-mode>BREAKOUT_4x4</breakout-mode>
+      <port-speed>10GIGE</port-speed>
+    </port-group>
+    <port-group>
+      <id>port-group1/1/3</id>
+      <phy-mode>ETHERNET</phy-mode>
+      <breakout-mode>BREAKOUT_4x4</breakout-mode>
+      <port-speed>10GIGE</port-speed>
+    </port-group>
+    <port-group>
+      <id>port-group1/1/4</id>
+      <phy-mode>ETHERNET</phy-mode>
+      <breakout-mode>BREAKOUT_4x1</breakout-mode>
+      <port-speed>10GIGE</port-speed>
+    </port-group>
+    <port-group>
+      <id>port-group1/1/5</id>
+      <phy-mode>ETHERNET</phy-mode>
+      <breakout-mode>BREAKOUT_4x1</breakout-mode>
+      <port-speed>10GIGE</port-speed>
+    </port-group>
+    <port-group>
+      <id>port-group1/1/6</id>
+      <phy-mode>ETHERNET</phy-mode>
+      <breakout-mode>BREAKOUT_1x1</breakout-mode>
+      <port-speed>100GIGE</port-speed>
+    </port-group>
+  </port-groups>
+  <ports xmlns="http://www.dellemc.com/networking/os10/dell-port">
+    <port>
+      <name>phy-eth1/1/1</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/2</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/3</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/4</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/5</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/6</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/7</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/8</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/9</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/10</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/11</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/12</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/13</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/14</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+    <port>
+      <name>phy-eth1/1/15</name>
+      <breakout-mode>DISABLED</breakout-mode>
+    </port>
+  </ports>
+  <routing xmlns="http://www.dellemc.com/networking/os10/dell-routing">
+    <instance>
+      <vrf-name>default</vrf-name>
+      <static-routes>
+        <ipv4>
+          <route>
+            <destination-prefix>0.0.0.0/0</destination-prefix>
+            <next-hop>
+              <address>10.20.139.2</address>
+            </next-hop>
+          </route>
+        </ipv4>
+      </static-routes>
+    </instance>
+  </routing>
+  <sa-cfg xmlns="http://www.dellemc.com/networking/os10/dell-support-assist">
+    <service-enable>true</service-enable>
+  </sa-cfg>
+  <server xmlns="http://www.dellemc.com/networking/os10/dell-dhcp">
+    <global-ip-pool>
+      <ip-pool-list>
+        <pool-name>MANAGEMENT</pool-name>
+        <ip-range>10.20.136.0/24</ip-range>
+        <dhcp-options>
+          <router>10.20.136.1</router>
+          <domain-name>dmss</domain-name>
+          <domain-name-server>10.20.137.15</domain-name-server>
+        </dhcp-options>
+        <include-range>
+          <start-ip-address>10.20.136.240</start-ip-address>
+          <end-ip-address>10.20.136.250</end-ip-address>
+        </include-range>
+      </ip-pool-list>
+      <ip-pool-list>
+        <pool-name>INTERNAL</pool-name>
+        <ip-range>10.20.137.0/24</ip-range>
+        <lease-time>
+          <lease_days>0</lease_days>
+          <lease_hours>2</lease_hours>
+          <lease_mins>0</lease_mins>
+        </lease-time>
+        <dhcp-options>
+          <router>10.20.137.1</router>
+          <domain-name>dmss</domain-name>
+          <domain-name-server>10.20.137.15</domain-name-server>
+        </dhcp-options>
+        <include-range>
+          <start-ip-address>10.20.137.224</start-ip-address>
+          <end-ip-address>10.20.137.254</end-ip-address>
+        </include-range>
+      </ip-pool-list>
+    </global-ip-pool>
+    <disable>false</disable>
+  </server>
+  <session-config xmlns="http://www.dellemc.com/networking/os10/dell-session">
+    <session>
+      <line>console0</line>
+      <exec-timeout>600</exec-timeout>
+    </session>
+  </session-config>
+  <snmp-server xmlns="http://www.dellemc.com/networking/os10/dell-snmp">
+    <global>
+      <sys-contact>Contact Support</sys-contact>
+      <sys-location>United States</sys-location>
+    </global>
+    <usm>
+      <local>
+        <user>
+          <name>TeSt</name>
+        </user>
+      </local>
+    </usm>
+    <vacm>
+      <group>
+        <name>os10snmpv1read-onlygrp</name>
+        <member>
+          <security-name>TeSt</security-name>
+          <security-model>v1</security-model>
+        </member>
+      </group>
+      <group>
+        <name>os10snmpv2cread-onlygrp</name>
+        <member>
+          <security-name>TeSt</security-name>
+          <security-model>v2c</security-model>
+        </member>
+      </group>
+    </vacm>
+  </snmp-server>
+  <system xmlns="http://www.dellemc.com/networking/os10/dell-system">
+    <hostname>SW-DIP-019003</hostname>
+    <system-user>
+      <name>linuxadmin</name>
+      <password>$6$5DdOHYg5$JCE1vMSmkQOrbh31U74PIPv7lyOgRmba1IxhkYibppMXs1KM4Y.gbTPcxyMP/PHUkMc5rdk/ZLv9Sfv3ALtB61</password>
+    </system-user>
+    <user>
+      <name>admin</name>
+      <password>$6$q9QBeYjZ$jfxzVqGhkxX3smxJSH9DDz7/3OJc6m5wjF8nnLD7/VKx8SloIhp4NoGZs0I/UNwh8WVuxwfd9q4pWIgNs5BKH.</password>
+      <group>sysadmin</group>
+      <privilege-level>15</privilege-level>
+    </user>
+    <user>
+      <name>assessor</name>
+      <password>$6$rounds=656000$x4n3DVG3.E.tpfrt$4KyOYCdC.cnkjv.CKhINnLE3ssfGMg4CwTh3AHN3FacBgiJF0n16IEYnR5s4EXSJz6wFuF7u5ltEeAiw0.EF/1</password>
+      <group>sysadmin</group>
+      <privilege-level>15</privilege-level>
+    </user>
+    <telnet>
+      <telnet-server>false</telnet-server>
+    </telnet>
+    <banner>
+      <banner-motd>
+        <banner-text>clock timezone zulu 0 0\nhostname SW-DIP-019003\npassword-attributes character-restriction upper 2 lower 2 numeric 2 special-char 2 lockout-period 10 min-length 15\nsystem-user linuxadmin password $6$5DdOHYg5$JCE1vMSmkQOrbh31U74PIPv7lyOgRmba1IxhkYibppMXs1KM4Y.gbTPcxyMP/PHUkMc5rdk/ZLv9Sfv3ALtB61\nntp server 10.20.137.15 prefer\nntp server 10.20.137.40\nntp server 10.20.139.2\niscsi target port 860\niscsi target port 3260\nhardware forwarding-table mode scaled-l2\nlogging audit enable\nlogging console severity log-err\nip ssh server cipher aes128-ctr aes192-ctr aes256-ctr aes128-cbc aes192-cbc aes256-cbc\nip ssh server login-grace-time 30\nip ssh server mac hmac-sha1 hmac-sha2-256\nip ssh server max-auth-tries 3\nspanning-tree mode rstp\nusername admin password $6$rounds=656000$T6YITAeGm1ufE3kY$Wsu6wPR4Z49d.dtVhNIXyumq/EvN/eO6oe96oJIe7HIdAhoHmMaUHp7TijLY81ITocBibACfYkdwWPj0dt9Wq. role sysadmin priv-lvl 15\nusername assessor password $6$rounds=656000$iMhBiF83rF9jj02x$PQ70ptZ.vsQSbN.6D9NAOLRO8BTqFNgzNBkL/cpfPtleXWrqCj1fONA50W57vpzvow4mQsztOzVsxzFBty0zl1 role sysadmin priv-lvl 15\naaa authentication login default local\naaa authentication login console local\n!   \n********************************************************************************\n                          ###  #####  ###  ####  #\n                         #   #   #   #   # #   # #\n                         #       #   #   # #   # #\n                          ###    #   #   # ####  #\n                             #   #   #   # #     #\n                         #   #   #   #   # #\n                          ###    #    ###  #     #\n  \n     You MUST obtain authorization from the PMO office to access this device.\n                  If you do not have authorization exit now.\n********************************************************************************\n  </banner-text>
+      </banner-motd>
+    </banner>
+  </system>
+  <system-qos-cfg xmlns="http://www.dellemc.com/networking/os10/dell-qos">
+    <system-trust-map>
+      <trust-map-name>default</trust-map-name>
+      <trust-map-type>dscp</trust-map-type>
+    </system-trust-map>
+  </system-qos-cfg>
+  <telemetry-system xmlns="http://openconfig.net/yang/telemetry">
+    <sensor-groups>
+      <sensor-group>
+        <sensor-group-id>bgp</sensor-group-id>
+        <config>
+          <sensor-group-id>bgp</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>bgp/bgp-oper/bgpPrfxCntrsEntry</path>
+            <config>
+              <path>bgp/bgp-oper/bgpPrfxCntrsEntry</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>bgp/bgp-oper/bgpPeerCount</path>
+            <config>
+              <path>bgp/bgp-oper/bgpPeerCount</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>bgp-peer</sensor-group-id>
+        <config>
+          <sensor-group-id>bgp-peer</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>infra-bgp/peer-state/peer-status</path>
+            <config>
+              <path>infra-bgp/peer-state/peer-status</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>buffer</sensor-group-id>
+        <config>
+          <sensor-group-id>buffer</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>base-qos/queue-stat</path>
+            <config>
+              <path>base-qos/queue-stat</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>base-qos/priority-group-stat</path>
+            <config>
+              <path>base-qos/priority-group-stat</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>base-qos/buffer-pool-stat</path>
+            <config>
+              <path>base-qos/buffer-pool-stat</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>base-qos/buffer-pool</path>
+            <config>
+              <path>base-qos/buffer-pool</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>device</sensor-group-id>
+        <config>
+          <sensor-group-id>device</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>base-pas/chassis</path>
+            <config>
+              <path>base-pas/chassis</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>base-pas/card</path>
+            <config>
+              <path>base-pas/card</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>base-switch/switching-entities/switch-stats</path>
+            <config>
+              <path>base-switch/switching-entities/switch-stats</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>environment</sensor-group-id>
+        <config>
+          <sensor-group-id>environment</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>base-pas/entity</path>
+            <config>
+              <path>base-pas/entity</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>base-pas/psu</path>
+            <config>
+              <path>base-pas/psu</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>base-pas/fan-tray</path>
+            <config>
+              <path>base-pas/fan-tray</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>base-pas/fan</path>
+            <config>
+              <path>base-pas/fan</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>base-pas/led</path>
+            <config>
+              <path>base-pas/led</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>base-pas/temperature</path>
+            <config>
+              <path>base-pas/temperature</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>base-pas/temp_threshold</path>
+            <config>
+              <path>base-pas/temp_threshold</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>base-pas/media</path>
+            <config>
+              <path>base-pas/media</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>base-pas/media-channel</path>
+            <config>
+              <path>base-pas/media-channel</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>interface</sensor-group-id>
+        <config>
+          <sensor-group-id>interface</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>if/interfaces-state/interface/statistics</path>
+            <config>
+              <path>if/interfaces-state/interface/statistics</path>
+            </config>
+          </sensor-path>
+          <sensor-path>
+            <path>dell-base-if-cmn/if/interfaces-state/interface</path>
+            <config>
+              <path>dell-base-if-cmn/if/interfaces-state/interface</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>lag</sensor-group-id>
+        <config>
+          <sensor-group-id>lag</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>dell-base-if-cmn/if/interfaces</path>
+            <config>
+              <path>dell-base-if-cmn/if/interfaces</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+      <sensor-group>
+        <sensor-group-id>system</sensor-group-id>
+        <config>
+          <sensor-group-id>system</sensor-group-id>
+        </config>
+        <sensor-paths>
+          <sensor-path>
+            <path>system-status/current-status</path>
+            <config>
+              <path>system-status/current-status</path>
+            </config>
+          </sensor-path>
+        </sensor-paths>
+      </sensor-group>
+    </sensor-groups>
+  </telemetry-system>
+  <vrf-config xmlns="http://www.dellemc.com/networking/os10/dell-vrf">
+    <vrf>
+      <vrf-name>default</vrf-name>
+    </vrf>
+  </vrf-config>
+</config>
