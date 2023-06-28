@@ -6,13 +6,14 @@ from pathlib import Path
 from typing import Dict
 from uuid import uuid4
 import re
+from invoke.exceptions import ThreadException
 
 from fabric import Connection
 from app.models.ruleset import PCAPReplayModel
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.connection_mngs import (REDIS_CLIENT, FabricConnectionManager,
-                                       KubernetesWrapper)
+                                       KubernetesWrapper, FabricConnection)
 from app.utils.constants import (ARKIME_IMAGE_VERSION, PCAP_UPLOAD_DIR,
                                  SURICATA_IMAGE_VERSION, SURICATA_RULESET_LOC,
                                  ZEEK_IMAGE_VERSION)
@@ -82,7 +83,7 @@ def replay_pcap_using_tcpreplay(payload: Dict, root_password: str):
         send_notification(notification, NotificationCode.ERROR, str(e))
 
 
-def run_safe_tcpreplay(replay, ssh_con, pcap_file):
+def run_safe_tcpreplay(replay, ssh_con: FabricConnection, pcap_file):
     remote_pcap = "/tmp/{}".format(replay.pcap)
     ssh_con.put(str(pcap_file), remote_pcap)
     for iface in replay.ifaces:
@@ -239,15 +240,50 @@ class ZeekReplayer:
         self.local_zeek_config = None  # type: str
         self.zeek_scripts = None  # type: Path
 
-    def pull_zeek_custom_scripts(self):
-        zip_location = self.tmp_dir + "/zeek.zip"
-        with FabricConnectionManager(
-            "root", self.kit_password, self.replay.sensor_ip
-        ) as ssh_con:
-            with ssh_con.cd("/opt/tfplenum"):
-                ssh_con.run("zip -r zeek.zip zeek/")
-            ssh_con.get("/opt/tfplenum/zeek.zip", zip_location)
-            ssh_con.local("unzip {} -d {}".format(zip_location, self.tmp_dir))
+    def pull_zeek_custom_scripts(self, local_zip_dir: str = None, remote_working_dir: str = "/opt/tfplenum"):
+        # Perform a null check on the local zip directory
+        if local_zip_dir is None: local_zip_dir = self.tmp_dir
+        local_zip_location = f"{self.tmp_dir}/zeek.zip"
+
+        # Archive & pull the zeek scripts from the sensor
+        with FabricConnectionManager("root", self.kit_password, self.replay.sensor_ip) as shell:
+            with shell.cd(remote_working_dir):
+                try:
+                    # Make a temporary directory to store the zeek script zip file
+                    mktemp_dir_results = shell.run("mktemp --directory", in_stream=False)
+                    if mktemp_dir_results.failed: raise Exception("Failed to create a temp directory: {mktemp_dir_results}")
+
+                    # Create the remote zip file path and the zip commands
+                    delete_cmd = f"rm -rf {mktemp_dir_results.stdout.strip()}"
+                    remote_tmp_zip= f"{mktemp_dir_results.stdout.strip()}/zeek.zip"
+                    zip_cmd = f"zip -r {remote_tmp_zip} zeek/"
+                    unzip_cmd = f"unzip {local_zip_dir}/zeek.zip -d {local_zip_dir}"
+
+                    # Run the zip command
+                    zip_cmd_result = shell.run(zip_cmd, in_stream=False)
+                    if zip_cmd_result.failed:
+                        # TODO: Handle this better but it is handled in the finally block
+                        raise Exception(f"Failed to zip the zeek scripts on the sensor: {zip_cmd_result}")
+
+                    # Get the zip file from sensor
+                    get_cmd_result = shell.get(remote_tmp_zip, local_zip_location)
+                    if not get_cmd_result:
+                        raise Exception(f"Failed to get the zeek scripts: {get_cmd_result}")
+
+                    # Unzip the file
+                    unzip_cmd_result = shell.local(unzip_cmd, in_stream=False)
+                    if unzip_cmd_result.failed:
+                        raise Exception(f"Failed to unzip the zeek scripts! {unzip_cmd_result}")
+                except OSError as e:
+                    pass
+                except Exception as e:
+                    # TODO: Handle this better but it is handled in the finally block
+                    pass
+                finally:
+                    # Delete the temp directory
+                    delete_cmd_result=shell.run(delete_cmd, in_stream=False)
+                    if delete_cmd_result.failed:
+                        raise Exception(f"Failed to delete the temp directory: {delete_cmd_result}")
 
     def pull_kubernetes_zeek_configs(self):
         with KubernetesWrapper() as kube_apiv1:
@@ -267,7 +303,7 @@ class ZeekReplayer:
     def run_zeek_docker_cmd(self, pcap: Path) -> int:
         pcap_name = pcap.name
         cmd = (
-            "docker run -v {tmp_dir}/zeek/intel.dat:/opt/tfplenum/zeek/intel.dat "
+            "docker run --rm -i -v {tmp_dir}/zeek/intel.dat:/opt/tfplenum/zeek/intel.dat "
             "-v {tmp_dir}/zeek/custom.sig:/opt/tfplenum/zeek/custom.sig "
             "-v {tmp_dir}/zeek/scripts/:/opt/zeek/share/zeek/site/custom "
             "-v {tmp_dir}/local.zeek:/opt/zeek/share/zeek/site/local.zeek "
@@ -275,6 +311,7 @@ class ZeekReplayer:
             "-v {tmp_dir}/scripts/:/opt/zeek/share/zeek/site/tfplenum/ "
             "-v {tmp_dir}/logs/:/data/zeek/ "
             "--workdir /data/zeek/ "
+            "--entrypoint /opt/zeek/bin/zeek "
             "localhost:5000/tfplenum/zeek:{version} "
             "-r /pcaps/{pcap_name} "
             "/opt/zeek/share/zeek/site/local.zeek"
