@@ -141,10 +141,10 @@ CPT:
     - Repo/Shared/AppStore/Grassmarlin/3.3
     - Repo/Shared/AppStore/Metasponse/1.6.4.0
     - Repo/Shared/AppStore/nfdump/1.6.23
-    - Repo/Shared/AppStore/notepad++/8.1.4
+    - Repo/Shared/AppStore/notepad++/8.4.8
     - Repo/Shared/AppStore/PowerShell/7.1.4-1
-    - Repo/Shared/AppStore/puTTY/0.76
-    - Repo/Shared/AppStore/PuttyCAC/0.76
+    - Repo/Shared/AppStore/puTTY/0.78
+    - Repo/Shared/AppStore/PuttyCAC/0.78
     - Repo/Shared/AppStore/StigViewer/2.9
     - Repo/Shared/AppStore/sysinternals suite/1.0
     - Repo/Shared/AppStore/TCPdump/4.9.3
@@ -166,7 +166,7 @@ CPT:
     - Repo/CPT/VMs/REMnuX/2021.29.9
     - Repo/CPT/VMs/SamuraiSTFU/1.9
     - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7
-    - Repo/CPT/VMs/Windows 10 VM/22H2
+    - Repo/CPT/VMs/Windows 10 VM/22H2-19045.2965
   dest: "CPT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
 - app: Documentation
@@ -253,10 +253,10 @@ MDT:
     - Repo/Shared/AppStore/Grassmarlin/3.3
     - Repo/Shared/AppStore/Metasponse/1.6.4.0
     - Repo/Shared/AppStore/nfdump/1.6.23
-    - Repo/Shared/AppStore/notepad++/8.1.4
+    - Repo/Shared/AppStore/notepad++/8.4.8
     - Repo/Shared/AppStore/Powershell/7.1.4-1
-    - Repo/Shared/AppStore/puTTY/0.76
-    - Repo/Shared/AppStore/PuttyCAC/0.76
+    - Repo/Shared/AppStore/puTTY/0.78
+    - Repo/Shared/AppStore/PuttyCAC/0.78
     - Repo/Shared/AppStore/StigViewer/2.9
     - Repo/Shared/AppStore/sysinternals suite/1.0
     - Repo/Shared/AppStore/TCPdump/4.9.3
@@ -269,7 +269,7 @@ MDT:
     - Repo/Shared/VMs/Pfsense/2.5.2
     - Repo/Shared/VMs/Security Onion 2/2.3.190
     - Repo/Shared/VMs/Security Onion (original)/4.3-8
-    - Repo/MDT/VMs/Windows 10 VM/22H2
+    - Repo/MDT/VMs/Windows 10 VM/22H2-19045.3086
     - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-3
   dest: "MDT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
