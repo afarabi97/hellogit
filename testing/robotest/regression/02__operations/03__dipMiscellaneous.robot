@@ -42,14 +42,14 @@ Add And Delete Portal Link
     Verify Link Works  ${name}  ${url}
     Delete User Link
 
-Verify Correct System Version Number
+Verify Support Page Information
     [Tags]  THISISCVAH-8225
-    [Documentation]  Test to check that controller has correct system name and version number.
-    ...              Also checks that the Service Now web & email address are correct.
+    [Documentation]  Verifies Service Now web link, email address
+    ...              and the System Version Number when running a baremetal kit.
     log     Verifying the version number listed on the Support page
     Navigate To Support
     Sleep  2s  reason=Version number loads slightly after the element loads onto the page
-    Element Should Contain  ${CVAH_PMO_SUPPORT__P_VERSION}  ${KIT_VERSION}
+    Run Keyword if  ${IS_BARE_METAL_KIT}  Element Should Contain  ${CVAH_PMO_SUPPORT__P_VERSION}  ${KIT_VERSION}
     Element Should Contain  ${CVAH_PMO_SUPPORT__A_SERVICENOW_WEBSITE}  https://afdco.servicenowservices.com/sp
     Element Should Contain  ${CVAH_PMO_SUPPORT__A_SERVICENOW_MAIL}  afdco@servicenowservices.com
 
