@@ -28,126 +28,71 @@ CPT:
     - Repo/Shared/VMs/RhelRepo/ReadMe.txt
   dest: "CPT/Data/CVAH {{ VERSION }}/Software/VMs/RhelRepo"
 
-- app: archive
-  src:
-    - Repo/CPT/AppStore/Antibody/1.0
-    - Repo/CPT/AppStore/Black Ice/1.10.14
-    - Repo/CPT/AppStore/Blue Scope/1.0
-    - Repo/CPT/AppStore/Crowd Response/1.0.6.0
-    - Repo/CPT/AppStore/CyCS/1.0
-    - Repo/CPT/AppStore/Dependency Walker/2.2
-    - Repo/CPT/AppStore/Enum/0.8.9
-    - Repo/CPT/AppStore/Explorer Suite and Tools/5.0
-    - Repo/CPT/AppStore/Fgdump/2.0.1
-    - Repo/CPT/AppStore/File Checksum Integrity Verifier FCIV/2.05
-    - Repo/CPT/AppStore/Flow-Tools/0.68
-    - Repo/CPT/AppStore/GMER/2.2.19882
-    - Repo/CPT/AppStore/Highlighter/1.1.3
-    - Repo/CPT/AppStore/Hivex/1.3.15
-    - Repo/CPT/AppStore/Import Reconstructor/1.6
-    - Repo/CPT/AppStore/IsePack/2.1.4.1
-    - Repo/CPT/AppStore/iSQL Viewer_v3.0.0/3.0.0
-    - Repo/CPT/AppStore/MbEnum/1.5.0
-    - Repo/CPT/AppStore/Microsoft Baseline Security Analyzer/2.1.1
-    - Repo/CPT/AppStore/MSyS/20161025
-    - Repo/CPT/AppStore/MySQL Client/8.0.27.1
-    - Repo/CPT/AppStore/MySQL Client Perl/4.050-3
-    - Repo/CPT/AppStore/MySQL Connector Python/8.0.27
-    - Repo/CPT/AppStore/NASM/2.14rc16
-    - Repo/CPT/AppStore/Nbtscan/1.0.35
-    - Repo/CPT/AppStore/Ntdsxtract/1.3.3
-    - Repo/CPT/AppStore/Oracle SQL Developer/17.4.0.355.2349
-    - Repo/CPT/AppStore/Osmosis/0.46
-    - Repo/CPT/AppStore/Pass-the-hash Toolkit/1.4
-    - Repo/CPT/AppStore/PEiD/0.95
-    - Repo/CPT/AppStore/Photon/2.0-304b817
-    - Repo/CPT/AppStore/Security Windows Credential Editor/1.42
-    - Repo/CPT/AppStore/Servify This/20120127
-    - Repo/CPT/AppStore/Sidguess/9.2
-    - Repo/CPT/AppStore/SidGuesser/1.0.5
-    - Repo/CPT/AppStore/SinFP/1.24
-    - Repo/CPT/AppStore/Sleet/1.0
-    - Repo/CPT/AppStore/sMime/5.509
-    - Repo/CPT/AppStore/SOAP UI/5.5.0
-    - Repo/CPT/AppStore/SoftflowD/0.9.9
-    - Repo/CPT/AppStore/Tamper Data/11.0.1
-    - Repo/CPT/AppStore/Taof/0.3.2
-    - Repo/CPT/AppStore/TransVerse/1.6.1.1
-    - Repo/CPT/AppStore/UPX/3.95
-    - Repo/CPT/AppStore/VOIP tools/1.0
-    - Repo/CPT/AppStore/Windows Symbol Packages - Debug Symbols_v170928/9600.16384.130821-1623
-    - Repo/CPT/AppStore/Winexe/1.0
-    - Repo/CPT/AppStore/Winfingerprint/0.6.2
-    - Repo/CPT/AppStore/Wininterrogate/0.1.5
-    - Repo/CPT/AppStore/Woraauthbf/0.22.r2
-    - Repo/CPT/AppStore/Xmco Lan Manager to NT Crack/3.5.0
-    - Repo/Shared/AppStore/RHEL Server 7.8/7.8
-    - Repo/Shared/AppStore/RHEL Server 8.2/8.2
-  dest: "CPT/Data/CVAH {{ VERSION }}/Software/AppStore/1_ARCHIVE"
-
 - app: AppStore
   src:
-    - Repo/CPT/AppStore/Acrobat Pro (AFCEDS)/21.001
-    - Repo/CPT/AppStore/AVML/0.3.0
-    - Repo/CPT/AppStore/Burpsuite/2021_8_4
+    - Repo/CPT/AppStore/Acrobat Pro (AFCEDS)/23.003
+    - Repo/CPT/AppStore/AVML/0.11.4
+    - Repo/CPT/AppStore/Burpsuite/2023_7
+    - Repo/CPT/AppStore/Cast/20230125
     - Repo/CPT/AppStore/CheckPWD/2.00A12
-    - Repo/CPT/AppStore/Cobalt Strike/4.6
-    - Repo/CPT/AppStore/DNSpy/6.0.5
+    - Repo/CPT/AppStore/Cobalt Strike/4.8
+    - Repo/CPT/AppStore/DNSpy/6.1.8
     - Repo/CPT/AppStore/Event Log Forwarder for Windows/1.2.0
-    - Repo/CPT/AppStore/EXEInfo PE/0.0.5.4
+    - Repo/CPT/AppStore/EXEInfo PE/0.0.7.7
     - Repo/CPT/AppStore/EXEInfo Plugin for QuickUnpack/2.2
     - Repo/CPT/AppStore/EZ Tools/1.0
-    - Repo/CPT/AppStore/FTKImager/4.5.0.3
-    - Repo/CPT/AppStore/GitLab/12.1.6
-    - Repo/CPT/AppStore/Hashcat/6.2.4
+    - Repo/CPT/AppStore/FTKImager/4.7.1
+    - Repo/CPT/AppStore/GitLab/16.1
+    - Repo/CPT/AppStore/Hashcat/6.2.6
     - Repo/CPT/AppStore/HID Global ActivID ActivClient/170801
-    - Repo/CPT/AppStore/IDA_Pro/7.6
-    - Repo/CPT/AppStore/ILSpy/7.1
+    - Repo/CPT/AppStore/IDA_Pro/8.2
+    - Repo/CPT/AppStore/ILSpy/8.0
     - Repo/CPT/AppStore/Immunity Debugger/1.85
     - Repo/CPT/AppStore/Java Decompiler/1.6.6
-    - Repo/CPT/AppStore/Java Development Kit (JDK)/17.0.1
-    - Repo/CPT/AppStore/JAVA Platform SE/17.0.1
+    - Repo/CPT/AppStore/Java Development Kit (JDK)/20.0.1
+    - Repo/CPT/AppStore/JAVA Platform SE/20.0.1
     - Repo/CPT/AppStore/LDAPBrowser/4.5.19808
-    - Repo/CPT/AppStore/log2timeline/20211024
+    - Repo/CPT/AppStore/log2timeline/20230311
     - Repo/CPT/AppStore/Memoryze/3.0
     - Repo/CPT/AppStore/MSSQLScan/0.8.4
     - Repo/CPT/AppStore/Netflow Realtime/10.8.0.5
     - Repo/CPT/AppStore/Netmon to Libpcap/2.1
     - Repo/CPT/AppStore/Nfsshell/09cdd52
-    - Repo/CPT/AppStore/Nipper Studio/2.13.0
-    - Repo/CPT/AppStore/OpenVAS/10.0
-    - Repo/CPT/AppStore/openVPN/2.10.0
+    - Repo/CPT/AppStore/Nipper Studio/2.13.3
+    - Repo/CPT/AppStore/OpenVAS/22.7.2
+    - Repo/CPT/AppStore/openVPN/2.11.3
     - Repo/CPT/AppStore/PE.Explorer/1.99R6
     - Repo/CPT/AppStore/PhoneSweep/2_7
     - Repo/CPT/AppStore/PKI Certs/5.5
     - Repo/CPT/AppStore/Powersploit/3.0
     - Repo/CPT/AppStore/Redline/2.0
+    - Repo/CPT/AppStore/RedSeal/9.5.10
     - Repo/CPT/AppStore/RegRipper/3.0
     - Repo/CPT/AppStore/Secure Host Baseline/v2019
-    - Repo/CPT/AppStore/SFTP_SCP Server/2021.3.0.221
+    - Repo/CPT/AppStore/SFTP_SCP Server/2021.7.0
     - Repo/CPT/AppStore/Sid Tools/1.0
-    - Repo/CPT/AppStore/SMBMap/1.8.2
-    - Repo/CPT/AppStore/Snowflake/3.0.1
+    - Repo/CPT/AppStore/SMBMap/1.9.1
+    - Repo/CPT/AppStore/Snowflake/4.0.0
     - Repo/CPT/AppStore/Socat/2.0.0-b9
-    - Repo/CPT/AppStore/SQLMap/1.5.12-3
+    - Repo/CPT/AppStore/SQLMap/1.7.6
     - Repo/CPT/AppStore/SQLping3/3.0
     - Repo/CPT/AppStore/SQLplus/11.1.0.7
     - Repo/CPT/AppStore/TFTP Server/5.2-27.fc30
     - Repo/CPT/AppStore/Windows 10 Enterprise (x64)_v1809/1809
     - Repo/CPT/AppStore/Windows Server 2012 R2 Standard x64_v6.3(Build9600)/6.3
-    - Repo/Shared/AppStore/RHEL Server 8.7/8.7
-    - Repo/Shared/AppStore/Citrix/2207
+    - Repo/Shared/AppStore/Citrix/2305
     - Repo/Shared/AppStore/Elastic Stack/7.16.2
     - Repo/Shared/AppStore/Grassmarlin/3.3
     - Repo/Shared/AppStore/Metasponse/1.6.4.0
-    - Repo/Shared/AppStore/nfdump/1.6.23
-    - Repo/Shared/AppStore/notepad++/8.4.8
-    - Repo/Shared/AppStore/PowerShell/7.1.4-1
+    - Repo/Shared/AppStore/nfdump/1.7.2
+    - Repo/Shared/AppStore/notepad++/8.5.4
+    - Repo/Shared/AppStore/PowerShell/7.3.5
     - Repo/Shared/AppStore/puTTY/0.78
     - Repo/Shared/AppStore/PuttyCAC/0.78
-    - Repo/Shared/AppStore/StigViewer/2.9
-    - Repo/Shared/AppStore/sysinternals suite/1.0
-    - Repo/Shared/AppStore/TCPdump/4.9.3
+    - Repo/Shared/AppStore/RHEL Server 8.7/8.7
+    - Repo/Shared/AppStore/StigViewer/2.17
+    - Repo/Shared/AppStore/sysinternals suite/2023.6.7
+    - Repo/Shared/AppStore/TCPdump/4.99.4
     - Repo/Shared/AppStore/Visio Pro/2016
   dest: "CPT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
@@ -160,7 +105,7 @@ CPT:
     - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-3
     - Repo/CPT/VMs/ControlThings (prev SamuraiSTFU)/ControlThingsPlatform-v1bD
     - Repo/CPT/VMs/Cuckoo Sandbox/2.0.7
-    - Repo/CPT/VMs/Endgame/3.23.3-32
+    - Repo/CPT/VMs/Endgame/3.29.2-6
     - Repo/CPT/VMs/Kali Linux VM/2021.3
     - Repo/CPT/VMs/Mockingbird/1.2.0
     - Repo/CPT/VMs/REMnuX/2021.29.9
@@ -183,6 +128,7 @@ CPT:
 - app: Documentation
   src:
     - Repo/CPT/Documentation/AppStore/AVML/master
+    - Repo/CPT/Documentation/AppStore/Cast/20230125
     - Repo/CPT/Documentation/AppStore/Cobalt Strike/4.6
     - Repo/CPT/Documentation/AppStore/Dependency Walker/master
     - Repo/CPT/Documentation/AppStore/Event Log Forwarder for Windows/master
@@ -192,11 +138,12 @@ CPT:
     - Repo/CPT/Documentation/AppStore/Hashcat/6.2.4
     - Repo/CPT/Documentation/AppStore/Nipper Studio/2.13.0
     - Repo/CPT/Documentation/AppStore/Redline/2.0
+    - Repo/CPT/Documentation/AppStore/RedSeal/9.5.10
     - Repo/CPT/Documentation/AppStore/RegRipper/master
     - Repo/CPT/Documentation/AppStore/Secure Host Baseline/2019
     - Repo/CPT/Documentation/AppStore/Snowflake/3.0.1
     - Repo/CPT/Documentation/VMs/Cuckoo Sandbox/2.0.7
-    - Repo/CPT/Documentation/VMs/Endgame/3.23.3-32
+    - Repo/CPT/Documentation/VMs/Endgame/3.29.2-6
     - Repo/CPT/Documentation/VMs/Mockingbird/1.2.0
     - Repo/CPT/Documentation/VMs/REMnux/2021.29.9
     - Repo/Shared/Documentation/AppStore/Citrix/2207
@@ -232,34 +179,28 @@ MDT:
     - Repo/Shared/VMs/RhelRepo/ReadMe.txt
   dest: "MDT/Data/CVAH {{ VERSION }}/Software/VMs/RhelRepo"
 
-- app: archive
-  src:
-    - Repo/Shared/AppStore/RHEL Server 7.8/7.8
-    - Repo/Shared/AppStore/RHEL Server 8.2/8.2
-  dest: "MDT/Data/CVAH {{ VERSION }}/Software/AppStore/1_ARCHIVE"
-
 - app: AppStore
   src:
     - Repo/MDT/AppStore/dagger/4.1.6
-    - Repo/MDT/AppStore/nmap/7.80
+    - Repo/MDT/AppStore/nmap/7.94
     - Repo/MDT/AppStore/nmapWithZenmap/7.80
     - Repo/MDT/AppStore/p7zip/16.02
     - Repo/MDT/AppStore/Powershell Community Extensions/3.3.2
     - Repo/MDT/AppStore/Powershell Remote Registry (PSRR)/3.0
     - Repo/MDT/AppStore/SCAP Compliance Checker/4.2
     - Repo/Shared/AppStore/RHEL Server 8.7/8.7
-    - Repo/Shared/AppStore/Citrix/2207
+    - Repo/Shared/AppStore/Citrix/2305
     - Repo/Shared/AppStore/Elastic Stack/7.16.2
     - Repo/Shared/AppStore/Grassmarlin/3.3
     - Repo/Shared/AppStore/Metasponse/1.6.4.0
-    - Repo/Shared/AppStore/nfdump/1.6.23
-    - Repo/Shared/AppStore/notepad++/8.4.8
-    - Repo/Shared/AppStore/Powershell/7.1.4-1
+    - Repo/Shared/AppStore/nfdump/1.7.2
+    - Repo/Shared/AppStore/notepad++/8.5.4
+    - Repo/Shared/AppStore/Powershell/7.3.5
     - Repo/Shared/AppStore/puTTY/0.78
     - Repo/Shared/AppStore/PuttyCAC/0.78
-    - Repo/Shared/AppStore/StigViewer/2.9
-    - Repo/Shared/AppStore/sysinternals suite/1.0
-    - Repo/Shared/AppStore/TCPdump/4.9.3
+    - Repo/Shared/AppStore/StigViewer/2.17
+    - Repo/Shared/AppStore/sysinternals suite/2023.6.7
+    - Repo/Shared/AppStore/TCPdump/4.99.4
     - Repo/Shared/AppStore/Visio Pro/2016
   dest: "MDT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
