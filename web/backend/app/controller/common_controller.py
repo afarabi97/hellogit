@@ -5,7 +5,7 @@ import ipaddress
 from typing import List
 
 import netifaces
-from app.middleware import Auth
+from app.middleware import Auth, login_required_roles
 from app.models.common import COMMON_RETURNS
 from app.service.job_service import run_command
 from app.utils.constants import CONTROLLER_INTERFACE_NAME
@@ -17,6 +17,7 @@ from flask_restx import Resource
 
 @COMMON_NS.route("/controller/info")
 class ControllerInfo(Resource):
+    @login_required_roles()
     def get(self) -> Response:
         interface = netifaces.ifaddresses(CONTROLLER_INTERFACE_NAME)
         interface_info = list(interface[netifaces.AF_INET])[0]

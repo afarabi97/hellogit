@@ -324,6 +324,7 @@ class ControlPlaneCtrl(Resource):
 
     @KIT_SETUP_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @KIT_SETUP_NS.response(200, 'Node Model', Node.DTO)
+    @login_required_roles()
     def get(self) -> Response:
         try:
             results = []
@@ -383,6 +384,7 @@ class KitRefresh(Resource):
             nodes=new_nodes, new_control_plane=control_plane)
         return JobIDModel(job).to_dict()
 
+    @login_required_roles()
     def post(self) -> Response:
         cp = Node.load_control_plane_from_db()  # type: List[Node]
         nodes = Node.load_all_servers_sensors_from_db()  # type: List[Node]
@@ -393,6 +395,7 @@ class KitRefresh(Resource):
 @KIT_SETUP_NS.route("/kickstart_failure")
 class KickstartFailure(Resource):
 
+    @login_required_roles()
     def post(self):
         payload = KIT_SETUP_NS.payload
         msg = (f"The {payload['hardware_model']} is not in its expected drive configuration. "

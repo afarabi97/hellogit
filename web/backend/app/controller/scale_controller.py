@@ -2,7 +2,7 @@ import traceback
 
 import yaml
 from app.common import ERROR_RESPONSE, OK_RESPONSE
-from app.middleware import controller_maintainer_required
+from app.middleware import controller_maintainer_required, login_required_roles
 from app.models.scale import read, update
 from app.service.scale_service import (es_cluster_status,
                                        get_allowable_scale_count, get_es_nodes,
@@ -89,6 +89,7 @@ class ScaleAdvanced(Resource):
             traceback.print_exc()
             return ERROR_RESPONSE
 
+    @login_required_roles()
     def get(self) -> Response:
         """
         Scale elasticsearch
@@ -107,6 +108,7 @@ class ScaleAdvanced(Resource):
 
 @SCALE_NS.route("/elastic/nodes")
 class ElasticNodeCount(Resource):
+    @login_required_roles()
     def get(self) -> Response:
         """
         Get current elasticsearch node count
@@ -127,6 +129,7 @@ class ElasticNodeCount(Resource):
 
 @SCALE_NS.route("/check")
 class ScaleCheck(Resource):
+    @login_required_roles()
     def get(self) -> Response:
         status = es_cluster_status()
         return {"status": status}, 200

@@ -15,6 +15,8 @@ from flask import Response, request
 from flask_restx import Resource, fields
 from marshmallow import ValidationError
 
+from app.middleware import login_required_roles
+
 DEFAULT_INDEXES = "filebeat-suricata-*,filebeat-zeek-*,endgame-*,filebeat-external-*"
 SIGNAL_INDEX = ".siem-signals-default"
 ALL_INDEXES = DEFAULT_INDEXES + "," + SIGNAL_INDEX
@@ -151,6 +153,7 @@ class AlertsFieldsCtrl(Resource):
     )
     @ALERTS_NS.response(200, "AlertFields", [fields.String(example="event.module",
                                                            description="Field name from index.")])
+    @login_required_roles()
     def get(self) -> Response:
         elastic = ElasticWrapper()
         fields = []
@@ -400,6 +403,7 @@ class AlertsDelCtrl(Resource):
     @ALERTS_NS.response(500, "Error")
     @ALERTS_NS.response(200, "OK")
     @ALERTS_NS.expect(UpdateAlertsModel.DTO)
+    @login_required_roles()
     def post(self) -> Response:
         indicies = ALL_INDEXES
         elastic = ElasticWrapper()
@@ -483,6 +487,7 @@ class AlertsAckCtrl(Resource):
     @ALERTS_NS.response(500, "Error")
     @ALERTS_NS.response(200, "OK")
     @ALERTS_NS.expect(UpdateAlertsModel.DTO)
+    @login_required_roles()
     def post(self) -> Response:
         indicies = DEFAULT_INDEXES
         elastic = ElasticWrapper()
@@ -610,6 +615,7 @@ class HiveSettingsCtrl(Resource):
     @ALERTS_NS.response(400, "Error Model1", COMMON_ERROR_DTO1)
     @ALERTS_NS.response(200, "HiveSettings", HiveSettingsModel.DTO)
     @ALERTS_NS.expect(HiveSettingsModel.DTO)
+    @login_required_roles()
     def post(self) -> Response:
         try:
             hive_settings = HiveSettingsModel.load_from_request(
@@ -628,6 +634,7 @@ class HiveSettingsCtrl(Resource):
         return ret_val
 
     @ALERTS_NS.response(200, "HiveSettings", HiveSettingsModel.DTO)
+    @login_required_roles()
     def get(self) -> Response:
         try:
             ret_val = HiveSettingsModel.load_from_db().to_dict()

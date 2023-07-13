@@ -13,7 +13,7 @@ import requests
 import urllib3
 from app import PROJECT_ROOT_DIR
 from app.common import cursor_to_json_response
-from app.middleware import operator_required, handle_errors
+from app.middleware import login_required_roles, operator_required, handle_errors
 from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
 from app.service.agent_service import (build_agent_if_not_exists,
                                        perform_agent_reinstall)
@@ -42,6 +42,7 @@ JINJA_ENV = Environment(
 
 @AGENT_NS.route('/configs')
 class AppConfigs(Resource):
+    @login_required_roles()
     def get(self) -> Response:
         configs = []
 
@@ -129,6 +130,7 @@ def get_agent_installer_target_lists():
 
 @AGENT_NS.route('/targets')
 class AgentTargets(Resource):
+    @login_required_roles()
     def get(self) -> Response:
         return get_agent_installer_target_lists()
 
@@ -225,6 +227,7 @@ def get_agent_installer_configs():
 
 @AGENT_NS.route('/config')
 class AgentInstallerConfigs(Resource):
+    @login_required_roles()
     def get(self) -> Response:
         return get_agent_installer_configs()
 

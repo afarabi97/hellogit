@@ -4,7 +4,7 @@ Main module for handling all of the Kit Configuration REST calls.
 import ssl
 from typing import Dict, List
 
-from app.middleware import controller_admin_required
+from app.middleware import controller_admin_required, login_required_roles
 from app.models import DBModelNotFound, PostValidationError
 from app.models.common import (COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE,
                                COMMON_MESSAGE)
@@ -149,6 +149,7 @@ class GeneralSettings(Resource):
 
     @SETINGS_NS.response(200, "GeneralSettingsForm Model", GeneralSettingsForm.DTO)
     @SETINGS_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @login_required_roles()
     def get(self) -> Response:
         try:
             settings = GeneralSettingsForm.load_from_db()
@@ -199,6 +200,7 @@ class KitSettings(Resource):
 
     @SETINGS_NS.response(200, "KitSettingsForm Model", KitSettingsForm.DTO)
     @SETINGS_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @login_required_roles()
     def get(self) -> Response:
         try:
             settings = KitSettingsForm.load_from_db()  # type: KitSettingsForm
@@ -244,6 +246,7 @@ class KitSettings(Resource):
 class MipSettings(Resource):
     @SETINGS_NS.response(200, "MipSettingsForm Model", MipSettingsForm.DTO)
     @SETINGS_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @login_required_roles()
     def get(self) -> Response:
         try:
             settings = MipSettingsForm.load_from_db()
@@ -287,6 +290,7 @@ class MipSettings(Resource):
 class EsxiSettings(Resource):
     @SETINGS_NS.response(400, "Error Model", COMMON_ERROR_DTO)
     @SETINGS_NS.response(200, "EsxiSettingsForm Model", EsxiSettingsForm.DTO)
+    @login_required_roles()
     def get(self) -> Response:
         try:
             settings = EsxiSettingsForm.load_from_db()
@@ -330,6 +334,7 @@ class EsxiSettings(Resource):
 @SETINGS_NS.route("/esxi/test")
 class EsxiSettingsTest(Resource):
     @SETINGS_NS.response(200, "EsxiSettingsForm Model", EsxiSettingsForm.DTO)
+    @login_required_roles()
     def get(self) -> Response:
         try:
             return EsxiSettingsForm.load_from_db()

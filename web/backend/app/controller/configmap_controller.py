@@ -1,4 +1,4 @@
-from app.middleware import controller_maintainer_required
+from app.middleware import controller_maintainer_required, login_required_roles
 from app.models.common import COMMON_ERROR_MESSAGE
 from app.models.kubernetes import (AssociatedPodModel, ConfigMapListModel,
                                    ConfigMapSavedModel, ConfigMapSaveModel)
@@ -30,6 +30,7 @@ class ConfigMapsApi(Resource):
     @KUBERNETES_NS.doc(description="Get all the config map data.")
     @KUBERNETES_NS.response(200, "List ConfigMapListModel", [ConfigMapListModel.DTO])
     @KUBERNETES_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @login_required_roles()
     def get(self) -> Response:
         try:
             return get_config_maps()

@@ -13,6 +13,8 @@ from app.utils.utils import TfplenumTempDir
 from flask import Response, request
 from flask_restx import Resource
 
+from app.middleware import login_required_roles
+
 
 @COLDLOG_NS.route("/upload")
 class ColdLogUpload(Resource):
@@ -20,6 +22,7 @@ class ColdLogUpload(Resource):
     @COLDLOG_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
     @COLDLOG_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @COLDLOG_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @login_required_roles()
     def post(self) -> Response:
         """
         Supports the uploading of zip files or individual files.
@@ -75,6 +78,7 @@ class ColdLogUpload(Resource):
 
 @COLDLOG_NS.route("/module/info")
 class ModuleInfo(Resource):
+    @login_required_roles()
     def get(self) -> Response:
         """
         Gets module info containing log types and there file set types.
@@ -86,6 +90,7 @@ class ModuleInfo(Resource):
 
 @COLDLOG_NS.route("/winlogbeat/configure")
 class ConfigureWinlogbeat(Resource):
+    @login_required_roles()
     def get(self) -> Response:
         """
         Gets current Winlogbeat configuration will return default configuration if not setup
@@ -103,6 +108,7 @@ class ConfigureWinlogbeat(Resource):
 
 @COLDLOG_NS.route("/winlogbeat/install")
 class InstallWinlogbeat(Resource):
+    @login_required_roles()
     def post(self) -> Response:
         """
         Sets up Winlogbeat on a target Windows host so that it can be used for cold log ingest.

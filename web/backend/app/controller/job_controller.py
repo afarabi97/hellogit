@@ -1,4 +1,4 @@
-from app.middleware import controller_admin_required, handle_errors
+from app.middleware import controller_admin_required, handle_errors, login_required_roles
 from app.models.background_job import BackgroundJobModel
 from app.models.common import COMMON_ERROR_MESSAGE
 from app.models.job_id import JobIDModel
@@ -18,6 +18,7 @@ class RedisJobsApi(Resource):
     @JOB_NS.response(200, "List BackgroundJobModel", [BackgroundJobModel.DTO])
     @JOB_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @handle_errors
+    @login_required_roles()
     def get(self) -> Response:
         return get_all_jobs(), 200
 
@@ -30,6 +31,7 @@ class RedisJobApi(Resource):
     @JOB_NS.response(200, "BackgroundJobModel", BackgroundJobModel.DTO)
     @JOB_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @handle_errors
+    @login_required_roles()
     def get(self, job_id: str) -> Response:
         return get_job_with_job_id(job_id), 200
 
@@ -68,5 +70,6 @@ class RedisJobLogApi(Resource):
     @JOB_NS.response(404, "ErrorMessage: Job does not exist", COMMON_ERROR_MESSAGE)
     @JOB_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @handle_errors
+    @login_required_roles()
     def get(self, job_id: str) -> Response:
         return get_job_log(job_id), 200

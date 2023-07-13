@@ -1,6 +1,6 @@
 from typing import List, Set
 
-from app.middleware import controller_maintainer_required
+from app.middleware import controller_maintainer_required, login_required_roles
 from app.models.catalog import (ChartInfoModel, ChartModel,
                                 ChartNodeModel, HELMActionModel,
                                 SavedHelmValuesModel)
@@ -165,6 +165,7 @@ def _get_all_charts() -> List:
 
 @CATALOG_NS.route('/charts')
 class CatalogGetCharts(Resource):
+    @login_required_roles()
     def get(self) -> Response:
         charts = []
         charts = get_repo_charts()  # type: list
@@ -189,6 +190,7 @@ class ChartsCtrl(Resource):
     @CATALOG_NS.doc(description="The charts currently available for install.  Additionally, the object returned will \
                                  tell users which nodes the chart was deployed to.")
     @CATALOG_NS.response(200, 'Charts', [ChartModel.DTO])
+    @login_required_roles()
     def get(self) -> Response:
         ret_val = []
         charts = _get_all_charts()
@@ -217,6 +219,7 @@ class NodeDetails(Resource):
 
     @CATALOG_NS.doc(description="Returns a list of Nodes from the Kit configuration.")
     @CATALOG_NS.response(200, 'Node', [Node.DTO])
+    @login_required_roles()
     def get(self) -> Response:
         # Filter out nodes that have not been assigned deviceFacts
         # bool(n["deviceFacts"]) evaluates to true if it is not an empty object {}

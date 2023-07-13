@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
-from app.middleware import operator_required
+from app.middleware import login_required_roles, operator_required
 from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE)
 from app.models.job_id import JobIDModel
 from app.models.nodes import Node
@@ -30,6 +30,7 @@ class PcapsCtrl(Resource):
         description="Gets the currently uploaded PCAPs on the server and displays the metadata."
     )
     @POLICY_NS.response(200, "PCAPMetadata", [PCAPMetadata.DTO])
+    @login_required_roles()
     def get(self) -> Response:
         ret_val = []
         pcap_dir = Path(PCAP_UPLOAD_DIR)
@@ -111,6 +112,7 @@ class ReplayPcapCtrl(Resource):
 
 @POLICY_NS.route("/sensor/info")
 class SensorInfo(Resource):
+    @login_required_roles()
     def get(self) -> Response:
         ret_val = []
         kit_nodes = Node.load_all_from_db()  # type: List[Node]

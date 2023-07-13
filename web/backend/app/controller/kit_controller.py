@@ -3,13 +3,13 @@ Main module for handling all of the Kit Configuration REST calls.
 """
 from typing import Dict
 
-from app.middleware import controller_admin_required
+from app.middleware import controller_admin_required, login_required_roles
 from app.models import DBModelNotFound
 from app.models.common import COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE
 from app.models.job_id import JobIDModel
 from app.models.nodes import Node
 from app.service.node_service import execute, get_kit_status
-from app.utils.constants import DEPLOYMENT_JOBS, JOB_DEPLOY
+from app.utils.constants import DEPLOYMENT_JOBS, JOB_DEPLOY, NODE_STATE_ADMIN_ROLES
 from app.utils.namespaces import KIT_SETUP_NS
 from flask import Response
 from flask_restx import Resource
@@ -19,6 +19,7 @@ from flask_restx import Resource
 class KitStatusCtrl(Resource):
     @KIT_SETUP_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @KIT_SETUP_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @login_required_roles(NODE_STATE_ADMIN_ROLES)
     def get(self) -> Response:
         try:
             kit_status = get_kit_status()

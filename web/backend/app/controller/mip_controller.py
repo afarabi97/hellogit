@@ -1,4 +1,4 @@
-from app.middleware import handle_errors
+from app.middleware import handle_errors, login_required_roles
 from app.models.common import COMMON_ERROR_MESSAGE
 from app.models.job_id import JobIDModel
 from app.models.mip import MIPSchemaModel
@@ -20,5 +20,6 @@ class MipCtrlApi(Resource):
     @KIT_SETUP_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @required_params(MIPSchemaModel())
     @handle_errors
+    @login_required_roles()
     def post(self) -> Response:
         return post_mip(KIT_SETUP_NS.payload), 202

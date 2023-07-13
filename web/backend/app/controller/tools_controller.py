@@ -12,7 +12,7 @@ from typing import Dict
 import kubernetes.client
 import yaml
 from app.common import ERROR_RESPONSE, OK_RESPONSE
-from app.middleware import controller_maintainer_required
+from app.middleware import controller_maintainer_required, login_required_roles
 from app.models import scale
 from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE)
 from app.models.nodes import Node
@@ -160,6 +160,7 @@ class CurrentTime(Resource):
     @TOOLS_NS.response(200, "CurrentTimeModel", CurrentTimeModel.DTO)
     @TOOLS_NS.response(500, "Empty 500 return.")
     @TOOLS_NS.doc(description="Gets the Current time of the controller.")
+    @login_required_roles()
     def get(self) -> Response:
         timezone_stdout, ret_val = run_command2(
             'timedatectl | grep "Time zone:"', use_shell=True
@@ -360,6 +361,7 @@ class GetSpaces(Resource):
                                Also, anything showing in this list will appear on the navbar on the UI."
     )
     @TOOLS_NS.response(200, "SpacesList", COMMON_TOOLS_RETURNS["spaces"])
+    @login_required_roles()
     def get(self) -> Response:
         directories = glob("/var/www/html/docs/*")
         all_spaces = [os.path.basename(dir) for dir in directories]
@@ -415,6 +417,7 @@ class ChangeStateOfRemoteNetworkDevice(Resource):
 class MonitoringInterfaces(Resource):
     @TOOLS_NS.doc(description="Retrieves a list of node hostnames with their associated network interfaces.")
     @TOOLS_NS.response(200, "InitialDeviceStates", [InitialDeviceStatesModel.DTO])
+    @login_required_roles()
     def get(self) -> Response:
         nodes = {}
         applications = ["arkime", "zeek", "suricata"]

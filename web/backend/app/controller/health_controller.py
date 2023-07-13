@@ -98,6 +98,7 @@ class DescribeNode(Resource):
 class NodesStatus(Resource):
     @KUBERNETES_NS.doc(description="Gets the nodes status.")
     @KUBERNETES_NS.response(200, "PodsStatus", [KubernetesNodeMetricsModel.DTO])
+    @login_required_roles()
     def get(self) -> Response:
         try:
             return get_nodes_status()
@@ -110,6 +111,7 @@ class NodesStatus(Resource):
 class PodsStatus(Resource):
     @KUBERNETES_NS.doc(description="Gets the pods status.")
     @KUBERNETES_NS.response(200, "NodeStatus", [KubernetesPodMetricsModel.DTO])
+    @login_required_roles()
     def get(self) -> Response:
         try:
             return get_pods_status()
@@ -120,6 +122,7 @@ class PodsStatus(Resource):
 
 @KUBERNETES_NS.route("/remote/<token_id>/nodes/status")
 class RemoteNodesStatus(Resource):
+    @login_required_roles()
     def get(self, token_id: str) -> Response:
         try:
             response = mongo_kit_tokens().find_one({"_id": ObjectId(token_id)})
@@ -133,6 +136,7 @@ class RemoteNodesStatus(Resource):
 
 @KUBERNETES_NS.route("/remote/<token_id>/pods/status")
 class RemotePodsStatus(Resource):
+    @login_required_roles()
     def get(self, token_id: str) -> Response:
         try:
             response = mongo_kit_tokens().find_one({"_id": ObjectId(token_id)})
@@ -147,6 +151,7 @@ class RemotePodsStatus(Resource):
 @HEALTH_NS.route("/snmp/status")
 class SNMPStatus(Resource):
     @HEALTH_NS.response(200, "SNMPData", [fields.Raw()])
+    @login_required_roles()
     def get(self) -> Response:
         try:
             return snmp.status()
@@ -158,6 +163,7 @@ class SNMPStatus(Resource):
 @HEALTH_NS.route("/snmp/alerts")
 class SNMPAlerts(Resource):
     @HEALTH_NS.response(200, "SNMPAlertList", [fields.Raw()])
+    @login_required_roles()
     def get(self) -> Response:
         try:
             client = ElasticWrapper()
@@ -204,6 +210,7 @@ class RemoteAgent(Resource):
 @HEALTH_NS.route("/datastores")
 class Datastores(Resource):
     @HEALTH_NS.response(200, "DatastoreList", [DatastoreModel.DTO])
+    @login_required_roles()
     def get(self) -> Response:
         try:
             settings = EsxiSettingsForm.load_from_db()
@@ -236,6 +243,7 @@ class Datastores(Resource):
 @APP_NS.route("/elasticsearch/rejects")
 class WriteRejects(Resource):
     @APP_NS.response(200, "Elasticsearch Write Rejects", [fields.Raw()])
+    @login_required_roles()
     def get(self) -> Response:
         try:
             rejected = []
@@ -255,6 +263,7 @@ class WriteRejects(Resource):
 @APP_NS.route("/elasticsearch/rejects/remote/<ipaddress>")
 class RemoteWriteRejects(Resource):
     @APP_NS.response(204, "Remote Elasticsearch Write Rejects", [fields.Raw()])
+    @login_required_roles()
     def get(self, ipaddress: str) -> Response:
         try:
             response = mongo_kit_tokens().find_one({"ipaddress": ipaddress})
@@ -269,6 +278,7 @@ class RemoteWriteRejects(Resource):
 @APP_NS.route("/zeek/packets")
 class ZeekPackets(Resource):
     @APP_NS.response(200, "Zeek Packets")
+    @login_required_roles()
     def get(self) -> Response:
         zeek_stats = []
 
@@ -319,6 +329,7 @@ class ZeekPackets(Resource):
 @APP_NS.route("/suricata/packets")
 class SuricataPackets(Resource):
     @APP_NS.response(200, "Suricata Packets")
+    @login_required_roles()
     def get(self) -> Response:
         suricata_stats = []
 
@@ -350,6 +361,7 @@ class SuricataPackets(Resource):
 @APP_NS.route("/zeek/packets/remote/<ipaddress>")
 class RemoteZeekPackets(Resource):
     @APP_NS.response(200, "Remote Zeek Packets")
+    @login_required_roles()
     def get(self, ipaddress: str) -> Response:
         try:
             response = mongo_kit_tokens().find_one({"ipaddress": ipaddress})
@@ -364,6 +376,7 @@ class RemoteZeekPackets(Resource):
 @APP_NS.route("/suricata/packets/remote/<ipaddress>")
 class RemoteSuricataPackets(Resource):
     @APP_NS.response(200, "Remote Suricata Packets")
+    @login_required_roles()
     def get(self, ipaddress: str) -> Response:
         try:
             response = mongo_kit_tokens().find_one({"ipaddress": ipaddress})

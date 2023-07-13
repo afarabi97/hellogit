@@ -8,7 +8,7 @@ from app.common import FORBIDDEN_RESPONSE
 from app.models import DBModelNotFound, PostValidationError
 from app.utils.constants import (CONTROLLER_ADMIN_ROLE,
                                  CONTROLLER_MAINTAINER_ROLE, OPERATOR_ROLE,
-                                 REALM_ADMIN_ROLE, WEB_DIR)
+                                 REALM_ADMIN_ROLE, WEB_DIR, DEFAULT_REQUIRED_ROLES)
 from app.utils.exceptions import NoSuchNodeJobError
 from app.utils.logging import logger
 from marshmallow.exceptions import ValidationError
@@ -287,7 +287,8 @@ def handle_errors(f):
 
 
 # @login_required_roles(['operator','asdf'], all_roles_req=True)
-def login_required_roles(roles, all_roles_req=False):
+
+def login_required_roles(roles=DEFAULT_REQUIRED_ROLES, all_roles_req=False):
     def inner(f):
         @wraps(f)
         def wrapper(*args, **kwargs):

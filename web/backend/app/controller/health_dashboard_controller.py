@@ -12,10 +12,13 @@ from app.utils.utils import get_domain
 from flask import Response
 from flask_restx import Resource, fields
 
+from app.middleware import login_required_roles
+
 
 @HEALTH_NS.route("/dashboard/status")
 class HealthDashboardStatus(Resource):
     @HEALTH_NS.response(200, "Dashboard Status")
+    @login_required_roles()
     def get(self) -> Response:
         status = []
         elastic_status = {}
@@ -44,6 +47,7 @@ class HealthDashboardStatus(Resource):
 @HEALTH_NS.route("/remote/dashboard/status")
 class RemoteHealthDashboardStatus(Resource):
     @HEALTH_NS.response(200, "Remote Dashboard Status")
+    @login_required_roles()
     def get(self) -> Response:
         try:
             response = []
@@ -88,6 +92,7 @@ class RemoteHealthDashboardStatus(Resource):
 @HEALTH_NS.route("/hostname")
 class Hostname(Resource):
     @HEALTH_NS.response(200, "Hostname", fields.String())
+    @login_required_roles()
     def get(self) -> Response:
         try:
             response = mongo_settings().find_one(
@@ -102,6 +107,7 @@ class Hostname(Resource):
 @APP_NS.route("/kibana/info")
 class KibanaLoginInfo(Resource):
     @APP_NS.response(200, "Kibana Login Info")
+    @login_required_roles()
     def get(self) -> Response:
         try:
             kibana_info = {}
@@ -131,6 +137,7 @@ class KibanaLoginInfo(Resource):
 @APP_NS.route("/kibana/info/remote/<ipaddress>")
 class RemoteKibanaLoginInfo(Resource):
     @APP_NS.response(200, "Kibana Login")
+    @login_required_roles()
     def get(self, ipaddress: str) -> Response:
         try:
             response = mongo_kit_tokens().find_one({"ipaddress": ipaddress})

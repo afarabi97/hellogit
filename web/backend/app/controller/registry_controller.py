@@ -8,6 +8,8 @@ from app.utils.namespaces import KUBERNETES_NS
 from flask import Response
 from flask_restx import Resource
 
+from app.middleware import login_required_roles
+
 
 def get_docker_repo_tags(repo: str) -> List[str]:
     try:
@@ -48,6 +50,7 @@ class DockerRegistry(Resource):
     )
     @KUBERNETES_NS.response(200, "DockerImage", [DockerImageModel.DTO])
     @KUBERNETES_NS.response(500, "InternalError", COMMON_ERROR_MESSAGE)
+    @login_required_roles()
     def get(self) -> Response:
         ret_val = []
         try:

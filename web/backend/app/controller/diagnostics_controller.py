@@ -9,6 +9,8 @@ from app.utils.namespaces import DIAGNOSTICS_NS
 from flask import Response, send_file
 from flask_restx import Resource
 
+from app.middleware import login_required_roles
+
 DOWNLOAD_DIR = "/var/www/html/downloads"
 
 
@@ -17,6 +19,7 @@ class Diagnostics(Resource):
     @DIAGNOSTICS_NS.doc(description="Runs diagnostics on the controller.")
     @DIAGNOSTICS_NS.response(200, "RunDiagnostics", JobIDModel.DTO)
     @DIAGNOSTICS_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @login_required_roles()
     def post(self) -> Response:
         try:
             job = run_diagnostics.delay()

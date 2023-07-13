@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 from app.common import ERROR_RESPONSE
-from app.middleware import operator_required
+from app.middleware import login_required_roles, operator_required
 from app.models.common import (COMMON_ERROR_MESSAGE, COMMON_MESSAGE,
                                COMMON_SUCCESS_MESSAGE)
 from app.models.job_id import JobIDModel
@@ -67,6 +67,7 @@ class Rulesets(Resource):
 
     @POLICY_NS.doc(description="Returns a list of all the saved RuleSets defined on the RuleSet Page.")
     @POLICY_NS.response(200, 'RuleSets', [RuleSetModel.DTO])
+    @login_required_roles()
     def get(self) -> Response:
         rule_sets = mongo_ruleset().find({})  # type: Cursor
         ret_val = []
@@ -140,6 +141,7 @@ class UploadRule(Resource):
     @POLICY_NS.response(200, 'Rules', [RuleModel.DTO])
     @POLICY_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @login_required_roles()
     def post(self) -> Response:
         rule_set = json.loads(request.form['ruleSetForm'], encoding="utf-8")
         if 'upload_file' not in request.files:
