@@ -10,12 +10,13 @@ import { takeUntil } from 'rxjs/operators';
 import {
   MockPortalLinkClass,
   MockPortalLinkFakeClass,
+  MockSuccessMessageClass,
   MockUserPortalLinkClass,
   MockUserPortalLinkRemoveClass
 } from '../../../static-data/class-objects';
-import { MockPortalLinkInterface, MockUserPortalLinkInterface } from '../../../static-data/interface-objects';
+import { MockPortalLinkInterface, MockSuccessMessageInterface, MockUserPortalLinkInterface } from '../../../static-data/interface-objects';
 import { environment } from '../../environments/environment';
-import { PortalLinkClass, UserPortalLinkClass } from '../classes';
+import { PortalLinkClass, SuccessMessageClass, UserPortalLinkClass } from '../classes';
 import { PortalServiceInterface } from '../interfaces';
 import { InjectorModule } from '../modules/utilily-modules/injector.module';
 import { ApiService } from './abstract/api.service';
@@ -231,8 +232,13 @@ describe('PortalService', () => {
 
         service.remove_user_link(MockUserPortalLinkRemoveClass)
           .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: UserPortalLinkClass[]) => {
-            expect(response.length).toEqual(1);
+          .subscribe((response: SuccessMessageClass) => {
+            const objectKeys: string[] = Object.keys(response);
+            objectKeys.forEach((key: string) => {
+              if (!(response[key] instanceof Array)) {
+                expect(response[key]).toEqual(MockSuccessMessageClass[key]);
+              }
+            });
             expect(service.remove_user_link).toHaveBeenCalled();
           });
 
@@ -241,7 +247,7 @@ describe('PortalService', () => {
 
         expect(xhrRequest.request.method).toEqual(deleteType);
 
-        xhrRequest.flush([MockUserPortalLinkClass]);
+        xhrRequest.flush(MockSuccessMessageInterface);
 
         after();
       });
@@ -252,7 +258,7 @@ describe('PortalService', () => {
         service.remove_user_link(MockUserPortalLinkClass)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
-            (response: UserPortalLinkClass[]) => {},
+            (response: SuccessMessageClass) => {},
             (error: HttpErrorResponse) => {
               expect(error.error).toContain(errorRequest);
               expect(service.remove_user_link).toHaveBeenCalled();
@@ -285,7 +291,7 @@ export class PortalServiceSpy implements PortalServiceInterface {
   );
 
   remove_user_link = jasmine.createSpy('remove_user_link').and.callFake(
-    (user_portal_link: UserPortalLinkClass): Observable<UserPortalLinkClass[]> => this.call_fake_remove_user_link(user_portal_link)
+    (user_portal_link: UserPortalLinkClass): Observable<SuccessMessageClass> => this.call_fake_remove_user_link(user_portal_link)
   );
 
   private user_portal_links_: UserPortalLinkClass[] = [MockUserPortalLinkClass];
@@ -305,9 +311,9 @@ export class PortalServiceSpy implements PortalServiceInterface {
     return observableOf(this.user_portal_links_);
   }
 
-  call_fake_remove_user_link(user_portal_link: UserPortalLinkClass): Observable<UserPortalLinkClass[]> {
+  call_fake_remove_user_link(user_portal_link: UserPortalLinkClass): Observable<SuccessMessageClass> {
     this.user_portal_links_ = this.user_portal_links_.filter((upl: UserPortalLinkClass) => upl._id !== user_portal_link._id);
 
-    return observableOf(this.user_portal_links_);
+    return observableOf(MockSuccessMessageClass);
   }
 }

@@ -292,7 +292,7 @@ describe('PortalComponent', () => {
         expect(component['api_remove_user_portal_link_']).toHaveBeenCalled();
       });
 
-      it('should call api_remove_user_portal_link_() and set user_portal_links with included add user portal', () => {
+      it('should call api_remove_user_portal_link_() and remove deleted user_portal_link from user_portal_links', () => {
         reset();
 
         component.user_portal_links = [MockUserPortalLinkClass];
@@ -302,6 +302,14 @@ describe('PortalComponent', () => {
         component['api_remove_user_portal_link_'](MockUserPortalLinkClass);
 
         expect(component.user_portal_links.length > 0).toBeFalse();
+      });
+
+      it('should call portal_service_.remove_user_link() and call mat_snackbar_service_.displaySnackBar()', () => {
+        reset();
+
+        component['api_remove_user_portal_link_'](MockUserPortalLinkClass);
+
+        expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
       });
 
       it('should call portal_service_.remove_user_link() and handle error', () => {

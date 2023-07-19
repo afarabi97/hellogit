@@ -4,8 +4,8 @@ import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { PortalLinkClass, UserPortalLinkClass } from '../classes';
-import { EntityConfig, PortalLinkInterface, PortalServiceInterface, UserPortalLinkInterface } from '../interfaces';
+import { PortalLinkClass, SuccessMessageClass, UserPortalLinkClass } from '../classes';
+import { EntityConfig, PortalLinkInterface, PortalServiceInterface, SuccessMessageInterface, UserPortalLinkInterface } from '../interfaces';
 import { ApiService } from './abstract/api.service';
 
 const entityConfig: EntityConfig = { entityPart: '', type: 'PortalService' };
@@ -75,14 +75,14 @@ export class PortalService extends ApiService<any> implements PortalServiceInter
    * REST call to DELETE user portal link
    *
    * @param {UserPortalLinkClass} user_portal_link
-   * @returns {Observable<UserPortalLinkClass[]>}
+   * @returns {Observable<SuccessMessageClass>}
    * @memberof PortalService
    */
-  remove_user_link(user_portal_link: UserPortalLinkClass): Observable<UserPortalLinkClass[]> {
+  remove_user_link(user_portal_link: UserPortalLinkClass): Observable<SuccessMessageClass> {
     const url = `${environment.PORTAL_SERVICE_REMOVE_USER_LINK}${user_portal_link._id}`;
 
-    return this.httpClient_.delete<UserPortalLinkInterface[]>(url)
-      .pipe(map((response: UserPortalLinkInterface[]) => response.map((user_portal_link_new: UserPortalLinkInterface) => new UserPortalLinkClass(user_portal_link_new))),
+    return this.httpClient_.delete<SuccessMessageInterface>(url)
+      .pipe(map((response: SuccessMessageInterface) => new SuccessMessageClass(response)),
             catchError((error: HttpErrorResponse) => this.handleError('delete user portal link', error)));
   }
 }

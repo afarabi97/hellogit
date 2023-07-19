@@ -10,6 +10,7 @@ import {
   DialogFormControlConfigClass,
   ObjectUtilitiesClass,
   PortalLinkClass,
+  SuccessMessageClass,
   UserPortalLinkClass
 } from '../../classes';
 import {
@@ -251,7 +252,12 @@ export class PortalComponent implements OnInit {
     this.portal_service_.remove_user_link(user_portal_link)
       .pipe(untilDestroyed(this))
       .subscribe(
-        (response: UserPortalLinkClass[]) => this.user_portal_links = response,
+        (response: SuccessMessageClass) => {
+          this.user_portal_links = this.user_portal_links.filter((user_portal_link_inner: UserPortalLinkClass) => {
+            return user_portal_link_inner._id !== user_portal_link._id;
+          });
+          this.mat_snackbar_service_.displaySnackBar(response.success_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+        },
         (error: HttpErrorResponse) => {
           const message: string = 'removing user portal link';
           this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
