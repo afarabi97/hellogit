@@ -14,6 +14,7 @@ class DriveCreationSettingsv2(Model):
         #self.external_drive = ""
         self.drive_creation_path = ""
         self.staging_export_path = ""
+        self.luks_password = ""
 
     def is_mixed(self) -> bool:
         return "Mixed".lower() == self.create_drive_type.lower()

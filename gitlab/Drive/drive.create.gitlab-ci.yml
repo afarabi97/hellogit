@@ -114,7 +114,8 @@ Create Drives:
          --drive-creation-version \"$TFPLENUM_EXPORT_VERSION\"
          --drive-creation-path \"$MASTER_DRIVE_CREATION_PATH\"
          --staging-export-path \"$STAGING_DIP_DIRECTORY\"
-         --burn-multiboot \"$CREATE_MULTIBOOT\""
+         --burn-multiboot \"$CREATE_MULTIBOOT\"
+         --luks-password \"$OVA_EXPORT_PASSWORD\""
     echo "$cmd"
     eval $cmd
   only:
@@ -138,7 +139,8 @@ Update Drives:
          --drive-creation-version \"$TFPLENUM_EXPORT_VERSION\"
          --drive-creation-path \"$MASTER_DRIVE_CREATION_PATH\"
          --staging-export-path \"$STAGING_DIP_DIRECTORY\"
-         --burn-multiboot \"$CREATE_MULTIBOOT\""
+         --burn-multiboot \"$CREATE_MULTIBOOT\"
+         --luks-password \"$OVA_EXPORT_PASSWORD\""
     echo "$cmd"
     eval $cmd
   only:
@@ -158,7 +160,8 @@ Create GIP Drives:
          --drive-creation-version \"$TFPLENUM_EXPORT_VERSION\"
          --drive-creation-path \"$MASTER_DRIVE_CREATION_PATH\"
          --staging-export-path \"$STAGING_GIP_DIRECTORY\"
-         --burn-multiboot \"$CREATE_MULTIBOOT\""
+         --burn-multiboot \"$CREATE_MULTIBOOT\"
+         --luks-password \"$OVA_EXPORT_PASSWORD\""
          echo "$cmd"
          eval $cmd
   only:
@@ -179,7 +182,8 @@ Check Drives:
         --ipaddress \"$MASTER_DRIVE_CREATION_IPADDRESS\"
         --drive-creation-path \"$MASTER_DRIVE_CREATION_PATH\"
         --staging-export-path \"$STAGING_DIP_DIRECTORY\"
-        --burn-multiboot \"$CREATE_MULTIBOOT\""
+        --burn-multiboot \"$CREATE_MULTIBOOT\"
+        --luks-password \"$OVA_EXPORT_PASSWORD\""
     echo "$cmd"
     eval $cmd
   only:
@@ -203,7 +207,8 @@ Check GIP Drives:
          --ipaddress \"$MASTER_DRIVE_CREATION_IPADDRESS\"
          --drive-creation-path \"$MASTER_DRIVE_CREATION_PATH\"
          --staging-export-path \"$STAGING_GIP_DIRECTORY\"
-         --burn-multiboot \"$CREATE_MULTIBOOT\""
+         --burn-multiboot \"$CREATE_MULTIBOOT\"
+         --luks-password \"$OVA_EXPORT_PASSWORD\""
     echo "$cmd"
     eval $cmd
   only:

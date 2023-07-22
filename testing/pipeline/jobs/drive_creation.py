@@ -166,10 +166,12 @@ class DriveCreationThread(DriveSuperThread):
         self.Error_Check( self.remote_sudo_cmd(f"mkdir -p {self.multi1_path} {self.multi2_path} {self.ntfs_data_path} {self.xfs_data_path}"), 21)
 
     def _clear_the_disk(self):
-        self.Error_Check( self.remote_sudo_cmd(f"dd if=/dev/zero of={self.drive_path} bs=65536 count=100000 status=none", warn=True), 22)
+        self.Error_Check( self.remote_sudo_cmd(f"dd if=/dev/zero of={self.drive_path} bs=65536 count=100 status=none", warn=True), 22)
 
     def _unmount(self):
         self.remote_sudo_cmd(f"umount {self.drive_path}*", warn=True)
+        self.remote_sudo_cmd(f"umount /dev/mapper/luksData{self.thread_id}", warn=True)
+        self.remote_sudo_cmd(f"cryptsetup -v luksClose /dev/mapper/luksData{self.thread_id}", warn=True)
 
     def _burn_image_to_disk(self):
         self.Error_Check( self.remote_sudo_cmd(f"dd bs=65536 if={self.multiboot_img_staging} of={self.drive_path} status=none"), 1)
@@ -181,13 +183,18 @@ class DriveCreationThread(DriveSuperThread):
 
         if(self.drive_size > 1500):
             self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical ntfs 32.2GB 400.2GB"), 3)
-            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical xfs 400.2GB 2000GB"), 4)
+            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical 400.2GB 2000GB"), 4)
+            #self.Error_Check( self.remote_sudo_cmd(f"mkfs.xfs /dev/mapper/luksData{self.thread_id}"), 4)
         else:
             self.Error_Check( self.remote_sudo_cmd(f"sfdisk {self.drive_path} --delete 3"), 3)
             self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart extended 32.2GB 1000GB"), 3)
             self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical ntfs 32.2GB 200.2GB"), 3)
-            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical xfs 200.2GB 1000GB"), 4)
+            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical 200.2GB 1000GB"), 4)
+            #self.Error_Check( self.remote_sudo_cmd(f"mkfs.xfs /dev/mapper/luksData{self.thread_id}"), 4)
 
+        self.Error_Check( self.remote_sudo_cmd(f"bash -c 'echo -n {self.drive_settings.luks_password} | base64 -d | cryptsetup -y -v luksFormat {self.drive_path}6 -d -'"), 4)
+        sleep(5)
+        self.Error_Check( self.remote_sudo_cmd(f"bash -c 'echo -n {self.drive_settings.luks_password} | base64 -d | cryptsetup -v luksOpen {self.drive_path}6 luksData{self.thread_id} -d -'"), 4)
         self.Error_Check( self.remote_sudo_cmd(f"sync {self.drive_path}"), 20)
         self.Error_Check( self.remote_sudo_cmd(f"partprobe {self.drive_path}"), 5)
         sleep(5)
@@ -200,18 +207,15 @@ class DriveCreationThread(DriveSuperThread):
         drive=self.drive_path
         if self.drive_settings.is_burn_multiboot():
             drive = f"{self.drive_path}6"
-        self.Error_Check( self.remote_sudo_cmd(f"mkfs.xfs -f {drive} -L Data"), 7)
+        self.Error_Check( self.remote_sudo_cmd(f"mkfs.xfs -f /dev/mapper/luksData{self.thread_id} -L Data"), 7)
         self.Error_Check( self.remote_sudo_cmd(f"sync {drive}"), 8)
         sleep(5)
 
     def _mount(self):
-        if self.drive_settings.is_burn_multiboot():
-            self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path}1 {self.multi1_path}"), 9)
-            self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path}2 {self.multi2_path}"), 9)
-            self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path}5 {self.ntfs_data_path}"), 9)
-            self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path}6 {self.xfs_data_path}"), 9)
-        else:
-            self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path} {self.xfs_data_path}"), 10)
+        self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path}1 {self.multi1_path}"), 9)
+        self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path}2 {self.multi2_path}"), 9)
+        self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path}5 {self.ntfs_data_path}"), 9)
+        self.Error_Check( self.remote_sudo_cmd(f"mount /dev/mapper/luksData{self.thread_id} {self.xfs_data_path}"), 9)
         sleep(3)
 
     def _remove_txt_files(self, folder: str):
@@ -421,9 +425,11 @@ class DriveHashVerificationThread(DriveSuperThread):
             if self.drive_settings.is_burn_multiboot():
                 the_drive = f"{self.drive_path}6"
 
-            self.Error_Check( self.remote_sudo_cmd(f"mount {the_drive} {self.xfs_data_path}"), 24)
+            self.Error_Check( self.remote_sudo_cmd(f"bash -c 'echo -n {self.drive_settings.luks_password} | base64 -d | cryptsetup -v luksOpen {the_drive} luksData{self.thread_id} -d -'"), 28)
+            self.Error_Check( self.remote_sudo_cmd(f"mount /dev/mapper/luksData{self.thread_id} {self.xfs_data_path}"), 24)
             self.Error_Check( self.remote_sudo_cmd(self.xfs_data_path + "/validate_drive.sh"), 25)
-            self.Error_Check( self.remote_sudo_cmd(f"umount {the_drive}"), 26)
+            self.Error_Check( self.remote_sudo_cmd(f"umount /dev/mapper/luksData{self.thread_id}"), 26)
+            self.Error_Check( self.remote_sudo_cmd(f"cryptsetup -v luksClose /dev/mapper/luksData{self.thread_id}"), 27)
 
         except Exception as e:
             print("Verification RUN exception")
