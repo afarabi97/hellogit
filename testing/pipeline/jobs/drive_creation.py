@@ -67,24 +67,40 @@ def remote_sudo_cmd(shell: Connection, command: str, warn=False, hide=False):
     print(command)
     return shell.sudo(command, warn=warn, hide=hide)
 
-def get_plugged_in_drives(shell: Connection) -> List[str]:
+class HardDriveInfo:
+    name = ""
+    size = 0
+    def __init__(self, name: str, size: int):
+        self.name = name
+        self.size = size
+
+def get_plugged_in_drives(shell: Connection) -> List[HardDriveInfo]:
     # Gets plugged in devices from a Ubuntu OS
     # Args:
     #    shell (Connection): Fabric connection to the remote device.
     # Returns:
-    #    List[str]: ['/dev/sda','/dev/sdb'...]
+    #    List[HardDriveInfo]: [{'/dev/sda',100},{'/dev/sdb',2000}...]
+
     ret_val = remote_sudo_cmd(shell, "ls -1 /dev/sd[a-z]", hide=True)
     all_devices = ret_val.stdout.split("\n")
     filtered_devices = []
+    device_sizes: List[HardDriveInfo] = []
     for device in all_devices:
         if len(device) > 0 and not re.search(r'\d+$', device):
             filtered_devices.append(device)
-    return filtered_devices
+            size = remote_sudo_cmd(shell, f"lsblk -b -n -d -o SIZE {device}", hide=True)
+            str_size=size.stdout.split("\n")[0]
+            if(len(str_size)):
+                sz=int(str_size)
+                sz=round(sz/(1024*1024*1024))
+                info = HardDriveInfo(device,sz)
+                device_sizes.append(info)
+    return device_sizes
 
 class DriveSuperThread(Thread):
     def __init__(self,
                  index: int,
-                 drive_path: str,
+                 drive_path: HardDriveInfo,
                  create_drive_type: str):
         Thread.__init__(self)
         if create_drive_type not in VALID_DRIVE_TYPES:
@@ -93,7 +109,8 @@ class DriveSuperThread(Thread):
 
         self.thread_id = index
         self.shell = None
-        self.drive_path = drive_path
+        self.drive_path = drive_path.name
+        self.drive_size = drive_path.size
         self.create_drive_type = create_drive_type
         self._return_value = 0
 
@@ -102,7 +119,7 @@ class DriveSuperThread(Thread):
         exit(self._return_value)
 
     def print_std_message(self, msg: str):
-        print(f"Thread ID: {self.thread_id} Drive Path: {self.drive_path} Drive Type: {self.create_drive_type} Message: {msg}")
+        print(f"Thread ID: {self.thread_id} Drive Path: {self.drive_path} Drive Size: {self.drive_size}GiB Drive Type: {self.create_drive_type} Message: {msg}")
 
     def remote_sudo_cmd(self, command: str, warn=False, hide=False, shell=False):
         try:
@@ -126,7 +143,7 @@ class DriveCreationThread(DriveSuperThread):
     def __init__(self,
                  index: int,
                  drive_settings: DriveCreationSettingsv2,
-                 drive_path: str,
+                 drive_path: HardDriveInfo,
                  create_drive_type: str):
         DriveSuperThread.__init__(self, index, drive_path, create_drive_type)
         self.drive_settings = drive_settings
@@ -162,8 +179,15 @@ class DriveCreationThread(DriveSuperThread):
         # Deletes partion 5 and 6 because they are jacked and recreates them
         # with appropriate partition IDs.
 
-        self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical ntfs 32.2GB 400.2GB"), 3)
-        self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical xfs 400.2GB 2000GB"), 4)
+        if(self.drive_size > 1500):
+            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical ntfs 32.2GB 400.2GB"), 3)
+            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical xfs 400.2GB 2000GB"), 4)
+        else:
+            self.Error_Check( self.remote_sudo_cmd(f"sfdisk {self.drive_path} --delete 3"), 3)
+            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart extended 32.2GB 1000GB"), 3)
+            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical ntfs 32.2GB 200.2GB"), 3)
+            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical xfs 200.2GB 1000GB"), 4)
+
         self.Error_Check( self.remote_sudo_cmd(f"sync {self.drive_path}"), 20)
         self.Error_Check( self.remote_sudo_cmd(f"partprobe {self.drive_path}"), 5)
         sleep(5)
@@ -342,7 +366,7 @@ class DriveCreationJobv2:
         else:
             self.CREATE_DRIVE_TYPE = self.drive_settings.create_drive_type
 
-    def _execute_threads(self, devices: List[str]):
+    def _execute_threads(self, devices: List[HardDriveInfo]):
         threads = []
         for index, device in enumerate(devices):
             self._drive_type(index)
@@ -361,8 +385,8 @@ class DriveCreationJobv2:
         for index, device in enumerate(devices):
             if THREAD_STATUS[index] != 0:
                 self._drive_type(index)
-                print(f"Device {device} did not get CREATED correctly")
-                print(ERROR_MESSAGE[THREAD_STATUS[index]].format(device, self.CREATE_DRIVE_TYPE))
+                print(f"Device {device.name} did not get CREATED correctly")
+                print(ERROR_MESSAGE[THREAD_STATUS[index]].format(device.name, self.CREATE_DRIVE_TYPE))
                 Status = 3
         if Status == 0:
             print(ERROR_MESSAGE[0])
