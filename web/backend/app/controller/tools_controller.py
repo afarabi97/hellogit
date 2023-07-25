@@ -29,8 +29,10 @@ from app.utils.collections import mongo_catalog_saved_values
 from app.utils.connection_mngs import FabricConnection, KubernetesWrapper
 from app.utils.constants import TFPLENUM_CONFIGS_PATH
 from app.utils.logging import logger
+from app.utils.utils import PasswordValidator
+import shlex
 from app.utils.namespaces import TOOLS_NS
-from fabric.runners import Result
+
 from flask import Response, request
 from flask_restx import Resource
 from kubernetes.client.models.v1_service_list import V1ServiceList
@@ -57,7 +59,7 @@ upload_parser.add_argument(
 )
 
 
-def update_password(config: Dict, password):
+def update_password(config, password):
     config.password = password
     config.save_to_db()
 
@@ -182,6 +184,7 @@ class CurrentTime(Resource):
 
 @TOOLS_NS.route("/change-kit-password")
 class ChangeKitPassword(Resource):
+
     @TOOLS_NS.doc(description="Changes the Kit's ssh root/password on all nodes.")
     @TOOLS_NS.expect(NewPasswordModel.DTO)
     @TOOLS_NS.response(200, "Success Message", COMMON_SUCCESS_MESSAGE)
@@ -191,28 +194,39 @@ class ChangeKitPassword(Resource):
     @TOOLS_NS.response(500, "Internal Server Error", COMMON_ERROR_MESSAGE)
     @controller_maintainer_required
     def post(self) -> Response:
-        model = NewPasswordModel(TOOLS_NS.payload["root_password"])
-        current_config = KitSettingsForm.load_from_db()  # type: Dict
-        if current_config == None:
-            return {"error_message": "Couldn't find kit configuration."}, 404
-        nodes = Node.load_stateful_dip_nodes_from_db()
-        for node in nodes:  # type: Node
+        raw_password = TOOLS_NS.payload["root_password"]
+        errors = PasswordValidator.validate(raw_password)
+
+        if errors:
+            return {"error_message": f'The password failed {len(errors)} validation rules: {", ".join(errors)}'}, 400 # type: ignore
+
+        current_config = KitSettingsForm.load_from_db()
+
+        if not current_config:
+            return {"error_message": "Couldn't find kit configuration."}, 404 # type: ignore
+
+        model = NewPasswordModel(raw_password)
+        encoded_password = base64.b64encode(model.root_password.encode()).decode()
+        shell_safe_password = shlex.quote(encoded_password)
+        for node in Node.load_stateful_dip_nodes_from_db():
             try:
                 with FabricConnection(str(node.ip_address), use_ssh_key=True) as shell:
-                    result = shell.run("echo '{}' | passwd --stdin root".format(model.root_password), warn=True)  # type: Result
-
+                    result  = shell.run(
+                        f"echo {shell_safe_password} | base64 --decode | passwd --stdin root",
+                        warn=True,
+                        hide='stdout'
+                    )
                     if result.return_code != 0:
                         _result = shell.run("journalctl SYSLOG_IDENTIFIER=pwhistory_helper --since '10s ago'")
                         if _result.stdout.count("\n") == 2:
-                            return {"error_message": "Password has already been used. You must try another password."}, 409
-                        else:
-                            return {"error_message": "Internal Server Error"}, 500
+                            return {"error_message": "Password has already been used. You must try another password."}, 409 # type: ignore
+                        return {"error_message": "Internal Server Error"}, 500 # type: ignore
 
             except AuthenticationException:
-                return { "error_message": "Authentication failure. Check the ssh key on the controller." }, 403
+                return { "error_message": "Authentication failure. Check the ssh key on the controller." }, 403 # type: ignore
 
         update_password(current_config, model.root_password)
-        return {"success_message": "Successfully changed the password of your Kit!"}
+        return {"success_message": "Successfully changed the password of your Kit!"} # type: ignore
 
 
 @TOOLS_NS.route("/documentation/upload")

@@ -254,3 +254,59 @@ def camel_case_split(some_string: str) -> str:
     """
     tokens = re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', some_string)
     return ' '.join(tokens)
+
+class PasswordValidator:
+    """
+    This class is used to validate a password based on certain criteria.
+
+    Attributes:
+        password (str): The password to be validated.
+        validation_errors (list): A list to store any validation errors.
+
+    Methods:
+        validate(self, password_input: Optional[str] = None): Validates the password based on the defined criteria.
+    """
+
+    @staticmethod
+    def validate(password: str):
+        """
+        Validates the given password based on several criteria.
+
+        The password must:
+        - Not be empty
+        - Be at least 15 characters long
+        - Contain at least one digit
+        - Contain at least one lowercase letter
+        - Contain at least one uppercase letter
+        - Contain at least one special character
+        - Contain at least 8 unique characters
+        - Not contain any repeating characters
+        - Not contain any of the following characters: ; & | < >
+
+        Args:
+            password (str): The password to validate.
+
+        Returns:
+            list[str] | None: list of error messages if the password is invalid, or None if the password is valid.
+        """
+        if not password:
+            return (["Password cannot be empty."])
+
+        validation_errors = []
+
+        if len(password) < 15:
+            validation_errors.append("Password must be at least 15 characters long.")
+        if not re.search(r'\d', password):
+            validation_errors.append("Password must contain at least one digit.")
+        if not re.search(r'[a-z]', password):
+            validation_errors.append("Password must contain at least one lowercase letter.")
+        if not re.search(r'[A-Z]', password):
+            validation_errors.append("Password must contain at least one uppercase letter.")
+        if not re.search(r'\W', password):
+            validation_errors.append("Password must contain at least one special character.")
+        if len(set(password)) < 8:
+            validation_errors.append("Password must contain at least 8 unique characters.")
+        if re.search(r'(.)\1\1', password):
+            validation_errors.append("Password must not contain any repeating characters.")
+
+        return validation_errors
