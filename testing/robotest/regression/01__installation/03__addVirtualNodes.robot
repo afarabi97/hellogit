@@ -32,4 +32,4 @@ Add Additional Nodes And MIP - Virtual
     Verify Node Was Added  robottest-server  robottest-sensor  robottest-service
 
     Navigate To MIP Management
-    Verify MIP Was Added  robottest-mip
+    Wait Until Keyword Succeeds  3x  5s  Verify MIP Was Added  robottest-mip

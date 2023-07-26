@@ -2,8 +2,11 @@
 # Templated variables
 # (default: '~' in fields to replace)
 ${tmplLocMipProvError}                             xpath=//tr[td[a[contains(text(),'~')]]]/td/cvah-node-state-progress-bar/a[2]/mat-icon[text()="cancel"]
+${tmplLocMipProvState}                             xpath=//tr[td[a[contains(text(),'~')]]]/td/cvah-node-state-progress-bar/a[2]
 ${tmplLocMipDeployProgressBar}                     xpath=//tr[td[a[contains(text(),'~')]]]/td/cvah-node-state-progress-bar/a[3]/mat-icon[text()="check_circle"]
 ${tmplLocMipDeployError}                           xpath=//tr[td[a[contains(text(),'~')]]]/td/cvah-node-state-progress-bar/a[3]/mat-icon[text()="cancel"]
+${locConsoleRefreshBtn}                            xpath=//button//span[contains(text(), "refresh")]
+${locConsoleConfirmBtn}                            xpath=//button//span[contains(text(), "Confirm")]
 
 # Add MIP Dialog
 ${locMipMgmtAddMipBtn}                             xpath=//button[span[text()='Add MIP']]

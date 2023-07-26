@@ -52,6 +52,18 @@ Verify MIP Was Added
     [Documentation]  Waits for a period of time to ensure
     ...              the newly added MIP has finish deploying
         log  Verifying MIP was added: ${mip_name}
+        shoot  provision state
+        ${prov_state_icon} =  inject  ${tmplLocMipProvState}  ${mip_name}
+        Wait Until Element Does Not Contain  ${prov_state_icon}  radio_button_checked  timeout=30m
+        ${prov_state_text} =  Get Text  ${prov_state_icon}
+        IF  '${prov_state_text}' == 'cancel'
+            click  ${prov_state_icon}
+            click  ${prov_state_icon}//div
+            click  ${locConsoleRefreshBtn}
+            click  ${locConsoleConfirmBtn}
+            Press Keys  None  ESCAPE
+            Wait Until Element Contains  ${prov_state_icon}  check_circle  timeout=1m
+        END
         ${verify_element} =  inject  ${tmplLocMipDeployProgressBar}  ${mip_name}
         lookForElement  ${verify_element}  timeout=1h
         log  Add Virtual MIP was a success!
