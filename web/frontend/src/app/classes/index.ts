@@ -46,3 +46,5 @@ export * from './success-message.class';
 export * from './user-portal-link.class';
 export * from './user.class';
 export * from './validation-error.class';
+export * from './vmware-data.class';
+export * from './vmware-settings.class';

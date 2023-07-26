@@ -89,5 +89,7 @@ export * from './update-alerts.interface';
 export * from './user.interface';
 export * from './user-portal-link.interface';
 export * from './validation-error.interface';
+export * from './vmware-data.interface';
+export * from './vmware-settings.interface';
 export * from './windows-credentials.interface';
 export * from './winlogbeat-configuration.interface';

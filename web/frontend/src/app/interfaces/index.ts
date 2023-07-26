@@ -75,3 +75,5 @@ export * from './user-portal-link.interface';
 export * from './user.interface';
 export * from './validation-error.interface';
 export * from './validator-object.interface';
+export * from './vmware-data.interface';
+export * from './vmware-settings.interface';

@@ -114,22 +114,22 @@ def _test_esxi_client(esxi_settings: EsxiSettingsForm) -> dict:
     except vim.fault.HostConnectFault as exc:
         logger.exception(exc)
         return {
-            "message": "404 Not Found Unable to connect to hostname or ip address."
+            "error_message": "404 Not Found Unable to connect to hostname or ip address."
         }, 404
     except vim.fault.InvalidLogin as exc:
         logger.error(str(exc))
         return {
-            "message": "Cannot complete login due to an incorrect user name or password."
+            "error_message": "Cannot complete login due to an incorrect user name or password."
         }, 400
     except Exception as exc:
         print(str(exc))
         try:
             logger.error(str(exc))
-            return {"message": str(exc)}, 400
+            return {"error_message": str(exc)}, 400
         except AttributeError:
             pass
         logger.error(str(exc))
-        return {"message": str(exc)}, 400
+        return {"error_message": str(exc)}, 400
 
 def _get_esxi_client_folders(folders: list, folder, folder_name_extended: str) -> None:
     if isinstance(folder, vim.Folder):
@@ -293,11 +293,12 @@ class EsxiSettings(Resource):
             settings = EsxiSettingsForm.load_from_db()
             if settings:
                 return settings.to_dict()
+            return {}
         except DBModelNotFound:
-            return {"message": "DBModelNotFound"}, 200
+            return {"error_message": "DBModelNotFound"}, 400
 
     @SETINGS_NS.expect(EsxiSettingsForm.DTO)
-    @SETINGS_NS.response(200, "JobIDModel", JobIDModel.DTO)
+    @SETINGS_NS.response(200, "Success", bool)
     @SETINGS_NS.response(400, "Error Model", COMMON_ERROR_DTO)
     @controller_admin_required
     def post(self) -> Response:
@@ -336,7 +337,7 @@ class EsxiSettingsTest(Resource):
         try:
             return EsxiSettingsForm.load_from_db()
         except DBModelNotFound:
-            return {"message": "DBModelNotFound"}, 200
+            return {"error_message": "DBModelNotFound"}, 400
 
     @SETINGS_NS.expect(EsxiSettingsForm.DTO)
     @SETINGS_NS.response(200, "JobIDModel", JobIDModel.DTO)
@@ -352,6 +353,6 @@ class EsxiSettingsTest(Resource):
         except PostValidationError as e:
             return {"post_validation": e.errors_msgs}, 400
         except DBModelNotFound:
-            return {"message": "DBModelNotFound"}, 200
+            return {"error_message": "DBModelNotFound"}, 400
 
         return _test_esxi_client(esxi_settings)

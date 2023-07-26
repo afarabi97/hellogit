@@ -71,5 +71,7 @@ export * from './update-alerts.class';
 export * from './user.class';
 export * from './user-portal-link.class';
 export * from './validation-error.class';
+export * from './vmware-data.class';
+export * from './vmware-settings.class';
 export * from './windows-credentials.class';
 export * from './winlogbeat-configuration.class';

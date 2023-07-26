@@ -1,116 +1,129 @@
-<mat-card [formGroup]="vmwareSettings">
-  <mat-card-header *ngIf="hasTitle">
-    <mat-card-title>
-      <a id="app-settings-vmware-form-mat-card-mat-card-header-mat-card-title-a" (click)="toggleCard()">
-        <em *ngIf="!isCardVisible"
-            class="material-icons">chevron_right</em>
-        <em *ngIf="isCardVisible"
-            class="material-icons">expand_more</em>
-        <span style="vertical-align: top;">VMware Settings</span>
-        </a>
-      </mat-card-title>
-  </mat-card-header>
-  <mat-card-content *ngIf="isCardVisible || !hasTitle" fxLayout="column" fxLayoutAlign="space-around stretch">
-      <form [formGroup]="vmwareSettings">
-        <div fxLayout="column" fxLayoutAlign="start stretch">
-          <!-- IP Address -->
-          <mat-form-field>
-            <mat-label>IP Address</mat-label>
-            <input matInput formControlName="ip_address">
-            <mat-icon matSuffix *ngIf="vmwareSettings.get('ip_address').valid && vmwareSettings.get('ip_address').touched"
-                      color="primary">check_circle</mat-icon>
-            <mat-icon matSuffix *ngIf="vmwareSettings.get('ip_address').invalid && vmwareSettings.get('ip_address').touched"
-                      color="warn">error</mat-icon>
-            <mat-error>{{getErrorMessage(vmwareSettings.get("ip_address"))}}</mat-error>
-          </mat-form-field>
-          <!-- Username -->
-          <mat-form-field>
-            <mat-label>Username</mat-label>
-            <input matInput formControlName="username">
-            <mat-icon matSuffix *ngIf="vmwareSettings.get('username').valid && vmwareSettings.get('username').touched"
-                      color="primary">check_circle</mat-icon>
-            <mat-icon matSuffix *ngIf="vmwareSettings.get('username').invalid && vmwareSettings.get('username').touched"
-                      color="warn">error</mat-icon>
-            <mat-error>{{getErrorMessage(vmwareSettings.get("username"))}}</mat-error>
-          </mat-form-field>
-          <!-- Username -->
-          <mat-form-field>
-            <mat-label>Password</mat-label>
-            <input matInput type="password"  (keyup)="reEvaluate($event)" formControlName="password">
-            <mat-icon matSuffix *ngIf="vmwareSettings.get('password').valid && vmwareSettings.get('password').touched"
-                      color="primary">check_circle</mat-icon>
-            <mat-icon matSuffix *ngIf="vmwareSettings.get('password').invalid && vmwareSettings.get('password').touched"
-                      color="warn">error</mat-icon>
-            <mat-error>{{getErrorMessage(vmwareSettings.get("password"))}}</mat-error>
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Retype password</mat-label>
-            <input matInput type="password"  (keyup)="reEvaluate($event)" formControlName="re_password">
-            <mat-icon matSuffix *ngIf="vmwareSettings.get('re_password').valid && vmwareSettings.get('re_password').touched"
-                      color="primary">check_circle</mat-icon>
-            <mat-icon matSuffix *ngIf="vmwareSettings.get('re_password').invalid && vmwareSettings.get('re_password').touched"
-                      color="warn">error</mat-icon>
-            <mat-error>{{getErrorMessage(vmwareSettings.get("re_password"))}}</mat-error>
-          </mat-form-field>
+<mat-expansion-panel id="cvah-change-password-form-expansion-panel">
+  <mat-expansion-panel-header>
+    <mat-panel-title>VMware Settings</mat-panel-title>
+  </mat-expansion-panel-header>
+  <form *ngIf="vmware_settings_form_group" [formGroup]="vmware_settings_form_group">
+    <div fxLayout="column" fxLayoutAlign="start stretch" style="margin-bottom: 1em;">
 
-            <button style="width: 140px;" mat-raised-button color="primary"
-                    [disabled]="!vmwareSettings.valid || !isTestVmwareSettingsBtnEnabled"
-                    (click)="testVMWareConfiguration()">Test Connection</button>
+      <!-- IP Address -->
+      <mat-form-field>
+        <mat-label>IP Address</mat-label>
+        <input matInput formControlName="ip_address">
+        <mat-icon matSuffix *ngIf="vmware_settings_form_group.get('ip_address').valid &&
+                                   vmware_settings_form_group.get('ip_address').touched"
+                  color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix *ngIf="vmware_settings_form_group.get('ip_address').invalid &&
+                                   vmware_settings_form_group.get('ip_address').touched"
+                  color="warn">error</mat-icon>
+        <mat-error>{{get_error_message(vmware_settings_form_group.get("ip_address"))}}</mat-error>
+      </mat-form-field>
 
-          </div>
-          <br />
+      <!-- Username -->
+      <mat-form-field>
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username">
+        <mat-icon matSuffix *ngIf="vmware_settings_form_group.get('username').valid &&
+                                   vmware_settings_form_group.get('username').touched"
+                  color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix *ngIf="vmware_settings_form_group.get('username').invalid &&
+                                   vmware_settings_form_group.get('username').touched"
+                  color="warn">error</mat-icon>
+        <mat-error>{{get_error_message(vmware_settings_form_group.get("username"))}}</mat-error>
+      </mat-form-field>
 
-          <div fxLayout="column" fxLayoutAlign="start stretch">
-          <!-- Datastore -->
-          <mat-form-field>
-            <mat-label>Datastore</mat-label>
-            <mat-select formControlName="datastore">
-              <mat-option *ngFor="let option of vmwareData.datastores; let j = index;"
-                [value]="option">{{ option }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <!-- Portgroup -->
-          <mat-form-field>
-            <mat-label>Portgroup</mat-label>
-            <mat-select formControlName="portgroup">
-              <mat-option *ngFor="let option of vmwareData.portgroups; let j = index;"
-                [value]="option">{{ option }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+      <!-- Password -->
+      <mat-form-field>
+        <mat-label>Password</mat-label>
+        <input matInput type="password" formControlName="password">
+        <mat-icon matSuffix *ngIf="vmware_settings_form_group.get('password').valid &&
+                                   vmware_settings_form_group.get('password').touched"
+                  color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix *ngIf="vmware_settings_form_group.get('password').invalid &&
+                                   vmware_settings_form_group.get('password').touched"
+                  color="warn">error</mat-icon>
+        <mat-error>{{get_error_message(vmware_settings_form_group.get("password"))}}</mat-error>
+      </mat-form-field>
 
-          <mat-checkbox formControlName="vcenter">VCenter</mat-checkbox>
-          <ng-container *ngIf="isVMwareChecked()">
-            <!-- Cluster -->
-            <mat-form-field>
-              <mat-label>Cluster</mat-label>
-              <mat-select formControlName="cluster">
-                <mat-option *ngFor="let option of vmwareData.clusters; let j = index;"
-                 [value]="option">{{ option }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <!-- Datacenter -->
-            <mat-form-field>
-              <mat-label>Datacenter</mat-label>
-              <mat-select formControlName="datacenter">
-                <mat-option *ngFor="let option of vmwareData.datacenters; let j = index;"
-                 [value]="option">{{ option }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          <!-- Folder -->
-          <mat-form-field>
-            <mat-label>Folder</mat-label>
-            <mat-select formControlName="folder">
-              <mat-option *ngFor="let option of vmwareData.folders; let j = index;"
-               [value]="option">{{ option }}</mat-option>
-            </mat-select>
-            </mat-form-field>
-          </ng-container>
-        </div>
-      </form>
-  </mat-card-content>
-  <mat-card-actions *ngIf="isCardVisible">
-    <button mat-raised-button color="primary"
-            [disabled]="!vmwareSettings.valid || !isSaveVmwareSettingsBtnEnabled"
-            (click)="saveVMWareConfiguration()">Save</button>
-  </mat-card-actions>
-</mat-card>
+      <!-- Confirm Password -->
+      <mat-form-field>
+        <mat-label>Confirm Password</mat-label>
+        <input matInput type="password" formControlName="password_confirm">
+        <mat-icon matSuffix *ngIf="vmware_settings_form_group.get('password_confirm').valid &&
+                                   vmware_settings_form_group.get('password_confirm').touched"
+                  color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix *ngIf="vmware_settings_form_group.get('password_confirm').invalid &&
+                                   vmware_settings_form_group.get('password_confirm').touched"
+                  color="warn">error</mat-icon>
+        <mat-error *ngIf="vmware_settings_form_group.get('password_confirm').invalid &&
+                          vmware_settings_form_group.get('password_confirm').errors.matching">Confirm password does not match password.  Please retype them carefully.</mat-error>
+      </mat-form-field>
+
+      <button mat-raised-button
+              style="width: 140px;"
+              color="primary"
+              [disabled]="!vmware_settings_form_group.valid || !isTestVmwareSettingsBtnEnabled"
+              (click)="click_button_test_connection()">Test Connection</button>
+    </div>
+
+    <div fxLayout="column" fxLayoutAlign="start stretch">
+
+      <!-- Datastore -->
+      <mat-form-field>
+        <mat-label>Datastore</mat-label>
+        <mat-select formControlName="datastore">
+          <mat-option *ngFor="let option of vmware_data.datastores; let j = index;"
+            [value]="option">{{ option }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Portgroup -->
+      <mat-form-field>
+        <mat-label>Portgroup</mat-label>
+        <mat-select formControlName="portgroup">
+          <mat-option *ngFor="let option of vmware_data.portgroups; let j = index;"
+            [value]="option">{{ option }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-checkbox formControlName="vcenter" style="margin-bottom: 1em;">VCenter</mat-checkbox>
+
+      <ng-container *ngIf="is_wmware_checked()">
+
+        <!-- Cluster -->
+        <mat-form-field>
+          <mat-label>Cluster</mat-label>
+          <mat-select formControlName="cluster">
+            <mat-option *ngFor="let option of vmware_data.clusters; let j = index;"
+                        [value]="option">{{ option }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Datacenter -->
+        <mat-form-field>
+          <mat-label>Datacenter</mat-label>
+          <mat-select formControlName="datacenter">
+            <mat-option *ngFor="let option of vmware_data.datacenters; let j = index;"
+                        [value]="option">{{ option }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Folder -->
+        <mat-form-field>
+          <mat-label>Folder</mat-label>
+          <mat-select formControlName="folder">
+            <mat-option *ngFor="let option of vmware_data.folders; let j = index;"
+                        [value]="option">{{ option }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </ng-container>
+    </div>
+
+    <!-- Action Button -->
+    <div mat-dialog-actions class="action-button-wrapper">
+      <button mat-raised-button
+              color="primary"
+              [disabled]="!vmware_settings_form_group.valid || !isSaveVmwareSettingsBtnEnabled"
+              (click)="click_button_save()">Save</button>
+    </div>
+  </form>
+</mat-expansion-panel>

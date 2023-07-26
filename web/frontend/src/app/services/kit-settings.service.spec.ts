@@ -8,7 +8,9 @@ import {
   MockKitStatusClass,
   MockMipSettingsClass,
   MockNodeClassArray,
-  MockSuccessMessageClass
+  MockSuccessMessageClass,
+  MockVMWareDataClass,
+  MockVMWareSettingsClass
 } from '../../../static-data/class-objects';
 import { MockUnusedIpAddresses } from '../../../static-data/return-data';
 import {
@@ -18,8 +20,11 @@ import {
   KitStatusClass,
   MipSettingsClass,
   NodeClass,
-  SuccessMessageClass
+  SuccessMessageClass,
+  VMWareDataClass,
+  VMWareSettingsClass
 } from '../classes';
+import { VMWareSettingsInterface } from '../interfaces';
 
 interface MockFile {
   name: string;
@@ -40,6 +45,18 @@ export class KitSettingsServiceSpy {
 
   getUnusedIPAddresses = jasmine.createSpy('getUnusedIPAddresses').and.callFake(
     (mng_ip: string, netmask: string): Observable<string[]> => this.call_fake_get_unused_ip_addresses(mng_ip, netmask)
+  );
+
+  get_vmware_settings = jasmine.createSpy('get_vmware_settings').and.callFake(
+    (): Observable<VMWareSettingsClass> => this.call_fake_get_vmware_settings()
+  );
+
+  save_vmware_settings = jasmine.createSpy('save_vmware_settings').and.callFake(
+    (vmware_settings: VMWareSettingsInterface): Observable<boolean> => this.call_fake_save_vmware_settings(vmware_settings)
+  );
+
+  test_vmware_settings = jasmine.createSpy('test_vmware_settings').and.callFake(
+    (vmware_settings: VMWareSettingsInterface): Observable<VMWareDataClass> => this.call_fake_test_vmware_settings(vmware_settings)
   );
 
   getKitSettings = jasmine.createSpy('getKitSettings').and.callFake(
@@ -96,6 +113,18 @@ export class KitSettingsServiceSpy {
 
   call_fake_get_unused_ip_addresses(mng_ip: string, netmask: string): Observable<string[]> {
     return of(MockUnusedIpAddresses);
+  }
+
+  call_fake_get_vmware_settings(): Observable<VMWareSettingsClass> {
+    return of(MockVMWareSettingsClass);
+  }
+
+  call_fake_save_vmware_settings(vmware_settings: VMWareSettingsInterface): Observable<boolean> {
+    return of(true);
+  }
+
+  call_fake_test_vmware_settings(vmware_settings: VMWareSettingsInterface): Observable<VMWareDataClass> {
+    return of(MockVMWareDataClass);
   }
 
   call_fake_get_kit_settings(): Observable<KitSettingsClass> {

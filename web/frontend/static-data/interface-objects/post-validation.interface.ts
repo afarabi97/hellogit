@@ -8,7 +8,7 @@ export const MockPostValidationInterfaceStringArray: PostValidationInterface = {
 };
 export const MockPostValidationInterfaceObject: PostValidationInterface = {
   post_validation: {
-    first_field: ['invalid_string'],
+    first_field: ['invalid_string', 'some_error'],
     second_field: ['invalid_string']
   }
 };

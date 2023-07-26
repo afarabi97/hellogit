@@ -12,7 +12,9 @@ import {
   MipSettingsClass,
   NodeClass,
   ObjectUtilitiesClass,
-  SuccessMessageClass
+  SuccessMessageClass,
+  VMWareDataClass,
+  VMWareSettingsClass
 } from '../classes';
 import {
   EntityConfig,
@@ -22,7 +24,9 @@ import {
   KitStatusInterface,
   MipSettingsInterface,
   NodeInterface,
-  SuccessMessageInterface
+  SuccessMessageInterface,
+  VMWareDataInterface,
+  VMWareSettingsInterface
 } from '../interfaces';
 import { ApiService } from './abstract/api.service';
 
@@ -54,21 +58,35 @@ export class KitSettingsService extends ApiService<any> {
     return this.httpClient_.get(url).pipe();
   }
 
-  getESXiSettings(): Observable<Object> {
+  get_vmware_settings(): Observable<VMWareSettingsClass> {
     const url = `/api/settings/esxi`;
-    return this.httpClient_.get(url).pipe();
+
+    return this.httpClient_.get<VMWareSettingsInterface>(url)
+                           .pipe(map((response: VMWareSettingsInterface) => {
+                                   if (Object.keys(response).length === 0) {
+                                     return response;
+                                   } else {
+                                     return new VMWareSettingsClass(response);
+                                   }
+                                 }),
+                                 catchError((error: HttpErrorResponse) => this.handleError('get vmware settings', error)));
   }
 
-  testESXiSettings(settingsForm): Observable<Object> {
+  save_vmware_settings(vmware_settings: VMWareSettingsInterface): Observable<boolean> {
+    const url = `/api/settings/esxi`;
+    delete vmware_settings['password_confirm'];
+
+    return this.httpClient_.post<boolean>(url, vmware_settings)
+                           .pipe(catchError((error: HttpErrorResponse) => this.handleError('get vmware settings', error)));
+  }
+
+  test_vmware_settings(vmware_settings: VMWareSettingsInterface): Observable<VMWareDataClass> {
     const url = `/api/settings/esxi/test`;
-    delete settingsForm['re_password'];
-    return this.httpClient_.post(url, settingsForm).pipe();
-  }
+    delete vmware_settings['password_confirm'];
 
-  saveESXiSettings(settingsForm): Observable<Object> {
-    const url = `/api/settings/esxi`;
-    delete settingsForm['re_password'];
-    return this.httpClient_.post(url, settingsForm).pipe();
+    return this.httpClient_.post<VMWareDataInterface>(url, vmware_settings)
+                           .pipe(map((response: VMWareDataInterface) => new VMWareDataClass(response)),
+                                 catchError((error: HttpErrorResponse) => this.handleError('test vmware settings', error)));
   }
 
   getKitSettings(): Observable<KitSettingsClass> {
