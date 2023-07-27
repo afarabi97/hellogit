@@ -46,7 +46,7 @@
 #     org_id: "{{ RHEL_ORGANIZATION }}"
 #     pool: '^(Red Hat Enterprise Server)$'
 #     auto_attach: true
-#     release: 8.7
+#     release: 8.8
 
 - name: Run DNF Clean All
   shell: |
@@ -56,7 +56,7 @@
 
 # - name: Run Version Lock
 #   shell: |
-#     subscription-manager release --set=8.7
+#     subscription-manager release --set=8.8
 #   register: results
 #   changed_when: results.rc == 0
 

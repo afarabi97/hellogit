@@ -6,7 +6,7 @@ SERVER_REPOS=("codeready-builder-for-rhel-8-x86_64-rpms"
               "rhel-8-for-x86_64-baseos-rpms"
               "rhel-8-for-x86_64-supplementary-rpms"
              )
-RELEASE_VERSION="8.7"
+RELEASE_VERSION="8.8"
 
 function run_cmd {
 	local command="$@"

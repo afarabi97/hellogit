@@ -29,11 +29,11 @@ offline_cert_dir: "{{ tfplenumoffline_dir }}/dod_certs"
 
 sil_cert_url: https://{{ repo_uri }}/repository/tfplenum-repo/certs/sil.lab.crt
 
-iso_rhel_version: "8.7"
+iso_rhel_version: "8.8"
 iso_rhel_server_name: "rhel-{{ iso_rhel_version }}-x86_64-dvd.iso"
 iso_rhel_server_path: "/root/{{ iso_rhel_server_name }}"
 iso_rhel_server_url_labrepo: "{{ tfplenum_repo }}/isos/{{ iso_rhel_server_name }}"
-iso_rhel_server_checksum: a6a7418a75d721cc696d3cbdd648b5248808e7fef0f8742f518e43b46fa08139
+iso_rhel_server_checksum: 517abcc67ee3b7212f57e180f5d30be3e8269e7a99e127a3399b7935c7e00a09
 RHEL_SUB_METHOD: "standard"
 RHEL_ORGANIZATION: "7403688"
 RHEL_ACTIVATIONKEY: "Reposync"

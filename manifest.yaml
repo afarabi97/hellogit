@@ -89,7 +89,7 @@ CPT:
     - Repo/Shared/AppStore/PowerShell/7.3.5
     - Repo/Shared/AppStore/puTTY/0.78
     - Repo/Shared/AppStore/PuttyCAC/0.78
-    - Repo/Shared/AppStore/RHEL Server 8.7/8.7
+    - Repo/Shared/AppStore/RHEL Server 8.8/8.8
     - Repo/Shared/AppStore/StigViewer/2.17
     - Repo/Shared/AppStore/sysinternals suite/2023.6.7
     - Repo/Shared/AppStore/TCPdump/4.99.4
@@ -199,7 +199,7 @@ MDT:
     #- Repo/MDT/AppStore/Powershell Community Extensions/3.3.2
     #- Repo/MDT/AppStore/Powershell Remote Registry (PSRR)/3.0
     #- Repo/MDT/AppStore/SCAP Compliance Checker/4.2
-    #- Repo/Shared/AppStore/RHEL Server 8.7/8.7
+    - Repo/Shared/AppStore/RHEL Server 8.8/8.8
     - Repo/Shared/AppStore/Citrix/2305
     #- Repo/Shared/AppStore/Elastic Stack/7.16.2
     #- Repo/Shared/AppStore/Grassmarlin/3.3
