@@ -173,10 +173,10 @@ CPT:
 #     - Repo/Firmware/Thinkmate x8 X8DTL3/313
 #   dest: "CPT/Data/CVAH {{ VERSION }}/Firmware"
 
-- app: patches
-  src:
-    - Repo/Shared/Security Updates
-  dest: "CPT/Data/CVAH {{ VERSION }}"
+# - app: patches
+#   src:
+#     - Repo/Shared/Security Updates
+#   dest: "CPT/Data/CVAH {{ VERSION }}"
 
 MDT:
 - app: RhelRepo
@@ -268,10 +268,10 @@ MDT:
 #     - Repo/Firmware/Thinkmate x8 X8DTL3/313
 #   dest: "MDT/Data/CVAH {{ VERSION }}/Firmware"
 
-- app: patches
-  src:
-    - Repo/Shared/Security Updates
-  dest: "MDT/Data/CVAH {{ VERSION }}"
+# - app: patches
+#   src:
+#     - Repo/Shared/Security Updates
+#   dest: "MDT/Data/CVAH {{ VERSION }}"
 
 GIP:
 # - app: jcat
