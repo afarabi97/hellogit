@@ -183,6 +183,41 @@ class MyConfluenceExporter(Confluence):
                     raise err
         return file_to_save
 
+    def _download_pdf4(self, page_id: int, export_path: str, export_version: str, timeout_min: int, title: str):
+        url = f"{self.url}/spaces/flyingpdf/pdfpageexport.action?pageId={page_id}"
+        file_to_save = ""
+        success = False
+        delay = 10
+        attempt = 0
+        while ((not success) and (attempt < 10)):
+            attempt+=1
+            try:
+                with self._session.request(
+                        method='GET',
+                        url=url,
+                        # headers=headers,
+                        # timeout=self.timeout,
+                        timeout=timeout_min * 60,
+                        verify=self.verify_ssl,
+                        stream=False
+                    ) as response:
+                        response.raise_for_status()
+                        file_to_save = f"{export_path}/{title.replace(' ', '_')}_{export_version}_Manual.pdf"
+                        success = True
+                        with open(file_to_save, 'wb') as f:
+                            if(response.content):
+                                f.write(response.content)
+                                print("Successfully exported documentation to {}".format(file_to_save), flush=True)
+                            else:
+                                print(f"Failed to export content to: {file_to_save}", flush=True)
+            except HTTPError as err:
+                if(err.response.status_code==400 or err.response.status_code==500):
+                    print(f"Server Status Code: {err.response.status_code}. Trying again in {delay} seconds.", flush=True)
+                    sleep(delay)
+                else:
+                    raise err
+        return file_to_save
+
     def _get_content_array(self, space: str, page_id: str, out_content: List[int]):
         pages = self.get_child_pages(page_id)
         for page in pages:
@@ -271,7 +306,7 @@ class MyConfluenceExporter(Confluence):
             print(f"Requested page: \"{title}\" not found.", flush=True)
             return None
         page_id = str(main_page['id'])
-        ret.append(self._download_pdf3(page_id, export_path, export_version, timeout_min, title))
+        ret.append(self._download_pdf4(page_id, export_path, export_version, timeout_min, title))
         if(sub_pages):
             pages = self.get_child_pages(page_id)
             for page in pages:

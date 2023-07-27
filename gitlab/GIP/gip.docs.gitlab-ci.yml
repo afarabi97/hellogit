@@ -9,11 +9,11 @@ Download GIP Documents Using Manifest:
     echo "GIP Manifest Documentation Variables: "
     echo "PIPELINE: $PIPELINE"
     echo "MANIFEST_DOCS: $MANIFEST_DOCS"
-    echo "DRIVE_STAGING_FOLDER: $DRIVE_STAGING_FOLDER"
+    echo "DRIVE_GIP_STAGING_FOLDER: $DRIVE_GIP_STAGING_FOLDER"
       cmd="python3 testing/pipeline/pipeline.py \
       run-export export-docs \
       --bearer-token \"$CONFLUENCE_BEARER_TOKEN\" \
-      --staging-export-path \"$DRIVE_STAGING_FOLDER\" \
+      --staging-export-path \"$DRIVE_GIP_STAGING_FOLDER\" \
       --export-version \"$TFPLENUM_EXPORT_VERSION\" \
       --sub-pages \"False\" \
       --export-type \"GIP\""

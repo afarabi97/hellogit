@@ -304,6 +304,43 @@ class ConfluenceExport:
             data = yaml.safe_load(rendered_template)
         return data
 
+    def export_dip_docs(self, confluence: MyConfluenceExporter, component: dict, page_group: str, page_title: str):
+        print(f"Exporting: {page_title}", flush=True)
+        stage_pdf_path = []
+        print(f"Exporting Sub-Pages: {self.doc_export_settings.sub_pages}", flush=True)
+        cpt_export_path, mdt_export_path, staging_export_path = create_export_path2(self.doc_export_settings.export_loc,component['dest'])
+        stage_pdf_path.extend(confluence.export_single_page_pdf(str(staging_export_path),
+                                                self.doc_export_settings.export_loc.export_version,
+                                                page_title, sub_pages=(self.doc_export_settings.sub_pages=="True")))
+        for export_pdf_path in stage_pdf_path:
+            if(len(export_pdf_path)==0):
+                continue
+            pos = str(export_pdf_path).rfind("/") + 1
+            file_name = str(export_pdf_path)[pos:]
+            cpt_pdf_path = f"{str(cpt_export_path)}/{file_name}"
+            mdt_pdf_path = f"{str(mdt_export_path)}/{file_name}"
+            if(self.doc_export_settings.export_type=="DIP" and (page_group in ["CPT","SHARED"])):
+                print(f"Moving {str(export_pdf_path)} to: {cpt_pdf_path}", flush=True)
+                shutil.move(str(export_pdf_path), cpt_pdf_path)
+                if(page_group=="SHARED"):
+                    print(f"Copying {cpt_pdf_path} to: {mdt_pdf_path}", flush=True)
+                    shutil.copy2(cpt_pdf_path, mdt_pdf_path)
+            elif(page_group=="MDT"):
+                print(f"Copying {cpt_pdf_path} to: {mdt_pdf_path}", flush=True)
+                shutil.move(str(export_pdf_path), mdt_pdf_path)
+
+    def export_gip_docs(self, confluence: MyConfluenceExporter, component: dict, page_title:str):
+        print(f"Exporting: {page_title}", flush=True)
+        stage_pdf_path = []
+        print(f"Exporting Sub-Pages: {self.doc_export_settings.sub_pages}", flush=True)
+        staging_export_path = Path(self.doc_export_settings.export_loc.staging_export_path + '/')
+        staging_export_path.mkdir(parents=True, exist_ok=True)
+        gip_export_path = Path(f"{str(staging_export_path)}/{component['dest']}")
+        gip_export_path.mkdir(parents=True, exist_ok=True)
+        stage_pdf_path.extend(confluence.export_single_page_pdf(str(gip_export_path),
+                                                self.doc_export_settings.export_loc.export_version,
+                                                page_title, sub_pages=(self.doc_export_settings.sub_pages=="True")))
+
     def export_manifest_docs(self):
         confluence = MyConfluenceExporter(url=self.doc_export_settings.confluence.url, bearer_token=self.doc_export_settings.confluence.bearer_token)
         version = self.doc_export_settings.export_loc.export_version
@@ -314,35 +351,14 @@ class ConfluenceExport:
             if(page_group=="VERSION"):
                 continue
             for component in manifest[page_group]:
-                if((self.doc_export_settings.export_type=="DIP" and (page_group in ["CPT","MDT","SHARED"])) or
-                        (self.doc_export_settings.export_type=="GIP" and page_group=="GIP")):
+                if(self.doc_export_settings.export_type=="DIP" and (page_group in ["CPT","MDT","SHARED"])):
                     for page_title in component['titles']:
                         if(len(page_title)>0):
-                            print(f"Exporting: {page_title}", flush=True)
-                            stage_pdf_path = []
-                            print(f"Exporting Sub-Pages: {self.doc_export_settings.sub_pages}", flush=True)
-                            cpt_export_path, mdt_export_path, staging_export_path = create_export_path2(self.doc_export_settings.export_loc,component['dest'])
-                            stage_pdf_path.extend(confluence.export_single_page_pdf(str(staging_export_path),
-                                                                    self.doc_export_settings.export_loc.export_version,
-                                                                    page_title, sub_pages=(self.doc_export_settings.sub_pages=="True")))
-                            for export_pdf_path in stage_pdf_path:
-                                if(len(export_pdf_path)==0):
-                                    continue
-                                if((self.doc_export_settings.export_type=="DIP" and (page_group in ["CPT","SHARED"])) or
-                                                (self.doc_export_settings.export_type=="GIP" and page_group=="GIP")):
-                                    pos = str(export_pdf_path).rfind("/") + 1
-                                    file_name = str(export_pdf_path)[pos:]
-                                    cpt_pdf_path = f"{str(cpt_export_path)}/{file_name}"
-                                    print(f"Moving {str(export_pdf_path)} to: {cpt_pdf_path}", flush=True)
-                                    shutil.move(str(export_pdf_path), cpt_pdf_path)
-                                    if(page_group=="SHARED"):
-                                        mdt_pdf_path = f"{str(mdt_export_path)}/{file_name}"
-                                        print(f"Copying {cpt_pdf_path} to: {mdt_pdf_path}", flush=True)
-                                        shutil.copy2(cpt_pdf_path, mdt_pdf_path)
-                                elif(page_group=="MDT"):
-                                    mdt_pdf_path = f"{str(mdt_export_path)}/{file_name}"
-                                    print(f"Copying {cpt_pdf_path} to: {mdt_pdf_path}", flush=True)
-                                    shutil.move(str(export_pdf_path), mdt_pdf_path)
+                            self.export_dip_docs(confluence, component, page_group, page_title) #self.doc_export_settings.export_type,
+                elif (self.doc_export_settings.export_type=="GIP" and page_group=="GIP"):
+                    for page_title in component['titles']:
+                        if(len(page_title)>0):
+                            self.export_gip_docs(confluence, component, page_title)
 
     def export_pdf_docs(self):
         cpt_export_path, mdt_export_path, staging_export_path = create_export_path(self.pdf_export_settings.export_loc)
