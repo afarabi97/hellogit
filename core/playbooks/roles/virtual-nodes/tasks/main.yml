@@ -33,12 +33,9 @@
       validate_certs: no
     register: vm_facts
   - name: Wait for {{ node }}
-    community.vmware.vmware_guest_tools_wait:
-      hostname: "{{ esxi.ipaddress }}"
-      username: "{{ esxi.username }}"
-      password: "{{ esxi.password }}"
-      uuid: "{{ vm_facts.instance.hw_product_uuid }}"
-      validate_certs: no
-      timeout: 1200
+    wait_for:
+      host: "{{ hostvars[node].management_ipv4 }}"
+      port: 22
+      timeout: 3600
   tags:
     - provision-virtual-machine
