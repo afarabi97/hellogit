@@ -1,5 +1,3 @@
-import { ElasticsearchNodeDataReturnInterface } from './elasticsearch-node-data-return.interface';
-
 /**
  * Interface defines the elasticsearch node return
  *
@@ -7,5 +5,8 @@ import { ElasticsearchNodeDataReturnInterface } from './elasticsearch-node-data-
  * @interface ElasticsearchNodeReturnInterface
  */
 export interface ElasticsearchNodeReturnInterface {
-  elastic: ElasticsearchNodeDataReturnInterface;
+  data: number;
+  master: number;
+  ml: number;
+  ingest: number;
 }

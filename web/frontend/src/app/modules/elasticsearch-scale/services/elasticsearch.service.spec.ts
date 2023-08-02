@@ -11,14 +11,17 @@ import {
   MockElasticsearchConfigurationClass,
   MockElasticsearchNodeClass,
   MockElasticsearchNodeReturnClass,
-  MockStatusReadyElasticsearchCheckClass
+  MockStatusReadyElasticsearchCheckClass,
+  MockSuccessMessageClass
 } from '../../../../../static-data/class-objects';
 import {
   MockElasticsearchConfigurationInterface,
   MockElasticsearchNodeInterface,
-  MockStatusReadyElasticsearchCheckInterface
+  MockStatusReadyElasticsearchCheckInterface,
+  MockSuccessMessageInterface
 } from '../../../../../static-data/interface-objects';
 import { environment } from '../../../../environments/environment';
+import { SuccessMessageClass } from '../../../classes';
 import { ApiService } from '../../../services/abstract/api.service';
 import { InjectorModule } from '../../utilily-modules/injector.module';
 import {
@@ -153,7 +156,9 @@ describe('ElasticsearchService', () => {
 
         service.post_elastic_nodes(MockElasticsearchNodeReturnClass)
           .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(() => {
+          .subscribe((response: SuccessMessageClass) => {
+            const objectKeys: string[] = Object.keys(response);
+            objectKeys.forEach((key: string) => expect(response[key]).toEqual(MockSuccessMessageClass[key]));
             expect(service.post_elastic_nodes).toHaveBeenCalled();
           });
 
@@ -162,7 +167,7 @@ describe('ElasticsearchService', () => {
 
         expect(xhrRequest.request.method).toEqual(postType);
 
-        xhrRequest.flush(null);
+        xhrRequest.flush(MockSuccessMessageInterface);
 
         after();
       });
@@ -173,7 +178,7 @@ describe('ElasticsearchService', () => {
         service.post_elastic_nodes(MockElasticsearchNodeReturnClass)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
-            () => {},
+            (response: SuccessMessageClass) => {},
             (error: HttpErrorResponse) => {
               expect(error.error).toContain(errorRequest);
               expect(service.post_elastic_nodes).toHaveBeenCalled();
@@ -237,7 +242,9 @@ describe('ElasticsearchService', () => {
 
         service.post_elastic_full_config(MockElasticsearchConfigurationClass)
           .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(() => {
+          .subscribe((response: SuccessMessageClass) => {
+            const objectKeys: string[] = Object.keys(response);
+            objectKeys.forEach((key: string) => expect(response[key]).toEqual(MockSuccessMessageClass[key]));
             expect(service.post_elastic_full_config).toHaveBeenCalled();
           });
 
@@ -246,7 +253,7 @@ describe('ElasticsearchService', () => {
 
         expect(xhrRequest.request.method).toEqual(postType);
 
-        xhrRequest.flush(null);
+        xhrRequest.flush(MockSuccessMessageInterface);
 
         after();
       });
@@ -257,7 +264,7 @@ describe('ElasticsearchService', () => {
         service.post_elastic_full_config(MockElasticsearchConfigurationClass)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
-            () => {},
+            (response: SuccessMessageClass) => {},
             (error: HttpErrorResponse) => {
               expect(error.error).toContain(errorRequest);
               expect(service.post_elastic_full_config).toHaveBeenCalled();

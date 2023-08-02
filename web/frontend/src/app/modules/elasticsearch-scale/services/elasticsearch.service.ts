@@ -4,8 +4,9 @@ import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
+import { SuccessMessageClass } from '../../../classes';
 import { HTTP_OPTIONS } from '../../../constants/cvah.constants';
-import { EntityConfig } from '../../../interfaces';
+import { EntityConfig, SuccessMessageInterface } from '../../../interfaces';
 import { ApiService } from '../../../services/abstract/api.service';
 import {
   ElasticsearchCheckClass,
@@ -51,7 +52,7 @@ export class ElasticsearchService extends ApiService<any> implements Elasticsear
    * @memberof ElasticsearchService
    */
   get_elastic_nodes(): Observable<ElasticsearchNodeClass> {
-    return this.httpClient_.get(environment.ELASTICSEARCH_SERVICE_GET_ELASTIC_NODES)
+    return this.httpClient_.get<ElasticsearchNodeInterface>(environment.ELASTICSEARCH_SERVICE_GET_ELASTIC_NODES)
       .pipe(map((response: ElasticsearchNodeInterface) => new ElasticsearchNodeClass(response)),
             catchError((error: HttpErrorResponse) => this.handleError('elasticsearch get nodes', error)));
   }
@@ -60,12 +61,13 @@ export class ElasticsearchService extends ApiService<any> implements Elasticsear
    * REST call to POST elastic nodes
    *
    * @param {ElasticsearchNodeReturnClass} elasticsearch_node_return
-   * @returns {Observable<void>}
+   * @returns {Observable<SuccessMessageClass>}
    * @memberof ElasticsearchService
    */
-  post_elastic_nodes(elasticsearch_node_return: ElasticsearchNodeReturnClass): Observable<void> {
-    return this.httpClient_.post(environment.ELASTICSEARCH_SERVICE_POST_ELASTIC_NODES, elasticsearch_node_return, HTTP_OPTIONS)
-      .pipe(catchError((error: HttpErrorResponse) => this.handleError('elasticsearch post nodes', error)));
+  post_elastic_nodes(elasticsearch_node_return: ElasticsearchNodeReturnClass): Observable<SuccessMessageClass> {
+    return this.httpClient_.post<SuccessMessageInterface>(environment.ELASTICSEARCH_SERVICE_POST_ELASTIC_NODES, elasticsearch_node_return, HTTP_OPTIONS)
+      .pipe(map((response: SuccessMessageInterface) => new SuccessMessageClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('elasticsearch post nodes', error)));
   }
 
   /**
@@ -84,12 +86,13 @@ export class ElasticsearchService extends ApiService<any> implements Elasticsear
    * REST call to POST elastic full config
    *
    * @param {ElasticsearchConfigurationClass} elasticsearch_configuration
-   * @returns {Observable<void>}
+   * @returns {Observable<SuccessMessageClass>}
    * @memberof ElasticsearchService
    */
-  post_elastic_full_config(elasticsearch_configuration: ElasticsearchConfigurationClass): Observable<void> {
-    return this.httpClient_.post<void>(environment.ELASTICSEARCH_SERVICE_POST_ELASTIC_FULL_CONFIG, elasticsearch_configuration, HTTP_OPTIONS)
-      .pipe(catchError((error: HttpErrorResponse) => this.handleError('elasticsearch post full configuration', error)));
+  post_elastic_full_config(elasticsearch_configuration: ElasticsearchConfigurationClass): Observable<SuccessMessageClass> {
+    return this.httpClient_.post<SuccessMessageInterface>(environment.ELASTICSEARCH_SERVICE_POST_ELASTIC_FULL_CONFIG, elasticsearch_configuration, HTTP_OPTIONS)
+      .pipe(map((response: SuccessMessageInterface) => new SuccessMessageClass(response)),
+            catchError((error: HttpErrorResponse) => this.handleError('elasticsearch post full configuration', error)));
   }
 
   /**

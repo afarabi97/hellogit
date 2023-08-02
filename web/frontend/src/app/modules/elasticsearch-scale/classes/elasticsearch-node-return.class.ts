@@ -1,5 +1,4 @@
 import { ElasticsearchNodeReturnInterface } from '../interfaces';
-import { ElasticsearchNodeDataReturnClass } from './elasticsearch-node-data-return.class';
 
 /**
  * Class defines the elasticsearch node return
@@ -9,7 +8,10 @@ import { ElasticsearchNodeDataReturnClass } from './elasticsearch-node-data-retu
  * @implements {ElasticsearchNodeReturnInterface}
  */
 export class ElasticsearchNodeReturnClass implements ElasticsearchNodeReturnInterface {
-  elastic: ElasticsearchNodeDataReturnClass;
+  data: number;
+  master: number;
+  ml: number;
+  ingest: number;
 
   /**
    * Creates an instance of ElasticsearchNodeReturnClass.
@@ -18,6 +20,9 @@ export class ElasticsearchNodeReturnClass implements ElasticsearchNodeReturnInte
    * @memberof ElasticsearchNodeReturnClass
    */
   constructor(elasticsearch_node_return_interface: ElasticsearchNodeReturnInterface) {
-    this.elastic = elasticsearch_node_return_interface.elastic;
+    this.data = elasticsearch_node_return_interface.data;
+    this.master = elasticsearch_node_return_interface.master;
+    this.ml = elasticsearch_node_return_interface.ml;
+    this.ingest = elasticsearch_node_return_interface.ingest;
   }
 }

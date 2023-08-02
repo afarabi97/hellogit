@@ -36,3 +36,7 @@ class NoSuchLogError(Exception):
 
 class NoSuchLogArchiveError(Exception):
     pass
+
+
+class ObjectKeyError(Exception):
+    pass

@@ -3,13 +3,18 @@ import traceback
 from collections import defaultdict
 from time import sleep
 
-from app.models.scale import read
+import yaml
+from app.models.common import COMMON_SUCCESS_MESSAGE
+from app.models.scale import (ElasticScaleAdvancedConfigModel, ElasticScaleCheckModel,
+                              ElasticScaleNodeInModel, ElasticScaleNodeOutModel, read,
+                              update)
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.connection_mngs import REDIS_CLIENT
+from app.utils.constants import KUBE_CONFIG_LOCATION
 from app.utils.elastic import ElasticWrapper
+from app.utils.exceptions import ObjectKeyError
 from app.utils.logging import logger
 from app.utils.utils import get_app_context
-from app.utils.constants import KUBE_CONFIG_LOCATION
 from kubernetes import client, config
 from pint import UnitRegistry
 from rq.decorators import job
@@ -364,3 +369,60 @@ def get_allowable_scale_count():
         "max_scale_count_ingest": max_total_ingest,
         "server_node_count": server_node_count,
     }
+
+
+def get_elastic_scale_check() -> ElasticScaleCheckModel:
+    status = es_cluster_status()
+
+    return {"status": status}
+
+
+def post_elastic_scale(payload: ElasticScaleNodeInModel) -> COMMON_SUCCESS_MESSAGE:
+    deployment = read()
+
+    _scale(deployment, "master", _get_new_count_from_payload(payload, "master"))
+    _scale(deployment, "ml", _get_new_count_from_payload(payload, "ml"))
+    _scale(deployment, "data", _get_new_count_from_payload(payload, "data"))
+    _scale(deployment, "ingest", _get_new_count_from_payload(payload, "ingest"))
+
+    update(deployment)
+
+    return {"success_message": "Elastic scale deployment updated"}
+
+
+def get_elastic_scale_advanced() -> ElasticScaleAdvancedConfigModel:
+    deploy_config = {}
+    deploy_config = read()
+
+    return {"elastic": yaml.dump(deploy_config)}
+
+
+def post_elastic_scale_advanced(payload: ElasticScaleAdvancedConfigModel) -> COMMON_SUCCESS_MESSAGE:
+    deploy_config = {}
+    if "elastic" in payload:
+        deploy_config = yaml.load(payload["elastic"])
+        update(deploy_config)
+
+        return {"success_message": "Advanced configuration accepted!"}
+
+    raise ObjectKeyError
+
+
+def get_elastic_scale_nodes() -> ElasticScaleNodeOutModel:
+    node_list = get_es_nodes()
+    nodes = parse_nodes(node_list)
+    if node_list:
+        max_node_count = get_allowable_scale_count()
+        nodes.update(max_node_count)
+    return nodes
+
+
+def _scale(deployment: dict, name: str, count: int) -> None:
+    if count:
+        for node_set in deployment["spec"]["nodeSets"]:
+            if node_set["name"] == name:
+                node_set["count"] = count
+
+
+def _get_new_count_from_payload(elastic: ElasticScaleNodeInModel, name: str) -> int:
+    return elastic.get(name, None)

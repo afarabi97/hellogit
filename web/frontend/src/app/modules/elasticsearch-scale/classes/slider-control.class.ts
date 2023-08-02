@@ -32,14 +32,12 @@ export class SliderControlClass {
     this.title = ObjectUtilitiesClass.notUndefNull(NodeTitleEnum[type]) ?
       NodeTitleEnum[type] : SLIDER_PROGRAMMING_ERROR_TITLE;
     this.current_count = ObjectUtilitiesClass.notUndefNull(elasticsearch_node) &&
-                         ObjectUtilitiesClass.notUndefNull(elasticsearch_node.elastic) &&
-                         ObjectUtilitiesClass.notUndefNull(elasticsearch_node.elastic[type]) ?
-      elasticsearch_node.elastic[type] : 0;
+                         ObjectUtilitiesClass.notUndefNull(elasticsearch_node[type]) ?
+      elasticsearch_node[type] : 0;
     this.min_count = 1;
     this.max_count = ObjectUtilitiesClass.notUndefNull(elasticsearch_node) &&
-                     ObjectUtilitiesClass.notUndefNull(elasticsearch_node.elastic) &&
-                     ObjectUtilitiesClass.notUndefNull(elasticsearch_node.elastic[max_scale_count_by_type]) ?
-      elasticsearch_node.elastic[max_scale_count_by_type] : 0;
+                     ObjectUtilitiesClass.notUndefNull(elasticsearch_node[max_scale_count_by_type]) ?
+      elasticsearch_node[max_scale_count_by_type] : 0;
     this.hidden = this.current_count === 0;
   }
 }

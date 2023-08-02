@@ -1,135 +1,81 @@
-import traceback
-
-import yaml
-from app.common import ERROR_RESPONSE, OK_RESPONSE
-from app.middleware import controller_maintainer_required, login_required_roles
-from app.models.scale import read, update
-from app.service.scale_service import (es_cluster_status,
-                                       get_allowable_scale_count, get_es_nodes,
-                                       parse_nodes)
-from app.utils.logging import logger
+from app.middleware import (controller_maintainer_required, handle_errors,
+                            login_required_roles)
+from app.models.common import COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
+from app.models.scale import (ElasticScaleAdvancedConfigModel,
+                              ElasticScaleAdvancedConfigSchema,
+                              ElasticScaleCheckModel, ElasticScaleNodeInModel,
+                              ElasticScaleNodeInSchema,
+                              ElasticScaleNodeOutModel)
+from app.service.scale_service import (get_elastic_scale_advanced,
+                                       get_elastic_scale_check,
+                                       get_elastic_scale_nodes,
+                                       post_elastic_scale,
+                                       post_elastic_scale_advanced)
 from app.utils.namespaces import SCALE_NS
-from flask import Response, request
+from app.utils.validation import required_params
+from flask import Response
 from flask_restx.resource import Resource
 
 
+@SCALE_NS.route("/check")
+class ScaleCheckCtrlApi(Resource):
+
+    @SCALE_NS.doc(description="Gets elastic node status.")
+    @SCALE_NS.response(200, "ElasticScaleCheckModel", ElasticScaleCheckModel.DTO)
+    @SCALE_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @login_required_roles()
+    @handle_errors
+    def get(self) -> Response:
+        return get_elastic_scale_check()
+
+
 @SCALE_NS.route("/elastic")
-class ScaleElastic(Resource):
+class ScaleElasticCtrlApi(Resource):
+
+    @SCALE_NS.doc(description="Post all elastic nodes and counts.")
+    @SCALE_NS.doc(payload=ElasticScaleNodeInModel)
+    @SCALE_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
+    @SCALE_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @SCALE_NS.expect(ElasticScaleNodeInModel.DTO)
+    @required_params(ElasticScaleNodeInSchema())
     @controller_maintainer_required
+    @handle_errors
     def post(self) -> Response:
-        """
-        Scale elasticsearch
-
-        :return (Response): Returns a Reponse object
-        """
-
-        def scale(deployment, name, count):
-            if count:
-                for node_set in deployment["spec"]["nodeSets"]:
-                    if node_set["name"] == name:
-                        node_set["count"] = count
-
-        def get_new_count_from_payload(payload, name):
-            if payload.get("elastic", None):
-                return payload["elastic"].get(name, None)
-            else:
-                return None
-
-        try:
-            deployment = read()
-
-            scale(
-                deployment,
-                "master",
-                get_new_count_from_payload(request.get_json(), "master"),
-            )
-            scale(
-                deployment, "ml", get_new_count_from_payload(
-                    request.get_json(), "ml")
-            )
-            scale(
-                deployment,
-                "data",
-                get_new_count_from_payload(request.get_json(), "data"),
-            )
-            scale(
-                deployment,
-                "ingest",
-                get_new_count_from_payload(request.get_json(), "ingest"),
-            )
-
-            update(deployment)
-            return OK_RESPONSE
-
-        except Exception as e:
-            logger.exception(e)
-            traceback.print_exc()
-            return ERROR_RESPONSE
+        return post_elastic_scale(SCALE_NS.payload)
 
 
 @SCALE_NS.route("/elastic/advanced")
-class ScaleAdvanced(Resource):
-    @controller_maintainer_required
-    def post(self) -> Response:
-        """
-        Scale elasticsearch
+class ScaleAdvancedCtrlApi(Resource):
 
-        :return (Response): Returns a Reponse object
-        """
-        deploy_config = {}
-        payload = request.get_json()
-        try:
-            if "elastic" in payload:
-                deploy_config = yaml.load(payload["elastic"])
-                update(deploy_config)
-
-            return OK_RESPONSE
-        except Exception as e:
-            logger.exception(e)
-            traceback.print_exc()
-            return ERROR_RESPONSE
-
+    @SCALE_NS.doc(description="Get elastic advanced.")
+    @SCALE_NS.response(200, "ElasticScaleAdvancedConfigModel", ElasticScaleAdvancedConfigModel.DTO)
+    @SCALE_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @login_required_roles()
+    @handle_errors
     def get(self) -> Response:
-        """
-        Scale elasticsearch
+        return get_elastic_scale_advanced()
 
-        :return (Response): Returns a Reponse object
-        """
-        deploy_config = {}
-        try:
-            deploy_config = read()
-            return {"elastic": yaml.dump(deploy_config)}, 200
-        except Exception as e:
-            logger.exception(e)
-            traceback.print_exc()
-            return ERROR_RESPONSE
+
+    @SCALE_NS.doc(description="Post elastic advanced.")
+    @SCALE_NS.doc(payload=ElasticScaleAdvancedConfigModel)
+    @SCALE_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
+    @SCALE_NS.response(406, "ErrorMessage: ObjectKeyError", COMMON_ERROR_MESSAGE)
+    @SCALE_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @SCALE_NS.expect(ElasticScaleAdvancedConfigModel.DTO)
+    @required_params(ElasticScaleAdvancedConfigSchema())
+    @controller_maintainer_required
+    @handle_errors
+    def post(self) -> Response:
+        return post_elastic_scale_advanced(SCALE_NS.payload)
 
 
 @SCALE_NS.route("/elastic/nodes")
-class ElasticNodeCount(Resource):
+class ElasticNodeCountCtrlApi(Resource):
+
+    @SCALE_NS.doc(description="Get all elastic nodes counts.")
+    @SCALE_NS.response(200, "ElasticScaleNodeOutModel", ElasticScaleNodeOutModel.DTO)
+    @SCALE_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @login_required_roles()
+    @handle_errors
     def get(self) -> Response:
-        """
-        Get current elasticsearch node count
-
-        :return (Response): Returns a Reponse object
-        """
-
-        node_list = get_es_nodes()
-        nodes = parse_nodes(node_list)
-        if node_list:
-            max_node_count = get_allowable_scale_count()
-            nodes.update(max_node_count)
-        if nodes:
-            return {"elastic": nodes}, 200
-
-        return ERROR_RESPONSE
-
-
-@SCALE_NS.route("/check")
-class ScaleCheck(Resource):
-    @login_required_roles()
-    def get(self) -> Response:
-        status = es_cluster_status()
-        return {"status": status}, 200
+        return get_elastic_scale_nodes()

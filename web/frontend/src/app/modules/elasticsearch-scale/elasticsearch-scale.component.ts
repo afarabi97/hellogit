@@ -5,7 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { MatSnackbarConfigurationClass, NotificationClass, ObjectUtilitiesClass } from '../../classes';
+import { MatSnackbarConfigurationClass, NotificationClass, ObjectUtilitiesClass, SuccessMessageClass } from '../../classes';
 import {
   CONFIRM_DIALOG_OPTION,
   DIALOG_HEIGHT_90VH,
@@ -41,7 +41,6 @@ import {
 import { NodeTitleEnum } from './enums/node-title.enum';
 import {
   ElasticsearchConfigurationInterface,
-  ElasticsearchNodeDataReturnInterface,
   ElasticsearchNodeReturnInterface
 } from './interfaces';
 import { ElasticsearchService } from './services/elasticsearch.service';
@@ -178,10 +177,9 @@ export class ElasticsearchScaleComponent implements OnInit {
    */
   private run_elasticsearch_scale_(): void {
     this.loading = true;
-    const node_data_return: ElasticsearchNodeDataReturnInterface = new Object() as ElasticsearchNodeDataReturnInterface;
-    this.node_sliders.forEach((slider_control: SliderControlClass) => node_data_return[slider_control.type] = slider_control.current_count);
-    const elasticsearch_node_return: ElasticsearchNodeReturnInterface = { elastic: node_data_return };
-    this.api_post_elastic_nodes_(elasticsearch_node_return);
+    const node_return: ElasticsearchNodeReturnInterface = new Object() as ElasticsearchNodeReturnInterface;
+    this.node_sliders.forEach((slider_control: SliderControlClass) => node_return[slider_control.type] = slider_control.current_count);
+    this.api_post_elastic_nodes_(node_return);
   }
 
   /**
@@ -258,7 +256,7 @@ export class ElasticsearchScaleComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: ElasticsearchNodeClass) => {
-          this.server_node_count = response.elastic.server_node_count;
+          this.server_node_count = response.server_node_count;
           const enum_keys_: string[] = Object.keys(NodeTitleEnum);
           this.node_sliders = enum_keys_.map((v: string) => new SliderControlClass(v, response));
         },
@@ -279,7 +277,7 @@ export class ElasticsearchScaleComponent implements OnInit {
     this.elasticsearch_service_.post_elastic_nodes(new ElasticsearchNodeReturnClass(elasticsearch_node_return))
       .pipe(untilDestroyed(this))
       .subscribe(
-        () => {
+        (response: SuccessMessageClass) => {
           this.api_deploy_elastic_();
           this.node_sliders = [];
         },
@@ -318,7 +316,7 @@ export class ElasticsearchScaleComponent implements OnInit {
     this.elasticsearch_service_.post_elastic_full_config(new ElasticsearchConfigurationClass(elasticsearch_configuration))
       .pipe(untilDestroyed(this))
       .subscribe(
-        () => {
+        (response_inner: SuccessMessageClass) => {
           this.api_deploy_elastic_();
           this.node_sliders = [];
         },
