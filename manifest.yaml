@@ -100,17 +100,17 @@ CPT:
   src:
     # - Repo/Shared/VMs/ACAS/22.06-1
     # - Repo/Shared/VMs/Pfsense/2.5.2
-    # - Repo/Shared/VMs/Security Onion 2/2.3.190
+    - Repo/Shared/VMs/Security Onion 2/2.3.260
     # - Repo/Shared/VMs/Security Onion (original)/4.3-8
     # - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-3
     # - Repo/CPT/VMs/ControlThings (prev SamuraiSTFU)/ControlThingsPlatform-v1bD
     # - Repo/CPT/VMs/Cuckoo Sandbox/2.0.7
-    # - Repo/CPT/VMs/Endgame/3.23.3-32
-    # - Repo/CPT/VMs/Kali Linux VM/2021.3
+    - Repo/CPT/VMs/Endgame/3.29.2.6
+    - Repo/CPT/VMs/Kali Linux VM/2023.2
     # - Repo/CPT/VMs/Mockingbird/1.2.0
-    # - Repo/CPT/VMs/REMnuX/2021.29.9
+    - Repo/CPT/VMs/REMnuX/2022.28.1
     # - Repo/CPT/VMs/SamuraiSTFU/1.9
-    # - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7
+    - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2023.3
     - Repo/CPT/VMs/Windows 10 VM/22H2-19045.2965
   dest: "CPT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
@@ -143,9 +143,9 @@ CPT:
     # - Repo/CPT/Documentation/AppStore/Secure Host Baseline/2019
     # - Repo/CPT/Documentation/AppStore/Snowflake/3.0.1
     # - Repo/CPT/Documentation/VMs/Cuckoo Sandbox/2.0.7
-    # - Repo/CPT/Documentation/VMs/Endgame/3.29.2-6
+    - Repo/CPT/Documentation/VMs/Endgame/3.29.2-6
     # - Repo/CPT/Documentation/VMs/Mockingbird/1.2.0
-    # - Repo/CPT/Documentation/VMs/REMnux/2021.29.9
+    - Repo/CPT/Documentation/VMs/REMnux/2022.28.1
     # - Repo/Shared/Documentation/AppStore/Citrix/2207
     # - Repo/Shared/Documentation/AppStore/Grassmarlin/master
     # - Repo/Shared/Documentation/AppStore/Metasponse/1.6.4.0
@@ -153,7 +153,7 @@ CPT:
     # - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     # - Repo/Shared/Documentation/AppStore/sysinternals suite/master
     # - Repo/Shared/Documentation/VMs/ACAS/22.06-1
-    # - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.190
+    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.260
     # - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
   dest: "CPT/Data/CVAH {{ VERSION }}/Documentation/AppStore"
 
@@ -219,7 +219,7 @@ MDT:
   src:
     # - Repo/Shared/VMs/ACAS/22.06-1
     # - Repo/Shared/VMs/Pfsense/2.5.2
-    # - Repo/Shared/VMs/Security Onion 2/2.3.190
+    - Repo/Shared/VMs/Security Onion 2/2.3.260
     # - Repo/Shared/VMs/Security Onion (original)/4.3-8
     - Repo/MDT/VMs/Windows 10 VM/22H2-19045.3086
     # - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-3
@@ -236,8 +236,8 @@ MDT:
 #     - Repo/Shared/Documentation/DIP/App Docs/master
 #   dest: "MDT/Data/CVAH {{ VERSION }}/Documentation/DIP"
 
-# - app: Documentation
-#   src:
+- app: Documentation
+  src:
 #     - Repo/MDT/Documentation/AppStore/p7zip/16.02
 #     - Repo/MDT/Documentation/AppStore/Powershell Remote Registry (PSRR)/3.0.0
 #     - Repo/MDT/Documentation/AppStore/SCAP Compliance Checker/4.2
@@ -247,10 +247,10 @@ MDT:
 #     - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
 #     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
 #     - Repo/Shared/Documentation/AppStore/sysinternals suite/master
-#     - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.190
+    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.260
 #     - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
 #     - Repo/Shared/Documentation/VMs/ACAS/22.06-1
-#   dest: "MDT/Data/CVAH {{ VERSION }}/Documentation/AppStore"
+  dest: "MDT/Data/CVAH {{ VERSION }}/Documentation/AppStore"
 
 # - app: firmware
 #   src:
