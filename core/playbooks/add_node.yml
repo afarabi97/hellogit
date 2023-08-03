@@ -160,6 +160,7 @@
   hosts:
     - servers
     - sensors
+    - MinIO
   gather_facts: no
   any_errors_fatal: true
   tasks:
