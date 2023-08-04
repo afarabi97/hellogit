@@ -236,7 +236,7 @@ export class KitSettingsPaneComponent implements OnInit, OnChanges {
       'upstream_ntp': new FormControl(this.kitSettings ? this.kitSettings.upstream_ntp : null, Validators.compose([validateFromArray(kitSettingsValidators.upstream_ntp)])),
       'upstream_dns': new FormControl(this.kitSettings ? this.kitSettings.upstream_dns : null, Validators.compose([validateFromArray(kitSettingsValidators.upstream_dns)])),
       'kubernetes_services_cidr': new FormControl(this.kitSettings ? this.kitSettings.kubernetes_services_cidr : '', Validators.compose([validateFromArray(kitSettingsValidators.kubernetes_services_cidr)])),
-      'is_gip': new FormControl(this.kitSettings ? "GIP": "DIP")
+      'is_gip': new FormControl(this.kitSettings.is_gip ? "GIP": "DIP")
     });
 
     // Since re_password is dependent on password, the formcontrol for password must exist first. Then we can add the dependency for validation
