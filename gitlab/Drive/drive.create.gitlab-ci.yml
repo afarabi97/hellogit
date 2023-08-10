@@ -43,7 +43,8 @@ Hash Master GIP Folder:
         --password \"$MASTER_DRIVE_CREATION_PASSWORD\"
         --ipaddress \"$MASTER_DRIVE_CREATION_IPADDRESS\"
         --drive-creation-path \"$MASTER_DRIVE_CREATION_PATH\"
-        --staging-export-path \"$STAGING_GIP_DIRECTORY\""
+        --staging-export-path \"$STAGING_GIP_DIRECTORY\"
+        --luks-password \"$OVA_EXPORT_PASSWORD\""
     echo "$cmd"
     eval $cmd
   only:
@@ -64,7 +65,8 @@ Hash Master CPT Folder:
         --password \"$MASTER_DRIVE_CREATION_PASSWORD\"
         --ipaddress \"$MASTER_DRIVE_CREATION_IPADDRESS\"
         --drive-creation-path \"$MASTER_DRIVE_CREATION_PATH\"
-        --staging-export-path \"$STAGING_DIP_DIRECTORY\""
+        --staging-export-path \"$STAGING_DIP_DIRECTORY\"
+        --luks-password \"$OVA_EXPORT_PASSWORD\""
     echo "$cmd"
     eval $cmd
   only:
@@ -89,7 +91,8 @@ Hash Master MDT Folder:
         --password \"$MASTER_DRIVE_CREATION_PASSWORD\"
         --ipaddress \"$MASTER_DRIVE_CREATION_IPADDRESS\"
         --drive-creation-path \"$MASTER_DRIVE_CREATION_PATH\"
-        --staging-export-path \"$STAGING_DIP_DIRECTORY\""
+        --staging-export-path \"$STAGING_DIP_DIRECTORY\"
+        --luks-password \"$OVA_EXPORT_PASSWORD\""
     echo "$cmd"
     eval $cmd
   only:

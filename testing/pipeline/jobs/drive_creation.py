@@ -176,6 +176,7 @@ class DriveCreationThread(DriveSuperThread):
     def _burn_image_to_disk(self):
         self.Error_Check( self.remote_sudo_cmd(f"dd bs=65536 if={self.multiboot_img_staging} of={self.drive_path} status=none"), 1)
         self.Error_Check( self.remote_sudo_cmd(f"sync {self.drive_path}"), 2)
+        self.Error_Check( self.remote_sudo_cmd(f"partprobe {self.drive_path}"), 5)
 
     def _fix_partition_five_and_six(self):
         # Deletes partion 5 and 6 because they are jacked and recreates them
@@ -192,19 +193,21 @@ class DriveCreationThread(DriveSuperThread):
             self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical 200.2GB 1000GB"), 4)
             #self.Error_Check( self.remote_sudo_cmd(f"mkfs.xfs /dev/mapper/luksData{self.thread_id}"), 4)
 
-        self.Error_Check( self.remote_sudo_cmd(f"bash -c 'echo -n {self.drive_settings.luks_password} | base64 -d | cryptsetup -y -v luksFormat {self.drive_path}6 -d -'"), 4)
-        sleep(5)
-        self.Error_Check( self.remote_sudo_cmd(f"bash -c 'echo -n {self.drive_settings.luks_password} | base64 -d | cryptsetup -v luksOpen {self.drive_path}6 luksData{self.thread_id} -d -'"), 4)
         self.Error_Check( self.remote_sudo_cmd(f"sync {self.drive_path}"), 20)
         self.Error_Check( self.remote_sudo_cmd(f"partprobe {self.drive_path}"), 5)
-        sleep(5)
+        sleep(10)
+        self._create_luks_partitions()
+        # self.Error_Check( self.remote_sudo_cmd(f"bash -c 'echo -n {self.drive_settings.luks_password} | base64 -d | cryptsetup -y -v luksFormat {self.drive_path}6 -d -'"), 4)
+        # sleep(10)
+        # self.Error_Check( self.remote_sudo_cmd(f"bash -c 'echo -n {self.drive_settings.luks_password} | base64 -d | cryptsetup -v luksOpen {self.drive_path}6 luksData{self.thread_id} -d -'"), 4)
+        # sleep(10)
 
     def _create_ntfs_data_partition(self):
         self.Error_Check( self.remote_sudo_cmd(f"mkfs.ntfs {self.drive_path}5 -f -L NTFSDATA"), 6)
         sleep(5)
 
     def _create_xfs_data_partition(self):
-        drive=self.drive_path
+        drive=f"{self.drive_path}1"
         if self.drive_settings.is_burn_multiboot():
             drive = f"{self.drive_path}6"
         self.Error_Check( self.remote_sudo_cmd(f"mkfs.xfs -f /dev/mapper/luksData{self.thread_id} -L Data"), 7)
@@ -212,9 +215,10 @@ class DriveCreationThread(DriveSuperThread):
         sleep(5)
 
     def _mount(self):
-        self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path}1 {self.multi1_path}"), 9)
-        self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path}2 {self.multi2_path}"), 9)
-        self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path}5 {self.ntfs_data_path}"), 9)
+        if(self.drive_settings.is_burn_multiboot()):
+            self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path}1 {self.multi1_path}"), 9)
+            self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path}2 {self.multi2_path}"), 9)
+            self.Error_Check( self.remote_sudo_cmd(f"mount {self.drive_path}5 {self.ntfs_data_path}"), 9)
         self.Error_Check( self.remote_sudo_cmd(f"mount /dev/mapper/luksData{self.thread_id} {self.xfs_data_path}"), 9)
         sleep(3)
 
@@ -322,6 +326,18 @@ class DriveCreationThread(DriveSuperThread):
                     if path['app'] == 'VMs':
                         self.create_link(src, path['dest'])
 
+    def _create_luks_partitions(self):
+        drive_path=f"{self.drive_path}1"
+        if self.drive_settings.is_burn_multiboot():
+            drive_path = f"{self.drive_path}6"
+        else:
+            self.Error_Check( self.remote_sudo_cmd(f"parted -s {self.drive_path} mklabel msdos"), 4)
+            self.Error_Check( self.remote_sudo_cmd(f"parted -s {self.drive_path} mkpart primary 0% 100%"), 4)
+        self.Error_Check( self.remote_sudo_cmd(f"bash -c 'echo -n {self.drive_settings.luks_password} | base64 -d | cryptsetup -y -v luksFormat {drive_path} -d -'"), 4)
+        sleep(10)
+        self.Error_Check( self.remote_sudo_cmd(f"bash -c 'echo -n {self.drive_settings.luks_password} | base64 -d | cryptsetup -v luksOpen {drive_path} luksData{self.thread_id} -d -'"), 4)
+        sleep(10)
+
     def run(self):
         fabric = FabricConnectionWrapper(self.drive_settings.username,
                                          self.drive_settings.password,
@@ -336,6 +352,8 @@ class DriveCreationThread(DriveSuperThread):
                 self._burn_image_to_disk()
                 self._fix_partition_five_and_six()
                 self._create_ntfs_data_partition()
+            else: # GIP only
+                self._create_luks_partitions()
 
             self._create_xfs_data_partition()           # DIP & GIP
             self._mount()                               # DIP & GIP
@@ -421,14 +439,17 @@ class DriveHashVerificationThread(DriveSuperThread):
                                          self.drive_settings.ipaddress)
         try:
             self.shell = fabric.connection
-            the_drive = self.drive_path
+            the_drive = f"{self.drive_path}1"
             if self.drive_settings.is_burn_multiboot():
                 the_drive = f"{self.drive_path}6"
 
             self.Error_Check( self.remote_sudo_cmd(f"bash -c 'echo -n {self.drive_settings.luks_password} | base64 -d | cryptsetup -v luksOpen {the_drive} luksData{self.thread_id} -d -'"), 28)
+            sleep(10)
             self.Error_Check( self.remote_sudo_cmd(f"mount /dev/mapper/luksData{self.thread_id} {self.xfs_data_path}"), 24)
+            sleep(10)
             self.Error_Check( self.remote_sudo_cmd(self.xfs_data_path + "/validate_drive.sh"), 25)
             self.Error_Check( self.remote_sudo_cmd(f"umount /dev/mapper/luksData{self.thread_id}"), 26)
+            sleep(10)
             self.Error_Check( self.remote_sudo_cmd(f"cryptsetup -v luksClose /dev/mapper/luksData{self.thread_id}"), 27)
 
         except Exception as e:
