@@ -52,14 +52,16 @@ Verify MIP Was Added
     [Documentation]  Waits for a period of time to ensure
     ...              the newly added MIP has finish deploying
         log  Verifying MIP was added: ${mip_name}
-        shoot  provision state
+        shoot  provision-state
         ${prov_state_icon} =  inject  ${tmplLocMipProvState}  ${mip_name}
         Wait Until Element Does Not Contain  ${prov_state_icon}  radio_button_checked  timeout=30m
+        Wait Until Element Does Not Contain  ${prov_state_icon}  timelapse  timeout=30m
         ${prov_state_text} =  Get Text  ${prov_state_icon}
         IF  '${prov_state_text}' == 'cancel'
             click  ${prov_state_icon}
             click  ${prov_state_icon}//div
             click  ${locConsoleRefreshBtn}
+            shoot  clicking-refresh-confirm-button
             click  ${locConsoleConfirmBtn}
             Press Keys  None  ESCAPE
             Wait Until Element Contains  ${prov_state_icon}  check_circle  timeout=1m

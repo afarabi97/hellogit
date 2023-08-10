@@ -14,6 +14,27 @@ Test Teardown     Run Keywords             Log Out Of Controller  AND  Close All
 Suite Teardown    Close All Connections
 
 *** Test Cases ***
+Install PMO Application - Arkime
+    [Tags]                       THISISCVAH-10181
+    [Documentation]              Check functionality of the Catalog
+    ...                          page by installing  PMO supported apps
+    Set Selenium Speed            0.5s
+    Install Dependent Apps        Arkime-viewer    Arkime
+
+Install Community Applications
+    [Tags]                       THISISCVAH-10181
+    [Documentation]              Check functionality of the Catalog
+    ...                          page by installing  PMO supported apps
+    Set Selenium Speed            0.5s
+    Install Independent Apps      Mattermost    Nifi    Redmine    Netflow-filebeat
+
+Install PMO Application - Cortex Misp And Hive
+    [Tags]                       THISISCVAH-10181
+    [Documentation]              Check functionality of the Catalog
+    ...                          page by installing  PMO supported apps
+    Set Selenium Speed            0.5s
+    Install Dependent Apps        Cortex    Misp    Hive
+
 Install PMO Applications - Logstash Suricata Zeek Rocketchat And Wikijs
     [Tags]                       THISISCVAH-10181
     [Documentation]              Check functionality of the Catalog

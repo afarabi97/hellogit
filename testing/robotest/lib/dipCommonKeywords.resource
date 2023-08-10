@@ -5,7 +5,7 @@ Resource    ./dipCatalogKeywords.resource
 Variables   ../include/element_ids_frontend.py
 
 Library     Loggy.py            ${CATEGORY}    WITH NAME    loggy_obj
-Library     SeleniumLibrary     15s    run_on_failure= loggy_obj.failure
+Library     SeleniumLibrary     15s    run_on_failure=handleSeleniumFailure
 Library     SSHLibrary          15s
 Library     String
 Library     Collections
@@ -52,11 +52,12 @@ Open Chrome
     Create WebDriver  Chrome    options=${chrome_options}
     Go To    https://${host}
 
-handle selenium failure
-    SeleniumLibrary.Capture Page Screenshot    filename=failed-screenshot-{index}.png
+handleSeleniumFailure
+    SeleniumLibrary.Capture Page Screenshot  filename=failed-screenshot-{index}.png
     SeleniumLibrary.Log Location
-    SeleniumLibrary.Log Source      loglevel=DEBUG
-    Log variables   level=DEBUG
+    SeleniumLibrary.Log Source  loglevel=DEBUG
+    Log variables  level=DEBUG
+    loggy_obj.failure
 
 Open Firefox
     [Arguments]                ${host}  ${browser}

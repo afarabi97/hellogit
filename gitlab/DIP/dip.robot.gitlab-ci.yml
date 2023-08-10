@@ -55,123 +55,17 @@ robot:deploy_kit:
   rules:
     - if: ($RUN_ROBOT_REGRESSION == "yes" || $RUN_ROBOT_INTEGRATION == "yes") && $PIPELINE == "controller-only"
 
-robot:catalog:independents:
+robot:catalog:
   stage: robot-test-install
   tags:
     - docker-runner
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c regression/01__installation \
-      -t 02__installPMOApps \
+    python3 -m run.runner -c regression/02__catalog \
       -r $ROBOT_ZEPHYR_CYCLE \
       -p $ROBOT_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: false
-  needs:
-    - job: "Sensor Setup"
-      optional: true
-    - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "Service Setup"
-      optional: true
-    - job: robot:deploy_kit
-      optional: true
-  rules:
-    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
-    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
-    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
-robot:catalog:community:
-  stage: robot-test-install
-  tags:
-    - docker-runner
-  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
-  extends: .setup-robot-script
-  script: |
-    python3 -m run.runner -c regression/01__installation \
-      -t 02__installCommunityApps \
-      -r $ROBOT_ZEPHYR_CYCLE \
-      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: false
-  needs:
-    - job: "Sensor Setup"
-      optional: true
-    - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "Service Setup"
-      optional: true
-    - job: robot:deploy_kit
-      optional: true
-  rules:
-    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
-    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
-    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
-robot:catalog:arkime:
-  stage: robot-test-install
-  tags:
-    - docker-runner
-  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
-  extends: .setup-robot-script
-  script: |
-    python3 -m run.runner -c regression/01__installation \
-      -t 02__installArkime \
-      -r $ROBOT_ZEPHYR_CYCLE \
-      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
-      -v HOST:$controller_ip \
-      -v HOST_USERNAME:root \
-      -v HOST_PASSWORD:$password \
-      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
-  artifacts:
-    untracked: true
-    when: always
-  allow_failure: false
-  needs:
-    - job: "Sensor Setup"
-      optional: true
-    - job: "Hardware Sensor Setup"
-      optional: true
-    - job: "Service Setup"
-      optional: true
-    - job: robot:deploy_kit
-      optional: true
-  rules:
-    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
-    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
-    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
-  retry: 2
-
-robot:catalog:CHM:
-  stage: robot-test-install
-  tags:
-    - docker-runner
-  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
-  extends: .setup-robot-script
-  script: |
-    python3 -m run.runner -c regression/01__installation \
-      -t 02__installCortexMispHive \
-      -r $ROBOT_ZEPHYR_CYCLE \
-      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
+      -b $ROBOT_BROWSER -h -pb \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
@@ -216,10 +110,7 @@ robot:add_virtual_nodes:
     when: always
   allow_failure: true
   needs:
-    - job: robot:catalog:independents
-    - job: robot:catalog:community
-    - job: robot:catalog:arkime
-    - job: robot:catalog:CHM
+    - job: robot:catalog
   rules:
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
