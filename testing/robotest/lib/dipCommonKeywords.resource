@@ -28,11 +28,12 @@ Open SSH Connection
     Generate Global API Auth Token
 
 Runner Open Browser
-    [Arguments]                ${host}  ${browser}
+    [Arguments]  ${host}  ${browser}
     [Documentation]  This keyword, along with the Open Chrome keyword, is necessary for Chrome to work within a Docker container.
     Log                        Opening browser to https://${host} in ${browser}
     Run Keyword If             'chrome' in '${browser}'      Open Chrome    ${host}    ${browser}
     ...                        ELSE                          Open Firefox    ${host}    ${browser}
+    Wait Until Page Contains   CVA/H Controller Single Sign On
 
 Open Chrome
     [Arguments]                ${host}  ${browser}

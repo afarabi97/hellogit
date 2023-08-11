@@ -55,11 +55,12 @@ Verify MIP Was Added
         shoot  provision-state
         ${prov_state_icon} =  inject  ${tmplLocMipProvState}  ${mip_name}
         Wait Until Element Does Not Contain  ${prov_state_icon}  radio_button_checked  timeout=30m
-        Wait Until Element Does Not Contain  ${prov_state_icon}  timelapse  timeout=30m
+        Wait Until Element Does Not Contain  ${prov_state_icon}  timelapse  timeout=1h
         ${prov_state_text} =  Get Text  ${prov_state_icon}
         IF  '${prov_state_text}' == 'cancel'
             click  ${prov_state_icon}
             click  ${prov_state_icon}//div
+            Wait Until Element Is Enabled  ${locConsoleRefreshBtn}
             click  ${locConsoleRefreshBtn}
             shoot  clicking-refresh-confirm-button
             click  ${locConsoleConfirmBtn}
@@ -80,5 +81,6 @@ Delete MIP
     IF  ${count} > 0
         click  ${delete_button}
         click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
-        Sleep  3s
+        Wait Until Page Does Not Contain Element  ${delete_button}
+        Wait Until Page Does Not Contain  ${hostname}
     END
