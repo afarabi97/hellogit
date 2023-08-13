@@ -150,8 +150,12 @@ class DriveCreationThread(DriveSuperThread):
 
         self.drive_creation_path = f"{self.drive_settings.drive_creation_path}/{self.drive_settings.staging_export_path}/v{self.drive_settings.drive_creation_version}"
         self.multiboot_path = f"{self.drive_creation_path}/MULTIBOOT"
-        self.multiboot_img = "MULTIBOOT.img"
-        self.multiboot_img_staging = f"{self.multiboot_path}/{self.multiboot_img}"
+        self.multiboot_img_mbr = "mbr.bin"
+        self.multiboot_img_p1 = "multiboot-p1.img.gz.000"
+        self.multiboot_img_p2 = "multiboot-p2.img.gz.000"
+        self.multiboot_img_mbr_staging = f"{self.multiboot_path}/{self.multiboot_img_mbr}"
+        self.multiboot_img_p1_staging = f"{self.multiboot_path}/{self.multiboot_img_p1}"
+        self.multiboot_img_p2_staging = f"{self.multiboot_path}/{self.multiboot_img_p2}"
         self.mount_path = f"/mnt/{self.thread_id}"
         self.multi1_path = f"{self.mount_path}/MULTI1"
         self.multi2_path = f"{self.mount_path}/MULTI2"
@@ -166,7 +170,7 @@ class DriveCreationThread(DriveSuperThread):
         self.Error_Check( self.remote_sudo_cmd(f"mkdir -p {self.multi1_path} {self.multi2_path} {self.ntfs_data_path} {self.xfs_data_path}"), 21)
 
     def _clear_the_disk(self):
-        self.Error_Check( self.remote_sudo_cmd(f"dd if=/dev/zero of={self.drive_path} bs=65536 count=100 status=none", warn=True), 22)
+        self.Error_Check( self.remote_sudo_cmd(f"dd if=/dev/zero of={self.drive_path} bs=1M count=1 status=none", warn=True), 22)
 
     def _unmount(self):
         self.remote_sudo_cmd(f"umount {self.drive_path}*", warn=True)
@@ -174,33 +178,25 @@ class DriveCreationThread(DriveSuperThread):
         self.remote_sudo_cmd(f"cryptsetup -v luksClose /dev/mapper/luksData{self.thread_id}", warn=True)
 
     def _burn_image_to_disk(self):
-        self.Error_Check( self.remote_sudo_cmd(f"dd bs=65536 if={self.multiboot_img_staging} of={self.drive_path} status=none"), 1)
+        self.Error_Check( self.remote_sudo_cmd(f"dd bs=512 count=1 if={self.multiboot_img_mbr_staging} of={self.drive_path} status=none"), 1)
+        self.Error_Check( self.remote_sudo_cmd(f"partprobe {self.drive_path}"), 5)
+        self.Error_Check( self.remote_sudo_cmd(f"partimage -z1 -B=0 restore {self.drive_path}1 {self.multiboot_img_p1_staging}"), 1)
+        self.Error_Check( self.remote_sudo_cmd(f"partimage -z1 -B=0 restore {self.drive_path}2 {self.multiboot_img_p2_staging}"), 1)
         self.Error_Check( self.remote_sudo_cmd(f"sync {self.drive_path}"), 2)
         self.Error_Check( self.remote_sudo_cmd(f"partprobe {self.drive_path}"), 5)
 
     def _fix_partition_five_and_six(self):
-        # Deletes partion 5 and 6 because they are jacked and recreates them
-        # with appropriate partition IDs.
-
+        self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart extended 32.2GB 100%"), 3)
         if(self.drive_size > 1500):
             self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical ntfs 32.2GB 400.2GB"), 3)
-            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical 400.2GB 2000GB"), 4)
-            #self.Error_Check( self.remote_sudo_cmd(f"mkfs.xfs /dev/mapper/luksData{self.thread_id}"), 4)
+            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical 400.2GB 100%"), 4)
         else:
-            self.Error_Check( self.remote_sudo_cmd(f"sfdisk {self.drive_path} --delete 3"), 3)
-            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart extended 32.2GB 1000GB"), 3)
             self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical ntfs 32.2GB 200.2GB"), 3)
-            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical 200.2GB 1000GB"), 4)
-            #self.Error_Check( self.remote_sudo_cmd(f"mkfs.xfs /dev/mapper/luksData{self.thread_id}"), 4)
-
+            self.Error_Check( self.remote_sudo_cmd(f"parted {self.drive_path} mkpart logical 200.2GB 100%"), 4)
         self.Error_Check( self.remote_sudo_cmd(f"sync {self.drive_path}"), 20)
         self.Error_Check( self.remote_sudo_cmd(f"partprobe {self.drive_path}"), 5)
         sleep(10)
         self._create_luks_partitions()
-        # self.Error_Check( self.remote_sudo_cmd(f"bash -c 'echo -n {self.drive_settings.luks_password} | base64 -d | cryptsetup -y -v luksFormat {self.drive_path}6 -d -'"), 4)
-        # sleep(10)
-        # self.Error_Check( self.remote_sudo_cmd(f"bash -c 'echo -n {self.drive_settings.luks_password} | base64 -d | cryptsetup -v luksOpen {self.drive_path}6 luksData{self.thread_id} -d -'"), 4)
-        # sleep(10)
 
     def _create_ntfs_data_partition(self):
         self.Error_Check( self.remote_sudo_cmd(f"mkfs.ntfs {self.drive_path}5 -f -L NTFSDATA"), 6)

@@ -19,7 +19,9 @@ MULTIBOOT:
 
 - app: img
   src:
-    - Repo/MULTIBOOT/img/3.0/MULTIBOOT.img
+    - Repo/MULTIBOOT/img/4.0/mbr.bin
+    - Repo/MULTIBOOT/img/4.0/multiboot-p1.img.gz.000
+    - Repo/MULTIBOOT/img/4.0/multiboot-p2.img.gz.000
   dest: MULTIBOOT
 
 CPT:
