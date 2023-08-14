@@ -43,7 +43,13 @@ export class GlobalJobService extends ApiService<any> implements GlobalJobServic
     const url: string = `${environment.JOB_SERVICE_BASE}${job_id}`;
 
     return this.httpClient_.get<BackgroundJobInterface>(url)
-      .pipe(map((response: BackgroundJobInterface) => new BackgroundJobClass(response)),
+      .pipe(map((response: BackgroundJobInterface) => {
+              if (Object.keys(response).length > 0 ) {
+                return new BackgroundJobClass(response);
+              } else {
+                return response;
+              }
+            }),
             catchError((error: HttpErrorResponse) => this.handleError('job get', error)));
   }
 

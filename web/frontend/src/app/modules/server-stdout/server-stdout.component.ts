@@ -203,6 +203,11 @@ export class ServerStdoutComponent implements OnInit {
           if (ObjectUtilitiesClass.notUndefNull(response.status) && response.status === 'failed') {
             this.allow_retry = true;
           }
+
+          if (Object.keys(response).length === 0) {
+            const message: string = 'Job has already finished or is no longer available';
+            this.mat_snackbar_service_.displaySnackBar(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
         },
         (error: ErrorMessageClass | HttpErrorResponse) => {
           if (error instanceof ErrorMessageClass) {
