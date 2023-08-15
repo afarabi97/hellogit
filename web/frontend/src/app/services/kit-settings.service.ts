@@ -115,7 +115,13 @@ export class KitSettingsService extends ApiService<any> {
   getGeneralSettings(): Observable<GeneralSettingsClass> {
     const url = `/api/settings/general`;
     return this.httpClient_.get(url)
-      .pipe(map((response: GeneralSettingsInterface) => new GeneralSettingsClass(response)),
+      .pipe(map((response: GeneralSettingsInterface) => {
+              if (ObjectUtilitiesClass.notUndefNull(response)) {
+                return new GeneralSettingsClass(response);
+              } else {
+                throwError({ "error_message": "Data has not been setup please update and save general settings" });
+              }
+            }),
             catchError((error: HttpErrorResponse) => this.handleError('get general settings', error)));
   }
 

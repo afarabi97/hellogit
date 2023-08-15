@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angu
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
-import { BackgroundJobClass, GeneralSettingsClass, KitStatusClass } from '../../../../classes';
+import { BackgroundJobClass, GeneralSettingsClass, KitStatusClass, ObjectUtilitiesClass } from '../../../../classes';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
 import { KitStatusInterface, ServerStdoutMatDialogDataInterface } from '../../../../interfaces';
 import { GlobalJobService } from '../../../../services/global-job.service';
@@ -21,7 +21,7 @@ export class GeneralSettingsPaneComponent implements OnInit, OnChanges {
   @Input() hasTitle: boolean;
   @Input() generalSettings: Partial<GeneralSettingsClass>;
   @Input() kitStatus: Partial<KitStatusClass>;
-  @Input() controllerInfo: any = {};
+  @Input() controllerInfo: any;
   @Output() public getGeneralSettings = new EventEmitter<any>();
   generalSettingsForm: FormGroup;
   dhcp_range_options: string[] = [];
@@ -145,7 +145,6 @@ export class GeneralSettingsPaneComponent implements OnInit, OnChanges {
       this.generalSettingsForm.get('gateway').setValue(this.controllerInfo['gateway']);
       this.generalSettingsForm.get('netmask').setValue(this.controllerInfo['netmask']);
       this.dhcp_range_options = this.controllerInfo['cidrs'];
-      this.generalSettings.dhcp_range = this.controllerInfo['dhcp_range'];
       this.unused_ip_addresses = this.controllerInfo['cidrs'];
   }
 }
