@@ -329,8 +329,8 @@ export class MipManagementComponent implements OnInit {
             field_keys.forEach((key: string, key_index: number) => {
               error.messages[key].forEach((message: string, error_message_index: number) => {
                 error_message += `${key}: ${message}`;
-
-                if (((error.messages[key].length - 1) < error_message_index) && ((field_keys.length - 1) < key_index)) {
+                /* istanbul ignore else */
+                if (((error.messages[key].length - 1) > error_message_index) || ((field_keys.length - 1) > key_index)) {
                   error_message += '\n';
                 }
               });

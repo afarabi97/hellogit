@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
-import { ErrorMessageClass, ObjectUtilitiesClass, PostValidationClass } from '../../classes';
+import { ErrorMessageClass, ObjectUtilitiesClass, PostValidationClass, ValidationErrorClass } from '../../classes';
 import { MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS } from '../../constants/cvah.constants';
 import { ApiServiceInterface, EntityConfig } from '../../interfaces';
 import { InjectorModule } from '../../modules/utilily-modules/injector.module';
@@ -65,6 +65,12 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
         const post_validation_message: PostValidationClass = new PostValidationClass(httpErrorResponse.error);
 
         return throwError(post_validation_message);
+      } else if (httpErrorResponse.error && httpErrorResponse.error['status'] && httpErrorResponse.error['messages']) {
+        this.matSnackBarService.displaySnackBar(JSON.stringify(httpErrorResponse.error));
+
+        const validation_error_message: ValidationErrorClass = new ValidationErrorClass(httpErrorResponse.error);
+
+        return throwError(validation_error_message);
       } else if (httpErrorResponse.error && httpErrorResponse.error['message']) {
         this.matSnackBarService.displaySnackBar(httpErrorResponse.error['message']);
       } else{
@@ -90,9 +96,13 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
     if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error) &&
         ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['error_message'])) {
       this.matSnackBarService.displaySnackBar(httpErrorResponse.error['error_message'], MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS);
-    } if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error) &&
-          ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['post_validation'])) {
+    } else if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error) &&
+               ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['post_validation'])) {
       this.matSnackBarService.displaySnackBar(httpErrorResponse.error['post_validation'], MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS);
+    } else if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error) &&
+               ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['status']) &&
+               ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['messages'])) {
+      this.matSnackBarService.displaySnackBar(JSON.stringify(httpErrorResponse.error), MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS);
     } else if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse.message)) {
       this.matSnackBarService.displaySnackBar(httpErrorResponse.message, MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS);
     } else {
@@ -125,6 +135,10 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
       } else if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error) &&
                  ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['post_validation'])) {
         error_message = httpErrorResponse.error['post_validation'];
+      } else if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error) &&
+                 ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['status']) &&
+                 ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['messages'])) {
+        error_message = JSON.stringify(httpErrorResponse.error);
       } else {
         error_message = httpErrorResponse.error;
       }
