@@ -5,7 +5,7 @@ robot:sso_login:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c regression/01__installation \
+    python3 -m run.runner -c regression/00__installation \
       -t 00__dipInitialSSOLogin \
       -r $ROBOT_ZEPHYR_CYCLE \
       -p $ROBOT_ZEPHYR_PROJECT_VERSION \
@@ -32,7 +32,7 @@ robot:deploy_kit:
   extends: .setup-robot-script
   script: |
     vcenter_password=`echo "$VCENTER_PASSWORD" | base64 -d`
-    python3 -m run.runner -c regression/01__installation \
+    python3 -m run.runner -c regression/00__installation \
       -t 01__dipDeployKit \
       -r $ROBOT_ZEPHYR_CYCLE \
       -p $ROBOT_ZEPHYR_PROJECT_VERSION \
@@ -62,7 +62,7 @@ robot:catalog:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c regression/02__catalog \
+    python3 -m run.runner -c regression/01__catalog \
       -r $ROBOT_ZEPHYR_CYCLE \
       -p $ROBOT_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h -pb \
@@ -96,11 +96,11 @@ robot:add_virtual_nodes:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c regression/01__installation \
-      -t 03__addVirtualNodes \
+    python3 -m run.runner -c regression/02__nodes \
+      -t 00__addVirtualNodes \
       -r $ROBOT_ZEPHYR_CYCLE \
       -p $ROBOT_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
+      -b $ROBOT_BROWSER -h -pb \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \
@@ -126,7 +126,7 @@ robot:operations:
   script: |
     curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
     curl -k -o /usr/src/robot/data-with-image_robot.pcap  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/pcap/data-with-image_robot.pcap
-    python3 -m run.runner -c "regression/02__operations" \
+    python3 -m run.runner -c "regression/03__operations" \
       -r $ROBOT_ZEPHYR_CYCLE \
       -p $ROBOT_ZEPHYR_PROJECT_VERSION \
       -b $ROBOT_BROWSER -h \
@@ -153,11 +153,11 @@ robot:cleanup:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c regression/03__cleanup \
+    python3 -m run.runner -c regression/04__cleanup \
       -t 00__dipCleanup \
       -r $ROBOT_ZEPHYR_CYCLE \
       -p $ROBOT_ZEPHYR_PROJECT_VERSION \
-      -b $ROBOT_BROWSER -h \
+      -b $ROBOT_BROWSER -h -pb \
       -v HOST:$controller_ip \
       -v HOST_USERNAME:root \
       -v HOST_PASSWORD:$password \

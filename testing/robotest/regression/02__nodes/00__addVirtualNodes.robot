@@ -16,20 +16,30 @@ Test Teardown     Run Keywords             Log Out Of Controller  AND  Close All
 Suite Teardown    Close All Connections
 
 *** Test Cases ***
-Add Additional Nodes And MIP - Virtual
-    [Tags]  THISISCVAH-13785
-    [Documentation]  Adds one of each type of virtual node (server, sensor, service, MIP) to the kit
-    Set Selenium Speed  0.5s
+Add Virtual MIP
+    [Tags]  THISISCVAH-14418
+    [Documentation]  Adds a virtual MIP to the DIP kit
     Navigate To MIP Management
     Enter Virtual MIP Information  mip_hostname=robottest-mip
+    Wait Until Keyword Succeeds  3x  5s  Verify MIP Was Added  robottest-mip
 
+Add Virtual Server Node
+    [Tags]  THISISCVAH-14415
+    [Documentation]  Adds a virtual server to the DIP kit
     Navigate To Node Management
     Enter Virtual Node Information  node_type=Server  hostname=robottest-server
-    Enter Virtual Node Information  node_type=Sensor  hostname=robottest-sensor
-    Enter Virtual Node Information  node_type=Service  hostname=robottest-service
+    Verify Node Was Added  robottest-server
 
+Add Virtual Sensor Node
+    [Tags]  THISISCVAH-14416
+    [Documentation]  Adds a virtual sensor to the DIP kit
     Navigate To Node Management
-    Verify Node Was Added  robottest-server  robottest-sensor  robottest-service
+    Enter Virtual Node Information  node_type=Sensor  hostname=robottest-sensor
+    Verify Node Was Added  robottest-sensor
 
-    Navigate To MIP Management
-    Wait Until Keyword Succeeds  3x  5s  Verify MIP Was Added  robottest-mip
+Add Virtual Service Node
+    [Tags]  THISISCVAH-14417
+    [Documentation]  Adds a virtual service node to the DIP kit
+    Navigate To Node Management
+    Enter Virtual Node Information  node_type=Service  hostname=robottest-service
+    Verify Node Was Added  robottest-service

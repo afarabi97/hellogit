@@ -46,8 +46,7 @@ Enter Virtual Node Information
         click  ${tmplLocNodeMgmtAddNodeDialogRadioBtn}  injector=${node_type}
         click  ${locNodeMgmtAddNodeDialogVMRadioBtn}
         type  ${locNodeMgmtHostnameInput}  ${hostname}
-        click  ${locNodeMgmtAddNodeDialogIpAddressInput}
-        click  ${locNodeMgmtAddNodeDialogIpAddressDropdownOpt1}
+        Select Node IP Address  ${node_type}
         Wait Until Element Is Enabled  ${locNodeMgmtAddNodeDialogSubmitBtn}
         click  ${locNodeMgmtAddNodeDialogSubmitBtn}
         log  Completed entering virtual node information.
@@ -56,6 +55,18 @@ Enter Virtual Node Information
         lookForElement  ${verify_element}  timeout=30m
     ELSE
         log  Node with name "${hostname}" already exists.
+    END
+
+Select Node IP Address
+    [Arguments]  ${node_type}
+    [Documentation]  Server and Service nodes use same range for last octet, so
+    ...              if adding a service node, use last option instead of first
+    click  ${locNodeMgmtAddNodeDialogIpAddressInput}
+    ${last_option} =  Get Element Count  xpath=//mat-option
+    IF  '${node_type}' == 'Service'
+        click  xpath=//mat-option[position()=${last_option}]
+    ELSE
+        click  ${locNodeMgmtAddNodeDialogIpAddressDropdownOpt1}
     END
 
 Check If Node Exists
@@ -102,7 +113,8 @@ Delete Node
     IF  ${count} > 0
         click  ${delete_button}
         click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
-        Sleep  3s
+        Wait Until Page Does Not Contain Element  ${delete_button}  1m
+        Wait Until Page Does Not Contain  ${hostname}
     END
 
 Verify Node Was Deleted

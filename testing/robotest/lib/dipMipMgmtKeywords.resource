@@ -81,6 +81,6 @@ Delete MIP
     IF  ${count} > 0
         click  ${delete_button}
         click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
-        Wait Until Page Does Not Contain Element  ${delete_button}
+        Wait Until Page Does Not Contain Element  ${delete_button}  1m
         Wait Until Page Does Not Contain  ${hostname}
     END

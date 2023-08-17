@@ -31,19 +31,23 @@ Uninstall Apps From Catalog Page
     Set Selenium Speed            0.5s
     Clean Up Catalog Page
 
-Remove Additional Nodes And MIP - Virtual
-    [Tags]  THISISCVAH-13786
-    [Documentation]  Removes virtual nodes and MIP that were added in the 03__addVirtualNodes test suite
-    Set Selenium Speed  0.5s
+Delete Virtual Sensor Node
+    [Tags]  THISISCVAH-14419
+    [Documentation]  Deletes a virtual Sensor on the DIP kit
     Navigate To Node Management
     Delete Node  hostname=robottest-sensor
-    Delete Node  hostname=robottest-service
+    Verify Node Was Deleted  robottest-sensor
 
+Delete Virtual Serice Node
+    [Tags]  THISISCVAH-14420
+    [Documentation]  Deletes a virtual Service node on the DIP kit
+    Navigate To Node Management
+    Delete Node  hostname=robottest-service
+    Verify Node Was Deleted  robottest-service
+
+Delete Virutal MIP
+    [Tags]  THISISCVAH-14421
+    [Documentation]  Deletes a virtual MIP on the DIP kit
     Navigate To MIP Management
     Delete MIP  hostname=robottest-mip
-
-    Navigate To Node Management
-    Verify Node Was Deleted  robottest-sensor  robottest-service
-
-    Navigate To MIP Management
     Verify Node Was Deleted  robottest-mip
