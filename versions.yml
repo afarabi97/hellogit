@@ -115,7 +115,7 @@ helm_versions:
   netflow_filebeat: 1.0.4
   nifi: 1.0.6
   redmine: 1.0.5
-  remote_health_agent: 1.0.2
+  remote_health_agent: 1.0.3
   rocketchat: 1.1.20
   suricata: 1.0.4
   wikijs: 1.0.4

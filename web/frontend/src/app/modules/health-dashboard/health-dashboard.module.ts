@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ChartsModule } from 'ng2-charts';
 
 import { GlobalComponentsModule } from '../global-components/global-components.module';
 import { NGXMonacoTextEditorModule } from '../ngx-monaco-text-editor/ngx-monaco-text-editor.module';
@@ -25,6 +26,7 @@ import { HealthService } from './services/health.service';
     ReactiveFormsModule,
     MaterialModule,
     BrowserAnimationsModule,
+    ChartsModule,
     PipesModule,
     NGXMonacoTextEditorModule,
     GlobalComponentsModule

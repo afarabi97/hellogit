@@ -8,6 +8,7 @@ from app.utils.connection_mngs import KubernetesWrapper
 from app.utils.elastic import ElasticWrapper, get_elastic_password
 from app.utils.logging import logger
 from app.utils.namespaces import APP_NS, HEALTH_NS
+from app.utils.constants import (METRICS_ROLES)
 from app.utils.utils import get_domain
 from flask import Response
 from flask_restx import Resource, fields
@@ -18,7 +19,7 @@ from app.middleware import login_required_roles
 @HEALTH_NS.route("/dashboard/status")
 class HealthDashboardStatus(Resource):
     @HEALTH_NS.response(200, "Dashboard Status")
-    @login_required_roles()
+    @login_required_roles(roles=METRICS_ROLES)
     def get(self) -> Response:
         status = []
         elastic_status = {}
@@ -92,7 +93,7 @@ class RemoteHealthDashboardStatus(Resource):
 @HEALTH_NS.route("/hostname")
 class Hostname(Resource):
     @HEALTH_NS.response(200, "Hostname", fields.String())
-    @login_required_roles()
+    @login_required_roles(roles=METRICS_ROLES)
     def get(self) -> Response:
         try:
             response = mongo_settings().find_one(
@@ -107,7 +108,7 @@ class Hostname(Resource):
 @APP_NS.route("/kibana/info")
 class KibanaLoginInfo(Resource):
     @APP_NS.response(200, "Kibana Login Info")
-    @login_required_roles()
+    @login_required_roles(roles=METRICS_ROLES)
     def get(self) -> Response:
         try:
             kibana_info = {}

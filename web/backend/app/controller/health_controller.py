@@ -23,7 +23,7 @@ from app.service.socket_service import (NotificationCode, NotificationMessage,
 from app.utils import snmp
 from app.utils.collections import mongo_kit_tokens, mongo_metrics
 from app.utils.connection_mngs import KubernetesWrapper
-from app.utils.constants import NODE_TYPES
+from app.utils.constants import NODE_TYPES, METRICS_ROLES
 from app.utils.elastic import ElasticWrapper
 from app.utils.logging import logger
 from app.utils.namespaces import APP_NS, HEALTH_NS, KUBERNETES_NS
@@ -31,6 +31,7 @@ from bson import ObjectId
 from flask import Response, request
 from flask_restx import Resource, fields
 from kubernetes.client.models.v1_pod_list import V1PodList
+import json
 
 
 @KUBERNETES_NS.route("/pod/describe/<pod_name>/<namespace>")
@@ -98,7 +99,7 @@ class DescribeNode(Resource):
 class NodesStatus(Resource):
     @KUBERNETES_NS.doc(description="Gets the nodes status.")
     @KUBERNETES_NS.response(200, "PodsStatus", [KubernetesNodeMetricsModel.DTO])
-    @login_required_roles()
+    @login_required_roles(roles=METRICS_ROLES)
     def get(self) -> Response:
         try:
             return get_nodes_status()
@@ -111,7 +112,7 @@ class NodesStatus(Resource):
 class PodsStatus(Resource):
     @KUBERNETES_NS.doc(description="Gets the pods status.")
     @KUBERNETES_NS.response(200, "NodeStatus", [KubernetesPodMetricsModel.DTO])
-    @login_required_roles()
+    @login_required_roles(roles=METRICS_ROLES)
     def get(self) -> Response:
         try:
             return get_pods_status()
@@ -192,16 +193,19 @@ class SNMPAlerts(Resource):
 class RemoteAgent(Resource):
     @HEALTH_NS.response(204, "RemoteHealthData")
     @login_required_roles(
-        ["metrics", "operator", "controller-admin", "controller-maintainer"],
+        ["metrics"],
         all_roles_req=False,
     )
     def post(self) -> Response:
         try:
             payload = request.get_json()
-            payload["timestamp"] = time.time()
-            ipaddress = payload["ipaddress"]
-            mongo_kit_tokens().replace_one({"ipaddress": ipaddress}, payload)
-            return NO_CONTENT
+            if(payload != None and len(payload)>0):
+                logger.debug(payload)
+                json_payload = json.loads(payload)
+                json_payload["timestamp"] = time.time()
+                ipaddress = json_payload["ipaddress"]
+                mongo_kit_tokens().replace_one({"ipaddress": ipaddress}, json_payload)
+                return NO_CONTENT
         except Exception as e:
             logger.exception(e)
         return ERROR_RESPONSE
@@ -243,7 +247,7 @@ class Datastores(Resource):
 @APP_NS.route("/elasticsearch/rejects")
 class WriteRejects(Resource):
     @APP_NS.response(200, "Elasticsearch Write Rejects", [fields.Raw()])
-    @login_required_roles()
+    @login_required_roles(roles=METRICS_ROLES)
     def get(self) -> Response:
         try:
             rejected = []
@@ -278,7 +282,7 @@ class RemoteWriteRejects(Resource):
 @APP_NS.route("/zeek/packets")
 class ZeekPackets(Resource):
     @APP_NS.response(200, "Zeek Packets")
-    @login_required_roles()
+    @login_required_roles(roles=METRICS_ROLES)
     def get(self) -> Response:
         zeek_stats = []
 
@@ -329,7 +333,7 @@ class ZeekPackets(Resource):
 @APP_NS.route("/suricata/packets")
 class SuricataPackets(Resource):
     @APP_NS.response(200, "Suricata Packets")
-    @login_required_roles()
+    @login_required_roles(roles=METRICS_ROLES)
     def get(self) -> Response:
         suricata_stats = []
 

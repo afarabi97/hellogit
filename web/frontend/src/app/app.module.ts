@@ -4,7 +4,6 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ChartsModule } from 'ng2-charts';
 
 import { AppLoadService } from './services/app-load.service';
 import { CookieService } from './services/cookies.service';
@@ -84,7 +83,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     SystemSettingsModule,
     ToolsModule,
     InjectorModule,
-    ChartsModule,
     PipesModule
   ],
   providers: [
