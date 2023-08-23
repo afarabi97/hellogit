@@ -12,48 +12,69 @@ SHARED:
 
 - type: DIP Guides
   titles:
-    - v3.7 R440 Common Node Deployable Interceptor Platform (DIP) Training Guide
-    - v3.7 R440 Legacy Deployable Interceptor Platform (DIP) Training Guide
+    # - v3.7 R440 Common Node Deployable Interceptor Platform (DIP) Training Guide
+    # - v3.7 R440 Legacy Deployable Interceptor Platform (DIP) Training Guide
     - v3.7 R440 Legacy Deployable Interceptor Platform (DIP) Maintenance Guide
     - v3.7 R440 Common Node Deployable Interceptor Platform (DIP) Maintenance Guide
     - v3.7 Deployable Interceptor Platform (DIP) Troubleshooting Guide
+    - v3.7 Deployable Interceptor Platform (DIP) Maintenance Guides
     - v3.7 Deployable Interceptor Platform (DIP) Operations Guide
-    # - v3.7 R440 Common Node Deployable Interceptor Platform (DIP) Architecture
-    # - v3.7 R440 Legacy Deployable Interceptor Platform (DIP) Architecture
-    # - v3.7 7720 Mobile Interceptor Platform (MIP) Architecture
-    # - v3.7 7730 Mobile Interceptor Platform (MIP) Architecture
-    # - v3.7 7750 Mobile Interceptor Platform (MIP) Architecture
-    - v3.7 Appendix A - Enterprise IP Tables
+    - v3.7 Deployable Interceptor Platform (DIP) Installation Guides
+    - v3.7.1 Supplemental Guide
+    - v3.7.2 Supplemental Guide
+    - v3.7 Summary of Changes
+    - v3.7 Glossary
+  dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/Guides"
+
+- type: DIP Appendixes
+  titles:
     - v3.7 Appendix B - DIP Kit IP Configuration
     - v3.7 Appendix C - Spare Network
-    - v3.7.2 Supplemental Guide
-  dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/Guides"
+  dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/Guides/Appendixes"
 
 #### CPT ONLY Documents ####
 CPT:
 - type: VDD
   titles:
-    - v3.7.2 Cyber Protection Team (CPT) VDD
-    - v3.7.1 Cyber Protection Team (CPT) VDD
     - v3.7 Cyber Protection Team (CPT) VDD
-    - v3.7 Glossary
+    - v3.7.1 Cyber Protection Team (CPT) VDD
+    - v3.7.2 Cyber Protection Team (CPT) VDD
   dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/VDD"
+
+- type: Appendixes
+  titles:
+    - v3.7 Appendix A - 1 Remote CPT Table
+    - v3.7 Appendix A - 4 NCPT Enterprise IP Table
+  dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/Guides/Appendixes"
 
 #### MDT ONLY Documents ####
 MDT:
 - type: VDD
   titles:
-    - v3.7.2 Mission Defense Team (MDT) VDD
-    - v3.7.1 Mission Defense Team (MDT) VDD
     - v3.7 Mission Defense Team (MDT) VDD
-    - v3.7 Glossary
+    - v3.7.1 Mission Defense Team (MDT) VDD
+    - v3.7.2 Mission Defense Team (MDT) VDD
   dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/VDD"
+
+- type: Appendixes
+  titles:
+    - "v3.7 Appendix A - 3.2 MDT Enterprise IP Table (2nd Subnet: 133-137)"
+    - "v3.7 Appendix A - 3.3 MDT Enterprise IP Table (2nd Subnet: 138-142)"
+    - "v3.7 Appendix A - 3.4 MDT Enterprise IP Table (2nd Subnet: 143-147)"
+    - "v3.7 Appendix A - 3.5 MDT Enterprise IP Table (2nd Subnet: 148-152)"
+    - "v3.7 Appendix A - 3.6 MDT Enterprise IP Table (2nd Subnet: 153-157)"
+    - "v3.7 Appendix A - 3.7 MDT Enterprise IP Table (2nd Subnet: 158-162)"
+    - "v3.7 Appendix A - 3.8 MDT Enterprise IP Table (2nd Subnet: 163-167, 233)"
+    - "v3.7 Appendix A - 3.9 MDT Enterprise IP Table (2nd Subnet: 168-169)"
+  dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/Guides/Appendixes"
 
 #### GIP Documents ####
 GIP:
 - type: Docs
   titles:
     - v3.7 Garrison Interceptor Platform (GIP) VDD
+    - v3.7.1 Garrison Interceptor Platform (GIP) VDD
+    - v3.7.2 Garrison Interceptor Platform (GIP) VDD
     - v3.7.1 Supplemental Guide
     - v3.7.2 Supplemental Guide
     - v3.7 Garrison Interceptor Platform (GIP) Installation Guide (PMO Only)
@@ -62,6 +83,5 @@ GIP:
     - v3.7 Garrison Interceptor Platform (GIP) Troubleshooting Guide
     - v3.7 Appendix A - 2 GIP Enterprise IP Plan
     - v3.7 Summary of Changes
-    - v3.7.1 Summary of Changes
-    - v3.7.2 Summary of Changes
+    - v3.7 Glossary
   dest: "GIP/Data/CVAH {{ VERSION }}/Documentation"
