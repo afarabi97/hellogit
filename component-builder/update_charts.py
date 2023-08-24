@@ -1,6 +1,8 @@
 import argparse
 import os
 from pathlib import Path
+import subprocess
+import sysconfig
 from typing import Dict
 
 import requests
@@ -16,12 +18,33 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 CHART_FOLDER = "/opt/tfplenum/charts"
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 HELM_URL = "https://nexus.sil.lab/repository/tfplenum-helm"
-CHART_MUSEUM_URI = "http://localhost:5002/api/charts"
+CHART_MUSEUM_URI = "https://localhost/api/charts"
 
 parser = argparse.ArgumentParser(description='Update local or remote repository')
 parser.add_argument('--chart', choices=['local','remote'], help='Charts will be updated locally or remotely')
 parser.add_argument('--docker', choices=['local'], const="local", nargs='?', help='Docker image will be updated in local docker registry')
 args = parser.parse_args()
+
+
+def get_local_auth_header(content_type: str = "application/json") :
+    """
+    Returns the authorization header for local authentication.
+
+    Args:
+        content_type (str): The content type of the request. Defaults to "application/json".
+
+    Returns:
+        dict: The authorization header with the bearer token and content type.
+    """
+    # trunk-ignore(bandit/B603)
+    process = subprocess.Popen(["/opt/tfplenum/.venv/bin/python3", "/opt/sso-idp/gen_api_token.py", "--roles", "operator"], stdout=subprocess.PIPE, shell=False)
+    output, error = process.communicate()
+    if error:
+        print(error)
+        sysconfig.exit(1)
+    token = output.decode("utf-8").strip('\n')
+    return {"Authorization": f"Bearer {token}", "Content-Type": content_type}
+
 
 def download_file(url: str, download_loc: str = None):
     print("Downloading {}".format(url))
@@ -29,7 +52,7 @@ def download_file(url: str, download_loc: str = None):
     if download_loc is not None:
         local_filename= download_loc + "/" + local_filename
 
-    with requests.get(url, stream=True, verify=False) as r:
+    with requests.get(url, stream=True, verify=False ) as r:
         r.raise_for_status()
         with open(local_filename, 'wb') as f:
             for chunk in r.iter_content(chunk_size=8192):
@@ -67,7 +90,8 @@ class NexusHelmChartUpdater:
         chart_name = chart_tar_name[0: pos -1]
         url = CHART_MUSEUM_URI + "/" + chart_name + "/" + chart_version
         print("Deleting {}".format(url))
-        requests.delete(url, verify=False)
+        headers = get_local_auth_header()
+        requests.delete(url, verify=False, headers=headers)
 
     def _push_chart(self, chart_tar_name: str):
         chart_tar_path=CHART_FOLDER + "/" + chart_tar_name
@@ -76,9 +100,9 @@ class NexusHelmChartUpdater:
             data = open(chart_tar_path, 'rb')
 
         if data:
-            headers = {'Content-type': 'application/octet-stream'}
+            headers = get_local_auth_header('application/octet-stream')
             print("Pushing up {}".format(chart_tar_name))
-            r = requests.post(CHART_MUSEUM_URI, data=data, headers=headers)
+            r = requests.post(CHART_MUSEUM_URI, data=data, headers=headers, verify=False)
             if (r.status_code == 200 or r.status_code ==201):
                 print(chart_tar_name + " updated successfully.")
             else:

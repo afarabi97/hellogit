@@ -50,6 +50,9 @@ hosts_file:
 chartmuseum:
 	ansible-playbook $(PLAYBOOK) -i localhost -t chartmuseum
 
+load_charts:
+	ansible-playbook $(PLAYBOOK) -i localhost -t load_charts
+
 bootstrap:
 	@echo $(TFPLENUM_SERVER_IP)
 	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }'

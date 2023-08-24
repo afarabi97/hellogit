@@ -1,13 +1,15 @@
 ---
 
-- name: "Create chart directory"
-  file:
+- name: Create chart directory
+  ansible.builtin.file:
     path: "{{ chart_dir }}"
     state: directory
+    mode: '0755'
   tags: load_charts
 
+# trunk-ignore(checkov/CKV_ANSIBLE_1)
 - name: Download charts to offline repo
-  uri:
+  ansible.builtin.uri:
     url: "https://{{ repo_uri }}/repository/tfplenum-helm/{{ item }}"
     dest: "{{ chart_dir }}/{{ item }}"
     method: GET
@@ -15,23 +17,38 @@
     return_content: yes
     validate_certs: no
   with_items: "{{ helm_packages }}"
-  register: results
-  until: results.status == 200
+  register: load_charts_offline_repo_results
+  until: load_charts_offline_repo_results.status == 200
   retries: 10
   delay: 5
   tags: load_charts
 
-- name: Upload charts into Chartmuseum
-  uri:
-    url: "https://controller/chartmuseum/api/charts"
+- name: Generate Maintainer API key for Chartmuseum
+  ansible.builtin.script: /opt/sso-idp/gen_api_token.py --roles "controller-maintainer" --exp 1.0
+  args:
+    executable: /opt/tfplenum/.venv/bin/python3
+  register: load_charts_maintainer_api_key
+  tags: load_charts
+
+- name: Trim output of gen_api_token.py
+  ansible.builtin.set_fact:
+    load_charts_maintainer_api_key: "{{ load_charts_maintainer_api_key.stdout | replace('\n', '') }}"
+  tags: load_charts
+
+# trunk-ignore(checkov/CKV_ANSIBLE_1)
+- name: Upload charts to Chartmuseum if not already present
+  ansible.builtin.uri:
+    url: https://controller/chartmuseum/api/charts
     src: "{{ chart_dir }}/{{ item }}"
+    headers:
+      Authorization: "Bearer {{ load_charts_maintainer_api_key }}"
     method: POST
-    status_code: 201, 200
+    status_code: 201, 200, 409
     return_content: yes
     validate_certs: no
   with_items: "{{ helm_packages }}"
-  register: results
-  until: results.status == 201 and results.json.saved
+  register: load_charts_upload_results
+  until: load_charts_upload_results.status == 201 and load_charts_upload_results.json.saved or load_charts_upload_results.json.error == "file already exists" and load_charts_upload_results.status == 409
   retries: 10
   delay: 5
   tags: load_charts
