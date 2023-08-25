@@ -114,7 +114,6 @@ CPT:
     - Repo/CPT/VMs/Mockingbird/1.2.0
     - Repo/CPT/VMs/REMnuX/2022.28.1
     - Repo/CPT/VMs/SamuraiSTFU/1.9
-    - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7
     - Repo/CPT/VMs/Windows 10 VM/22H2-19045.2965
   dest: "CPT/Data/CVAH {{ VERSION }}/Software/AppStore"
 

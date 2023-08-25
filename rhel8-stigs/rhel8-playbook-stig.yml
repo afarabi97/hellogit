@@ -1088,6 +1088,7 @@
 - name: "RHEL-08-040350 | MEDIUM | If the Trivial File Transfer Protocol server is required, the daemon must be configured to operate in secure mode."
   lineinfile:
     path: /etc/xinetd.d/tftp
+    regexp: '^server_args'
     line: server_args = -s /var/lib/tftpboot
     create: yes
 

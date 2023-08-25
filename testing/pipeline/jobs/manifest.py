@@ -99,6 +99,14 @@ class BuildManifestJob():
         pos = path.rfind("/")
         return path[pos:]
 
+    def copytree(self, src_path: str, dest_path: str):
+        print("Copy tree call for source: {}  destination: {}".format(src_path, dest_path))
+        shutil.copytree(src_path, dest_path)
+
+    def copy_2(self, src_path: str, dest_path: str):
+        print("Copy 2 call for source: {}  destination: {}".format(src_path, dest_path))
+        shutil.copy2(src_path, dest_path)
+
     def build_manifest(self):
         manifest = load_manifest(self.manifest.manifest_file, self.manifest.type, self.manifest.version)
         self.check_release_folder()
@@ -117,10 +125,10 @@ class BuildManifestJob():
                 self.check_dir_exists(dest_path)
 
                 if os.path.isdir(src_path):
-                    shutil.copytree(src_path, dest_path + app_folder)
+                    self.copytree(src_path, dest_path + app_folder)
                     self.modify_readme(dest_path + app_folder)
                 else:
-                    shutil.copy2(src_path, dest_path)
+                    self.copy_2(src_path, dest_path)
                     self.modify_readme(dest_path)
 
     def execute(self):
