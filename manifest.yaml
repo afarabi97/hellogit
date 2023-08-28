@@ -13,7 +13,7 @@ MULTIBOOT:
 - app: isos
   src:
     - Repo/MULTIBOOT/isos/clonezilla.iso
-    - Repo/MULTIBOOT/isos/fedora-live-lxde-v34-x86_64.iso
+    - Repo/MULTIBOOT/isos/Fedora-lxde-38-x86_64.iso
     - Repo/MULTIBOOT/isos/VMware-VMvisor-Installer-7.0.0.update02-17630552.x86_64-DellEMC_Customized-A00_ks.iso
   dest: MULTIBOOT/isos
 
