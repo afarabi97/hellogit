@@ -2,21 +2,21 @@
 
 TFPlenum is the main project used for building out the CVAH weapon system.  This repository contains all the source code needed to build the entire defensive cyber system either on a hardware platform or on an ESXi server.  TFPlenum in a nut shell is a controller VM loaded with all the dependencies needed to build out a Kubernetes cluster with the ability to deploy out a large set of cyber detection tools on that cluster using HELM charts.  To name a few tools it has as it disposal is the Elasticsearch SIEM engine, Zeek, Suricata, and Arkime.
 
-Furthermore, TFPlenums Controller is also used to setup the Mobile Interceptor Platform (MIP) laptop for Cyber Protection Teams (CPT) as well as Mission Defense Teams (MDT) so operators can affectively carry out their missions with a wide range of tools. 
+Furthermore, TFPlenums Controller is also used to setup the Mobile Interceptor Platform (MIP) laptop for Cyber Protection Teams (CPT) as well as Mission Defense Teams (MDT) so operators can affectively carry out their missions with a wide range of tools.
 
 [[_TOC_]]
 
 
 ## Folder and prominent file overview
 
-This section attempts to highlight the most relevant folders and files relevant to developers or testers. 
+This section attempts to highlight the most relevant folders and files relevant to developers or testers.
 
 - <strong>.spec</strong> - Contains the RPM spec files needed for building the tfplenum and tfplenum-repo RPM packages.
 - <strong>agent_pkgs</strong> - Contains all the agent packages that are deployable to mission partner hosts from the controller.
 - <strong>bootstrap</strong> - Contains all the playbooks needed for setting up the development controller or the production controller.
 - <strong>component-builder</strong> - Build system for building all the Helm charts, Docker containers and RPMs.
   - <strong>components</strong> - This subfolder contains all the files needed to build each subcomponent of the system.  This includes rocketchat, suricata, zeek, wikijs, and much much more.
-  - <strong>build.py</strong> - Gitlab pipeline will use this script to build each component of the system whether it be a Dockerfile, Helm chart, or RPM.  This script may also be run manually. 
+  - <strong>build.py</strong> - Gitlab pipeline will use this script to build each component of the system whether it be a Dockerfile, Helm chart, or RPM.  This script may also be run manually.
   - <strong>cleanup-nexus.sh</strong> - Shell script for deleting old releases out of tfplenum-dev on the SIL's Nexus server.
   - <strong>update_charts.py</strong> - Updates the charts on a development controller. (<strong>NOTE:</strong> This script is not included on a production controller.
 - <strong>core</strong> - Contains all the playbooks needed for setting up the Kubernetes cluster and provisioning out the Servers, Sensors, and Service nodes.
@@ -39,11 +39,11 @@ This section attempts to highlight the most relevant folders and files relevant 
 
 ## SIL Services
 
-| Link | Username/Password | DESCRIPTION | 
+| Link | Username/Password | DESCRIPTION |
 | ---      | ---      | ---      |
 | [VCenter](https://vcenter.sil.lab/) | your domain user/pass | VCenter for both Developers and Testers. |
 | [Nexus Artifact Repository](https://nexus.sil.lab/) | your domain user/pass | Main binary repository used for storing our custom built packages as well as used for caching online resources needed to build the TFPlenum system. |
-| [Sonarqube Services](http://sonarqube.sil.lab:9000/) | admin/?? | Static analysis code tools used within the Gitlab CI/CD pipeline that finds code smells as well as potential bugs. |
+| [Sonarqube Services](http://sonar.sil.lab:9000/) | admin/?? | Static analysis code tools used within the Gitlab CI/CD pipeline that finds code smells as well as potential bugs. |
 | [Service Now](https://afdco.servicenowservices.com/sp) | your help desk user/pass | Help Desk Ticketing system |
 | [Verodin](https://10.30.206.200) | dev-user@sil.local/waterfall | Verodin Malware traffic generation |
 | [Breaking point SFF](https://10.10.103.33/bps/login) | admin/waterfall | Breaking point for Small Form Factor (SFF) |
@@ -58,7 +58,7 @@ This section attempts to highlight the most relevant folders and files relevant 
 
 ## Confluence Guides
 
-| Link | DESCRIPTION | 
+| Link | DESCRIPTION |
 | ---      | ---      |
 | [Install guide](https://confluence.levelup.cce.af.mil/display/THISISCVAH/v3.7+R440+Common+Node+Deployable+Interceptor+Platform+%28DIP%29+Installation+Guide) | Main install guide for common node installations. |
 | [Operations guide](https://confluence.levelup.cce.af.mil/display/THISISCVAH/v3.7+Deployable+Interceptor+Platform+%28DIP%29+Operations+Guide) | Main operations guide for common node installations. |
