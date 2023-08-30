@@ -4,10 +4,11 @@ MULTIBOOT:
   src:
     - Repo/MULTIBOOT/exes/BIOS_XFN8X_WN64_2.11.2.EXE
     - Repo/MULTIBOOT/exes/M6800A26.exe
-    - Repo/MULTIBOOT/exes/Precision_7x20_1.22.0.exe
-    - Repo/MULTIBOOT/exes/Precision_7x30_1.18.2.exe
-    - Repo/MULTIBOOT/exes/Precision_7X50_1.11.1.exe
-    - Repo/MULTIBOOT/exes/Precision_7X60_1.12.1.exe
+    - Repo/MULTIBOOT/exes/Precision_7x20_1.31.0.exe
+    - Repo/MULTIBOOT/exes/Precision_7x30_1.28.1.exe
+    - Repo/MULTIBOOT/exes/Precision_7X50_1.24.0.exe
+    - Repo/MULTIBOOT/exes/Precision_7X60_1.23.0.exe
+    - Repo/MULTIBOOT/exes/Precision_7X80_1.5.1.exe
   dest: MULTIBOOT/exes
 
 - app: isos
@@ -165,10 +166,11 @@ CPT:
     - Repo/Firmware/Cisco 3850 Switch/universalk9.SPA.03.07.05.E.152-3.E5
     - Repo/Firmware/Common Node/2.10.2
     - Repo/Firmware/Dell 4112 Switch/CVAH 3.7
-    - Repo/Firmware/Dell 7720/1.22.0
-    - Repo/Firmware/Dell 7730/1.18.2
-    - Repo/Firmware/Dell 7750/1.11.1
-    - Repo/Firmware/Dell 7760/1.12.1
+    - Repo/Firmware/Dell 7720/1.31.0
+    - Repo/Firmware/Dell 7730/1.28.1
+    - Repo/Firmware/Dell 7750/1.24.0
+    - Repo/Firmware/Dell 7760/1.23.0
+    - Repo/Firmware/Dell 7780/1.5.1
     - Repo/Firmware/Dell M6800/M6800A26
     - Repo/Firmware/Dell R440/BIOS 2.11.2 Contents
     - Repo/Firmware/HP DL160/DL160
@@ -260,10 +262,11 @@ MDT:
     - Repo/Firmware/Cisco 3850 Switch/universalk9.SPA.03.07.05.E.152-3.E5
     - Repo/Firmware/Common Node/2.10.2
     - Repo/Firmware/Dell 4112 Switch/CVAH 3.7
-    - Repo/Firmware/Dell 7720/1.22.0
-    - Repo/Firmware/Dell 7730/1.18.2
-    - Repo/Firmware/Dell 7750/1.11.1
-    - Repo/Firmware/Dell 7760/1.12.1
+    - Repo/Firmware/Dell 7720/1.31.0
+    - Repo/Firmware/Dell 7730/1.28.1
+    - Repo/Firmware/Dell 7750/1.24.0
+    - Repo/Firmware/Dell 7760/1.23.0
+    - Repo/Firmware/Dell 7780/1.5.1
     - Repo/Firmware/Dell M6800/M6800A26
     - Repo/Firmware/Dell R440/BIOS 2.11.2 Contents
     - Repo/Firmware/HP DL160/DL160
