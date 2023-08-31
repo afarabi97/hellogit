@@ -2,6 +2,7 @@ import cgi
 import glob
 import json
 import logging
+import os
 import shutil
 import sys
 import tempfile
@@ -91,13 +92,55 @@ class EndgameAgentPuller:
         )
         return self._check_response(resp, lambda r: r.json()["metadata"]["token"])
 
+    def _is_direct_parent(self, dst_folder, filename):
+            """
+            Check if the given `dst_folder` is the direct parent of the file `filename`.
+
+            Args:
+                dst_folder (str): The destination folder to check.
+                filename (str): The name of the file to check.
+
+            Returns:
+                Tuple[bool, str]: A tuple containing a boolean indicating whether `dst_folder` is the direct parent of `filename`,
+                and the joined path of `dst_folder` and `filename`.
+            """
+            joined_path = os.path.normpath(os.path.join(dst_folder, filename))
+            parent_directory = os.path.dirname(joined_path)
+            return os.path.normpath(dst_folder) == parent_directory, joined_path
+
     def _save_installer(self, resp, sensor_data, dst_folder: str):
+        """
+        Saves the installer file contained in the response object `resp` to the destination folder `dst_folder`.
+        The installer file name is extracted from the response headers.
+
+        Args:
+            resp (requests.Response): The response object containing the installer file.
+            sensor_data: Unused parameter.
+            dst_folder (str): The destination folder where the installer file will be saved.
+
+        Raises:
+            ValueError: If the installer file name is missing or invalid.
+        """
 
         cd = resp.headers.get("Content-Disposition")
-        installer_name = cgi.parse_header(cd)[1]["filename"]
-        installer_path = dst_folder + "/" + installer_name
-        with open(installer_path, "wb") as f:
-            f.write(resp.content)
+        installer_file_name = cgi.parse_header(cd)[1]["filename"]
+
+        if not installer_file_name:
+            raise ValueError("Missing filename")
+
+        abs_dst_folder = os.path.abspath(dst_folder)
+
+        is_direct_parent, abs_dst_file = self._is_direct_parent(abs_dst_folder, installer_file_name)
+
+        if not is_direct_parent:
+            raise ValueError(f"Invalid filename: {installer_file_name} is not a direct child of {abs_dst_folder}")
+
+        # Create the full path to the dst_file
+        os.makedirs(abs_dst_folder, exist_ok=True)
+
+        with open(abs_dst_file, "wb") as dst_file:
+            for chunk in resp.iter_content(chunk_size=1024):
+                dst_file.write(chunk)
 
     def get_agent_pkg(self, installer_id: str, dst_folder: str) -> str:
         auth_token = self._authenticate()
