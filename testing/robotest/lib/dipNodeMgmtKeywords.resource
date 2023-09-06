@@ -33,8 +33,7 @@ Node Setup
     Navigate To Node Management
     Enter Virtual Node Information  Sensor  ${VM_PREFIX}-sensor-3
     Enter Virtual Node Information  Service  ${VM_PREFIX}-service-4
-    Enter Virtual Node Information  MinIO  ${VM_PREFIX}-minio-5
-    Verify Node Was Added  ${VM_PREFIX}-sensor-3  ${VM_PREFIX}-service-4  ${VM_PREFIX}-minio-5
+    Verify Node Was Added  ${VM_PREFIX}-sensor-3  ${VM_PREFIX}-service-4
 
 Enter Virtual Node Information
     [Arguments]  ${node_type}  ${hostname}
@@ -47,6 +46,9 @@ Enter Virtual Node Information
         click  ${locNodeMgmtAddNodeDialogVMRadioBtn}
         type  ${locNodeMgmtHostnameInput}  ${hostname}
         Select Node IP Address  ${node_type}
+        IF  '${node_type}' == 'MinIO'
+            type  ${locNodeDataDriveSizeInGbInput}  500  clear_before=${True}
+        END
         Wait Until Element Is Enabled  ${locNodeMgmtAddNodeDialogSubmitBtn}
         click  ${locNodeMgmtAddNodeDialogSubmitBtn}
         log  Completed entering virtual node information.
@@ -59,11 +61,12 @@ Enter Virtual Node Information
 
 Select Node IP Address
     [Arguments]  ${node_type}
-    [Documentation]  Server and Service nodes use same range for last octet, so
-    ...              if adding a service node, use last option instead of first
+    [Documentation]  Server and Service nodes use the same range for IP addresses,
+    ...              as does Sensor and MinIO. If adding a Service node or MinIO,
+    ...              use the last option for IP address instead of the first.
     click  ${locNodeMgmtAddNodeDialogIpAddressInput}
     ${last_option} =  Get Element Count  xpath=//mat-option
-    IF  '${node_type}' == 'Service'
+    IF  '${node_type}' == 'Service' or '${node_type}' == 'MinIO'
         click  xpath=//mat-option[position()=${last_option}]
     ELSE
         click  ${locNodeMgmtAddNodeDialogIpAddressDropdownOpt1}

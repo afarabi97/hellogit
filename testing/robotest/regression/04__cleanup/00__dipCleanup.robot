@@ -45,6 +45,14 @@ Delete Virtual Serice Node
     Delete Node  hostname=robottest-service
     Verify Node Was Deleted  robottest-service
 
+Delete Virtual MinIO Node
+    [Tags]  THISISCVAH-14493
+    [Documentation]  Deletes a virtual MinIO node on the DIP kit
+    Skip If  '${PIPELINE}' == 'developer-all'  msg=Keep MinIO on the kit if normal pipeline build
+    Navigate To Node Management
+    Delete Node  hostname=robottest-minio
+    Verify Node Was Deleted  robottest-minio
+
 Delete Virutal MIP
     [Tags]  THISISCVAH-14421
     [Documentation]  Deletes a virtual MIP on the DIP kit

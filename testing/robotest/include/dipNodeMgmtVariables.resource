@@ -12,7 +12,7 @@ ${tmplDeleteNodeBtn}                                xpath=//tr[td[a[contains(tex
 # Element Locators
 # Control Plane
 ${locSetupCPButton}                                 xpath=//button[./span[text()="Setup Control Plane"]]
-${locCPDeployState}                                 xpath=//app-node-mng//mat-card[1]//cvah-node-state-progress-bar/a[3]/mat-icon
+${locCPDeployState}                                 xpath=//cvah-node-mng//mat-card[1]//cvah-node-state-progress-bar/a[3]/mat-icon
 
 ${locDeployKitButton}                               xpath=//button[./span[text()="Deploy Kit"]]
 
@@ -24,5 +24,6 @@ ${locNodeMgmtAddNodeDialogIpAddressInput}           xpath=//cvah-unused-ipaddres
 ${locNodeMgmtAddNodeDialogIpAddressDropdownOpt1}    xpath=//mat-option[position()=1]/span
 ${tmplLocNodeMgmtAddNodeDialogRadioBtn}             xpath=//mat-radio-button[@value='~']
 ${locNodeMgmtAddNodeDialogVMRadioBtn}               xpath=//div[@class='mat-radio-container' and input[@value='Virtual']]
+${locNodeDataDriveSizeInGbInput}                    xpath=//mat-form-field[div//mat-label[text()="Data Drive size in (GB)"]]//input
 ${locNodeMgmtAddNodeDialogSubmitBtn}                xpath=//cvah-add-node-dialog//button/span[text()="Add"]
 ${locNodeMgmtAddMipDialogSubmitBtn}                 xpath=//cvah-add-mip-dialog//button/span[text()="Add"]

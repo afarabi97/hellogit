@@ -43,3 +43,13 @@ Add Virtual Service Node
     Navigate To Node Management
     Enter Virtual Node Information  node_type=Service  hostname=robottest-service
     Verify Node Was Added  robottest-service
+    Navigate To MIP Management
+    Wait Until Keyword Succeeds  3x  5s  Verify MIP Was Added  robottest-mip
+
+Add Virtual MinIO Node
+    [Tags]  THISISCVAH-14415
+    [Documentation]  Adds a virtual MinIO to the DIP kit
+    Skip If  '${PIPELINE}' == 'developer-all'  msg=MinIO was already added earlier in the pipeline
+    Navigate To Node Management
+    Enter Virtual Node Information  node_type=MinIO  hostname=robottest-minio
+    Verify Node Was Added  robottest-minio
