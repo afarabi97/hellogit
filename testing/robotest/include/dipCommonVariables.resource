@@ -9,21 +9,6 @@ ${SSO_FILE}                     /opt/sso-idp/sso_admin_password.txt
 
 ${DEFUALT_REPLACEMENT_PATTERN}  ~
 
-# Pages start with a capital
-${Portal_url}                   https://${host}/portal
-${Alerts_url}                   https://${host}/alerts
-${SystemSettings_url}           https://${host}/settings
-${NodeManagement_url}           https://${host}/node-mng
-${MipManagement_url}            https://${host}/mip-mng
-${Catalog_url}                  https://${host}/catalog
-${Health_url}                   https://${host}/health
-${Rulesets_url}                 https://${host}/rulesets
-${PCAPs_url}                    https://${host}/pcaps
-${Tools_url}                    https://${host}/tools
-${Support_url}                  https://${host}/support
-${IndexManagement_url}          https://${host}/index_management
-
-
 # First Login Screen
 ${locUsernameInput}             id=username
 ${locPasswordInput}             id=password
@@ -58,18 +43,6 @@ ${locPreserveTimestampCheckbox}  xpath=//mat-checkbox[@formcontrolname="preserve
 # Side Nav Buttons
 ${locNavIconTmpl}               xpath=//mat-icon[following-sibling::div/h4[text() = "~"]]
 ${locLogoutNavIcon}             xpath=//mat-icon[text() = "exit_to_app"]
-${locPortalPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Portal"]]
-${locAlertsPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Alerts"]]
-${locSystemSettingsNavIcon}     xpath=//mat-icon[following-sibling::div/h4[text() = "System Settings"]]
-${locNodeMgmtPageNavIcon}       xpath=//mat-icon[following-sibling::div/h4[text() = "Node Management"]]
-${locMipMgmtPageNavIcon}        xpath=//mat-icon[following-sibling::div/h4[text() = "MIP Management"]]
-${locCatalogPageNavIcon}        xpath=//mat-icon[following-sibling::div/h4[text() = "Catalog"]]
-${locHealthPageNavIcon}         xpath=//mat-icon[following-sibling::div/h4[text() = "Health"]]
-${locRulesetNavIcon}            xpath=//mat-icon[following-sibling::div/h4[text() = "Rule Set"]]
-${locPcapNavIcon}               xpath=//mat-icon[following-sibling::div/h4[text() = "Test PCAP Files"]]
-${locToolsNavIcon}              xpath=//mat-icon[following-sibling::div/h4[text() = "Tools"]]
-${locApiDocsNavIcon}            xpath=//mat-icon[following-sibling::div/h4[text() = "API Docs"]]
-${locSupportPageNavIcon}        xpath=//mat-icon[following-sibling::div/h4[text() = "PMO Support"]]
 
 ${locNotificationsPopup}        xpath=//*[contains(@id, "mat-dialog-")]
 ${locTopNotificationStatus}     id=cvah-notifications-dialog-0-0-statusactionapp

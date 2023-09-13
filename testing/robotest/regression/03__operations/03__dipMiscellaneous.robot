@@ -1,11 +1,12 @@
 *** Settings ***
 Resource    ../../lib/dipAPIDocsKeywords.resource
 Resource    ../../lib/dipCommonKeywords.resource
+Resource    ../../lib/dipDockerRegistryKeywords.resource
 Resource    ../../lib/dipHealthKeywords.resource
 Resource    ../../lib/dipNodeMgmtKeywords.resource
+Resource    ../../lib/dipPmoSupportKeywords.resource
 Resource    ../../lib/dipPortalKeywords.resource
 Resource    ../../lib/dipToolsKeywords.resource
-Resource    ../../lib/dipPmoSupportKeywords.resource
 
 Library    SeleniumLibrary    15s
 Library    SSHLibrary         15s
@@ -50,7 +51,7 @@ Verify Content On Support Page
     [Documentation]  Verifies that the Controller has correct information on the Support Page under
     ...              all four sections (Help Desk, Service Now, PMO Support Site, Version Information).
     log  Checking contents of all four sections of the Support page.
-    Navigate To Support
+    Navigate To PMO Support
     Check Help Desk Section
     Check Service Now Section
     Check PMO Support Site Section
@@ -77,6 +78,21 @@ Check Catalog Apps On Health Page
     FOR  ${app}  IN  @{installed_apps}
         Check Health Page For App  ${app}
     END
+
+Ensure Docker Images Table Is Visible On Docker Registry Page
+    [Tags]  THISISCVAH-14546
+    [Documentation]  Verifies that the table is visible on the page, the title is correct, and
+    ...              checking that the table rows render on screen as well.
+    Navigate To Docker Registry
+    Verify Docker Images Table Is Visible
+
+Confirm Images Are Listed On Docker Images Table
+    [Tags]  THISISCVAH-14547
+    [Documentation]  Checking that the list of Docker images return from the backend API call
+    ...              matches what is listed in the table on the Docker Registry page.
+    ${docker_registry_api_data} =  Get Docker Registry Data
+    Navigate To Docker Registry
+    Compare Docker Registry Table Data  ${docker_registry_api_data}
 
 Change Kit Password
     [Tags]  THISISCVAH-12363

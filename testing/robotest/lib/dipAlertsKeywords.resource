@@ -74,7 +74,7 @@ Verify Play Stop and Refresh Button
     Navigate to Alerts
     Get Total Alert Count
     ${initialAlertCount}=  Set Variable  ${totalAlertCount}
-    Navigate To PCAPs
+    Navigate To Test PCAP Files
     log  Playing "Wannacry" PCAP
     Play Wannacry PCAP
     Navigate To Alerts
@@ -101,7 +101,7 @@ Verify Play Stop and Refresh Button
     IF  '${State}' == 'stop'
         click  ${locAlertsPlayAndStopBtn}
     END
-    Navigate To PCAPs
+    Navigate To Test PCAP Files
     log  Playing "Wannacry" PCAP
     Play Wannacry PCAP
     Navigate To Alerts

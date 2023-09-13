@@ -147,61 +147,7 @@ Navigate To ${page}
     log         "Navigating To: ${page} Page"
     Check For Snack Bar Container
 
-    ${nav_arrow_text} =  Get Text  ${APP_TOP_NAVBAR__SIDENAV}
-    @{arrow_status} =  Split String  ${nav_arrow_text}  max_split=1
-    IF  '${arrow_status[0]}' == 'arrow_forward'
-        click  ${APP_TOP_NAVBAR__SIDENAV_TRIGGER_MAT_ICON_ARROW_FORWARD}
-    END
-
-    IF  "${page}" == "Portal"
-        click  ${locPortalPageNavIcon}
-        lookFor  Add Link
-        Location Should Be  ${Portal_url}
-    ELSE IF  "${page}" == "Alerts"
-        click  ${locAlertsPageNavIcon}
-        lookFor  Security Alerts
-        Location Should Be  ${Alerts_url}
-    ELSE IF  "${page}" == "System Settings"
-        click  ${locSystemSettingsNavIcon}
-        lookFor  VMware Settings
-        Location Should Be  ${SystemSettings_url}
-    ELSE IF  "${page}" == "Node Management"
-        click  ${locNodeMgmtPageNavIcon}
-        lookFor  Kit Setup
-        Location Should Be  ${NodeManagement_url}
-    ELSE IF  "${page}" == "MIP Management"
-        click  ${locMipMgmtPageNavIcon}
-        lookFor  MIP Management
-        Location Should Be  ${MipManagement_url}
-    ELSE IF  "${page}" == "Catalog"
-        click  ${locCatalogPageNavIcon}
-        lookFor  PMO Supported Applications
-        Location Should Be  ${Catalog_url}
-    ELSE IF  "${page}" == "Health"
-        click  ${locHealthPageNavIcon}
-        lookFor  Managed Kits
-        Location Should Be  ${Health_url}
-    ELSE IF  "${page}" == "Rulesets"
-        click  ${locRulesetNavIcon}
-        lookFor  Rule Sync
-        Location Should Be  ${Rulesets_url}
-    ELSE IF  "${page}" == "PCAPs"
-        click  ${locPcapNavIcon}
-        lookFor  Test Files
-        Location Should Be  ${PCAPs_url}
-    ELSE IF  "${page}" == "Tools"
-        click  ${locToolsNavIcon}
-        lookFor  Node Maintenance
-        Location Should Be  ${Tools_url}
-    ELSE IF  "${page}" == "API Docs"
-        click  ${locApiDocsNavIcon}
-        Switch Window  NEW
-        lookFor  TFPlenum Backend API
-    ELSE IF  "${page}" == "Support"
-        click  ${locSupportPageNavIcon}
-        lookFor  Version Information
-        Location Should Be  ${Support_url}
-    ELSE IF  "${page}" == "Kibana"
+    IF  "${page}" == "Kibana"
         Get Kibana Credentials
         Go To  ${KIBANA_IP}
         lookFor  Welcome to Elastic
@@ -209,11 +155,66 @@ Navigate To ${page}
         Get Hive IP
         Go To  ${HIVE_IP}
         lookFor  Sign in to start your session
+    ELSE
+        Click Controller Nav Icon  ${page}
+    END
+
+Click Controller Nav Icon
+    [Arguments]  ${page}
+    ${nav_arrow_text} =  Get Text  ${APP_TOP_NAVBAR__SIDENAV}
+    @{arrow_status} =  Split String  ${nav_arrow_text}  max_split=1
+    IF  '${arrow_status[0]}' == 'arrow_forward'
+        click  ${APP_TOP_NAVBAR__SIDENAV_TRIGGER_MAT_ICON_ARROW_FORWARD}
+    END
+
+    ${controller_url} =  Set Variable  https://${host}
+
+    ${locPageNavIcon} =  Inject  ${locNavIconTmpl}  ${page}
+    click  ${locPageNavIcon}
+
+    IF  "${page}" == "Portal"
+        lookFor  Add Link
+        Location Should Be  ${controller_url}/portal
+    ELSE IF  "${page}" == "Alerts"
+        lookFor  Security Alerts
+        Location Should Be  ${controller_url}/alerts
+    ELSE IF  "${page}" == "System Settings"
+        lookFor  VMware Settings
+        Location Should Be  ${controller_url}/settings
+    ELSE IF  "${page}" == "Node Management"
+        lookFor  Kit Setup
+        Location Should Be  ${controller_url}/node-mng
+    ELSE IF  "${page}" == "MIP Management"
+        lookFor  MIP Management
+        Location Should Be  ${controller_url}/mip-mng
+    ELSE IF  "${page}" == "Catalog"
+        lookFor  PMO Supported Applications
+        Location Should Be  ${controller_url}/catalog
+    ELSE IF  "${page}" == "Health"
+        lookFor  Managed Kits
+        Location Should Be  ${controller_url}/health
+    ELSE IF  "${page}" == "Docker Registry"
+        lookFor  Docker Images
+        Location Should Be  ${controller_url}/registry
+    ELSE IF  "${page}" == "Rule Set"
+        lookFor  Rule Sync
+        Location Should Be  ${controller_url}/rulesets
+    ELSE IF  "${page}" == "Test PCAP Files"
+        lookFor  Test Files
+        Location Should Be  ${controller_url}/pcaps
     ELSE IF  "${page}" == "Index Management"
-        ${locIndexManagementPageNavIcon} =  Inject  ${locNavIconTmpl}  ${page}
-        click  ${locIndexManagementPageNavIcon}
         lookFor  ElasticSearch Index Management
-        Location Should Be  ${IndexManagement_url}
+        Location Should Be  ${controller_url}/index_management
+    ELSE IF  "${page}" == "Tools"
+        lookFor  Node Maintenance
+        Location Should Be  ${controller_url}/tools
+    ELSE IF  "${page}" == "API Docs"
+        Switch Window  NEW
+        lookFor  TFPlenum Backend API
+        Location Should Be  ${controller_url}/api/docs
+    ELSE IF  "${page}" == "PMO Support"
+        lookFor  Version Information
+        Location Should Be  ${controller_url}/support
     END
 
 Check For Snack Bar Container

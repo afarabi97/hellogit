@@ -41,6 +41,6 @@ Zeek Intel Script Upload
 Play PCAPs Across Sensor
     [Documentation]  Grab the elastic password and run some tests
     Set Selenium Speed  0.5s
-    Navigate To PCAPs
+    Navigate To Test PCAP Files
     Upload And Delete PCAP File  data-with-image_robot.pcap
     Play Wannacry PCAP

@@ -8,7 +8,7 @@ Edit Rule Set
     [Documentation]  Edits the specified Rule Set by assigning a sensor. The rule set state
     ...              should be "Dirty" upon completion of this keyword. If reest=True, the sensor
     ...              will be unassigned and the "Is Enabled?" will be unchecked.
-    Navigate To Rulesets
+    Navigate To Rule Set
 
     ${index} =  Get Rule Set Table Row Index  ${rule_set_name}
     ${locEditRuleSetBtn} =  Set Variable  id=cvah-policy-management-table-rule-set-td-${index}-actions-button-edit
@@ -42,7 +42,7 @@ Edit Rule Set
 
 Add Rule Set
     [Arguments]  ${rule_set_name}  ${rule_type}
-    Navigate To Rulesets
+    Navigate To Rule Set
 
     ${rs_exists} =  Check If Rule Set Exists  ${rule_set_name}
     IF  ${rs_exists}
@@ -68,7 +68,7 @@ Add Rule Set
 
 Delete Rule Set
     [Arguments]  ${rule_set_name}
-    Navigate To Rulesets
+    Navigate To Rule Set
 
     ${rs_exists} =  Check If Rule Set Exists  ${rule_set_name}
     IF  not ${rs_exists}
@@ -86,7 +86,7 @@ Delete Rule Set
 
 Sync Rules
     log  Syncing Rulesets..this could take a while
-    Navigate To Rulesets
+    Navigate To Rule Set
     clickAndWaitOnEnable  ${locRuleSyncButton}
     lookForElement  ${locRuleSetTableStateElements}
     ${num_rule_sets} =  Get Element Count  ${locRuleSetTableStateElements}

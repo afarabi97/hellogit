@@ -19,6 +19,7 @@ class TFPlenumLibrary:
     PCAP_UPLOAD_ENDPOINT = "/policy/pcap/upload"
     KIT_NODES_ENDPOINT = "/kit/nodes"
     KIT_STATUS_ENDPOINT = "/kit/status"
+    DOCKER_REGISTRY_ENDPOINT = "/kubernetes/docker/registry"
     DATETIME_ENDPOINT = "/tools/controller/datetime"
     VERSION_INFO_ENDPOINT = "/version/information"
 
@@ -236,6 +237,30 @@ class TFPlenumLibrary:
         return None
 
     @keyword
+    def get_docker_registry_data(self):
+        """
+        Gets a list of all docker images that should be listed in table on the
+        Docker Registry page of the Controller.
+
+        Returns:
+            list: [[name, tag, image_id, image_size]]
+        """
+        response = self.api_get_docker_registry_data(jsonify=False)
+        json_response = response.json()
+
+        images = []
+        for image in json_response:
+            images.append(
+                [
+                    image['name'],
+                    image['metadata'][0]['tag'],
+                    image['metadata'][0]['image_id'],
+                    image['metadata'][0]['image_size'],
+                ]
+            )
+        return images
+
+    @keyword
     def upload_rule(self, ruleset_name: str, file_name: str):
         """
         Uploads a rules file to a specified Rule Set on the Controller.
@@ -320,6 +345,9 @@ class TFPlenumLibrary:
 
     def api_get_kit_nodes_info(self, jsonify=True):
         return self.execute_request(self.KIT_NODES_ENDPOINT, jsonify=jsonify)
+
+    def api_get_docker_registry_data(self, jsonify=True):
+        return self.execute_request(self.DOCKER_REGISTRY_ENDPOINT, jsonify=jsonify)
 
     def api_post_rule_to_ruleset(self, rules_file, ruleset_model, jsonify=True):
         return self.execute_request(self.RULE_UPLOAD_ENDPOINT, request_type="POST",
