@@ -101,7 +101,7 @@ CPT:
 
 - app: VMs
   src:
-    - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2023.3
+    - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7
     - Repo/Shared/VMs/ACAS/22.06-1
     - Repo/Shared/VMs/Pfsense/2.5.2
     - Repo/Shared/VMs/Security Onion 2/2.3.260
