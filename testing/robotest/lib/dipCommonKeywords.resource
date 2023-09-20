@@ -144,7 +144,7 @@ Check Notifications Panel
     Register Keyword To Run On Failure  ${previous_kw}
 
 Navigate To ${page}
-    log         "Navigating To: ${page} Page"
+    log  "Navigating To: ${page} Page"
     Check For Snack Bar Container
 
     IF  "${page}" == "Kibana"
@@ -193,6 +193,9 @@ Click Controller Nav Icon
     ELSE IF  "${page}" == "Health"
         lookFor  Managed Kits
         Location Should Be  ${controller_url}/health
+    ELSE IF  "${page}" == "Configuration Maps"
+        lookFor  Config Maps
+        Location Should Be  ${controller_url}/configmaps
     ELSE IF  "${page}" == "Docker Registry"
         lookFor  Docker Images
         Location Should Be  ${controller_url}/registry

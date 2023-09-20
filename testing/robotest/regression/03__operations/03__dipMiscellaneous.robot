@@ -1,8 +1,6 @@
 *** Settings ***
 Resource    ../../lib/dipAPIDocsKeywords.resource
 Resource    ../../lib/dipCommonKeywords.resource
-Resource    ../../lib/dipDockerRegistryKeywords.resource
-Resource    ../../lib/dipHealthKeywords.resource
 Resource    ../../lib/dipNodeMgmtKeywords.resource
 Resource    ../../lib/dipPmoSupportKeywords.resource
 Resource    ../../lib/dipPortalKeywords.resource
@@ -64,35 +62,6 @@ Check Node Info Dialog Boxes
     &{nodes_list} =  Get Nodes
     log  ${nodes_list}
     Check Node Info Content  &{nodes_list}
-
-Check Nodes On Health Page
-    [Tags]  THISISCVAH-14083
-    [Documentation]  Verify all kit nodes are listed and in the "Ready" state
-    Navigate To Health
-    Verify Nodes Are Ready
-
-Check Catalog Apps On Health Page
-    [Tags]  THISISCVAH-14084
-    [Documentation]  Verify that installed catalog apps are present under Pods table on Health page.
-    ${installed_apps} =  Get Installed Catalog Apps
-    FOR  ${app}  IN  @{installed_apps}
-        Check Health Page For App  ${app}
-    END
-
-Ensure Docker Images Table Is Visible On Docker Registry Page
-    [Tags]  THISISCVAH-14546
-    [Documentation]  Verifies that the table is visible on the page, the title is correct, and
-    ...              checking that the table rows render on screen as well.
-    Navigate To Docker Registry
-    Verify Docker Images Table Is Visible
-
-Confirm Images Are Listed On Docker Images Table
-    [Tags]  THISISCVAH-14547
-    [Documentation]  Checking that the list of Docker images return from the backend API call
-    ...              matches what is listed in the table on the Docker Registry page.
-    ${docker_registry_api_data} =  Get Docker Registry Data
-    Navigate To Docker Registry
-    Compare Docker Registry Table Data  ${docker_registry_api_data}
 
 Change Kit Password
     [Tags]  THISISCVAH-12363

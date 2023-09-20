@@ -215,16 +215,16 @@ APP_CONFIGMAP_EDITOR__BUTTON_CLOSE = 'app-configmap-editor-div-mat-card-mat-card
 
 # These are for config-map.component.html
 # TODO cvah-config-map-outer-table-td-*-namespace # td
-# TODO cvah-config-map-outer-table-td-*-namespace-a # a
-# TODO cvah-config-map-outer-table-td-*-namespace-value # span
-# TODO cvah-config-map-outer-table-td-*-config-name # td
-# TODO cvah-config-map-outer-table-td-*-creation-date # td
+CVAH_CONFIG_MAP_OUTER__NAMESPACE_A = 'cvah-config-map-outer-td-*-namespace-a' # a
+CVAH_CONFIG_MAP_OUTER_TABLE__NAMESPACE_VALUE = 'cvah-config-map-outer-table-td-*-namespace-value' # span
+CVAH_CONFIG_MAP_TABLE__CONFIG_NAME = 'cvah-config-map-table-config-map-td-*-config-name' # td
+CVAH_CONFIG_MAP_TABLE__CREATION_DATE = 'cvah-config-map-table-config-map-td-*-creation-date' # td
 # TODO cvah-config-map-outer-table-td-*-expanded-detail # td
-# TODO cvah-config-map-outer-table-td-*-button-add-config-data # button
-# TODO cvah-config-map-outer-table-td-*-table-config-map-data-td-*-filename # td
-# TODO cvah-config-map-outer-table-td-*-table-config-map-data-td-*-button-edit # button
+CVAH_CONFIG_MAP_TABLE__BUTTON_ADD_CONFIG_DATA = 'cvah-config-map-table-config-map-td-*-button-add-config-data' # button
+CVAH_CONFIG_MAP_TABLE__FILENAME = 'cvah-config-map-table-config-map-td-*-table-config-map-data-td-*-filename' # td
+CVAH_CONFIG_MAP_TABLE__BUTTON_EDIT = 'cvah-config-map-table-config-map-td-*-table-config-map-data-td-*-button-edit' # button
 # TODO cvah-config-map-outer-table-td-*-table-config-map-data-td-*-button-visibility # button
-# TODO cvah-config-map-outer-table-td-*-table-config-map-data-td-*-button-delete # button
+CVAH_CONFIG_MAP_TABLE__BUTTON_DELETE = 'cvah-config-map-table-config-map-td-*-table-config-map-data-td-*-button-delete' # button
 # TODO cvah-config-map-outer-table-td-*-table-config-map-data-tr-* # tr
 # TODO cvah-config-map-outer-table-tr-* # tr
 # TODO cvah-config-map-outer-table-tr-expanded-detail-* # tr

@@ -19,6 +19,7 @@ class TFPlenumLibrary:
     PCAP_UPLOAD_ENDPOINT = "/policy/pcap/upload"
     KIT_NODES_ENDPOINT = "/kit/nodes"
     KIT_STATUS_ENDPOINT = "/kit/status"
+    CONFIG_MAPS_ENDPOINT = "/kubernetes/configmaps"
     DOCKER_REGISTRY_ENDPOINT = "/kubernetes/docker/registry"
     DATETIME_ENDPOINT = "/tools/controller/datetime"
     VERSION_INFO_ENDPOINT = "/version/information"
@@ -237,13 +238,45 @@ class TFPlenumLibrary:
         return None
 
     @keyword
+    def get_config_maps_data(self):
+        """
+        Gets a list of all the files for each config map list in the table on
+        the the Configuration Maps page of the Controller.
+
+        Returns:
+            list: [[namespace, config_name, creation_date, [file_names]], ...]
+        """
+        response = self.api_get_config_maps_data(jsonify=False)
+        json_response = response.json()
+
+        config_maps = []
+        for config_map in json_response["items"]:
+            namespace = config_map["metadata"]["namespace"]
+            config_name = config_map["metadata"]["name"]
+            creation_date = config_map["metadata"]["creation_timestamp"]
+
+            filenames = []
+            if config_map["data"]:
+                filenames = list(config_map["data"].keys())
+
+            config_maps.append([
+                namespace,
+                config_name,
+                creation_date,
+                filenames
+            ])
+
+        self._alogger(config_maps)
+        return config_maps
+
+    @keyword
     def get_docker_registry_data(self):
         """
         Gets a list of all docker images that should be listed in table on the
         Docker Registry page of the Controller.
 
         Returns:
-            list: [[name, tag, image_id, image_size]]
+            list: [[name, tag, image_id, image_size], ...]
         """
         response = self.api_get_docker_registry_data(jsonify=False)
         json_response = response.json()
@@ -345,6 +378,9 @@ class TFPlenumLibrary:
 
     def api_get_kit_nodes_info(self, jsonify=True):
         return self.execute_request(self.KIT_NODES_ENDPOINT, jsonify=jsonify)
+
+    def api_get_config_maps_data(self, jsonify=True):
+        return self.execute_request(self.CONFIG_MAPS_ENDPOINT, jsonify=jsonify)
 
     def api_get_docker_registry_data(self, jsonify=True):
         return self.execute_request(self.DOCKER_REGISTRY_ENDPOINT, jsonify=jsonify)
