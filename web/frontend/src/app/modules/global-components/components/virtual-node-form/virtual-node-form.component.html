@@ -2,8 +2,11 @@
 <div *ngIf="is_visible" [formGroup]="node_form_group">
   <mat-form-field>
     <mat-label>CPU Cores</mat-label>
-    <input matInput placeholder="Enter the number of CPU cores" formControlName="virtual_cpu"
-          matTooltip="{{ get_tooltip('virtual_cpu') }}"/>
+    <input matInput
+           placeholder="Enter the number of CPU cores"
+           formControlName="virtual_cpu"
+           matTooltip="{{ get_tooltip('virtual_cpu') }}"
+           [matTooltipPosition]="'before'"/>
     <mat-icon matSuffix *ngIf="node_form_group.get('virtual_cpu')?.valid &&
                               node_form_group.get('virtual_cpu')?.touched"
               color="primary">check_circle</mat-icon>
@@ -16,8 +19,11 @@
   <!--Memory -->
   <mat-form-field>
     <mat-label>RAM Memory in (GB)</mat-label>
-    <input matInput placeholder="Enter the amount of ram memory in GB" formControlName="virtual_mem"
-          matTooltip="{{ get_tooltip('virtual_mem') }}"/>
+    <input matInput
+           placeholder="Enter the amount of ram memory in GB"
+           formControlName="virtual_mem"
+           matTooltip="{{ get_tooltip('virtual_mem') }}"
+           [matTooltipPosition]="'before'"/>
     <mat-icon matSuffix *ngIf="node_form_group.get('virtual_mem')?.valid &&
                               node_form_group.get('virtual_mem')?.touched"
               color="primary">check_circle</mat-icon>
@@ -30,8 +36,11 @@
   <!--OS drive -->
   <mat-form-field>
     <mat-label>OS Drive size in (GB)</mat-label>
-    <input matInput placeholder="Enter the amount of ram memory in GB" formControlName="virtual_os"
-          matTooltip="{{ get_tooltip('virtual_os') }}"/>
+    <input matInput
+           placeholder="Enter the amount of ram memory in GB"
+           formControlName="virtual_os"
+           matTooltip="{{ get_tooltip('virtual_os') }}"
+           [matTooltipPosition]="'before'"/>
     <mat-icon matSuffix *ngIf="node_form_group.get('virtual_os')?.valid &&
                               node_form_group.get('virtual_os')?.touched"
               color="primary">check_circle</mat-icon>
@@ -44,8 +53,11 @@
   <!--Data drive -->
   <mat-form-field *ngIf="has_data_drive()">
     <mat-label>Data Drive size in (GB)</mat-label>
-    <input matInput placeholder="Enter the amount of ram memory in GB" formControlName="virtual_data"
-          matTooltip="{{ get_tooltip('virtual_data') }}"/>
+    <input matInput
+           placeholder="Enter the amount of ram memory in GB"
+           formControlName="virtual_data"
+           matTooltip="{{ get_tooltip('virtual_data') }}"
+           [matTooltipPosition]="'before'"/>
     <mat-icon matSuffix *ngIf="node_form_group.get('virtual_data')?.valid &&
                               node_form_group.get('virtual_data')?.touched"
               color="primary">check_circle</mat-icon>

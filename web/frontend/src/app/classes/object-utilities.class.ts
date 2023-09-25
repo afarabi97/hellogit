@@ -76,4 +76,16 @@ export abstract class ObjectUtilitiesClass {
   static create_deep_copy<T>(object_to_copy: T): T {
     return (JSON.parse(JSON.stringify(object_to_copy)));
   }
+
+  /**
+   * Used for returning array removing any duplicate entries
+   *
+   * @static
+   * @param {any[]} array
+   * @return {*[]}
+   * @memberof ObjectUtilitiesClass
+   */
+  static remove_duplicate_entries(array: any[]): any[] {
+    return array.filter((item: string, index: number) => array.indexOf(item) === index);
+  }
 }

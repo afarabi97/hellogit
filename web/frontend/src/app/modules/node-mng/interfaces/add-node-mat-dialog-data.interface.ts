@@ -9,4 +9,5 @@ import { KitSettingsClass, NodeClass } from '../../../classes';
 export interface AddNodeMatDialogDataInterface {
   kit_settings: KitSettingsClass;
   nodes: NodeClass[];
+  setup_nodes: NodeClass[];
 }

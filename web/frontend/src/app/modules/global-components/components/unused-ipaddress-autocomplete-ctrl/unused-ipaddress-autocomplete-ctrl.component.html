@@ -5,6 +5,7 @@
     <mat-select disableRipple
                 [formControl]="form_control"
                 matTooltip="{{ mat_tooltip }}"
+                [matTooltipPosition]="'before'"
                 (openedChange)="reset_form_control($event)">
       <mat-option *ngFor="let option of filtered_options | async;"
                   [value]="option">

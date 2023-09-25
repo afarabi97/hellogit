@@ -243,7 +243,8 @@ export class NodeManagementComponent implements OnInit {
   open_add_node_dialog_window(): void {
     const add_node_mat_dialog_data: AddNodeMatDialogDataInterface = {
       kit_settings: this.kit_settings_,
-      nodes: this.nodes
+      nodes: this.nodes,
+      setup_nodes: this.setup_nodes
     };
     this.mat_dialog_.open(AddNodeDialogComponent, {
       width: DIALOG_WIDTH_1000PX,
@@ -425,7 +426,7 @@ export class NodeManagementComponent implements OnInit {
    */
   private update_nodes_data_(nodes: NodeClass[]): void {
     const setup_nodes: NodeClass[] = [];
-    const new_nodes: NodeClass[] = [];
+    let new_nodes: NodeClass[] = [];
     let iso_sensor_detected: boolean = false;
     for (const node of nodes) {
       /* istanbul ignore else */
@@ -446,14 +447,14 @@ export class NodeManagementComponent implements OnInit {
         iso_sensor_detected = true;
       }
       /* istanbul ignore else */
-      if (node.node_type !== MIP) {
-        new_nodes.push(node);
-      }
-      /* istanbul ignore else */
       if (node.node_type === CONTROL_PLANE) {
         setup_nodes.push(node);
+      } else {
+        new_nodes.push(node);
       }
     }
+    new_nodes = new_nodes.filter((node: NodeClass) => node.node_type !== MIP)
+                         .filter((node: NodeClass) => node.node_type !== CONTROL_PLANE);
     this.set_nodes_(new_nodes);
     this.set_setup_nodes_(setup_nodes);
     this.set_iso_sensor_detected_(iso_sensor_detected);

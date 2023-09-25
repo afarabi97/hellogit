@@ -64,6 +64,8 @@ export class AddNodeDialogComponent implements OnInit {
   // ltac_node_detected: boolean;
   // Used for holding on to available ips
   available_ips: string[];
+  // Used to keep track up used ips that may differ on the system
+  used_ips_: string[];
   // Used for holding the node type for further analysis
   node_type: string;
   // Used for passing deployment options as mat options
@@ -78,6 +80,8 @@ export class AddNodeDialogComponent implements OnInit {
   private kit_settings_: KitSettingsClass;
   // Used for recieving and holding nodes from parent component
   private nodes_: NodeClass[];
+  // Used for recieving and set nodes from parent component
+  private setup_nodes_: NodeClass[];
   // Used for keep list of hostnames to not use
   private validation_hostnames_: string[];
   // Used for keeping a list of ips not to use
@@ -86,6 +90,8 @@ export class AddNodeDialogComponent implements OnInit {
   private validation_k8_ips_: string[];
   // Used for keeping a list of macs not to use
   private validation_macs_: string[];
+  // Used for hiding ip addresses until api calls are completed
+  private wait_for_new_ips_: boolean;
 
   /**
    * Creates an instance of AddNodeDialogComponent.
@@ -103,6 +109,7 @@ export class AddNodeDialogComponent implements OnInit {
               private mat_snackbar_service_: MatSnackBarService) {
     this.kit_settings_ = mat_dialog_data.kit_settings;
     this.nodes_ = mat_dialog_data.nodes;
+    this.setup_nodes_ = mat_dialog_data.setup_nodes;
     this.minio_node_detected = false;
     // Will need LTAC added
     // this.ltac_node_detected = false;
@@ -115,6 +122,7 @@ export class AddNodeDialogComponent implements OnInit {
     this.validation_ips_ = [];
     this.validation_k8_ips_ = [];
     this.validation_macs_ = [];
+    this.wait_for_new_ips_ = true;
   }
 
   /**
@@ -158,6 +166,8 @@ export class AddNodeDialogComponent implements OnInit {
       this.virtual_node_form_.set_default_values(this.node_type);
       this.virtual_node_form_.set_virtual_form_validation(event);
     }
+
+    this.update_available_hostname_ip_and_mac_addresses_();
   }
 
   /**
@@ -167,6 +177,7 @@ export class AddNodeDialogComponent implements OnInit {
    * @memberof AddNodeDialogComponent
    */
   change_deployment_type(event: MatRadioChange): void {
+    this.wait_for_new_ips_ = true;
     this.api_get_unused_ip_addresses_();
     this.set_baremetal_validation_(event);
     /* istanbul ignore else */
@@ -235,6 +246,16 @@ export class AddNodeDialogComponent implements OnInit {
   }
 
   /**
+   * Used for displaying and not displaying ip address
+   *
+   * @return {boolean}
+   * @memberof AddNodeDialogComponent
+   */
+  can_display_ips(): boolean {
+    return this.wait_for_new_ips_;
+  }
+
+  /**
    * Used for closing the mat dialog
    *
    * @memberof AddNodeDialogComponent
@@ -282,28 +303,31 @@ export class AddNodeDialogComponent implements OnInit {
    */
   private initialize_node_form_group_(previous_node_form_group?: FormGroup): void {
     const node_form_group: FormGroup = this.form_builder_.group({
-      hostname: new FormControl(ObjectUtilitiesClass.notUndefNull(previous_node_form_group) ? previous_node_form_group.get('hostname').value : undefined,
+      hostname: new FormControl(ObjectUtilitiesClass.notUndefNull(previous_node_form_group) ? previous_node_form_group.get('hostname').value : '',
                                 Validators.compose([validateFromArray(addNodeValidators.hostname,
                                                                       { uniqueArray: this.validation_hostnames_ })])),
-      ip_address: new FormControl(undefined, Validators.compose([validateFromArray(addNodeValidators.ip_address,
-                                                                                   { uniqueArray: this.validation_ips_ })])),
+      ip_address: new FormControl('', Validators.compose([validateFromArray(addNodeValidators.ip_address,
+                                                                            { uniqueArray: this.validation_ips_ })])),
       node_type: new FormControl(ObjectUtilitiesClass.notUndefNull(previous_node_form_group) ? previous_node_form_group.get('node_type').value : undefined,
                                  Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
       deployment_type: new FormControl(ObjectUtilitiesClass.notUndefNull(previous_node_form_group) ? previous_node_form_group.get('deployment_type').value : undefined,
                                        Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
       // Baremetal form fields
-      mac_address: new FormControl(undefined),
-      raid0_override: new FormControl(false),
+      mac_address: new FormControl(ObjectUtilitiesClass.notUndefNull(previous_node_form_group) ? previous_node_form_group.get('mac_address').value : undefined),
+      raid0_override: new FormControl(ObjectUtilitiesClass.notUndefNull(previous_node_form_group) ? previous_node_form_group.get('raid0_override').value : false),
       // Virtual form fields
       virtual_cpu: new FormControl(ObjectUtilitiesClass.notUndefNull(previous_node_form_group) ? previous_node_form_group.get('virtual_cpu').value : undefined),
       virtual_mem: new FormControl(ObjectUtilitiesClass.notUndefNull(previous_node_form_group) ? previous_node_form_group.get('virtual_mem').value : undefined),
       virtual_os: new FormControl(ObjectUtilitiesClass.notUndefNull(previous_node_form_group) ? previous_node_form_group.get('virtual_os').value : undefined),
       virtual_data: new FormControl(ObjectUtilitiesClass.notUndefNull(previous_node_form_group) ? previous_node_form_group.get('virtual_data').value : undefined)
     });
+
     /* istanbul ignore else */
     if (ObjectUtilitiesClass.notUndefNull(previous_node_form_group)) {
-      node_form_group.get('node_type').markAsTouched();
+      node_form_group.markAllAsTouched();
+      node_form_group.get('deployment_type').markAsDirty();
     }
+
     this.set_node_form_group_(node_form_group);
   }
 
@@ -328,10 +352,6 @@ export class AddNodeDialogComponent implements OnInit {
     // set control plane, minio and ltac detected so user can not create more than 1
     this.nodes_.forEach((node: NodeClass) => {
       /* istanbul ignore else */
-      if (node.node_type === CONTROL_PLANE) {
-        this.control_plane_node_detected = true;
-      }
-      /* istanbul ignore else */
       if (node.node_type === MINIO) {
         this.minio_node_detected = true;
       }
@@ -340,6 +360,12 @@ export class AddNodeDialogComponent implements OnInit {
       // if (node.node_type === LTAC) {
       //   this.ltac_node_detected = true;
       // }
+    });
+    this.setup_nodes_.forEach((node: NodeClass) => {
+      /* istanbul ignore else */
+      if (node.node_type === CONTROL_PLANE) {
+        this.control_plane_node_detected = true;
+      }
     });
   }
 
@@ -429,23 +455,24 @@ export class AddNodeDialogComponent implements OnInit {
       hostname.clearValidators();
       hostname.setValidators(Validators.compose([validateFromArray(addNodeValidators.hostname,
                                                                    { uniqueArray: this.validation_hostnames_ })]));
+      ip_address.reset();
       ip_address.clearValidators();
       ip_address.setValidators(Validators.compose([validateFromArray(addNodeValidators.ip_address,
                                                                      { uniqueArray: this.validation_ips_ })]));
-      ip_address.setValue(undefined);
       ip_address.markAsPristine();
       ip_address.markAsUntouched();
       ip_address.updateValueAndValidity();
       /* istanbul ignore else */
       if (this.is_baremetal_deployment()) {
+        mac_address.reset();
         mac_address.clearValidators();
         mac_address.setValidators(Validators.compose([validateFromArray(addNodeValidators.mac_address,
                                                                         { uniqueArray: this.validation_macs_ })]));
-        mac_address.setValue(undefined);
         mac_address.markAsPristine();
         mac_address.markAsUntouched();
         mac_address.updateValueAndValidity();
       }
+
       const index: number = this.settings_.controller_interface.lastIndexOf('.');
       const subnet: string = this.settings_.controller_interface.substring(0, index + 1);
       // Will need LTAC added
@@ -453,7 +480,6 @@ export class AddNodeDialogComponent implements OnInit {
       // Will need LTAC added
       const number_of_addrs: number = (this.node_type === SENSOR || this.node_type === MINIO) ? 46 : 10;
       const available_ips: string[] = [];
-
       for (let i = 0; i < number_of_addrs; i++) {
         const last_octet: number = i + offset;
         available_ips.push(subnet + last_octet.toString());
@@ -461,6 +487,7 @@ export class AddNodeDialogComponent implements OnInit {
 
       this.available_ips = available_ips.filter((avail_ip: string) => !this.validation_ips_.includes(avail_ip));
     }
+    this.wait_for_new_ips_ = false;
   }
 
   /**
@@ -479,7 +506,9 @@ export class AddNodeDialogComponent implements OnInit {
       this.validation_ips_.push(node.ip_address);
       this.validation_macs_.push(node.mac_address);
     }
-    this.validation_ips_.concat(this.validation_k8_ips_);
+    this.validation_ips_ = [ ...this.validation_ips_, ...this.validation_k8_ips_ ];
+    this.validation_ips_ = [ ...this.validation_ips_, ...this.used_ips_ ];
+    this.validation_ips_ = ObjectUtilitiesClass.remove_duplicate_entries(this.validation_ips_);
     /* istanbul ignore else */
     if (call_initialize_node_form_group) {
       this.initialize_node_form_group_();
@@ -524,6 +553,7 @@ export class AddNodeDialogComponent implements OnInit {
       .subscribe(
         (response: GeneralSettingsClass) => {
           this.settings_ = response;
+          this.wait_for_new_ips_ = true;
           this.api_get_unused_ip_addresses_(true);
         },
         (error: ErrorMessageClass | HttpErrorResponse) => {
@@ -549,6 +579,31 @@ export class AddNodeDialogComponent implements OnInit {
       .subscribe(
         (response: string[]) => {
           this.available_ips = response;
+          this.api_get_used_ip_addresses_(initialize_node_form_group_after_call);
+        },
+        (error: ErrorMessageClass | HttpErrorResponse) => {
+          if (error instanceof ErrorMessageClass) {
+            this.mat_snackbar_service_.displaySnackBar(error.error_message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            const message: string = 'retrieving unused ip addresses';
+            this.mat_snackbar_service_.generate_return_error_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          }
+        });
+  }
+
+  /**
+   * Used for making api rest call to get used ip addresses
+   *
+   * @private
+   * @param {boolean} [initialize_node_form_group_after_call=false]
+   * @memberof AddNodeDialogComponent
+   */
+  private api_get_used_ip_addresses_(initialize_node_form_group_after_call: boolean = false): void {
+    this.kit_settings_service_.getUsedIPAddresses(this.settings_.controller_interface, this.settings_.netmask)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (response: string[]) => {
+          this.used_ips_ = response;
           this.update_validation_refs_(initialize_node_form_group_after_call);
         },
         (error: ErrorMessageClass | HttpErrorResponse) => {
@@ -574,6 +629,7 @@ export class AddNodeDialogComponent implements OnInit {
         (response: GenericJobAndKeyClass) => {
           if (this.create_duplicate_) {
             this.available_ips = this.available_ips.filter((ip: string) => ip !== this.node_form_group.get('ip_address').value);
+            this.used_ips_.push(this.node_form_group.get('ip_address').value);
             this.validation_ips_.push(this.node_form_group.get('ip_address').value);
             this.validation_hostnames_.push(this.node_form_group.get('hostname').value);
             /* istanbul ignore else */

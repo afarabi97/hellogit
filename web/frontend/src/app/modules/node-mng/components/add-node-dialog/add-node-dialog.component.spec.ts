@@ -9,6 +9,7 @@ import {
   MockNodeClassArray
 } from '../../../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
+import { NodeClass } from '../../../../classes';
 import { CONTROL_PLANE, DEPLOYMENT_OPTIONS_NODE, MINIO, SENSOR, VIRTUAL } from '../../../../constants/cvah.constants';
 import { TestingModule } from '../../../testing-modules/testing.module';
 import { AddNodeMatDialogDataInterface } from '../../interfaces/add-node-mat-dialog-data.interface';
@@ -48,7 +49,8 @@ describe('AddNodeDialogComponent', () => {
   // Test Data
   const MOCK_DIALOG_DATA__ADD_NODE_MAT_DIALOG_DATA: AddNodeMatDialogDataInterface = {
     kit_settings: MockKitSettingsClass,
-    nodes: MockNodeClassArray
+    nodes: MockNodeClassArray.filter((node: NodeClass) => node.node_type !== CONTROL_PLANE),
+    setup_nodes: MockNodeClassArray.filter((node: NodeClass) => node.node_type === CONTROL_PLANE)
   };
   const mat_radio_change_sensor: MatRadioChange = {
     source: {} as any,
@@ -240,8 +242,8 @@ describe('AddNodeDialogComponent', () => {
         reset();
 
         component['kit_status_'] = MockKitStatusClass;
-        component.node_form_group.get('deployment_type').setValue(VIRTUAL);
         component.node_form_group.get('node_type').setValue('Server');
+        component.node_form_group.get('deployment_type').setValue(VIRTUAL);
         component.change_node_type(mat_radio_change_sensor);
 
         expect(component['is_virtual_machine_deployment']).toHaveBeenCalled();

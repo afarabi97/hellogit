@@ -12,7 +12,7 @@ import {
   MockVMWareDataClass,
   MockVMWareSettingsClass
 } from '../../../static-data/class-objects';
-import { MockUnusedIpAddresses } from '../../../static-data/return-data';
+import { MockUnusedIpAddresses, MockUsedIpAddresses } from '../../../static-data/return-data';
 import {
   GeneralSettingsClass,
   GenericJobAndKeyClass,
@@ -45,6 +45,10 @@ export class KitSettingsServiceSpy {
 
   getUnusedIPAddresses = jasmine.createSpy('getUnusedIPAddresses').and.callFake(
     (mng_ip: string, netmask: string): Observable<string[]> => this.call_fake_get_unused_ip_addresses(mng_ip, netmask)
+  );
+
+  getUsedIPAddresses = jasmine.createSpy('getUsedIPAddresses').and.callFake(
+    (mng_ip: string, netmask: string): Observable<string[]> => this.call_fake_get_used_ip_addresses(mng_ip, netmask)
   );
 
   get_vmware_settings = jasmine.createSpy('get_vmware_settings').and.callFake(
@@ -113,6 +117,10 @@ export class KitSettingsServiceSpy {
 
   call_fake_get_unused_ip_addresses(mng_ip: string, netmask: string): Observable<string[]> {
     return of(MockUnusedIpAddresses);
+  }
+
+  call_fake_get_used_ip_addresses(mng_ip: string, netmask: string): Observable<string[]> {
+    return of(MockUsedIpAddresses);
   }
 
   call_fake_get_vmware_settings(): Observable<VMWareSettingsClass> {
