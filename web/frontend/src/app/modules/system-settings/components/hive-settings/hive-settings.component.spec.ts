@@ -18,8 +18,7 @@ describe('HiveSettingsComponent', () => {
 
   // Setup spy references
   let spyNGOnInit: jasmine.Spy<any>;
-  let spyToggleCard: jasmine.Spy<any>;
-  let spySave: jasmine.Spy<any>;
+  let spyClickButtonSave: jasmine.Spy<any>;
   let spySetHiveSettingsFormGroup: jasmine.Spy<any>;
   let spyApiGetHiveSettings: jasmine.Spy<any>;
   let spyApiSaveHiveSettings: jasmine.Spy<any>;
@@ -51,8 +50,7 @@ describe('HiveSettingsComponent', () => {
 
     // Add method spies
     spyNGOnInit = spyOn(component, 'ngOnInit').and.callThrough();
-    spyToggleCard = spyOn(component, 'toggle_card').and.callThrough();
-    spySave = spyOn(component, 'save').and.callThrough();
+    spyClickButtonSave = spyOn(component, 'click_button_save').and.callThrough();
     spySetHiveSettingsFormGroup = spyOn<any>(component, 'set_hive_settings_form_group_').and.callThrough();
     spyApiGetHiveSettings = spyOn<any>(component, 'api_get_hive_settings_').and.callThrough();
     spyApiSaveHiveSettings = spyOn<any>(component, 'api_save_hive_settings_').and.callThrough();
@@ -63,8 +61,7 @@ describe('HiveSettingsComponent', () => {
 
   const reset = () => {
     spyNGOnInit.calls.reset();
-    spyToggleCard.calls.reset();
-    spySave.calls.reset();
+    spyClickButtonSave.calls.reset();
     spySetHiveSettingsFormGroup.calls.reset();
     spyApiGetHiveSettings.calls.reset();
     spyApiSaveHiveSettings.calls.reset();
@@ -95,38 +92,19 @@ describe('HiveSettingsComponent', () => {
       });
     });
 
-    describe('toggle_card()', () => {
-      it('should call toggle_card()', () => {
+    describe('click_button_save()', () => {
+      it('should call click_button_save()', () => {
         reset();
 
-        component.toggle_card();
+        component.click_button_save();
 
-        expect(component.toggle_card).toHaveBeenCalled();
+        expect(component.click_button_save).toHaveBeenCalled();
       });
 
-      it('should call toggle_card() and set is_card_visible = !is_card_visible', () => {
+      it('should call api_save_hive_settings_() from click_button_save()', () => {
         reset();
 
-        component.is_card_visible = false;
-        component.toggle_card();
-
-        expect(component.is_card_visible).toBeTrue();
-      });
-    });
-
-    describe('save()', () => {
-      it('should call save()', () => {
-        reset();
-
-        component.save();
-
-        expect(component.save).toHaveBeenCalled();
-      });
-
-      it('should call api_save_hive_settings_() from save()', () => {
-        reset();
-
-        component.save();
+        component.click_button_save();
 
         expect(component['api_save_hive_settings_']).toHaveBeenCalled();
       });

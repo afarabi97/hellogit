@@ -4,11 +4,6 @@ ${HIVE_PASSWORD}                Password!123456
 ${ADMIN_PROFILE}                admin@thehive.local
 ${ORG_ADMIN_PROFILE}            org_admin@thehive.local
 
-${locHiveSettings}              id=cvah-hive-settings-hive-settings-toggle
-${locHiveAdminAPIKeyInput}      id=cvah-hive-settings-input-admin-api-key
-${locHiveOrgAdminAPIKeyInput}   id=cvah-hive-settings-input-org-admin-api-key
-${locHiveSettingsSaveBtn}       id=cvah-hive-settings-button-save
-
 ${locAlertsPlayAndStopBtn}      xpath=//app-top-navbar[@id='app-root-app-top-navbar']/mat-drawer-container/mat-drawer-content/div/cvah-security-alerts/div/mat-card/mat-card-header/div/mat-card-title/div[2]/button/span/mat-icon
 ${locAlertsRefreshBtn}          xpath=//app-top-navbar[@id='app-root-app-top-navbar']/mat-drawer-container/mat-drawer-content/div/cvah-security-alerts/div/mat-card/mat-card-header/div/mat-card-title/div[2]/button[2]/span/mat-icon
 

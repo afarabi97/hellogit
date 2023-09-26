@@ -1,6 +1,7 @@
 *** Settings ***
 Resource    ../include/dipAlertsVariables.resource
 Resource    ../include/dipCommonVariables.resource
+Variables   ../include/element_ids_frontend.py
 
 Library    RequestsLibrary
 Library    SeleniumLibrary    15s
@@ -58,12 +59,12 @@ Obtain and Utilize Hive Keys
     ${org_admin_api_key}=  Set Variable  ${resp.text}
     Set Global Variable  ${org_admin_api_key}
     Navigate To System Settings
-    click    ${locHiveSettings}
+    click    ${CVAH_HIVE_SETTINGS__MAT_EXPANSION_PANEL}
     lookFor  Hive Settings
-    type     ${locHiveAdminAPIKeyInput}   ${admin_api_key}
-    type     ${locHiveOrgAdminAPIKeyInput}   ${org_admin_api_key}
+    type     ${CVAH_HIVE_SETTINGS__INPUT_ADMIN_API_KEY}   ${admin_api_key}
+    type     ${CVAH_HIVE_SETTINGS__INPUT_ORG_ADMIN_API_KEY}   ${org_admin_api_key}
     shoot    HiveSettings
-    click    ${locHiveSettingsSaveBtn}
+    click    ${CVAH_HIVE_SETTINGS__BUTTON_SAVE}
     log      Keys have been successfully saved to Hive Settings
 
 Verify Play Stop and Refresh Button

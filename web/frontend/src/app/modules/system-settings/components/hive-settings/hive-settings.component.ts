@@ -23,8 +23,6 @@ import { HiveSettingsService } from '../../services/hive-settings.service';
   templateUrl: './hive-settings.component.html'
 })
 export class HiveSettingsComponent implements OnInit {
-  // Used for toggling card open and closed
-  is_card_visible: boolean;
   // Used for tieing form group to html form group inputs
   hive_settings_form_group: FormGroup;
 
@@ -32,7 +30,6 @@ export class HiveSettingsComponent implements OnInit {
    * Creates an instance of HiveSettingsComponent.
    *
    * @param {FormBuilder} form_builder_
-   * @param {MatDialog} mat_dialog_
    * @param {GlobalHiveSettingsService} global_hive_settings_service_
    * @param {MatSnackBarService} mat_snackbar_service_
    * @param {HiveSettingsService} hive_settings_service_
@@ -41,10 +38,7 @@ export class HiveSettingsComponent implements OnInit {
   constructor(private form_builder_: FormBuilder,
               private global_hive_settings_service_: GlobalHiveSettingsService,
               private mat_snackbar_service_: MatSnackBarService,
-              private hive_settings_service_: HiveSettingsService) {
-    this.is_card_visible = false;
-    this.hive_settings_form_group = new FormGroup({});
-  }
+              private hive_settings_service_: HiveSettingsService) { }
 
   /**
    * Used for making subscription calls for initializing the component
@@ -56,20 +50,11 @@ export class HiveSettingsComponent implements OnInit {
   }
 
   /**
-   * Used for toggling card open and close
-   *
-   * @memberof HiveSettingsComponent
-   */
-  toggle_card(): void {
-    this.is_card_visible = !this.is_card_visible;
-  }
-
-  /**
    * Used for opeing a confirm dialog window for saving hive settings
    *
    * @memberof HiveSettingsComponent
    */
-  save(): void {
+  click_button_save(): void {
     this.api_save_hive_settings_(this.hive_settings_form_group.getRawValue() as HiveSettingsInterface);
   }
 

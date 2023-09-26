@@ -380,6 +380,10 @@ CVAH_HEALTH_DASHBOARD_DIALOG__TITLE = 'cvah-health-dashboard-dialog-title' # h2
 # TODO cvah-pod-log-dialog-*-text-key-value # h4
 CVAH_HEALTH_DASHBOARD_DIALOG__BUTTON_CLOSE = 'cvah-pod-log-dialog-button-close' # button
 
+CVAH_HIVE_SETTINGS__MAT_EXPANSION_PANEL = 'cvah-hive-settings-form-expansion-panel' # mat-expansion-panel
+CVAH_HIVE_SETTINGS__INPUT_ADMIN_API_KEY = 'cvah-hive-settings-input-admin-api-key' # input
+CVAH_HIVE_SETTINGS__INPUT_ORG_ADMIN_API_KEY = 'cvah-hive-settings-input-org-admin-api-key' # input
+CVAH_HIVE_SETTINGS__BUTTON_SAVE = 'cvah-hive-settings-button-save' # button
 
 # These are for kickstart.component.html
 APP_KICKSTART_FORM__BUTTON_OPEN_CONSOLE = 'app-kickstart-form-div-mat-card-mat-card-actions-button-open-console' # button
