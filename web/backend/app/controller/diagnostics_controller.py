@@ -11,8 +11,10 @@ from flask_restx import Resource
 class DiagnosticsCtrlApi(Resource):
 
     @DIAGNOSTICS_NS.doc(description="Runs diagnostics on the controller.")
+    @DIAGNOSTICS_NS.doc(payload=None)
     @DIAGNOSTICS_NS.response(200, "JobIDModel", JobIDModel.DTO)
     @DIAGNOSTICS_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @DIAGNOSTICS_NS.expect(None)
     @login_required_roles()
     @handle_errors
     def post(self) -> Response:

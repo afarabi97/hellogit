@@ -6,9 +6,9 @@ from rq.job import Job
 
 class JobIDModel(Model):
     DTO = JOB_NS.model('JobIDModel', {
-        "job_id": fields.String(required=True, example="fbbd7123-4926-4a84-a8ea-7c926e38edab",
+        "job_id": fields.String(required=True, example="2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6",
                                 description="The job id of the BackgroundJobModel use /api/jobs/<id> for more information."),
-        "redis_key": fields.String(required=True, example="fbbd7123-4926-4a84-a8ea-7c926e38edab",
+        "redis_key": fields.String(required=True, example="rq:job:2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6",
                                    description="The actual key that is stored in Redis database queue.")
     })
 

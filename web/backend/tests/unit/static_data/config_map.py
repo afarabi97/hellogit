@@ -2,7 +2,7 @@ from app.models.kubernetes import (ConfigMapListModel, ConfigMappingModel,
                                    ConfigMapSavedModel, ConfigMapSaveModel)
 from tests.unit.static_data.associated_pods import ASSOCIATED_PODS
 
-CONFIG_MAPPING_1 = {
+CONFIG_MAPPING_1: ConfigMappingModel = {
     "api_version": None,
     "binary_data": None,
     "data": {
@@ -34,9 +34,9 @@ CONFIG_MAPPING_1 = {
         "self_link": None,
         "uid": "619949d5-4d58-489a-a2fe-a624b881f8ba"
     }
-} #type: ConfigMappingModel
+}
 
-CONFIG_MAPPING_2 = {
+CONFIG_MAPPING_2: ConfigMappingModel = {
     "api_version": None,
     "binary_data": None,
     "data": {
@@ -67,9 +67,9 @@ CONFIG_MAPPING_2 = {
         "self_link": None,
         "uid": "2b4601b9-aa49-40bb-b456-a8d9d9c57bfd"
     }
-} # type: ConfigMappingModel
+}
 
-CONFIG_MAP_LIST = {
+CONFIG_MAP_LIST: ConfigMapListModel = {
     "api_version": "v1",
     "items": [
         CONFIG_MAPPING_1,
@@ -81,13 +81,13 @@ CONFIG_MAP_LIST = {
         "self_link": None,
         "_continue": None
     }
-} # type: ConfigMapListModel
+}
 
-CONFIG_MAP_SAVE = {
+CONFIG_MAP_SAVE: ConfigMapSaveModel = {
   "configMap": CONFIG_MAPPING_1,
   "associatedPods": ASSOCIATED_PODS
-} # type: ConfigMapSaveModel
+}
 
-CONFIG_MAP_SAVED = {
+CONFIG_MAP_SAVED: ConfigMapSavedModel = {
     "name": CONFIG_MAPPING_1["metadata"]["name"]
-} # type: ConfigMapSavedModel
+}

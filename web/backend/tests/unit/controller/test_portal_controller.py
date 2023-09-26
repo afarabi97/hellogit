@@ -1,10 +1,10 @@
 from app.models import DBModelNotFound
 from app.utils.exceptions import InternalServerError
-from app.utils.namespaces import PORTAL_NS
 from flask.testing import FlaskClient
 from pytest_mock.plugin import MockerFixture
 from tests.unit.static_data.portal_link import (mock_portal_link_list,
                                                 mock_portal_user_links)
+from tests.unit.static_data.success_message import mock_success_message
 from tests.unit.utils.mock_object_variable_tester import \
     json_object_key_value_checker
 
@@ -14,7 +14,7 @@ def test_get_portal_link_200(client: FlaskClient, mocker: MockerFixture) -> None
     mocker.patch("app.controller.portal_controller.get_portal_links", return_value=mock_portal_link_list)
     response = client.get("/api/portal/links")
     assert response.status_code == 200
-    assert json_object_key_value_checker(response.json, mock_portal_link_list) == True
+    assert json_object_key_value_checker(response.json[0], mock_portal_link_list[0]) == True
 
 
 def test_get_portal_link_500_InternalServerError(client: FlaskClient, mocker: MockerFixture) -> None:
@@ -26,10 +26,10 @@ def test_get_portal_link_500_InternalServerError(client: FlaskClient, mocker: Mo
 # Test UserLinksCtrlApi
 
 def test_get_user_links_200(client: FlaskClient, mocker: MockerFixture) -> None:
-    mocker.patch("app.controller.portal_controller.get_user_links", return_value=mock_portal_user_links[0])
+    mocker.patch("app.controller.portal_controller.get_user_links", return_value=mock_portal_user_links)
     response = client.get("/api/portal/user/links")
     assert response.status_code == 200
-    assert json_object_key_value_checker(response.json, mock_portal_user_links[0]) == True
+    assert json_object_key_value_checker(response.json[0], mock_portal_user_links[0]) == True
 
 
 def test_get_user_links_500_InternalServerError(client: FlaskClient, mocker: MockerFixture) -> None:
@@ -39,10 +39,10 @@ def test_get_user_links_500_InternalServerError(client: FlaskClient, mocker: Moc
 
 
 def test_post_user_links_200(client: FlaskClient, mocker: MockerFixture) -> None:
-    mocker.patch("app.controller.portal_controller.post_user_links", return_value=mock_portal_user_links[0])
+    mocker.patch("app.controller.portal_controller.post_user_links", return_value=mock_portal_user_links)
     response = client.post("/api/portal/user/links", json=mock_portal_user_links[0])
     assert response.status_code == 200
-    assert json_object_key_value_checker(response.json, mock_portal_user_links[0]) == True
+    assert json_object_key_value_checker(response.json[0], mock_portal_user_links[0]) == True
 
 
 def test_post_user_links_500_InternalServerError(client: FlaskClient, mocker: MockerFixture) -> None:
@@ -55,10 +55,10 @@ def test_post_user_links_500_InternalServerError(client: FlaskClient, mocker: Mo
 
 def test_delete_user_links_200(client: FlaskClient, mocker: MockerFixture) -> None:
     mock_portal_id = mock_portal_user_links[0]['_id']
-    mocker.patch("app.controller.portal_controller.delete_user_links", return_value=mock_portal_user_links[0])
+    mocker.patch("app.controller.portal_controller.delete_user_links", return_value=mock_success_message)
     response = client.delete(f"/api/portal/user/links/{mock_portal_id}")
     assert response.status_code == 200
-    assert json_object_key_value_checker(response.json, mock_portal_user_links[0]) == True
+    assert response.json["success_message"] == mock_success_message["success_message"]
 
 
 def test_delete_user_links_400(client: FlaskClient, mocker: MockerFixture) -> None:

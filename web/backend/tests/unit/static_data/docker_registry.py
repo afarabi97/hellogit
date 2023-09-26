@@ -2,7 +2,7 @@ from typing import List
 
 from app.models.kubernetes import DockerImageModel
 
-mock_docker = [
+mock_docker_images: List[DockerImageModel] = [
     {
         "name": "busybox",
         "metadata": [
@@ -13,4 +13,4 @@ mock_docker = [
             }
         ]
     }
-] # type: List[DockerImageModel]
+]

@@ -1,8 +1,10 @@
 import re
+from typing import List
 
 from app.common import cursor_to_json_response
 from app.models.common import COMMON_SUCCESS_MESSAGE
 from app.models.nodes import Node
+from app.models.portal_link import PortalLinkModel
 from app.models.portal_link_user import UserPortalLinkModel
 from app.utils.collections import mongo_catalog_saved_values, mongo_user_links
 from app.utils.connection_mngs import KubernetesWrapper
@@ -86,9 +88,9 @@ def _is_discluded(dns: str) -> bool:
     return False
 
 
-def get_portal_links():
+def get_portal_links() -> List[PortalLinkModel]:
     kit_domain = get_domain()
-    portal_links = []
+    portal_links: List[PortalLinkModel] = []
     try:
         minio = Node.load_minio_from_db()
         if minio:
@@ -108,14 +110,14 @@ def get_portal_links():
     return portal_links
 
 
-def get_user_links():
+def get_user_links() -> List[UserPortalLinkModel]:
     user_links = mongo_user_links().find({})
     return cursor_to_json_response(
         user_links, fields=["name", "url", "description"], sort_field="name"
     )
 
 
-def post_user_links(user_portal_link: UserPortalLinkModel) -> Response:
+def post_user_links(user_portal_link: UserPortalLinkModel) -> List[UserPortalLinkModel]:
     user_portal_link = request.get_json()
     if not re.match(r"^(http|https)://", user_portal_link.get("url")):
         return Response(

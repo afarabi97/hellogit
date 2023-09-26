@@ -2,15 +2,14 @@ from app.models import DBModelNotFound
 from app.utils.exceptions import InternalServerError
 from flask.testing import FlaskClient
 from pytest_mock.plugin import MockerFixture
-from tests.unit.models.mock_job_id import MockJobIDModel
-from tests.unit.static_data.kit_status import kit_status
+from tests.unit.static_data.jobs import mock_job_id_model
+from tests.unit.static_data.kit_status import mock_kit_status
 from tests.unit.utils.mock_object_variable_tester import \
     json_object_key_value_checker
 
 # Test KitStatusCtrlApi
 
 def test_get_new_status_200(client: FlaskClient, mocker: MockerFixture) -> None:
-    mock_kit_status = kit_status
     mocker.patch("app.controller.kit_controller.get_new_kit_status", return_value=mock_kit_status)
     response = client.get("/api/kit/status")
     assert response.status_code == 200
@@ -34,12 +33,10 @@ def test_get_new_status_500_InternalServerError(client: FlaskClient, mocker: Moc
 # Test KitCtrlApi
 
 def test_get_execute_kit_job_200(client: FlaskClient, mocker: MockerFixture) -> None:
-    mock_job_id_model = MockJobIDModel("fbbd7123-4926-4a84-a8ea-7c926e38edab",
-                                       "rq:job:fbbd7123-4926-4a84-a8ea-7c926e38edab")
-    mocker.patch("app.controller.kit_controller.get_execute_kit_job", return_value=mock_job_id_model.to_dict())
+    mocker.patch("app.controller.kit_controller.get_execute_kit_job", return_value=mock_job_id_model)
     response = client.get("/api/kit/deploy")
     assert response.status_code == 200
-    assert response.json["job_id"] == mock_job_id_model.job_id
+    assert response.json["job_id"] == mock_job_id_model['job_id']
 
 
 def test_get_execute_kit_job_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:

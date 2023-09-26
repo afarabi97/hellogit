@@ -3,10 +3,9 @@ from flask.testing import FlaskClient
 from pytest_mock.plugin import MockerFixture
 from tests.unit.models.mock_general_settings import \
     MockGeneralSettingsFormModel
-from tests.unit.models.mock_job_id import MockJobIDModel
-from tests.unit.models.mock_mip_schema import (MipSchemaDBModel,
-                                               mock_mip_schema_1,
-                                               mock_mip_schema_2)
+from tests.unit.models.mock_mip_schema import MipSchemaDBModel
+from tests.unit.static_data.jobs import mock_job_id_model
+from tests.unit.static_data.mip import mock_mip_model_1, mock_mip_model_2
 
 
 @pytest.fixture
@@ -22,16 +21,14 @@ def mip_schema_db_model():
 # Test MipCtrlApi
 
 def test_post_mip_202(client: FlaskClient, mocker: MockerFixture) -> None:
-    mock_job_id_model = MockJobIDModel("2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6",
-                                       "rq:job:2ccd6523-ea2a-4384-b4b0-7a5c1f8e43b6")
-    mocker.patch("app.controller.mip_controller.post_mip", return_value=mock_job_id_model.to_dict())
-    response = client.post("/api/kit/mip", json=mock_mip_schema_1)
+    mocker.patch("app.controller.mip_controller.post_mip", return_value=mock_job_id_model)
+    response = client.post("/api/kit/mip", json=mock_mip_model_1)
     assert response.status_code == 202
-    assert response.json["job_id"] == mock_job_id_model.job_id
+    assert response.json["job_id"] == mock_job_id_model['job_id']
 
 
 def test_post_mip_400_ValidationError(client: FlaskClient) -> None:
-    response = client.post("/api/kit/mip", json=mock_mip_schema_2)
+    response = client.post("/api/kit/mip", json=mock_mip_model_2)
     assert response.status_code == 400
     assert response.json["status"]
     assert response.json["messages"]
@@ -50,6 +47,6 @@ def test_post_mip_400_ValidationError(client: FlaskClient) -> None:
 
 def test_post_mip_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
     mocker.patch("app.controller.mip_controller.post_mip", side_effect=Exception({"error": "mocked error"}))
-    response = client.post("/api/kit/mip", json=mock_mip_schema_1)
+    response = client.post("/api/kit/mip", json=mock_mip_model_1)
     assert response.status_code == 500
     assert response.json["error_message"]

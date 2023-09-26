@@ -26,6 +26,7 @@ class KitTokensApi(Resource):
     @KIT_TOKEN_NS.response(201, "KitTokenModel", KitTokenModel.DTO)
     @KIT_TOKEN_NS.response(409, "ErrorMessage: ResponseConflictError", COMMON_ERROR_MESSAGE)
     @KIT_TOKEN_NS.response(500, "ErrorMessage: InternalServerError", COMMON_ERROR_MESSAGE)
+    @KIT_TOKEN_NS.expect(KitTokenModel.DTO)
     @login_required_roles(["controller-admin", "controller-maintainer"], all_roles_req=False)
     @required_params(KitTokenSchemaModel())
     @handle_errors

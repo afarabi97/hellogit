@@ -5,7 +5,7 @@ from tests.unit.static_data.scale import (mock_elastic_scale_advanced_config,
                                           mock_elastic_scale_check,
                                           mock_elastic_scale_node_in,
                                           mock_elastic_scale_node_out)
-from tests.unit.static_data.success_message import success_message
+from tests.unit.static_data.success_message import mock_success_message
 from tests.unit.utils.mock_object_variable_tester import \
     json_object_key_value_checker
 
@@ -28,10 +28,10 @@ def test_get_elastic_scale_check_500_Exception(client: FlaskClient, mocker: Mock
 # Test ScaleElasticCtrlApi
 
 def test_post_elastic_scale_200(client: FlaskClient, mocker: MockerFixture) -> None:
-    mocker.patch("app.controller.scale_controller.post_elastic_scale", return_value=success_message)
+    mocker.patch("app.controller.scale_controller.post_elastic_scale", return_value=mock_success_message)
     response = client.post("/api/scale/elastic", json=mock_elastic_scale_node_in)
     assert response.status_code == 200
-    assert response.json["success_message"] == success_message["success_message"]
+    assert response.json["success_message"] == mock_success_message["success_message"]
 
 
 def test_post_elastic_scale_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
@@ -58,10 +58,10 @@ def test_get_elastic_scale_advanced_500_Exception(client: FlaskClient, mocker: M
 
 
 def test_post_elastic_scale_advanced_200(client: FlaskClient, mocker: MockerFixture) -> None:
-    mocker.patch("app.controller.scale_controller.post_elastic_scale_advanced", return_value=success_message)
+    mocker.patch("app.controller.scale_controller.post_elastic_scale_advanced", return_value=mock_success_message)
     response = client.post("/api/scale/elastic/advanced", json=mock_elastic_scale_advanced_config)
     assert response.status_code == 200
-    assert response.json["success_message"] == success_message["success_message"]
+    assert response.json["success_message"] == mock_success_message["success_message"]
 
 
 def test_post_elastic_scale_advanced_406_ObjectKeyError(client: FlaskClient, mocker: MockerFixture) -> None:

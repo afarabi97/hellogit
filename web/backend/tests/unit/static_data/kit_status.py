@@ -1,4 +1,7 @@
-kit_status = {
+from app.models.kit_status import KitStatusModel
+
+
+mock_kit_status: KitStatusModel = {
     "control_plane_deployed": True,
     "general_settings_configured": True,
     "kit_settings_configured": True,
