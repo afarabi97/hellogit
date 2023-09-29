@@ -1,0 +1,27 @@
+<h1 mat-dialog-title>Add Kit Token Dialog</h1>
+<mat-dialog-content>
+    <form mat-dialog-content
+          id="kit-token-settings-form"
+          [formGroup]="kit_token_settings_form_group"
+          (ngSubmit)="submit()">
+        <div fxLayout="column" fxLayoutAlign="start stretch">
+            <!-- ipaddress-->
+            <mat-form-field class="custom_ipaddress_spacing">
+                <mat-label>IP Address</mat-label>
+                <input matInput type="text" formControlName="ipaddress"/>
+                <mat-error>{{ get_error_message(kit_token_settings_form_group.get("ipaddress")) }}</mat-error>
+            </mat-form-field>
+        </div>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-raised-button
+            color="warn"
+            (click)="click_button_close()">Cancel</button>
+    <button mat-raised-button
+            color="primary"
+            type="submit"
+            form="kit-token-settings-form"
+            [disabled]="!kit_token_settings_form_group.valid ||
+                        !kit_token_settings_form_group.dirty">Add</button>
+</mat-dialog-actions>

@@ -4,10 +4,10 @@ import { Injectable } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Observable, of as observableOf, Subject } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MockSuccessMessageClass } from '../../../../../static-data/class-objects';
+import { MockKitTokenClass, MockSuccessMessageClass } from '../../../../../static-data/class-objects';
 import { MockKitTokenInterface, MockSuccessMessageInterface } from '../../../../../static-data/interface-objects';
 import { environment } from '../../../../environments/environment';
 import { KitTokenClass, SuccessMessageClass } from '../../../classes';
@@ -73,6 +73,8 @@ describe('KitTokenSettingsService', () => {
     ngUnsubscribe$.next();
 
     spy_get_kit_tokens.calls.reset();
+    spy_create_kit_token.calls.reset();
+    spy_delete_kit_token.calls.reset();
   };
 
   const after = () => {
@@ -90,12 +92,18 @@ describe('KitTokenSettingsService', () => {
 
         service.get_kit_tokens()
           .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: Array<KitTokenClass>) => {
-            expect(response.length).toEqual(1);
+          .subscribe((response: KitTokenClass[]) => {
+            const objectKeys: string[] = Object.keys(response[0]);
+            objectKeys.forEach((key: string) => {
+              if (!(response[0][key] instanceof Array)) {
+                expect(response[0][key]).toEqual(MockKitTokenClass[key]);
+              }
+            });
+
             expect(service.get_kit_tokens).toHaveBeenCalled();
           });
 
-        const xhrURL: string = `${environment.KIT_TOKENS_SETTINGS_SERVICE}`;
+        const xhrURL: string = environment.KIT_TOKENS_SETTINGS_SERVICE;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         expect(xhrRequest.request.method).toEqual(getType);
@@ -111,13 +119,13 @@ describe('KitTokenSettingsService', () => {
         service.get_kit_tokens()
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
-            (response: Array<KitTokenClass>) => {},
+            (response: KitTokenClass[]) => {},
             (error: HttpErrorResponse) => {
               expect(error.error).toContain(errorRequest);
               expect(service.get_kit_tokens).toHaveBeenCalled();
             });
 
-        const xhrURL: string = `${environment.KIT_TOKENS_SETTINGS_SERVICE}`;
+        const xhrURL: string = environment.KIT_TOKENS_SETTINGS_SERVICE;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorRequest, mockErrorResponse);
@@ -126,27 +134,34 @@ describe('KitTokenSettingsService', () => {
       });
     });
 
-    describe('REST create_kit_token(<kit_token>)', () => {
-      it('should call create_kit_token(<kit_token>)', () => {
+    describe('REST create_kit_token()', () => {
+      it('should call create_kit_token()', () => {
         reset();
 
         service.create_kit_token(MockKitTokenInterface)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: KitTokenClass) => {
+            const objectKeys: string[] = Object.keys(response);
+            objectKeys.forEach((key: string) => {
+              if (!(response[key] instanceof Array)) {
+                expect(response[key]).toEqual(MockKitTokenClass[key]);
+              }
+            });
+
             expect(service.create_kit_token).toHaveBeenCalled();
           });
 
-        const xhrURL: string = `${environment.KIT_TOKENS_SETTINGS_SERVICE}`;
+        const xhrURL: string = environment.KIT_TOKENS_SETTINGS_SERVICE;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         expect(xhrRequest.request.method).toEqual(postType);
 
-        xhrRequest.flush(MockKitTokenInterface, {status: 201, statusText: 'Created'});
+        xhrRequest.flush(MockKitTokenInterface);
 
         after();
       });
 
-      it('should call create_kit_token(<kit_token>) and handle error', () => {
+      it('should call create_kit_token() and handle error', () => {
         reset();
 
         service.create_kit_token(MockKitTokenInterface)
@@ -158,7 +173,7 @@ describe('KitTokenSettingsService', () => {
               expect(service.create_kit_token).toHaveBeenCalled();
             });
 
-        const xhrURL: string = `${environment.KIT_TOKENS_SETTINGS_SERVICE}`;
+        const xhrURL: string = environment.KIT_TOKENS_SETTINGS_SERVICE;
         const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
 
         xhrRequest.flush(errorRequest, mockErrorResponse);
@@ -167,13 +182,20 @@ describe('KitTokenSettingsService', () => {
       });
     });
 
-    describe('REST delete_kit_token(<kit_token_id>)', () => {
-      it('should call delete_kit_token(<kit_token_id>)', () => {
+    describe('REST delete_kit_token()', () => {
+      it('should call delete_kit_token()', () => {
         reset();
 
         service.delete_kit_token(MockKitTokenInterface.kit_token_id)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: SuccessMessageClass) => {
+            const objectKeys: string[] = Object.keys(response);
+            objectKeys.forEach((key: string) => {
+              if (!(response[key] instanceof Array)) {
+                expect(response[key]).toEqual(MockSuccessMessageClass[key]);
+              }
+            });
+
             expect(service.delete_kit_token).toHaveBeenCalled();
           });
 
@@ -187,7 +209,7 @@ describe('KitTokenSettingsService', () => {
         after();
       });
 
-      it('should call delete_kit_token(<kit_token_id>) and handle error', () => {
+      it('should call delete_kit_token() and handle error', () => {
         reset();
 
         service.delete_kit_token(MockKitTokenInterface.kit_token_id)
@@ -212,19 +234,28 @@ describe('KitTokenSettingsService', () => {
 
 @Injectable()
 export class KitTokenSettingsServiceSpy implements KitTokenSettingsServiceInterface {
-  get_kit_tokens = jasmine.createSpy('get_kit_tokens').and.callFake((): Observable<Array<KitTokenClass>> => this.call_fake_get_kit_tokens());
-  create_kit_token = jasmine.createSpy('create_kit_token').and.callFake((kit_token: KitTokenInterface): Observable<KitTokenClass> => this.call_fake_create_kit_token(kit_token));
-  delete_kit_token = jasmine.createSpy('delete_kit_token').and.callFake((kit_token_id: string): Observable<SuccessMessageClass> => this.call_fake_delete_kit_token(kit_token_id));
 
-  call_fake_get_kit_tokens(): Observable<Array<KitTokenClass>> {
-    return observableOf([MockKitTokenInterface]);
+  get_kit_tokens = jasmine.createSpy('get_kit_tokens').and.callFake(
+    (): Observable<KitTokenClass[]> => this.call_fake_get_kit_tokens()
+  );
+
+  create_kit_token = jasmine.createSpy('create_kit_token').and.callFake(
+    (kit_token: KitTokenInterface): Observable<KitTokenClass> => this.call_fake_create_kit_token(kit_token)
+  );
+
+  delete_kit_token = jasmine.createSpy('delete_kit_token').and.callFake(
+    (kit_token_id: string): Observable<SuccessMessageClass> => this.call_fake_delete_kit_token(kit_token_id)
+  );
+
+  call_fake_get_kit_tokens(): Observable<KitTokenClass[]> {
+    return of([MockKitTokenClass]);
   }
 
   call_fake_create_kit_token(kit_token: KitTokenInterface): Observable<KitTokenClass> {
-    return observableOf(new KitTokenClass(kit_token));
+    return of(MockKitTokenClass);
   }
 
   call_fake_delete_kit_token(kit_token_id: string): Observable<SuccessMessageClass> {
-    return observableOf(MockSuccessMessageClass);
+    return of(MockSuccessMessageClass);
   }
 }

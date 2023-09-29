@@ -12,16 +12,17 @@ import { GeneralSettingsPaneComponent } from './components/general-settings/gene
 import { HiveSettingsComponent } from './components/hive-settings/hive-settings.component';
 import { KitSettingsPaneComponent } from './components/kit-settings/kit-settings-pane.component';
 import {
-  AddKitTokenComponent
-} from './components/kit-token-settings/components/add-kit-token-dialog/add-kit-token.component';
+  AddKitTokenDialogComponent
+} from './components/kit-token-settings/components/add-kit-token-dialog/add-kit-token-dialog.component';
 import {
-  CopyTokenModalDialogComponent
+  CopyTokenDialogComponent
 } from './components/kit-token-settings/components/copy-token-dialog/copy-token-dialog.component';
-import { KitTokenSettingsPaneComponent } from './components/kit-token-settings/kit-token-settings-pane.component';
+import { KitTokenSettingsComponent } from './components/kit-token-settings/kit-token-settings.component';
 import { MIPSettingsPaneComponent } from './components/mip-settings/mip-settings-pane.component';
 import { VMWareSettingsComponent } from './components/vmware-settings/vmware-settings.component';
 import { HiveSettingsService } from './services/hive-settings.service';
 import { SystemSettingsComponent } from './system-settings.component';
+import { KitTokenSettingsService } from './services/kit-token-settings.service';
 
 @NgModule({
   imports: [
@@ -38,19 +39,21 @@ import { SystemSettingsComponent } from './system-settings.component';
     GeneralSettingsPaneComponent,
     HiveSettingsComponent,
     KitSettingsPaneComponent,
-    AddKitTokenComponent,
-    CopyTokenModalDialogComponent,
-    KitTokenSettingsPaneComponent,
+    AddKitTokenDialogComponent,
+    CopyTokenDialogComponent,
+    KitTokenSettingsComponent,
     MIPSettingsPaneComponent,
     VMWareSettingsComponent,
     SystemSettingsComponent
   ],
   entryComponents: [
-    CopyTokenModalDialogComponent
+    KitTokenSettingsComponent,
+    CopyTokenDialogComponent
   ],
   providers: [
     HiveSettingsService,
-    GlobalHiveSettingsService
+    GlobalHiveSettingsService,
+    KitTokenSettingsService
   ]
 })
 export class SystemSettingsModule { }

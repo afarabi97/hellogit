@@ -12,3 +12,7 @@ textarea {
   line-height: 20px;
   background-color: black;
 }
+
+:host ::ng-deep .mat-dialog-content {
+  overflow: hidden;
+}

@@ -11,37 +11,63 @@ import { KitTokenSettingsServiceInterface } from '../interfaces/service-interfac
 
 const ENTITY_CONFIG: EntityConfig = { entityPart: '', type: 'KitTokenSettingsService' };
 
+/**
+ * Service used for kit token api calls
+ *
+ * @export
+ * @class KitTokenSettingsService
+ * @extends {ApiService<any>}
+ * @implements {KitTokenSettingsServiceInterface}
+ */
 @Injectable({
-  providedIn: 'root'
+  providedIn: null
 })
 export class KitTokenSettingsService extends ApiService<any> implements KitTokenSettingsServiceInterface {
 
+  /**
+   * Creates an instance of KitTokenSettingsService.
+   *
+   * @memberof KitTokenSettingsService
+   */
   constructor() {
     super(ENTITY_CONFIG);
   }
 
-  get_kit_tokens(): Observable<Array<KitTokenClass>> {
-    return this.httpClient_.get(environment.KIT_TOKENS_SETTINGS_SERVICE).pipe(
-      map((kit_tokens: Array<KitTokenInterface>) => {
-        const kit_token_list = [];
-        for (const kit_token of kit_tokens) {
-          kit_token_list.push(new KitTokenClass(kit_token));
-        }
-        return kit_token_list;
-      }),
-      catchError((error: HttpErrorResponse) => this.handleError('get kit tokens', error))
-    );
+  /**
+   * REST call to GET kit tokens
+   *
+   * @return {Observable<KitTokenClass[]>}
+   * @memberof KitTokenSettingsService
+   */
+  get_kit_tokens(): Observable<KitTokenClass[]> {
+    return this.httpClient_.get<KitTokenInterface[]>(environment.KIT_TOKENS_SETTINGS_SERVICE)
+                           .pipe(map((response: KitTokenInterface[]) => response.map((kit_token: KitTokenInterface) => new KitTokenClass(kit_token))),
+                                 catchError((error: HttpErrorResponse) => this.handleError('get kit tokens', error)));
   }
 
+  /**
+   * REST call to POST create kit token
+   *
+   * @param {KitTokenInterface} kit_token
+   * @return {Observable<KitTokenClass>}
+   * @memberof KitTokenSettingsService
+   */
   create_kit_token(kit_token: KitTokenInterface): Observable<KitTokenClass> {
-    return this.httpClient_.post(environment.KIT_TOKENS_SETTINGS_SERVICE, kit_token).pipe(
-      map((kt: KitTokenInterface) => new KitTokenClass(kt)),
-      catchError((error: HttpErrorResponse) => this.handleError('create kit_token', error)),
-    );
+    return this.httpClient_.post<KitTokenInterface>(environment.KIT_TOKENS_SETTINGS_SERVICE, kit_token)
+                           .pipe(map((kt: KitTokenInterface) => new KitTokenClass(kt)),
+                                 catchError((error: HttpErrorResponse) => this.handleError('create kit_token', error)));
   }
 
+  /**
+   * REST call to DELETE kit token
+   *
+   * @param {string} kit_token_id
+   * @return {Observable<SuccessMessageClass>}
+   * @memberof KitTokenSettingsService
+   */
   delete_kit_token(kit_token_id: string): Observable<SuccessMessageClass> {
-    const url = `${environment.KIT_TOKENS_SETTINGS_SERVICE}/${kit_token_id}`;
+    const url: string = `${environment.KIT_TOKENS_SETTINGS_SERVICE}/${kit_token_id}`;
+
     return this.httpClient_.delete<SuccessMessageInterface>(url)
                            .pipe(map((kt: SuccessMessageInterface) => new SuccessMessageClass(kt)),
                                  catchError((error: HttpErrorResponse) => this.handleError('delete kit_token', error)));
