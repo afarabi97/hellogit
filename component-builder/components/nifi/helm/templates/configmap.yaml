@@ -18,6 +18,7 @@ data:
     prop_replace 'nifi.security.user.login.identity.provider' 'single-user-provider'
     /opt/nifi/nifi-current/bin/nifi.sh set-single-user-credentials admin password123456
 
+    prop_replace 'nifi.sensitive.props.key' 'password123456'
     prop_replace 'nifi.security.user.saml.idp.metadata.url' 'file:///etc/idp/idp.metadata.xml'
     prop_replace 'nifi.security.user.saml.sp.entity.id' 'https://nifi.{{ .Values.domain }}/shibboleth'
     prop_replace 'nifi.security.user.saml.group.attribute.name' 'member'

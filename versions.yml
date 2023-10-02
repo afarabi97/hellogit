@@ -44,7 +44,7 @@ docker_versions:
   misp_version: 2.4.148
   mongodb_version: 4.4.3
   nginx_version: 1.20.1
-  nifi_version: 1.21.0
+  nifi_version: 1.23.2
   python_version: 3.9.0
   redis_version: 6.2.5-alpine
   redmine_version: "4.2.1"
@@ -113,7 +113,7 @@ helm_versions:
   mattermost: 1.0.5
   misp: 1.0.8
   netflow_filebeat: 1.0.4
-  nifi: 1.0.6
+  nifi: 1.0.7
   redmine: 1.0.5
   remote_health_agent: 1.0.3
   rocketchat: 1.1.20
