@@ -1,103 +1,112 @@
-import json
-import os
-
-RULE_UPLOAD_CONTENT_TYPE = "multipart/form-data"
-
-class MyTestJob:
-    def __init__(self, id, key):
-        self.id = id
-        self.key = key.encode("UTF-8")
-
-    def get_id(self):
-        return self.id
-
-    def delay():
-        pass
-
-def test_upload_route(tmp_path, client, mocker):
-    upload_file_name = "test_upload.log"
-    test_file = os.path.join(tmp_path, upload_file_name)
-    with open(test_file, "wb") as f:
-        f.write(b"1234")
-
-    job = MyTestJob("fbbd7123-4926-4a84-a8ea-7c926e38edab", "fbbd7123-4926-4a84-a8ea-7c926e38edab")
-    mocker.patch("app.service.cold_log_service.process_cold_logs.delay", return_value=job)
-
-    # Here we test a valid cold log upload
-    payload = {
-        "upload_file": (open(test_file, "rb"),
-                        upload_file_name),
-        "cold_log_form": json.dumps(
-            {
-                "module": "apache",
-                "fileset": "access",
-                "index_suffix": "cold-log",
-                "send_to_logstash": "false"
-            }
-        )
-    }
-    results = client.post("/api/coldlog/upload", data=payload,
-                          content_type=RULE_UPLOAD_CONTENT_TYPE)
-    assert results.status_code == 200
-
-    # Here we test a cold log upload without a file being chosen
-    payload = {
-        "cold_log_form": json.dumps(
-            {
-                "module": "apache",
-                "fileset": "access",
-                "index_suffix": "cold-log",
-                "send_to_logstash": "false"
-            }
-        )
-    }
-    results = client.post("/api/coldlog/upload", data=payload,
-                          content_type=RULE_UPLOAD_CONTENT_TYPE)
-    assert results.status_code == 400
-
-    # Here we test a cold log upload without Winlogbeat being setup
-    payload = {
-        "upload_file": (open(test_file, "rb"),
-                        upload_file_name),
-        "cold_log_form": json.dumps(
-            {
-                "module": "windows",
-                "fileset": "access",
-                "index_suffix": "cold-log",
-                "send_to_logstash": "false"
-            }
-        )
-    }
-    results = client.post("/api/coldlog/upload", data=payload,
-                          content_type=RULE_UPLOAD_CONTENT_TYPE)
-    assert results.status_code == 500
-
-    # TODO: Need to add WinLogbeat setup to test for 200 with windows log
+from app.utils.exceptions import FailedToUploadFile, FailedToUploadWinLog
+from flask.testing import FlaskClient
+from pytest_mock.plugin import MockerFixture
+from tests.unit.static_data.cold_log import (create_mock_cold_log,
+                                             mock_filebeat_list,
+                                             mock_winlogbeat_install_model,
+                                             mock_winlogbeat_install_model_bad)
+from tests.unit.static_data.content_types import RULE_UPLOAD_CONTENT_TYPE
+from tests.unit.static_data.jobs import mock_job_id_model
+from tests.unit.utils.mock_object_variable_tester import \
+    json_object_key_value_checker
 
 
-def test_module_info_route(client):
-    results = client.get("/api/coldlog/module/info")
-    assert results.status_code == 200
-    assert results.get_json() != "{}"
+# Test ColdLogUploadApi
 
 
-def test_winlogbeat_configure_route(client):
-    results = client.get("/api/coldlog/winlogbeat/configure")
-    assert results.status_code == 200
-    assert results.get_json() != "{}"
+def test_post_coldlog_upload_200(client: FlaskClient, mocker: MockerFixture) -> None:
+    data = create_mock_cold_log()
+    mocker.patch("app.controller.cold_log_controller.post_coldlog_upload", return_value=mock_job_id_model)
+    response = client.post("/api/coldlog/upload", data=data, content_type=RULE_UPLOAD_CONTENT_TYPE)
+    assert response.status_code == 200
+    assert json_object_key_value_checker(response.json, mock_job_id_model) == True
 
 
-def test_winlogbeat_install_route(client, mocker):
-    payload = {
-        "windows_host": "testhost",
-        "winrm_port": "8888",
-        "username": "test",
-        "password": "password",
-        "winrm_transport": "tcp",
-        "winrm_scheme": "none"
-    }
-    job = MyTestJob("fbbd7123-4926-4a84-a8ea-7c926e38edab", "fbbd7123-4926-4a84-a8ea-7c926e38edab")
-    mocker.patch("app.service.cold_log_service.install_winlogbeat_srv.delay", return_value=job)
-    results = client.post("/api/coldlog/winlogbeat/install", json=payload)
-    assert results.status_code == 200
-    assert results.get_json() != ""
+def test_post_coldlog_upload_404_FileNotFoundError(client: FlaskClient, mocker: MockerFixture) -> None:
+    data = create_mock_cold_log()
+    mocker.patch("app.controller.cold_log_controller.post_coldlog_upload", side_effect=FileNotFoundError)
+    response = client.post("/api/coldlog/upload", data=data, content_type=RULE_UPLOAD_CONTENT_TYPE)
+    assert response.status_code == 404
+    assert response.json["error_message"]
+
+
+def test_post_coldlog_upload_409_FailedToUploadFile(client: FlaskClient, mocker: MockerFixture) -> None:
+    data = create_mock_cold_log()
+    mocker.patch("app.controller.cold_log_controller.post_coldlog_upload", side_effect=FailedToUploadFile)
+    response = client.post("/api/coldlog/upload", data=data, content_type=RULE_UPLOAD_CONTENT_TYPE)
+    assert response.status_code == 409
+    assert response.json["error_message"]
+
+
+def test_post_coldlog_upload_500_FailedToUploadWinLOg(client: FlaskClient, mocker: MockerFixture) -> None:
+    data = create_mock_cold_log()
+    mocker.patch("app.controller.cold_log_controller.post_coldlog_upload", side_effect=FailedToUploadWinLog)
+    response = client.post("/api/coldlog/upload", data=data, content_type=RULE_UPLOAD_CONTENT_TYPE)
+    assert response.status_code == 500
+    assert response.json["error_message"]
+
+
+def test_post_coldlog_upload_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
+    data = create_mock_cold_log()
+    mocker.patch("app.controller.cold_log_controller.post_coldlog_upload", side_effect=Exception({"error": "mocked error"}))
+    response = client.post("/api/coldlog/upload", data=data, content_type=RULE_UPLOAD_CONTENT_TYPE)
+    assert response.status_code == 500
+    assert response.json["error_message"]
+
+
+# Test ModuleInfoApi
+
+
+def test_get_module_info_200(client: FlaskClient, mocker: MockerFixture) -> None:
+    mocker.patch("app.controller.cold_log_controller.get_module_info", return_value=mock_filebeat_list)
+    response = client.get("/api/coldlog/module/info")
+    assert response.status_code == 200
+    assert json_object_key_value_checker(response.json[0], mock_filebeat_list[0]) == True
+
+
+def test_get_module_info_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
+    mocker.patch("app.controller.cold_log_controller.get_module_info", side_effect=Exception({"error": "mocked error"}))
+    response = client.get("/api/coldlog/module/info")
+    assert response.status_code == 500
+    assert response.json["error_message"]
+
+
+# Test WinlogbeatConfigureApi
+
+
+def test_get_winlogbeat_configure_200(client: FlaskClient, mocker: MockerFixture) -> None:
+    mocker.patch("app.controller.cold_log_controller.get_winlogbeat_configure", return_value=mock_winlogbeat_install_model)
+    response = client.get("/api/coldlog/winlogbeat/configure")
+    assert response.status_code == 200
+    assert json_object_key_value_checker(response.json, mock_winlogbeat_install_model) == True
+
+
+def test_get_winlogbeat_configure_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
+    mocker.patch("app.controller.cold_log_controller.get_winlogbeat_configure", side_effect=Exception({"error": "mocked error"}))
+    response = client.get("/api/coldlog/winlogbeat/configure")
+    assert response.status_code == 500
+    assert response.json["error_message"]
+
+
+# Test WinlogbeatInstallApi
+
+
+def test_post_winlogbeat_install_200(client: FlaskClient, mocker: MockerFixture) -> None:
+    mocker.patch("app.controller.cold_log_controller.post_winlogbeat_install", return_value=mock_job_id_model)
+    response = client.post("/api/coldlog/winlogbeat/install", json=mock_winlogbeat_install_model)
+    assert response.status_code == 200
+    assert json_object_key_value_checker(response.json, mock_job_id_model) == True
+
+
+def test_post_winlogbeat_install_400_ValidationError(client: FlaskClient) -> None:
+    response = client.post("/api/coldlog/winlogbeat/install", json=mock_winlogbeat_install_model_bad)
+    assert response.status_code == 400
+    assert response.json["status"]
+    assert response.json["messages"]
+
+
+def test_post_winlogbeat_install_500_Exception(client: FlaskClient, mocker: MockerFixture) -> None:
+    mocker.patch("app.controller.cold_log_controller.post_winlogbeat_install", side_effect=Exception({"error": "mocked error"}))
+    response = client.post("/api/coldlog/winlogbeat/install", json=mock_winlogbeat_install_model)
+    assert response.status_code == 500
+    assert response.json["error_message"]

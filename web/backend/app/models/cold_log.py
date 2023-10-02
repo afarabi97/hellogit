@@ -4,14 +4,60 @@ from typing import Dict
 from app.models import Model
 from app.utils.collections import mongo_configurations
 from app.utils.constants import WINDOWS_COLD_LOG_CONFIG_ID, ColdLogModules
+from app.utils.namespaces import COLDLOG_NS
+from flask_restx import fields
+from marshmallow import Schema
+from marshmallow import fields as marsh_fields
 from werkzeug.datastructures import FileStorage, ImmutableMultiDict
 from werkzeug.utils import secure_filename
 
 
+class FileSetModel(Model):
+    DTO = COLDLOG_NS.model('FileSetModel', {
+        "value": fields.String(required=True, example="ec2", description="value for fileset"),
+        "name": fields.String(required=True, example="EC2 logs", description="name for fileset"),
+        "tooltip": fields.String(required=True, example="", description="tooltip that can be displayed in html"),
+    })
+
+
+class FilebeatModuleModel(Model):
+    DTO = COLDLOG_NS.model('FilebeatModuleModel', {
+        "value": fields.String(required=True, example="aws", description="value for filebeat set"),
+        "name": fields.String(required=True, example="AWS", description="name for filebeat set"),
+        "filesets": fields.List(fields.Nested(FileSetModel.DTO))
+    })
+
+
+class ColdLogUploadFormSchema(Schema):
+    module = marsh_fields.Str(required=True)
+    fileset = marsh_fields.Str(required=True)
+    index_suffix = marsh_fields.Str(required=True)
+    send_to_logstash = marsh_fields.Boolean(required=True)
+
+
+class ColdLogUploadFormModel(Model):
+    schema = ColdLogUploadFormSchema()
+    DTO = COLDLOG_NS.model('ColdLogUploadFormModel', {
+        "module": fields.String(required=True, example="system", description="Reference module for saving cold log"),
+        "fileset": fields.String(required=True, example="syslog", description="Fileset for storing cold log"),
+        "index_suffix": fields.String(required=True, example="cold-log", description="Suffix for storing cold log"),
+        "send_to_logstash": fields.Boolean(required=True, example=False, description="Indicates if cold log file should be sent to logstash")
+    })
+
+
+class ColdLogUploadSchema(Schema):
+    upload_file = marsh_fields.Raw(required=True, type=FileStorage)
+    cold_log_form = marsh_fields.Nested(ColdLogUploadFormSchema)
+
+
 class ColdLogUploadModel(Model):
+    schema = ColdLogUploadSchema()
+    DTO = COLDLOG_NS.model('ColdLogUploadModel', {
+        "upload_file": fields.Raw(required=True, type=FileStorage),
+        "cold_log_form": fields.Nested(ColdLogUploadFormModel.DTO)
+    })
 
     def __init__(self):
-        self.system_type = ""
         self.module = ""
         self.fileset = ""
         self.index_suffix = ""
@@ -19,15 +65,13 @@ class ColdLogUploadModel(Model):
         self.upload_file = None  # type: FileStorage
         self.send_to_logstash = False
 
-    def from_request(self,
-                     payload: ImmutableMultiDict,
-                     form: ImmutableMultiDict):
+    def from_request(self, files: ImmutableMultiDict, form: ImmutableMultiDict):
         cold_log_form = json.loads(form['cold_log_form'], encoding="utf-8")
         if self._inputs_are_valid(cold_log_form):
             self.module = cold_log_form["module"]
             self.fileset = cold_log_form["fileset"]
             self.index_suffix = cold_log_form["index_suffix"]
-            self.upload_file = payload['upload_file']
+            self.upload_file = files['upload_file']
             self.filename = secure_filename(self.upload_file.filename)
             self.send_to_logstash = cold_log_form["send_to_logstash"]
         else:
@@ -68,10 +112,30 @@ class ColdLogUploadModel(Model):
 
     def _inputs_are_valid(self, inputs) -> bool:
         # guard clause for unknown fileset types
-        if not ColdLogModules.is_valid_fileset_type(inputs["fileset"]): return False
+        if not ColdLogModules.is_valid_fileset_type(inputs["fileset"]):
+            return False
         return True
 
+
+class WinlogbeatInstallSchema(Schema):
+    windows_host = marsh_fields.Str(required=True)
+    winrm_port = marsh_fields.Integer(required=True)
+    username = marsh_fields.Str(required=True)
+    password = marsh_fields.Str(required=True)
+    winrm_transport = marsh_fields.Str(required=True)
+    winrm_scheme = marsh_fields.Str(required=True)
+
+
 class WinlogbeatInstallModel(Model):
+    schema = WinlogbeatInstallSchema()
+    DTO = COLDLOG_NS.model('WinLogbeatInstallModel', {
+        "windows_host": fields.String(required=True, example=""),
+        "winrm_port": fields.Integer(required=True, example=0),
+        "username": fields.String(required=True, example=""),
+        "password": fields.String(required=True, example=""),
+        "winrm_transport": fields.String(required=True, example=""),
+        "winrm_scheme": fields.String(required=True, example="")
+    })
 
     def __init__(self):
         self.windows_host = ""

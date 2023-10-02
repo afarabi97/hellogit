@@ -38,5 +38,13 @@ class NoSuchLogArchiveError(Exception):
     pass
 
 
+class FailedToUploadFile(Exception):
+    pass
+
+
+class FailedToUploadWinLog(Exception):
+    pass
+
+
 class ObjectKeyError(Exception):
     pass

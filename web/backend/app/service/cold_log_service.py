@@ -1,9 +1,13 @@
+import os
 import shutil
+import zipfile
 from pathlib import Path
 from typing import Dict, List
 from uuid import uuid4
 
-from app.models.cold_log import ColdLogUploadModel, WinlogbeatInstallModel
+from app.models.cold_log import (ColdLogUploadModel, FilebeatModuleModel,
+                                 WinlogbeatInstallModel)
+from app.models.job_id import JobIDModel
 from app.service.job_service import AsyncJob, run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.connection_mngs import REDIS_CLIENT
@@ -11,13 +15,16 @@ from app.utils.constants import (BEATS_IMAGE_VERSIONS, TEMPLATE_DIR,
                                  ColdLogModules)
 from app.utils.elastic import (ElasticWrapper, get_elastic_password,
                                get_elastic_service_ip)
+from app.utils.exceptions import FailedToUploadFile, FailedToUploadWinLog
 from app.utils.logging import rq_logger
 from app.utils.tfwinrm_util import (
     configure_and_run_winlogbeat_for_cold_log_ingest,
     install_winlogbeat_for_cold_log_ingest)
 from app.utils.utils import TfplenumTempDir, get_app_context, zip_package
+from flask import request
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from rq.decorators import job
+from werkzeug.datastructures import ImmutableMultiDict
 
 JOB_NAME = "process_logs"
 INSTALL_WINLOGBEAT_JOB_NAME = "winlogbeat_install"
@@ -326,8 +333,6 @@ def process_cold_logs(model_dict: Dict,
             run_command2("docker stop " + container_name)
         shutil.rmtree(tmpdirname)
 
-    rq_logger.info("YAY success")
-
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def install_winlogbeat_srv():
@@ -361,3 +366,70 @@ def install_winlogbeat_srv():
         notification.set_message(msg)
         notification.set_status(NotificationCode.ERROR.name)
         notification.post_to_websocket_api()
+
+
+def post_coldlog_upload(files: ImmutableMultiDict, form: ImmutableMultiDict) -> JobIDModel:
+    model = ColdLogUploadModel()
+    model.from_request(files, form)
+    if "upload_file" not in request.files:
+        raise FailedToUploadFile
+
+    if model.is_windows():
+        win_model = WinlogbeatInstallModel()
+        try:
+            win_model.initalize_from_mongo()
+        except ValueError:
+            raise FailedToUploadWinLog
+
+    new_dir = TfplenumTempDir()
+    tmpdirname = new_dir.file_path_str
+    if tmpdirname:
+        abs_save_path = tmpdirname + "/" + model.filename
+        model.upload_file.save(abs_save_path)
+
+        logs = []
+        if model.is_zip():
+            with zipfile.ZipFile(abs_save_path) as zip_ref:
+                zip_ref.extractall(tmpdirname)
+
+            for root, _, files in os.walk(tmpdirname):
+                for file_path in files:
+                    abs_path = root + "/" + file_path
+                    if ".zip" in abs_path.lower():
+                        continue
+                    logs.append(abs_path)
+        else:
+            logs = [abs_save_path]
+
+        job = process_cold_logs.delay(model.to_dict(), logs, tmpdirname)
+    else:
+        try:
+            shutil.rmtree(tmpdirname)
+        except FileNotFoundError:
+            raise FileNotFoundError
+        raise Exception
+
+    return JobIDModel(job).to_dict()
+
+
+def get_module_info() -> List[FilebeatModuleModel]:
+    return ColdLogModules.to_list()
+
+
+def get_winlogbeat_configure() -> WinlogbeatInstallModel:
+    model = WinlogbeatInstallModel()
+    try:
+        model.initalize_from_mongo()
+    except ValueError:
+        pass
+
+    return model.to_dict()
+
+
+def post_winlogbeat_install(payload: WinlogbeatInstallModel) -> JobIDModel:
+    model = WinlogbeatInstallModel()
+    model.from_request(payload)
+    model.save_to_mongo()
+    job = install_winlogbeat_srv.delay()
+
+    return JobIDModel(job).to_dict()

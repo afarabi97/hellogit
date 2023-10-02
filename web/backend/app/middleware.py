@@ -11,9 +11,11 @@ from app.utils.constants import (CONTROLLER_ADMIN_ROLE,
                                  CONTROLLER_MAINTAINER_ROLE,
                                  DEFAULT_REQUIRED_ROLES, OPERATOR_ROLE,
                                  REALM_ADMIN_ROLE, WEB_DIR)
-from app.utils.exceptions import (InternalServerError, NoSuchLogArchiveError,
+from app.utils.exceptions import (FailedToUploadFile, FailedToUploadWinLog,
+                                  InternalServerError, NoSuchLogArchiveError,
                                   NoSuchLogError, NoSuchNodeJobError,
-                                  NotFoundError, ResponseConflictError, ObjectKeyError)
+                                  NotFoundError, ObjectKeyError,
+                                  ResponseConflictError)
 from app.utils.logging import logger
 from rq.exceptions import NoSuchJobError
 from werkzeug.wrappers import Request, Response
@@ -292,12 +294,21 @@ def handle_errors(f):
         except NotFoundError:
             logger.exception("ErrorMessage: Data Object Not Found")
             return {"error_message": "Data Object Not Found"}, 404
+        except FileNotFoundError as exception:
+            logger.exception(exception)
+            return {"error_message": "File Not Found"}, 404
         except ObjectKeyError:
             logger.exception("ErrorMessage: Object Uses Incorrect Key")
             return {"error_message": "Object Keys Error"}, 406
+        except FailedToUploadFile:
+            logger.exception("Failed to upload file.")
+            return {"error_message": "Failed to upload file. No file was found in the request."}, 409
         except ResponseConflictError:
             logger.exception("ErrorMessage: Response Conflict")
             return {"error_message": "Response Conflict"}, 409
+        except FailedToUploadWinLog:
+            logger.exception("Failed to upload windows log.")
+            return {"error_message": "Failed to upload Windows file because Winlogbeat has not been setup for cold log ingest."}, 500
         except InternalServerError:
             logger.exception("ErrorMessage: Internal Server Error")
             return {"error_message": "Internal Server Error."}, 500

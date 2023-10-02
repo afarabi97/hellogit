@@ -31,6 +31,7 @@ import {
   ELASTICSEARCH_COLD_LOG_INGEST_TITLE,
   WINLOGBEAT_DEFAULT_PASSWORD_LABEL
 } from './constants/cold-log-ingest.constant';
+import { WinlogbeatConfigurationInterface } from './interfaces/winlogbeat-configuration.interface';
 import { ColdLogIngestService } from './services/cold-log-ingest.service';
 
 /**
@@ -336,7 +337,7 @@ export class ColdLogIngestComponent implements OnInit {
    * @memberof ColdLogIngestComponent
    */
   private api_post_winlogbeat_(form_group: FormGroup): void {
-    this.cold_log_ingest_service_.post_winlogbeat(form_group.value)
+    this.cold_log_ingest_service_.post_winlogbeat(form_group.getRawValue() as WinlogbeatConfigurationInterface)
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: GenericJobAndKeyClass) => {

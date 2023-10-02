@@ -71,11 +71,11 @@ export class ColdLogIngestService extends ApiService<any> implements ColdLogInge
   /**
    * REST call to POST winlogbeat
    *
-   * @param {Object} winlogbeat_setup_form
+   * @param {WinlogbeatConfigurationInterface} winlogbeat_setup_form
    * @returns {Observable<GenericJobAndKeyClass>}
    * @memberof ColdLogIngestService
    */
-  post_winlogbeat(winlogbeat_setup_form: Object): Observable<GenericJobAndKeyClass> {
+  post_winlogbeat(winlogbeat_setup_form: WinlogbeatConfigurationInterface): Observable<GenericJobAndKeyClass> {
     return this.httpClient_.post<GenericJobAndKeyInterface>(environment.COLD_LOG_INGEST_SERVICE_POST_WINLOGBEAT, winlogbeat_setup_form, HTTP_OPTIONS)
       .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
             catchError((error: HttpErrorResponse) => this.handleError('post file', error)));

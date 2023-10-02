@@ -2,6 +2,7 @@ from functools import wraps
 
 from flask import request
 from marshmallow import ValidationError
+from werkzeug.datastructures import FileStorage
 
 
 def required_params(schema):
