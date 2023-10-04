@@ -294,9 +294,9 @@ GIP:
     - Repo/GIP/Software/vcenter/VMware-VCSA-all-7.0.3-21477706.iso
     - Repo/GIP/Software/vcenter/VMware-vCenter-Server-Appliance-7.0.3.01400-21477706-patch-FP.iso
     # Reverted to 7.0.0 update 02, because of storage driver issues with update 03
-    # - Repo/GIP/Software/vcenter/VMware-VMvisor-Installer-7.0.0.update02-17630552.x86_64-DellEMC_Customized-A01.iso
+    - Repo/GIP/Software/vcenter/VMware-VMvisor-Installer-7.0.0.update02-17630552.x86_64-DellEMC_Customized-A01.iso
     # Switched to native installer, since Dell version has issues with storage on Dell Hardware
-    - Repo/GIP/Software/vcenter/VMware-VMvisor-Installer-7.0U3n-21930508.x86_64.iso
+    # - Repo/GIP/Software/vcenter/VMware-VMvisor-Installer-7.0U3n-21930508.x86_64.iso
   dest: "GIP/Data/CVAH {{ VERSION }}/Software/vcenter"
 
 - app: vms
