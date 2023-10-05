@@ -87,6 +87,7 @@ robot:catalog:
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "robot-tests-only"
   retry: 2
 
 robot:add_virtual_nodes:
@@ -115,6 +116,7 @@ robot:add_virtual_nodes:
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "robot-tests-only"
   retry: 2
 
 robot:operations:
@@ -144,6 +146,7 @@ robot:operations:
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "robot-tests-only"
   retry: 2
 
 robot:cleanup:
@@ -170,6 +173,7 @@ robot:cleanup:
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "robot-tests-only"
   retry: 2
 
 robot:integration:
@@ -196,3 +200,4 @@ robot:integration:
     - if: $RUN_ROBOT_INTEGRATION == "yes" && $PIPELINE == "controller-only"
     - if: $RUN_ROBOT_INTEGRATION == "yes" && $PIPELINE == "developer-all"
     - if: $RUN_ROBOT_INTEGRATION == "yes" && $PIPELINE == "hw-developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "robot-tests-only"

@@ -39,25 +39,22 @@ Enter Virtual Node Information
     [Arguments]  ${node_type}  ${hostname}
     [Documentation]  Fills out the Add Node Dialog form on Node Management page
     ${node_exists} =  Check If Node Exists  ${hostname}
-    IF  ${node_exists} == ${False}
-        log  Entering node information in Add Node Dialog.
-        click  ${locNodeMgmtAddNodeBtn}
-        click  ${tmplLocNodeMgmtAddNodeDialogRadioBtn}  injector=${node_type}
-        click  ${locNodeMgmtAddNodeDialogVMRadioBtn}
-        type  ${locNodeMgmtHostnameInput}  ${hostname}
-        Select Node IP Address  ${node_type}
-        IF  '${node_type}' == 'MinIO'
-            type  ${locNodeDataDriveSizeInGbInput}  500  clear_before=${True}
-        END
-        Wait Until Element Is Enabled  ${locNodeMgmtAddNodeDialogSubmitBtn}
-        click  ${locNodeMgmtAddNodeDialogSubmitBtn}
-        log  Completed entering virtual node information.
-        Check For Snack Bar Container
-        ${verify_element} =  inject  ${tmplLocNodeProvProgressBar}  ${hostname}
-        lookForElement  ${verify_element}  timeout=30m
-    ELSE
-        log  Node with name "${hostname}" already exists.
+    Skip If  ${node_exists}  msg=Node with name "${hostname}" already exists.
+    log  Entering node information in Add Node Dialog.
+    click  ${locNodeMgmtAddNodeBtn}
+    click  ${tmplLocNodeMgmtAddNodeDialogRadioBtn}  injector=${node_type}
+    click  ${locNodeMgmtAddNodeDialogVMRadioBtn}
+    type  ${locNodeMgmtHostnameInput}  ${hostname}
+    Select Node IP Address  ${node_type}
+    IF  '${node_type}' == 'MinIO'
+        type  ${locNodeDataDriveSizeInGbInput}  500  clear_before=${True}
     END
+    Wait Until Element Is Enabled  ${locNodeMgmtAddNodeDialogSubmitBtn}
+    click  ${locNodeMgmtAddNodeDialogSubmitBtn}
+    log  Completed entering virtual node information.
+    Check For Snack Bar Container
+    ${verify_element} =  inject  ${tmplLocNodeProvProgressBar}  ${hostname}
+    lookForElement  ${verify_element}  timeout=30m
 
 Select Node IP Address
     [Arguments]  ${node_type}

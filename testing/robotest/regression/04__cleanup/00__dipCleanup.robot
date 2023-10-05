@@ -48,7 +48,7 @@ Delete Virtual Serice Node
 Delete Virtual MinIO Node
     [Tags]  THISISCVAH-14493
     [Documentation]  Deletes a virtual MinIO node on the DIP kit
-    Skip If  '${PIPELINE}' == 'developer-all'  msg=Keep MinIO on the kit if normal pipeline build
+    Skip If  '${PIPELINE}' != 'controller-only'  msg=Keep MinIO on the kit if normal pipeline build
     Navigate To Node Management
     Delete Node  hostname=robottest-minio
     Verify Node Was Deleted  robottest-minio
