@@ -122,7 +122,7 @@ class RepoSettingsModel(Model):
             rq_logger.debug("waiting for elastic to be ready")
             # We must wait for elasticsearch cluster to fully rotate / restart before we can create the repository.
             # If we do not wait the create_repository call will fail.
-            wait_for_elastic_cluster_ready()
+            wait_for_elastic_cluster_ready(minutes=60)
 
         elastic_client = ElasticWrapper()
         value = elastic_client.snapshot.create_repository(self.bucket,
