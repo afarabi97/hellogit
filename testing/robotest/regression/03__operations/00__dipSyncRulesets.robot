@@ -1,4 +1,5 @@
 *** Settings ***
+Resource    ../../lib/dipCatalogKeywords.resource
 Resource    ../../lib/dipCommonKeywords.resource
 Resource    ../../lib/dipRulesetKeywords.resource
 

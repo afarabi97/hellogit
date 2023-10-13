@@ -1,7 +1,8 @@
 *** Settings ***
+Resource    ../../lib/dipCatalogKeywords.resource
 Resource    ../../lib/dipCommonKeywords.resource
-Resource    ../../lib/dipRulesetKeywords.resource
 Resource    ../../lib/dipAlertsKeywords.resource
+Resource    ../../lib/dipRulesetKeywords.resource
 
 Library    SeleniumLibrary    15s
 Library    SSHLibrary         15s

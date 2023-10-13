@@ -17,8 +17,7 @@ Enter Virtual MIP Information
     IF  ${mip_exists} == ${False}
         click  ${locMipMgmtAddMipBtn}
         type  ${locMipMgmtHostnameInput}  ${mip_hostname}
-        click  ${locMipMgmtAddMipDialogIpAddressInput}
-        click  ${locMipMgmtAddMipDialogIpAddressDropdownOpt1}
+        Wait Until Keyword Succeeds  3x  5s  Select MIP IP Address
         click  ${locMipMgmtAddMipDialogVMRadioBtn}
         Wait Until Element Is Enabled  ${locMipMgmtAddMipDialogSubmitBtn}
         click  ${locMipMgmtAddMipDialogSubmitBtn}
@@ -27,6 +26,12 @@ Enter Virtual MIP Information
     ELSE
         log  MIP with name "${mip_hostname}" already exists.
     END
+
+Select MIP IP Address
+    [Documentation]  Clicks the IP address selction dropdown and selects the first
+    ...              IP address available in the list for the MIP.
+    click  ${locMipMgmtAddMipDialogIpAddressInput}
+    click  ${locMipMgmtAddMipDialogIpAddressDropdownOpt1}
 
 Check If MIP Exists
     [Arguments]  ${name}

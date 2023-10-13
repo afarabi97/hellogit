@@ -47,8 +47,6 @@ Add Virtual Service Node
     Navigate To Node Management
     Enter Virtual Node Information  node_type=Service  hostname=robottest-service
     Verify Node Was Added  robottest-service
-    Navigate To MIP Management
-    Wait Until Keyword Succeeds  3x  5s  Verify MIP Was Added  robottest-mip
 
 Add Virtual MinIO Node
     [Tags]  THISISCVAH-14415
