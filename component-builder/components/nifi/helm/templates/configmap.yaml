@@ -6,6 +6,10 @@ data:
   setup.sh: |
     #!/bin/sh -e
 
+    nifi_admin_user='admin'
+    nifi_admin_pass='password123456'
+    nifi_init_truststore_passwd='changeit'
+    local_keytool_import_script='/opt/nifi/nifi-current/keytool-import'
     scripts_dir='/opt/nifi/scripts'
     [ -f "${scripts_dir}/common.sh" ] && . "${scripts_dir}/common.sh"
 
@@ -16,9 +20,9 @@ data:
 
     prop_replace 'nifi.flow.configuration.file' "./flowfile_repository/flow.xml.gz"
     prop_replace 'nifi.security.user.login.identity.provider' 'single-user-provider'
-    /opt/nifi/nifi-current/bin/nifi.sh set-single-user-credentials admin password123456
+    /opt/nifi/nifi-current/bin/nifi.sh set-single-user-credentials $nifi_admin_user $nifi_admin_pass
+    /opt/nifi/nifi-current/bin/nifi.sh set-sensitive-properties-key $nifi_admin_pass
 
-    prop_replace 'nifi.sensitive.props.key' 'password123456'
     prop_replace 'nifi.security.user.saml.idp.metadata.url' 'file:///etc/idp/idp.metadata.xml'
     prop_replace 'nifi.security.user.saml.sp.entity.id' 'https://nifi.{{ .Values.domain }}/shibboleth'
     prop_replace 'nifi.security.user.saml.group.attribute.name' 'member'
@@ -27,16 +31,38 @@ data:
 
     echo Import Keystore Keys
     cat /etc/ssl/certs/container/tls.crt /etc/ssl/certs/container/ca.crt >> /opt/nifi/nifi-current/conf/nifi.pem
-    openssl pkcs12 -export -out /opt/nifi/nifi-current/conf/nifi.p12 -inkey /etc/ssl/certs/container/tls.key -in /opt/nifi/nifi-current/conf/nifi.pem -name nifi-key -password pass:changeit
-    keytool -importkeystore -srckeystore /opt/nifi/nifi-current/conf/nifi.p12 -srcstoretype pkcs12 -srcalias nifi-key -destkeystore /opt/nifi/nifi-current/conf/keystore.jks -deststoretype jks -destalias nifi-key -storepass changeit -srcstorepass changeit
-    keytool -importcert -trustcacerts -alias webCA -file /etc/ssl/certs/container/ca.crt -keystore /opt/nifi/nifi-current/conf/truststore.jks -storepass changeit -noprompt
+    openssl pkcs12 -export -out /opt/nifi/nifi-current/conf/nifi.p12 -inkey /etc/ssl/certs/container/tls.key -in /opt/nifi/nifi-current/conf/nifi.pem -name nifi-key -password pass:$nifi_init_truststore_passwd
+    keytool -importkeystore -srckeystore /opt/nifi/nifi-current/conf/nifi.p12 -srcstoretype pkcs12 -srcalias nifi-key -destkeystore /opt/nifi/nifi-current/conf/keystore.jks -deststoretype jks -destalias nifi-key -storepass $nifi_init_truststore_passwd -srcstorepass $nifi_init_truststore_passwd
+    keytool -importcert -trustcacerts -alias webCA -file /etc/ssl/certs/container/ca.crt -keystore /opt/nifi/nifi-current/conf/truststore.jks -storepass $nifi_init_truststore_passwd -noprompt
 
     echo Create nifi-saml.p12
-    openssl pkcs12 -export -out /opt/nifi/nifi-current/conf/nifi-saml.p12 -in /etc/nifi-saml-certs/tls.crt -inkey /etc/nifi-saml-certs/tls.key -name nifi-saml -password pass:changeit
+    openssl pkcs12 -export -out /opt/nifi/nifi-current/conf/nifi-saml.p12 -in /etc/nifi-saml-certs/tls.crt -inkey /etc/nifi-saml-certs/tls.key -name nifi-saml -password pass:$nifi_init_truststore_passwd
 
     echo Import nifi-saml to /opt/nifi/nifi-current/conf/keystore.jks
-    keytool -importkeystore -srckeystore /opt/nifi/nifi-current/conf/nifi-saml.p12 -srcstoretype pkcs12 -srcalias nifi-saml -destkeystore /opt/nifi/nifi-current/conf/keystore.jks -deststoretype jks -destalias nifi-saml -storepass changeit -srcstorepass changeit
+    keytool -importkeystore -srckeystore /opt/nifi/nifi-current/conf/nifi-saml.p12 -srcstoretype pkcs12 -srcalias nifi-saml -destkeystore /opt/nifi/nifi-current/conf/keystore.jks -deststoretype jks -destalias nifi-saml -storepass $nifi_init_truststore_passwd -srcstorepass $nifi_init_truststore_passwd
     echo Import idp-saml to truststore
-    keytool -importcert -trustcacerts -alias idp-saml -file /etc/idp/idp.crt -keystore /opt/nifi/nifi-current/conf/truststore.jks -storepass changeit -noprompt
+    keytool -importcert -trustcacerts -alias idp-saml -file /etc/idp/idp.crt -keystore /opt/nifi/nifi-current/conf/truststore.jks -storepass $nifi_init_truststore_passwd -noprompt
 
     sed -i '/nifi.web.proxy.context.path/d' /opt/nifi/nifi-current/conf/nifi.properties
+
+    echo Creating local keytool-import scirpt
+    echo '#!/bin/bash' > $local_keytool_import_script
+    echo 'CRT_FILE=$1' >> $local_keytool_import_script
+    echo 'PASSWORD=$2' >> $local_keytool_import_script
+    echo 'KEYSTORE=$3' >> $local_keytool_import_script
+    echo 'ALIAS=$4' >> $local_keytool_import_script
+    echo 'keytool -importcert -alias $ALIAS -file $CRT_FILE -keystore $KEYSTORE -storepass $PASSWORD -noprompt' >> $local_keytool_import_script
+    chown :nifi $local_keytool_import_script
+    chmod u+x,g+rwx $local_keytool_import_script
+
+    echo modify local nifi security configuration
+    chown :nifi /opt/nifi/nifi-current/conf/keystore.jks
+    chmod g+w /opt/nifi/nifi-current/conf/keystore.jks
+
+    echo create default templates directory
+    mkdir -p /opt/nifi/nifi-current/conf/templates
+    chown -R nifi:nifi /opt/nifi/nifi-current/conf/templates
+    chmod -R u+rwx,g+rwx /opt/nifi/nifi-current/conf/templates
+
+  s3-to-s3.xml: |
+{{ .Files.Get "files/s3-to-s3.xml" | indent 4 }}

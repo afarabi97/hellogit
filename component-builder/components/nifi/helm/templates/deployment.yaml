@@ -121,6 +121,9 @@ spec:
         - name: config
           mountPath: /setup.sh
           subPath: setup.sh
+        - name: config
+          mountPath: /opt/nifi/nifi-current/conf/templates/s3-to-s3.xml
+          subPath: s3-to-s3.xml
         - name: nifi-data
           mountPath: {{ .Values.nifi_base_dir }}/logs
           subPath: logs
