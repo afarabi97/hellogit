@@ -97,6 +97,7 @@ CPT:
     - Repo/Shared/AppStore/sysinternals suite/2023.6.7
     - Repo/Shared/AppStore/TCPdump/4.99.4
     - Repo/Shared/AppStore/Visio Pro/2016
+    - Repo/Shared/AppStore/SHIFT5/20231020
   dest: "CPT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
 - app: VMs
@@ -104,7 +105,7 @@ CPT:
     - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7
     - Repo/Shared/VMs/ACAS/22.06-1
     - Repo/Shared/VMs/Pfsense/2.5.2
-    - Repo/Shared/VMs/Security Onion 2/2.3.260
+    - Repo/Shared/VMs/Security Onion 2/2.4.20
     - Repo/Shared/VMs/Security Onion (original)/4.3-8
     - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-4
     - Repo/CPT/VMs/ControlThings (prev SamuraiSTFU)/ControlThingsPlatform-v1bD
@@ -155,8 +156,9 @@ CPT:
     - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     - Repo/Shared/Documentation/AppStore/sysinternals suite/master
+    - Repo/Shared/Documentation/AppStore/SHIFT5/20231020
     - Repo/Shared/Documentation/VMs/ACAS/22.06-1
-    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.260
+    - Repo/Shared/Documentation/VMs/Security Onion 2/2.4.20
     - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
   dest: "CPT/Data/CVAH {{ VERSION }}/Documentation/AppStore"
 
@@ -217,13 +219,14 @@ MDT:
     - Repo/Shared/AppStore/sysinternals suite/2023.6.7
     - Repo/Shared/AppStore/TCPdump/4.99.4
     - Repo/Shared/AppStore/Visio Pro/2016
+    - Repo/Shared/AppStore/SHIFT5/20231020
   dest: "MDT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
 - app: VMs
   src:
     - Repo/Shared/VMs/ACAS/22.06-1
     - Repo/Shared/VMs/Pfsense/2.5.2
-    - Repo/Shared/VMs/Security Onion 2/2.3.260
+    - Repo/Shared/VMs/Security Onion 2/2.4.20
     - Repo/Shared/VMs/Security Onion (original)/4.3-8
     - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-4
     - Repo/MDT/VMs/Windows 10 VM/22H2-19045.3324
@@ -251,7 +254,8 @@ MDT:
     - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     - Repo/Shared/Documentation/AppStore/sysinternals suite/master
-    - Repo/Shared/Documentation/VMs/Security Onion 2/2.3.260
+    - Repo/Shared/Documentation/AppStore/SHIFT5/20231020
+    - Repo/Shared/Documentation/VMs/Security Onion 2/2.4.20
     - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
     - Repo/Shared/Documentation/VMs/ACAS/22.06-1
   dest: "MDT/Data/CVAH {{ VERSION }}/Documentation/AppStore"
@@ -272,11 +276,6 @@ MDT:
     - Repo/Firmware/Supermicro x10 X10DRLi/3_86
     - Repo/Firmware/Thinkmate x8 X8DTL3/313
   dest: "MDT/Data/CVAH {{ VERSION }}/Firmware"
-
-# - app: patches
-#   src:
-#     - Repo/Shared/Security Updates
-#   dest: "MDT/Data/CVAH {{ VERSION }}"
 
 GIP:
 - app: jcat
