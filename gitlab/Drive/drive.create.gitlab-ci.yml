@@ -191,11 +191,11 @@ Check Drives:
     eval $cmd
   only:
     variables:
-      - $PIPELINE == "export-all"
-      - $PIPELINE == "minor-release"
-      - $PIPELINE == "minor-drive-only"
-      - $PIPELINE == "drive-only"
-      - $PIPELINE == "export-controller-only"
+      - $PIPELINE == "export-all" && $CREATE_DRIVE_TYPE != "GIP"
+      - $PIPELINE == "minor-release" && $CREATE_DRIVE_TYPE != "GIP"
+      - $PIPELINE == "minor-drive-only" && $CREATE_DRIVE_TYPE != "GIP"
+      - $PIPELINE == "drive-only"  && $CREATE_DRIVE_TYPE != "GIP"
+      - $PIPELINE == "export-controller-only" && $CREATE_DRIVE_TYPE != "GIP"
 
 Check GIP Drives:
   stage: checkhash

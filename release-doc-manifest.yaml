@@ -22,6 +22,7 @@ SHARED:
     - v3.7 Deployable Interceptor Platform (DIP) Installation Guides
     - v3.7.1 Supplemental Guide
     - v3.7.2 Supplemental Guide
+    - v3.7.3 Supplemental Guide
     - v3.7 Summary of Changes
     - v3.7 Glossary
   dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/Guides"
@@ -39,6 +40,7 @@ CPT:
     - v3.7 Cyber Protection Team (CPT) VDD
     - v3.7.1 Cyber Protection Team (CPT) VDD
     - v3.7.2 Cyber Protection Team (CPT) VDD
+    - v3.7.3 Cyber Protection Team (CPT) VDD
   dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/VDD"
 
 - type: Appendixes
@@ -54,19 +56,8 @@ MDT:
     - v3.7 Mission Defense Team (MDT) VDD
     - v3.7.1 Mission Defense Team (MDT) VDD
     - v3.7.2 Mission Defense Team (MDT) VDD
+    - v3.7.3 Mission Defense Team (MDT) VDD
   dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/VDD"
-
-- type: Appendixes
-  titles:
-    - "v3.7 Appendix A - 3.2 MDT Enterprise IP Table (2nd Subnet: 133-137)"
-    - "v3.7 Appendix A - 3.3 MDT Enterprise IP Table (2nd Subnet: 138-142)"
-    - "v3.7 Appendix A - 3.4 MDT Enterprise IP Table (2nd Subnet: 143-147)"
-    - "v3.7 Appendix A - 3.5 MDT Enterprise IP Table (2nd Subnet: 148-152)"
-    - "v3.7 Appendix A - 3.6 MDT Enterprise IP Table (2nd Subnet: 153-157)"
-    - "v3.7 Appendix A - 3.7 MDT Enterprise IP Table (2nd Subnet: 158-162)"
-    - "v3.7 Appendix A - 3.8 MDT Enterprise IP Table (2nd Subnet: 163-167, 233)"
-    - "v3.7 Appendix A - 3.9 MDT Enterprise IP Table (2nd Subnet: 168-169)"
-  dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/Guides/Appendixes"
 
 #### GIP Documents ####
 GIP:
@@ -77,6 +68,7 @@ GIP:
     - v3.7.2 Garrison Interceptor Platform (GIP) VDD
     - v3.7.1 Supplemental Guide
     - v3.7.2 Supplemental Guide
+    - v3.7.3 Supplemental Guide
     - v3.7 Garrison Interceptor Platform (GIP) Installation Guide (PMO Only)
     - v3.7 Garrison Interceptor Platform (GIP) Operations Guide
     - v3.7 Garrison Interceptor Platform (GIP) Maintenance Guide
