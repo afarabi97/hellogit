@@ -328,6 +328,12 @@ export class AddNodeDialogComponent implements OnInit {
       node_form_group.get('deployment_type').markAsDirty();
     }
 
+    if (ObjectUtilitiesClass.notUndefNull(node_form_group.get('deployment_type').value) &&
+        node_form_group.get('deployment_type').value === BAREMETAL) {
+      node_form_group.get('mac_address').setValidators(Validators.compose([validateFromArray(addNodeValidators.mac_address,
+                                                                          { uniqueArray: this.validation_macs_ })]));
+    }
+
     this.set_node_form_group_(node_form_group);
   }
 
