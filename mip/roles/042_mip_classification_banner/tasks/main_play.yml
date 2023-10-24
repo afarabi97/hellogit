@@ -22,7 +22,7 @@
     dest: /usr/local/sbin/banner.sh
     owner: "{{ user }}"
     group: "{{ user }}"
-    mode: '0770'
+    mode: '0775'
 
 - name: Copy banner.service config file
   copy:

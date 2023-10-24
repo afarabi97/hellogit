@@ -21,7 +21,7 @@ all-stigs:
 
 #########################
 #	Kit STIGS	#
-#################
+#########################
 controller-stigs:
 	ansible-playbook $(PLAYBOOK) --connection=local -i localhost,
 
@@ -36,8 +36,7 @@ mip-stigs:
 
 #########################
 #	GIP STIGS	#
-#################
-
+#########################
 gip-server-stigs:
 	ansible-playbook $(PLAYBOOK) -i $(CORE_INVENTORY)
 

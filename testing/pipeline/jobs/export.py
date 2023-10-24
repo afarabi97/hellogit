@@ -43,6 +43,7 @@ def create_export_path(export_loc: ExportLocSettings) -> Tuple[Path]:
 
     return cpt_export_path, mdt_export_path, staging_export_path
 
+
 def create_export_path2(export_loc: ExportLocSettings, dest: str) -> Tuple[Path]:
     staging_export_path = Path(export_loc.staging_export_path + '/')
     staging_export_path.mkdir(parents=True, exist_ok=True)
@@ -184,10 +185,16 @@ class ControllerExport:
         commit_hash = get_commit_hash_or_tag(self.ctrl_settings)
         self._set_private(commit_hash)
         export_password = encryptPassword(self.ctrl_settings.node.export_password)
+        export_password_a = encryptPassword(self.ctrl_settings.node.export_password)
         payload = self.ctrl_settings.to_dict()
         payload["commands"] = [
             {"vm_shell": "/usr/bin/sed", "vm_shell_args": "-i '/.ontroller/d' /etc/hosts"},
             {"vm_shell": '/bin/nmcli', "vm_shell_args": "connection modify 'Bridge br0' ipv4.method auto ipv4.addresses '' ipv4.gateway '' ipv4.dns ''"},
+            {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password '{export_password_a}' assessor"},
+            #{"vm_shell": "/usr/bin/sed", "vm_shell_args": "-i '/PermitRootLogin/d' /etc/ssh/sshd_config"},
+            #{"vm_shell": "/usr/bin/echo", "vm_shell_args": "PermitRootLogin no >> /etc/ssh/sshd_config"},
+            {"vm_shell": "/usr/bin/sed", "vm_shell_args": "-i '/even_deny_root/d' /etc/security/faillock.conf"},
+            {"vm_shell": "/usr/bin/echo", "vm_shell_args": "even_deny_root >> /etc/security/faillock.conf"},
             {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password '{export_password}' root"}
         ]
         payload["release_template_name"] = self._release_vm_name
@@ -197,6 +204,42 @@ class ControllerExport:
         self.create_ctrl_template()
 
         logging.info("Exporting the controller to OVA.")
+        export(self.vcenter_settings,
+               self.export_loc,
+               self._release_vm_name,
+               self._export_prefix)
+
+
+class ReposyncServerExport(ControllerExport):
+    def __init__(self, repo_settings: RHELRepoSettings, export_loc: ExportLocSettings):
+        super().__init__(repo_settings, export_loc)
+        self._export_prefix = REPO_SYNC_PREFIX
+        self._set_private(repo_settings.node.commit_hash)
+
+    def create_release_template(self):
+        logging.info("Creating release template for RepoSync Server.")
+        revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
+        test_nodes_up_and_alive(self.ctrl_settings.node, 10)
+        export_password = encryptPassword(self.ctrl_settings.node.export_password)
+        export_password_a = encryptPassword(self.ctrl_settings.node.export_password)
+        payload = self.ctrl_settings.to_dict()
+        payload["release_template_name"] = self._release_vm_name
+        payload["commands"] = [
+            {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete ens192'},
+            {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete "Wired connection 1"'},
+            {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password '{export_password_a}' assessor"},
+            #{"vm_shell": "/usr/bin/sed", "vm_shell_args": "-i '/PermitRootLogin/d' /etc/ssh/sshd_config"},
+            #{"vm_shell": "/usr/bin/echo", "vm_shell_args": "PermitRootLogin no >> /etc/ssh/sshd_config"},
+            {"vm_shell": "/usr/bin/sed", "vm_shell_args": "-i '/even_deny_root/d' /etc/security/faillock.conf"},
+            {"vm_shell": "/usr/bin/echo", "vm_shell_args": "even_deny_root >> /etc/security/faillock.conf"},
+            {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password '{export_password}' root"}
+        ]
+        execute_playbook([CTRL_EXPORT_PREP], payload)
+
+    def export_reposync_server(self):
+        self.create_release_template()
+
+        logging.info("Exporting the Reposync server VM to OVA.")
         export(self.vcenter_settings,
                self.export_loc,
                self._release_vm_name,
@@ -233,38 +276,7 @@ class GIPServiceExport(ControllerExport):
                export_prefix)
 
 
-class ReposyncServerExport(ControllerExport):
-    def __init__(self, repo_settings: RHELRepoSettings, export_loc: ExportLocSettings):
-        super().__init__(repo_settings, export_loc)
-        self._export_prefix = REPO_SYNC_PREFIX
-        self._set_private(repo_settings.node.commit_hash)
-
-    def create_release_template(self):
-        logging.info("Creating release template for RepoSync Server.")
-        revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
-        test_nodes_up_and_alive(self.ctrl_settings.node, 10)
-        export_password = encryptPassword(self.ctrl_settings.node.export_password)
-        payload = self.ctrl_settings.to_dict()
-        payload["release_template_name"] = self._release_vm_name
-        payload["commands"] = [
-            {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete ens192'},
-            {"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete "Wired connection 1"'},
-            {"vm_shell": '/usr/sbin/usermod', "vm_shell_args": f"--password '{export_password}' root"}
-        ]
-        execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
-
-    def export_reposync_server(self):
-        self.create_release_template()
-
-        logging.info("Exporting the Reposync server VM to OVA.")
-        export(self.vcenter_settings,
-               self.export_loc,
-               self._release_vm_name,
-               self._export_prefix)
-
-
 class ConfluenceExport:
-
     def __init__(self, export_settings: ExportSettings):
         self.html_export_settings = export_settings.html_export
         self.pdf_export_settings = export_settings.pdf_export

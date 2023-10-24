@@ -1,61 +1,25 @@
 ---
 
-- name: Setting node type
+- name: "Setting node type"
   set_fact:
-    node_type: "Controller"
+    node_type: "controller"
   when: 'inventory_hostname == "localhost"'
-
-- name: Set Variables for STIGS
-  set_fact:
-    Var_String_1: !!str 1
-    Var_Fail_Lock_STIGs: !!str RHEL-08 020010, 020012, 020014, 020015, 020018, 020020 & 020022
-    Var_010130_PAM_Rounds: !!str 5000
-    Var_010200_SSH_Idle_Timeout: !!str 600
-    Var_010450_SELINUXTYPE_Policy_Name: !!str targeted
-    Var_020100_PAM_Retry: !!str 3
-    Var_020110_PAM_Ucredit: !!str -1
-    Var_020130_PAM_Dcredit: !!str -1
-    Var_020140_PAM_MaxClassRepeat: !!str 4
-    Var_020220_PAM_Password_Remember: !!str 5
-    Var_020231_Pass_Min_Len: !!str 15
-    Var_020280_PAM_Ocredit: !!str -1
-    Var_020310_Fail_Delay: 4
-    Var_040161_040341_Rekey_Limit_Size: !!str 1G
-    Var_040161_040341_Rekey_Limit_Time: !!str 1h
-    VAR__PAM_Faillock_Deny: !!str 3
-    Var__PAM_Faillock_Fail_Interval: !!str 900
-    Var__PAM_Faillock_Unlock_Time: !!str 0
-    Var__SELINUX_State: !!str enforcing
 
 - name: "PRELIM - Check whether machine is UEFI-based"
   stat:
     path: /sys/firmware/efi
   register: rhel_07_sys_firmware_efi
 
-- name: Gather the package facts
+- name: "Gather the package facts"
   package_facts:
     manager: auto
 
-- name: MEDIUM | Remove SELINUX values from /etc/selinux/config
-  lineinfile:
-    path: /etc/selinux/config
-    create: false
-    regexp: ^SELINUX=
-    state: absent
-
-- name: MEDIUM | Insert SELINUX values into /etc/selinux/config
-  lineinfile:
-    path: /etc/selinux/config
-    create: yes
-    line: SELINUX={{ Var__SELINUX_State }}
-    state: present
-
-- name: Get Current Kernel Parameters - GRUB2-EDITENV
-  command: /usr/bin/grub2-editenv - list
+- name: "Get Current Kernel Parameters - GRUB2-EDITENV"
+  command: "/usr/bin/grub2-editenv - list"
   register: kernelopts
   changed_when: false
 
-- name: Update the bootloader menu
+- name: "Update the bootloader menu"
   command: /usr/bin/grub2-editenv - set "{{ item }} random.trust_cpu=on"
   with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
   when:
@@ -63,13 +27,13 @@
     - kernelopts.stdout_lines | length > 0
     - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?random.trust_cpu=on(?:\s.*)?$', multiline=True) is none
 
-- name: Get Current Kernel Parameters - GRUB2-EDITENV
-  command: /usr/bin/grub2-editenv - list
+- name: "Get Current Kernel Parameters - GRUB2-EDITENV"
+  command: "/usr/bin/grub2-editenv - list"
   register: kernelopts
   changed_when: false
   when: '"grub2-common" in ansible_facts.packages'
 
-- name: Update the bootloader menu
+- name: "Update the bootloader menu"
   command: /usr/bin/grub2-editenv - set "{{ item }} pti=on"
   with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
   when:
@@ -78,35 +42,35 @@
     - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?pti=on(?:\s.*)?$', multiline=True) is none
     - '"grub2-common" in ansible_facts.packages'
 
-- name: Read permission of GPG key directory
+- name: "Read permission of GPG key directory"
   stat:
     path: /etc/pki/rpm-gpg/
   register: GPG_Key_Directory_Permission
   check_mode: false
 
-- name: Read signatures in GPG key
+- name: "Read signatures in GPG key"
   command: gpg --show-keys --with-fingerprint --with-colons "/etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
   changed_when: false
   register: GPG_Fingerprints
   check_mode: false
 
-- name: Set Fact - Get Installed GPG Fingerprints
+- name: "Set Fact - Get Installed GPG Fingerprints"
   set_fact:
     GPG_Installed_Fingerprints: |-
         {{ GPG_Fingerprints.stdout | regex_findall('^pub.*
         (?:^fpr[:]*)([0-9A-Fa-f]*)', '\1') | list }}
 
-- name: Set Fact - Valid fingerprints
+- name: "Set Fact - Valid fingerprints"
   set_fact:
     GPG_Valid_Fingerprints: ("567E347AD0044ADE55BA8A5F199E2F91FD431D51" "6A6AA7C97C8890AEC6AEBFE2F76F66C3D4082792")
 
-- name: Read signatures in GPG key
+- name: "Read signatures in GPG key"
   command: gpg --show-keys --with-fingerprint --with-colons "/etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
   changed_when: false
   register: GPG_Fingerprints
   check_mode: false
 
-- name: Import RedHat GPG key
+- name: "Import RedHat GPG key"
   rpm_key:
     state: present
     key: /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
@@ -115,21 +79,22 @@
     - (GPG_Installed_Fingerprints | difference(GPG_Valid_Fingerprints)) | length == 0
     - GPG_Installed_Fingerprints | length > 0
 
-- name: Check existence of yum on Fedora
+- name: "Check existence of yum"
   stat:
     path: /etc/yum.conf
   register: yum_config_file
   check_mode: false
   when: '"yum" in ansible_facts.packages'
 
-- name: "MEDIUM | Disable Ctrl-Alt-Del Reboot Activation"
-  systemd:
-    name: ctrl-alt-del.target
-    masked: true
-    state: stopped
-  ignore_errors: true
+- name: "MEDIUM | Insert SELINUX values into /etc/selinux/config"
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX'
+    line: 'SELINUX=enforcing'
+    create: yes
+    state: present
 
-- name: "MEDIUM | Modify the System Login Banner - add correct banner"
+- name: "RHEL-08-010040 | MEDIUM | Modify the System Login Banner - add correct banner (V-230225 CAT II)"
   template:
     src: ./templates/logon-banner.j2
     dest: "{{ item }}"
@@ -141,6 +106,73 @@
     - /etc/issue.net
     - /etc/issue
 
+- name: "RHEL 08-010070 & 08-030010 | MEDIUM | All RHEL 8 remote access methods must be monitored & Cron logging must be implemented. (V-230228 & V-230387 CAT II)"
+  lineinfile:
+    path: /etc/rsyslog.conf
+    regexp: '^{{ item.parameter }}'
+    line: "{{ item.parameter }} {{ item.value }}"
+    create: yes
+    state: present
+  with_items:
+    - { parameter: 'auth.*',     value: '/var/log/secure' }
+    - { parameter: 'authpriv.*', value: '/var/log/secure' }
+    - { parameter: 'daemon.*',   value: '/var/log/secure' }
+    - { parameter: 'cron.*',     value: '/var/log/cron' }
+
+- name: "RHEL-08-020082 | MEDIUM | RHEL 8 must prevent a user from overriding the screensaver lock-enabled setting for the graphical user interface. (V-244539 CAT II)"
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/session
+    line: '/org/gnome/desktop/screensaver/lock-enabled'
+    create: yes
+    state: present
+
+- name: "RHEL-08-020030 | MEDIUM | RHEL 8 must enable a user session lock until that user re-establishes access using established identification and authentication procedures for graphical user sessions. (V-230347 CAT II)"
+  lineinfile:
+    path: /etc/dconf/db/local.d/00-screensaver
+    line: '{{ item }}'
+    create: yes
+    state: present
+  loop:
+    - '[org/gnome/desktop/screensaver]'
+    - 'lock-enabled=true'
+
+- name: "RHEL-08-020032 | MEDIUM | RHEL 8 must disable the user list at logon for graphical user interfaces. (V-244536 CAT II)"
+  lineinfile:
+    path: /etc/dconf/db/local.d/02-login-screen
+    line: '{{ item }}'
+    create: yes
+    state: present
+  loop:
+    - '[org/gnome/login-screen]'
+    - 'disable-user-list=true'
+
+- name: "RHEL-08-020050 | MEDIUM | RHEL 8 must be able to initiate directly a session lock for all connection types using smartcard when the smartcard is removed. (V-230351 CAT II)"
+  lineinfile:
+    path: /etc/dconf/db/local.d/00-smart-card
+    line: '{{ item }}'
+    create: yes
+    state: present
+  loop:
+    - '[org/gnome/settings-daemon/peripherals/smartcard]'
+    - "removal-action='lock-screen'"
+
+- name: "RHEL 08-010049 & 08-010050 | MEDIUM | RHEL 8 must display a banner before granting local or remote access to the system via a graphical user logon. (V-244519 & V-230226 CAT II)"
+  lineinfile:
+    path: /etc/dconf/db/local.d/01-banner-message
+    line: '{{ item }}'
+    create: yes
+    state: present
+  loop:
+    - '[org/gnome/login-screen]'
+    - 'banner-message-enable=true'
+
+- name: "RHEL-08-020080 | MEDIUM | RHEL 8 must prevent a user from overriding the session lock-delay setting for the graphical user interface. (V-230354 CAT II)"
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/session
+    line: '/org/gnome/desktop/screensaver/lock-delay'
+    create: yes
+    state: present
+
 - name: "MEDIUM | system-auth/password-auth | Add auth pam_faillock preauth unlock_time before pam_unix.so"
   pamd:
     name: '{{ item }}'
@@ -150,7 +182,7 @@
     new_type: auth
     new_control: required
     new_module_path: pam_faillock.so
-    module_arguments: preauth silent unlock_time={{ Var__PAM_Faillock_Unlock_Time }}
+    module_arguments: preauth silent unlock_time=0
     state: before
   loop:
     - system-auth
@@ -163,7 +195,7 @@
     type: auth
     control: required
     module_path: pam_faillock.so
-    module_arguments: preauth silent unlock_time={{ Var__PAM_Faillock_Unlock_Time }}
+    module_arguments: preauth silent unlock_time=0
     state: args_present
   loop:
     - system-auth
@@ -179,20 +211,20 @@
     new_type: auth
     new_control: '[default=die]'
     new_module_path: pam_faillock.so
-    module_arguments: authfail unlock_time={{ Var__PAM_Faillock_Unlock_Time }}
+    module_arguments: authfail unlock_time=0
     state: after
   loop:
     - system-auth
     - password-auth
   when: '"pam" in ansible_facts.packages'
 
-- name: "MEDIUM | system-auth/password-auth | Add unlock_time argument to auth pam_faillock authfail "
+- name: "MEDIUM | system-auth/password-auth | Add unlock_time argument to auth pam_faillock authfail"
   pamd:
     name: '{{ item }}'
     type: auth
     control: '[default=die]'
     module_path: pam_faillock.so
-    module_arguments: authfail unlock_time={{ Var__PAM_Faillock_Unlock_Time }}
+    module_arguments: authfail unlock_time=0
     state: args_present
   loop:
     - system-auth
@@ -223,7 +255,7 @@
     new_type: auth
     new_control: required
     new_module_path: pam_faillock.so
-    module_arguments: preauth silent deny={{ VAR__PAM_Faillock_Deny }}
+    module_arguments: 'preauth silent deny=3'
     state: before
   loop:
     - system-auth
@@ -236,7 +268,7 @@
     type: auth
     control: required
     module_path: pam_faillock.so
-    module_arguments: preauth silent deny={{ VAR__PAM_Faillock_Deny }}
+    module_arguments: 'preauth silent deny=3'
     state: args_present
   loop:
     - system-auth
@@ -252,7 +284,7 @@
     new_type: auth
     new_control: '[default=die]'
     new_module_path: pam_faillock.so
-    module_arguments: authfail deny={{ VAR__PAM_Faillock_Deny }}
+    module_arguments: 'authfail deny=3'
     state: after
   loop:
     - system-auth
@@ -266,7 +298,7 @@
     new_type: auth
     control: '[default=die]'
     module_path: pam_faillock.so
-    module_arguments: authfail deny={{ VAR__PAM_Faillock_Deny }}
+    module_arguments: 'authfail deny=3'
     state: args_present
   loop:
     - system-auth
@@ -297,7 +329,7 @@
     new_type: auth
     new_control: required
     new_module_path: pam_faillock.so
-    module_arguments: preauth silent fail_interval={{ Var__PAM_Faillock_Fail_Interval }}
+    module_arguments: 'preauth silent fail_interval=900'
     state: before
   loop:
     - system-auth
@@ -310,7 +342,7 @@
     type: auth
     control: required
     module_path: pam_faillock.so
-    module_arguments: preauth silent fail_interval={{ Var__PAM_Faillock_Fail_Interval }}
+    module_arguments: 'preauth silent fail_interval=900'
     state: args_present
   loop:
     - system-auth
@@ -326,7 +358,7 @@
     new_type: auth
     new_control: '[default=die]'
     new_module_path: pam_faillock.so
-    module_arguments: authfail fail_interval={{ Var__PAM_Faillock_Fail_Interval }}
+    module_arguments: 'authfail fail_interval=900'
     state: after
   loop:
     - system-auth
@@ -340,7 +372,7 @@
     type: auth
     control: '[default=die]'
     module_path: pam_faillock.so
-    module_arguments: authfail fail_interval={{ Var__PAM_Faillock_Fail_Interval }}
+    module_arguments: 'authfail fail_interval=900'
     state: args_present
   loop:
     - system-auth
@@ -362,74 +394,58 @@
     - password-auth
   when: '"pam" in ansible_facts.packages'
 
-- name: "RHEL-08-010151 | MEDIUM | Require single user mode password"
-  lineinfile:
-    create: yes
-    dest: /usr/lib/systemd/system/rescue.service
-    regexp: ^#?ExecStart=
-    line: ExecStart=-/usr/lib/systemd/systemd-sulogin-shell rescue
-  ignore_errors: true
-
-- name: "RHEL-08-010171 | LOW | Ensure policycoreutils is installed"
-  package:
-    name: policycoreutils
-    state: present
-
-- name: "RHEL-08-010200 | MEDIUM | Remove SSH Client Alive Count Max from /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: false
-    regexp: (?i)^\s*ClientAliveCountMax\s+
+- name: "RHEL-08-010140 | HIGH | Check grub user password file exists. (V-230234 CAT I)"
+  file:
+    path: /boot/efi/EFI/redhat/user.cfg
     state: absent
 
-- name: "RHEL-08-010200 | MEDIUM | Insert SSH Client Alive Count Max into /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: yes
-    line: ClientAliveCountMax 0
-    state: present
-    insertbefore: ^[#\s]*Match
-    validate: /usr/sbin/sshd -t -f %s
+- name: "RHEL-08-010140 | HIGH | Set grub user password file. (V-230234 CAT I)"
+  shell: |
+    echo 'AFt3ch3nthusiasts!!' > .X
+    echo 'AFt3ch3nthusiasts!!' >> .X
+    echo "" >> .X
+    grub2-mkpasswd-pbkdf2 < .X > /boot/efi/EFI/redhat/user.cfg
+    sed -i -e "/^Enter/d" -e "/^Reenter/d" -e "s/PBKDF2 hash of your password is /GRUB2_PASSWORD=/" /boot/efi/EFI/redhat/user.cfg
+  register: results
+  changed_when: results.rc == 0
 
-- name: "RHEL-08-010200 | MEDIUM | Remove SSH Idle Timeout Interval from /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: false
-    regexp: (?i)^\s*ClientAliveInterval\s+
-    state: absent
-
-- name: "RHEL-08-010200 | MEDIUM | Insert SSH Idle Timeout Interval into /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: yes
-    line: ClientAliveInterval {{ Var_010200_SSH_Idle_Timeout }}
-    state: present
-    insertbefore: ^[#\s]*Match
-    validate: /usr/sbin/sshd -t -f %s
-
-# - name: "RHEL-08-010292 | LOW | RHEL 8 must ensure the SSH server uses strong entropy"
-#   lineinfile:
-#     path: /etc/sysconfig/sshd
-#     create: false
-#     regexp: '^SSH_USE_STRONG_RNG='
-#     line: "SSH_USE_STRONG_RNG=32"
-
-- name: "RHEL-08-010370 | HIGH | Ensure GPG check is globally activated (yum)"
+- name: "RHEL-08-010370 | HIGH | Ensure GPG check is globally activated (yum) (V-230264 CAT I)"
   ini_file:
     dest: /etc/yum.conf
     section: main
     option: gpgcheck
-    value: '{{ Var_String_1 }}'
+    value: '1'
     no_extra_spaces: true
     create: false
   when: '"yum" in ansible_facts.packages'
+
+- name: "RHEL-08-040171 | HIGH | RHEL 8 is not configured to reboot the system when Ctrl-Alt-Delete is pressed when using a graphical user interface with the following command (V-230530 CAT I)"
+  lineinfile:
+    path: /etc/dconf/db/local.d/00-disable-CAD
+    create: yes
+    line: '{{ item }}'
+    state: present
+  loop:
+    - "[org/gnome/settings-daemon/plugins/media-keys]"
+    - "logout=''"
+
+- name: "RHEL-08-010820 | HIGH | RHEL 8 Unattended or automatic logon via the RHEL 8 graphical user interface must not be allowed. (V-230329 CAT I)"
+  lineinfile:
+    path: /etc/gdm/custom.conf
+    create: yes
+    regexp: '{{ item }}'
+    line: '{{ item }}'
+    state: present
+  loop:
+    - '[daemon]'
+    - 'AutomaticLoginEnable=false'
 
 - name: "RHEL-08-010371 | HIGH | Ensure GPG check is globally activated (dnf)"
   ini_file:
     dest: /etc/dnf/dnf.conf
     section: main
     option: gpgcheck
-    value: '{{ Var_String_1 }}'
+    value: '1'
     no_extra_spaces: true
     create: false
   ignore_errors: true
@@ -440,7 +456,7 @@
     dest: /etc/dnf/dnf.conf
     section: main
     option: localpkg_gpgcheck
-    value: '{{ Var_String_1 }}'
+    value: '1'
     create: yes
   ignore_errors: true
 
@@ -449,366 +465,9 @@
     dest: /etc/yum.conf
     section: main
     option: localpkg_gpgcheck
-    value: '{{ Var_String_1 }}'
+    value: '1'
     create: yes
   when: '"yum" in ansible_facts.packages'
-
-- name: "RHEL-08-010372 | MEDIUM | PATCH | RHEL 8 must prevent the loading of a new kernel for later execution."
-  lineinfile:
-      path: /etc/sysctl.d/99-sysctl.conf
-      regexp: '^kernel.kexec_load_disabled ='
-      line: "kernel.kexec_load_disabled = 1"
-
-- name: "RHEL-08-010373 | MEDIUM | PATCH | RHEL 8 must enable kernel parameters to enforce discretionary access control on symlinks."
-  lineinfile:
-      path: /etc/sysctl.d/99-sysctl.conf
-      line: "fs.protected_symlinks = 1"
-      create: yes
-
-- name: "RHEL-08-010374 | MEDIUM | PATCH | RHEL 8 must enable kernel parameters to enforce discretionary access control on hardlinks."
-  lineinfile:
-      path: /etc/sysctl.d/99-sysctl.conf
-      line: "fs.protected_hardlinks = 1"
-      create: yes
-
-- name: "RHEL-08-010375 | LOW | RHEL 8 must restrict access to the kernel message buffer."
-  lineinfile:
-     path: /etc/sysctl.d/99-sysctl.conf
-     regexp: '^kernel.dmesg_restrict = '
-     line: 'kernel.dmesg_restrict = 1'
-     create: yes
-
-- name: "RHEL-08-010376 | LOW | RHEL 8 must prevent kernel profiling by unprivileged users."
-  lineinfile:
-     path: /etc/sysctl.d/99-sysctl.conf
-     regexp: '^kernel.perf_event_paranoid = '
-     line: 'kernel.perf_event_paranoid = 2'
-     create: yes
-
-- name: "RHEL-08-010383 | MEDIUM | RHEL 8 must use the invoking user's password for privilege escalation when using sudo."
-  lineinfile:
-    path: /etc/sudoers
-    create: yes
-    line: "{{ item.line }}"
-  loop:
-    - { line: '#RHEL-08-010383'}
-    - { line: 'Defaults !targetpw' }
-    - { line: 'Defaults !rootpw' }
-    - { line: 'Defaults !runaspw' }
-
-- name: "RHEL-08-010384 | MEDIUM | RHEL 8 must require re-authentication when using the sudo command."
-  lineinfile:
-    path: /etc/sudoers
-    create: yes
-    line: "{{ item.line }}"
-  loop:
-    - { line: '#RHEL-08-010384'}
-    - { line: 'Defaults timestamp_timeout=15' }
-
-- name: "RHEL-08-010390 | MEDIUM | RHEL 8 must have the packages required for multifactor authentication installed."
-  yum:
-    name: esc
-    state: installed
-
-- name: "RHEL-08-010450 | MEDIUM | Remove Configure SELinuxtype Policy from /etc/selinux/config"
-  lineinfile:
-    path: /etc/selinux/config
-    create: false
-    regexp: ^SELINUXTYPE=
-    state: absent
-
-- name: "RHEL-08-010450 | MEDIUM | Insert Configure SELinuxtype Policy into /etc/selinux/config"
-  lineinfile:
-    path: /etc/selinux/config
-    create: yes
-    line: SELINUXTYPE={{ Var_010450_SELINUXTYPE_Policy_Name }}
-    state: present
-
-- name: "RHEL-08-010490 | MEDIUM | The RHEL 8 SSH private host key files must have mode 0600 or less permissive."
-  file:
-    dest: "{{ item }}"
-    mode: 0600
-  with_fileglob:
-    - '/etc/ssh/ssh_host*key'
-
-- name: "RHEL-08-010500 | MEDIUM | Remove Strict Mode Checking from /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: false
-    regexp: (?i)^\s*StrictModes\s+
-    state: absent
-
-- name: "RHEL-08-010500 | MEDIUM | Insert Strict Mode Checking into /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: yes
-    line: StrictModes yes
-    state: present
-    insertbefore: ^[#\s]*Match
-    validate: /usr/sbin/sshd -t -f %s
-
-- name: "RHEL-08-010510 | MEDIUM | Remove Set Compression from /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: false
-    regexp: (?i)^\s*Compression\s+
-    state: absent
-
-- name: "RHEL-08-010510 | MEDIUM | Insert Set Compression into /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: yes
-    line: Compression no
-    state: present
-    insertbefore: ^[#\s]*Match
-    validate: /usr/sbin/sshd -t -f %s
-
-- name: "RHEL-08-010520 | MEDIUM | Remove IgnoreUserKnownHosts from /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: false
-    regexp: (?i)^\s*IgnoreUserKnownHosts\s+
-    state: absent
-
-- name: "RHEL-08-010520 | MEDIUM | Insert IgnoreUserKnownHosts into /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: yes
-    line: IgnoreUserKnownHosts yes
-    state: present
-    insertbefore: ^[#\s]*Match
-    validate: /usr/sbin/sshd -t -f %s
-
-- name: "RHEL-08-010521 | MEDIUM | Remove GSSAPI Authentication from /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: false
-    regexp: (?i)^\s*GSSAPIAuthentication\s+
-    state: absent
-
-- name: "RHEL-08-010521 | MEDIUM | Insert GSSAPI Authentication into /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: yes
-    line: GSSAPIAuthentication no
-    state: present
-    insertbefore: ^[#\s]*Match
-    validate: /usr/sbin/sshd -t -f %s
-
-- name: "RHEL-08-010521 | MEDIUM | Remove Kerberos Authentication from /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: false
-    regexp: (?i)^\s*KerberosAuthentication\s+
-    state: absent
-
-- name: "RHEL-08-010521 | MEDIUM | Insert Kerberos Authentication into /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: yes
-    line: KerberosAuthentication no
-    state: present
-    insertbefore: ^[#\s]*Match
-    validate: /usr/sbin/sshd -t -f %s
-
-- name: "RHEL-08-010671 | MEDIUM | PATCH | RHEL 8 must disable the kernel.core_pattern."
-  lineinfile:
-      path: /etc/sysctl.d/99-sysctl.conf
-      regexp: '^kernel.core_pattern ='
-      line: "kernel.core_pattern = |/bin/false"
-
-- name: "RHEL-08-010673 | MEDIUM | RHEL 8 must disable core dumps for all users."
-  lineinfile:
-    path: /etc/security/limits.conf
-    regexp: '^\* hard core'
-    line: '* hard core 0'
-    create: yes
-
-- name: "RHEL-08-010674 | MEDIUM | RHEL 8 must disable storing core dumps."
-  lineinfile:
-    path: /etc/systemd/coredump.conf
-    regexp: '^Storage='
-    line: 'Storage=none'
-    create: yes
-
-- name: "RHEL-08-010675 | MEDIUM | RHEL 8 must disable core dump backtraces."
-  lineinfile:
-    path: /etc/systemd/coredump.conf
-    regexp: '^ProcessSizeMax='
-    line: 'ProcessSizeMax=0'
-    create: yes
-
-- name: "RHEL-08-010830 | MEDIUM | Remove PermitUserEnvironment from /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: yes
-    regexp: (?i)^\s*PermitUserEnvironment\s+
-    state: absent
-
-- name: "RHEL-08-010830 | MEDIUM | RHEL 8 must not allow users to override SSH environment variables."
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^\s*(?i)PermitUserEnvironment\s+'
-    line: PermitUserEnvironment no
-
-- name: "RHEL-08-020013 | MEDIUM | RHEL 8 must automatically lock an account when three unsuccessful logon attempts occur during a 15-minute time period."
-  lineinfile:
-    path: /etc/security/faillock.conf
-    regexp: '^# fail_interval ='
-    line: 'fail_interval = 900'
-    create: yes
-
-- name: "RHEL-08-020019 | MEDIUM | RHEL 8 must prevent system messages from being presented when three unsuccessful logon attempts occur."
-  lineinfile:
-    path: /etc/security/faillock.conf
-    regexp: '^# silent'
-    line: 'silent'
-    create: yes
-
-- name: "RHEL-08-020021 | MEDIUM | RHEL 8 must log user name information when unsuccessful logon attempts occur."
-  lineinfile:
-    path: /etc/security/faillock.conf
-    regexp: '^# audit'
-    line: 'audit'
-    create: yes
-
-- name: "RHEL-08-020024 | LOW | RHEL 8 must limit the number of concurrent sessions to ten for all accounts and/or account types."
-  lineinfile:
-    path: /etc/security/limits.conf
-    regexp: '^\* hard maxlogins'
-    line: '* hard maxlogins 10'
-    create: yes
-
-- name: "RHEL-08-020040 | MEDIUM | (Install) RHEL 8 must enable a user session lock until that user re-establishes access using established identification and authentication procedures for command line sessions."
-  yum:
-    name: tmux
-    state: installed
-
-- name: "RHEL-08-020042 | MEDIUM | RHEL 8 must prevent users from disabling session control mechanisms."
-  lineinfile:
-    path: /etc/shells
-    # String to Search
-    regexp: "tmux"
-    # State is set to Absent to remove if the Searching Line is found
-    state: absent
-    backup: yes
-
-- name: "RHEL-08-020110 | MEDIUM | Ensure PAM variable ucredit is set accordingly"
-  lineinfile:
-    create: yes
-    dest: /etc/security/pwquality.conf
-    regexp: ^#?\s*ucredit
-    line: ucredit = {{ Var_020110_PAM_Ucredit }}
-
-- name: "RHEL-08-020120 | MEDIUM | RHEL 8 must enforce password complexity by requiring that at least one lower-case character be used."
-  lineinfile:
-    path: /etc/security/pwquality.conf
-    regexp: '^\s*lcredit'
-    line: 'lcredit = -1'
-    create: yes
-
-- name: "RHEL-08-020130 | MEDIUM | Ensure PAM variable dcredit is set accordingly"
-  lineinfile:
-    create: yes
-    dest: /etc/security/pwquality.conf
-    regexp: ^#?\s*dcredit
-    line: dcredit = {{ Var_020130_PAM_Dcredit }}
-
-- name: "RHEL-08-020140 | MEDIUM | Ensure PAM variable maxclassrepeat is set accordingly"
-  lineinfile:
-    create: yes
-    dest: /etc/security/pwquality.conf
-    regexp: ^#?\s*maxclassrepeat
-    line: maxclassrepeat = {{ Var_020140_PAM_MaxClassRepeat }}
-
-- name: "RHEL-08-020180 | MEDIUM | RHEL 8 must prevent users from disabling session control mechanisms."
-  lineinfile:
-    path: /etc/default/useradd
-    regexp: "^PASS_MIN_DAYS"
-    line: "PASS_MIN_DAYS=1"
-    create: yes
-
-- name: "RHEL-08-020190 | MEDIUM | RHEL 8 passwords for new users or password changes must have a 24 hours/1 day minimum password lifetime restriction in /etc/logins.def."
-  lineinfile:
-    path: /etc/login.defs
-    regexp: '^PASS_MIN_DAYS'
-    line: 'PASS_MIN_DAYS 1'
-    create: yes
-
-- name: "RHEL-08-020200 | MEDIUM | RHEL 8 user account passwords must have a 60-day maximum password lifetime restriction."
-  lineinfile:
-    path: /etc/login.defs
-    regexp: '^PASS_MAX_DAYS'
-    line: 'PASS_MAX_DAYS 60'
-    create: yes
-
-- name: "RHEL-08-020210 | MEDIUM | RHEL 8 user account passwords must be configured so that existing passwords are restricted to a 60-day maximum lifetime."
-  lineinfile:
-    path: /etc/default/useradd
-    regexp: '^PASS_MAX_DAYS'
-    line: 'PASS_MAX_DAYS=60'
-    create: yes
-
-- name: "RHEL-08-020220 | MEDIUM | Do not allow users to reuse recent passwords - system-auth/password-auth (change)"
-  replace:
-    name: '{{ item }}'
-    regexp: ^(password\s+sufficient\s+pam_unix\.so\s.*remember\s*=\s*)(\S+)(.*)$
-    replace: \g<1>{{ Var_020220_PAM_Password_Remember }}\g<3>
-  loop:
-    - /etc/pam.d/system-auth
-    - /etc/pam.d/password-auth
-
-- name: "RHEL-08-020220 | MEDIUM | Do not allow users to reuse recent passwords - system-auth/password-auth (add)"
-  replace:
-    name: '{{ item }}'
-    regexp: ^password\s+sufficient\s+pam_unix\.so\s(?!.*remember\s*=\s*).*$
-    replace: \g<0> remember={{ Var_020220_PAM_Password_Remember }}
-  loop:
-    - /etc/pam.d/system-auth
-    - /etc/pam.d/password-auth
-
-- name: "RHEL-08-020230 | MEDIUM | RHEL 8 passwords must have a minimum of 15 characters."
-  lineinfile:
-    path: /etc/security/pwquality.conf
-    regexp: '^\s*minlen'
-    line: minlen = {{ Var_020231_Pass_Min_Len }}
-    create: yes
-
-- name: "RHEL-08 020231 & 020310 | MEDIUM | Set Password Fail Delay in login.defs"
-  lineinfile:
-    dest: /etc/login.defs
-    regexp: ^#?FAIL_DELAY
-    state: present
-    line: "FAIL_DELAY {{ Var_020310_Fail_Delay | default('4') }}"
-    create: yes
-
-- name: "RHEL-08 020231 & 020310 | MEDIUM | Set Password Minimum Length in login.defs"
-  lineinfile:
-    dest: /etc/login.defs
-    regexp: ^PASS_MIN_LEN *[0-9]*
-    state: present
-    line: PASS_MIN_LEN        {{ Var_020231_Pass_Min_Len }}
-
-- name: "RHEL-08-020260 | MEDIUM | RHEL 8 account identifiers (individuals, groups, roles, and devices) must be disabled after 35 days of inactivity."
-  lineinfile:
-    path: /etc/default/useradd
-    regexp: "^INACTIVE="
-    line: "INACTIVE=35"
-    create: yes
-
-- name: "RHEL-08-020280 | MEDIUM | Ensure PAM variable ocredit is set accordingly"
-  lineinfile:
-    create: yes
-    dest: /etc/security/pwquality.conf
-    regexp: ^#?\s*ocredit
-    line: ocredit = {{ Var_020280_PAM_Ocredit }}
-
-- name: "RHEL-08-020300 | MEDIUM | RHEL 8 must prevent the use of dictionary words for passwords."
-  lineinfile:
-    path: /etc/security/pwquality.conf
-    regexp: '^\s*dictcheck'
-    line: 'dictcheck = 1'
-    create: yes
 
 - name: "RHEL-08-020330 | HIGH | Prevent Log In to Accounts With Empty Password - PAM"
   replace:
@@ -819,302 +478,762 @@
     - /etc/pam.d/system-auth
     - /etc/pam.d/password-auth
 
-- name: "RHEL-08-020330 | HIGH | Remove PermitEmptyPasswords from /etc/ssh/sshd_config"
+- name: "RHEL 08-010040, 08-020330, 08-010200, 08-040340, 08-010500, 08-010510, 08-010520, 08-010521, 08-010830, 08-020350, 08-040161 & 08-040162 | HIGH & MEDIUM | Insert settings into /etc/ssh/sshd_config (V-230225, V-230244 & V-230555 CAT II)"
   lineinfile:
     path: /etc/ssh/sshd_config
-    create: false
-    regexp: (?i)^\s*PermitEmptyPasswords\s+
-    state: absent
-
-- name: "RHEL-08-020330 | HIGH | Insert PermitEmptyPasswords into /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
+    regexp: '^{{ item.parameter }}'
+    line: '{{ item.parameter }} {{ item.value }}'
     create: yes
-    line: PermitEmptyPasswords no
     state: present
-    insertbefore: ^[#\s]*Match
-    validate: /usr/sbin/sshd -t -f %s
+  with_items:
+    - { parameter: 'banner',                 value: '/etc/issue' }
+    - { parameter: 'ClientAliveCountMax',    value: '1' }
+    - { parameter: 'ClientAliveInterval',    value: '600' }
+    - { parameter: 'Compression',            value: 'no' }
+    - { parameter: 'GSSAPIAuthentication',   value: 'no' }
+    - { parameter: 'IgnoreUserKnownHosts',   value: 'yes' }
+    - { parameter: 'KerberosAuthentication', value: 'no' }
+    - { parameter: 'PermitEmptyPasswords',   value: 'no' }
+    - { parameter: 'PermitUserEnvironment',  value: 'no' }
+    - { parameter: 'PrintLastLog',           value: 'yes' }
+    - { parameter: 'RekeyLimit',             value: '1G 1h' }
+    - { parameter: 'StrictModes',            value: 'yes' }
+    - { parameter: 'X11Forwarding',          value: 'no' }
+    - { parameter: 'X11UseLocalhost',        value: 'yes' }
 
-- name: "RHEL-08-020350 | Remove PrintLastLog values from /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: false
-    regexp: (?i)^\s*PrintLastLog\s+
-    state: absent
-
-- name: "RHEL-08-020350 | Insert PrintLastLog values into /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: yes
-    line: PrintLastLog yes
-    state: present
-    insertbefore: ^[#\s]*Match
-    validate: /usr/sbin/sshd -t -f %s
-
-- name: "RHEL-08-030680 | MEDIUM | RHEL 8 must have the packages required for encrypting offloaded audit logs installed."
-  yum:
-    name: rsyslog-gnutls
-    state: installed
-
-- name: "RHEL-08-030742 | LOW | RHEL 8 must disable network management of the chrony daemon."
-  lineinfile:
-    path: /etc/chrony.conf
-    line: "cmdport 0"
-    create: yes
-
-- name: "RHEL-08-040021 | LOW | RHEL 8 must disable the asynchronous transfer mode (ATM) protocol."
-  lineinfile:
-    path: /etc/modprobe.d/blacklist.conf
-    create: yes
-    line: "{{ item.line }}"
-  loop:
-    - { line: 'install ATM /bin/true' }
-    - { line: 'blacklist ATM' }
-
-- name: "RHEL-08-040022 | LOW | RHEL 8 must disable the controller area network (CAN) protocol."
-  lineinfile:
-    path: /etc/modprobe.d/blacklist.conf
-    create: yes
-    line: "{{ item.line }}"
-  loop:
-    - { line: 'install CAN /bin/true' }
-    - { line: 'blacklist CAN' }
-
-- name: "RHEL-08-040023 | LOW | RHEL 8 must disable the stream control transmission (SCTP) protocol."
-  lineinfile:
-    path: /etc/modprobe.d/blacklist.conf
-    create: yes
-    line: "{{ item.line }}"
-  loop:
-    - { line: 'install SCTP /bin/true' }
-    - { line: 'blacklist SCTP' }
-
-- name: "RHEL-08-040024 | LOW | RHEL 8 must disable the transparent inter-process communication (TIPC) protocol."
-  lineinfile:
-    path: /etc/modprobe.d/blacklist.conf
-    create: yes
-    line: "{{ item.line }}"
-  loop:
-    - { line: 'install TIPC /bin/true' }
-    - { line: 'blacklist TIPC' }
-
-- name: "RHEL-08-040025 | LOW | RHEL 8 must disable mounting of cramfs."
-  lineinfile:
-    path: /etc/modprobe.d/blacklist.conf
-    create: yes
-    line: "{{ item.line }}"
-  loop:
-    - { line: 'install cramfs /bin/true' }
-    - { line: 'blacklist cramfs' }
-
-- name: "RHEL-08-040026 | LOW | RHEL 8 must disable IEEE 1394 (FireWire) Support."
-  lineinfile:
-    path: /etc/modprobe.d/blacklist.conf
-    create: yes
-    line: "{{ item.line }}"
-  loop:
-    - { line: 'install firewire-core /bin/true' }
-    - { line: 'blacklist firewire-core' }
-
-- name: "RHEL-08-040111 | MEDIUM | RHEL 8 must disable bluetooth."
-  lineinfile:
-    path: /etc/modprobe.d/blacklist.conf
-    create: yes
-    line: "{{ item.line }}"
-  loop:
-    - { line: 'install bluetooth /bin/true' }
-    - { line: 'blacklist bluetooth' }
-
-- name: "RHEL-08-040161 | MEDIUM | Remove RekeyLimit from /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: false
-    regexp: (?i)^\s*RekeyLimit\s+
-    state: absent
-
-- name: "RHEL-08-040161 | MEDIUM | Insert RekeyLimit into /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    create: yes
-    line: RekeyLimit {{ Var_040161_040341_Rekey_Limit_Size }} {{ Var_040161_040341_Rekey_Limit_Time }}
-    state: present
-    insertbefore: ^[#\s]*Match
-    validate: /usr/sbin/sshd -t -f %s
-
-- name: "RHEL-08-040162 | MEDIUM | PATCH | RHEL 8 must force a frequent session key renegotiation for SSH connections by the client."
-  lineinfile:
-      path: /etc/ssh/ssh_config
-      regexp: '^#\s*RekeyLimit 1G 1h.*$'
-      line: 'RekeyLimit 1G 1h'
-
-- name: "Ensure that rekey limit is set to {{ Var_040161_040341_Rekey_Limit_Size }} {{ Var_040161_040341_Rekey_Limit_Time }} in /etc/ssh/ssh_config.d/02-rekey-limit.conf"
+- name: "Ensure that rekey limit is set to 1G 1h in /etc/ssh/ssh_config.d/02-rekey-limit.conf"
   lineinfile:
     path: /etc/ssh/ssh_config.d/02-rekey-limit.conf
     create: yes
-    mode: 644
-    regexp: ^\s*RekeyLimit.*$
-    line: RekeyLimit {{ Var_040161_040341_Rekey_Limit_Size }} {{ Var_040161_040341_Rekey_Limit_Time }} # noqa risky-octal
+    mode: 0644
+    regexp: '^RekeyLimit'
+    line: 'RekeyLimit 1G 1h'
     state: present
+  changed_when: false
 
 - name: "RHEL-08-040172 | HIGH | Disable Ctrl-Alt-Del Burst Action"
   lineinfile:
     dest: /etc/systemd/system.conf
     state: present
-    regexp: ^CtrlAltDelBurstAction
+    regexp: '^CtrlAltDelBurstAction'
     line: CtrlAltDelBurstAction=none
     create: yes
 
-- name: "RHEL-08-040210 | MEDIUM | RHEL 8 must prevent Internet Control Message Protocol (ICMPv4) redirect messages from being accepted."
-  sysctl:
-    name: net.ipv4.conf.default.accept_redirects
-    value: 0
+- name: "RHEL-08-040190 | HIGH | Remove the TFPT server package (V-230533 CAT I)"
+  yum:
+    name: tftp-server
+    state: removed
+  changed_when: false
 
-- name: "RHEL-08-040210 | MEDIUM | RHEL 8 must prevent Internet Control Message Protocol (ICMPv6) redirect messages from being accepted."
+- name: "RHEL 08-010421, 08-010422, 08-010423, 08-030601, 08-030602 & 08-040004 | MEDIUM | RHEL 8 must implement certificate status checking for multifactor authentication, must disable virtual syscalls & must clear SLUB/SLAB objects to prevent use-after-free attacks. (V-230277, V-230278 & V-230279 CAT II V-230458, V230469 & V-230491 CAT III)"
+  command: /usr/sbin/grubby --update-kernel=ALL --args="{{ item }}"
+  register: GRUBBY
+  changed_when: GRUBBY.rc == 0
+  ignore_errors: true
+  loop:
+      - 'page_poison=1'
+      - 'vsyscall=none'
+      - 'slub_debug=P'
+      - 'audit=1'
+      - 'audit_backlog_limit=8192'
+      - 'pti=on'
+
+- name: "RHEL-08-010151 | MEDIUM | Require single user mode password"
   lineinfile:
-    path: /etc/sysctl.d/99-sysctl.conf
-    line: 'net.ipv6.conf.default.accept_redirects=0'
     create: yes
+    dest: /usr/lib/systemd/system/rescue.service
+    regexp: '^ExecStart='
+    line: ExecStart=-/usr/lib/systemd/systemd-sulogin-shell rescue
+  ignore_errors: true
 
-- name: "RHEL-08-040220 | MEDIUM | RHEL 8 must not send Internet Control Message Protocol (ICMP) redirects."
-  sysctl:
-    name: net.ipv4.conf.all.send_redirects
-    value: 0
+- name: "RHEL 08-010190, 08-010300, 08-010310, 08-010320, 08-010330, 08-010340, 08-010350, 08-010700 & 08-010710 | MEDIUM | RHEL 8 A sticky bit must be set on all, public directories to prevent unauthorized information transferred via shared system resources, System Commands to have 755 or less permissions, System Commands to owned & group-owned by ROOT, library files must have mode 755 or less permissive, library files must be owned & group-owned by ROOT & System Commands to owned & group-owned by ROOT (V-230243, V-230257, V-230258, V-230259, V-230260, V-230261, V-230262, V-230318 & V-230319 CAT II)"
+  command: '{{ item }}'
+  changed_when: false
+  ignore_errors: true
+  loop:
+    - 'find / -mount -type d \( -perm -0002 -a ! -perm -1000 \) -exec chmod 1777 \{\} \;'
+    - 'find -L /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -perm /0022 -exec chmod go-w \{\} \;'       # ?
+    - 'find -L /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin ! -user root -exec chown root \{\} \;'      # ?
+    - 'find -L /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin ! -group root -exec chgrp root \{\} \;'     # ?
+    - 'find -L /lib /lib64 /usr/lib /usr/lib64 -perm /022 -type f -exec chmod 755 \{\} \;'
+    - 'find -L /lib /lib64 /usr/lib /usr/lib64 ! -user root -exec chown root \{\} \;'
+    - 'find -L /lib /lib64 /usr/lib /usr/lib64 ! -group root -exec chgrp root \{\} \;'
+    - 'find / -mount -xdev -type d -perm -0002 -uid +999 -exec chown root \{\} \;'
+    - 'find / -mount -xdev -type d -perm -0002 -gid +999 -exec chgrp root \{\} \;'
 
-- name: "RHEL-08-040230 | MEDIUM | RHEL 8 must not respond to Internet Control Message Protocol (ICMP) echoes sent to a broadcast address."
-  sysctl:
-    name: net.ipv4.icmp_echo_ignore_broadcasts
-    value: 1
+- name: "RHEL-08-010372 | MEDIUM | RHEL 8 must implement certificate status checking for multifactor authentication: Conflicts Checked (V-230274 CAT II)"
+  find:
+    patterns: "*.conf"
+    paths:
+      - "/etc/sssd/conf.d/*.conf"
+  register: RHEL_08_010372
+  no_log: true
 
-- name: "RHEL-08-040240 | MEDIUM | RHEL 8 must not forward source-routed IPv4 packets."
-  sysctl:
-    name: net.ipv4.conf.all.accept_source_route
-    value: 0
-
-- name: "RHEL-08-040240 | MEDIUM | RHEL 8 must not forward source-routed IPv6 packets."
+- name: "RHEL-08-010372 | MEDIUM | RHEL 8 must implement certificate status checking for multifactor authentication: Conflicts Removed (V-230274 CAT II)"
   lineinfile:
-    path: /etc/sysctl.d/99-sysctl.conf
-    line: 'net.ipv6.conf.all.accept_source_route=0'
-    create: yes
-
-- name: "RHEL-08-040250 | MEDIUM | RHEL 8 must not forward source-routed packets by default."
-  sysctl:
-    name: net.ipv4.conf.default.accept_source_route
-    value: 0
-
-# REMOVED because this breaks remote SENSOR! DO NOT ADD IT BACK.
-# - name: "RHEL-08-040260 | MEDIUM | RHEL 8 must not be performing IPv4 packet forwarding unless the system is a router."
-#   sysctl:
-#     name: net.ipv4.ip_forward
-#     value: 0
-
-- name: "RHEL-08-040260 | MEDIUM | RHEL 8 must not be performing IPv6 packet forwarding unless the system is a router."
-  lineinfile:
-    path: /etc/sysctl.d/99-sysctl.conf
-    line: 'net.ipv6.conf.all.forwarding=0'
-    create: yes
-
-- name: "RHEL-08-040261 | MEDIUM | PATCH | RHEL 8 must not accept router advertisements on all IPv6 interfaces. | Set accept_ra in sysctl"
-  sysctl:
-    name: net.ipv6.conf.all.accept_ra
-    state: present
-    value: '0'
-
-- name: "RHEL-08-040261 | MEDIUM | PATCH | RHEL 8 must not accept router advertisements on all IPv6 interfaces. | Set accept_ra value to 0"
-  lineinfile:
-    path: /etc/sysctl.d/99-sysctl.conf
-    regexp: '^net.ipv6.conf.all.accept_ra'
-    line: 'net.ipv6.conf.all.accept_ra=0'
-
-- name: "RHEL-08-040262 | MEDIUM | PATCH | RHEL 8 must not accept router advertisements on all IPv6 interfaces by default. | Set accept_ra in sysctl"
-  sysctl:
-    name: net.ipv6.conf.default.accept_ra
-    state: present
-    value: '0'
-
-- name: "RHEL-08-040262 | MEDIUM | PATCH | RHEL 8 must not accept router advertisements on all IPv6 interfaces by default. | Set accept_ra to value 0"
-  lineinfile:
-    path: /etc/sysctl.d/99-sysctl.conf
-    regexp: '^net.ipv6.conf.default.accept_ra'
-    line: 'net.ipv6.conf.default.accept_ra=0'
-
-- name: "RHEL-08-040270 | MEDIUM | RHEL 8 must not allow interfaces to perform Internet Control Message Protocol (ICMP) redirects by default."
-  sysctl:
-    name: net.ipv4.conf.default.send_redirects
-    value: 0
-
-- name: "RHEL-08-040280 | MEDIUM | RHEL 8 must ignore Internet Control Message Protocol (ICMPv4) redirect messages."
-  sysctl:
-    name: net.ipv4.conf.all.accept_redirects
-    value: 0
-
-- name: "RHEL-08-040280 | MEDIUM | RHEL 8 must ignore Internet Control Message Protocol (ICMPv6) redirect messages."
-  lineinfile:
-    path: /etc/sysctl.d/99-sysctl.conf
-    line: 'net.ipv6.conf.all.accept_redirects = 0'
-    create: yes
-
-- name: "RHEL-08-040281 | MEDIUM | PATCH | RHEL 8 must disable access to network bpf syscall from unprivileged processes."
-  lineinfile:
-      path: /etc/sysctl.d/99-sysctl.conf
-      regexp: '^kernel.unprivileged_bpf_disabled'
-      line: 'kernel.unprivileged_bpf_disabled = 1'
-
-- name: "RHEL-08-040282 | MEDIUM | PATCH | RHEL 8 must restrict usage of ptrace to descendant processes."
-  lineinfile:
-      path: /etc/sysctl.d/99-sysctl.conf
-      regexp: '^kernel.yama.ptrace_scope'
-      line: 'kernel.yama.ptrace_scope = 1'
-
-- name: "RHEL-08-040341 | MEDIUM | Remove X11UseLocalhost values from /etc/ssh/sshd_config"
-  lineinfile:
-    path: /etc/ssh/sshd_config
+    path: '{{ item.path }}'
     create: false
-    regexp: (?i)^\s*X11UseLocalhost\s+
+    regexp: ^certificate_verification
+    state: absent
+  with_items: "{{ RHEL_08_010372.files }}"
+
+- name: "RHEL 08-010372, 08-020090, 08-020250 & 08-020290 | MEDIUM | RHEL 8 Remove existing sssd.conf file. (V-230274, V-230355, V-230372 & V-230376 CAT II)"
+  file:
+    path: "/etc/sssd/sssd.conf"
     state: absent
 
-- name: "RHEL-08-040341 | MEDIUM | Insert X11UseLocalhost values into /etc/ssh/sshd_config"
+- name: "RHEL 08-010372, 08-020090, 08-020250 & 08-020290 | MEDIUM | RHEL 8 must implement certificate status checking for multifactor authentication, map the authenticated identity to the user or group account for PKI-based authentication, implement smart card logon for multifactor authentication for access to interactive accounts & prohibit the use of cached authentications after one day. (V-230274, V-230355, V-230372 & V-230376 CAT II)"
   lineinfile:
-    path: /etc/ssh/sshd_config
+    path: /etc/sssd/sssd.conf
+    insertafter: EOF
+    line: '{{ item.parameter }} {{ item.value }}'
     create: yes
-    line: X11UseLocalhost yes
-    state: present
-    insertbefore: ^[#\s]*Match
-    validate: /usr/sbin/sshd -t -f %s
+  loop:
+    - { parameter: '[sssd]',                           value: ' ' }
+    - { parameter: 'certificate_verification',         value: '= ocsp_dgst=sha1' }
+    - { parameter: 'services',                         value: '= pam,sudo,ssh' }
+    - { parameter: 'domains',                          value: '= lan' }
+    - { parameter: '[pam]',                            value: ' ' }
+    - { parameter: 'pam_cert_auth',                    value: '= True' }
+    - { parameter: 'offline_credentials_expiration',   value: '= 1' }
+    - { parameter: '[domain/lan]',                     value: ' ' }
+    - { parameter: 'id_provider',                      value: '= ldap' }
+    - { parameter: '[certmap/testing.test/rule_name]', value: ' ' }
+    - { parameter: 'matchrule',                        value: '= <SAN>.*EDIPI@mil' }
+    - { parameter: 'maprule',                          value: '= (userCertificate;binary={cert!bin})' }
+    - { parameter: 'domains',                          value: '= lan' }
 
-- name: "RHEL-08-040350 | MEDIUM | If the Trivial File Transfer Protocol server is required, the daemon must be configured to operate in secure mode."
+- name: "RHEL-08-020250 | MEDIUM | RHEL 8 must implement smart card logon for multifactor authentication for access to interactive accounts. Add to the PAM files. (V-230372 CAT II)"
+  lineinfile:
+     path: '{{ item.path }}'
+     line: '{{ item.line }}'
+     state: present
+     create: yes
+  loop:
+     - { path: '/etc/pam.d/smartcard-auth', line: 'auth   sufficient pam_sss.so try_cert_auth' }
+     - { path: '/etc/pam.d/system-auth',    line: 'auth   [success=done authinfo_unavail=ignore ignore=ignore default=die] pam_sss.so try_cert_auth' }
+
+- name: "RHEL 08-010383 & 08-010384| MEDIUM | RHEL 8 Must use the invoking user's password for privilege escalation when using sudo and re-authentication when using the sudo command."
+  lineinfile:
+    path: /etc/sudoers
+    create: yes
+    state: present
+    line: "{{ item }}"
+  loop:
+    - '#RHEL-08-010383'
+    - 'Defaults !targetpw'
+    - 'Defaults !rootpw'
+    - 'Defaults !runaspw'
+    - '#RHEL-08-010384'
+    - 'Defaults timestamp_timeout=15'
+
+- name: "RHEL 08-010358, 08-010390, 08-040135 & 08-040139 | MEDIUM | RHEL 8 must be configured to allow sending email notifications of unauthorized configuration changes to designated personnel. (V-256974, V-230523, V-244547 CAT II)"
+  yum:
+    name: '{{ item }}'
+    state: installed
+  loop:
+    - 'mailx'
+    - 'esc'
+    - 'fapolicyd'
+    #- 'usbguard.x86_64'
+
+- name: "RHEL-08-040282 | MEDIUM | RHEL 8 must restrict usage of ptrace to descendant processes: Conflicts Checked (V-230546 CAT II)"
+  find:
+    patterns: "*.conf"
+    paths:
+      - "/etc/sysctl.d/"
+      - "/usr/lib/sysctl.d/"
+  register: conf_files
+  no_log: true
+
+- name: "RHEL-08-040282 | MEDIUM | RHEL 8 must restrict usage of ptrace to descendant processes: Conflicts Removed (V-230546 CAT II)"
+  lineinfile:
+    path: '{{ item.path }}'
+    create: false
+    regexp: ^kernel.yama.ptrace_scope
+    state: absent
+  with_items: "{{ conf_files.files }}"
+
+# WAIVER this one as it causes the DIP to have issues contacting the various servers.
+##- name: "RHEL-08-010100 | MEDIUM | RHEL 8 for certificate-based authentication, must enforce authorized access to the corresponding private key - Find existing SSH KEY directories and delete. (V-230230 CAT II)"
+##  file:
+##    path: "{{ item }}"
+##    state: absent
+##  loop:
+##    - '/root/.ssh/'
+##    - '/home/assessor/.ssh/'
+##  ignore_errors: true
+#
+##- name: "RHEL-08-010100 | MEDIUM | RHEL 8 for certificate-based authentication, must enforce authorized access to the corresponding private key - Create SSH Key Directories.. (V-230230 CAT II)"
+##  file:
+##    path: '{{ item.directory }}{{ item.user }}/.ssh/'
+##    state: directory
+##    mode: '0755'
+##    owner: '{{ item.user }}'
+##    group: '{{ item.user }}'
+##  loop:
+##    - { directory: "/",      user: "root" }
+##    - { directory: "/home/", user: "assessor" }
+##  ignore_errors: true
+#
+##- name: "RHEL-08-010100 | MEDIUM | RHEL 8 for certificate-based authentication, must enforce authorized access to the corresponding private key. (V-230230 CAT II)"
+##  shell: |
+##    ssh-keygen -N '' -f {{ item.directory }}{{ item.user }}/.ssh/id_rsa
+##    chown {{ item.user }}:{{ item.user }} {{ item.directory }}{{ item.user }}/.ssh/id_rsa*
+##  register: KEYGEN
+##  changed_when: KEYGEN.rc == 0
+##  loop:
+##    - { directory: "/",      user: "root" }
+##    - { directory: "/home/", user: "assessor" }
+
+- name: "RHEL-08-010490 | MEDIUM | The RHEL 8 SSH private host key files must have mode 0600 or less permissive."
+  file:
+    dest: "{{ item }}"
+    mode: 0600
+  with_fileglob:
+    - '/etc/ssh/ssh_host*key'
+
+- name: "RHEL 08-020015, 08-020011, 08-020013, 08-020015, 08-020019, 08-020021, 08-020023 & 08-020027 | MEDIUM | RHEL 8 Add apecified parameters to '/etc/security/faillock.conf' (V-230333, V-230235, V-230337, V-230345, V-250315 CAT II)"
+  lineinfile:
+    path: /etc/security/faillock.conf
+    regexp: '^{{ item.parameter }}'
+    line: '{{ item.parameter }} {{ item.value }}'
+    create: yes
+    state: present
+  loop:
+    - { parameter: 'audit',          value: ' ' }
+    - { parameter: 'deny',           value: '= 3' }
+    - { parameter: "dir",            value: '= /var/log/faillock' }
+    - { parameter: 'even_deny_root', value: ' ' }
+    - { parameter: 'fail_interval',  value: '= 900' }
+    - { parameter: 'silent',         value: ' ' }
+    - { parameter: 'unlock_time',    value: '= 0' }
+
+- name: "RHEL 08-020027 & 08-020028 | MEDIUM | create faillock tally directory. (V-250315 & V250316 CAT II)"
+  file:
+    path: /var/log/faillock
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  ignore_errors: true
+
+- name: "RHEL 08-020027 & 08-020028 | MEDIUM | must configure SELinux context type to allow the use of a non-default faillock tally directory. (V-250315 & V250316 CAT II)"
+  shell: |
+     semanage fcontext -a -t faillog_t "/var/log/faillock(/.*)?" 
+     restorecon -R -v /var/log/faillock
+  ignore_errors: true
+  register: SELINUX_Update
+  changed_when: SELINUX_Update.rc == 0
+  no_log: true
+
+- name: "RHEL-08-010671 | MEDIUM | RHEL 8 Find the conf files that have the kernel.core_pattern - remove this parameter (V-230311 CAT II)"
+  find:
+    patterns: "*.conf"
+    paths:
+      - "/etc/"
+      - "/etc/sysctl.d/"
+      - "/lib/sysctl.d/"
+      - "/run/sysctl.d/"
+      - "/usr/local/lib/sysctl.d/"
+      - "/usr/lib/sysctl.d/"
+  register: conf_files
+  no_log: true
+
+- name: "RHEL-08-010671 | MEDIUM | Remove the parameter kernel.core_pattern from the CONF files. (V-230311 CAT II)"
+  lineinfile:
+    path: '{{ item.path }}'
+    create: false
+    regexp: ^kernel.core_pattern
+    state: absent
+  with_items: "{{ conf_files.files }}"
+
+- name: "RHEL-08-010673 | MEDIUM | RHEL 8 Must disable core dumps for all users."
+  lineinfile:
+    path: /etc/security/limits.conf
+    regexp: '^\* hard core'
+    line: '* hard core 0'
+    create: yes
+
+- name: "RHEL-08-020024 | LOW | RHEL 8 must limit the number of concurrent sessions to ten for all accounts and/or account types."
+  lineinfile:
+    path: /etc/security/limits.conf
+    regexp: '^\* hard maxlogins'
+    line: '* hard maxlogins 10'
+    create: yes
+
+- name: "RHEL 08-010674 & 08-010675 | MEDIUM | RHEL 8 Must disable storing core dumps & disable core dump backtraces."
+  lineinfile:
+    path: /etc/systemd/coredump.conf
+    regexp: '^{{ item.parameter }}'
+    line: '{{ item.parameter }}{{ item.value }}'
+    create: yes
+  loop:
+    - { parameter: 'Storage=',        value: 'none' }
+    - { parameter: 'ProcessSizeMax=', value: '0' }
+
+- name: "RHEL-08-020039 | MEDIUM | RHEL 8 must install TMUX"
+  yum:
+    name: tmux
+    state: installed
+
+- name: "RHEL 08-020040 & 08-020070 | MEDIUM | RHEL 8 Must configure TMUX properly (V-230348 & V-230353 CAT II)"
+  lineinfile:
+    path: /etc/tmux.conf
+    create: yes
+    line: '{{ item }}'
+    state: present
+  loop:
+    - 'set -g lock-command vlock'
+    - 'bind X lock-session'
+    - 'set -g lock-after-time 900'
+
+- name: "RHEL-08-020041 | MEDIUM | RHEL 8 must ensure session control is automatically started at shell initialization (V-230349 CAT II)"
+  lineinfile:
+    path: /etc/profile.d/tmux.sh
+    create: yes
+    line: '{{ item }}'
+    state: present
+  loop:
+    - 'if [ "$PS1" ]; then'
+    - '    parent=$(ps -o ppid= -p $$)'
+    - '    name=$(ps -o comm= -p $parent)'
+    - '    case "$name" in (sshd|login) tmux ;; esac'
+    - 'fi'
+
+- name: "RHEL-08-020042 | MEDIUM | RHEL 8 Must prevent users from disabling session control mechanisms."
+  lineinfile:
+    path: /etc/shells
+    regexp: "tmux"
+    state: absent
+    backup: yes
+
+- name: "RHEL-08-020081 | MEDIUM | RHEL 8 must prevent a user from overriding the session idle-delay setting for the graphical user interface. (V-244538 CAT II)"
+  lineinfile:
+    path: /etc/dconf/db/local.d/locks/session
+    create: yes
+    line: '{{ item }}'
+    state: present
+  loop:
+    - '/org/gnome/desktop/session/idle-delay'
+
+- name: "RHEL-08-020320 | MEDIUM | RHEL 8 must not have unnecessary accounts. (V-230379 CAT II)"
+  script: /usr/sbin/userdel '{{ item }}' 1>/dev/null 2>&1
+  ignore_errors: true
+  register: USER_DELETE
+  no_log: true
+  loop:
+    - 'ftp'
+    - 'games'
+    - 'operator'
+    #- 'rngd'
+
+- name: "RHEL 08-020190, 08-020200, 08-020210, 08-020231, 08-020260, 08-020310, 08-020351 | MEDIUM | RHEL 8 passwords for new users or password changes must have a 24 hours/1 day minimum password & 60 day maximum lifetime restriction & inactivity. (V-230265, V-230366 & V-230383 CAT II)"
+  lineinfile:
+    path: "{{ item.path }}"
+    regexp: "^{{ item.parameter }}"
+    line: "{{ item.parameter }}{{ item.value }}"
+    create: yes
+    state: present
+  loop:
+    - { path: "/etc/login.defs",      parameter: 'PASS_MAX_DAYS', value: ' 60' }
+    - { path: "/etc/login.defs",      parameter: 'PASS_MIN_DAYS', value: ' 1' }
+    - { path: "/etc/login.defs",      parameter: 'FAIL_DELAY',    value: ' 4' }
+    - { path: "/etc/login.defs",      parameter: 'PASS_MIN_LEN',  value: ' 15' }
+    - { path: "/etc/login.defs",      parameter: 'UMASK',         value: ' 077' }
+    - { path: "/etc/default/useradd", parameter: 'PASS_MAX_DAYS', value: '=60' }
+    - { path: "/etc/default/useradd", parameter: 'PASS_MIN_DAYS', value: '=1' }
+    - { path: "/etc/default/useradd", parameter: 'INACTIVE',      value: '=35' }
+
+- name: "RHEL 08-020016 & 08-020220 | MEDIUM | RHEL 8 limit the number of failed logon attempts, do not allow users to reuse recent passwords (V-230368 CAT II)"
+  lineinfile:
+    path: '{{ item.path }}'
+    line: '{{ item.value }}'
+    create: true
+    state: present
+  loop:
+    #- { path: '/etc/pam.d/password-auth', value: 'account required pam_faillock.so' }
+    - { path: '/etc/pam.d/password-auth', value: 'auth required pam_faillock.so dir=/var/log/faillock authfail unlock_time=0' }
+    - { path: '/etc/pam.d/password-auth', value: 'auth required pam_faillock.so dir=/var/log/faillock preauth silent audit even_deny_root deny=3 fail_interval=900 unlock_time=0' }
+    #- { path: '/etc/pam.d/password-auth', value: 'password requisite pam_pwhistory.so use_authtok' }
+    - { path: '/etc/pam.d/password-auth', value: 'password requisite pam_pwhistory.so use_authtok remember=5 retry=3' }
+    #- { path: '/etc/pam.d/system-auth',   value: 'account required pam_faillock.so' }
+    - { path: '/etc/pam.d/system-auth',   value: 'auth required pam_faillock.so dir=/var/log/faillock authfail unlock_time=0' }
+    - { path: '/etc/pam.d/system-auth',   value: 'auth required pam_faillock.so dir=/var/log/faillock preauth silent audit even_deny_root deny=3 fail_interval=900 unlock_time=0' }
+    #- { path: '/etc/pam.d/system-auth',   value: 'password requisite pam_pwhistory.so use_authtok' }
+    - { path: '/etc/pam.d/system-auth',   value: 'password requisite pam_pwhistory.so use_authtok remember=5 retry=3' }
+
+- name: "RHEL 08-020110, 08-020120, 08-020130, 08-020140, 08-020150, 08-020160, 08-20230, 08-202080, 08-020300 & 08-020170 | MEDIUM | RHEL 8 Ensure PAM variable ucredit is set accordingly, must enforce password complexity by requiring that at least one lower-case character be used, ensure PAM variable dcredit is set accordingly & Ensure PAM variable maxclassrepeat is set accordingly, must require the maximum number limited to three, require at least four character classes & eight characters (V-230361, V-230362 & V-230363 CAT II)"
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^\s*{{ item.parameter }}'
+    line: '{{ item.parameter }} = {{ item.value }}'
+    create: yes
+  loop:
+    - { parameter: 'dcredit',        value: '-1' }
+    - { parameter: 'lcredit',        value: '-1' }
+    - { parameter: 'ocredit',        value: '-1' }
+    - { parameter: 'ucredit',        value: '-1' }
+    - { parameter: 'dictcheck',      value: '1' }
+    - { parameter: 'difok',          value: '8' }
+    - { parameter: 'maxclassrepeat', value: '4' }
+    - { parameter: 'maxrepeat',      value: '3' }
+    - { parameter: 'minclass',       value: '4' }
+    - { parameter: 'minlen',         value: '15' }
+
+- name: "RHEL 08-020351 & 08-020253 | MEDIUM | RHEL 8 Users default permissions to only have READ/WRITE/EXECUTE permissions (V-230383 & V-230385 CAT II)"
+  lineinfile:
+    path: '{{ item }}'
+    create: yes
+    regexp: ^umask
+    line: umask 077
+    state: present
+  loop:
+    - /etc/profile
+    - /etc/bashrc
+    - /etc/csh.cshrc
+
+- name: "RHEL-08-030030 | MEDIUM | RHEL 8 Information System Security Officer (ISSO) and System Administrator (SA) (at a minimum) must have mail aliases to be notified of an audit processing failure. (V-230389 CAT II)"
+  lineinfile:
+    path: /etc/aliases
+    regexp: '^postmaster:'
+    line: 'postmaster: root'
+    create: yes
+
+- name: "RHEL-08-030040, 08-030060, 08-030062, 08-030730 & 08-030731 | MEDIUM | RHEL 8 System must take appropriate when failure occurs, storage volume is full, central log server & volume space is at 75% or higher (Add Parameters) (V-230390, V-230392, V-230394, V-230483 & V-244543 CAT II)"
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    create: yes
+    regexp: '^{{ item.parameter }}\s='
+    line: '{{ item.parameter }} = {{ item.value }}'
+    state: present
+  loop:
+    - { parameter: 'disk_error_action', value: 'HALT' }
+    - { parameter: 'disk_full_action',  value: 'HALT' }
+    - { parameter: 'name_format',       value: 'hostname' }
+    - { parameter: 'space_left',        value: '25%' }
+    - { parameter: 'space_left_action', value: 'email' }
+
+- name: "RHEL-08-030680 | MEDIUM | RHEL 8 Must have the packages required for encrypting offloaded audit logs installed."
+  yum:
+    name: rsyslog-gnutls
+    state: installed
+
+- name: "RHEL 08-040001, 08-040370, 08-040380 & 08-040390 | MEDIUM | RHEL 8 Several package must not be installed unless mission essential on RHEL 8. (V-230488, V-230560, V-230380, V230561 CAT II)"
+  yum:
+    name: '{{ item }}'
+    state: removed
+  loop:
+    - 'abrt*'
+    - 'gssproxy'
+    - 'iprutils'
+    - 'tuned'
+
+- name: "RHEL-08-040150 | MEDIUM | RHEL 8 A firewall must be able to protect against or limit the effects of Denial of Service (DoS) attacks. (V-230525 CAT II)"
+  lineinfile:
+    path: /etc/firewalld/firewalld.conf
+    regexp: '^FirewallBackend'
+    line: 'FirewallBackend=nftables'
+    create: yes
+
+- name: "RHEL 08-010430, 08-040250, 08-040282, 08-040284, 08-040286 & 08-040259 | MEDIUM | RHEL 8 Address Space Layout Randomization (ASLR), IPV6 no routing, restrict usage of ptrace to descendant processes, disable the use of user namespaces & hardening for the Berkeley Packet Filter Just-in-time compiler remove existing parameters (V-230280, V-230539, V-230546, V-230548, V-244554, V-250317 CAT II)"
+  lineinfile:
+     path: /etc/sysctl.d/99-sysctl.conf
+     create: yes
+     regexp: '^{{ item.parameter }}'
+     line: '{{ item.parameter }} = {{ item.value }}'
+     state: present
+  loop:
+     - { parameter: 'kernel.randomize_va_space',                 value: '2' }
+     - { parameter: 'kernel.yama.ptrace_scope',                  value: '1' }
+     - { parameter: 'net.core.bpf_jit_harden',                   value: '2' }
+     - { parameter: 'net.ipv4.conf.all.forwarding',              value: '1' }
+     - { parameter: 'net.ipv6.conf.default.accept_source_route', value: '0' }
+     - { parameter: 'user.max_user_namespaces',                  value: '0' }   #20230921
+
+- name: "RHEL 08-010373, 08-010374, 08-010375, 08-010376 & 08-010671 | MEDIUM | RHEL 8 Must enable kernel parameters to enforce discretionary access control on symlinks. (V-230311 CAT II)"
+  lineinfile:
+     path: /etc/sysctl.d/99-sysctl.conf
+     regexp: '^{{ item.parameter }}'
+     line: '{{ item.parameter }} = {{ item.value }}'
+     create: yes
+     state: present
+  loop:
+     - { parameter: 'fs.protected_hardlinks',     value: '1' }
+     - { parameter: 'fs.protected_symlinks',      value: '1' }
+     - { parameter: 'kernel.core_pattern',        value: '|/bin/false' }
+     - { parameter: 'kernel.dmesg_restrict',      value: '1' }
+     - { parameter: 'kernel.kexec_load_disabled', value: '1' }
+     - { parameter: 'kernel.perf_event_paranoid', value: '2' }
+
+- name: "RHEL-08-040210, 08-040240, 08-040260, 08-040261, 08-040262, 08-040281 & 08-040280 | MEDIUM | Must prevent Internet Control Message Protocol redirect messages from being accepted, not forward source-routed IPv6 packets, not be performing IPv6 packet forwarding, not accept router advertisements on all interfaces, disable access to network bpf syscall from unprivileged processes, ignore Internet Control Message Protocol redirect messages & Must restrict usage of ptrace to descendant processes for IPV6 traffic."
+  lineinfile:
+     path: /etc/sysctl.d/99-sysctl.conf
+     regexp: '^{{ item.parameter }}'
+     line: '{{ item.parameter }} = {{ item.value }}'
+     create: yes
+     state: present
+  loop:
+     - { parameter: 'kernel.unprivileged_bpf_disabled ',      value: '1' }
+     - { parameter: 'net.ipv4.conf.default.send_redirects',   value: '0' }
+     - { parameter: 'net.ipv6.conf.all.accept_ra',            value: '0' }
+     - { parameter: 'net.ipv6.conf.all.accept_redirects ',    value: '0' }
+     - { parameter: 'net.ipv6.conf.all.accept_source_route',  value: '0' }
+     - { parameter: 'net.ipv6.conf.all.forwarding',           value: '0' }
+     - { parameter: 'net.ipv6.conf.default.accept_ra',        value: '0' }
+     - { parameter: 'net.ipv6.conf.default.accept_redirects', value: '0' }
+
+- name: "RHEL 08-040210, 08-040220, 08-040230, 08-040240, 08-040250, 08-040261, 08-040262, 08-040270 & 08-040280 | MEDIUM | Must prevent ICMP redirect messages from being accepted, not send ICMP redirects, not respond to ICMP echoes sent to a broadcast address, not forward source-routed IPv4 packets, not accept router advertisements on all IPv6 interfaces by default, not allow interfaces to perform ICMP redirects by default, ignore Internet Control Message Protocol (ICMPv4) redirect messages."
+  sysctl:
+    name: '{{ item.parameter }}'
+    value: '{{ item.value }}'
+    state: present
+  loop:
+    - { parameter: 'net.ipv4.conf.all.accept_source_route',      value: '0' }
+    - { parameter: 'net.ipv4.conf.all.send_redirects',           value: '0' }   # 1
+    - { parameter: 'net.ipv4.conf.default.accept_redirects',     value: '0' }
+    - { parameter: 'net.ipv4.conf.default.accept_source_route',  value: '0' }
+    - { parameter: 'net.ipv4.icmp_echo_ignore_broadcasts',       value: '1' }
+    - { parameter: 'net.ipv6.conf.all.accept_ra',                value: '0' }
+    - { parameter: 'net.ipv6.conf.default.accept_ra',            value: '0' }
+
+- name: "RHEL-08-040350 | MEDIUM | If the Trivial File Transfer Protocol server is required, the daemon must be configured to operate in secure mode. (V-230557 CAT II)"
   lineinfile:
     path: /etc/xinetd.d/tftp
-    regexp: '^server_args'
+    regexp: 'server_args'
     line: server_args = -s /var/lib/tftpboot
     create: yes
+    state: present
 
-- name: "RHEL-08-040370 | MEDIUM | The gssproxy package must not be installed unless mission essential on RHEL 8."
-  yum:
-    name: gssproxy
-    state: removed
-  when: inventory_hostname != "localhost"
+- name: "RHEL STIGS 45 | MEDIUM | RHEL 8 Multiple STIGS against /etc/audit/rules.d/audit.rules.  See this file for STIG IDs (CAT II)"
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    create: yes
+    line: '{{ item }}'
+    state: present
+  loop:
+    - '#STIG ID: RHEL-08-030000 : VUL ID : V-230386'
+    - '-a always,exit -F arch=b32 -S execve -C gid!=egid -F egid=0 -k execpriv'
+    - '-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -k execpriv'
+    - '-a always,exit -F arch=b64 -S execve -C gid!=egid -F egid=0 -k execpriv'
+    - '-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -k execpriv'
+    - '#STIG ID: RHEL-08-030121 : VUL ID : V-230402'
+    - '-e 2'
+    - '#STIG ID: RHEL-08-030122 : VUL ID : V-230403'
+    - '--loginuid-immutable'
+    - '#STIG ID: RHEL-08-030130 : VUL ID : V-230404'
+    - '-w /etc/shadow -p wa -k identity'
+    - '#STIG ID: RHEL-08-030140 : VUL ID : V-230405'
+    - '-w /etc/security/opasswd -p wa -k identity'
+    - '#STIG ID: RHEL-08-030150 : VUL ID : V-230406'
+    - '-w /etc/passwd -p wa -k identity'
+    - '#STIG ID: RHEL-08-030160 : VUL ID : V-230407'
+    - '-w /etc/gshadow -p wa -k identity'
+    - '#STIG ID: RHEL-08-030170 : VUL ID : V-230408'
+    - '-w /etc/group -p wa -k identity'
+    - '#STIG ID: RHEL-08-030171 : VUL ID : V-230409'
+    - '-w /etc/sudoers -p wa -k identity'
+    - '#STIG ID: RHEL-08-030172 : VUL ID : V-230410'
+    - '-w /etc/sudoers.d/ -p wa -k identity'
+    - '#STIG ID: RHEL-08-030190 : VUL ID : V-230412'
+    - '-a always,exit -F path=/usr/bin/su -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change'
+    - '#STIG ID: RHEL-08-030200 : VUL ID : V-230413'
+    - '-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod'
+    - '-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=unset -k perm_mod'
+    - '-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod'
+    - '-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=unset -k perm_mod'
+    - '#STIG ID: RHEL-08-030250 : VUL ID : V-230418'
+    - '-a always,exit -F path=/usr/bin/chage -F perm=x -F auid>=1000 -F auid!=unset -k privileged-chage'
+    - '#STIG ID: RHEL-08-030260 : VUL ID : V-230419'
+    - '-a always,exit -F path=/usr/bin/chcon -F perm=x -F auid>=1000 -F auid!=unset -k perm_mod'
+    - '#STIG ID: RHEL-08-030280 : VUL ID : V-230421'
+    - '-a always,exit -F path=/usr/bin/ssh-agent -F perm=x -F auid>=1000 -F auid!=unset -k privileged-ssh'
+    - '#STIG ID: RHEL-08-030290 : VUL ID : V-230422'
+    - '-a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-passwd'
+    - '#STIG ID: RHEL-08-030300 : VUL ID : V-230423'
+    - '-a always,exit -F path=/usr/bin/mount -F perm=x -F auid>=1000 -F auid!=unset -k privileged-mount'
+    - '#STIG ID: RHEL-08-030301 : VUL ID : V-230424'
+    - '-a always,exit -F path=/usr/bin/umount -F perm=x -F auid>=1000 -F auid!=unset -k privileged-mount'
+    - '#STIG ID: RHEL-08-030302 : VUL ID : V-230425'
+    - '-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=unset -k privileged-mount'
+    - '-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=unset -k privileged-mount'
+    - '#STIG ID: RHEL-08-030310 : VUL ID : V-230426'
+    - '-a always,exit -F path=/usr/sbin/unix_update -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+    - '#STIG ID: RHEL-08-030311 : VUL ID : V-230427'
+    - '-a always,exit -F path=/usr/sbin/postdrop -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+    - '#STIG ID: RHEL-08-030312 : VUL ID : V-230428'
+    - '-a always,exit -F path=/usr/sbin/postqueue -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+    - '#STIG ID: RHEL-08-030313 : VUL ID : V-230429'
+    - '-a always,exit -F path=/usr/sbin/semanage -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+    - '#STIG ID: RHEL-08-030314 : VUL ID : V-230430'
+    - '-a always,exit -F path=/usr/sbin/setfiles -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+    - '#STIG ID: RHEL-08-030315 : VUL ID : V-230431'
+    - '-a always,exit -F path=/usr/sbin/userhelper -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+    - '#STIG ID: RHEL-08-030316 : VUL ID : V-230432'
+    - '-a always,exit -F path=/usr/sbin/setsebool -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+    - '#STIG ID: RHEL-08-030317 : VUL ID : V-230433'
+    - '-a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update'
+    - '#STIG ID: RHEL-08-030320 : VUL ID : V-230434'
+    - '-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -F auid>=1000 -F auid!=unset -k privileged-ssh'
+    - '#STIG ID: RHEL-08-030330 : VUL ID : V-230435'
+    - '-a always,exit -F path=/usr/bin/setfacl -F perm=x -F auid>=1000 -F auid!=unset -k perm_mod'
+    - '#STIG ID: RHEL-08-030340 : VUL ID : V-230436'
+    - '-a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=unset -k privileged-pam_timestamp_check'
+    - '#STIG ID: RHEL-08-030350 : VUL ID : V-230437'
+    - '-a always,exit -F path=/usr/bin/newgrp -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd'
+    - '#STIG ID: RHEL-08-030360 : VUL ID : V-230438'
+    - '-a always,exit -F arch=b32 -S init_module,finit_module -F auid>=1000 -F auid!=unset -k module_chng'
+    - '-a always,exit -F arch=b64 -S init_module,finit_module -F auid>=1000 -F auid!=unset -k module_chng'
+    - '#STIG ID: RHEL-08-030361 : VUL ID : V-230439'
+    - '-a always,exit -F arch=b32 -S rename,unlink,rmdir,renameat,unlinkat -F auid>=1000 -F auid!=unset -k delete'
+    - '-a always,exit -F arch=b64 -S rename,unlink,rmdir,renameat,unlinkat -F auid>=1000 -F auid!=unset -k delete'
+    - '#STIG ID: RHEL-08-030370 : VUL ID : V-230444'
+    - '-a always,exit -F path=/usr/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-gpasswd'
+    - '#STIG ID: RHEL-08-030390 : VUL ID : V-230446'
+    - '-a always,exit -F arch=b32 -S delete_module -F auid>=1000 -F auid!=unset -k module_chng'
+    - '-a always,exit -F arch=b64 -S delete_module -F auid>=1000 -F auid!=unset -k module_chng'
+    - '#STIG ID: RHEL-08-030400 : VUL ID : V-230447'
+    - '-a always,exit -F path=/usr/bin/crontab -F perm=x -F auid>=1000 -F auid!=unset -k privileged-crontab'
+    - '#STIG ID: RHEL-08-030410 : VUL ID : V-230448'
+    - '-a always,exit -F path=/usr/bin/chsh -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd'
+    - '#STIG ID: RHEL-08-030420 : VUL ID : V-230449'
+    - '-a always,exit -F arch=b32 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access'
+    - '-a always,exit -F arch=b32 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access'
+    - '-a always,exit -F arch=b64 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access'
+    - '-a always,exit -F arch=b64 -S truncate,ftruncate,creat,open,openat,open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access'
+    - '#STIG ID: RHEL-08-030480 : VUL ID : V-230455'
+    - '-a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -k perm_mod'
+    - '-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -k perm_mod'
+    - '#STIG ID: RHEL-08-030490 : VUL ID : V-230456'
+    - '-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -k perm_mod'
+    - '-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -k perm_mod'
+    - '#STIG ID: RHEL-08-030550 : VUL ID : V-230462'
+    - '-a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd'
+    - '#STIG ID: RHEL-08-030560 : VUL ID : V-230463'
+    - '-a always,exit -F path=/usr/sbin/usermod -F perm=x -F auid>=1000 -F auid!=unset -k privileged-usermod'
+    - '#STIG ID: RHEL-08-030570 : VUL ID : V-230464'
+    - '-a always,exit -F path=/usr/bin/chacl -F perm=x -F auid>=1000 -F auid!=unset -k perm_mod'
+    - '#STIG ID: RHEL-08-030580 : VUL ID : V-230465'
+    - '-a always,exit -F path=/usr/bin/kmod -F perm=x -F auid>=1000 -F auid!=unset -k modules'
+    - '#STIG ID: RHEL-08-030590 : VUL ID : V-230466'
+    - '-w /var/log/faillock -p wa -k logins'
+    - '#STIG ID: RHEL-08-030600 : VUL ID : V-230467'
+    - '-w /var/log/lastlog -p wa -k logins'
 
-- name: "RHEL-08-040380 | MEDIUM | The iprutils package must not be installed unless mission essential on RHEL 8."
-  yum:
-    name: iprutils
-    state: removed
-  when: inventory_hostname != "localhost"
+- name: "RHEL-08-010171 | LOW | Ensure policy coreutils is installed"
+  package:
+    name: policycoreutils
+    state: present
 
-- name: "RHEL-08-040390 | MEDIUM | The tuned package must not be installed unless mission essential on RHEL 8."
-  yum:
-    name: tuned
-    state: removed
-  when: inventory_hostname != "localhost"
+- name: "RHEL-08-030741 & RHEL-08-030742 | LOW | Insert CHRONY to only use PORT 0 (DISABLE) & CMDPORT 0 (DISABLE) (V-230485 CAT III)"
+  lineinfile:
+    path: /etc/chrony.conf
+    create: yes
+    regexp: ^{{ item.parameter }}
+    line: '{{ item.parameter }} {{ item.value }}'
+    state: present
+  loop:
+    - { parameter: 'port',    value: '0' }
+    - { parameter: 'cmdport', value: '0' }
 
-- name: sysctl system
+- name: "RHEL-08-020340 | LOW | RHEL 8 must display the date and time of the last successful account logon upon logon. (V-230381 CAT III)"
+  lineinfile:
+    path: '/etc/pam.d/postlogin'
+    create: yes
+    insertafter: "^#"
+    line: 'session required pam_lastlog.so showfailed'
+    state: present
+
+- name: "RHEL 08-040020, 08-040111, 08-040021, 08-040022, 08-040023, 08-040024, 08-040025 & 08-040026 | Medium & LOW | RHEL 8 Must disable various protocols. (V-230493 CAT II V-230494, V-230495, V-230496, V-230497, V-230498 & V-230499 CAT III)"
+  lineinfile:
+    path: /etc/modprobe.d/blacklist.conf
+    create: yes
+    line: "{{ item }}"
+    state: present
+  loop:
+    - 'blacklist uvcvideo'
+    - 'install uvcvideo /bin/true'
+    - 'blacklist atm'
+    - 'install atm /bin/true'
+    - 'blacklist bluetooth'
+    - 'install bluetooth /bin/true'
+    - 'blacklist can'
+    - 'install can /bin/true'
+    - 'blacklist cramfs'
+    - 'install cramfs /bin/true'
+    - 'blacklist firewire-core'
+    - 'install firewire-core /bin/true'
+    - 'blacklist sctp'
+    - 'install sctp /bin/true'
+    - 'blacklist tipc'
+    - 'install tipc /bin/true'
+
+- name: "Perform DCONF UPDATE for some previous dconf changes"
+  command: dconf update
+  ignore_errors: true
+  register: DCONF_Update
+  changed_when: DCONF_Update.rc == 0
+
+- name: "RHEL 08-020180 & 08-020210 | MEDIUM | Passwords for all users must have a 24 hours/1 day minimum password lifetime & user account passwords must be configured so that existing passwords are restricted to a 60-day maximum lifetime. Find existing users (V-230364 & V-230367 CAT II)"
+  command: awk -F ':' {'print $1'} /etc/shadow
+  register: USERS_FOUND
+  changed_when: USERS_FOUND.rc == 0
+
+- name: "RHEL 08-020180 & 08-020210 | MEDIUM | Passwords for known users or password changes must have a 24 hours/1 day minimum password lifetime & user account passwords must be configured so that existing passwords are restricted to a 60-day maximum lifetime. Expiration Date is now 60 days in the future (V-230364 & V-230367 CAT II)"
+  shell: |
+    chage -m 1 -M 60 -d `date +%Y-%m-%d` {{ item }}
+  ignore_errors: true
+  with_items:
+     - "{{ USERS_FOUND.stdout_lines }}"
+  register: results
+  changed_when: results.rc == 0
+
+- name: "RHEL 08-010672, 08-010680, 08-020250, 08-040170, 08-040180, 08-040136, 08-040141 & 08-010471 | HIGH - MEDIUM | The x86 Ctrl-Alt-Delete key sequence must be disabled & RHEL 8 is not configured to acquire, save, or process core dump & debug shell disabled & usbguard (V-230529 CAT I & V-230312, V-230532, V-230372, V-244545, V-230310 & V-244548 CAT II & V-230285 CAT III)"
+  script: /usr/bin/systemctl {{ item }}
+  ignore_errors: true
+  loop:
+    #- 'is-active rngd'
+    #- 'is-enabled rngd'
+    - 'disable --now kdump.service'
+    - 'disable --now ctrl-alt-del.target'
+    - 'mask ctrl-alt-del.target'
+    - 'disable --now systemd-coredump.socket'
+    - 'mask systemd-coredump.socket'
+    - 'disable --now debug-shell.service'
+    - 'mask debug-shell.service'
+    - 'restart sshd.service'
+    #- 'enable usbguard.service'
+    #- 'start usbguard.service'
+    - 'daemon-reload'
+
+- name: "sysctl system"
   command: sysctl --system
   register: sysctl_system
-  changed_when: sysctl_system.rc == 0
+  changed_when: false
 
-- name: Reboot system
+- name: "Cleanup temp STIG files"
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - '.X'
+
+## Done elsewhere in the pipeline specifically for the controller.  All others are done here.  Currently POA&M'd
+##- name: "RHEL-08-010550 | MEDIUM | RHEL 8 Do not permit ROOT login remotely add correct parameter (V-230296 CAT II)"
+##  lineinfile:
+##    path: /etc/ssh/sshd_config
+##    regexp: '^PermitRootLogin'
+##    line: PermitRootLogin no
+##    create: yes
+##    state: present
+##  when:
+##    - hostvars[inventory_hostname].node_type in ('Server', 'Sensor', 'Service', 'MIP', 'Control-Plane', 'minio')
+
+- name: "Reboot system"
   reboot:
-    reboot_timeout: 2000
+    reboot_timeout: 600
     test_command: "whoami"
+  ignore_errors: true
   when:
-      - hostvars[inventory_hostname].node_type in ('Server', 'Sensor', 'Service')
-      - hostvars[inventory_hostname].deployment_type not in ('Iso')
+    - hostvars[inventory_hostname].node_type in ('Server', 'Sensor', 'Service', 'MIP', 'Control-Plane', 'minio')
+

@@ -210,9 +210,9 @@ function execute_bootstrap_playbook(){
     popd > /dev/null
 
     #  Add STIGS to Controller
-    pushd "/opt/tfplenum/rhel8-stigs" > /dev/null
-    run_cmd make controller-stigs
-    popd > /dev/null
+    #pushd "/opt/tfplenum/rhel8-stigs" > /dev/null
+    #run_cmd make controller-stigs
+    #popd > /dev/null
 }
 
 function execute_pull_docker_images_playbook(){

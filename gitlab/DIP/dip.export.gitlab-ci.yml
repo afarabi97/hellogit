@@ -26,7 +26,7 @@ Ship Phyical Stack Build:
       - $PIPELINE == "export-all"
 
 
-Export DIP Controller:
+Export Controller:
   stage: export
   needs: ["Setup Controller"]
   tags:
@@ -48,7 +48,7 @@ Export DIP Controller:
       - $PIPELINE == "export-controller-only"
 
 
-Export DIP Controller for Minor Release:
+Export Controller for Minor Release:
   stage: export
   needs: ["Setup Controller"]
   tags:

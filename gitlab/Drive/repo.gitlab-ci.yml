@@ -6,27 +6,28 @@ Test Reposync Server VM:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-
-    python3 testing/pipeline/pipeline.py test-server-repository-vm \
-    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
-    --vcenter-username "$VCENTER_USERNAME" \
-    --vcenter-password "$VCENTER_PASSWORD" \
-    --vcenter-datacenter "$VCENTER_DATACENTER" \
-    --vm-folder "$VMWARE_FOLDER" \
-    --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
-    --export-password "$OVA_EXPORT_PASSWORD" \
-    --portgroup "$VCENTER_PORTGROUP" \
-    --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
-    --gateway "$VM_GATEWAY" \
-    --dns-servers $DNS_SERVERS \
-    --vm-datastore "$VCENTER_DATASTORE" \
-    --network-id "$NETWORK_ID" \
-    --vm-prefix "$VM_PREFIX" \
-    --disk-size "1100" \
-    --vm-template "$REPO_SERVER_TEMPLATE_TO_CLONE" \
-    --subscription "$RHEL_SUB_METHOD" \
-    --orgnumber "$RHEL_ORGANIZATION" \
-    --activationkey "$RHEL_ACTIVATIONKEY"
+    cmd="python3 testing/pipeline/pipeline.py test-server-repository-vm
+        --activationkey       \"$RHEL_ACTIVATIONKEY\"
+        --disk-size           \"1100\"
+        --dns-servers         $DNS_SERVERS
+        --export-password     \"$OVA_EXPORT_PASSWORD\"
+        --gateway             \"$VM_GATEWAY\"
+        --network-block-index $RHEL_NETWORK_BLOCK_INDEX
+        --network-id          \"$NETWORK_ID\"
+        --orgnumber           \"$RHEL_ORGANIZATION\"
+        --portgroup           \"$VCENTER_PORTGROUP\"
+        --subscription        \"$RHEL_SUB_METHOD\"
+        --vcenter-datacenter  \"$VCENTER_DATACENTER\"
+        --vcenter-ipaddress   \"$VCENTER_IPADDRESS\"
+        --vcenter-password    \"$VCENTER_PASSWORD\"
+        --vcenter-username    \"$VCENTER_USERNAME\"
+        --vm-datastore        \"$VCENTER_DATASTORE\"
+        --vm-folder           \"$VMWARE_FOLDER\"
+        --vm-password         \"$DEFAULT_TEMPLATE_PASSWORD\"
+        --vm-prefix           \"$VM_PREFIX\"
+        --vm-template         \"$REPO_SERVER_TEMPLATE_TO_CLONE\""
+    echo "$cmd"
+    eval $cmd
   only:
     variables:
       - $PIPELINE == "test-reposync-server"
@@ -38,29 +39,30 @@ Build Server Reposync VM for Export:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-
-    python3 testing/pipeline/pipeline.py build-server-for-export \
-    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
-    --vcenter-username "$VCENTER_USERNAME" \
-    --vcenter-password "$VCENTER_PASSWORD" \
-    --vcenter-datacenter "$VCENTER_DATACENTER" \
-    --vm-folder "$VMWARE_FOLDER" \
-    --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
-    --export-password "$OVA_EXPORT_PASSWORD" \
-    --portgroup "$VCENTER_PORTGROUP" \
-    --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
-    --gateway "$VM_GATEWAY" \
-    --dns-servers $DNS_SERVERS \
-    --vm-datastore "$VCENTER_DATASTORE" \
-    --network-id "$NETWORK_ID" \
-    --vm-prefix "$VM_PREFIX" \
-    --disk-size "$REPO_SERVER_DISK_SIZE" \
-    --vm-template "$REPO_SERVER_TEMPLATE_TO_CLONE" \
-    --pipeline "$PIPELINE" \
-    --commit-hash "$CI_COMMIT_SHORT_SHA" \
-    --subscription "$RHEL_SUB_METHOD" \
-    --orgnumber "$RHEL_ORGANIZATION" \
-    --activationkey "$RHEL_ACTIVATIONKEY"
+    cmd="python3 testing/pipeline/pipeline.py build-server-for-export
+        --activationkey       \"$RHEL_ACTIVATIONKEY\"
+        --commit-hash         \"$CI_COMMIT_SHORT_SHA\"
+        --disk-size           \"$REPO_SERVER_DISK_SIZE\"
+        --dns-servers         $DNS_SERVERS
+        --export-password     \"$OVA_EXPORT_PASSWORD\"
+        --gateway             \"$VM_GATEWAY\"
+        --network-block-index $RHEL_NETWORK_BLOCK_INDEX
+        --network-id          \"$NETWORK_ID\"
+        --orgnumber           \"$RHEL_ORGANIZATION\"
+        --pipeline            \"$PIPELINE\"
+        --portgroup           \"$VCENTER_PORTGROUP\"
+        --subscription        \"$RHEL_SUB_METHOD\"
+        --vcenter-datacenter  \"$VCENTER_DATACENTER\"
+        --vcenter-ipaddress   \"$VCENTER_IPADDRESS\"
+        --vcenter-password    \"$VCENTER_PASSWORD\"
+        --vcenter-username    \"$VCENTER_USERNAME\"
+        --vm-datastore        \"$VCENTER_DATASTORE\"
+        --vm-folder           \"$VMWARE_FOLDER\"
+        --vm-password         \"$DEFAULT_TEMPLATE_PASSWORD\"
+        --vm-prefix           \"$VM_PREFIX\"
+        --vm-template         \"$REPO_SERVER_TEMPLATE_TO_CLONE\""
+    echo "$cmd"
+    eval $cmd
   retry: 2
   artifacts:
     untracked: true

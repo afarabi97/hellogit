@@ -221,6 +221,17 @@ class ChangeKitPassword(Resource):
                         if _result.stdout.count("\n") == 2:
                             return {"error_message": "Password has already been used. You must try another password."}, 409 # type: ignore
                         return {"error_message": "Internal Server Error"}, 500 # type: ignore
+                    else :
+                        result  = shell.run(
+                            f"echo {shell_safe_password} | base64 --decode | passwd --stdin assessor",
+                            warn=True,
+                            hide='stdout'
+                        )
+                        if result.return_code != 0:
+                            _result = shell.run("journalctl SYSLOG_IDENTIFIER=pwhistory_helper --since '10s ago'")
+                            if _result.stdout.count("\n") == 2:
+                                return {"error_message": "Password has already been used. You must try another password."}, 409 # type: ignore
+                            return {"error_message": "Internal Server Error"}, 500 # type: ignore
 
             except AuthenticationException:
                 return { "error_message": "Authentication failure. Check the ssh key on the controller." }, 403 # type: ignore

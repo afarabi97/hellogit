@@ -26,6 +26,8 @@ network  --hostname=localhost.localdomain
 {% endif %}
 # Root password
 rootpw --iscrypted {{ rootpw.stdout }}
+# Assessor User/Password
+user --name=assessor --groups=wheel --iscrypted --password={{ rootpw.stdout }} --uid=1100 --gid=1100 --shell=/usr/bin/bash
 # System services
 services --disabled="chronyd"
 # System timezone
