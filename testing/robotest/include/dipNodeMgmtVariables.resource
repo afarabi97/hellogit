@@ -26,4 +26,4 @@ ${tmplLocNodeMgmtAddNodeDialogRadioBtn}             xpath=//mat-radio-button[@va
 ${locNodeMgmtAddNodeDialogVMRadioBtn}               xpath=//div[@class='mat-radio-container' and input[@value='Virtual']]
 ${locNodeDataDriveSizeInGbInput}                    xpath=//mat-form-field[div//mat-label[text()="Data Drive size in (GB)"]]//input
 ${locNodeMgmtAddNodeDialogSubmitBtn}                xpath=//cvah-add-node-dialog//button/span[text()="Add"]
-${locNodeMgmtAddMipDialogSubmitBtn}                 xpath=//cvah-add-mip-dialog//button/span[text()="Add"]
+${locNodeMgmtCancelBtn}                             xpath=//cvah-add-node-dialog//button/span[text()="Cancel"]

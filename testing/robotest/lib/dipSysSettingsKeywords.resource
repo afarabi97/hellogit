@@ -16,7 +16,7 @@ Complete VMware Settings
     [Documentation]  Completes the VMware Settings section on the System Settings page of the controller.
     ${filled_out} =  Get From Dictionary  ${KIT_STATUS}  esxi_settings_configured
     IF  ${filled_out} == ${False}
-        click  ${locVmwareSettingsSec}
+        click  ${CVAH_VMWARE_SETTINGS__MAT_EXPANSION_PANEL}
         IF  ${IS_BARE_METAL_KIT}
             Enter ESXi Info
         ELSE

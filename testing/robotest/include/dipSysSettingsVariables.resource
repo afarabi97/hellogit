@@ -1,23 +1,22 @@
 *** Variables ***
 # VMware Settings
-${locVmwareSettingsSec}     xpath=//app-vmware-settings//a[./span[text()="VMware Settings"]]
-${locVMwareIPAddress}       xpath=//app-vmware-settings//input[@formcontrolname="ip_address"]
-${locVMwareUsername}        xpath=//app-vmware-settings//input[@formcontrolname="username"]
-${locVMwarePassword}        xpath=//app-vmware-settings//input[@formcontrolname="password"]
-${locRetypePWInput}         xpath=//app-vmware-settings//input[@formcontrolname="re_password"]
+${locVMwareIPAddress}       xpath=//cvah-vmware-settings//input[@formcontrolname="ip_address"]
+${locVMwareUsername}        xpath=//cvah-vmware-settings//input[@formcontrolname="username"]
+${locVMwarePassword}        xpath=//cvah-vmware-settings//input[@formcontrolname="password"]
+${locRetypePWInput}         xpath=//cvah-vmware-settings//input[@formcontrolname="password_confirm"]
 ${locTestConnectionBtn}     xpath=//button[.//span[text()="Test Connection"]]
-${locDatastoreSelect}       xpath=//app-vmware-settings//mat-select[@formcontrolname="datastore"]
+${locDatastoreSelect}       xpath=//cvah-vmware-settings//mat-select[@formcontrolname="datastore"]
 ${locDatastore1Option}      xpath=//mat-option[.//span[text() = 'datastore1']]
 ${locDevVsanOption}         xpath=//mat-option[.//span[text() = 'DEV-vSAN']]
-${locPortgroupSelect}       xpath=//app-vmware-settings//mat-select[@formcontrolname="portgroup"]
+${locPortgroupSelect}       xpath=//cvah-vmware-settings//mat-select[@formcontrolname="portgroup"]
 ${locInternalOptionSS}      xpath=//*[contains(@id, "cdk-overlay-")]//*[text() = 'Internal']
 ${locVcenterCheckbox}       xpath=//mat-checkbox[@formcontrolname="vcenter"]
 ${locClusterSelect}         xpath=//mat-select[@formcontrolname="cluster"]
 ${locDevClusterOption}      xpath=//mat-option/span[text() = 'DEV_Cluster']
 ${locDataCenterSelect}      xpath=//mat-select[@formcontrolname="datacenter"]
 ${locDevDatacenterOption}   xpath=//*[contains(@id, "cdk-overlay-")]//*[text() = 'DEV_Datacenter']
-${locFolderSelect}          xpath=//app-vmware-settings//div[2]//mat-form-field[5]//mat-select
-${locVMwareSaveButton}      xpath=//app-vmware-settings//button[.//span[text()="Save"]]
+${locFolderSelect}          xpath=//cvah-vmware-settings//div[2]//mat-form-field[5]//mat-select
+${locVMwareSaveButton}      xpath=//cvah-vmware-settings//button[.//span[text()="Save"]]
 
 # General Settings
 ${locGeneralSettingsSec}    xpath=//app-general-settings-pane//a[./span[text()="General Settings"]]

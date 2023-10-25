@@ -35,6 +35,33 @@ Node Setup
     Enter Virtual Node Information  Service  ${VM_PREFIX}-service-4
     Verify Node Was Added  ${VM_PREFIX}-sensor-3  ${VM_PREFIX}-service-4
 
+Check Node IP Range
+    [Arguments]  ${node_type}
+    click  ${locNodeMgmtAddNodeBtn}
+    click  ${tmplLocNodeMgmtAddNodeDialogRadioBtn}  injector=${node_type}
+    click  ${locNodeMgmtAddNodeDialogVMRadioBtn}
+    click  ${locNodeMgmtAddNodeDialogIpAddressInput}
+
+    ${first_ip_opt} =  Get Text  ${locNodeMgmtAddNodeDialogIpAddressDropdownOpt1}
+    ${first_ip_opt} =  Strip String  ${first_ip_opt}
+    ${first_ip_last_octet} =  Fetch From Right  ${first_ip_opt}  .
+    ${first_ip_last_octet} =  Convert To Integer  ${first_ip_last_octet}
+
+    ${last_opt_idx} =  Get Element Count  xpath=//mat-option
+    ${last_ip_opt} =  Get Text  xpath=//mat-option[position()=${last_opt_idx}]
+    ${last_ip_opt} =  Strip String  ${last_ip_opt}
+    ${last_ip_last_octet} =  Fetch From Right  ${last_ip_opt}  .
+    ${last_ip_last_octet} =  Convert To Integer  ${last_ip_last_octet}
+
+    IF  '${node_type}' == 'Server' or '${node_type}' == 'Service'
+        Should Be True  ${first_ip_last_octet} >= 40 and ${first_ip_last_octet} <= 49
+    ELSE
+        Should Be True  ${first_ip_last_octet} >= 50 and ${first_ip_last_octet} <= 95
+    END
+
+    SeleniumLibrary.Press Keys  None  ESCAPE
+    click  ${locNodeMgmtCancelBtn}
+
 Enter Virtual Node Information
     [Arguments]  ${node_type}  ${hostname}
     [Documentation]  Fills out the Add Node Dialog form on Node Management page

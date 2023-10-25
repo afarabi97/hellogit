@@ -39,3 +39,16 @@ Deploy Virtual DIP/MIP
     Deploy Kit
     Node Setup
     MIP Setup
+
+Check IP Ranges For Each Node Type
+    [Tags]  THISISCVAH-14814
+    [Documentation]  Checks the available range of IP address provided in the dropdown selection and
+    ...              ensures the last octet is in the appropriate range for the specified node type.
+    Set Selenium Speed  0.5s
+    Navigate To Node Management
+    Check Node IP Range  Server
+    Check Node IP Range  Sensor
+    Check Node IP Range  Service
+    IF  '${PIPELINE}' != 'developer-all'
+        Check Node IP Range  MinIO
+    END
