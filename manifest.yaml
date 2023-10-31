@@ -167,7 +167,7 @@ CPT:
 - app: firmware
   src:
     - Repo/Firmware/Cisco 3850 Switch/universalk9.SPA.03.07.05.E.152-3.E5
-    - Repo/Firmware/Common Node/2.10.2
+    - Repo/Firmware/Common Node/2.11.2
     - Repo/Firmware/Dell 4112 Switch/CVAH 3.7
     - Repo/Firmware/Dell 7720/1.31.0
     - Repo/Firmware/Dell 7730/1.28.1
@@ -267,7 +267,7 @@ MDT:
 - app: firmware
   src:
     - Repo/Firmware/Cisco 3850 Switch/universalk9.SPA.03.07.05.E.152-3.E5
-    - Repo/Firmware/Common Node/2.10.2
+    - Repo/Firmware/Common Node/2.11.2
     - Repo/Firmware/Dell 4112 Switch/CVAH 3.7
     - Repo/Firmware/Dell 7720/1.31.0
     - Repo/Firmware/Dell 7730/1.28.1
