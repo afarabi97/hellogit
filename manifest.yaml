@@ -102,6 +102,7 @@ CPT:
 
 - app: VMs
   src:
+    - Repo/Shared/VMs/DeepCyberia/20230926
     - Repo/CPT/VMs/SIFT - SANS Incident Forensics Toolkit/2021.7
     - Repo/Shared/VMs/ACAS/22.06-1
     - Repo/Shared/VMs/Pfsense/2.5.2
@@ -131,6 +132,7 @@ CPT:
 
 - app: Documentation
   src:
+    - Repo/Shared/Documentation/VMs/DeepCyberia/20230926
     - Repo/CPT/Documentation/AppStore/AVML/master
     - Repo/CPT/Documentation/AppStore/Cast/20231011
     - Repo/CPT/Documentation/AppStore/Cobalt Strike/4.6
@@ -224,6 +226,7 @@ MDT:
 
 - app: VMs
   src:
+    - Repo/Shared/VMs/DeepCyberia/20230926
     - Repo/Shared/VMs/ACAS/22.06-1
     - Repo/Shared/VMs/Pfsense/2.5.2
     - Repo/Shared/VMs/Security Onion 2/2.4.20
@@ -245,6 +248,7 @@ MDT:
 
 - app: Documentation
   src:
+    - Repo/Shared/Documentation/VMs/DeepCyberia/20230926
     - Repo/MDT/Documentation/AppStore/p7zip/16.02
     - Repo/MDT/Documentation/AppStore/Powershell Remote Registry (PSRR)/3.0.0
     - Repo/MDT/Documentation/AppStore/SCAP Compliance Checker/4.2
@@ -292,10 +296,7 @@ GIP:
   src:
     - Repo/GIP/Software/vcenter/VMware-VCSA-all-7.0.3-21477706.iso
     - Repo/GIP/Software/vcenter/VMware-vCenter-Server-Appliance-7.0.3.01400-21477706-patch-FP.iso
-    # Reverted to 7.0.0 update 02, because of storage driver issues with update 03
     - Repo/GIP/Software/vcenter/VMware-VMvisor-Installer-7.0.0.update02-17630552.x86_64-DellEMC_Customized-A01.iso
-    # Switched to native installer, since Dell version has issues with storage on Dell Hardware
-    # - Repo/GIP/Software/vcenter/VMware-VMvisor-Installer-7.0U3n-21930508.x86_64.iso
   dest: "GIP/Data/CVAH {{ VERSION }}/Software/vcenter"
 
 - app: vms
