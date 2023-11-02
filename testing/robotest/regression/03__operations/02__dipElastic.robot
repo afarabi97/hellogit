@@ -3,6 +3,7 @@ Resource    ../../lib/dipCatalogKeywords.resource
 Resource    ../../lib/dipCommonKeywords.resource
 Resource    ../../lib/dipElasticKeywords.resource
 Resource    ../../lib/dipRulesetKeywords.resource
+Resource    ../../lib/dipToolsKeywords.resource
 
 Library    SeleniumLibrary    15s
 Library    SSHLibrary         15s
@@ -42,3 +43,23 @@ Check MinIO (Elastic) Backup Capability
     Set Selenium Speed  0.5s
     Navigate To Index Management
     Backup And Close Indexes
+
+Update Elastic License
+    [Tags]  THISISCVAH-13576
+    [Documentation]  The purpose of this test is to ensure that the elastic license
+    ...              can be updated with the newest license available.
+    Navigate To Tools
+    ${curr_exp_date} =  Get Elastic License Expiration
+    log  Current Elastic license expiration date is: ${curr_exp_date}
+    ${uploaded} =  Run Keyword And Return Status
+    ...            Upload Elastic License  file_name=elastic_license_exp_11_29_2023_robot.json
+    IF  ${uploaded}  # Verify New Expiration Date
+        reload
+        ${new_exp_date} =  Get Elastic License Expiration
+        ${time_diff} =  Subtract Date From Date  ${new_exp_date}  ${curr_exp_date}
+        IF  ${time_diff} == 0
+            log  Elastic license with same expiration date has been uploaded.
+        ELSE
+            log  Updated Elastic license expiration date is now: ${new_exp_date}
+        END
+    END

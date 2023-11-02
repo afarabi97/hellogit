@@ -126,8 +126,9 @@ robot:operations:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
+    curl -k -o /usr/src/robot/elastic_license_exp_11_29_2023_robot.json  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/elastic/elastic_license_exp_11_29_2023_robot.json
     curl -k -o /usr/src/robot/data-with-image_robot.pcap  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/pcap/data-with-image_robot.pcap
+    curl -k -o /usr/src/robot/mal_md5_robot.txt  https://nexus.sil.lab/repository/tfplenum-repo/testfiles/zeek/intel/mal_md5_robot.txt
     python3 -m run.runner -c "regression/03__operations" \
       -r $ROBOT_ZEPHYR_CYCLE \
       -p $ROBOT_ZEPHYR_PROJECT_VERSION \

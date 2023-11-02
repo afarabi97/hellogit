@@ -52,3 +52,28 @@ Perform Steps For Changing Kit Password
     click  ${CVAH_CHANGE_PASSWORD_FORM__BUTTON_UPDATE}
     click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
     lookFor  Successfully changed the password of your Kit!
+
+Get Elastic License Expiration
+    click  ${CVAH_UPDATE_ES_LICENSE_FORM__MAT_EXPANSION_PANEL}
+    Sleep  2s
+    Wait Until Element Is Visible  ${CVAH_UPDATE_ES_LICENSE_FORM__LICENSE_EXPIRE_DATE}
+    ${license_exp_date} =  Get Text  ${CVAH_UPDATE_ES_LICENSE_FORM__LICENSE_EXPIRE_DATE}
+    # EXAMPLE: "Curent License Expiration: November 29, 2023 at 5:59:59 PM GMT-6"
+    ${pre}  ${date} =  Split String  ${license_exp_date}  :  1
+    ${date} =  Fetch From Left  ${date}  GMT
+    ${date} =  Strip String  ${date}
+    # Should now just be: "November 29, 2023 at 5:59:59 PM"
+    ${exp_date} =  Convert Date  ${date}  date_format=%B %d, %Y at %I:%M:%S %p
+    [Return]  ${exp_date}
+
+Upload Elastic License
+    [Arguments]  ${file_name}
+    shoot  elastic-license-before
+    Wait Until Page Contains Element  ${CVAH_UPDATE_ES_LICENSE_FORM__INPUT_HIDDEN}
+    Execute JavaScript  document.getElementById('${CVAH_UPDATE_ES_LICENSE_FORM__INPUT_HIDDEN}').hidden = false;
+    Choose File  ${CVAH_UPDATE_ES_LICENSE_FORM__INPUT_HIDDEN}  file_path=/usr/src/robot/${file_name}
+    Wait Until Element Is Enabled  ${CVAH_UPDATE_ES_LICENSE_FORM__BUTTON_UPLOAD}
+    click  ${CVAH_UPDATE_ES_LICENSE_FORM__BUTTON_UPLOAD}
+    lookForElement  xpath=//snack-bar-container
+    shoot  elastic-license-after
+    lookFor  Successfully uploaded Elastic License. It will take a few minutes for Elastic to show. Check notifications for updates.
