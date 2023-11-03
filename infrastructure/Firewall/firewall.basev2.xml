@@ -565,11 +565,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp</protocol>
 			<source>
 				<address>MPNet</address>
@@ -585,8 +587,8 @@
 				<username><![CDATA[NAT Port Forward]]></username>
 			</created>
 			<updated>
-				<time>1556627960</time>
-				<username><![CDATA[assessor@10.20.136.243]]></username>
+				<time>1698784174</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -599,11 +601,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp</protocol>
 			<source>
 				<any></any>
@@ -619,13 +623,13 @@
 				<username><![CDATA[NAT Port Forward]]></username>
 			</created>
 			<updated>
-				<time>1636652330</time>
-				<username><![CDATA[assessor@10.2.2.49 (Local Database)]]></username>
+				<time>1698784317</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
 			<id></id>
-			<tracker>1623759161</tracker>
+			<tracker>1698782942</tracker>
 			<type>pass</type>
 			<interface>wan</interface>
 			<ipprotocol>inet</ipprotocol>
@@ -633,28 +637,25 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn>20</max-src-conn>
+			<max-src-conn></max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
-			<max-src-conn-rate>20</max-src-conn-rate>
-			<max-src-conn-rates>60</max-src-conn-rates>
-			<protocol>tcp/udp</protocol>
 			<source>
 				<any></any>
 			</source>
 			<destination>
-				<network>wanip</network>
+				<any></any>
 			</destination>
-			<descr><![CDATA[DoS Filter / Rate Limiter]]></descr>
+			<descr><![CDATA[SIL WIDE OPEN RULE]]></descr>
 			<updated>
-				<time>1623759161</time>
-				<username><![CDATA[assessor@10.1.1.35 (Local Database)]]></username>
+				<time>1698782942</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 			<created>
-				<time>1623759161</time>
-				<username><![CDATA[assessor@10.1.1.35 (Local Database)]]></username>
+				<time>1698782942</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</created>
 		</rule>
 		<rule>
@@ -688,40 +689,6 @@
 				<time>1556634027</time>
 				<username><![CDATA[assessor@10.20.136.243]]></username>
 			</updated>
-		</rule>
-		<rule>
-			<id></id>
-			<tracker>1623759241</tracker>
-			<type>pass</type>
-			<interface>lan</interface>
-			<ipprotocol>inet</ipprotocol>
-			<tag></tag>
-			<tagged></tagged>
-			<max></max>
-			<max-src-nodes></max-src-nodes>
-			<max-src-conn>20</max-src-conn>
-			<max-src-states></max-src-states>
-			<statetimeout></statetimeout>
-			<statetype><![CDATA[keep state]]></statetype>
-			<os></os>
-			<max-src-conn-rate>20</max-src-conn-rate>
-			<max-src-conn-rates>60</max-src-conn-rates>
-			<protocol>tcp/udp</protocol>
-			<source>
-				<any></any>
-			</source>
-			<destination>
-				<network>lanip</network>
-			</destination>
-			<descr><![CDATA[DoS Filter / Rate Limiter]]></descr>
-			<updated>
-				<time>1623759241</time>
-				<username><![CDATA[assessor@10.1.1.35 (Local Database)]]></username>
-			</updated>
-			<created>
-				<time>1623759241</time>
-				<username><![CDATA[assessor@10.1.1.35 (Local Database)]]></username>
-			</created>
 		</rule>
 		<rule>
 			<id></id>
@@ -764,11 +731,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp</protocol>
 			<source>
 				<network>lan</network>
@@ -783,7 +752,7 @@
 				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1657728411</time>
+				<time>1698870007</time>
 				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
@@ -862,11 +831,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp/udp</protocol>
 			<source>
 				<address>10.20.2.0/23</address>
@@ -880,8 +851,8 @@
 				<username><![CDATA[assessor@10.2.2.49 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1649271787</time>
-				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
+				<time>1699022606</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -894,11 +865,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp/udp</protocol>
 			<source>
 				<address>10.20.64.0/19</address>
@@ -912,8 +885,8 @@
 				<username><![CDATA[assessor@10.10.102.155 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1649271715</time>
-				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
+				<time>1699022627</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -926,11 +899,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp/udp</protocol>
 			<source>
 				<address>10.20.96.0/19</address>
@@ -944,8 +919,8 @@
 				<username><![CDATA[assessor@10.10.102.155 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1649271751</time>
-				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
+				<time>1699022650</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -970,14 +945,14 @@
 				<any></any>
 			</destination>
 			<log></log>
-			<descr><![CDATA[Implicit Deny Any Rule]]></descr>
+			<descr><![CDATA[Explicit Deny Any Rule]]></descr>
 			<created>
 				<time>1561401545</time>
 				<username><![CDATA[assessor@10.20.136.240]]></username>
 			</created>
 			<updated>
-				<time>1624372739</time>
-				<username><![CDATA[assessor@10.1.1.35 (Local Database)]]></username>
+				<time>1699022662</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -1039,11 +1014,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp</protocol>
 			<source>
 				<address>Endgame</address>
@@ -1053,14 +1030,14 @@
 				<port>Kibana_Port</port>
 			</destination>
 			<descr><![CDATA[Allow Endgame on DMZ access to Kibana on Controller]]></descr>
-			<updated>
-				<time>1584065261</time>
-				<username><![CDATA[assessor@10.20.136.243]]></username>
-			</updated>
 			<created>
 				<time>1584065261</time>
 				<username><![CDATA[assessor@10.20.136.243]]></username>
 			</created>
+			<updated>
+				<time>1698943573</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
+			</updated>
 		</rule>
 		<rule>
 			<id></id>
@@ -1105,11 +1082,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp</protocol>
 			<source>
 				<network>opt2</network>
@@ -1124,7 +1103,7 @@
 				<username><![CDATA[assessor@10.20.136.243]]></username>
 			</created>
 			<updated>
-				<time>1660347380</time>
+				<time>1698943607</time>
 				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
@@ -1169,11 +1148,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp</protocol>
 			<source>
 				<network>opt2</network>
@@ -1188,43 +1169,9 @@
 				<username><![CDATA[assessor@10.20.136.240]]></username>
 			</created>
 			<updated>
-				<time>1628003745</time>
-				<username><![CDATA[assessor@10.10.102.159 (Local Database)]]></username>
+				<time>1698943640</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
-		</rule>
-		<rule>
-			<id></id>
-			<tracker>1624373005</tracker>
-			<type>pass</type>
-			<interface>opt2</interface>
-			<ipprotocol>inet</ipprotocol>
-			<tag></tag>
-			<tagged></tagged>
-			<max></max>
-			<max-src-nodes></max-src-nodes>
-			<max-src-conn>20</max-src-conn>
-			<max-src-states></max-src-states>
-			<statetimeout></statetimeout>
-			<statetype><![CDATA[keep state]]></statetype>
-			<os></os>
-			<max-src-conn-rate>20</max-src-conn-rate>
-			<max-src-conn-rates>60</max-src-conn-rates>
-			<protocol>tcp/udp</protocol>
-			<source>
-				<any></any>
-			</source>
-			<destination>
-				<network>opt2ip</network>
-			</destination>
-			<descr><![CDATA[DoS Filter / Rate Limiter]]></descr>
-			<updated>
-				<time>1624373005</time>
-				<username><![CDATA[assessor@10.1.1.35 (Local Database)]]></username>
-			</updated>
-			<created>
-				<time>1624373005</time>
-				<username><![CDATA[assessor@10.1.1.35 (Local Database)]]></username>
-			</created>
 		</rule>
 		<rule>
 			<id></id>
@@ -1334,11 +1281,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp</protocol>
 			<source>
 				<address>Controller</address>
@@ -1353,8 +1302,8 @@
 				<username><![CDATA[assessor@10.10.102.103 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1636652347</time>
-				<username><![CDATA[assessor@10.2.2.49 (Local Database)]]></username>
+				<time>1698944469</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -1367,11 +1316,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp</protocol>
 			<source>
 				<address>INTERNAL_net</address>
@@ -1386,8 +1337,8 @@
 				<username><![CDATA[assessor@10.10.102.103 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1631025728</time>
-				<username><![CDATA[assessor@10.2.2.49 (Local Database)]]></username>
+				<time>1698945328</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -1400,11 +1351,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp</protocol>
 			<source>
 				<address>INTERNAL_net</address>
@@ -1414,14 +1367,14 @@
 				<port>Remote_Operations_Ports</port>
 			</destination>
 			<descr><![CDATA[Allow remote operations ports to DMZ from Internal]]></descr>
-			<updated>
-				<time>1631283917</time>
-				<username><![CDATA[assessor@10.10.102.155 (Local Database)]]></username>
-			</updated>
 			<created>
 				<time>1631283917</time>
 				<username><![CDATA[assessor@10.10.102.155 (Local Database)]]></username>
 			</created>
+			<updated>
+				<time>1698945454</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
+			</updated>
 		</rule>
 		<rule>
 			<id></id>
@@ -1466,11 +1419,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp</protocol>
 			<source>
 				<network>lan</network>
@@ -1485,8 +1440,8 @@
 				<username><![CDATA[assessor@10.2.2.49 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1631119612</time>
-				<username><![CDATA[assessor@10.10.102.155 (Local Database)]]></username>
+				<time>1698945519</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -1532,11 +1487,13 @@
 			<tagged></tagged>
 			<max></max>
 			<max-src-nodes></max-src-nodes>
-			<max-src-conn></max-src-conn>
+			<max-src-conn>20</max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
+			<max-src-conn-rate>20</max-src-conn-rate>
+			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp/udp</protocol>
 			<source>
 				<address>10.20.136.0/23</address>
@@ -1550,43 +1507,9 @@
 				<username><![CDATA[assessor@10.2.2.215 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1649273224</time>
-				<username><![CDATA[assessor@10.10.102.115 (Local Database)]]></username>
+				<time>1698945633</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
-		</rule>
-		<rule>
-			<id></id>
-			<tracker>1624373109</tracker>
-			<type>pass</type>
-			<interface>opt3</interface>
-			<ipprotocol>inet</ipprotocol>
-			<tag></tag>
-			<tagged></tagged>
-			<max></max>
-			<max-src-nodes></max-src-nodes>
-			<max-src-conn>20</max-src-conn>
-			<max-src-states></max-src-states>
-			<statetimeout></statetimeout>
-			<statetype><![CDATA[keep state]]></statetype>
-			<os></os>
-			<max-src-conn-rate>20</max-src-conn-rate>
-			<max-src-conn-rates>60</max-src-conn-rates>
-			<protocol>tcp/udp</protocol>
-			<source>
-				<any></any>
-			</source>
-			<destination>
-				<network>opt3ip</network>
-			</destination>
-			<descr><![CDATA[DoS Filter / Rate Limiter]]></descr>
-			<updated>
-				<time>1624373109</time>
-				<username><![CDATA[assessor@10.1.1.35 (Local Database)]]></username>
-			</updated>
-			<created>
-				<time>1624373109</time>
-				<username><![CDATA[assessor@10.1.1.35 (Local Database)]]></username>
-			</created>
 		</rule>
 		<rule>
 			<id></id>
@@ -2168,7 +2091,7 @@
 	</unbound>
 	<dyndnses></dyndnses>
 	<revision>
-		<time>1660347380</time>
+		<time>1699022662</time>
 		<description><![CDATA[assessor@10.2.2.89 (Local Database): Firewall: Rules - saved/edited a firewall rule.]]></description>
 		<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 	</revision>
