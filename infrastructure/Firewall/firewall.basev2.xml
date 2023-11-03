@@ -320,12 +320,13 @@
 		<separator></separator>
 		<rule>
 			<source>
-				<any></any>
+				<address>Endgame_Agents</address>
 			</source>
 			<destination>
 				<network>wanip</network>
 				<port>Endgame_Forwarding_Port</port>
 			</destination>
+			<ipprotocol>inet</ipprotocol>
 			<protocol>tcp</protocol>
 			<target>Endgame</target>
 			<local-port>443</local-port>
@@ -337,8 +338,8 @@
 				<username><![CDATA[admin@10.20.136.101]]></username>
 			</created>
 			<updated>
-				<time>1513008086</time>
-				<username><![CDATA[admin@10.20.136.101]]></username>
+				<time>1698421920</time>
+				<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 			</updated>
 		</rule>
 		<rule>
@@ -574,13 +575,13 @@
 			<max-src-conn-rates>60</max-src-conn-rates>
 			<protocol>tcp</protocol>
 			<source>
-				<address>MPNet</address>
+				<address>Endgame_Agents</address>
 			</source>
 			<destination>
 				<address>Endgame</address>
 				<port>443</port>
 			</destination>
-			<descr><![CDATA[NAT Port forwards Endgame Sensor 443 -&gt; 443 (Endgame)]]></descr>
+			<descr><![CDATA[NAT Port forwards Endgame client traffic connecting to Externa]]></descr>
 			<associated-rule-id>nat_5a2e9ece0171e0.75722137</associated-rule-id>
 			<created>
 				<time>1513004750</time>
@@ -1556,8 +1557,7 @@
 			<enc0></enc0>
 		</separator>
 	</filter>
-	<shaper>
-	</shaper>
+	<shaper></shaper>
 	<ipsec>
 		<phase1>
 			<ikeid>1</ikeid>
@@ -1743,6 +1743,13 @@
 			<address>endgame.catwoman</address>
 			<descr><![CDATA[Alias for Endgame Server IP]]></descr>
 			<detail><![CDATA[Endgame server name]]></detail>
+		</alias>
+		<alias>
+			<name>Endgame_Agents</name>
+			<type>host</type>
+			<address></address>
+			<descr><![CDATA[Endgame agents out in MPNet]]></descr>
+			<detail></detail>
 		</alias>
 		<alias>
 			<name>Endgame_Forwarding_Port</name>
@@ -2025,8 +2032,7 @@
 			<filter>name,system,bios,platform,cpu_type,hwcrypto,mbuf_usage</filter>
 		</system_information-0>
 	</widgets>
-	<dnshaper>
-	</dnshaper>
+	<dnshaper></dnshaper>
 	<unbound>
 		<active_interface>wan,lan,opt2,lo0</active_interface>
 		<outgoing_interface>opt3</outgoing_interface>
@@ -2091,8 +2097,8 @@
 	</unbound>
 	<dyndnses></dyndnses>
 	<revision>
-		<time>1699022662</time>
-		<description><![CDATA[assessor@10.2.2.89 (Local Database): Firewall: Rules - saved/edited a firewall rule.]]></description>
+		<time>1698421920</time>
+		<description><![CDATA[assessor@10.2.2.89 (Local Database): Firewall: NAT: Port Forward - saved/edited a port forward rule.]]></description>
 		<username><![CDATA[assessor@10.2.2.89 (Local Database)]]></username>
 	</revision>
 	<ppps></ppps>
