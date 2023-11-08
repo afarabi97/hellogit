@@ -12,7 +12,6 @@ import {
   GenericJobAndKeyClass,
   ObjectUtilitiesClass,
   PCAPClass,
-  PCAPHashesClass,
   SuccessMessageClass
 } from '../../classes';
 import {
@@ -104,17 +103,6 @@ export class PcapFormComponent implements OnInit {
     const pcap_form_data: FormData = new FormData();
     pcap_form_data.append('upload_file', this.pcap_for_upload, this.pcap_for_upload.name);
     this.api_upload_pcap_(pcap_form_data);
-  }
-
-  /**
-   * Used for returning a string with all pcap hashes
-   *
-   * @param {PCAPHashesClass} pcap_hashes
-   * @return {string}
-   * @memberof PcapFormComponent
-   */
-  get_pcap_hashes(pcap_hashes: PCAPHashesClass): string {
-    return `MD5: ${pcap_hashes.md5}\nSHA1: ${pcap_hashes.sha1}\nSHA256: ${pcap_hashes.sha256}`;
   }
 
   /**

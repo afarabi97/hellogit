@@ -1,5 +1,5 @@
 """
-Python module for running the application in wsgi
+Python module for running the application in wsgi.
 """
 import argparse
 import os
@@ -18,11 +18,13 @@ app = create_app()
 
 socketio = SocketIO(app, message_queue=REDIS)
 debug = False
+
+
+
 if args and args.debug:
     debug = True
     os.environ['IS_DEBUG_SERVER'] = "yes"
     socketio.run(app, host='0.0.0.0', port=5001, debug=debug)  # type: SocketIO
-
 
 @socketio.on('connect')
 def connect():

@@ -1,11 +1,11 @@
 """Use this module to access the mongo object and the mongo collections."""
 from enum import Enum
 
-from flask_pymongo import PyMongo
 from pymongo.collection import Collection
 
-mongo = PyMongo()
+from app.persistence import MongoStore
 
+mongo = MongoStore()
 
 class Collections(Enum):
     """This class containes a list of possible mongo collections to get."""
@@ -26,6 +26,7 @@ class Collections(Enum):
     METRICS = "metrics"
     HIVE_SETTINGS = "hive_settings"
     KIT_TOKENS = "kit_tokens"
+    PCAPS = "pcaps"
 
 
 def get_collection(collection: Collections) -> Collection:

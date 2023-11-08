@@ -32,7 +32,6 @@ export * from './node.class';
 export * from './notification.class';
 export * from './object-utilities.class';
 export * from './owner-reference.class';
-export * from './pcap-hashes.class';
 export * from './pcap.class';
 export * from './portal-link.class';
 export * from './post-validation.class';

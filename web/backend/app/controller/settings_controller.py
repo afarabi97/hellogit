@@ -2,10 +2,11 @@
 Main module for handling all of the Kit Configuration REST calls.
 """
 import ssl
-from typing import Dict, List
+from typing import Dict
 
 from app.middleware import controller_admin_required, login_required_roles
-from app.models import DBModelNotFound, PostValidationError
+from app.persistence import DBModelNotFound
+from app.models import PostValidationError
 from app.models.common import (COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE,
                                COMMON_MESSAGE)
 from app.models.job_id import JobIDModel

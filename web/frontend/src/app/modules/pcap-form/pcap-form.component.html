@@ -31,20 +31,29 @@
                         id="{{ 'cvah-pcap-form-td-' + z + '-name' }}">{{ pcap.name }}</td>
                 </ng-container>
 
-                <!-- Modified Date -->
-                <ng-container matColumnDef="mod_date">
-                    <th scope="col" mat-header-cell *matHeaderCellDef>Modified Date</th>
+                <!-- First Packet Date -->
+                <ng-container matColumnDef="first_date">
+                    <th scope="col" mat-header-cell *matHeaderCellDef>First Packet Date (UTC)</th>
                     <td mat-cell *matCellDef="let pcap; let z = index;"
-                        id="{{ 'cvah-pcap-form-td-' + z + '-modified-date' }}"
-                        style="padding-right: 5px; padding-left: 5px;">{{ pcap.createdDate }}</td>
+                        id="{{ 'cvah-pcap-form-td-' + z + '-first-packet-date' }}"
+                        style="padding-right: 5px; padding-left: 5px;">{{ pcap.first_packet_date }}</td>
                 </ng-container>
 
-                <!-- Hashes -->
-                <ng-container matColumnDef="hashes">
-                    <th scope="col" mat-header-cell *matHeaderCellDef>Hashes</th>
+                <!-- Last Packet Date -->
+                <ng-container matColumnDef="last_date">
+                  <th scope="col" mat-header-cell *matHeaderCellDef>Last Packet Date (UTC)</th>
+                  <td mat-cell *matCellDef="let pcap; let z = index;"
+                      id="{{ 'cvah-pcap-form-td-' + z + '-last-packet-date' }}"
+                      style="padding-right: 5px; padding-left: 5px;">{{ pcap.last_packet_date }}</td>
+              </ng-container>
+
+                <!-- SHA256 -->
+                <ng-container matColumnDef="sha256">
+                    <th scope="col" mat-header-cell *matHeaderCellDef>SHA256</th>
                     <td mat-cell *matCellDef="let pcap; let z = index;"
-                        id="{{ 'cvah-pcap-form-td-' + z + '-hashes' }}">{{ get_pcap_hashes(pcap.hashes) }}</td>
-                </ng-container>
+                        id="{{ 'cvah-pcap-form-td-' + z + '-sha256' }}"
+                        style="padding-right: 5px; padding-left: 5px;">{{ pcap.sha256 }}</td>
+                  </ng-container>
 
                 <!-- Size -->
                 <ng-container matColumnDef="size">

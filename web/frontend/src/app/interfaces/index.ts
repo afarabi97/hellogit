@@ -53,7 +53,6 @@ export * from './notification.interface';
 export * from './notification-data.interface';
 export * from './original-controller-ip.interface';
 export * from './owner-reference.interface';
-export * from './pcap-hashes.interface';
 export * from './pcap.interface';
 export * from './portal-link.interface';
 export * from './post-validation.interface';

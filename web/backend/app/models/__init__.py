@@ -11,14 +11,6 @@ from ipaddress import IPv4Address
 from typing import Dict, List, Union
 
 
-class DBModelNotFound(Exception):
-    """
-    This should be raised in instances where a mongo lookup did not find the the object.
-    """
-
-    pass
-
-
 class PostValidationError(Exception):
     """
     This should be raised in instances where additional validation is done that marshmallow
@@ -89,8 +81,12 @@ class Model:
             else:
                 self.__dict__[key] = some_dict[key]
 
+
     def __str__(self) -> str:
         return json.dumps(self.to_dict(), indent=4, sort_keys=True)
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
     def to_compact_str(self) -> str:
         return json.dumps(self.to_dict())
@@ -108,3 +104,10 @@ class Model:
     def b64encode_string(self, some_str: str) -> str:
         ret_val = base64.b64encode(some_str.encode("utf-8"))
         return ret_val.decode("utf-8")
+
+    def is_b64(self, some_str: str) -> bool:
+        try:
+            self.b64decode_string(some_str)
+            return True
+        except UnicodeDecodeError:
+            return False

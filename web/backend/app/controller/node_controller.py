@@ -2,8 +2,9 @@ from typing import Dict, List
 
 from app.common import OK_RESPONSE
 from app.middleware import controller_admin_required, login_required_roles
-from app.models import DBModelNotFound, PostValidationError
+from app.models import PostValidationError
 from app.models.common import COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE
+from app.persistence import DBModelNotFound
 from app.models.job_id import JobIDModel
 from app.models.nodes import Node, NodeJob
 from app.models.settings.kit_settings import (GeneralSettingsForm,

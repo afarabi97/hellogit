@@ -80,23 +80,6 @@ class TestAgainstPcap(Model):
     })
 
 
-class HashesModel(Model):
-    DTO = POLICY_NS.model('Hashes', {
-        'md5': fields.String(example="8226f1dda88c29cf3ef191357a59d47f"),
-        'sha1': fields.String(example="074e232ddcb6a2a5795ea7ee09784f8265030438"),
-        'sha256': fields.String(example="89687b5d606ba818f0a100e92c9e48641aacfcb32c2c122c5d3002cfa1802cb7")
-    })
-
-
-class PCAPMetadata(Model):
-    DTO = POLICY_NS.model('PCAPMetaData', {
-        'createdDate': fields.String(example="2020-12-15 23:20:08"),
-        'name': fields.String(description="PCAP name as stored on disk."),
-        'size': fields.Integer(example=7639515, description="Size in bytes the size of the PCAP."),
-        'hashes': fields.Nested(HashesModel.DTO)
-    })
-
-
 class PCAPReplayModel(Model):
     DTO = POLICY_NS.model('PCAPReplay', {
         'pcap': fields.String(example="2019-07-09-password-protected-Word-doc-pushes-Dridex.pcap", description="The name of the PCAP as saved on disk."),

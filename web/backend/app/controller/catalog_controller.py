@@ -43,32 +43,15 @@ def _add_to_set(sensor_hostname: str, values: List, out_ifaces: Set):
 @CATALOG_NS.route('/configured-ifaces/<sensor_hostname>')
 class ConfiguredIfaces(Resource):
 
-    @CATALOG_NS.response(200, 'A list of iface names that are configured with either zeek or suricata.',
+    @CATALOG_NS.response(200, 'A list of iface names that are configured with either zeek, suricata or arkime.',
                          [fields.String(example="ens192")])
     @CATALOG_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     def get(self, sensor_hostname: str) -> Response:
         ifaces = set()
-        zeek_values = list(
-            mongo_catalog_saved_values().find({"application": "zeek"}))
-        suricata_values = list(
-            mongo_catalog_saved_values().find({"application": "suricata"}))
-        arkime_values = list(
-            mongo_catalog_saved_values().find({"application": "arkime"})
-        )
-        if zeek_values and len(zeek_values) > 0:
-            _add_to_set(sensor_hostname, zeek_values, ifaces)
-
-        if suricata_values and len(suricata_values) > 0:
-            _add_to_set(sensor_hostname, suricata_values, ifaces)
-
-        if arkime_values and len(arkime_values) > 0:
-            _add_to_set(sensor_hostname, arkime_values, ifaces)
-
-        ret_val = list(ifaces)
-        if len(ret_val) > 0:
-            return list(ifaces)
-        return {'error_message': 'Failed to list iface names configured with either arkime, zeek, or suricata'}, 500
-
+        for application in ("zeek", "suricata", "arkime"):
+            values = list(mongo_catalog_saved_values().find({"application": application}))
+            _add_to_set(sensor_hostname, values, ifaces) if values else None
+        return list(ifaces) or ({'error_message': 'Failed to list iface names configured with either arkime, zeek, or suricata'}, 500)
 
 @CATALOG_NS.route('/install')
 class HELMInstallCtrl(Resource):

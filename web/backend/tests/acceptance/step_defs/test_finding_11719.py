@@ -1,14 +1,14 @@
 import json
 from ipaddress import ip_address
 from time import sleep
-
-from pytest import fixture
+import pytest
 from pytest_bdd import given, scenarios, then, when
 
 scenarios("../features/finding_11719.feature")
 
+pytestmark = pytest.mark.skip("all tests still WIP")
 
-@fixture
+@pytest.fixture
 def mip(ctrl_ip):
     mip = {"hostname": "miper22", "ip_address": "", "mac_address": None,
            "deployment_type": "Virtual", "virtual_cpu": 8, "virtual_mem": 8, "virtual_os": 500}

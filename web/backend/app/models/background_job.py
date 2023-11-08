@@ -27,7 +27,7 @@ class BackgroundJobModel(Model):
         "ttl": fields.String(required=True, example="",
                              description="Returns ttl for a job that determines how long a job will be persisted. "
                                          "In the future, this method will also be responsible for determining ttl for repeated jobs."),
-        "result_ttl": fields.Integer(required=True, example=500,
+        "result_ttl": fields.Integer(required=False, example=500,
                                      description="Returns ttl for a job that determines how long a jobs result will "
                                                  "be persisted. In the future, this method will also be responsible "
                                                  "for determining ttl for repeated jobs."),
@@ -57,6 +57,6 @@ class BackgroundJobModel(Model):
         self.status = job_obj['status']
         self.meta = job.meta
         self.ttl = job.get_ttl()
-        self.result_ttl = job.get_result_ttl()
+        self.result_ttl = job.get_result_ttl(500)
         self.queued_position = job.get_position(),
         self.worker_name = job_obj["worker_name"]

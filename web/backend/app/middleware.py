@@ -5,7 +5,8 @@ from functools import wraps
 import jwt
 import yaml
 from app.common import FORBIDDEN_RESPONSE
-from app.models import DBModelNotFound, PostValidationError
+from app.persistence import DBModelNotFound
+from app.models import PostValidationError
 from app.utils.constants import (CONTROLLER_ADMIN_ROLE,
                                  CONTROLLER_MAINTAINER_ROLE,
                                  DEFAULT_REQUIRED_ROLES, OPERATOR_ROLE,

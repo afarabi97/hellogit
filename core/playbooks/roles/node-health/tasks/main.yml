@@ -14,16 +14,22 @@
     state: directory
 
 - name: Create a virtual environment.
-  command: /usr/bin/python3 -m venv /opt/metrics-env
+  ansible.builtin.command: /usr/bin/python3 -m venv /opt/metrics-env
   args:
     creates: /opt/metrics-env
 
 - name: Update Pip
-  pip:
-    name: pip
-    state: forcereinstall
-    version: 20.2.4
-    virtualenv: "/opt/metrics-env"
+  ansible.builtin.shell: /opt/metrics-env/bin/python -m pip install --upgrade pip
+  args:
+    executable: /bin/bash
+
+# - name: Update Pip
+#   pip:
+#     name: pip
+#     state: forcereinstall
+#     version: 20.2.4
+#     virtualenv: "/opt/metrics-env"
+
 
 - name: Install necessary packages into the virtual environment.
   pip:

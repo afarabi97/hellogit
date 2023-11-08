@@ -1,4 +1,4 @@
-from app.models import DBModelNotFound
+from app.persistence import DBModelNotFound
 from app.utils.exceptions import InternalServerError
 from flask.testing import FlaskClient
 from pytest_mock.plugin import MockerFixture

@@ -14,3 +14,4 @@ Acceptance Testing:
     reports:
       junit: "web/backend/*.xml"
   extends: .all-and-mip
+  when: always

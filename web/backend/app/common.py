@@ -29,9 +29,7 @@ FORBIDDEN_RESPONSE.status_code = 403
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
-        if isinstance(o, ObjectId):
-            return str(o)
-        return json.JSONEncoder.default(self, o)
+        return str(o) if isinstance(o, ObjectId) else json.JSONEncoder.default(self, o)
 
 
 def cursor_to_json(csr, fields: List[str] = None, sort_field: str = None) -> List:
@@ -71,5 +69,4 @@ def cursor_to_json_response(
     :param sort_field: Optional field name to sort return records by
     :return: flask.Response containing the data of the records in the cursor.
     """
-    records = cursor_to_json(csr, fields, sort_field)
-    return records
+    return cursor_to_json(csr, fields, sort_field)

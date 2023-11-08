@@ -1,5 +1,3 @@
-import { PCAPHashesInterface } from './pcap-hashes.interface';
-
 /**
  * Interface defines the PCAP
  *
@@ -7,8 +5,10 @@ import { PCAPHashesInterface } from './pcap-hashes.interface';
  * @interface PCAPInterface
  */
 export interface PCAPInterface {
-  createdDate: string;
-  hashes: PCAPHashesInterface;
+  created_date: string;
+  sha256: string;
   name: string;
   size: number;
+  first_packet_date: string;
+  last_packet_date: string;
 }

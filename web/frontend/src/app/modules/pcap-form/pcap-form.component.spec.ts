@@ -50,7 +50,6 @@ describe('PcapFormComponent', () => {
   let spyNGOnInit: jasmine.Spy<any>;
   let spyHandleFileInput: jasmine.Spy<any>;
   let spyUploadFile: jasmine.Spy<any>;
-  let spyGetPcapHashes: jasmine.Spy<any>;
   let spyReplayPcapDialog: jasmine.Spy<any>;
   let spyDeletePcapConfirmDialog: jasmine.Spy<any>;
   let spyApiGetPcaps: jasmine.Spy<any>;
@@ -109,7 +108,6 @@ describe('PcapFormComponent', () => {
     spyNGOnInit = spyOn(component, 'ngOnInit').and.callThrough();
     spyHandleFileInput = spyOn(component, 'handle_file_input').and.callThrough();
     spyUploadFile = spyOn(component, 'upload_file').and.callThrough();
-    spyGetPcapHashes = spyOn(component, 'get_pcap_hashes').and.callThrough();
     spyReplayPcapDialog = spyOn(component, 'replay_pcap_dialog').and.callThrough();
     spyDeletePcapConfirmDialog = spyOn(component, 'delete_pcap_confirm_dialog').and.callThrough();
     spyApiGetPcaps = spyOn<any>(component, 'api_get_pcaps_').and.callThrough();
@@ -125,7 +123,6 @@ describe('PcapFormComponent', () => {
     spyNGOnInit.calls.reset();
     spyHandleFileInput.calls.reset();
     spyUploadFile.calls.reset();
-    spyGetPcapHashes.calls.reset();
     spyReplayPcapDialog.calls.reset();
     spyDeletePcapConfirmDialog.calls.reset();
     spyApiGetPcaps.calls.reset();
@@ -204,26 +201,6 @@ describe('PcapFormComponent', () => {
         component.upload_file();
 
         expect(component['api_upload_pcap_']).toHaveBeenCalled();
-      });
-    });
-
-    describe('get_pcap_hashes()', () => {
-      it('should call get_pcap_hashes()', () => {
-        reset();
-
-        component.get_pcap_hashes(MockPCAPClassFlawedAmmyyTraffic.hashes);
-
-        expect(component['get_pcap_hashes']).toHaveBeenCalled();
-      });
-
-      it('should call get_pcap_hashes() and return string containing hashes', () => {
-        reset();
-
-        const return_value: string = component.get_pcap_hashes(MockPCAPClassFlawedAmmyyTraffic.hashes);
-
-        expect(return_value).toContain(MockPCAPClassFlawedAmmyyTraffic.hashes.md5);
-        expect(return_value).toContain(MockPCAPClassFlawedAmmyyTraffic.hashes.sha1);
-        expect(return_value).toContain(MockPCAPClassFlawedAmmyyTraffic.hashes.sha256);
       });
     });
 

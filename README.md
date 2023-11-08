@@ -18,7 +18,7 @@ This section attempts to highlight the most relevant folders and files relevant 
   - <strong>components</strong> - This subfolder contains all the files needed to build each subcomponent of the system.  This includes rocketchat, suricata, zeek, wikijs, and much much more.
   - <strong>build.py</strong> - Gitlab pipeline will use this script to build each component of the system whether it be a Dockerfile, Helm chart, or RPM.  This script may also be run manually.
   - <strong>cleanup-nexus.sh</strong> - Shell script for deleting old releases out of tfplenum-dev on the SIL's Nexus server.
-  - <strong>update_charts.py</strong> - Updates the charts on a development controller. (<strong>NOTE:</strong> This script is not included on a production controller.
+  - <strong>update_charts.py</strong> - Updates the charts on a development controller. (<strong>NOTE:</strong>) This script is not included on a production controller.
 - <strong>core</strong> - Contains all the playbooks needed for setting up the Kubernetes cluster and provisioning out the Servers, Sensors, and Service nodes.
 - <strong>docs</strong> - Contains all the project readme files for developers and testers.
 - <strong>gip</strong> - Contains all the playbooks needed by the export pipeline needed for setting up minio OVA and services OVA.
@@ -36,6 +36,28 @@ This section attempts to highlight the most relevant folders and files relevant 
 - <strong>manifest.yaml</strong> - This file is responsible for creating the portable hard drives that go to the end users (IE: Operators) of the system.
 - <strong>requirements.txt</strong> - This file version locks the backend python REST interface for the project.
 - <strong>versions.yml</strong> - This file version locks all the interal version for both the DIP and GIP controller
+
+
+### Frontend
+
+- <strong>classes</strong> - Goes hand in hand with our interfaces. Contains all the classes that are used to build out our interfaces.
+- <strong>constants</strong> - Application contants that are used throughout the application. Includes methods that are idempotent.
+- <strong>enums</strong> - Application enums that are used throughout the application.
+- <strong>guards</strong> - Contains our route guards that are used to protect our routes. Think administration. 
+- <strong>interceptors</strong> - REST error handling.
+- <strong>interfaces</strong> - When we make a REST call, we get back a JSON object. We use interfaces to define what that JSON object looks like.
+- <strong>modules</strong> - Contains our routed pages, utilities and global components.
+- <strong>pipes</strong> - Contains our pipes that are used to transform data.
+- <strong>services</strong> - Contains our services that are used to make REST calls and also contains application singletons.
+    - <strong>abstract</strong> - Contains our abstract services that are used to make REST calls. Any service can extend another service.
+- <strong>top-navbar</strong> - **(SOON TO BE DEPRECATED)** Contains our top navbar component.
+
+
+### Backend
+
+- <strong>TODO</strong> - MORE TO COME SOON
+
+
 
 ## SIL Services
 

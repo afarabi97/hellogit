@@ -69,7 +69,7 @@ export const EVENT_SEVERITY_CONFIG_LABEL: string = 'Severity';
 // Snackbar Message
 export const ARKIME_NOT_INSTALLED: string = 'Arkime is not installed. Please go to the catalog page and install it if you want this capability to work.';
 export const START_DATE_TIME_LARGE: string = 'Zero results returned because start datetime cannot be larger than end datetime.';
-export const HIVE_NOT_CONFIGURED: string = `Hive is not configured. Plase click on the Gear Icon in upper left hand corner of page and set your API key there.`;
+export const HIVE_NOT_CONFIGURED: string = `Hive is not configured. Please navigate to System Settings -> Hive Settings to set your Hive API Keys.`;
 export const ALERT_LIST_FAILED: string = 'Failed to get event details for the selected Alert group.';
 
 // Kibana Link Pages

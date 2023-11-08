@@ -39,7 +39,8 @@ back-end pylint and pytest:
     echo "CI_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE"
     echo "TASK [pylint / pytest-cov: back-end] *******************************************"
     web/backend/run_pylint.sh
-    pip3 install --user --no-cache-dir -r requirements.txt
+    dnf install -y gobject-introspection-devel cairo-gobject-devel python3-gpg libnl3-devel gcc redhat-rpm-config python3-devel wireshark && \
+    pip3 uninstall -y fakeredis && pip3 install --user --no-use-pep517 --no-cache-dir -r requirements.txt
     web/backend/run_unit_tests.sh coverage
   artifacts:
     paths:

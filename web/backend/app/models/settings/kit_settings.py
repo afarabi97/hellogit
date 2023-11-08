@@ -1,13 +1,12 @@
 """
-https://flask-restplus.readthedocs.io/en/0.9.2/example.html
-
+https://flask-restx.readthedocs.io/en/latest/example.html.
 """
 
 import os
 from ipaddress import IPv4Address, ip_network
 from typing import Dict
-
-from app.models import DBModelNotFound, Model
+from app.persistence import DBModelNotFound
+from app.models import Model
 from app.models.settings.general_settings import GeneralSettingsForm
 from app.models.settings.settings_base import (SettingsBase,
                                                validate_password_stigs)

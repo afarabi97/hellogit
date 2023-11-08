@@ -34,3 +34,9 @@
     }
   }
 }
+:host ::ng-deep th.mat-header-cell, td.mat-cell, td.mat-footer-cell {
+  width: 20rem;
+  max-width: 30rem;
+  word-wrap: break-word;
+  white-space: break-spaces;
+}
