@@ -1,12 +1,29 @@
+import json
+import time
 from decimal import Decimal
 from typing import Iterable, List, Optional, TypeVar
 
 import requests
-from app.common import ERROR_RESPONSE
-from app.utils.collections import mongo_metrics
+from app.common import ERROR_RESPONSE, NO_CONTENT, OK_RESPONSE
+from app.models.elasticsearch import ElasticSearchRejectModel
+from app.models.health import (DatastoreModel, MetricsCPUPercentModel,
+                               MetricsDataUsageModel, MetricsMemoryModel,
+                               MetricsRootUsageModel, PacketsModel)
+from app.models.kubernetes import (KubernetesNodeMetricsModel,
+                                   KubernetesPodMetricsModel,
+                                   NodeOrPodStatusModel, PodLogsModel)
+from app.models.nodes import Node
+from app.models.settings.esxi_settings import EsxiSettingsForm
+from app.service.job_service import run_command
+from app.service.socket_service import (NotificationCode, NotificationMessage,
+                                        notify_disk_pressure)
+from app.utils.collections import mongo_kit_tokens, mongo_metrics
 from app.utils.connection_mngs import KubernetesWrapper, objectify
+from app.utils.constants import NODE_TYPES
 from app.utils.elastic import ElasticWrapper
 from app.utils.logging import logger
+from bson import ObjectId
+from flask import Response
 from kubernetes.client.models.v1_event_list import V1EventList
 from kubernetes.client.models.v1_node import V1Node
 from kubernetes.client.models.v1_node_condition import V1NodeCondition
@@ -365,7 +382,7 @@ def get_pod_metrics(pod: V1Pod) -> dict:
     return _metrics
 
 
-def get_nodes_status() -> List[dict]:
+def get_nodes_status() -> List[KubernetesNodeMetricsModel]:
     with KubernetesWrapper() as kube_apiv1:
         pods = kube_apiv1.list_pod_for_all_namespaces(
             watch=False)  # type: V1PodList
@@ -528,3 +545,296 @@ def get_sensors() -> list:
                 sensors.append(node.metadata.name)
 
     return sensors
+
+
+def get_pod_describe(pod_name: str, namespace: str) -> NodeOrPodStatusModel:
+    command = "kubectl describe pod " + pod_name + " -n " + namespace
+    stdout = run_command(command)
+    return {"stdout": stdout, "stderr": ""}
+
+
+def get_pod_logs(pod_name: str, namespace: str) -> PodLogsModel:
+    logs = []
+    with KubernetesWrapper() as kube_apiv1:
+        pod = kube_apiv1.read_namespaced_pod(
+            pod_name, namespace)  # type: V1PodList
+        pod = pod.to_dict()
+        containers = []
+        if (
+            "spec" in pod
+            and "init_containers" in pod["spec"]
+            and pod["spec"]["init_containers"]
+        ):
+            containers = containers + pod["spec"]["init_containers"]
+        if (
+            "spec" in pod
+            and "containers" in pod["spec"]
+            and pod["spec"]["containers"]
+        ):
+            containers = containers + pod["spec"]["containers"]
+        for container in containers:
+            container_name = container["name"]
+            try:
+                stdout = kube_apiv1.read_namespaced_pod_log(
+                    pod_name, namespace, container=container_name, timestamps=False
+                )
+            except Exception:
+                stdout = "Something went wrong fetching container logs"
+            logs.append({"name": container_name, "logs": stdout})
+    return logs
+
+
+def get_describe_node(node_name: str) -> NodeOrPodStatusModel:
+    command = "kubectl describe node " + node_name
+    stdout = run_command(command)
+    return {"stdout": stdout, "stderr": ""}
+
+
+def get_nodes_statuses() -> List[KubernetesNodeMetricsModel]:
+    nodes_status = get_nodes_status()
+    if nodes_status:
+        return nodes_status
+    else:
+        return []
+
+
+def get_pods_statuses() -> List[KubernetesPodMetricsModel]:
+    pods_status = get_pods_status()
+    if pods_status:
+        return pods_status
+    else:
+        return []
+
+
+def get_nodes_status_remote(token_id: str) -> List[KubernetesNodeMetricsModel]:
+    response = mongo_kit_tokens().find_one({"_id": ObjectId(token_id)})
+    node_status = response["node_status"]
+    if node_status:
+        return node_status
+    else:
+        return []
+
+
+def get_pods_status_remote(token_id: str) -> List[KubernetesNodeMetricsModel]:
+    response = mongo_kit_tokens().find_one({"_id": ObjectId(token_id)})
+    pod_status = response["pod_status"]
+    if pod_status:
+        return pod_status
+    else:
+        return []
+
+
+def post_remote_agent(payload) -> Response:
+    if(payload != None and len(payload)>0):
+        json_payload = json.loads(payload)
+        json_payload["timestamp"] = time.time()
+        ipaddress = json_payload["ipaddress"]
+        update_result = mongo_kit_tokens().replace_one({"ipaddress": ipaddress}, json_payload)
+        if update_result:
+            return OK_RESPONSE
+
+    return NO_CONTENT
+
+def get_datastores() -> List[DatastoreModel]:
+    settings = EsxiSettingsForm.load_from_db()
+    if not settings:
+        return []
+    ip_address = str(settings.ip_address)
+    response = requests.post(
+        f"https://{ip_address}/rest/com/vmware/cis/session",
+        auth=(settings.username, settings.password),
+        verify=False,
+    )
+    session_id = response.json()["value"]
+    headers = {"vmware-api-session-id": session_id}
+    datastores = requests.get(
+        f"https://{ip_address}/rest/vcenter/datastore",
+        verify=False,
+        headers=headers,
+    )
+    response = requests.delete(
+        f"https://{ip_address}/rest/com/vmware/cis/session",
+        verify=False,
+        headers=headers,
+    )
+    if datastores:
+        return datastores.json()["value"]
+    else:
+        return []
+
+
+def get_elasticsearch_rejects() -> List[ElasticSearchRejectModel]:
+    rejected = []
+    client = ElasticWrapper()
+    response = client.cat.thread_pool(format="json")
+    if len(response) == 0 or "rejected" not in response[0] or response == None:
+        return []
+    for item in response:
+        if int(item["rejected"]) > 0:
+            rejected.append(item)
+    return rejected
+
+
+def get_elasticsearch_rejects_remote(ipaddress: str) -> List[ElasticSearchRejectModel]:
+    response = mongo_kit_tokens().find_one({"ipaddress": ipaddress})
+    if response != None:
+        write_rejects = response["write_rejects"]
+        if write_rejects:
+            return write_rejects
+        else:
+            return []
+    else:
+        []
+
+
+def get_zeek_packets() -> List[PacketsModel]:
+    zeek_stats = []
+    nodes = get_k8s_app_nodes("zeek")
+    if nodes:
+        for sensor in nodes:
+            # ignores closed but not deleted indices
+            stats = get_zeek_stats(
+                sensor["node_name"], ignore_unavailable=True)
+
+            if stats["hits"]["total"]["value"] > 0:
+                packets_dropped = int(
+                    round(
+                        stats["aggregations"]["zeek_total_pkts_dropped"][
+                            "value"
+                        ]
+                    )
+                )
+                packets_received = int(
+                    round(
+                        stats["aggregations"]["zeek_total_pkts_received"][
+                            "value"
+                        ]
+                    )
+                )
+                percent_dropped = (
+                    packets_dropped / packets_received * 100
+                    if packets_received > 0
+                    else 0
+                )
+                zeek_stats.append(
+                    {
+                        "app": "zeek",
+                        "node_name": sensor["node_name"],
+                        "packets_received": packets_received,
+                        "packets_dropped": round(percent_dropped, 2),
+                    }
+                )
+    if zeek_stats:
+        return zeek_stats
+    else:
+        return []
+
+
+def get_suricata_packets() -> List[PacketsModel]:
+    suricata_stats = []
+    nodes = get_k8s_app_nodes("suricata")
+    if nodes:
+        for node in nodes:
+            node_name = node["node_name"]
+            total_packets, total_dropped = get_suricata_stats(node)
+            percent_dropped = (
+                total_dropped / total_packets * 100 if total_packets > 0 else 0
+            )
+            suricata_stats.append(
+                {
+                    "app": "suricata",
+                    "node_name": node_name,
+                    "packets_received": total_packets,
+                    "packets_dropped": round(percent_dropped, 2),
+                }
+            )
+    if suricata_stats:
+        return suricata_stats
+    else:
+        return []
+
+
+def get_zeek_packets_remote(ipaddress: str) -> List[PacketsModel]:
+    response = mongo_kit_tokens().find_one({"ipaddress": ipaddress})
+    zeek_packets = response["zeek"]
+    if zeek_packets:
+        return zeek_packets
+    else:
+        return []
+
+
+def get_suricata_packets_remote(ipaddress: str) -> List[PacketsModel]:
+    response = mongo_kit_tokens().find_one({"ipaddress": ipaddress})
+    suricata_packets = response["suricata"]
+    if suricata_packets:
+        return suricata_packets
+    else:
+        return []
+
+
+def post_metrics(payload: [MetricsMemoryModel, MetricsRootUsageModel, MetricsDataUsageModel, MetricsCPUPercentModel]) -> [MetricsMemoryModel, MetricsRootUsageModel, MetricsDataUsageModel, MetricsCPUPercentModel]:
+    replaced = []
+    for document in payload:
+        try:
+            mongo_metrics().find_one_and_replace(
+                {
+                    "hostname": document["hostname"],
+                    "name": document["name"],
+                    "type": document["type"],
+                },
+                document,
+                upsert=True,
+            )
+            replaced.append(document)
+            disk_pressure_warning = False
+            disk_pressure_critical = False
+            if (
+                "disk_pressure_warning" in document
+                and document["disk_pressure_warning"]
+            ):
+                disk_pressure_warning = True
+            if (
+                "disk_pressure_critical" in document
+                and document["disk_pressure_critical"]
+            ):
+                disk_pressure_critical = True
+
+            if disk_pressure_warning or disk_pressure_critical:
+                node = Node.load_from_db_using_hostname(
+                    document["hostname"]
+                )  # type: Node
+                if disk_pressure_warning:
+                    disk_pressure_type = "warning"
+                if disk_pressure_critical:
+                    disk_pressure_type = "critical"
+                if node.node_type == NODE_TYPES.server.value:
+                    rem = "Delete data from elastic immediately"
+                if node.node_type == NODE_TYPES.sensor.value:
+                    rem = "Delete data from /data immediately"
+                disk_name = "data"
+                if document["name"] == "root_usage":
+                    disk_name = "root"
+
+                notification = NotificationMessage(
+                    role="nodes",
+                    action=NotificationCode.ERROR.name.capitalize(),
+                    application="disk-pressure",
+                )
+                notification.set_status(status=NotificationCode.ERROR.name)
+                notification.set_and_send(
+                    "Disk pressure {} on {} for {} disk at {}%.  Action: {}".format(
+                        disk_pressure_type,
+                        document["hostname"],
+                        disk_name,
+                        document["value"]["percent"],
+                        rem,
+                    )
+                )
+
+                if disk_pressure_critical:
+                    notify_disk_pressure(notification.message)
+
+        except Exception as e:
+            pass
+
+    return replaced

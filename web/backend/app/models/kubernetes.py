@@ -363,7 +363,7 @@ class NodeOrPodStatusModel(Model):
         {
             "stderr": fields.String(),
             "stdout": fields.String(),
-        },
+        }
     )
 
 
@@ -371,11 +371,7 @@ class PodLogsModel(Model):
     DTO = KUBERNETES_NS.model(
         "PodLogs",
         {
-            "logs": fields.String(
-                description="All the log information the kubectl logs <podname> -c <container> can manage to pull back."
-            ),
-            "name": fields.String(
-                description="The container inside of the pod.  Kubernetes can have multiple containers inside of it."
-            ),
-        },
+            "logs": fields.String(description="All the log information the kubectl logs <podname> -c <container> can manage to pull back."),
+            "name": fields.String(description="The container inside of the pod.  Kubernetes can have multiple containers inside of it."),
+        }
     )

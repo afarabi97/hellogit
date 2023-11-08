@@ -119,8 +119,6 @@ export const environment = {
   HEALTH_SERVICE_GET_NODES_STATUS: `/api/kubernetes/nodes/status`,
   HEALTH_SERVICE_GET_PODS_STATUS: `/api/kubernetes/pods/status`,
   HEALTH_SERVICE_GET_APPLICATIONS_STATUS: `/api/health/applications/status`,
-  HEALTH_SERVICE_GET_SNMP_STATUS: `/api/health/snmp/status`,
-  HEALTH_SERVICE_GET_SNMP_ALERTS: `/api/health/snmp/alerts`,
   HEALTH_SERVICE_GET_DATASTORES: `/api/health/datastores`,
   HEALTH_SERVICE_DESCRIBE_NODE: `/api/kubernetes/node/describe`,
   HEALTH_SERVICE_DESCRIBE_POD: `/api/kubernetes/pod/describe`,

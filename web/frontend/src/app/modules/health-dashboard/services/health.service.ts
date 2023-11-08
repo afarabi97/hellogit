@@ -70,7 +70,7 @@ export class HealthService extends ApiService<any> implements HealthServiceInter
    * @return {Observable<ElasticsearchObjectClass[]>}
    * @memberof HealthService
    */
-  write_rejects(kit_token?: KitTokenInterface):Observable<ElasticsearchObjectClass[]> {
+  write_rejects(kit_token?: KitTokenInterface): Observable<ElasticsearchObjectClass[]> {
     const url: string = ObjectUtilitiesClass.notUndefNull(kit_token) ?
                           `${environment.HEALTH_SERVICE_WRITE_REJECTS}/remote/${kit_token.ipaddress}` : environment.HEALTH_SERVICE_WRITE_REJECTS;
 
@@ -86,7 +86,7 @@ export class HealthService extends ApiService<any> implements HealthServiceInter
    * @return {Observable<PacketStatsClass[]>}
    * @memberof HealthService
    */
-  zeek_pckt_stats(kit_token?: KitTokenInterface):Observable<PacketStatsClass[]> {
+  zeek_pckt_stats(kit_token?: KitTokenInterface): Observable<PacketStatsClass[]> {
     const url: string = ObjectUtilitiesClass.notUndefNull(kit_token) ?
                           `${environment.HEALTH_SERVICE_APP}/zeek/packets/remote/${kit_token.ipaddress}` : `${environment.HEALTH_SERVICE_APP}/zeek/packets`;
 
@@ -102,7 +102,7 @@ export class HealthService extends ApiService<any> implements HealthServiceInter
    * @return {Observable<PacketStatsClass[]>}
    * @memberof HealthService
    */
-  suricata_pckt_stats(kit_token?: KitTokenInterface):Observable<PacketStatsClass[]> {
+  suricata_pckt_stats(kit_token?: KitTokenInterface): Observable<PacketStatsClass[]> {
     const url: string = ObjectUtilitiesClass.notUndefNull(kit_token) ?
                           `${environment.HEALTH_SERVICE_APP}/suricata/packets/remote/${kit_token.ipaddress}` : `${environment.HEALTH_SERVICE_APP}/suricata/packets`;
 

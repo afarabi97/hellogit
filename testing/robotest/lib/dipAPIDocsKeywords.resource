@@ -17,7 +17,7 @@ Validate API Documentation
         Wait Until Page Contains Element  xpath=//span[text()="${item}"]  timeout=5s
 
     END
-    Page Should Contain Element  xpath=//span[text()="Models"]
+    Page Should Contain Element  xpath=//h4/button/span[text()="Models"]
     log  API Documentation page loaded successfully and all sections are present
 
 Generate Global API Auth Token
