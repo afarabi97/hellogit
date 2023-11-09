@@ -605,7 +605,7 @@ export class AddNodeDialogComponent implements OnInit {
    * @memberof AddNodeDialogComponent
    */
   private api_get_used_ip_addresses_(initialize_node_form_group_after_call: boolean = false): void {
-    this.kit_settings_service_.getUsedIPAddresses(this.settings_.controller_interface, this.settings_.netmask)
+    this.kit_settings_service_.get_used_ip_addresses(this.settings_.controller_interface, this.settings_.netmask)
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: string[]) => {

@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { of, throwError } from 'rxjs';
 
@@ -20,10 +20,10 @@ describe('ChangePasswordFormComponent', () => {
   // Setup spy references
   let spyNGOnInit: jasmine.Spy<any>;
   let spyOpenPasswordRulesDialog: jasmine.Spy<any>;
+  let spyReEvaluate: jasmine.Spy<any>;
   let spyGetErrorMessage: jasmine.Spy<any>;
   let spyUpdateButtonClick: jasmine.Spy<any>;
   let spyInitializeChangeKitPasswordFormGroup: jasmine.Spy<any>;
-  let spySetChangeKitPasswordFormGroup: jasmine.Spy<any>;
   let spyApiChangeKitPassword: jasmine.Spy<any>;
 
   // Test Data
@@ -31,10 +31,6 @@ describe('ChangePasswordFormComponent', () => {
   error_message_form_control.markAsTouched();
   const form_control: FormControl = new FormControl('test', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]));
   form_control.markAsTouched();
-  const change_kit_password_form_group: FormGroup = new FormGroup({
-    root_password: new FormControl(''),
-    re_password: new FormControl('')
-  });
   const mock_http_error_response: HttpErrorResponse = new HttpErrorResponse({
     error: 'Fake Error',
     status: 500,
@@ -59,10 +55,10 @@ describe('ChangePasswordFormComponent', () => {
     // Add method spies
     spyNGOnInit = spyOn(component, 'ngOnInit').and.callThrough();
     spyOpenPasswordRulesDialog = spyOn(component, 'open_password_rules_dialog').and.callThrough();
+    spyReEvaluate = spyOn(component, 're_evaluate').and.callThrough();
     spyGetErrorMessage = spyOn(component, 'get_error_message').and.callThrough();
     spyUpdateButtonClick = spyOn(component, 'update_button_click').and.callThrough();
     spyInitializeChangeKitPasswordFormGroup = spyOn<any>(component, 'initialize_change_kit_password_form_group_').and.callThrough();
-    spySetChangeKitPasswordFormGroup = spyOn<any>(component, 'set_change_kit_password_form_group_').and.callThrough();
     spyApiChangeKitPassword = spyOn<any>(component, 'api_change_kit_password_').and.callThrough();
 
     // Detect changes
@@ -72,10 +68,10 @@ describe('ChangePasswordFormComponent', () => {
   const reset = () => {
     spyNGOnInit.calls.reset();
     spyOpenPasswordRulesDialog.calls.reset();
+    spyReEvaluate.calls.reset();
     spyGetErrorMessage.calls.reset();
     spyUpdateButtonClick.calls.reset();
     spyInitializeChangeKitPasswordFormGroup.calls.reset();
-    spySetChangeKitPasswordFormGroup.calls.reset();
     spyApiChangeKitPassword.calls.reset();
   };
 
@@ -111,6 +107,17 @@ describe('ChangePasswordFormComponent', () => {
         component.open_password_rules_dialog();
 
         expect(component.open_password_rules_dialog).toHaveBeenCalled();
+      });
+    });
+
+    describe('re_evaluate()', () => {
+      it('should call re_evaluate()', () => {
+        reset();
+
+        component['initialize_change_kit_password_form_group_']();
+        component.re_evaluate();
+
+        expect(component.re_evaluate).toHaveBeenCalled();
       });
     });
 
@@ -177,32 +184,6 @@ describe('ChangePasswordFormComponent', () => {
         component['initialize_change_kit_password_form_group_']();
 
         expect(component['initialize_change_kit_password_form_group_']).toHaveBeenCalled();
-      });
-
-      it('should call set_change_kit_password_form_group_() from initialize_change_kit_password_form_group_()', () => {
-        reset();
-
-        component['initialize_change_kit_password_form_group_']();
-
-        expect(component['set_change_kit_password_form_group_']).toHaveBeenCalled();
-      });
-    });
-
-    describe('private set_change_kit_password_form_group_()', () => {
-      it('should call set_change_kit_password_form_group_()', () => {
-        reset();
-
-        component['set_change_kit_password_form_group_'](change_kit_password_form_group);
-
-        expect(component['set_change_kit_password_form_group_']).toHaveBeenCalled();
-      });
-
-      it('should call set_change_kit_password_form_group_() and set change_kit_password_form_group with passed value', () => {
-        reset();
-
-        component['set_change_kit_password_form_group_'](change_kit_password_form_group);
-
-        expect(component.change_kit_password_form_group).toEqual(change_kit_password_form_group);
       });
     });
 

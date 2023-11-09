@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 
 import {
+  MockControllerInfoClass,
   MockGeneralSettingsClass,
   MockGenericJobAndKeyClass,
   MockKitSettingsClass,
@@ -14,6 +15,7 @@ import {
 } from '../../../static-data/class-objects';
 import { MockUnusedIpAddresses, MockUsedIpAddresses } from '../../../static-data/return-data';
 import {
+  ControllerInfoClass,
   GeneralSettingsClass,
   GenericJobAndKeyClass,
   KitSettingsClass,
@@ -47,8 +49,12 @@ export class KitSettingsServiceSpy {
     (mng_ip: string, netmask: string): Observable<string[]> => this.call_fake_get_unused_ip_addresses(mng_ip, netmask)
   );
 
-  getUsedIPAddresses = jasmine.createSpy('getUsedIPAddresses').and.callFake(
+  get_used_ip_addresses = jasmine.createSpy('get_used_ip_addresses').and.callFake(
     (mng_ip: string, netmask: string): Observable<string[]> => this.call_fake_get_used_ip_addresses(mng_ip, netmask)
+  );
+
+  get_controller_info = jasmine.createSpy('get_controller_info').and.callFake(
+    (): Observable<ControllerInfoClass> => this.call_fake_get_controller_info()
   );
 
   get_vmware_settings = jasmine.createSpy('get_vmware_settings').and.callFake(
@@ -65,6 +71,10 @@ export class KitSettingsServiceSpy {
 
   getKitSettings = jasmine.createSpy('getKitSettings').and.callFake(
     (): Observable<KitSettingsClass> => this.call_fake_get_kit_settings()
+  );
+
+  update_kit_settings = jasmine.createSpy('update_kit_settings').and.callFake(
+    (kit_settings: KitSettingsClass): Observable<GenericJobAndKeyClass> => this.call_fake_update_kit_settings(kit_settings)
   );
 
   getMipSettings = jasmine.createSpy('getMipSettings').and.callFake(
@@ -123,6 +133,10 @@ export class KitSettingsServiceSpy {
     return of(MockUsedIpAddresses);
   }
 
+  call_fake_get_controller_info(): Observable<ControllerInfoClass> {
+    return of(MockControllerInfoClass);
+  }
+
   call_fake_get_vmware_settings(): Observable<VMWareSettingsClass> {
     return of(MockVMWareSettingsClass);
   }
@@ -137,6 +151,10 @@ export class KitSettingsServiceSpy {
 
   call_fake_get_kit_settings(): Observable<KitSettingsClass> {
     return of(MockKitSettingsClass);
+  }
+
+  call_fake_update_kit_settings(kit_settings: KitSettingsClass): Observable<GenericJobAndKeyClass> {
+    return of(MockGenericJobAndKeyClass);
   }
 
   call_fake_get_mip_settings(): Observable<MipSettingsClass> {

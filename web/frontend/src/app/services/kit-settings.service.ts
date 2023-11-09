@@ -5,6 +5,7 @@ import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
 import {
+  ControllerInfoClass,
   GeneralSettingsClass,
   GenericJobAndKeyClass,
   KitSettingsClass,
@@ -17,6 +18,7 @@ import {
   VMWareSettingsClass
 } from '../classes';
 import {
+  ControllerInfoInterface,
   EntityConfig,
   GeneralSettingsInterface,
   GenericJobAndKeyInterface,
@@ -47,15 +49,19 @@ export class KitSettingsService extends ApiService<any> {
       .pipe(catchError((error: HttpErrorResponse) => this.handleError('get unused ip addresses', error)));
   }
 
-  getUsedIPAddresses(mng_ip: string, netmask: string): Observable<string[]> {
+  get_used_ip_addresses(mng_ip: string, netmask: string): Observable<string[]> {
     const url = `${environment.KICKSTART_SERVICE_GET_USED_IP_ADDRESSES}/${mng_ip}/${netmask}`;
+
     return this.httpClient_.get<string[]>(url)
-      .pipe(catchError((error: HttpErrorResponse) => this.handleError('get used ip addresses', error)));
+                           .pipe(catchError((error: HttpErrorResponse) => this.handleError('get used ip addresses', error)));
   }
 
-  getControllerInfo(): Observable<Object> {
+  get_controller_info(): Observable<ControllerInfoClass> {
     const url = '/api/controller/info';
-    return this.httpClient_.get(url).pipe();
+
+    return this.httpClient_.get<ControllerInfoInterface>(url)
+                           .pipe(map((response: ControllerInfoInterface) => new ControllerInfoClass(response)),
+                                 catchError((error: HttpErrorResponse) => this.handleError('get controller info', error)));
   }
 
   get_vmware_settings(): Observable<VMWareSettingsClass> {
@@ -102,11 +108,12 @@ export class KitSettingsService extends ApiService<any> {
             catchError((error: HttpErrorResponse) => this.handleError('get kit settings', error)));
   }
 
-  updateKitSettings(settingsForm): Observable<Object> {
+  update_kit_settings(kit_settings: KitSettingsClass): Observable<GenericJobAndKeyClass> {
     const url = `/api/settings/kit`;
-    delete settingsForm['re_password'];
-    delete settingsForm['vcenter'];
-    return this.httpClient_.post(url, settingsForm).pipe();
+
+    return this.httpClient_.post<GenericJobAndKeyInterface>(url, kit_settings)
+                           .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
+                                 catchError((error: HttpErrorResponse) => this.handleError('update kit settings', error)));
   }
 
   getMipSettings(): Observable<MipSettingsClass> {

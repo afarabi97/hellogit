@@ -16,6 +16,7 @@ export * from './config-map-edit.interface';
 export * from './config-map-save.interface';
 export * from './confirm-action-configuration.interface';
 export * from './confirm-dialog-mat-dialog-data.interface';
+export * from './controller-info.interface';
 export * from './datastores.interface';
 export * from './default-ipv4-settings.interface';
 export * from './describe-pod-node.interface';

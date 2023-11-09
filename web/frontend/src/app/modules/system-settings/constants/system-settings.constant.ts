@@ -21,3 +21,4 @@ export const VMWARE_SETTINGS_VALIDATOR_CONFIGS = {
   ]
 };
 export const KIT_TOKEN_TABLE_COLUMNS: string[] = [ 'ipaddress', 'actions' ];
+export const SUBNET: string = '255.255.255.224';

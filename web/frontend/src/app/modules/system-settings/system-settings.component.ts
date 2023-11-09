@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 
-import { GeneralSettingsClass, KitSettingsClass, KitStatusClass } from '../../classes';
+import { ControllerInfoClass, GeneralSettingsClass, KitSettingsClass, KitStatusClass } from '../../classes';
 import { KitSettingsService } from '../../services/kit-settings.service';
 
 @Component({
@@ -13,7 +13,7 @@ export class SystemSettingsComponent implements OnInit {
   generalSettings: Partial<GeneralSettingsClass> = {};
   kitSettings: KitSettingsClass;
   kitStatus: Partial<KitStatusClass> = {};
-  controllerInfo: any = {};
+  controllerInfo: Partial<ControllerInfoClass> = {};
   disable_add_kit_button: boolean;
 
   constructor(private title: Title,
@@ -30,8 +30,8 @@ export class SystemSettingsComponent implements OnInit {
       this.kitStatus = data;
     });
 
-    this.kitSettingsSrv.getControllerInfo().subscribe(data => {
-      this.controllerInfo = data;
+    this.kitSettingsSrv.get_controller_info().subscribe((response: ControllerInfoClass) => {
+      this.controllerInfo = response;
     });
     this.kitSettingsSrv.getKitSettings().subscribe((data: KitSettingsClass) => {
       this.kitSettings = data;

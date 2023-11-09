@@ -2,7 +2,8 @@ import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
-import { GeneralSettingsClass, KitStatusClass, MipSettingsClass } from '../../../../classes';
+import { GeneralSettingsClass, KitStatusClass, MipSettingsClass, ObjectUtilitiesClass } from '../../../../classes';
+import { COMMON_VALIDATORS } from '../../../../constants/cvah.constants';
 import { KitStatusInterface } from '../../../../interfaces';
 import { KitSettingsService } from '../../../../services/kit-settings.service';
 import { MatSnackBarService } from '../../../../services/mat-snackbar.service';
@@ -11,13 +12,14 @@ import { WebsocketService } from '../../../../services/websocket.service';
 import { validateFromArray } from '../../../../validators/generic-validators.validator';
 import { PasswordMessageComponent } from '../../../global-components/components/password-message/password-message.component';
 import { kitSettingsValidators } from '../../validators/kit-settings.validator';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
+@UntilDestroy({ checkProperties: true })
 @Component({
   selector: 'app-mip-settings-pane',
   templateUrl: './mip-settings-pane.component.html',
   styleUrls: ['./mip-settings-pane.component.scss']
 })
-
 export class MIPSettingsPaneComponent implements OnInit, OnChanges {
   @Input() hasTitle: boolean;
   @Input() generalSettings: Partial<GeneralSettingsClass>;
@@ -51,15 +53,6 @@ export class MIPSettingsPaneComponent implements OnInit, OnChanges {
     }
   }
 
-  reEvaluate(event: KeyboardEvent){
-    if (this.mipForm){
-      this.mipForm.get('password').updateValueAndValidity();
-      this.mipForm.get('re_password').updateValueAndValidity();
-      this.mipForm.get('luks_password').updateValueAndValidity();
-      this.mipForm.get('luks_re_password').updateValueAndValidity();
-    }
-  }
-
   checkJob(){
     if(!this.kitStatus.general_settings_configured){
       this.mipForm.disable();
@@ -90,54 +83,41 @@ export class MIPSettingsPaneComponent implements OnInit, OnChanges {
     });
   }
 
-  private createFormGroup(mipForm?) {
-    const password = new FormControl(mipForm ? mipForm.password : '');
-    const re_password = new FormControl(mipForm ? mipForm.password : '');
-    const user_password = new FormControl(mipForm ? mipForm.user_password : '');
-    const user_re_password = new FormControl(mipForm ? mipForm.user_password : '');
-    const luks_password = new FormControl(mipForm ? mipForm.luks_password : '');
-    const luks_re_password = new FormControl(mipForm ? mipForm.luks_password : '');
+  re_evaluate(): void {
+    /* istanbul ignore else */
+    if (ObjectUtilitiesClass.notUndefNull(this.mipForm)) {
+      this.mipForm.get('password').updateValueAndValidity();
+      this.mipForm.get('re_password').updateValueAndValidity();
+      this.mipForm.get('user_password').updateValueAndValidity();
+      this.mipForm.get('user_re_password').updateValueAndValidity();
+      this.mipForm.get('luks_password').updateValueAndValidity();
+      this.mipForm.get('luks_re_password').updateValueAndValidity();
+    }
+  }
 
-    this.mipForm = new FormGroup({
-      'password': password,
-      're_password': re_password,
-      'user_password': user_password,
-      'user_re_password': user_re_password,
-      'luks_password': luks_password,
-      'luks_re_password': luks_re_password
-    });
+  private createFormGroup(mip_settings?: MipSettingsClass) {
+    const mip_settings_form_group: FormGroup = new FormGroup({
+                                                               'password': new FormControl(ObjectUtilitiesClass.notUndefNull(mip_settings?.password) ? mip_settings.password : '',
+                                                                                           Validators.compose([validateFromArray(kitSettingsValidators.root_password,
+                                                                                                                                 COMMON_VALIDATORS.required)])),
+                                                               'user_password': new FormControl(ObjectUtilitiesClass.notUndefNull(mip_settings?.user_password) ? mip_settings.user_password : '',
+                                                                                                Validators.compose([validateFromArray(kitSettingsValidators.root_password,
+                                                                                                                                      COMMON_VALIDATORS.required)])),
+                                                               'luks_password': new FormControl(ObjectUtilitiesClass.notUndefNull(mip_settings?.luks_password) ? mip_settings.luks_password : '',
+                                                                                                Validators.compose([validateFromArray(kitSettingsValidators.root_password,
+                                                                                                                                      COMMON_VALIDATORS.required)])),
+                                                             });
+    mip_settings_form_group.addControl('re_password', new FormControl(ObjectUtilitiesClass.notUndefNull(mip_settings?.password) ? mip_settings.password : '',
+                                                                      Validators.compose([validateFromArray(kitSettingsValidators.re_password,
+                                                                                                            { parentControl: mip_settings_form_group.get('password') })])));
+    mip_settings_form_group.addControl('user_re_password', new FormControl(ObjectUtilitiesClass.notUndefNull(mip_settings?.user_password) ? mip_settings.user_password : '',
+                                                                           Validators.compose([validateFromArray(kitSettingsValidators.re_password,
+                                                                                                                 { parentControl: mip_settings_form_group.get('user_password') })])));
+    mip_settings_form_group.addControl('luks_re_password', new FormControl(ObjectUtilitiesClass.notUndefNull(mip_settings?.luks_password) ? mip_settings.luks_password : '',
+                                                                           Validators.compose([validateFromArray(kitSettingsValidators.re_password,
+                                                                                                                 { parentControl: mip_settings_form_group.get('luks_password') })])));
 
-    // Since re_password is dependent on password, the formcontrol for password must exist first. Then we can add the dependency for validation
-    const root_verify = Validators.compose([
-      validateFromArray(kitSettingsValidators.password,
-        { parentControl: this.mipForm.get('re_password') })
-    ]);
-    const re_verify = Validators.compose([
-      validateFromArray(kitSettingsValidators.re_password,
-        { parentControl: this.mipForm.get('password') })
-    ]);
-    const user_verify = Validators.compose([
-      validateFromArray(kitSettingsValidators.password,
-        { parentControl: this.mipForm.get('user_password') })
-    ]);
-    const user_re_verify = Validators.compose([
-      validateFromArray(kitSettingsValidators.re_password,
-        { parentControl: this.mipForm.get('user_re_password') })
-    ]);
-    const luks_verify = Validators.compose([
-      validateFromArray(kitSettingsValidators.password,
-        { parentControl: this.mipForm.get('luks_re_password') })
-    ]);
-    const luks_re_verify = Validators.compose([
-      validateFromArray(kitSettingsValidators.re_password,
-        { parentControl: this.mipForm.get('luks_password') })
-    ]);
-    password.setValidators(root_verify);
-    re_password.setValidators(re_verify);
-    user_password.setValidators(user_verify);
-    user_re_password.setValidators(user_re_verify);
-    luks_password.setValidators(luks_verify);
-    luks_re_password.setValidators(luks_re_verify);
+    this.mipForm = mip_settings_form_group;
   }
 
   private socketRefresh(){

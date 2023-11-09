@@ -1,0 +1,125 @@
+<mat-expansion-panel id="cvah-kit-settings-form-expansion-panel">
+  <mat-expansion-panel-header>
+    <mat-panel-title>Kit Settings</mat-panel-title>
+  </mat-expansion-panel-header>
+  <form *ngIf="kit_settings_form_group" [formGroup]="kit_settings_form_group">
+    <div fxLayout="column" fxLayoutAlign="start stretch">
+      <p>Requires General Settings to be completed</p>
+
+      <!-- Kit Type -->
+      <mat-radio-group fxLayout="column"
+                       fxLayoutAlign="start start"
+                       formControlName="is_gip"
+                       matTooltip="Checking the GIP selection will ensure only applications needed for setting up a GIP are included and vice versa for the DIP."
+                       [matTooltipPosition]="'before'">
+        <mat-radio-button value="DIP"
+                          style="margin-bottom: 5px"
+                          checked>I am on a DIP</mat-radio-button>
+        <mat-radio-button value="GIP">I am on a GIP</mat-radio-button>
+      </mat-radio-group>
+      <br>
+
+      <!-- Password -->
+      <mat-form-field>
+        <mat-label>Password</mat-label>
+        <input matInput
+               type="password"
+               placeholder="You must enter a root password with a minimum length of 15 characters."
+               formControlName="password"
+               (keyup)="re_evaluate()">
+        <mat-icon matSuffix
+                  *ngIf="kit_settings_form_group.get('password').valid && kit_settings_form_group.get('password').touched"
+                  color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix
+                  *ngIf="kit_settings_form_group.get('password').invalid && kit_settings_form_group.get('password').touched"
+                  color="warn">error</mat-icon>
+        <mat-error>{{ get_error_message(kit_settings_form_group.get("password")) }}</mat-error>
+        <mat-icon matSuffix
+                  matTooltip="Password requirements"
+                  [matTooltipPosition]="'before'"
+                  (click)="open_password_dialog_window()"
+                  class="password-dialog"
+                  color="primary">info</mat-icon>
+      </mat-form-field>
+
+      <!-- Retype Password -->
+      <mat-form-field>
+        <mat-label>Retype password</mat-label>
+        <input matInput
+               type="password"
+               formControlName="re_password"
+               placeholder="You must re-enter the root password"
+               (keyup)="re_evaluate()">
+        <mat-icon matSuffix
+                  *ngIf="kit_settings_form_group.get('re_password').valid && kit_settings_form_group.get('re_password').touched"
+                  color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix
+                  *ngIf="kit_settings_form_group.get('re_password').invalid && kit_settings_form_group.get('re_password').touched"
+                  color="warn">error</mat-icon>
+        <mat-error>{{ get_error_message(kit_settings_form_group.get("re_password")) }}</mat-error>
+      </mat-form-field>
+
+      <!-- Upstream DNS Server -->
+      <mat-form-field>
+        <mat-label>Upstream DNS Server</mat-label>
+        <input matInput
+               placeholder="Enter your kit's upstream DNS server here."
+               formControlName="upstream_dns"
+               matTooltip="{{ get_tooltip('upstream_dns') }}"
+               [matTooltipPosition]="'before'"/>
+        <mat-icon matSuffix
+                  *ngIf="kit_settings_form_group.get('upstream_dns').valid && kit_settings_form_group.get('upstream_dns').touched"
+                  color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix
+                  *ngIf="kit_settings_form_group.get('upstream_dns').invalid && kit_settings_form_group.get('upstream_dns').touched"
+                  color="warn">error</mat-icon>
+        <mat-error>{{ get_error_message(kit_settings_form_group.get("upstream_dns")) }}</mat-error>
+      </mat-form-field>
+
+      <!-- Upstream NTP Server -->
+      <mat-form-field>
+        <mat-label>Upstream NTP Server</mat-label>
+        <input matInput
+               placeholder="Enter your kit's upstream NTP server here."
+               formControlName="upstream_ntp"
+               matTooltip="{{ get_tooltip('upstream_ntp') }}"
+               [matTooltipPosition]="'before'"/>
+        <mat-icon matSuffix
+                  *ngIf="kit_settings_form_group.get('upstream_ntp').valid && kit_settings_form_group.get('upstream_ntp').touched"
+                  color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix
+                  *ngIf="kit_settings_form_group.get('upstream_ntp').invalid && kit_settings_form_group.get('upstream_ntp').touched"
+                  color="warn">error</mat-icon>
+        <mat-error>{{ get_error_message(kit_settings_form_group.get("upstream_ntp")) }}</mat-error>
+      </mat-form-field>
+
+      <!-- Kubernetes CIDR -->
+      <mat-form-field>
+        <mat-label>Kubernetes Service Range</mat-label>
+        <mat-select formControlName="kubernetes_services_cidr" (selectionChange)="check_kubernetes_service_range()">
+          <mat-option *ngFor="let option of kubernetes_ip_options; let j = index;"
+                      [value]="option">{{ option }}</mat-option>
+        </mat-select>
+        <mat-icon matSuffix
+                  *ngIf="kube_svc_used_ips"
+                  matTooltip="The following IPs are in use: {{ kube_svc_used_ips }}"
+                  [matTooltipPosition]="'before'"
+                  color="warn">warning</mat-icon>
+      </mat-form-field>
+      <mat-hint>{{ get_kubernetes_service_range() }}</mat-hint>
+    </div>
+
+    <!-- Action Button -->
+    <div mat-dialog-actions class="action-button-wrapper">
+      <button matTooltip="{{ button_save_tooltip }}"
+              mat-raised-button
+              color="primary"
+              [disabled]="!kit_settings_form_group.valid || !kit_settings_form_group.touched || !kit_status.general_settings_configured || kit_job_running"
+              (click)="click_button_save()">Save</button>
+      <button *ngIf="job_id"
+              mat-raised-button
+              color="primary"
+              (click)="click_button_open_console()">Open Console</button>
+    </div>
+  </form>
+</mat-expansion-panel>

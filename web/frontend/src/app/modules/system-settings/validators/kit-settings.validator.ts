@@ -1,11 +1,12 @@
 import { IP_CONSTRAINT } from '../../../constants/cvah.constants';
 
 export const kitSettingsValidators = {
-  password: [
-    { error_message: 'Password is a required.', validatorFn: 'required' },
+  root_password: [
+    { error_message: 'Required field', validatorFn: 'required' },
     { error_message: 'Root password did not meet the password requirements.', validatorFn: 'password' }
   ],
   re_password: [
+    { error_message: 'Required field', validatorFn: 'required' },
     { error_message: 'The passwords you entered do not match.  Please retype them carefully.', validatorFn: 'fieldMatch' }
   ],
   gateway: [

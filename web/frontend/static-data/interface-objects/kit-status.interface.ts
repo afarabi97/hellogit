@@ -12,7 +12,7 @@ export const MockKitStatusInterface: KitStatusInterface = {
 };
 export const MockKitStatusInterfaceAlt: KitStatusInterface = {
   control_plane_deployed: true,
-  general_settings_configured: true,
+  general_settings_configured: false,
   kit_settings_configured: true,
   esxi_settings_configured: false,
   ready_to_deploy: true,

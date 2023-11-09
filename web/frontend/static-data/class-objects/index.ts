@@ -9,6 +9,7 @@ export * from './chart.class';
 export * from './chart-info.class';
 export * from './config-map.class';
 export * from './config-map-edit.class';
+export * from './controller-info.class';
 export * from './datastore.class';
 export * from './default-ipv4-settings.class';
 export * from './describe-pod-node.class';

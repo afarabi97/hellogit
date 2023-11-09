@@ -7,5 +7,6 @@ export const MockGeneralSettingsInterface: GeneralSettingsInterface = {
   gateway: '10.40.31.1',
   domain: 'test',
   job_id: '96b39272-58c3-4ef2-808f-b1064db7f4ac',
-  job_completed: true
+  job_completed: true,
+  dhcp_range: '10.40.31.224'
 };

@@ -17,7 +17,7 @@
         <!-- Root Password -->
         <mat-form-field>
           <mat-label>Root Password</mat-label>
-          <input matInput type="password" formControlName="password" (keyup)="reEvaluate($event)"
+          <input matInput type="password" formControlName="password" (keyup)="re_evaluate()"
             placeholder="You must re-enter the root password">
           <mat-icon matSuffix *ngIf="mipForm.get('password').valid && mipForm.get('password').touched"
             color="primary">check_circle</mat-icon>
@@ -28,7 +28,7 @@
         </mat-form-field>
         <mat-form-field>
         <mat-label>Retype Password</mat-label>
-          <input matInput type="password" formControlName="re_password" (keyup)="reEvaluate($event)"
+          <input matInput type="password" formControlName="re_password" (keyup)="re_evaluate()"
             placeholder="You must re-enter the root password">
           <mat-icon matSuffix *ngIf="mipForm.get('re_password').valid && mipForm.get('re_password').touched"
             color="primary">check_circle</mat-icon>
@@ -39,7 +39,7 @@
         <!-- User Password -->
         <mat-form-field>
           <mat-label>User Password</mat-label>
-          <input matInput type="password" formControlName="user_password" (keyup)="reEvaluate($event)"
+          <input matInput type="password" formControlName="user_password" (keyup)="re_evaluate()"
             placeholder="You must re-enter a user password">
           <mat-icon matSuffix *ngIf="mipForm.get('user_password').valid && mipForm.get('user_password').touched"
             color="primary">check_circle</mat-icon>
@@ -50,7 +50,7 @@
         </mat-form-field>
         <mat-form-field>
         <mat-label>Retype Password</mat-label>
-          <input matInput type="password" formControlName="user_re_password" (keyup)="reEvaluate($event)"
+          <input matInput type="password" formControlName="user_re_password" (keyup)="re_evaluate()"
             placeholder="You must re-enter a user password">
           <mat-icon matSuffix *ngIf="mipForm.get('user_re_password').valid && mipForm.get('user_re_password').touched"
             color="primary">check_circle</mat-icon>
@@ -61,7 +61,7 @@
         <!-- Luks Password -->
         <mat-form-field>
         <mat-label>Luks Password</mat-label>
-            <input matInput type="password"
+            <input matInput type="password" (keyup)="re_evaluate()"
               placeholder="You must enter a luks_password password with a minimum length of 15 characters."
               formControlName="luks_password">
             <mat-icon matSuffix *ngIf="mipForm.get('luks_password').valid && mipForm.get('luks_password').touched"
@@ -73,7 +73,7 @@
         </mat-form-field>
         <mat-form-field>
           <mat-label>Retype password</mat-label>
-          <input matInput type="password" formControlName="luks_re_password"
+          <input matInput type="password" formControlName="luks_re_password" (keyup)="re_evaluate()"
             placeholder="You must re-enter the root password">
           <mat-icon matSuffix *ngIf="mipForm.get('luks_re_password').valid && mipForm.get('luks_re_password').touched"
             color="primary">check_circle</mat-icon>

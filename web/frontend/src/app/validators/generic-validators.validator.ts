@@ -139,6 +139,7 @@ export function inputFieldMatch(validatorObject: ValidatorObjectInterface, contr
   if (!ops.parentControl.valid) {
     return new errorObject({ control: control, error_message: 'Unable to validate when parent control invalid' });
   } else {
+    console.log('control.value: ', control.value, '  ops.parentControl.value: ', ops.parentControl.value)
     return control.value === ops.parentControl.value ? null : new errorObject({ control: control, error_message: validatorObject.error_message });
   }
 }

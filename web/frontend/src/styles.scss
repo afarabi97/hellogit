@@ -13,6 +13,9 @@ body {
     .action-button-wrapper {
       display: flex;
       align-content: flex-end;
+      .mat-raised-button:not(:last-child) {
+        margin-right: 1rem;
+      }
     }
 
     .mat-dialog-container-override .mat-dialog-container {

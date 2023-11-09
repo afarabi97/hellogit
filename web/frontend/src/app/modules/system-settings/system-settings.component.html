@@ -5,7 +5,12 @@
   <br>
   <cvah-hive-settings></cvah-hive-settings>
   <br>
-  <app-kit-settings-pane (getSettings)="updateKitSettings($event)" (update_disable_buttons)="update_add_kit_button($event)" [generalSettings]="generalSettings" [kitStatus]="kitStatus" [controllerInfo]="controllerInfo" [kitSettings]="kitSettings"></app-kit-settings-pane>
+  <cvah-kit-settings [general_settings]="generalSettings"
+                     [kit_status]="kitStatus"
+                     [controller_info]="controllerInfo"
+                     [kit_settings]="kitSettings"
+                     (update_kit_settings)="updateKitSettings($event)"
+                     (update_disable_buttons)="update_add_kit_button($event)"></cvah-kit-settings>
   <br>
   <app-mip-settings-pane [generalSettings]="generalSettings" [kitStatus]="kitStatus"></app-mip-settings-pane>
   <br>

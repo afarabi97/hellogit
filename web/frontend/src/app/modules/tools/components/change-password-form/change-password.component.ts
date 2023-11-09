@@ -4,7 +4,7 @@ import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
-import { ErrorMessageClass, SuccessMessageClass } from '../../../../classes';
+import { ErrorMessageClass, ObjectUtilitiesClass, SuccessMessageClass } from '../../../../classes';
 import {
   COMMON_VALIDATORS,
   CONFIRM_DIALOG_OPTION,
@@ -74,6 +74,20 @@ export class ChangePasswordFormComponent implements OnInit {
   }
 
   /**
+   * Used for re evaluating password and re password form controls
+   *
+   * @private
+   * @memberof ChangePasswordFormComponent
+   */
+  re_evaluate(): void {
+    /* istanbul ignore else */
+    if (ObjectUtilitiesClass.notUndefNull(this.change_kit_password_form_group)) {
+      this.change_kit_password_form_group.get('root_password').updateValueAndValidity();
+      this.change_kit_password_form_group.get('re_password').updateValueAndValidity();
+    }
+  }
+
+  /**
    * Used for displaying error message for a form field
    *
    * @param {(FormControl | AbstractControl)} form_control
@@ -119,18 +133,8 @@ export class ChangePasswordFormComponent implements OnInit {
       root_password: new FormControl('', Validators.compose([validateFromArray(COMMON_VALIDATORS.root_password, COMMON_VALIDATORS.required)]))
     });
     change_kit_password_form_group.addControl('re_password', new FormControl('', Validators.compose([validateFromArray(COMMON_VALIDATORS.re_password,
-                                              { parentControl: change_kit_password_form_group.get('root_password') })])));
-    this.set_change_kit_password_form_group_(change_kit_password_form_group);
-  }
+                                                                                                                       { parentControl: change_kit_password_form_group.get('root_password') })])));
 
-  /**
-   * Used for setting the form group
-   *
-   * @private
-   * @param {FormGroup} change_kit_password_form_group
-   * @memberof ChangePasswordFormComponent
-   */
-  private set_change_kit_password_form_group_(change_kit_password_form_group: FormGroup): void {
     this.change_kit_password_form_group = change_kit_password_form_group;
   }
 
