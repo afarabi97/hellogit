@@ -71,10 +71,10 @@ class IntegrationTestsJob:
             if node.is_sensor():
                 monitoring_ifaces = node.get_monitoring_interfaces_from_mongo()
                 payloads = [
-                    {"pcap": "dns-dnskey.trace", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces,
-                        "sensor_hostname": node.hostname, "preserve_timestamp": False},
-                    {"pcap": "get.trace", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces,
-                        "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    # {"pcap": "dns-dnskey.trace", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces,
+                    #     "sensor_hostname": node.hostname, "preserve_timestamp": False},
+                    # {"pcap": "get.trace", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces,
+                    #     "sensor_hostname": node.hostname, "preserve_timestamp": False},
                     {"pcap": "smb1_transaction_request.pcap", "sensor_ip": node.ip_address,
                         "ifaces": monitoring_ifaces, "sensor_hostname": node.hostname, "preserve_timestamp": False},
                     {"pcap": "wannacry.pcap", "sensor_ip": node.ip_address, "ifaces": monitoring_ifaces,

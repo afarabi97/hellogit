@@ -235,7 +235,7 @@ Upload And Delete PCAP File
     scroll  ${pcap_del_btn}
     click  ${pcap_del_btn}
     click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
-    lookFor  PCAP successfully deleted.
+    lookFor  Successfully deleted ${pcap_file_name}.
 
 Play ${pcap} PCAP
     ${sensor_name} =  Check For Sensor With Available Interface

@@ -150,6 +150,34 @@ robot:operations:
     - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "robot-tests-only"
   retry: 2
 
+robot:api_documentation:
+  stage: robot-test-operations
+  tags:
+    - docker-runner
+  image: $LATEST_ROBOT_AUTOMATOR_IMAGE
+  extends: .setup-robot-script
+  script: |
+    python3 -m run.runner -c "regression/04__api" \
+      -r $ROBOT_ZEPHYR_CYCLE \
+      -p $ROBOT_ZEPHYR_PROJECT_VERSION \
+      -b $ROBOT_BROWSER -h \
+      -v HOST:$controller_ip \
+      -v HOST_USERNAME:root \
+      -v HOST_PASSWORD:$password \
+      -v DOMAIN:$KIT_DOMAIN \
+      -v KIT_VERSION:$TFPLENUM_EXPORT_VERSION \
+      -v PIPELINE:$PIPELINE || exit_code=$?; [ $? -ge 0 ] && /bin/cp -rf /usr/src/robot/output $build_path/; exit $exit_code
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: true
+  rules:
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "controller-only"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "hw-developer-all"
+    - if: $RUN_ROBOT_REGRESSION == "yes" && $PIPELINE == "robot-tests-only"
+  retry: 2
+
 robot:cleanup:
   stage: robot-test-cleanup
   tags:
@@ -157,7 +185,7 @@ robot:cleanup:
   image: $LATEST_ROBOT_AUTOMATOR_IMAGE
   extends: .setup-robot-script
   script: |
-    python3 -m run.runner -c regression/04__cleanup \
+    python3 -m run.runner -c regression/05__cleanup \
       -t 00__dipCleanup \
       -r $ROBOT_ZEPHYR_CYCLE \
       -p $ROBOT_ZEPHYR_PROJECT_VERSION \
