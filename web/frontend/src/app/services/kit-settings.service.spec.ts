@@ -85,6 +85,10 @@ export class KitSettingsServiceSpy {
     (): Observable<GeneralSettingsClass> => this.call_fake_get_general_settings()
   );
 
+  update_general_settings = jasmine.createSpy('update_general_settings').and.callFake(
+    (general_settings: GeneralSettingsClass): Observable<GenericJobAndKeyClass> => this.call_fake_update_general_settings(general_settings)
+  );
+
   setup_control_plane = jasmine.createSpy('setup_control_plane').and.callFake(
     (): Observable<GenericJobAndKeyClass> => this.call_fake_setup_control_plane()
   );
@@ -163,6 +167,10 @@ export class KitSettingsServiceSpy {
 
   call_fake_get_general_settings(): Observable<GeneralSettingsClass> {
     return of(MockGeneralSettingsClass);
+  }
+
+  call_fake_update_general_settings(general_settings: GeneralSettingsClass): Observable<GenericJobAndKeyClass> {
+    return of(MockGenericJobAndKeyClass);
   }
 
   call_fake_setup_control_plane(): Observable<GenericJobAndKeyClass> {

@@ -1,0 +1,63 @@
+<mat-expansion-panel id="cvah-general-settings">
+  <mat-expansion-panel-header>
+    <mat-panel-title>General Settings</mat-panel-title>
+  </mat-expansion-panel-header>
+  <form *ngIf="general_settings_form_group" [formGroup]="general_settings_form_group">
+    <div fxLayout="column" fxLayoutAlign="start stretch">
+      <!-- Domain -->
+      <mat-form-field>
+        <mat-label>Domain</mat-label>
+        <input matInput
+               type="text"
+               placeholder="You must enter a domain name for the kit."
+               formControlName="domain"
+               matTooltip="{{ get_tooltip('domain') }}" />
+        <mat-icon matSuffix
+                  *ngIf="general_settings_form_group.get('domain').valid && general_settings_form_group.get('domain').touched"
+                  color="primary">
+          check_circle
+        </mat-icon>
+        <mat-icon matSuffix
+                  *ngIf="general_settings_form_group.get('domain').invalid && general_settings_form_group.get('domain').touched"
+                  color="warn">
+          error
+        </mat-icon>
+        <mat-error>{{ get_error_message(general_settings_form_group.get("domain")) }}</mat-error>
+      </mat-form-field>
+      <!-- Controller Interface -->
+      <mat-form-field>
+        <mat-label>Controller IP Address</mat-label>
+        <input readonly
+               matInput
+               formControlName="controller_interface">
+      </mat-form-field>
+      <!-- Gateway -->
+      <mat-form-field>
+        <mat-label>Gateway</mat-label>
+        <input readonly
+               matInput
+               formControlName="gateway">
+      </mat-form-field>
+      <!-- Netmask -->
+      <mat-form-field>
+        <mat-label>Netmask</mat-label>
+        <input readonly
+               matInput
+               formControlName="netmask">
+      </mat-form-field>
+    </div>
+
+    <!-- Action Button -->
+    <div mat-dialog-actions class="action-button-wrapper">
+      <button matTooltip="{{ button_save_tooltip }}"
+              mat-raised-button
+              color="primary"
+              [disabled]="general_settings_form_group.invalid || !general_settings_form_group.dirty || job_running"
+              (click)="click_button_save()">Save</button>
+      <button *ngIf="job_id"
+              mat-raised-button
+              color="primary"
+              (click)="click_button_open_console()">Open Console</button>
+    </div>
+  </form>
+</mat-expansion-panel>

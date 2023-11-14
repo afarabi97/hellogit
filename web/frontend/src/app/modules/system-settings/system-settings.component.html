@@ -1,7 +1,10 @@
 <div class="main-content2">
   <cvah-vmware-settings></cvah-vmware-settings>
   <br>
-  <app-general-settings-pane (getGeneralSettings)="updateGeneralSettings($event)" [generalSettings]="generalSettings" [kitStatus]="kitStatus" [controllerInfo]="controllerInfo"></app-general-settings-pane>
+  <cvah-general-settings [general_settings]="generalSettings"
+                         [kit_status]="kitStatus"
+                         [controller_info]="controllerInfo"
+                         (update_general_settings)="updateGeneralSettings($event)"></cvah-general-settings>
   <br>
   <cvah-hive-settings></cvah-hive-settings>
   <br>

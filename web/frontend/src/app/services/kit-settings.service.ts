@@ -150,9 +150,12 @@ export class KitSettingsService extends ApiService<any> {
             catchError((error: HttpErrorResponse) => this.handleError('get general settings', error)));
   }
 
-  updateGeneralSettings(settingsForm): Observable<Object> {
-    const url = '/api/settings/general';
-    return this.httpClient_.post(url, settingsForm).pipe();
+  update_general_settings(general_settings: GeneralSettingsClass): Observable<GenericJobAndKeyClass> {
+    const url: string = '/api/settings/general';
+
+    return this.httpClient_.post<GenericJobAndKeyInterface>(url, general_settings)
+                           .pipe(map((response: GenericJobAndKeyInterface) => new GenericJobAndKeyClass(response)),
+                                 catchError((error: HttpErrorResponse) => this.handleError('refresh kit', error)));
   }
 
   setup_control_plane(): Observable<GenericJobAndKeyClass> {

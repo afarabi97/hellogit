@@ -8,7 +8,7 @@ import { GlobalHiveSettingsService } from '../../services/global-hive-settings.s
 import { GlobalComponentsModule } from '../global-components/global-components.module';
 import { ServerStdoutModule } from '../server-stdout/server-stdout.module';
 import { MaterialModule } from '../utilily-modules/material.module';
-import { GeneralSettingsPaneComponent } from './components/general-settings/general-settings-pane.component';
+import { GeneralSettingsComponent } from './components/general-settings/general-settings.component';
 import { HiveSettingsComponent } from './components/hive-settings/hive-settings.component';
 import { KitSettingsComponent } from './components/kit-settings/kit-settings.component';
 import {
@@ -36,7 +36,7 @@ import { SystemSettingsComponent } from './system-settings.component';
     GlobalComponentsModule
   ],
   declarations: [
-    GeneralSettingsPaneComponent,
+    GeneralSettingsComponent,
     HiveSettingsComponent,
     KitSettingsComponent,
     AddKitTokenDialogComponent,

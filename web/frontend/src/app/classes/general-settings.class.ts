@@ -8,13 +8,13 @@ import { GeneralSettingsInterface } from '../interfaces';
  * @implements {GeneralSettingsInterface}
  */
 export class GeneralSettingsClass implements GeneralSettingsInterface {
-  _id: string;
+  _id?: string;
   controller_interface: string;
   netmask: string;
   gateway: string;
   domain: string;
-  job_id: string;
-  job_completed: boolean;
+  job_id?: string;
+  job_completed?: boolean;
   dhcp_range?: string;
 
   /**

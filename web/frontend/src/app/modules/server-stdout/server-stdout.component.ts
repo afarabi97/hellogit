@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Inject, OnInit, Output, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
@@ -36,8 +36,11 @@ import { JobService } from './services/job.service';
   styleUrls: ['./server-stdout.component.scss']
 })
 export class ServerStdoutComponent implements OnInit {
+  @Output() job_deleted: EventEmitter<void>;
   // Used for retrieving element ref for console output from server
   @ViewChild('console') private console_output_: ElementRef;
+  // Used for disabling buttons when job finished
+  job_finished: boolean;
   // Used for passing boolean value for the ability to start/stop job scrolling
   scroll_status: Boolean;
   // Used for allowing the ability to retry a job
@@ -65,6 +68,8 @@ export class ServerStdoutComponent implements OnInit {
               private mat_snackbar_service_: MatSnackBarService,
               private websocket_service_: WebsocketService,
               @Inject(MAT_DIALOG_DATA) public mat_dialog_data: ServerStdoutMatDialogDataInterface) {
+    this.job_deleted = new EventEmitter<void>();
+    this.job_finished = false;
     this.scroll_status = true;
     this.job_logs = [];
     this.job_id_ = mat_dialog_data.job_id;
@@ -205,8 +210,11 @@ export class ServerStdoutComponent implements OnInit {
           }
 
           if (Object.keys(response).length === 0) {
+            this.job_finished = true;
             const message: string = 'Job has already finished or is no longer available';
             this.mat_snackbar_service_.displaySnackBar(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
+          } else {
+            this.job_finished = false;
           }
         },
         (error: ErrorMessageClass | HttpErrorResponse) => {
@@ -230,6 +238,7 @@ export class ServerStdoutComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: GenericJobAndKeyClass) => {
+          this.job_deleted.emit();
           this.job_logs = [];
           const message: string = `deleted job ${response.job_id}`;
           this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);

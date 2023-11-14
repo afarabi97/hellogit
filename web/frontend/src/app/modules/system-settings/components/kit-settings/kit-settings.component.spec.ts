@@ -594,7 +594,7 @@ describe('KitSettingsComponent', () => {
         expect(component.job_id).toEqual(MockGenericJobAndKeyClass.job_id);
       });
 
-      it('should call from kit_settings_service_.update_kit_settings() and handle response and set job_id', () => {
+      it('should call from kit_settings_service_.update_kit_settings() and handle response and set kit_settings.job_id', () => {
         reset();
 
         component['initialize_kit_settings_form_group_']();

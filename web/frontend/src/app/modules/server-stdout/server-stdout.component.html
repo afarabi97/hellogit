@@ -21,6 +21,7 @@
           </button>
           <button mat-icon-button *ngIf="scroll_status" id="cvah-server-stdout-button-stop-scroll"
                   color="accent" style="margin-right: 10px;" matTooltip="Stop Following Console Output"
+                  [disabled]="job_finished"
                   (click)="stop_scroll()">
             <span class="material-icons">
               pause
@@ -28,6 +29,7 @@
           </button>
           <button mat-icon-button id="cvah-server-stdout-button-kill-job"
                   color="warn" matTooltip="Kill Running Job"
+                  [disabled]="job_finished"
                   (click)="stop_job_confirm_dialog()">
             <span class="material-icons">
               stop
