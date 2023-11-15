@@ -22,6 +22,7 @@ class TFPlenumLibrary:
     CONFIG_MAPS_ENDPOINT = "/kubernetes/configmaps"
     DOCKER_REGISTRY_ENDPOINT = "/kubernetes/docker/registry"
     DATETIME_ENDPOINT = "/tools/controller/datetime"
+    ELASTIC_LICENSE_ENDPOINT = "/tools/es_license"
     VERSION_INFO_ENDPOINT = "/version/information"
 
     def __init__(self):
@@ -355,6 +356,15 @@ class TFPlenumLibrary:
         return response.json()
 
     @keyword
+    def get_elastic_license_status(self):
+        response = self.api_get_es_license_status(jsonify=False)
+        json_response = response.json()
+        status = json_response['license']['status']
+        license_type = json_response['license']['type']
+        expiration = json_response['license']['expiry_date']
+        return {'status': status, 'type': license_type, 'expiration': expiration}
+
+    @keyword
     def get_version_information(self):
         response = self.api_get_version_information(jsonify=False)
         return response.json()
@@ -401,6 +411,9 @@ class TFPlenumLibrary:
 
     def api_get_controller_datetime(self, jsonify=True):
         return self.execute_request(self.DATETIME_ENDPOINT, jsonify=jsonify)
+
+    def api_get_es_license_status(self, jsonify=True):
+        return self.execute_request(self.ELASTIC_LICENSE_ENDPOINT, jsonify=jsonify)
 
     def api_get_version_information(self, jsonify=True):
         return self.execute_request(self.VERSION_INFO_ENDPOINT, jsonify=jsonify)

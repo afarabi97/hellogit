@@ -66,6 +66,27 @@ Get Elastic License Expiration
     ${exp_date} =  Convert Date  ${date}  date_format=%B %d, %Y at %I:%M:%S %p
     [Return]  ${exp_date}
 
+Compare License Backend Data To UI
+    [Arguments]  ${backend_el_info_dict}
+    ${backend_el_type} =  Get From Dictionary  ${backend_el_info_dict}  type
+    ${backend_el_status} =  Get From Dictionary  ${backend_el_info_dict}  status
+    ${backend_el_exp} =  Get From Dictionary  ${backend_el_info_dict}  expiration
+    ${backend_el_exp} =  Replace String  ${backend_el_exp}  search_for=T  replace_with=${SPACE}
+    ${backend_el_exp} =  Fetch From Left  ${backend_el_exp}  .
+
+    ${frontend_el_exp_date} =  Get Elastic License Expiration
+    ${frontend_el_type} =  Get Text  ${CVAH_UPDATE_ES_LICENSE_FORM__LICENSE_TYPE}
+    Should Contain  ${frontend_el_type}  Curent License Type:
+    ${frontend_el_type} =  Fetch From Right  ${frontend_el_type}  :
+    ${frontend_el_status} =  Get Text  ${CVAH_UPDATE_ES_LICENSE_FORM__LICENSE_STATUS}
+    Should Contain  ${frontend_el_status}  Curent License Status:
+    ${frontend_el_status} =  Fetch From Right  ${frontend_el_status}  :
+
+    Should Be Equal As Strings  ${backend_el_type}  ${frontend_el_type}  ignore_case=True  strip_spaces=True
+    Should Be Equal As Strings  ${backend_el_status}  ${frontend_el_status}  ignore_case=True  strip_spaces=True
+    ${time_diff} =  Subtract Date From Date  ${backend_el_exp}  ${frontend_el_exp_date}
+    Should Be True  ${time_diff} == 0
+
 Upload Elastic License
     [Arguments]  ${file_name}
     shoot  elastic-license-before

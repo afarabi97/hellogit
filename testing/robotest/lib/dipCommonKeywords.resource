@@ -1,15 +1,15 @@
 *** Settings ***
-Resource    ../include/dipCommonVariables.resource
 Resource    ./dipAPIDocsKeywords.resource
 Resource    ./dipLogInKeywords.resource
+Resource    ../include/dipCommonVariables.resource
 Variables   ../include/element_ids_frontend.py
 
-Library     Loggy.py            ${CATEGORY}    WITH NAME    loggy_obj
+Library     Collections
+Library     DateTime
 Library     SeleniumLibrary     15s    run_on_failure=handleSeleniumFailure
 Library     SSHLibrary          15s
 Library     String
-Library     Collections
-Library     DateTime
+Library     Loggy.py            ${CATEGORY}    WITH NAME    loggy_obj
 Library     TFPlenumLibrary.py
 
 

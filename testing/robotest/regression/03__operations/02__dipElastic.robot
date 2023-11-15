@@ -5,11 +5,6 @@ Resource    ../../lib/dipElasticKeywords.resource
 Resource    ../../lib/dipRulesetKeywords.resource
 Resource    ../../lib/dipToolsKeywords.resource
 
-Library    SeleniumLibrary    15s
-Library    SSHLibrary         15s
-Library    String
-Library    Collections
-
 
 Suite Setup       Open SSH Connection      ${HOST}                ${HOST_USERNAME}                ${HOST_PASSWORD}
 Test Setup        Run Keywords             Runner Open Browser    ${HOST}                         ${BROWSER}
@@ -43,6 +38,14 @@ Check MinIO (Elastic) Backup Capability
     Set Selenium Speed  0.5s
     Navigate To Index Management
     Backup And Close Indexes
+
+Check Elastic License Information
+    [Tags]  THISISCVAH-14404
+    [Documentation]  Gets the data of the elastic license from backend API and compares
+    ...              the returned data to what is displayed on the controller UI.
+    Navigate To Tools
+    ${elastic_info_dict} =  Get Elastic License Status  # API call
+    Compare License Backend Data To UI  ${elastic_info_dict}
 
 Update Elastic License
     [Tags]  THISISCVAH-13576
