@@ -111,7 +111,7 @@ CPT:
     - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-5
     - Repo/CPT/VMs/ControlThings (prev SamuraiSTFU)/ControlThingsPlatform-v1bD
     - Repo/CPT/VMs/Cuckoo Sandbox/2.0.7
-    - Repo/CPT/VMs/Endgame/3.29.2.6
+    - Repo/CPT/VMs/Endgame/3.29.2-6
     - Repo/CPT/VMs/Kali Linux VM/2023.2
     - Repo/CPT/VMs/Mockingbird/1.2.0
     - Repo/CPT/VMs/REMnuX/2022.28.1
