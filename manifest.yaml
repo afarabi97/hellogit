@@ -291,8 +291,8 @@ GIP:
 
 - app: vms
   src:
-    - Repo/GIP/Software/VM/GIP_DNS_20230512.ova
-    - Repo/GIP/Software/VM/GIP_WSUS_20230512.ova
+    - Repo/GIP/Software/VM/GIP-Services_20230707.ova
+    - Repo/GIP/Software/VM/GIP_WSUS_20231121.ova
     - Repo/GIP/Software/VM/libre
   dest: GIP/Data/CVAH {{ VERSION }}/Software/VM
 # OLD OVAs that will need replaced in the future...
