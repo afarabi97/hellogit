@@ -3,6 +3,7 @@ Resource    ../../lib/dipCatalogKeywords.resource
 Resource    ../../lib/dipCommonKeywords.resource
 Resource    ../../lib/dipElasticKeywords.resource
 Resource    ../../lib/dipRulesetKeywords.resource
+Resource    ../../lib/dipTestPcapFilesKeywords.resource
 Resource    ../../lib/dipToolsKeywords.resource
 
 
@@ -21,7 +22,7 @@ Run Elastic Integration Test
     Install Multiple Apps  Logstash   Zeek    Suricata    Arkime-viewer    Arkime
     Log In To Kibana
     Navigate To Test PCAP Files
-    Play Wannacry PCAP
+    Replay PCAP  pcap=wannacry.pcap
     Wait And Validate Kibana Hits
     Navigate To Portal
 

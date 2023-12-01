@@ -77,7 +77,7 @@ Verify Play Stop and Refresh Button
     ${initialAlertCount}=  Set Variable  ${totalAlertCount}
     Navigate To Test PCAP Files
     log  Playing "Wannacry" PCAP
-    Play Wannacry PCAP
+    Replay PCAP  pcap=wannacry.pcap
     Navigate To Alerts
 
     log  Verification of the play button
@@ -104,7 +104,7 @@ Verify Play Stop and Refresh Button
     END
     Navigate To Test PCAP Files
     log  Playing "Wannacry" PCAP
-    Play Wannacry PCAP
+    Replay PCAP  pcap=wannacry.pcap
     Navigate To Alerts
     # Verify that navigating to a different page has not changed the state of the stop button
     ${State}=  Get Text  ${locAlertsPlayAndStopBtn}

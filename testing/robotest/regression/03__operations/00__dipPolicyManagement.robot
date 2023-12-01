@@ -2,10 +2,7 @@
 Resource    ../../lib/dipCatalogKeywords.resource
 Resource    ../../lib/dipCommonKeywords.resource
 Resource    ../../lib/dipRulesetKeywords.resource
-
-Library    SeleniumLibrary    15s
-Library    SSHLibrary         15s
-Library    String
+Resource    ../../lib/dipTestPcapFilesKeywords.resource
 
 
 Suite Setup       Open SSH Connection      ${HOST}                ${HOST_USERNAME}                ${HOST_PASSWORD}
@@ -39,9 +36,17 @@ Zeek Intel Script Upload
     Upload Rules File   Zeek Intel Script Upload Test    mal_md5_robot.txt
     Delete Rule Set     Zeek Intel Script Upload Test
 
+Replay PCAP With Preserve Timestamp Is Checked
+    [Tags]  THISISCVAH-13323
+    [Documentation]  Replaying a PCAP with a single sensor and the "Preserve timestamp"
+    ...              checkbox is checked.
+    Navigate To Test PCAP Files
+    Replay PCAP  pcap=wannacry.pcap  preserve_timestamp=${True}
+    Verify Historical Replay Of PCAP Completes
+
 Play PCAPs Across Sensor
     [Documentation]  Grab the elastic password and run some tests
     Set Selenium Speed  0.5s
     Navigate To Test PCAP Files
     Upload And Delete PCAP File  data-with-image_robot.pcap
-    Play Wannacry PCAP
+    Replay PCAP  pcap=wannacry.pcap

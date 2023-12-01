@@ -226,46 +226,6 @@ Log In To Kibana
     shoot       StackManagement
     Go To       https://${host}/  # Navigate back to Controller
 
-Upload And Delete PCAP File
-    [Arguments]  ${pcap_file_name}
-    Upload PCAP  ${pcap_file_name}
-    reload
-    lookFor  ${pcap_file_name}
-    ${pcap_del_btn} =  Inject  ${locDeletePcapBtn}  ${pcap_file_name}
-    scroll  ${pcap_del_btn}
-    click  ${pcap_del_btn}
-    click  ${CVAH_CONFIRM_DIALOG__BUTTON_OPTIONS2_NOT_DOUBLE_CONFIRM}
-    lookFor  Successfully deleted ${pcap_file_name}.
-
-Play ${pcap} PCAP
-    ${sensor_name} =  Check For Sensor With Available Interface
-    # The interface will not show up with Preserve Timestamp On, Only with it unselected
-    # so if Preserve Timewstamp is checked off, do not select an interface
-    IF      "${pcap}" == "Wannacry"
-        lookForElement  ${locPcapPlayBtn}
-        Scroll Element Into View  ${locPcapPlayBtn}
-        click    ${locPcapPlayBtn}
-        click    ${CVAH_REPLAY_PCAP_DIALOG__SENSOR_HOSTNAME_MAT_SELECT}
-        click    ${locPcapDialogHostnameOpt}  injector=${sensor_name}
-
-        # determine if  preserve timestamp checked or unchecked
-        ${raw_is_checked_str}=     Get Element Attribute    locator=${locPcapPreserveTimestampInput}    attribute=aria-checked
-
-        ${is_checked_str}=     lower   ${raw_is_checked_str}
-        IF      '${is_checked_str}' == 'true'
-            log         UNCHECKING PRESERVE TIMESTAMP
-            click       ${locPcapPreserveTimestamp}
-        END
-
-        click    ${CVAH_REPLAY_PCAP_DIALOG__IFACE_MAT_SELECT}
-        log     Selecting the first interface option since interface names are different on virtual and hardware
-        click    ${locPcapSensorInterfaceOptionOne}
-        escape      Play Pcap Options
-
-        log     Executing PCAP
-        Click Button    ${CVAH_REPLAY_PCAP_DIALOG__BUTTON_EXECUTE}  # execute btn
-    END
-
 Wait And Validate Kibana Hits
     log         Kibana needs time to populate results. Sleeping for 180 Seconds
     Sleep       180s
@@ -314,23 +274,28 @@ click
     [Documentation]  Clicks an element after checking it exists on the page. A while-loop
     ...              is used for elements that render late in the DOM. Exits loop when
     ...              element becomes clickable.
-    [Arguments]     ${element}     ${timeout}=30s   ${injector}=None
+    [Arguments]  ${element}  ${timeout}=30s  ${injector}=None
+
     IF  '${injector}' != '${None}'
-        log     injecting before click: ${injector}
+        log  injecting before click: ${injector}
         ${element} =  Inject  ${element}  ${injector}
     END
 
-    Wait Until Page Contains Element    ${element}  timeout=${timeout}
-    Wait Until Element Is Visible    ${element}  timeout=${timeout}
+    Wait Until Page Contains Element  ${element}  timeout=${timeout}
+    Scroll Element Into View  ${element}
+    Wait Until Element Is Visible  ${element}  timeout=${timeout}
+
     ${previous_kw} =  Register Keyword To Run On Failure  None
     ${click_intercepted} =  Set Variable  ${False}
+
     FOR  ${i}  IN RANGE  10
         Mouse Over  ${element}
         ${click_not_intercepted} =  Run Keyword And Return Status  Click Element  ${element}
         Exit For Loop If  ${click_not_intercepted}==${True}
     END
+
     Register Keyword To Run On Failure  ${previous_kw}
-    log     Clicked element: ${element}
+    log  Clicked element: ${element}
 
 failTest
     loggy_obj.failure

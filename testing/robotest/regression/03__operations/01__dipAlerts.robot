@@ -3,11 +3,7 @@ Resource    ../../lib/dipCatalogKeywords.resource
 Resource    ../../lib/dipCommonKeywords.resource
 Resource    ../../lib/dipAlertsKeywords.resource
 Resource    ../../lib/dipRulesetKeywords.resource
-
-Library    SeleniumLibrary    15s
-Library    SSHLibrary         15s
-Library    String
-
+Resource    ../../lib/dipTestPcapFilesKeywords.resource
 
 Suite Setup       Open SSH Connection      ${HOST}                ${HOST_USERNAME}                ${HOST_PASSWORD}
 Test Setup        Run Keywords             Runner Open Browser    ${HOST}                         ${BROWSER}
