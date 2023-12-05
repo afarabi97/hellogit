@@ -53,6 +53,56 @@ default_data_schema() {
   echo "logvol /data --fstype=\"xfs\" --size=1 --name=data --vgname=vg_data --grow" >> /tmp/partition_layout
 }
 
+remove_all_lvm() {
+    # Get all physical volumes
+    physical_volumes=$(pvs --noheadings -o pv_name)
+
+    for pv in $physical_volumes; do
+        # Get all volume groups associated with the physical volume
+        volume_groups=$(pvs --noheadings -o vg_name $pv)
+
+        for vg in $volume_groups; do
+            # Get all logical volumes associated with the volume group
+            logical_volumes=$(lvs --noheadings -o lv_name $vg)
+
+            for lv in $logical_volumes; do
+                # Unmount the logical volume
+                umount /dev/$vg/$lv
+
+                # Disable the logical volume
+                lvchange -an /dev/$vg/$lv
+
+                # Remove the logical volume
+                lvremove -y /dev/$vg/$lv
+            done
+
+            # Disable the volume group
+            vgchange -an $vg
+
+            # Remove the volume group
+            vgremove -y $vg
+        done
+
+        # Delete the physical volume
+        pvremove -y $pv
+    done
+}
+
+remove_all_dmraid() {
+    # Get all dmraid arrays
+    dmraid_arrays=$(dmraid -r -c | awk '{print $1}')
+
+    for dm in $dmraid_arrays; do
+        # Remove the dmraid array
+        dmraid -r -E -f $dm
+    done
+}
+
+wipe_drive() {
+  dd if=/dev/zero of=$1 bs=1M count=1024
+  wipefs -f -a $1
+}
+
 all_software_raid() {
   local os_parition_size_MiB="$1"
   local is_uefi="$2"
@@ -82,8 +132,7 @@ all_software_raid() {
   echo "bootloader --append=\"rhgb quiet crashkernel=auto\" --location=mbr --driveorder=${drive_list_comma_sep::-1} --iscrypted --password=grub.pbkdf2.sha512.10000.23C682D3DE1136612AC0B3C369A9B975A5D46A002BC3F450AB728722925654073EE29078AE1D72449343DDA75D39987090B6D1738E71B9C331D8FF6AD35C75A0.436922F8BF0EC820FA8A788C5BF3D5FBF6D694142E7DFD8637CBD519D91B250CBF9464FF998010941E7996CE8744C86BBDA7DCB9435A534ADC45A8A530FAC697" >> /tmp/partition_layout
   echo "clearpart --all --disklabel gpt --initlabel" >> /tmp/partition_layout
   for drive in "${drive_list[@]}"; do
-    dd if=/dev/zero of=/dev/$drive bs=512 count=100
-    wipefs -f -a /dev/$drive
+    wipe_drive /dev/$drive
     echo "part raid.0_$drive --fstype=\"raid\" --size=512 --asprimary --ondrive=$drive" >> /tmp/partition_layout
     if ! $is_uefi; then
       echo "part biosboot --fstype=biosboot --size=1 --ondisk=$drive" >> /tmp/partition_layout
@@ -104,8 +153,7 @@ all_software_raid() {
 
 os_provision_on_one_device() {
   local drive="$1"
-  dd if=/dev/zero of=/dev/$drive bs=512 count=100
-  wipefs -f -a /dev/$drive
+  wipe_drive /dev/$drive
   echo "zerombr" > /tmp/partition_layout
   echo "bootloader --append=\"rhgb quiet crashkernel=auto\" --location=mbr --boot-drive=$drive --iscrypted --password=grub.pbkdf2.sha512.10000.23C682D3DE1136612AC0B3C369A9B975A5D46A002BC3F450AB728722925654073EE29078AE1D72449343DDA75D39987090B6D1738E71B9C331D8FF6AD35C75A0.436922F8BF0EC820FA8A788C5BF3D5FBF6D694142E7DFD8637CBD519D91B250CBF9464FF998010941E7996CE8744C86BBDA7DCB9435A534ADC45A8A530FAC697" >> /tmp/partition_layout
   echo "clearpart --all" >> /tmp/partition_layout
@@ -136,6 +184,12 @@ sd_drives=($(lsblk -d -o NAME,TYPE | awk '/^sd/ && $2 == "disk" {print $1}'))
 sd_drive_list_comma_sep=$(printf '%s,' "${sd_drives[@]}")
 {% raw %}sd_drive_count=${#sd_drives[@]}
 {% endraw %}
+
+# Remove all LVMs from physical volumes to fix edge case
+remove_all_lvm
+
+# Remove all dmraid arrays from physical volumes to fix edge case
+remove_all_dmraid
 
 if [ "$sd_drive_count" -eq 0 ]; then
   #Dividing by zero makes the whole script fail
@@ -242,8 +296,7 @@ if [ $nvme_drive_count -gt 0 ]; then
     fi
 
     for drive in "${nvme_drives[@]}"; do
-      dd if=/dev/zero of=/dev/$drive bs=512 count=100
-      wipefs -f -a /dev/$drive
+      wipe_drive /dev/$drive
       echo "part raid.2_$drive --fstype=\"raid\" --size=1 --grow --ondrive=$drive" >> /tmp/partition_layout
     done
     echo "raid pv.02 --fstype=\"lvmpv\" --device=\"pv.02\" --label=\"lvmpv-pv02\" --level=$raid_level ${data_partitions[@]}" >> /tmp/partition_layout
@@ -258,8 +311,7 @@ if [ $nvme_drive_count -gt 0 ]; then
     # and 4 nvme drives
     os_provision_on_one_device "${sd_drives[0]}"
     for drive in "${nvme_drives[@]}"; do
-      dd if=/dev/zero of=/dev/$drive bs=512 count=100
-      wipefs -f -a /dev/$drive
+      wipe_drive /dev/$drive
       echo "part raid.2_$drive --fstype=\"raid\" --size=1 --grow --ondrive=$drive" >> /tmp/partition_layout
     done
     echo "raid pv.02 --fstype=\"lvmpv\" --device=\"pv.02\" --label=\"lvmpv-pv02\" --level=$raid_level ${data_partitions[@]}" >> /tmp/partition_layout
@@ -272,8 +324,7 @@ if [ $nvme_drive_count -gt 0 ]; then
     echo "bootloader --append=\"rhgb quiet crashkernel=auto\" --location=mbr --driveorder=${sd_drive_list_comma_sep::-1} --iscrypted --password=grub.pbkdf2.sha512.10000.23C682D3DE1136612AC0B3C369A9B975A5D46A002BC3F450AB728722925654073EE29078AE1D72449343DDA75D39987090B6D1738E71B9C331D8FF6AD35C75A0.436922F8BF0EC820FA8A788C5BF3D5FBF6D694142E7DFD8637CBD519D91B250CBF9464FF998010941E7996CE8744C86BBDA7DCB9435A534ADC45A8A530FAC697" >> /tmp/partition_layout
     echo "clearpart --all --disklabel gpt --initlabel" >> /tmp/partition_layout
     for drive in "${sd_drives[@]}"; do
-      dd if=/dev/zero of=/dev/$drive bs=512 count=100
-      wipefs -f -a /dev/$drive
+      wipe_drive /dev/$drive
       echo "part raid.0_$drive --fstype=\"raid\" --size=512 --asprimary --ondrive=$drive" >> /tmp/partition_layout
       if ! $is_uefi; then
         echo "part biosboot --fstype=biosboot --size=1 --ondisk=$drive" >> /tmp/partition_layout
@@ -290,8 +341,7 @@ if [ $nvme_drive_count -gt 0 ]; then
     default_os_schema
 
     for drive in "${nvme_drives[@]}"; do
-      dd if=/dev/zero of=/dev/$drive bs=512 count=100
-      wipefs -f -a /dev/$drive
+      wipe_drive /dev/$drive
       echo "part raid.2_$drive --fstype=\"raid\" --size=1 --grow --ondrive=$drive" >> /tmp/partition_layout
     done
     echo "raid pv.02 --fstype=\"lvmpv\" --device=\"pv.02\" --label=\"lvmpv-pv02\" --level=$raid_level ${data_partitions[@]}" >> /tmp/partition_layout
@@ -301,8 +351,7 @@ else
   if [ "$sd_drive_count" -eq 1 ]; then
     check_unexpected_cases_and_send_notification "$nvme_drive_count" "$sd_drive_count"
     # This block handles all cases where NVME drives are not present.  If sd drive count is 1 we create two partitions one for OS drive and one for data.
-    dd if=/dev/zero of=/dev/${sd_drives[0]} bs=512 count=100
-    wipefs -f -a /dev/${sd_drives[0]}
+    wipe_drive /dev/${sd_drives[0]}
     echo "zerombr" > /tmp/partition_layout
     echo "bootloader --append=\"rhgb quiet crashkernel=auto\" --location=mbr --boot-drive=${sd_drives[0]} --iscrypted --password=grub.pbkdf2.sha512.10000.23C682D3DE1136612AC0B3C369A9B975A5D46A002BC3F450AB728722925654073EE29078AE1D72449343DDA75D39987090B6D1738E71B9C331D8FF6AD35C75A0.436922F8BF0EC820FA8A788C5BF3D5FBF6D694142E7DFD8637CBD519D91B250CBF9464FF998010941E7996CE8744C86BBDA7DCB9435A534ADC45A8A530FAC697" >> /tmp/partition_layout
     echo "clearpart --all" >> /tmp/partition_layout
@@ -318,10 +367,8 @@ else
     # This block handles all cases where NVME drives are not present.  If sd drive count is 2 we assume that hardware raiding has been done correctly.
     sd1_path=/dev/${sd_drives[0]}
     sd2_path=/dev/${sd_drives[1]}
-    dd if=/dev/zero of=$sd1_path bs=512 count=100
-    dd if=/dev/zero of=$sd2_path bs=512 count=100
-    wipefs -f -a $sd1_path
-    wipefs -f -a $sd2_path
+    wipe_drive $sd1_path
+    wipe_drive $sd2_path
 
     sd1_size=$(fdisk -l $sd1_path | grep "Disk $sd1_path" | awk '{print $5}')
     sd2_size=$(fdisk -l $sd2_path | grep "Disk $sd2_path" | awk '{print $5}')
