@@ -23,6 +23,7 @@ SHARED:
     - v3.7.1 Supplemental Guide
     - v3.7.2 Supplemental Guide
     - v3.7.3 Supplemental Guide
+    - v3.7.4 Supplemental Guide
     - v3.7 Summary of Changes
     - v3.7 Glossary
   dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/Guides"
@@ -41,6 +42,7 @@ CPT:
     - v3.7.1 Cyber Protection Team (CPT) VDD
     - v3.7.2 Cyber Protection Team (CPT) VDD
     - v3.7.3 Cyber Protection Team (CPT) VDD
+    - v3.7.4 Cyber Protection Team (CPT) VDD
   dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/VDD"
 
 - type: Appendixes
@@ -57,6 +59,7 @@ MDT:
     - v3.7.1 Mission Defense Team (MDT) VDD
     - v3.7.2 Mission Defense Team (MDT) VDD
     - v3.7.3 Mission Defense Team (MDT) VDD
+    - v3.7.4 Mission Defense Team (MDT) VDD
   dest: "Data/CVAH {{ VERSION }}/Documentation/DIP/VDD"
 
 #### GIP Documents ####
@@ -69,6 +72,7 @@ GIP:
     - v3.7.1 Supplemental Guide
     - v3.7.2 Supplemental Guide
     - v3.7.3 Supplemental Guide
+    - v3.7.4 Supplemental Guide
     - v3.7 Garrison Interceptor Platform (GIP) Installation Guide (PMO Only)
     - v3.7 Garrison Interceptor Platform (GIP) Operations Guide
     - v3.7 Garrison Interceptor Platform (GIP) Maintenance Guide

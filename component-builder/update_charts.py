@@ -18,7 +18,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 CHART_FOLDER = "/opt/tfplenum/charts"
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 HELM_URL = "https://nexus.sil.lab/repository/tfplenum-helm"
-CHART_MUSEUM_URI = "https://localhost/api/charts"
+CHART_MUSEUM_URI = "http://localhost:5002/api/charts"
 
 parser = argparse.ArgumentParser(description='Update local or remote repository')
 parser.add_argument('--chart', choices=['local','remote'], help='Charts will be updated locally or remotely')

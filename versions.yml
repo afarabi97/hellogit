@@ -105,8 +105,8 @@ setup_package_list:
   - tcpreplay
 
 helm_versions:
-  arkime: 1.0.4
-  arkime_viewer: 1.0.4
+  arkime: 1.0.7
+  arkime_viewer: 1.0.7
   cortex: 1.0.6
   hive: 1.0.8
   logstash: 1.0.6

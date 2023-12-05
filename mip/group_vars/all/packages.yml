@@ -112,7 +112,7 @@ amd_driver: amdgpu-pro-20.10-1101037-rhel-8.1.tar.xz
 chrome_file: google-chrome-stable_current_x86_64_94.0.4606.71.rpm
 gitkraken_file: gitkraken-amd64_8.1.0.rpm
 vmware_file: VMware-Workstation-Full-16.2.4-20089737.x86_64.bundle
-vscode_file: code-1.59.1-1629375274.el8.x86_64.rpm
+vscode_file: code-1.85.0-1701903084.el7.x86_64.rpm
 
 # Redhat Microcode Software
 microcode_file: microcode_ctl-20210608-1.el8.x86_64.rpm

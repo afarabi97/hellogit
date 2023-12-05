@@ -44,7 +44,7 @@ formControls:
   name: magicMode
   error_message: Enter a valid setting
 - type: textinput
-  default_value: 20Gi
+  default_value: 64Gi
   description: Enter Arkime memory limit
   required: false
   regexp: ^(\d?[1-9]|[1-9]0)Gi$
