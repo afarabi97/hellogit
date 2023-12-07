@@ -400,7 +400,7 @@ def get_elastic_scale_advanced() -> ElasticScaleAdvancedConfigModel:
 def post_elastic_scale_advanced(payload: ElasticScaleAdvancedConfigModel) -> COMMON_SUCCESS_MESSAGE:
     deploy_config = {}
     if "elastic" in payload:
-        deploy_config = yaml.load(payload["elastic"])
+        deploy_config = yaml.safe_load(payload["elastic"])
         update(deploy_config)
 
         return {"success_message": "Advanced configuration accepted!"}

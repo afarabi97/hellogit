@@ -524,7 +524,7 @@ class ElasticDeploy(Resource):
             if override or (override == False and len(deploy_config) == 0):
                 with open(deploy_path, "r") as f:
                     config = f.read()
-                config_yaml = yaml.load_all(config, Loader=yaml.FullLoader)
+                config_yaml = yaml.safe_load_all(config)
                 for d in config_yaml:
                     scale.create(d)
             return {"success_message": "Deploy config successfully loaded."}
