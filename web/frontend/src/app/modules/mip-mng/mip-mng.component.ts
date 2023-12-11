@@ -288,7 +288,7 @@ export class MipManagementComponent implements OnInit {
    * @memberof MipManagementComponent
    */
   private api_get_mip_settings_(): void {
-    this.kit_settings_service_.getMipSettings()
+    this.kit_settings_service_.get_mip_settings()
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: MipSettingsClass) => {

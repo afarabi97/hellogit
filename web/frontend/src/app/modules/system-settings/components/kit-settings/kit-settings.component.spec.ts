@@ -439,6 +439,10 @@ describe('KitSettingsComponent', () => {
       it('should call check_job_() and set kit settings form group as enabled', () => {
         reset();
 
+        // Allows respy to change default spy created in spy service
+        jasmine.getEnv().allowRespy(true);
+        spyOn<any>(component['global_job_service_'], 'job_get').and.returnValue(of(MockBackgroundJobClass));
+
         component['initialize_kit_settings_form_group_']();
         component.kit_settings = MockKitSettingsClass;
         component.kit_status = MockKitStatusClass;

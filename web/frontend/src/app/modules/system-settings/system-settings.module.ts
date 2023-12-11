@@ -18,7 +18,7 @@ import {
   CopyTokenDialogComponent
 } from './components/kit-token-settings/components/copy-token-dialog/copy-token-dialog.component';
 import { KitTokenSettingsComponent } from './components/kit-token-settings/kit-token-settings.component';
-import { MIPSettingsPaneComponent } from './components/mip-settings/mip-settings-pane.component';
+import { MIPSettingsComponent } from './components/mip-settings/mip-settings.component';
 import { VMWareSettingsComponent } from './components/vmware-settings/vmware-settings.component';
 import { HiveSettingsService } from './services/hive-settings.service';
 import { KitTokenSettingsService } from './services/kit-token-settings.service';
@@ -42,7 +42,7 @@ import { SystemSettingsComponent } from './system-settings.component';
     AddKitTokenDialogComponent,
     CopyTokenDialogComponent,
     KitTokenSettingsComponent,
-    MIPSettingsPaneComponent,
+    MIPSettingsComponent,
     VMWareSettingsComponent,
     SystemSettingsComponent
   ],

@@ -11,7 +11,6 @@ import {
   MockControllerInfoClass,
   MockErrorMessageClass,
   MockGeneralSettingsClass,
-  MockGenericJobAndKeyClass,
   MockKitSettingsClass,
   MockKitStatusClass
 } from '../../../../../../static-data/class-objects';
@@ -115,6 +114,7 @@ describe('GeneralSettingsComponent', () => {
   });
 
   describe('GeneralSettingsComponent methods', () => {
+
     describe('ngOnInit()', () => {
       it('should call ngOnInit()', () => {
         reset();
@@ -154,7 +154,7 @@ describe('GeneralSettingsComponent', () => {
         expect(component.ngOnChanges).toHaveBeenCalled();
       });
 
-      it('should call ngOnChanges() on simple_changes[\'general_settings\'] and set job_id', () => {
+      it('should call ngOnChanges() on simple_changes[\'general_settings\'] and set job_id when general_settings?.job_id is defined', () => {
         reset();
 
         const simple_changes: SimpleChanges = new Object() as SimpleChanges;
@@ -167,25 +167,27 @@ describe('GeneralSettingsComponent', () => {
         expect(component.job_id).toEqual(MockGeneralSettingsClass.job_id);
       });
 
-      it('should call initialize_general_settings_form_group_() from ngOnChanges()', () => {
+      it('should call initialize_general_settings_form_group_() from ngOnChanges() on simple_changes[\'general_settings\'] and when general_settings keys > 0', () => {
         reset();
 
         const simple_changes: SimpleChanges = new Object() as SimpleChanges;
         const options_simple_change: SimpleChange = new SimpleChange(undefined, MockGeneralSettingsClass, true);
         simple_changes['general_settings'] = options_simple_change;
 
+        component.general_settings = MockGeneralSettingsClass;
         component.ngOnChanges(simple_changes);
 
         expect(component['initialize_general_settings_form_group_']).toHaveBeenCalled();
       });
 
-      it('should call check_job_() from ngOnChanges()', () => {
+      it('should call check_job_() from ngOnChanges() on simple_changes[\'general_settings\'] and when general_settings?.job_id is defined', () => {
         reset();
 
         const simple_changes: SimpleChanges = new Object() as SimpleChanges;
-        const options_simple_change: SimpleChange = new SimpleChange(undefined, MockKitSettingsClass, true);
+        const options_simple_change: SimpleChange = new SimpleChange(undefined, MockGeneralSettingsClass, true);
         simple_changes['general_settings'] = options_simple_change;
 
+        component.general_settings = MockGeneralSettingsClass;
         component.ngOnChanges(simple_changes);
 
         expect(component['check_job_']).toHaveBeenCalled();
@@ -261,6 +263,7 @@ describe('GeneralSettingsComponent', () => {
         expect(return_value).toEqual(COMMON_TOOLTIPS[input_name]);
       });
     });
+
     describe('click_button_save()', () => {
       it('should call click_button_save()', () => {
         reset();
@@ -427,28 +430,6 @@ describe('GeneralSettingsComponent', () => {
         expect(component['kit_settings_service_'].update_general_settings).toHaveBeenCalled();
       });
 
-      it('should call from kit_settings_service_.update_general_settings() and handle response and set job_id', () => {
-        reset();
-
-        component.job_id = undefined;
-        component.general_settings = MockGeneralSettingsClass;
-        component['initialize_general_settings_form_group_']();
-        component['api_update_general_settings_'](MockGeneralSettingsClass);
-
-        expect(component.job_id).toEqual(MockGenericJobAndKeyClass.job_id);
-      });
-
-      it('should call from kit_settings_service_.update_general_settings() and handle response and set general_settings.job_id', () => {
-        reset();
-
-        component.job_id = undefined;
-        component.general_settings = MockGeneralSettingsClass;
-        component['initialize_general_settings_form_group_']();
-        component['api_update_general_settings_'](MockGeneralSettingsClass);
-
-        expect(component.general_settings.job_id).toEqual(MockGenericJobAndKeyClass.job_id);
-      });
-
       it('should call from kit_settings_service_.update_general_settings() and handle response and call check_job_()', () => {
         reset();
 
@@ -558,19 +539,6 @@ describe('GeneralSettingsComponent', () => {
         component['api_job_get_']();
 
         expect(component.button_save_tooltip).toEqual('');
-      });
-
-      it('should call from global_job_service_.job_get() and handle response and enable kit settings form group', () => {
-        reset();
-
-        // Allows respy to change default spy created in spy service
-        jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['global_job_service_'], 'job_get').and.returnValue(of(MockBackgroundJobClass));
-
-        component['initialize_general_settings_form_group_']();
-        component['api_job_get_']();
-
-        expect(component.general_settings_form_group.enabled).toBeTrue();
       });
 
       it('should call from global_job_service_.job_get() and handle response and enable kit settings form group but disable general_settings_form_group.domain', () => {

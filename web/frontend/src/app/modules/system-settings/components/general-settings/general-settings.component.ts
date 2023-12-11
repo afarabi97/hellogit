@@ -28,6 +28,14 @@ import { validateFromArray } from '../../../../validators/generic-validators.val
 import { ServerStdoutComponent } from '../../../server-stdout/server-stdout.component';
 import { kitSettingsValidators } from '../../validators/kit-settings.validator';
 
+/**
+ * Component used for saving general settings
+ *
+ * @export
+ * @class GeneralSettingsComponent
+ * @implements {OnInit}
+ * @implements {OnChanges}
+ */
 @UntilDestroy({ checkProperties: true })
 @Component({
   selector: 'cvah-general-settings',
@@ -101,9 +109,13 @@ export class GeneralSettingsComponent implements OnInit, OnChanges {
       /* istanbul ignore else */
       if (ObjectUtilitiesClass.notUndefNull(this.general_settings?.job_id)) {
         this.job_id = this.general_settings.job_id;
+        this.check_job_();
       }
-      this.initialize_general_settings_form_group_();
-      this.check_job_();
+
+      /* istanbul ignore else */
+      if (Object.keys(this.general_settings).length > 0) {
+        this.initialize_general_settings_form_group_();
+      }
     }
 
     /* istanbul ignore else */
@@ -227,7 +239,8 @@ export class GeneralSettingsComponent implements OnInit, OnChanges {
    */
   private gather_controller_facts_(): void {
     /* istanbul ignore else */
-    if (ObjectUtilitiesClass.notUndefNull(this.controller_info)) {
+    if (ObjectUtilitiesClass.notUndefNull(this.controller_info) &&
+        ObjectUtilitiesClass.notUndefNull(this.general_settings_form_group)) {
       this.general_settings_form_group.get('controller_interface').setValue(this.controller_info.ip_address);
       this.general_settings_form_group.get('controller_interface').disable();
       this.general_settings_form_group.get('gateway').setValue(this.controller_info.gateway);
@@ -267,7 +280,7 @@ export class GeneralSettingsComponent implements OnInit, OnChanges {
                                   this.job_id = response.job_id;
                                   /* istanbul ignore else */
                                   if (ObjectUtilitiesClass.notUndefNull(this.general_settings)) {
-                                    this.general_settings.job_id = this.job_id;
+                                    this.general_settings.job_id = response.job_id;
                                   }
                                   this.general_settings_form_group.disable();
                                   this.check_job_();
@@ -295,6 +308,7 @@ export class GeneralSettingsComponent implements OnInit, OnChanges {
                                   this.button_save_tooltip = 'Job is running...';
                                   this.general_settings_form_group.disable();
                                 } else {
+                                  this.job_id = undefined;
                                   this.job_running = false;
                                   this.button_save_tooltip = '';
 

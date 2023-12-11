@@ -7,7 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MockBackgroundJobClass, MockGenericJobAndKeyClass } from '../../../static-data/class-objects';
+import { MockBackgroundJobClass, MockBackgroundJobClassStarted, MockGenericJobAndKeyClass } from '../../../static-data/class-objects';
 import { MockBackgroundJobInterface, MockGenericJobAndKeyInterface } from '../../../static-data/interface-objects';
 import { environment } from '../../environments/environment';
 import { BackgroundJobClass, ErrorMessageClass, GenericJobAndKeyClass } from '../classes';
@@ -247,7 +247,7 @@ export class GlobalJobServiceSpy implements GlobalJobServiceInterface {
   );
 
   call_fake_job_get(job_id: string): Observable<BackgroundJobClass> {
-    return of(MockBackgroundJobClass);
+    return of(MockBackgroundJobClassStarted);
   }
 
   call_fake_job_retry(job_id: string): Observable<GenericJobAndKeyClass> {

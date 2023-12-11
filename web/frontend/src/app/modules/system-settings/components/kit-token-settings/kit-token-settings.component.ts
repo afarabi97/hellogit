@@ -14,6 +14,13 @@ import { AddKitTokenDialogComponent } from './components/add-kit-token-dialog/ad
 import { CopyTokenDialogComponent } from './components/copy-token-dialog/copy-token-dialog.component';
 import { HttpErrorResponse } from '@angular/common/http';
 
+/**
+ * Component used for saving kit token settings
+ *
+ * @export
+ * @class KitTokenSettingsComponent
+ * @implements {OnInit}
+ */
 @UntilDestroy({ checkProperties: true })
 @Component({
   selector: 'cvah-kit-token-settings',

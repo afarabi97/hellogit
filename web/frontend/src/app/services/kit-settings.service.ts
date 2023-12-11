@@ -116,7 +116,7 @@ export class KitSettingsService extends ApiService<any> {
                                  catchError((error: HttpErrorResponse) => this.handleError('update kit settings', error)));
   }
 
-  getMipSettings(): Observable<MipSettingsClass> {
+  get_mip_settings(): Observable<MipSettingsClass> {
     const url = `/api/settings/mip`;
     return this.httpClient_.get(url)
       .pipe(map((response: MipSettingsInterface) => {
@@ -129,12 +129,11 @@ export class KitSettingsService extends ApiService<any> {
             catchError((error: HttpErrorResponse) => this.handleError('get mip settings', error)));
   }
 
-  updateMipSettings(settingsForm): Observable<Object> {
+  update_mip_settings(mip_settings: MipSettingsInterface): Observable<SuccessMessageClass> {
     const url = '/api/settings/mip';
-    delete settingsForm['re_password'];
-    delete settingsForm['user_re_password'];
-    delete settingsForm['luks_re_password'];
-    return this.httpClient_.post(url, settingsForm).pipe();
+    return this.httpClient_.post<SuccessMessageInterface>(url, mip_settings)
+                           .pipe(map((response: SuccessMessageInterface) => new SuccessMessageClass(response)),
+                                 catchError((error: HttpErrorResponse) => this.handleError('update mip settings', error)));
   }
 
   getGeneralSettings(): Observable<GeneralSettingsClass> {

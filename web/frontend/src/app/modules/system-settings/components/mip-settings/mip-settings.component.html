@@ -1,0 +1,87 @@
+<mat-expansion-panel id="cvah-mip-settings-form-expansion-panel">
+  <mat-expansion-panel-header>
+    <mat-panel-title>MIP Settings</mat-panel-title>
+  </mat-expansion-panel-header>
+  <form *ngIf="mip_settings_form_group"
+        [formGroup]="mip_settings_form_group">
+    <div fxLayout="column" fxLayoutAlign="start stretch">
+      <p>Requires General Settings to be completed</p>
+      <!-- Root Password -->
+      <mat-form-field>
+        <mat-label>Root Password</mat-label>
+        <input matInput type="password" formControlName="password" (keyup)="re_evaluate()"
+          placeholder="You must re-enter the root password">
+        <mat-icon matSuffix *ngIf="mip_settings_form_group.get('password').valid && mip_settings_form_group.get('password').touched"
+          color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix *ngIf="mip_settings_form_group.get('password').invalid && mip_settings_form_group.get('password').touched"
+          color="warn">error</mat-icon>
+        <mat-error>{{ get_error_message(mip_settings_form_group.get("password")) }}</mat-error>
+        <mat-icon matSuffix matTooltip="Password requirements" (click)="open_password_dialog_window()" class="password-dialog" color="primary">info</mat-icon>
+      </mat-form-field>
+      <mat-form-field>
+      <mat-label>Retype Password</mat-label>
+        <input matInput type="password" formControlName="re_password" (keyup)="re_evaluate()"
+          placeholder="You must re-enter the root password">
+        <mat-icon matSuffix *ngIf="mip_settings_form_group.get('re_password').valid && mip_settings_form_group.get('re_password').touched"
+          color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix *ngIf="mip_settings_form_group.get('re_password').invalid && mip_settings_form_group.get('re_password').touched"
+          color="warn">error</mat-icon>
+        <mat-error>{{ get_error_message(mip_settings_form_group.get("re_password")) }}</mat-error>
+      </mat-form-field>
+      <!-- User Password -->
+      <mat-form-field>
+        <mat-label>User Password</mat-label>
+        <input matInput type="password" formControlName="user_password" (keyup)="re_evaluate()"
+          placeholder="You must re-enter a user password">
+        <mat-icon matSuffix *ngIf="mip_settings_form_group.get('user_password').valid && mip_settings_form_group.get('user_password').touched"
+          color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix *ngIf="mip_settings_form_group.get('user_password').invalid && mip_settings_form_group.get('user_password').touched"
+          color="warn">error</mat-icon>
+        <mat-error>{{ get_error_message(mip_settings_form_group.get("user_password")) }}</mat-error>
+        <mat-icon matSuffix matTooltip="Password requirements" (click)="open_password_dialog_window()" class="password-dialog" color="primary">info</mat-icon>
+      </mat-form-field>
+      <mat-form-field>
+      <mat-label>Retype Password</mat-label>
+        <input matInput type="password" formControlName="user_re_password" (keyup)="re_evaluate()"
+          placeholder="You must re-enter a user password">
+        <mat-icon matSuffix *ngIf="mip_settings_form_group.get('user_re_password').valid && mip_settings_form_group.get('user_re_password').touched"
+          color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix *ngIf="mip_settings_form_group.get('user_re_password').invalid && mip_settings_form_group.get('user_re_password').touched"
+          color="warn">error</mat-icon>
+        <mat-error>{{ get_error_message(mip_settings_form_group.get("user_re_password")) }}</mat-error>
+      </mat-form-field>
+      <!-- Luks Password -->
+      <mat-form-field>
+      <mat-label>Luks Password</mat-label>
+          <input matInput type="password" (keyup)="re_evaluate()"
+            placeholder="You must enter a luks_password password with a minimum length of 15 characters."
+            formControlName="luks_password">
+          <mat-icon matSuffix *ngIf="mip_settings_form_group.get('luks_password').valid && mip_settings_form_group.get('luks_password').touched"
+            color="primary">check_circle</mat-icon>
+          <mat-icon matSuffix *ngIf="mip_settings_form_group.get('luks_password').invalid && mip_settings_form_group.get('luks_password').touched"
+            color="warn">error</mat-icon>
+          <mat-error>{{ get_error_message(mip_settings_form_group.get("luks_password")) }}</mat-error>
+          <mat-icon matSuffix matTooltip="Password requirements" (click)="open_password_dialog_window()" class="password-dialog" color="primary">info</mat-icon>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Retype password</mat-label>
+        <input matInput type="password" formControlName="luks_re_password" (keyup)="re_evaluate()"
+          placeholder="You must re-enter the root password">
+        <mat-icon matSuffix *ngIf="mip_settings_form_group.get('luks_re_password').valid && mip_settings_form_group.get('luks_re_password').touched"
+          color="primary">check_circle</mat-icon>
+        <mat-icon matSuffix *ngIf="mip_settings_form_group.get('luks_re_password').invalid && mip_settings_form_group.get('luks_re_password').touched"
+          color="warn">error</mat-icon>
+        <mat-error>{{ get_error_message(mip_settings_form_group.get("luks_re_password")) }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Action Button -->
+    <div mat-dialog-actions class="action-button-wrapper">
+      <button mat-raised-button
+              id="cvah-mip-settings-button-save"
+              color="primary"
+              [disabled]="!mip_settings_form_group.valid || !kit_status.general_settings_configured"
+              (click)="click_button_save()">Save</button>
+    </div>
+  </form>
+</mat-expansion-panel>

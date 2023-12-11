@@ -26,7 +26,7 @@ import {
   VMWareDataClass,
   VMWareSettingsClass
 } from '../classes';
-import { VMWareSettingsInterface } from '../interfaces';
+import { MipSettingsInterface, VMWareSettingsInterface } from '../interfaces';
 
 interface MockFile {
   name: string;
@@ -77,8 +77,12 @@ export class KitSettingsServiceSpy {
     (kit_settings: KitSettingsClass): Observable<GenericJobAndKeyClass> => this.call_fake_update_kit_settings(kit_settings)
   );
 
-  getMipSettings = jasmine.createSpy('getMipSettings').and.callFake(
+  get_mip_settings = jasmine.createSpy('get_mip_settings').and.callFake(
     (): Observable<MipSettingsClass> => this.call_fake_get_mip_settings()
+  );
+
+  update_mip_settings = jasmine.createSpy('update_mip_settings').and.callFake(
+    (mip_settings: MipSettingsInterface): Observable<SuccessMessageClass> => this.call_fake_update_mip_settings(mip_settings)
   );
 
   getGeneralSettings = jasmine.createSpy('getGeneralSettings').and.callFake(
@@ -163,6 +167,10 @@ export class KitSettingsServiceSpy {
 
   call_fake_get_mip_settings(): Observable<MipSettingsClass> {
     return of(MockMipSettingsClass);
+  }
+
+  call_fake_update_mip_settings(mip_settings: MipSettingsInterface): Observable<SuccessMessageClass> {
+    return of(MockSuccessMessageClass);
   }
 
   call_fake_get_general_settings(): Observable<GeneralSettingsClass> {

@@ -15,7 +15,7 @@
                      (update_kit_settings)="updateKitSettings($event)"
                      (update_disable_buttons)="update_add_kit_button($event)"></cvah-kit-settings>
   <br>
-  <app-mip-settings-pane [generalSettings]="generalSettings" [kitStatus]="kitStatus"></app-mip-settings-pane>
+  <cvah-mip-settings [kit_status]="kitStatus"></cvah-mip-settings>
   <br>
   <cvah-kit-token-settings [gip_build]="check_is_gip()" [disable_add_kit_button]="disable_add_kit_button"></cvah-kit-token-settings>
 </div>

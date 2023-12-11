@@ -23,7 +23,6 @@ from app.utils.constants import NODE_TYPES
 from app.utils.elastic import ElasticWrapper
 from app.utils.logging import logger
 from bson import ObjectId
-from flask import Response
 from kubernetes.client.models.v1_event_list import V1EventList
 from kubernetes.client.models.v1_node import V1Node
 from kubernetes.client.models.v1_node_condition import V1NodeCondition

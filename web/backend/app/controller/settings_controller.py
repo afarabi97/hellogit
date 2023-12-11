@@ -266,7 +266,7 @@ class MipSettings(Resource):
             notification.set_and_send(
                 message="MIP Settings Saved", status=NotificationCode.COMPLETED.name
             )
-            return {"message": "MIP Settings Saved"}, 200
+            return {"success_message": "MIP Settings Saved"}, 200
         except ValidationError as e:
             notification.set_and_send(
                 message=str(e), status=NotificationCode.ERROR.name
