@@ -108,7 +108,7 @@ CPT:
     - Repo/Shared/VMs/Pfsense/2.5.2
     - Repo/Shared/VMs/Security Onion 2/2.4.20
     - Repo/Shared/VMs/Security Onion (original)/4.3-8
-    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-5
+    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-20231030
     - Repo/CPT/VMs/ControlThings (prev SamuraiSTFU)/ControlThingsPlatform-v1bD
     - Repo/CPT/VMs/Cuckoo Sandbox/2.0.7
     - Repo/CPT/VMs/Endgame/3.29.2-6
@@ -231,7 +231,7 @@ MDT:
     - Repo/Shared/VMs/Pfsense/2.5.2
     - Repo/Shared/VMs/Security Onion 2/2.4.20
     - Repo/Shared/VMs/Security Onion (original)/4.3-8
-    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-5
+    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-20231030
     - Repo/MDT/VMs/Windows 10 VM/22H2-20231116
   dest: "MDT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
