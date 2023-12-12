@@ -25,13 +25,14 @@ Replay PCAP
     click  ${locPcapDialogHostnameOpt}  injector=${sensor_name}
 
     # determine if  preserve timestamp checked or unchecked
-    ${raw_is_checked_str} =  Get Element Attribute  locator=${locPcapPreserveTimestampInput}  attribute=aria-checked
+    ${raw_is_checked_str} =  Get Element Attribute  locator=${locPcapPreserveTimestampCheckbox}/input  attribute=aria-checked
     ${is_checked_str} =  lower  ${raw_is_checked_str}
 
     IF  ${preserve_timestamp} == ${False}
         IF  '${is_checked_str}' == 'true'
+            Sleep  2s
             log  UNCHECKING PRESERVE TIMESTAMP
-            click  ${locPcapPreserveTimestampInput}
+            click  ${locPcapPreserveTimestampCheckbox}
         END
 
         click  ${CVAH_REPLAY_PCAP_DIALOG__IFACE_MAT_SELECT}
@@ -47,3 +48,8 @@ Verify Historical Replay Of PCAP Completes
     Check Notifications Panel  notification_msg=Historical replay of wannacry.pcap has started.  timeout=1m
     Check Notifications Panel  notification_msg=Historical replay of wannacry.pcap is in progress.  timeout=1m
     Check Notifications Panel  notification_msg=Historical replay of wannacry.pcap has completed.  timeout=1m
+
+Verify TCPReplayer Of PCAP Completes
+    Check Notifications Panel  notification_msg=Live replay of wannacry.pcap has started.  timeout=1m
+    Check Notifications Panel  notification_msg=Live replay of wannacry.pcap is in progress. TCPReplayer has finished executing  timeout=1m
+    Check Notifications Panel  notification_msg=Live replay of wannacry.pcap has completed.  timeout=1m

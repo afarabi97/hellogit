@@ -36,13 +36,21 @@ Zeek Intel Script Upload
     Upload Rules File   Zeek Intel Script Upload Test    mal_md5_robot.txt
     Delete Rule Set     Zeek Intel Script Upload Test
 
-Replay PCAP With Preserve Timestamp Is Checked
+Replay PCAP With Preserve Timestamp Checked
     [Tags]  THISISCVAH-13323
     [Documentation]  Replaying a PCAP with a single sensor and the "Preserve timestamp"
     ...              checkbox is checked.
     Navigate To Test PCAP Files
     Replay PCAP  pcap=wannacry.pcap  preserve_timestamp=${True}
     Verify Historical Replay Of PCAP Completes
+
+Replay PCAP With Preserve Timestamp Unchecked
+    [Tags]  THISISCVAH-13323
+    [Documentation]  Replaying a PCAP with a single sensor and the "Preserve timestamp"
+    ...              checkbox is unchecked.
+    Navigate To Test PCAP Files
+    Replay PCAP  pcap=wannacry.pcap  preserve_timestamp=${False}
+    Verify TCPReplayer Of PCAP Completes
 
 Play PCAPs Across Sensor
     [Documentation]  Grab the elastic password and run some tests
