@@ -554,7 +554,7 @@ export class AddNodeDialogComponent implements OnInit {
    * @memberof AddNodeDialogComponent
    */
   private api_get_general_settings_(): void {
-    this.kit_settings_service_.getGeneralSettings()
+    this.kit_settings_service_.get_general_settings()
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: GeneralSettingsClass) => {

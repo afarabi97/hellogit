@@ -446,6 +446,7 @@ export class KitSettingsComponent implements OnInit, OnChanges {
                                   this.kit_settings_form_group.disable();
                                   this.update_disable_buttons.emit(true);
                                 } else {
+                                  this.job_id = null;
                                   this.kit_job_running = false;
                                   this.button_save_tooltip = '';
                                   this.kit_settings_form_group.enable();

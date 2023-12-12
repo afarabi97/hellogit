@@ -566,7 +566,7 @@ export class NodeManagementComponent implements OnInit {
    * @memberof NodeManagementComponent
    */
   private api_get_kit_settings_(): void {
-    this.kit_settings_service_.getKitSettings()
+    this.kit_settings_service_.get_kit_settings()
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: KitSettingsClass) => {

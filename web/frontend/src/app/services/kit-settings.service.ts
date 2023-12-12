@@ -95,7 +95,7 @@ export class KitSettingsService extends ApiService<any> {
                                  catchError((error: HttpErrorResponse) => this.handleError('test vmware settings', error)));
   }
 
-  getKitSettings(): Observable<KitSettingsClass> {
+  get_kit_settings(): Observable<KitSettingsClass> {
     const url = `/api/settings/kit`;
     return this.httpClient_.get<KitSettingsInterface>(url)
       .pipe(map((response: KitSettingsInterface) => {
@@ -136,7 +136,7 @@ export class KitSettingsService extends ApiService<any> {
                                  catchError((error: HttpErrorResponse) => this.handleError('update mip settings', error)));
   }
 
-  getGeneralSettings(): Observable<GeneralSettingsClass> {
+  get_general_settings(): Observable<GeneralSettingsClass> {
     const url = `/api/settings/general`;
     return this.httpClient_.get(url)
       .pipe(map((response: GeneralSettingsInterface) => {

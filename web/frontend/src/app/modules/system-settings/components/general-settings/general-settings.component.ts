@@ -306,14 +306,18 @@ export class GeneralSettingsComponent implements OnInit, OnChanges {
                                 if (reponse.status === 'started') {
                                   this.job_running = true;
                                   this.button_save_tooltip = 'Job is running...';
-                                  this.general_settings_form_group.disable();
+                                  /* istanbul ignore else */
+                                  if (ObjectUtilitiesClass.notUndefNull(this.general_settings_form_group)) {
+                                    this.general_settings_form_group.disable();
+                                  }
                                 } else {
                                   this.job_id = undefined;
                                   this.job_running = false;
                                   this.button_save_tooltip = '';
 
                                   /* istanbul ignore else */
-                                  if (this.kit_status.control_plane_deployed) {
+                                  if (this.kit_status.control_plane_deployed &&
+                                      ObjectUtilitiesClass.notUndefNull(this.general_settings_form_group)) {
                                     this.general_settings_form_group.get('domain').disable();
                                   }
                                 }

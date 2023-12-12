@@ -1,5 +1,6 @@
 import { IP_CONSTRAINT } from '../../../constants/cvah.constants';
 
+export const SYSTEM_SETTINGS_TITLE: string = 'System Settings';
 export const IP_ADDRESS_PATTERN = '^(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])\\.(0|[1-9][0-9]?|1[0-9]{2}|2[0-5][0-5])$';
 export const HIVE_SETTINGS: string = 'HIVE Settings';
 export const HIVE_SETTINGS_INSTRUCTIONS: string = `In order to Hive event escalation to work, please copy and paste the admin and org_admin Hive API keys in the previous inputs. The key can be found inside the Hive's applcation settings.`;

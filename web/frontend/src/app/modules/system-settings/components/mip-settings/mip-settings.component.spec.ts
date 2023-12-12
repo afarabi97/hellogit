@@ -368,6 +368,15 @@ describe('MIPSettingsComponent', () => {
         expect(component['kit_settings_service_'].update_mip_settings).toHaveBeenCalled();
       });
 
+      it('should call kit_settings_service_.update_mip_settings() and handle response and call initialize_mip_settings_form_group_()', () => {
+        reset();
+
+        component['initialize_mip_settings_form_group_'](MockMipSettingsClass);
+        component['api_update_mip_settings_']();
+
+        expect(component['initialize_mip_settings_form_group_']).toHaveBeenCalled();
+      });
+
       it('should call kit_settings_service_.update_mip_settings() and handle response and call mat_snackbar_service_.generate_return_success_snackbar_message()', () => {
         reset();
 

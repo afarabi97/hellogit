@@ -1191,15 +1191,15 @@ describe('NodeManagementComponent', () => {
         expect(component['api_get_kit_settings_']).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getKitSettings() from api_get_kit_settings_()', () => {
+      it('should call kit_settings_service_.get_kit_settings() from api_get_kit_settings_()', () => {
         reset();
 
         component['api_get_kit_settings_']();
 
-        expect(component['kit_settings_service_'].getKitSettings).toHaveBeenCalled();
+        expect(component['kit_settings_service_'].get_kit_settings).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getKitSettings() and handle response and kit_settings_ with response', () => {
+      it('should call kit_settings_service_.get_kit_settings() and handle response and kit_settings_ with response', () => {
         reset();
 
         component['api_get_kit_settings_']();
@@ -1207,24 +1207,24 @@ describe('NodeManagementComponent', () => {
         expect(component['kit_settings_']).toEqual(MockKitSettingsClass);
       });
 
-      it('should call kit_settings_service_.getKitSettings() and handle error response instance ErrorMessageClass', () => {
+      it('should call kit_settings_service_.get_kit_settings() and handle error response instance ErrorMessageClass', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'getKitSettings').and.returnValue(throwError(MockErrorMessageClass));
+        spyOn<any>(component['kit_settings_service_'], 'get_kit_settings').and.returnValue(throwError(MockErrorMessageClass));
 
         component['api_get_kit_settings_']();
 
         expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getKitSettings() and handle error', () => {
+      it('should call kit_settings_service_.get_kit_settings() and handle error', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'getKitSettings').and.returnValue(throwError(mock_http_error_response));
+        spyOn<any>(component['kit_settings_service_'], 'get_kit_settings').and.returnValue(throwError(mock_http_error_response));
 
         component['api_get_kit_settings_']();
 

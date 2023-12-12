@@ -17,6 +17,6 @@ export const MockKitStatusInterfaceAlt: KitStatusInterface = {
   esxi_settings_configured: false,
   ready_to_deploy: true,
   base_kit_deployed: true,
-  jobs_running: false,
+  jobs_running: true,
   deploy_kit_running: false
 };

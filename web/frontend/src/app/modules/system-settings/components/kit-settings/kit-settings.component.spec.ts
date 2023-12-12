@@ -17,7 +17,7 @@ import {
   MockKitStatusClassAlt
 } from '../../../../../../static-data/class-objects';
 import { remove_styles_from_dom } from '../../../../../../static-data/functions/clean-dom.function';
-import { MockServerStdoutMatDialogDataInterface } from '../../../../../../static-data/interface-objects';
+import { MockKitStatusInterfaceAlt, MockServerStdoutMatDialogDataInterface } from '../../../../../../static-data/interface-objects';
 import { COMMON_VALIDATORS } from '../../../../constants/cvah.constants';
 import { COMMON_TOOLTIPS } from '../../../../constants/tooltip.constant';
 import { ObjectUtilitiesClass } from '../../../../classes';
@@ -431,6 +431,7 @@ describe('KitSettingsComponent', () => {
 
         component['initialize_kit_settings_form_group_']();
         component.kit_settings = MockKitSettingsClass;
+        component.kit_status = MockKitStatusInterfaceAlt;
         component['check_job_']();
 
         expect(component.job_id).toEqual(MockKitSettingsClass.job_id);
@@ -593,6 +594,7 @@ describe('KitSettingsComponent', () => {
         component['initialize_kit_settings_form_group_']();
         component.job_id = undefined;
         component.kit_settings = MockKitSettingsClass;
+        component.kit_status = MockKitStatusInterfaceAlt;
         component['api_update_kit_settings_'](MockKitSettingsClass);
 
         expect(component.job_id).toEqual(MockGenericJobAndKeyClass.job_id);

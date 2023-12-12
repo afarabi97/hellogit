@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+  test: false,
 
   AGENT_BUILDER_SERVICE_AGENT_GENERATE: `/api/agent/generate`,
   AGENT_BUILDER_SERVICE_AGENT_CONFIG: `/api/agent/config`,

@@ -26,6 +26,7 @@ describe('ServerStdoutComponent', () => {
   let spyStopJobConfirmDialog: jasmine.Spy<any>;
   let spyRetryJobConfirmDialog: jasmine.Spy<any>;
   let spySetupWebsocketGetSocketOnMessage: jasmine.Spy<any>;
+  let spyScrollToBottom: jasmine.Spy<any>;
   let spyApiJobLogs: jasmine.Spy<any>;
   let spyApiJobGet: jasmine.Spy<any>;
   let spyApiJobDelete: jasmine.Spy<any>;
@@ -62,6 +63,7 @@ describe('ServerStdoutComponent', () => {
     spyStopJobConfirmDialog = spyOn(component, 'stop_job_confirm_dialog').and.callThrough();
     spyRetryJobConfirmDialog = spyOn(component, 'retry_job_confirm_dialog').and.callThrough();
     spySetupWebsocketGetSocketOnMessage = spyOn<any>(component, 'setup_websocket_get_socket_on_message_').and.callThrough();
+    spyScrollToBottom = spyOn<any>(component, 'scroll_to_bottom_').and.callThrough();
     spyApiJobLogs = spyOn<any>(component, 'api_job_logs_').and.callThrough();
     spyApiJobGet = spyOn<any>(component, 'api_job_get_').and.callThrough();
     spyApiJobDelete = spyOn<any>(component, 'api_job_delete_').and.callThrough();
@@ -78,6 +80,7 @@ describe('ServerStdoutComponent', () => {
     spyStopJobConfirmDialog.calls.reset();
     spyRetryJobConfirmDialog.calls.reset();
     spySetupWebsocketGetSocketOnMessage.calls.reset();
+    spyScrollToBottom.calls.reset();
     spyApiJobLogs.calls.reset();
     spyApiJobGet.calls.reset();
     spyApiJobDelete.calls.reset();
@@ -226,6 +229,16 @@ describe('ServerStdoutComponent', () => {
       });
     });
 
+    describe('private scroll_to_bottom_()', () => {
+      it('should call scroll_to_bottom_()', () => {
+        reset();
+
+        component['scroll_to_bottom_']();
+
+        expect(component['scroll_to_bottom_']).toHaveBeenCalled();
+      });
+    });
+
     describe('private api_job_logs_()', () => {
       it('should call api_job_logs_()', () => {
         reset();
@@ -243,12 +256,12 @@ describe('ServerStdoutComponent', () => {
         expect(component['job_service_'].job_logs).toHaveBeenCalled();
       });
 
-      it('should call from job_service_.job_logs() and handle response and call api_job_get_()', () => {
+      it('should call from job_service_.job_logs() and handle response and call scroll_to_bottom_()', () => {
         reset();
 
         component['api_job_logs_']();
 
-        expect(component['api_job_get_']).toHaveBeenCalled();
+        expect(component['scroll_to_bottom_']).toHaveBeenCalled();
       });
 
       it('should call job_service_.job_logs() and handle error response instance ErrorMessageClass', () => {

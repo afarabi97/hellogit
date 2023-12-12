@@ -543,15 +543,15 @@ describe('HealthDashboardComponent', () => {
         expect(component['api_get_kit_settings_']).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getKitSettings() from api_get_kit_settings_()', () => {
+      it('should call kit_settings_service_.get_kit_settings() from api_get_kit_settings_()', () => {
         reset();
 
         component['api_get_kit_settings_']();
 
-        expect(component['kit_settings_service_'].getKitSettings).toHaveBeenCalled();
+        expect(component['kit_settings_service_'].get_kit_settings).toHaveBeenCalled();
       });
 
-      it('should kit_settings_service_.getKitSettings() and on success set is_gip = response.is_gip', () => {
+      it('should kit_settings_service_.get_kit_settings() and on success set is_gip = response.is_gip', () => {
         reset();
 
         component['api_get_kit_settings_']();
@@ -559,7 +559,7 @@ describe('HealthDashboardComponent', () => {
         expect(component.is_gip).toEqual(MockKitSettingsClass.is_gip);
       });
 
-      it('should kit_settings_service_.getKitSettings() and on success call create_reload_interval_()', () => {
+      it('should kit_settings_service_.get_kit_settings() and on success call create_reload_interval_()', () => {
         reset();
 
         component['api_get_kit_settings_']();
@@ -567,24 +567,24 @@ describe('HealthDashboardComponent', () => {
         expect(component['create_reload_interval_']).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getKitSettings() and handle error response instance ErrorMessageClass', () => {
+      it('should call kit_settings_service_.get_kit_settings() and handle error response instance ErrorMessageClass', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'getKitSettings').and.returnValue(throwError(MockErrorMessageClass));
+        spyOn<any>(component['kit_settings_service_'], 'get_kit_settings').and.returnValue(throwError(MockErrorMessageClass));
 
         component['api_get_kit_settings_']();
 
         expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getKitSettings() and handle error', () => {
+      it('should call kit_settings_service_.get_kit_settings() and handle error', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'getKitSettings').and.returnValue(throwError(mock_http_error_response));
+        spyOn<any>(component['kit_settings_service_'], 'get_kit_settings').and.returnValue(throwError(mock_http_error_response));
 
         component['api_get_kit_settings_']();
 

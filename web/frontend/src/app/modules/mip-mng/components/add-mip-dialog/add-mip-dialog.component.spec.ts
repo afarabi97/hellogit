@@ -454,15 +454,15 @@ describe('AddMipDialogComponent', () => {
         expect(component['api_get_general_settings_']).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getGeneralSettings() from api_get_general_settings_()', () => {
+      it('should call kit_settings_service_.get_general_settings() from api_get_general_settings_()', () => {
         reset();
 
         component['api_get_general_settings_']();
 
-        expect(component['kit_settings_service_'].getGeneralSettings).toHaveBeenCalled();
+        expect(component['kit_settings_service_'].get_general_settings).toHaveBeenCalled();
       });
 
-      it('should call from kit_settings_service_.getGeneralSettings() and handle response and set settings_ = response', () => {
+      it('should call from kit_settings_service_.get_general_settings() and handle response and set settings_ = response', () => {
         reset();
 
         component['api_get_general_settings_']();
@@ -470,7 +470,7 @@ describe('AddMipDialogComponent', () => {
         expect(component['settings_']).toEqual(MockGeneralSettingsClass);
       });
 
-      it('should call kit_settings_service_.getGeneralSettings() and handle response and call api_get_unused_ip_addresses_()', () => {
+      it('should call kit_settings_service_.get_general_settings() and handle response and call api_get_unused_ip_addresses_()', () => {
         reset();
 
         component['api_get_general_settings_']();
@@ -478,24 +478,24 @@ describe('AddMipDialogComponent', () => {
         expect(component['api_get_unused_ip_addresses_']).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getGeneralSettings() and handle error response instance ErrorMessageClass', () => {
+      it('should call kit_settings_service_.get_general_settings() and handle error response instance ErrorMessageClass', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'getGeneralSettings').and.returnValue(throwError(MockErrorMessageClass));
+        spyOn<any>(component['kit_settings_service_'], 'get_general_settings').and.returnValue(throwError(MockErrorMessageClass));
 
         component['api_get_general_settings_']();
 
         expect(component['mat_snackbar_service_'].displaySnackBar).toHaveBeenCalled();
       });
 
-      it('should call kit_settings_service_.getGeneralSettings() and handle error', () => {
+      it('should call kit_settings_service_.get_general_settings() and handle error', () => {
         reset();
 
         // Allows respy to change default spy created in spy service
         jasmine.getEnv().allowRespy(true);
-        spyOn<any>(component['kit_settings_service_'], 'getGeneralSettings').and.returnValue(throwError(mock_http_error_response));
+        spyOn<any>(component['kit_settings_service_'], 'get_general_settings').and.returnValue(throwError(mock_http_error_response));
 
         component['api_get_general_settings_']();
 

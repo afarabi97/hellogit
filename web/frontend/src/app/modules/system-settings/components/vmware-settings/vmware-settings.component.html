@@ -122,7 +122,7 @@
     <div mat-dialog-actions class="action-button-wrapper">
       <button mat-raised-button
               color="primary"
-              [disabled]="!vmware_settings_form_group.valid || !isSaveVmwareSettingsBtnEnabled"
+              [disabled]="!vmware_settings_form_group.valid || !vmware_settings_form_group.dirty || !isSaveVmwareSettingsBtnEnabled"
               (click)="click_button_save()">Save</button>
     </div>
   </form>

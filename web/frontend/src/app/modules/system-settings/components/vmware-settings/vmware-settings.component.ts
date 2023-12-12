@@ -270,10 +270,12 @@ export class VMWareSettingsComponent implements OnInit {
    * @memberof VMWareSettingsComponent
    */
   private api_save_vmware_settings_(): void {
-    this.kit_settings_service_.save_vmware_settings(this.vmware_settings_form_group.getRawValue())
+    const vmware_settings = this.vmware_settings_form_group.getRawValue();
+    this.kit_settings_service_.save_vmware_settings(vmware_settings)
       .pipe(untilDestroyed(this))
       .subscribe(
         (response: boolean) => {
+          this.initialize_vmware_settings_form_group_(vmware_settings);
           this.isSaveVmwareSettingsBtnEnabled = true;
           this.mat_snackbar_service_.displaySnackBar('VMWare settings saved successfully.');
         },

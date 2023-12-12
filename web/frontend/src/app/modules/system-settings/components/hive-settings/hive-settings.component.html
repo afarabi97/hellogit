@@ -31,7 +31,7 @@
       <button mat-raised-button
               id="cvah-hive-settings-button-save"
               color="primary"
-              [disabled]="!hive_settings_form_group.valid || hive_settings_form_group.untouched"
+              [disabled]="!hive_settings_form_group.valid || !hive_settings_form_group.dirty || hive_settings_form_group.untouched"
               (click)="click_button_save()">Save</button>
     </div>
   </form>

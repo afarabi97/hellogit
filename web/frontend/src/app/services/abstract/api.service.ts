@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
 import { ErrorMessageClass, ObjectUtilitiesClass, PostValidationClass, ValidationErrorClass } from '../../classes';
 import { MAT_SNACKBAR_CONFIGURATION_60000_DUR_DISMISS } from '../../constants/cvah.constants';
 import { ApiServiceInterface, EntityConfig } from '../../interfaces';
@@ -124,7 +125,10 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
   handleErrorConsole(httpErrorResponse: HttpErrorResponse): Observable<never> {
     if (httpErrorResponse.error instanceof ErrorEvent) {
       // A client-side or network error occurred. Handle it accordingly.
-      console.error(`An error occurred: ${httpErrorResponse.error.type}`);
+      /* istanbul ignore else */
+      if (!environment.test) {
+        console.error(`An error occurred: ${httpErrorResponse.error.type}`);
+      }
     } else {
       // The backend returned an unsuccessful response code.
       // The response body may contain clues as to what went wrong
@@ -142,7 +146,11 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
       } else {
         error_message = httpErrorResponse.error;
       }
-      console.error(`Backend returned code ${httpErrorResponse.status}, error: ${error_message}, message: ${httpErrorResponse.message}`);
+
+      /* istanbul ignore else */
+      if (!environment.test) {
+        console.error(`Backend returned code ${httpErrorResponse.status}, error: ${error_message}, message: ${httpErrorResponse.message}`);
+      }
     }
     // return an observable with a user-facing error message
     return throwError('Something bad happened; please try again later.');

@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, EventEmitter, Inject, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
@@ -37,8 +37,6 @@ import { JobService } from './services/job.service';
 })
 export class ServerStdoutComponent implements OnInit {
   @Output() job_deleted: EventEmitter<void>;
-  // Used for retrieving element ref for console output from server
-  @ViewChild('console') private console_output_: ElementRef;
   // Used for disabling buttons when job finished
   job_finished: boolean;
   // Used for passing boolean value for the ability to start/stop job scrolling
@@ -83,6 +81,7 @@ export class ServerStdoutComponent implements OnInit {
   ngOnInit(): void {
     this.setup_websocket_get_socket_on_message_();
     this.api_job_logs_();
+    this.api_job_get_();
   }
 
   /**
@@ -159,8 +158,24 @@ export class ServerStdoutComponent implements OnInit {
       if (response.jobid === this.job_id_) {
         const job_log: JobLogInterface = new JobLogClass(response);
         this.job_logs.push(job_log);
+
+        /* istanbul ignore else */
+        if (this.scroll_status) {
+          this.scroll_to_bottom_();
+        }
       }
     });
+  }
+
+  /**
+   * Used for scrolling mat card content to the bottom
+   *
+   * @private
+   * @memberof ServerStdoutComponent
+   */
+  private scroll_to_bottom_(): void {
+    const card_content: Element = document.getElementsByClassName('mat-card-content')[0];
+    card_content.scrollTop = card_content.scrollHeight;
   }
 
   /**
@@ -175,7 +190,7 @@ export class ServerStdoutComponent implements OnInit {
       .subscribe(
         (response: JobLogClass[]) => {
           this.job_logs = response;
-          this.api_job_get_();
+          this.scroll_to_bottom_();
         },
         (error: ErrorMessageClass | HttpErrorResponse) => {
           if (error instanceof ErrorMessageClass) {

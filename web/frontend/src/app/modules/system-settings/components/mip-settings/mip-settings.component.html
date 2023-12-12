@@ -80,7 +80,7 @@
       <button mat-raised-button
               id="cvah-mip-settings-button-save"
               color="primary"
-              [disabled]="!mip_settings_form_group.valid || !kit_status.general_settings_configured"
+              [disabled]="!mip_settings_form_group.valid || !mip_settings_form_group.dirty || !kit_status.general_settings_configured"
               (click)="click_button_save()">Save</button>
     </div>
   </form>

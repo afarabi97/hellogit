@@ -1,21 +1,16 @@
 <div class="main-content2">
   <cvah-vmware-settings></cvah-vmware-settings>
-  <br>
-  <cvah-general-settings [general_settings]="generalSettings"
-                         [kit_status]="kitStatus"
-                         [controller_info]="controllerInfo"
-                         (update_general_settings)="updateGeneralSettings($event)"></cvah-general-settings>
-  <br>
+  <cvah-general-settings [general_settings]="general_settings"
+                         [kit_status]="kit_status"
+                         [controller_info]="controller_info"
+                         (update_general_settings)="update_general_settings($event)"></cvah-general-settings>
   <cvah-hive-settings></cvah-hive-settings>
-  <br>
-  <cvah-kit-settings [general_settings]="generalSettings"
-                     [kit_status]="kitStatus"
-                     [controller_info]="controllerInfo"
-                     [kit_settings]="kitSettings"
-                     (update_kit_settings)="updateKitSettings($event)"
+  <cvah-kit-settings [general_settings]="general_settings"
+                     [kit_status]="kit_status"
+                     [controller_info]="controller_info"
+                     [kit_settings]="kit_settings"
+                     (update_kit_settings)="update_kit_settings($event)"
                      (update_disable_buttons)="update_add_kit_button($event)"></cvah-kit-settings>
-  <br>
-  <cvah-mip-settings [kit_status]="kitStatus"></cvah-mip-settings>
-  <br>
+  <cvah-mip-settings [kit_status]="kit_status"></cvah-mip-settings>
   <cvah-kit-token-settings [gip_build]="check_is_gip()" [disable_add_kit_button]="disable_add_kit_button"></cvah-kit-token-settings>
 </div>

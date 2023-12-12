@@ -69,7 +69,7 @@ export class KitSettingsServiceSpy {
     (vmware_settings: VMWareSettingsInterface): Observable<VMWareDataClass> => this.call_fake_test_vmware_settings(vmware_settings)
   );
 
-  getKitSettings = jasmine.createSpy('getKitSettings').and.callFake(
+  get_kit_settings = jasmine.createSpy('get_kit_settings').and.callFake(
     (): Observable<KitSettingsClass> => this.call_fake_get_kit_settings()
   );
 
@@ -85,7 +85,7 @@ export class KitSettingsServiceSpy {
     (mip_settings: MipSettingsInterface): Observable<SuccessMessageClass> => this.call_fake_update_mip_settings(mip_settings)
   );
 
-  getGeneralSettings = jasmine.createSpy('getGeneralSettings').and.callFake(
+  get_general_settings = jasmine.createSpy('get_general_settings').and.callFake(
     (): Observable<GeneralSettingsClass> => this.call_fake_get_general_settings()
   );
 

@@ -468,6 +468,14 @@ describe('VMWareSettingsComponent', () => {
         expect(component['kit_settings_service_'].save_vmware_settings).toHaveBeenCalled();
       });
 
+      it('should call kit_settings_service_.save_vmware_settings() and handle response and call initialize_vmware_settings_form_group_()', () => {
+        reset();
+
+        component['api_save_vmware_settings_']();
+
+        expect(component['initialize_vmware_settings_form_group_']).toHaveBeenCalled();
+      });
+
       it('should call kit_settings_service_.save_vmware_settings() and handle response and set isSaveVmwareSettingsBtnEnabled = true', () => {
         reset();
 

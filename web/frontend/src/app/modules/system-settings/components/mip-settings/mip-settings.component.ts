@@ -260,6 +260,7 @@ export class MIPSettingsComponent implements OnInit, OnChanges {
                               .pipe(untilDestroyed(this))
                               .subscribe(
                                 (response: SuccessMessageClass) => {
+                                  this.initialize_mip_settings_form_group_(mip_settings as MipSettingsInterface);
                                   const message: string = 'saved Mip settings';
                                   this.mat_snackbar_service_.generate_return_success_snackbar_message(message, MAT_SNACKBAR_CONFIGURATION_60000_DUR);
                                 },
