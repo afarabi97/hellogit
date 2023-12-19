@@ -4,11 +4,14 @@ Resource    ../include/dipTestPcapFilesVariables.resource
 
 
 *** Keywords ***
-Upload And Delete PCAP File
+Upload PCAP File
     [Arguments]  ${pcap_file_name}
     Upload PCAP  ${pcap_file_name}
     reload
     lookFor  ${pcap_file_name}
+
+Delete PCAP File
+    [Arguments]  ${pcap_file_name}
     ${pcap_del_btn} =  Inject  ${locDeletePcapBtn}  ${pcap_file_name}
     scroll  ${pcap_del_btn}
     click  ${pcap_del_btn}

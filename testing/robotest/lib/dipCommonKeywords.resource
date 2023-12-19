@@ -189,14 +189,14 @@ Get Kibana Credentials
     ${locKibanaUserPassword} =  Set Variable  id=cvah-portal-portal-link-${index}-logins
     ${locKibanaKitIP} =  Set Variable  id=cvah-portal-portal-link-${index}-ip
     lookForElement  ${locKibanaUserPassword}
-    ${kibana_user_password_full_text} =  Get Text    ${locKibanaUserPassword}
-    log     Kibana Full Text Password: ${kibana_user_password_full_text}
-    ${KIBANA_IP} =  Get Text    ${locKibanaKitIP}
-    log     Kibana IP: ${KIBANA_IP}
-    ${KIBANA_PASSWORD} =    Get Substring    ${kibana_user_password_full_text}    23    end=None
-    log     Kibana Password: ${KIBANA_PASSWORD}
-    Set Global Variable     ${KIBANA_IP}
-    Set Global Variable     ${KIBANA_PASSWORD}
+    ${kibana_user_password_full_text} =  Get Text  ${locKibanaUserPassword}
+    log  Kibana Full Text Password: ${kibana_user_password_full_text}
+    ${KIBANA_IP} =  Get Text  ${locKibanaKitIP}
+    log  Kibana IP: ${KIBANA_IP}
+    ${KIBANA_PASSWORD} =  Get Substring  ${kibana_user_password_full_text}  23  end=None
+    log  Kibana Password: ${KIBANA_PASSWORD}
+    Set Global Variable  ${KIBANA_IP}
+    Set Global Variable  ${KIBANA_PASSWORD}
 
 Get Hive IP
     log  Retrieving Hive Username and Password
@@ -204,9 +204,9 @@ Get Hive IP
 
     ${index} =  Find Portal App index  hive
     ${locHiveKitIP} =  Set Variable  id=cvah-portal-portal-link-${index}-ip
-    ${HIVE_IP} =  Get Text    ${locHiveKitIP}
-    log     Hive IP: ${HIVE_IP}
-    Set Global Variable     ${HIVE_IP}
+    ${HIVE_IP} =  Get Text  ${locHiveKitIP}
+    log  Hive IP: ${HIVE_IP}
+    Set Global Variable  ${HIVE_IP}
 
 Log In To Kibana
     Navigate To Kibana
@@ -243,21 +243,20 @@ Find Portal App Index
     [Documentation]  Locates and returns index of application based on name supplied in argument.
     Navigate To Portal
     ${app_name_elements} =  Get WebElements  xpath=//*[contains(@id, "-dns")]
-    log     Contains DNS: ${app_name_elements}
+    log  Contains DNS: ${app_name_elements}
     ${index} =  Set Variable  ${0}
     FOR  ${element}  IN  @{app_name_elements}
         ${app_name} =  Get Text  ${element}
-        log     \nApp Name: ${app_name}
-        log     App Index: ${index}
-        ${match}    ${value}     Run Keyword And Ignore Error  Should Contain     ${app_name}    ${application_name}
-        IF      '${match}' == 'PASS'
-            log     Match does contain: '${match}'
+        log  \nApp Name: ${app_name}
+        log  App Index: ${index}
+        ${match}  ${value}  Run Keyword And Ignore Error  Should Contain  ${app_name}  ${application_name}
+        IF  '${match}' == 'PASS'
+            log  Match does contain: '${match}'
             Return From Keyword  ${index}
         ELSE
-            log     This element is not a match for '${application_name}'
+            log  This element is not a match for '${application_name}'
             ${index} =  Set Variable  ${index + 1}
         END
-
     END
     Return From Keyword  ${-1}
 

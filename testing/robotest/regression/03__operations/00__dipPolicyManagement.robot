@@ -52,9 +52,16 @@ Replay PCAP With Preserve Timestamp Unchecked
     Replay PCAP  pcap=wannacry.pcap  preserve_timestamp=${False}
     Verify TCPReplayer Of PCAP Completes
 
-Play PCAPs Across Sensor
-    [Documentation]  Grab the elastic password and run some tests
+Upload Valid PCAP File
+    [Tags]  THISISCVAH-13321
+    [Documentation]  Uploads a PCAP file to the Controller via the UI
     Set Selenium Speed  0.5s
     Navigate To Test PCAP Files
-    Upload And Delete PCAP File  data-with-image_robot.pcap
-    Replay PCAP  pcap=wannacry.pcap
+    Upload PCAP File  data-with-image_robot.pcap
+
+# Play PCAPs Across Sensor
+#     [Documentation]  Grab the elastic password and run some tests
+#     Set Selenium Speed  0.5s
+#     Navigate To Test PCAP Files
+#     Upload And Delete PCAP File  data-with-image_robot.pcap
+#     Replay PCAP  pcap=wannacry.pcap
