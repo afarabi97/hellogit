@@ -19,9 +19,10 @@ from app.service.socket_service import (NotificationCode, NotificationMessage,
                                         notify_disk_pressure)
 from app.utils.collections import mongo_kit_tokens, mongo_metrics
 from app.utils.connection_mngs import KubernetesWrapper, objectify
-from app.utils.constants import NODE_TYPES
+from app.utils.constants import INVALID_KEY_VALUE_OPEN_SSH, NODE_TYPES
 from app.utils.elastic import ElasticWrapper
 from app.utils.logging import logger
+from app.utils.utils import invalid_string_checker
 from bson import ObjectId
 from kubernetes.client.models.v1_event_list import V1EventList
 from kubernetes.client.models.v1_node import V1Node
@@ -549,8 +550,8 @@ def get_sensors() -> list:
 def get_pod_describe(pod_name: str, namespace: str) -> NodeOrPodStatusModel:
     command = "kubectl describe pod " + pod_name + " -n " + namespace
     stdout = run_command(command)
-    return {"stdout": stdout, "stderr": ""}
-
+    response = invalid_string_checker(stdout, INVALID_KEY_VALUE_OPEN_SSH)
+    return response
 
 def get_pod_logs(pod_name: str, namespace: str) -> PodLogsModel:
     logs = []
@@ -586,7 +587,8 @@ def get_pod_logs(pod_name: str, namespace: str) -> PodLogsModel:
 def get_describe_node(node_name: str) -> NodeOrPodStatusModel:
     command = "kubectl describe node " + node_name
     stdout = run_command(command)
-    return {"stdout": stdout, "stderr": ""}
+    response = invalid_string_checker(stdout, INVALID_KEY_VALUE_OPEN_SSH)
+    return response
 
 
 def get_nodes_statuses() -> List[KubernetesNodeMetricsModel]:

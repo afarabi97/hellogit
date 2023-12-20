@@ -225,3 +225,5 @@ ColdLogModules._initalize()
 
 TFPLENUM_SNAPSHOT_REPO_NAME = "tfplenum"
 KUBE_CONFIG_LOCATION = "/root/.kube/config"
+# Invalid key values for string checker
+INVALID_KEY_VALUE_OPEN_SSH = "OpenSSH"

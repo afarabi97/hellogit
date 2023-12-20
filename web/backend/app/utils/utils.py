@@ -22,6 +22,12 @@ from flask.ctx import AppContext
 from .constants import DATE_FORMAT_STR, GENERAL_SETTINGS_ID
 
 
+def invalid_string_checker(stdout: str, key_value: str) -> dict:
+    if key_value in stdout:
+        return { "stdout": None, "stderr": "Invalid key value discovered" }
+
+    return { "stdout": stdout, "stderr": "" }
+
 def get_domain() -> str:
     mongo_document = mongo_settings().find_one({"_id": GENERAL_SETTINGS_ID})
     if mongo_document and "domain" in mongo_document:
