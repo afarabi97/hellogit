@@ -128,7 +128,6 @@ CPT:
 
 - app: Documentation
   src:
-    - Repo/Shared/Documentation/VMs/DeepCyberia/20230926
     - Repo/CPT/Documentation/AppStore/AVML/master
     - Repo/CPT/Documentation/AppStore/Cast/20231011
     - Repo/CPT/Documentation/AppStore/Cobalt Strike/4.6
@@ -152,10 +151,12 @@ CPT:
     - Repo/Shared/Documentation/AppStore/Grassmarlin/master
     - Repo/Shared/Documentation/AppStore/Metasponse/1.6.4.0
     - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
+    - Repo/Shared/Documentation/AppStore/SHIFT5/20231020
     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     - Repo/Shared/Documentation/AppStore/sysinternals suite/master
-    - Repo/Shared/Documentation/AppStore/SHIFT5/20231020
     - Repo/Shared/Documentation/VMs/ACAS/22.06-1
+    - Repo/Shared/Documentation/VMs/DeepCyberia/20230926
+    - Repo/Shared/Documentation/VMs/PFsense/2.5.2
     - Repo/Shared/Documentation/VMs/Security Onion 2/2.4.20
     - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
   dest: "CPT/Data/CVAH {{ VERSION }}/Documentation/AppStore"
@@ -243,7 +244,6 @@ MDT:
 
 - app: Documentation
   src:
-    - Repo/Shared/Documentation/VMs/DeepCyberia/20230926
     - Repo/MDT/Documentation/AppStore/p7zip/16.02
     - Repo/MDT/Documentation/AppStore/Powershell Remote Registry (PSRR)/3.0.0
     - Repo/MDT/Documentation/AppStore/SCAP Compliance Checker/4.2
@@ -251,12 +251,14 @@ MDT:
     - Repo/Shared/Documentation/AppStore/Grassmarlin/master
     - Repo/Shared/Documentation/AppStore/Metasponse/1.6.4.0
     - Repo/Shared/Documentation/AppStore/PowerShell_Modules/3.7
+    - Repo/Shared/Documentation/AppStore/SHIFT5/20231020
     - Repo/Shared/Documentation/AppStore/StigViewer/2.x
     - Repo/Shared/Documentation/AppStore/sysinternals suite/master
-    - Repo/Shared/Documentation/AppStore/SHIFT5/20231020
+    - Repo/Shared/Documentation/VMs/ACAS/22.06-1
+    - Repo/Shared/Documentation/VMs/DeepCyberia/20230926
+    - Repo/Shared/Documentation/VMs/PFsense/2.5.2
     - Repo/Shared/Documentation/VMs/Security Onion 2/2.4.20
     - Repo/Shared/Documentation/VMs/Windows Server 2019 AFCEDS/1809
-    - Repo/Shared/Documentation/VMs/ACAS/22.06-1
   dest: "MDT/Data/CVAH {{ VERSION }}/Documentation/AppStore"
 
 - app: firmware
