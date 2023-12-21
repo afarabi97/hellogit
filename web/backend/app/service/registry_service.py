@@ -42,5 +42,6 @@ def _get_imageid_and_size(repo: str, tag: str) -> Tuple[str, float]:
                 # Covert it back to MB
             total = total / 1000 / 1000
             return image_id, round(total, 2)
-        return ("", 0.0)
-    return (_get_imageid_and_size)
+        return ("Not in image manifest", 0.0)
+    else:
+        return ("Not in image manifest", 0.0)
