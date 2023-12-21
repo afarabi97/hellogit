@@ -1,4 +1,3 @@
-from app.common import NO_CONTENT, OK_RESPONSE
 from app.middleware import handle_errors, login_required_roles
 from app.models.common import COMMON_ERROR_MESSAGE
 from app.models.elasticsearch import ElasticSearchRejectModel
@@ -111,8 +110,8 @@ class PodsStatusRemoteApi(Resource):
 class RemoteAgentApi(Resource):
 
     @HEALTH_NS.doc(description="Post remote agent.")
-    @HEALTH_NS.response(200, "OK_RESPONSE", OK_RESPONSE)
-    @HEALTH_NS.response(204, "NO_CONTENT", NO_CONTENT)
+    @HEALTH_NS.response(200, "OK_RESPONSE")
+    @HEALTH_NS.response(204, "NO_CONTENT")
     @HEALTH_NS.response(500, "ErrorMessage", COMMON_ERROR_MESSAGE)
     @login_required_roles(["metrics"], all_roles_req=False)
     @handle_errors

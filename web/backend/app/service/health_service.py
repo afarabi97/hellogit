@@ -624,7 +624,7 @@ def get_pods_status_remote(token_id: str) -> List[KubernetesNodeMetricsModel]:
         return []
 
 
-def post_remote_agent(payload) -> Response:
+def post_remote_agent(payload) -> any:
     if(payload != None and len(payload)>0):
         json_payload = json.loads(payload)
         json_payload["timestamp"] = time.time()

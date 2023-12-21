@@ -1,8 +1,9 @@
 from app.models import Model
-from app.utils.namespaces import HEALTH_NS, APP_NS
+from app.utils.namespaces import APP_NS, HEALTH_NS
 from flask_restx import fields
 from marshmallow import Schema
 from marshmallow import fields as marsh_fields
+
 
 class ValueMemorySchema(Schema):
     total: marsh_fields.Integer(required=True)
