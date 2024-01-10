@@ -1,0 +1,42 @@
+<h1>Changelog for 3.7.5.0</h1>
+<p>Release Date: 2023-12-21</p>
+<p>Release Hash: 171f12bf3f777e8099cc51f6e3c15939bca7919c</p>
+<h2>Added</h2>
+<details>
+    <summary>Add the s3-to-s3 nifi flow
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-13118">#13118</a>
+        <a href="mailto:tc.tc@sil.lab">@tc.tc</a>
+    </summary>
+
+    - Added nifi helm update
+    - Added new helm version, versions.yml
+    -  helm_versions: nifi: 1.0.7 -> 1.0.8
+    -  updated nifi helm version for template/configmap
+    -   local env parameterized admin creds
+    -   local env parameterized truststore_passwd
+    -   local keytool-import script
+    -   local s3-to-s3 template in the autoload directory
+    -  added nifi helm/files/s3-to-s3.xml
+    -   local flow template
+</details>
+
+<h2>Fixed</h2>
+<details>
+    <summary>Updating code for ia security flaws in yaml.load
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-15071">#15071</a>
+        <a href="mailto:clintchenault@hotmail.com">@clint.chenault</a>
+    </summary>
+
+    - Replaced instance of yaml.load w/ yaml.safe_load
+    - Replaced instance of yaml.load_all w/ yaml.safe_load_all
+</details>
+
+<details>
+    <summary>Fix issue with docker registry list when container has oci compliant manifest
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-15225">#15225</a>
+        <a href="mailto:sworthey@technicacorp.com">@suede.worthey</a>
+    </summary>
+
+    - Fix issue with docker registry list when container has
+    -    OCI compliant manifest (nifi)
+</details>

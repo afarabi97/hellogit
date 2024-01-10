@@ -16,6 +16,7 @@ This section attempts to highlight the most relevant folders and files relevant 
 - <strong>bootstrap</strong> - Contains all the playbooks needed for setting up the development controller or the production controller.
 - <strong>component-builder</strong> - Build system for building all the Helm charts, Docker containers and RPMs.
   - <strong>components</strong> - This subfolder contains all the files needed to build each subcomponent of the system.  This includes rocketchat, suricata, zeek, wikijs, and much much more.
+  - <strong>pipeline-images</strong> - This subfolder contains images that are used within the CI/CD pipeline.
   - <strong>build.py</strong> - Gitlab pipeline will use this script to build each component of the system whether it be a Dockerfile, Helm chart, or RPM.  This script may also be run manually.
   - <strong>cleanup-nexus.sh</strong> - Shell script for deleting old releases out of tfplenum-dev on the SIL's Nexus server.
   - <strong>update_charts.py</strong> - Updates the charts on a development controller. (<strong>NOTE:</strong>) This script is not included on a production controller.

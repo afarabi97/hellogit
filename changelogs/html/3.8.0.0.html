@@ -1,0 +1,171 @@
+<h1>Changelog for 3.8.0.0</h1>
+<p>Release Date: 2024-01-10</p>
+<p>Release Hash: a4ae7898324396d7d3393e8a40278524fdba4863</p>
+<h2>Added</h2>
+<details>
+    <summary>Dell 6515 software raid change
+        <a href="https://jira.levelup.cce.af.mil/browse/AFDCO-13943">#13943</a>
+        <a href="mailto:project1_bot@example.com">@tfplenum-bot</a>
+    </summary>
+
+    - Added logic auto RAIDS NVME drives to a software RAID.
+    - Added logic that auto RAID SSDs to a software RAID.
+    - Added logic that auto raides sda and sdb drives to OS and Data respectivley.
+    - Removed unneeded fields from Add Node dialog box
+    - Added RAID0 override
+    - Added switch configuration for S5212F-ON.
+    - Added size check on sda and sdb drives so if sdb is
+    - smaller it ends up as OS drive instead of data drive.
+    - Fixed bug in UI so the dialog renders when no device
+    - facts are present on a given node.
+    - Fixed kubectl add node bug with remote sensor.
+    - Added new kickstart logic to support Dell PowerEdge XR4510c
+    - Added hardware check logic for unexpected configurations.
+    - Added aux switch for dell 5212
+</details>
+
+<details>
+    <summary>Update sffv2 v3.8 script generator
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14166">#14166</a>
+        <a href="mailto:maurice.nash@sil.lab">@mo.nash</a>
+    </summary>
+
+    - Create SSFv2 base and auxiliary switch templates
+    - Cleanup previous templates leftover from SFFv1
+    - Update DIP config generator for SSFv2 based on new templates
+    - Completes user stories THISISCVAH-14166, THISISCVAH-14280 and THISISCVAH-14290
+</details>
+
+<h2>Fixed</h2>
+<details>
+    <summary>Node ip range issue
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14482">#14482</a>
+        <a href="mailto:brandon.philpot@sil.lab">@brandon.philpot</a>
+    </summary>
+
+    - add node rest from controls
+    - 2 controls were ip_address and mac_address
+    - add service call to get used ip's
+    - remove control-plane from showing up in main node section
+    - swapped .concat method for tripple dot
+</details>
+
+<details>
+    <summary>Fix front-end unit tests
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-13986">#13986</a>
+        <a href="mailto:brandon.philpot@sil.lab">@brandon.philpot</a>
+    </summary>
+
+    - Fix Front-end Unit Tests
+</details>
+
+<details>
+    <summary>Move api docs robot test into its own job within the operations robot stage
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14896">#14896</a>
+        <a href="mailto:joseph.ruiz@amstechnologiescorp.com">@joseph.ruiz</a>
+    </summary>
+
+    - Create API docs page Robot test suite to be executed within operations stage
+    - Set var in GitLab file to allow failure of test to prevent pipeline failure
+    - Update the success message the Robot test is looking for when deleting a PCAP
+</details>
+
+<details>
+    <summary>Adjusted robot test for handling error during mip install
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14312">#14312</a>
+        <a href="mailto:joseph.ruiz@amstechnologiescorp.com">@joseph.ruiz</a>
+    </summary>
+
+    - Added steps to refresh console if there is an error while provisioning MIP
+</details>
+
+<details>
+    <summary>Kit settings and mip settings issues
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-13978">#13978</a>
+        <a href="mailto:brandon.philpot@sil.lab">@brandon.philpot</a>
+    </summary>
+
+    - added null check before trying to create class from api response
+    - updated code to display error message
+</details>
+
+<details>
+    <summary>Fix typo front-end
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14540">#14540</a>
+        <a href="mailto:brandon.philpot@sil.lab">@brandon.philpot</a>
+    </summary>
+
+    - typo in unbit tests fixed
+</details>
+
+<details>
+    <summary>Health controller api docs issue
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-15227">#15227</a>
+        <a href="mailto:brandon.philpot@sil.lab">@brandon.philpot</a>
+    </summary>
+
+    - need to fix health controller NO_CONTENT and OK_RESPONSE
+    - since they arew not a model they need a marshal_with to go with response
+</details>
+
+<details>
+    <summary>Mip validation error
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14374">#14374</a>
+        <a href="mailto:brandon.philpot@sil.lab">@brandon.philpot</a>
+    </summary>
+
+    - signs needed to be flipped and && replaced with ||
+</details>
+
+<details>
+    <summary>Duplicate macs issue
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14781">#14781</a>
+        <a href="mailto:brandon.philpot@sil.lab">@brandon.philpot</a>
+    </summary>
+
+    - added the filter if init was provided node from duplicate node
+</details>
+
+<details>
+    <summary>Fix front-end unit test
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14173">#14173</a>
+        <a href="mailto:brandon.philpot@sil.lab">@brandon.philpot</a>
+    </summary>
+
+    - Fix a unit test that was passed null
+</details>
+
+<details>
+    <summary>Fixed endgame path in manifest
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-15038">#15038</a>
+        <a href="mailto:sworthey@technicacorp.com">@suede.worthey</a>
+    </summary>
+
+    - Fixed endgame path in manifest
+</details>
+
+<details>
+    <summary>Add 3.9.0.0
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-13951">#13951</a>
+        <a href="mailto:sworthey@technicacorp.com">@suede.worthey</a>
+    </summary>
+
+    - created branch for 3.9
+    - updated .bot.yml for 3.9, removed 3.7.2
+</details>
+
+<h2>Changed</h2>
+<details>
+    <summary>Update "nifi" (1.21.0 -> 1.23.2)
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14663">#14663</a>
+        <a href="mailto:tc.tc@sil.lab">@tc.tc</a>
+    </summary>
+
+    - NiFi 1.21.0 -> 1.23.2
+    - CVE-2023-40037
+    - Upgrading to Apache NiFi 1.23.1 is the recommended mitigation
+    - https://www.cve.org/CVERecord?id=CVE-2023-40037
+    - a
+    - update configmap.
+    - add nifi.sensitive.props.key to prevent crashloop issue
+</details>

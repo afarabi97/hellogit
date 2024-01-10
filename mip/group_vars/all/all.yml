@@ -10,6 +10,8 @@ web_server: "http://{{ server_ip }}/MIP"
 kernel_version: 4.18.0-425.10.1.el8_7.x86_64
 uefi_grub_path: "/boot/efi/EFI/redhat/"
 tfplenum_root_dir: /opt/tfplenum
+skel_desktop_dir: "/etc/skel/Desktop"
+tfplenum_changelog_directory: "{{ tfplenum_root_dir }}/changelogs" # /opt/tfplenum/changelogs
 mip_scripts_dir: "{{ tfplenum_root_dir }}/scripts/MIP"
 mip_version: "{{ lookup('ini', 'version section=tfplenum file=/etc/tfplenum/tfplenum.ini') }}"
 

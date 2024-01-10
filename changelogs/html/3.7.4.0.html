@@ -1,0 +1,195 @@
+<h1>Changelog for 3.7.4.0</h1>
+<p>Release Date: 2024-01-08</p>
+<p>Release Hash: 90aab3e95656ce23e7ed9b66e3833a133ee10c00</p>
+<h2>Added</h2>
+<details>
+    <summary>Add deepcyberia vm to appstore
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14766">#14766</a>
+        <a href="mailto:william.martin@sil.lab">@boomer</a>
+    </summary>
+
+    - Add DeepCyberia VM to appstore for MDT and CPT
+</details>
+
+<h2>Fixed</h2>
+<details>
+    <summary>Update security onion version in appstore
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14784">#14784</a>
+        <a href="mailto:cburkhard@technicacorp.com">@carl.burkhard</a>
+    </summary>
+
+    - The following files were changed for this ticket:
+    - -
+    - manifest.yaml.sh - Changed the version for SECURITY ONION from
+    -    2.3.260 to 2.4.20 (Update Security Onion ISO).
+    -    Added Shift5, new version of 20231020 to both CTPT & MDT
+    - -
+</details>
+
+<details>
+    <summary>Win server 2019 monthly update
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-15114">#15114</a>
+        <a href="mailto:carl.burkhard@indrasoft.com">@carl.burkhard</a>
+    </summary>
+
+    - The WIN 2019 server REP directory will now have the
+    - version of the WIN 2019 server and the date created
+    - in the directory name.  That is, for this particulatr
+    - version it will be 2019-1809-20231030 (2019-1809 is the
+    - version and 20231030 is the date it was updated.
+</details>
+
+<details>
+    <summary>Update cast version in appstore
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14526">#14526</a>
+        <a href="mailto:cburkhard@technicacorp.com">@carl.burkhard</a>
+    </summary>
+
+    - The following files were changed for CVE/STIG corrections:
+    - -
+    - manifest.yaml.sh - Changed location for the CAST AppStore
+    -    Application and Documnetation to be in the new directory
+    -    of 20231011 (in both the AssStore and Documentation
+    -    directory Trees).  The new version is 20231011.
+</details>
+
+<details>
+    <summary>Update arkime memory limit for 3.7.4
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-15044">#15044</a>
+        <a href="mailto:sworthey@technicacorp.com">@suede.worthey</a>
+    </summary>
+
+    - Update release versions for 3.7.4 release
+    - Updated Arkime memory limit to 64GB. Updated MIP vscode version to latest 12/7/2023.
+    - Changed defaults for Arkime Memory Limit in UI
+    - Fixed issue with update_charts.py not deleting charts
+</details>
+
+<details>
+    <summary>Fix pfsense firewall rules
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14772">#14772</a>
+        <a href="mailto:brian.ermovick@alionscience.com">@brian.ermovick</a>
+    </summary>
+
+    - Removed Rate Limiter rule that permitted all
+    - Added Rate Limiter settings to all TCP rules
+</details>
+
+<details>
+    <summary>Fix cves/stigs for mip (3.7.x)
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-13871">#13871</a>
+        <a href="mailto:cburkhard@technicacorp.com">@carl.burkhard</a>
+    </summary>
+
+    - Also THISISCVAH-13874: Fix CVEs/STIGs for DIP (3.7.x)
+    - -
+    - The following files were changed for CVE/STIG corrections:
+    - -
+    - bootstrap.sh - Remove the "Add STIGS to Controller" step as the
+    -    STIGS are added to the controller from a previous step.
+    - -
+    - core/playbooks/roles/controller/isos/templates/ks.cfg - Added a
+    -    second user, "assessor", to the PXE install script such that
+    -    the user assessor is now part of the created servers that the
+    -    controller creates for the DIP.  This is needed as the ROOT
+    -    user can now be LOCKED and require being unlocked by another
+    -    available user per STIG.
+    - -
+    - core/playbooks/roles/controller/profiles/templates/ks.cfg.j2 -
+    -    Added a second user, "assessor", to the PXE install script
+    -    such that the user assessor is now part of the created
+    -    servers that the controller creates for the DIP.  This is
+    -    needed as the ROOT user can now be LOCKED and require being
+    -    unlocked by another available user per STIG.
+    - -
+    - gitlab/DIP/dip.export.gitlab-ci.yml - Corrected the message that
+    -   is displayed in the PIPELINE to only speclfy "Export Controller"
+    -   on the PIPELINE job box.
+    - -
+    - gitlab/Drive/repo.gitlab-ci.yml - changed the PYTHON commands to
+    -   actuallt display the commands before the commands are executed.
+    - -
+    - rhel8-stigs/rhel8-playbook-stig.yml - Re-engineered to handle over
+    -   130 additional STIGs per the IA and OSCAP scans for the DIP
+    -   servers and the MIP.
+    - -
+    - testing/pipeline/jobs/export.py - Added code to properly change the
+    -   ASSESSOR password and add several other settings prior to the
+    -   CONTROLLER and REPO-SYNC servers are exported.
+    - -
+    - rhel8-stigs/templates/logon-banner.j2 - Corrected banner to reflect
+    -   the iniformation that STIGs require.
+    - -
+    - rhel8-stigs/Makefile - Cleaned up this makefile as it looked to be
+    -   not in good shape for release.
+    - -
+    - mip/roles/042_mip_classification_banner/tasks/main_play.yml -
+    -   Changed the permissions for the "banner.sh" file to be "0755"
+    -   instead of "0770".  STIG processing change permissions and
+    -   owner/group to "0750" and root/root.
+    - -
+    - web/backend/app/controller/tools_controller.py - added in password
+    -   change capabilities for "assessor" as this user ID is now part of
+    -   the entire DIP kit.
+    - -
+    - URL: https://jira.levelup.cce.af.mil/browse/THISISCVAH-13874
+</details>
+
+<details>
+    <summary>Additional directory/software on hard drive
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14806">#14806</a>
+        <a href="mailto:cburkhard@technicacorp.com">@carl.burkhard</a>
+    </summary>
+
+    - The following files were changed for the DELL R440 FIRMWARE/BIOS
+    - files.
+    - -
+    - manifest.yaml - Corrected the COMMON NODE FIRMWARE/BIOS to be
+    -      version 2.11.2 as it is the same as the DELL R440
+    -      FIRMWARE/BIOS.
+    - -
+</details>
+
+<details>
+    <summary>Win server 2019 monthly update
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14672">#14672</a>
+        <a href="mailto:cburkhard@technicacorp.com">@carl.burkhard</a>
+    </summary>
+
+    - The following files were changed for the WINDOWS 2019
+    - monthly update
+    - -
+    - manifest.yaml - Updated to reflect that the WINDOWS 2019
+    -      vm has been updated with CVEs/STIGs as well as the
+    -      Microsoft Windows Update applied to the VM.
+    - -
+</details>
+
+<details>
+    <summary>Fix preserve timestamp error in arkime viewer
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14532">#14532</a>
+        <a href="mailto:brandon.clarke@sil.lab">@brandon.clarke</a>
+    </summary>
+
+    - Fix missing session detail in arkime-viewer when preserving timestamp
+    - Fix hive settings notification message
+    - Fix BackgroundJob result_ttl validation mismatch
+    - Add first and last packet columns to Test PCAP page
+    - Add persistance module to abstract repository access
+    - Add notifications for Historcial and Live PCAP replays
+    - Add PCAPRepo to speed up directory traversal and validation
+    - Refactor ConfiguredIfaces GET call in catalog controller
+    - Update python requirements.txt
+</details>
+
+<h2>Changed</h2>
+<details>
+    <summary>Update win10 vms
+        <a href="https://jira.levelup.cce.af.mil/browse/THISISCVAH-14670">#14670</a>
+        <a href="mailto:jclark@technicacorp.com">@jason.clark</a>
+    </summary>
+
+    - Windows updates accomplished on CPT and MDT Win10 VMs
+    - Antivirus updates accomplished on CPT and MDT Win10 VMs
+    - STIGs and CVEs addressed on CPT and MDT Win10 VMs
+</details>

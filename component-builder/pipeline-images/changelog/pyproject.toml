@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "changelog"
+version = "1.0.0"
+description = "The changelog generation tool for CVA/H. For internal use only."
+authors = ["Brandon Clarke <brandon.clarke@amstechnologies.corp>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+click = "^8.1.7"
+snakemd = "^2.2.0"
+gitpython = "^3.1.40"
+python-dotenv = "^1.0.0"
+rich = "^13.7.0"
+markdown = "^3.5.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.4"
+pytest-cov = "^4.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+changelog = "changelog.cli:cli"

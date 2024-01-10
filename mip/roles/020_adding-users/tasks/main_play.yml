@@ -12,6 +12,14 @@
     group: root
     mode: '1755'
 
+- name: Copy changelogs directory to /etc/skel/Desktop
+  ansible.builtin.copy:
+    src: "{{ tfplenum_changelog_directory }}"
+    dest: "{{ skel_desktop_dir }}"
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Generate Password
   command: "openssl passwd -1 {{ user_password }}"
   register: encrypted_user_password

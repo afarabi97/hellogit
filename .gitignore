@@ -104,3 +104,9 @@ tmp.Dockerfile
 .prettierrc
 .ruff.toml
 .sourcery.yaml
+.adr-templates
+component-builder/pipeline-images/changelog/src/changelog/main.py
+.tmp/changelog_build_output/preview_changelog/index.md
+.tmp/changelog_build_output/preview_changelog/UNRELEASED.md
+.bandit
+.coverage
