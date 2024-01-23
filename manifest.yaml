@@ -58,7 +58,6 @@ CPT:
     - Repo/CPT/AppStore/log2timeline/20230311
     - Repo/CPT/AppStore/Memoryze/3.0
     - Repo/CPT/AppStore/MSSQLScan/0.8.4
-    - Repo/CPT/AppStore/Netflow Realtime/10.8.0.5
     - Repo/CPT/AppStore/Netmon to Libpcap/2.1
     - Repo/CPT/AppStore/Nfsshell/09cdd52
     - Repo/CPT/AppStore/Nipper Studio/2.13.3
@@ -82,7 +81,6 @@ CPT:
     - Repo/CPT/AppStore/SQLplus/11.1.0.7
     - Repo/CPT/AppStore/TFTP Server/5.2-27.fc30
     - Repo/CPT/AppStore/Windows 10 Enterprise (x64)_v1809/1809
-    - Repo/CPT/AppStore/Windows Server 2012 R2 Standard x64_v6.3(Build9600)/6.3
     - Repo/Shared/AppStore/Citrix/2305
     - Repo/Shared/AppStore/Elastic Stack/7.16.2
     - Repo/Shared/AppStore/Grassmarlin/3.3
@@ -107,16 +105,14 @@ CPT:
     - Repo/Shared/VMs/ACAS/22.06-1
     - Repo/Shared/VMs/Pfsense/2.5.2
     - Repo/Shared/VMs/Security Onion 2/2.4.20
-    - Repo/Shared/VMs/Security Onion (original)/4.3-8
-    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-20231030
+    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-20240110
     - Repo/CPT/VMs/ControlThings (prev SamuraiSTFU)/ControlThingsPlatform-v1bD
     - Repo/CPT/VMs/Cuckoo Sandbox/2.0.7
     - Repo/CPT/VMs/Endgame/3.29.2-6
     - Repo/CPT/VMs/Kali Linux VM/2023.2
     - Repo/CPT/VMs/Mockingbird/1.2.0
     - Repo/CPT/VMs/REMnuX/2022.28.1
-    - Repo/CPT/VMs/SamuraiSTFU/1.9
-    - Repo/CPT/VMs/Windows 10 VM/22H2-20231116
+    - Repo/CPT/VMs/Windows 10 VM/22H2-20240117
   dest: "CPT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
 - app: Documentation
@@ -200,7 +196,6 @@ MDT:
 
 - app: AppStore
   src:
-    - Repo/MDT/AppStore/dagger/4.1.6
     - Repo/MDT/AppStore/nmap/7.94
     - Repo/MDT/AppStore/nmapWithZenmap/7.80
     - Repo/MDT/AppStore/p7zip/16.02
@@ -231,8 +226,8 @@ MDT:
     - Repo/Shared/VMs/Pfsense/2.5.2
     - Repo/Shared/VMs/Security Onion 2/2.4.20
     - Repo/Shared/VMs/Security Onion (original)/4.3-8
-    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-20231030
-    - Repo/MDT/VMs/Windows 10 VM/22H2-20231116
+    - Repo/Shared/VMs/Windows Server 2019 AFCEDS/2019-1809-20240110
+    - Repo/MDT/VMs/Windows 10 VM/22H2-20240117
   dest: "MDT/Data/CVAH {{ VERSION }}/Software/AppStore"
 
 - app: Documentation
