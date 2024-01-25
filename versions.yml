@@ -119,7 +119,7 @@ helm_versions:
   rocketchat: 1.1.20
   suricata: 1.0.4
   wikijs: 1.0.4
-  zeek: 1.1.7
+  zeek: 1.1.10
 
 other:
   rpm_common_requirements: "docker-ce, docker-distribution, tfplenum"

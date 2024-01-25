@@ -45,7 +45,7 @@ spec:
             command:
             - "/bin/bash"
             - "-c"
-            - "STATUS=$(/opt/zeek/bin/zeekctl status | grep running | wc -l); if [[ $STATUS != {{ add 3 (.Values.zeek_workers | int) }} ]]; then exit 1; fi"
+            - "STATUS=$(/opt/zeek/bin/zeekctl status | grep running | wc -l); if [[ $STATUS != {{ add 3 (mul (.Values.zeek_workers | int) (len .Values.interfaces)) }} ]]; then exit 1; fi"
           initialDelaySeconds: 20
           periodSeconds: 5
           failureThreshold: 3
@@ -54,7 +54,7 @@ spec:
             command:
             - "/bin/bash"
             - "-c"
-            - "STATUS=$(/opt/zeek/bin/zeekctl status | grep running | wc -l); if [[ $STATUS != {{ add 3 (.Values.zeek_workers | int) }} ]]; then exit 1; fi"
+            - "STATUS=$(/opt/zeek/bin/zeekctl status | grep running | wc -l); if [[ $STATUS != {{ add 3 (mul (.Values.zeek_workers | int) (len .Values.interfaces)) }} ]]; then exit 1; fi"
           initialDelaySeconds: 30
           periodSeconds: 30
           failureThreshold: 5
