@@ -7,7 +7,10 @@ ${tmplLocNodeDeployProgressBar}                     xpath=//tr[td[a[contains(tex
 ${tmplLocNodeDeployError}                           xpath=//tr[td[a[contains(text(),'~')]]]/td/cvah-node-state-progress-bar/a[3]/mat-icon[text()="cancel"]
 
 # Templated variable for delete node button
-${tmplDeleteNodeBtn}                                xpath=//tr[td[a[contains(text(),'~')]]]//button[@mattooltip='Delete Node']
+${tmplLocDeleteNodeBtn}                                xpath=//tr[td[a[contains(text(),'~')]]]//button[@mattooltip='Delete Node']
+
+# Templated variable for refresh device facts button
+${tmplLocRefreshDeviceFactsBtn}                     xpath=//tr/td[a[text()="~"]]/following-sibling::td//button//em[text()="refresh"]
 
 # Element Locators
 # Control Plane

@@ -135,7 +135,7 @@ Delete Node
     [Documentation]  Deletes node with hostname passed in as ${hostname}.
     log  Delete node with hostname: ${hostname}
     ${node_name} =  lower  ${hostname}
-    ${delete_button} =  inject  ${tmplDeleteNodeBtn}  ${node_name}
+    ${delete_button} =  inject  ${tmplLocDeleteNodeBtn}  ${node_name}
     ${count} =  Get Element Count  ${delete_button}
     IF  ${count} > 0
         click  ${delete_button}
@@ -183,4 +183,17 @@ Check Node Info Content
         Element Should Contain  xpath=//cvah-node-info-dialog//div[1]/mat-list/mat-list-item[6]//h4  sda Drive: ${node_info}[${hostname}][5] GB
         Element Should Contain  xpath=//cvah-node-info-dialog//div[1]/mat-list/mat-list-item[7]//h4  sdb Drive: ${node_info}[${hostname}][6] GB
         Press Keys  None  ESCAPE
+    END
+
+Refresh Device Facts For Each Node
+    [Arguments]  &{node_info}
+    [Documentation]  Refreshes the device facts for each node on the kit, except for the Control-Plane and
+    ...              the MIP, and then verifies refresh was completed by checking the notifications.
+    FOR  ${hostname}  IN  @{node_info.keys()}
+        IF  '${node_info}[${hostname}][1]' != 'Control-Plane' and '${node_info}[${hostname}][1]' != 'MIP'
+            click  ${tmplLocRefreshDeviceFactsBtn}  injector=${hostname}
+            Sleep  1s
+            lookFor  Device facts job started for ${hostname}${SPACE}${SPACE}Check Notifications for results.
+            Check Notifications Panel  ${hostname} device facts updated.  timeout=1m
+        END
     END

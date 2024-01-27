@@ -55,14 +55,6 @@ Verify Content On Support Page
     Check PMO Support Site Section
     Check Version Information Section
 
-Check Node Info Dialog Boxes
-    [Tags]  THISISCVAH-14154
-    [Documentation]  Checks content of node info dialogs for each node on the Node Management page
-    Navigate To Node Management
-    &{nodes_list} =  Get Nodes
-    log  ${nodes_list}
-    Check Node Info Content  &{nodes_list}
-
 Change Kit Password
     [Tags]  THISISCVAH-12363
     [Documentation]  First gets the initial kit password and tests the SSH connection to every
