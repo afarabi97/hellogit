@@ -93,6 +93,9 @@ extra_packages:
   - sshpass-1.06-9.el8
   - tcpreplay-4.4.0-1.el8
   - xmltooling-schemas-3.2.0-1.1
+  - openssh-8.0p1-19.el8_8
+  - openssh-clients-8.0p1-19.el8_8
+  - openssh-server-8.0p1-19.el8_8
 
 setup_package_list:
   - "kubectl-{{ docker_versions.k8s_version }}"
