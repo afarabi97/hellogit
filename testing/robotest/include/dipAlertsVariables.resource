@@ -9,4 +9,4 @@ ${locAlertsRefreshBtn}          xpath=//app-top-navbar[@id='app-root-app-top-nav
 
 ${locTableRows}                 xpath=//html[1]/body[1]/app-root[1]/app-top-navbar[1]/mat-drawer-container[1]/mat-drawer-content[1]/div[1]/cvah-security-alerts[1]/div[1]/mat-card[1]/mat-card-content[1]/table[1]/tbody[1]/tr
 ${locTableHeaders}              xpath=//html[1]/body[1]/app-root[1]/app-top-navbar[1]/mat-drawer-container[1]/mat-drawer-content[1]/div[1]/cvah-security-alerts[1]/div[1]/mat-card[1]/mat-card-content[1]/table[1]/thead[1]/tr[1]/th
-
+${HIVE_IP}

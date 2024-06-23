@@ -32,7 +32,7 @@ handleSeleniumFailure
     SeleniumLibrary.Log Location
     SeleniumLibrary.Log Source  loglevel=DEBUG
     Log variables  level=DEBUG
-    loggy_obj.failure
+   loggy_obj.failure
 
 Log Out Of Controller
     [Documentation]  Logs out of the Controller UI prior to closing the browser.

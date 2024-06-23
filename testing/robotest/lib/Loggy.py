@@ -1,4 +1,5 @@
 from robot.libraries.BuiltIn import BuiltIn
+from robot.libraries.BuiltIn import logger
 from robot.api import logger
 from pathlib import Path
 
